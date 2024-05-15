@@ -1,0 +1,28 @@
+#listview{
+	-fx-font-family:"Arial";
+	-fx-font-size:19px;
+}
+#cpumodule{
+	 -fx-background-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+	
+}
+#analog1f{
+	 -fx-background-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+	
+}
+#analog1r{
+	 -fx-background-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+	
+}
+#analog{
+	 -fx-background-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+	
+}

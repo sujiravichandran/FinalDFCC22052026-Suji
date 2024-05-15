@@ -1,0 +1,46 @@
+#add {
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,6,-2 );
+}
+#cancel {
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,6,-2 );
+}
+
+#BeladminDigitalsign{
+	-fx-border-color: #b9bcbd;
+	-fx-border-width: 1;
+}
+
+#BeladminEmpidtxt{
+	-fx-border-color: #b9bcbd;
+	-fx-border-width: 1;
+	-fx-background-color: #edfafc;
+}
+
+
+#adduser{
+
+	-fx-border-color: #b9bcbd;
+	-fx-border-width: 1;
+	-fx-background-color: #edfafc;
+}
+
+#Beladminusernametxt{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+
+#Beladminpasswordtxt{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+
+#Beladminconfirmpasswordtxt{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+
+
+#Beladminusertype{
+	-fx-border-color:#b9bcbd;
+    -fx-background-color: transparent;
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="Centerpane" prefHeight="402.0" prefWidth="1108.0" stylesheets="@../css/Group2.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.ManualController">
+   <children>
+      <Pane layoutX="10.0" layoutY="77.0" prefHeight="317.0" prefWidth="1073.0" style="-fx-background-color: #CAF982;">
+         <children>
+            <HBox alignment="CENTER" layoutX="3.0" layoutY="-42.0" prefHeight="35.0" prefWidth="992.0" spacing="70.0">
+               <children>
+                  <Label text="MODE">
+                     <font>
+                        <Font name="Arial Bold" size="18.0" />
+                     </font></Label>
+                  <ComboBox fx:id="Manualcombo1" prefHeight="25.0" prefWidth="202.0" promptText="FREQUENCY RESPONCE" stylesheets="@../css/Manual.css" />
+                  <ComboBox fx:id="Manualcombo2" prefHeight="25.0" prefWidth="163.0" promptText="SETUP A" stylesheets="@../css/Manual.css" />
+               </children>
+               <padding>
+                  <Insets top="-8.0" />
+               </padding>
+            </HBox>
+            <HBox layoutY="121.0" prefHeight="196.0" prefWidth="1077.0">
+               <children>
+                  <TreeTableView fx:id="tabel1" prefHeight="196.0" prefWidth="1073.0">
+                     <columns>
+                        <TreeTableColumn fx:id="test" prefWidth="215.77774810791016" text="TEST" />
+                        <TreeTableColumn fx:id="status" prefWidth="223.11111450195312" text="STATUS" />
+                        <TreeTableColumn fx:id="pcount" prefWidth="321.3333435058594" text="P_COUNT" />
+                        <TreeTableColumn fx:id="fcount" minWidth="0.0" prefWidth="310.6666463216145" text="F_COUNT" />
+                     </columns>
+                  </TreeTableView>
+               </children>
+            </HBox>
+         </children>
+      </Pane>
+   </children>
+</Pane>

@@ -1,0 +1,28 @@
+#test{
+	-fx-background-color: #66ffff;
+}
+#status{
+	-fx-background-color: #66ffff;
+}
+#pcount{
+	-fx-background-color: #66ffff;
+}
+#fcount{
+	-fx-background-color: #66ffff;
+}
+#add{
+	
+	-fx-border-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}
+#delete{
+	
+	-fx-border-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="adduser" prefHeight="488.0" prefWidth="400.0" stylesheets="@../css/Adduser.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AdduserController">
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="488.0" prefWidth="400.0" spacing="10.0">
+         <children>
+            <Label fx:id="Beladminheadinglbl">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Label>
+            <ComboBox fx:id="Beladminusertype" prefHeight="16.0" prefWidth="148.0" promptText="Select User Type" stylesheets="@../css/Adduser.css" />
+            <Label fx:id="Beladminempidlbl" prefHeight="20.0" prefWidth="224.0" text="Employee ID" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="BeladminEmpidtxt" prefHeight="28.0" prefWidth="200.0" promptText="Enter Employee ID" stylesheets="@../css/Adduser.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label fx:id="Beladminusernamelbl" prefWidth="224.0" text="User Name" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="Beladminusernametxt" prefHeight="28.0" prefWidth="200.0" promptText="Enter User Name" stylesheets="@../css/Adduser.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label fx:id="Beladminpasswordlbl" prefWidth="224.0" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="Beladminpasswordtxt" prefHeight="28.0" prefWidth="200.0" promptText="Enter Password" stylesheets="@../css/Adduser.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label fx:id="Beladminconfirmpasswordlbl" prefWidth="224.0" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="Beladminconfirmpasswordtxt" prefHeight="28.0" prefWidth="200.0" promptText="Enter Password" stylesheets="@../css/Adduser.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label fx:id="Beladminusersignlbl" prefWidth="224.0" text="User Signature" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <Label fx:id="BeladminDigitalsign" onMouseClicked="#DigitalsignAction" prefHeight="73.0" prefWidth="229.0" text="Click to Select Image" textFill="#b3b1b1">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+            </Label>
+            <HBox alignment="CENTER" fillHeight="false" prefHeight="32.0" prefWidth="380.0" spacing="10.0">
+               <children>
+                  <Button fx:id="BeladminaddButton" mnemonicParsing="false" onAction="#addAction" prefHeight="32.0" prefWidth="120.0" style="-fx-background-color: #169BD5;" stylesheets="@../css/Adduser.css" textFill="WHITE">
+                     <font>
+                        <Font name="Arial Bold" size="17.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="Beladmincancelbtn" mnemonicParsing="false" onAction="#BeladmincancelAction" prefHeight="32.0" prefWidth="120.0" style="-fx-background-color: #169BD5;" stylesheets="@../css/Adduser.css" text="CANCEL" textFill="WHITE">
+                     <font>
+                        <Font name="Arial Bold" size="17.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="-15.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</Pane>

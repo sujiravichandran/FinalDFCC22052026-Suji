@@ -1,0 +1,76 @@
+#testfiles{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#ofpcodes{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#symbolfiles{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#macrofiles{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#listview {
+	-fx-font-family:"Arial";
+    -fx-font-size: 20px; /* Change the font size to your desired value */
+}
+
+#macrofiles{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#BeladminUUTdrpdwn{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}

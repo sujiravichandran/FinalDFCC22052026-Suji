@@ -1,0 +1,23 @@
+/*#runalltest{
+	
+	-fx-background-image: url("/Resources/Images/u372.png");
+	-fx-background-repeat:space;
+	-fx-min-height: 25px;
+	-fx-min-width: 25px;
+	
+}*/
+
+#cycle1{
+	-fx-border-color: #f56e1e;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+    -fx-font-size:20.0px;
+}
+#HT65{
+	-fx-border-color: #f56e1e;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+    -fx-font-size:20.0px;
+}

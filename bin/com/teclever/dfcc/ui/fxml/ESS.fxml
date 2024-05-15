@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="essscreen" prefHeight="525.0" prefWidth="1108.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.ESSController">
+   <children>
+      <HBox prefHeight="95.0" prefWidth="1108.0">
+         <children>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="277.0">
+               <children>
+                  <Button fx:id="burnin1" alignment="CENTER" mnemonicParsing="false" onAction="#BurninAction" prefHeight="65.0" prefWidth="248.0" style="-fx-background-color: #e6faff; -fx-border-color: #F56E1E;" text="BURN IN" textFill="#f56e1e">
+                     <font>
+                        <Font name="Arial Bold" size="20.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="277.0">
+               <children>
+                  <Button fx:id="randomvibration11" alignment="CENTER" mnemonicParsing="false" onAction="#Randomvib1Action" prefHeight="65.0" prefWidth="248.0" style="-fx-background-color: #e6faff; -fx-border-color: #F56E1E;" text="RANDOM VIBRATION I" textAlignment="CENTER" textFill="#f56e1e" wrapText="true">
+                     <font>
+                        <Font name="Arial Bold" size="20.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="277.0">
+               <children>
+                  <Button fx:id="thrmalcycle1" alignment="CENTER" mnemonicParsing="false" onAction="#Thermalcycle" prefHeight="65.0" prefWidth="248.0" style="-fx-background-color: #e6faff; -fx-border-color: #F56E1E;" text="THERMAL CYCLE" textFill="#f56e1e">
+                     <font>
+                        <Font name="Arial Bold" size="20.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="277.0">
+               <children>
+                  <Button fx:id="randomvibration21" alignment="CENTER" mnemonicParsing="false" onAction="#Randomvib2Action" prefHeight="65.0" prefWidth="248.0" style="-fx-background-color: #e6faff; -fx-border-color: #F56E1E;" text="RANDOM VIBRATION II" textAlignment="CENTER" textFill="#f56e1e" wrapText="true">
+                     <font>
+                        <Font name="Arial Bold" size="20.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin>
+            </HBox>
+         </children>
+      </HBox>
+      <Pane fx:id="Centerpane" layoutX="1.0" layoutY="101.0" prefHeight="412.0" prefWidth="1108.0">
+         <children>
+            <HBox layoutY="2.0" prefHeight="65.0" prefWidth="1108.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="65.0" prefWidth="224.0">
+                     <children>
+                        <Label fx:id="cycle" alignment="CENTER" prefWidth="330.0" text="HOUR" textFill="#f56e1e">
+                           <font>
+                              <Font name="Arial Bold" size="24.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" right="15.0" />
+                     </HBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="65.0" prefWidth="398.0">
+                     <children>
+                        <ComboBox fx:id="Perburnin" prefHeight="32.0" prefWidth="330.0" promptText="PER BURN IN" stylesheets="@../css/ESS.css">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                        </ComboBox>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="81.0" prefWidth="458.0">
+                     <children>
+                        <Button fx:id="runfulltest" mnemonicParsing="false" prefHeight="45.0" prefWidth="320.0" stylesheets="@../css/ESS.css" text="RUN FULL TEST">
+                           <font>
+                              <Font name="Arial Bold" size="20.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="15.0" right="20.0" />
+                     </HBox.margin>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox layoutY="57.0" prefHeight="356.0" prefWidth="1108.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="370.0">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label alignment="CENTER" text="TEST">
+                                 <font>
+                                    <Font name="Arial Bold" size="25.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="download.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text=" cs_verify.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="rm_init_pbit.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="il.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="msw1.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="pbit.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="nvm_dump.tpf" textFill="#f56e1e">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="100.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Button fx:id="runbutton" mnemonicParsing="false" prefHeight="31.0" prefWidth="101.0" stylesheets="@../css/ESS.css" text="RUN ">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="370.0">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label alignment="CENTER" text="STATUS">
+                                 <font>
+                                    <Font name="Arial Bold" size="25.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label text="EXECUTED" textFill="#46c303">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label text="EXECUTED" textFill="#ff0202">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="370.0">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label alignment="CENTER" text="COUNT">
+                                 <font>
+                                    <Font name="Arial Bold" size="25.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+                           <children>
+                              <Label text="1">
+                                 <font>
+                                    <Font name="Arial Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

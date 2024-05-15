@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="adduser" prefHeight="420.0" prefWidth="400.0" stylesheets="@../css/Adduser.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <children>
+      <VBox alignment="CENTER" prefHeight="420.0" prefWidth="400.0" spacing="10.0">
+         <children>
+            <Label text="UPDATE USER DATA">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="30.0" top="5.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="20.0" prefWidth="224.0" text="User Name" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="txtusername" prefHeight="28.0" prefWidth="200.0" promptText="Enter User Name" stylesheets="@../css/Updateuserdata.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label prefWidth="224.0" text="New Password" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="txtnewpassword" prefHeight="28.0" prefWidth="200.0" promptText="Enter New Password" stylesheets="@../css/Updateuserdata.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <Label prefWidth="224.0" text="Confirm Password" textFill="#5e5d5d">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-10.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="txtconformpassword" prefHeight="28.0" prefWidth="200.0" promptText="Enter Confirm Password" stylesheets="@../css/Updateuserdata.css">
+               <VBox.margin>
+                  <Insets left="75.0" right="75.0" />
+               </VBox.margin>
+            </TextField>
+            <HBox alignment="CENTER" prefHeight="32.0" prefWidth="380.0" spacing="10.0">
+               <children>
+                  <Button fx:id="update" mnemonicParsing="false" prefHeight="32.0" prefWidth="120.0" style="-fx-background-color: #169BD5;" stylesheets="@../css/Adduser.css" text="UPDATE" textFill="WHITE">
+                     <font>
+                        <Font name="Arial Bold" size="17.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="cancel" layoutX="140.0" layoutY="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="120.0" style="-fx-background-color: #169BD5;" stylesheets="@../css/Adduser.css" text="CANCEL" textFill="WHITE">
+                     <font>
+                        <Font name="Arial Bold" size="17.0" />
+                     </font>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="20.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</Pane>
