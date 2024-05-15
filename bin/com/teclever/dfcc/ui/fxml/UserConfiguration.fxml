@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="centerpane" prefHeight="200.0" prefWidth="1320.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="895.0" prefWidth="1619.0">
+         <children>
+            <Pane fx:id="greenscreen" prefHeight="895.0" prefWidth="1619.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <children>
+                  <AnchorPane prefHeight="943.0" prefWidth="1619.0">
+                     <children>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="1619.0" style="-fx-border-color: black;">
+                           <children>
+                              <Label text="USER CONFIGURATION">
+                                 <font>
+                                    <Font name="Arial Bold" size="50.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <Pane fx:id="Tableview" layoutX="1.0" layoutY="103.0" prefHeight="793.0" prefWidth="1617.0" />
+                     </children>
+                  </AnchorPane>
+               </children>
+            </Pane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

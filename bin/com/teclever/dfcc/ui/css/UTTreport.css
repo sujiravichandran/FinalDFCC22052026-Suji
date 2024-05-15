@@ -1,0 +1,31 @@
+#briefreport{
+	-fx-border-color: #F56E1E;
+	-fx-border-width: 3;
+	-fx-text-fill: #169BD5;
+	-fx-font-style:bold;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 11,-10,8,5 );
+}
+
+#completereport{
+	-fx-border-color: #F56E1E;
+	-fx-border-width: 3;
+	-fx-text-fill: #169BD5;
+	-fx-font-style:bold;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 11,-10,8,5 );
+}
+
+#createdatapack{
+	-fx-background-color: #169BD5;
+	-fx-text-fill: #ffffff;
+	-fx-font-style:bold;
+}
+
+#pane1{
+	-fx-background-color: #EDECEB;
+}
+
+
+
+

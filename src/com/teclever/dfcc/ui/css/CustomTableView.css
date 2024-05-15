@@ -1,0 +1,24 @@
+.table-cell {
+    -fx-font-size: 16.0px;
+    -fx-font-weight: 600;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-alignment: CENTER;
+    -fx-background-color: transparent;
+}
+
+.button-cell {
+    -fx-font-size: 16.0px;
+    -fx-background-color: #169BD5;
+    -fx-text-fill: white;
+}
+
+.table-view .column-header {
+    -fx-font-size: 16.0px;
+    -fx-font-weight: 700;
+    -fx-border-color: #000000;
+}
+
+
+
+

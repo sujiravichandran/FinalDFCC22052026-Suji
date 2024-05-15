@@ -1,0 +1,101 @@
+
+#vboxLeft #LoginConfiguration {
+	-fx-cursor: hand;
+	-fx-min-height: 40;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-font-family: "Arial";
+	-fx-font-size: 16pt;
+	-fx-text-fill: black;
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+#vboxLeft #Userconfiguration {
+	-fx-cursor: hand;
+	-fx-min-height: 40;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-font-family: "Arial";
+	-fx-font-size: 16pt;
+	-fx-text-fill: black;
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+
+#useradd{
+	-fx-background-image: url("/Resources/Images/EditIcon.png");
+	-fx-background-repeat:stretch; 
+	-fx-background-position: center center;  /* Center the image */
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: transparent;
+}
+
+#userdelete{
+	-fx-background-image: url("/Resources/Images/DeleteIcon.png");
+	-fx-background-repeat:stretch; 
+	-fx-background-position: center center;  /* Center the image */
+    -fx-background-repeat: no-repeat;
+     -fx-background-color: transparent;
+}
+
+
+
+#vboxLeft #RunConfiguration {
+	-fx-cursor: hand;
+	-fx-min-height: 40;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-font-family: "Arial";
+	-fx-font-size: 16pt;
+	-fx-text-fill: black;
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+
+#vboxLeft #Aitessconfiguration {
+	-fx-cursor: hand;
+	-fx-min-height: 40;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-font-family: "Arial";
+	-fx-font-size: 16pt;
+	-fx-text-fill: black;
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+
+#vboxLeft #Macroconfiguration {
+	-fx-cursor: hand;
+	-fx-min-height: 40;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-font-family: "Arial";
+	-fx-font-size: 16pt;
+	-fx-text-fill: black;
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+
+
+#add {
+	-fx-background-image: url("/Resources/Images/plus.png");
+	-fx-background-position: center;
+	-fx-background-repeat: stretch;
+	
+	-fx-background-color: transparent;
+}
+
+#remove{
+	-fx-background-image: url("/Resources/Images/close.png");	
+	-fx-background-position: center;
+	-fx-background-repeat: stretch;
+	
+	-fx-background-color: transparent;
+	
+}
+
+#Digitalsign{
+	-fx-border-color: black;
+	-fx-border-width: 1;
+}
+

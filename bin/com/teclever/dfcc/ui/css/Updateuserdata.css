@@ -1,0 +1,30 @@
+#update {
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,6,-2 );
+}
+#cancel {
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,6,-2 );
+}
+
+
+#adduser{
+
+	-fx-border-color: #b9bcbd;
+	-fx-border-width: 1;
+	-fx-background-color: #edfafc;
+}
+
+#txtusername{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+
+#txtnewpassword{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+
+#txtconformpassword{
+	-fx-border-color: #b9bcbd;
+    -fx-background-color: transparent;
+}
+

@@ -1,0 +1,803 @@
+#tophbox #gridimage #Logo{
+   -fx-background-image: url("/Resources/Images/BELLOGO.png");
+	-fx-background-repeat:stretch;
+	
+}
+#tecleverLogo{
+	-fx-background-image: url("/Resources/Images/tecleverlogo60.png");
+}
+
+#BottomHbox #tecleverLogo{
+   -fx-background-image: url("/Resources/Images/tecleverlogo25.png");
+   -fx-background-position: center ;
+	-fx-background-repeat:stretch;
+}
+
+#tophbox #gridimage #Company{
+   -fx-background-image: url("/Resources/Images/NAME.png");
+	-fx-background-repeat:stretch; 
+}
+
+#tophbox #gridimage #title
+{
+	-fx-background-image: url("/Resources/Images/NAME.png");
+	-fx-background-repeat: stretch;
+}
+
+#tagname
+{
+	-fx-font-size: 18pt;
+    -fx-font-family: "Arial Narrow";
+}
+
+/*LEFT VBOX menu*/
+
+#vboxLeft
+{
+	-fx-background-image: url("/Resources/Images/Side1.png");
+	-fx-background-repeat: stretch;
+}
+
+
+#vboxLeft #dashboard
+{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+   
+}
+
+/*TESTING menu*/
+ 
+#testing{
+	-fx-background-image: url("/Resources/Images/Heart.png");
+	-fx-background-position:left  ;
+	-fx-background-repeat:stretch  ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+	-fx-cursor: pointer;
+}
+
+#session{
+	-fx-min-width:30;
+	-fx-min-height:20;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#session:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#session::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#srcmodule{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    
+    }
+    
+#srcmodule:hover {
+    -fx-background-color: #FFC125; 
+}
+#srcmodule::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#advanced{
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    
+    }
+    
+#advanced:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#advanced::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#producttest{
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#producttest:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#producttest::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+/*RESULT menu*/ 
+
+#results{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+	
+}
+
+#currentexectionresult{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#currentexectionresult:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#currentexectionresult::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#sessionresult{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#sessionresult:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#sessionresult::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#unitresult{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+#unitresult:hover {
+    -fx-background-color: #FFC125; 
+}
+
+#unitresult::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+/*ADAVANCED DATA ANALYSIS menu*/
+
+#advanceddata
+{
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-font-size: 15pt;
+    
+}
+
+/*REPORTS menu*/ 
+
+#reports{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+	
+}
+#testreports{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+#testreports:hover {
+    -fx-background-color: #FFC125; 
+}
+#testreports::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#sessionreports{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+#sessionreports:hover {
+    -fx-background-color: #FFC125; 
+}
+#sessionreports::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#uutreport{
+	
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}
+#uutreport:hover {
+    -fx-background-color: #FFC125; 
+}
+#uutreport::pressed {
+    -fx-background-color: #FFDAB9; /* maybe some other color */
+}
+
+#selftest{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#Lrutesting{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#Testsummary{
+	-fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-font-size: 16pt;
+	
+}
+#Historyreport{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#Testvalidation{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-border-width:1pt;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+}
+
+
+/*CONFIGURATION menu*/ 
+
+#configuration
+{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+	 -fx-border-width:1pt;
+    -fx-border-color: black;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	
+}
+#logbook
+{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	
+}
+
+/*logout menu*/
+
+
+#vboxLeft #logouthbox #logoutimg
+{
+	-fx-background-image: url("/Resources/Images/Logoutimg.png");
+	-fx-background-repeat: stretch;
+}
+#logout
+{
+	-fx-cursor:hand ;
+	-fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	
+}
+
+/*exit menu*/
+#exit
+{
+	-fx-cursor:hand ;
+	-fx-min-height:40;
+	-fx-border-color: transparent;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 16pt;
+    -fx-text-fill: black;
+	
+}
+
+/*-----------------------------------------------------------------------------------------------*/
+/*RIGHT SIDE TOP menu*/
+#vboxtop 
+{
+	-fx-background-image: url("/Resources/Images/Rightsidetop.png");
+	-fx-background-repeat:stretch ;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+
+}
+#vboxbottom{
+	-fx-background-image: url("/Resources/Images/Rightsidebottom.png");
+	-fx-background-repeat:stretch ;
+}
+
+#aitess{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 20pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+	
+}
+#terminalshow{
+	-fx-min-height:40;
+	-fx-background-color:#169BD5;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,-10,-5 );
+
+}
+#aitess2
+{	
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 14pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	
+}
+#running{
+	-fx-min-height:30;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	
+}
+
+#refresh{
+	-fx-min-height:40;
+	-fx-background-image: url("/Resources/Images/refreshicon.png");
+	-fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-background-repeat:no-repeat  ;
+    -fx-background-position:center ;
+    -fx-background-size:25px ;
+    -fx-halignment:center ;
+    -fx-valignment:center ;
+}
+#cardstatus
+{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	
+	
+}
+#cardsonline
+{
+	-fx-min-height:20;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+	}
+	
+#cardsonlineno{
+	-fx-min-height:20;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+}	
+	
+#cardsoffline
+{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+	}
+	
+#cardsofflineno{
+	-fx-min-height:20;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+}
+
+/*RIGHT SIDE BOTTOM menu*/
+#dffccpoweron
+	{
+	-fx-min-height:40;
+	-fx-background-color:#169BD5;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	}
+#temprature
+{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 14pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+}
+#percentageg1
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#percentageg2
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#percentageg3
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#percentageg4
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: #70B603;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: black;
+	-fx-cursor: pointer;
+}
+#poweronstatus
+{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+}
+#dch1
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#dch2
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#dch3
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#dch4
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+
+#onlinestatus
+{
+	-fx-min-height:40;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-font-family:"Arial";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+}
+
+
+
+
+#och1
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#och2
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	-fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#och3
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+#och4
+	{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: red;
+    -fx-font-family:"Arial";
+    -fx-font-size: 15pt;
+    -fx-text-fill: white;
+	-fx-cursor: pointer;
+	 -fx-border-color: black;
+    -fx-border-width: 1;
+}	
+
+#initdfcc
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );
+
+}
+#powerreset
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );
+}
+
+#eeprom
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );
+}
+#cyclepower
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );
+}
+#checkofp
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );	
+}
+#checkwdm
+{
+	-fx-min-height:26;
+	-fx-min-width: 85;
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+    -fx-font-family:"Arial";
+    -fx-font-size: 10pt;
+    -fx-text-fill: #169BD5;
+	-fx-cursor: pointer;
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,10,5 );	
+}
+
+/*Dashboard Center Pane */
+
+#burnin{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+#rv1{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+
+#getscreen #Hboxcenter #image #filghtimg{
+   -fx-background-image: url("/Resources/Images/Filght.png");
+	-fx-background-repeat:stretch; 
+}
+
+#getscreen #Hboxcenter #Previousactivitywin #tick{
+   -fx-background-image: url("/Resources/Images/Tick.png");
+	-fx-background-repeat:stretch;
+}
+
+#getscreen #Hboxcenter #Previousactivitywin #flag{
+   -fx-background-image: url("/Resources/Images/Flag.png");
+	-fx-background-repeat:stretch;
+}
+
+#centerpane #tVbox #terminalwindow{
+	-fx-font-size: 15;
+    -fx-font-family: Arial Narrow;
+}
+
+#centerpane #tVbox #inputbox{
+	-fx-border-color: black;
+	-fx-font-size: 15;
+    -fx-font-family: Arial Narrow;
+}
+
+#centerpane #tVbox #inputwrite{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+    -fx-text-fill: #169BD5;
+}
+
+
+	
+	
+	
+	
+	
