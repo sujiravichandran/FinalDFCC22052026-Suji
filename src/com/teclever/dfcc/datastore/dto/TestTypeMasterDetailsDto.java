@@ -26,6 +26,11 @@ public class TestTypeMasterDetailsDto {
 	public void setTestName(String testName) {
 		this.testName = testName;
 	}
+	@Override
+	public String toString() {
+		return "TestTypeMasterDetailsDto [testTypeId=" + testTypeId + ", uutId=" + uutId + ", testName=" + testName
+				+ "]";
+	}
 
 	
 	

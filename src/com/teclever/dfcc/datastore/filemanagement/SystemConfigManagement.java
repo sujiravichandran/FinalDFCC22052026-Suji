@@ -1,6 +1,4 @@
 package com.teclever.dfcc.datastore.filemanagement;
-
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javax.crypto.*;
@@ -14,7 +12,6 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
-
 public class SystemConfigManagement {
 	private static final String SECRET_KEY = "TECLEVER@0001";
 //	static String currentDirectory = System.getProperty("user.dir");
@@ -68,7 +65,7 @@ public class SystemConfigManagement {
 	            validateResponse.setResponse(response);
 	            return validateResponse;
 	        }
-	      
+	     
 	    } catch (Exception e) {
 	        response.setResponseCode(0);
 	        response.setResponseMessage("Error in SystemConfig " + e.getLocalizedMessage());
@@ -152,13 +149,13 @@ public class SystemConfigManagement {
 //	    response.setResponseCode(jarFileValidationResponse.getResponse().getResponseCode());
 //	    response.setResponseMessage(jarFileValidationResponse.getResponse().getResponseMessage());
 //	    checkSumList.addAll(jarFileValidationResponse.getCheckSumList());
-	   
+	  
 	    CheckSum jarCheckSum = new CheckSum();
 	    jarCheckSum.setFile(parentJarFilePath);
 	    jarCheckSum.setChecksumValue("");
-	    jarCheckSum.setMsg("OK"); 
+	    jarCheckSum.setMsg("OK");
 	    checkSumList.add(jarCheckSum);
-	   
+	  
 	    // Check if all files in the system config exist in the calculated checksums
 	    for (String fileChecksum : filesAndChecksums) {
 	        String[] parts = fileChecksum.split(" : ");
@@ -179,7 +176,7 @@ public class SystemConfigManagement {
 	    }
 	    response.setResponseCode(1);
 	    response.setResponseMessage("SystemConfig file read Successful");
-	   
+	  
 	    ValidateResponse validateResponse = new ValidateResponse();
 	    validateResponse.setResponse(response);
 	    validateResponse.setCheckSumList(checkSumList);

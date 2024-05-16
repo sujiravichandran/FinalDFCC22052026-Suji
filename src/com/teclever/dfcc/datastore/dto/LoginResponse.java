@@ -6,8 +6,8 @@ public class LoginResponse {
 
 
 	public String loginName;
-//	public String userName;
-//	public String changePwdFlag;
+	public String userName;
+	public String changePwdFlag;
 	public String roleId;
 //	private String roleName;
 	private Response response;
@@ -18,18 +18,18 @@ public class LoginResponse {
 	public void setLoginName(String loginName) {
 		this.loginName = loginName;
 	}
-//	public String getUserName() {
-//		return userName;
-//	}
-//	public void setUserName(String userName) {
-//		this.userName = userName;
-//	}
-//	public String getChangePwdFlag() {
-//		return changePwdFlag;
-//	}
-//	public void setChangePwdFlag(String changePwdFlag) {
-//		this.changePwdFlag = changePwdFlag;
-//	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getChangePwdFlag() {
+		return changePwdFlag;
+	}
+	public void setChangePwdFlag(String changePwdFlag) {
+		this.changePwdFlag = changePwdFlag;
+	}
 	public String getRoleId() {
 		return roleId;
 	}

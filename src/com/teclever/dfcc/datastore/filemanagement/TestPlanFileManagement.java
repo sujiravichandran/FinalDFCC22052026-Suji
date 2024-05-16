@@ -1,0 +1,98 @@
+package com.teclever.dfcc.datastore.filemanagement;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import com.teclever.datastore.configuration.DataStoreConfiguration;
+import com.teclever.datastore.entities.TestFile;
+import com.teclever.datastore.service.TestFileService;
+import com.teclever.dfcc.datastore.dto.TestFileDto;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+
+public class TestPlanFileManagement {
+    
+	 // API: GET ALL TEST FILES BASED ON RUN PATH MASTER ID
+    public static List<TestFileDto> getAllTestFilesByRunPathMasterId(String runPathMasterId) {
+        List<TestFileDto> testFileDtos = new ArrayList<>();
+        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<TestFile> testFiles = session.createQuery("FROM TestFile WHERE runPathMasterId = :runPathMasterId AND deleteStatus = false", TestFile.class)
+                                        .setParameter("runPathMasterId", runPathMasterId)
+                                        .getResultList();
+
+            for (TestFile testFile : testFiles) {
+                TestFileDto testFileDto = new TestFileDto();
+                testFileDto.setTestFileId(testFile.getTestFileId());
+                testFileDto.setTestFileName(testFile.getTestFileName());
+                testFileDto.setRunPathMasterId(testFile.getRunPathMasterId());
+                testFileDtos.add(testFileDto);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return testFileDtos;
+    }
+	
+	
+	
+    public static List<String> saveTestFilesToDatabase(List<String> testPlanFilePaths, String runPathMasterId) {
+        TestFileService testFileService = new TestFileService();
+        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+	        markPreviousTestFileRowsAsDeleted(runPathMasterId);
+
+            for (String filePath : testPlanFilePaths) {
+                Path dir = Paths.get(filePath);
+                Files.walk(dir)
+                     .filter(Files::isRegularFile)
+                     .forEach(path -> {
+                         String fileName = path.getFileName().toString(); 
+                         String testFileId = TestFileService.generateUniqueTestFileId();
+                         TestFile testFile = new TestFile(); 
+                         testFile.setTestFileId(testFileId); 
+                         testFile.setTestFileName(fileName); 
+                         testFile.setRunPathMasterId(runPathMasterId); 
+                         testFileService.saveTestFileToDatabase(testFile); 
+                     });
+            }
+            
+            session.flush(); 
+            session.clear(); 
+            transaction.commit(); 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return testPlanFilePaths;
+    }
+ // Method to mark previous test file rows as deleted
+    private static void markPreviousTestFileRowsAsDeleted(String runPathMasterId) {
+        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            List<TestFile> testFiles = session.createQuery("FROM TestFile WHERE runPathMasterId = :runPathMasterId", TestFile.class)
+                                        .setParameter("runPathMasterId", runPathMasterId)
+                                        .getResultList();
+
+            for (TestFile testFile : testFiles) {
+                testFile.setDeleteStatus(true); 
+                session.merge(testFile);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+   
+}
+
+

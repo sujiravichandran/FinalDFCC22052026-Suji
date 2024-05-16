@@ -1,12 +1,11 @@
 package com.teclever.dfcc.datastore.dto;
 
 public class CheckSum {
+
 	private int sNo;
 	private String file;
 	private String checksumValue;
 	private String msg;
-	
-	
 	public int getsNo() {
 		return sNo;
 	}
@@ -32,13 +31,6 @@ public class CheckSum {
 		this.msg = msg;
 	}
 	
+	
+		
 }
-
-
-
-
-
-
-
-
-

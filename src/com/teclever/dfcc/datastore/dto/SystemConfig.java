@@ -12,8 +12,6 @@ public class SystemConfig {
     private String checksumHeading;
     private List<String> checksums;
     private String pChecksum;
-    
-    
 	public String getFirstLine() {
 		return firstLine;
 	}
@@ -56,19 +54,16 @@ public class SystemConfig {
 	public void setChecksums(List<String> checksums) {
 		this.checksums = checksums;
 	}
+	@Override
+	public String toString() {
+		return "SystemConfig [firstLine=" + firstLine + ", launchType=" + launchType + ", adminName=" + adminName
+				+ ", adminPassword=" + adminPassword + ", loginType=" + loginType + ", checksumHeading="
+				+ checksumHeading + ", checksums=" + checksums + "]";
+	}
 	public String getpChecksum() {
 		return pChecksum;
 	}
 	public void setpChecksum(String pChecksum) {
 		this.pChecksum = pChecksum;
 	}
-	@Override
-	public String toString() {
-		return "SystemConfig [firstLine=" + firstLine + ", launchType=" + launchType + ", adminName=" + adminName
-				+ ", adminPassword=" + adminPassword + ", loginType=" + loginType + ", checksumHeading="
-				+ checksumHeading + ", checksums=" + checksums + ", pChecksum=" + pChecksum + "]";
-	} 
-    
-	 
-
 }
