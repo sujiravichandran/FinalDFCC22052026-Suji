@@ -11,9 +11,11 @@ public class RunConfigurationDto {
 	public String getRunConfigId() {
 		return runConfigId;
 	}
-	public void setRunConfigId(String string) {
-		this.runConfigId = string;
+
+	public void setRunConfigId(String runConfigId) {
+		this.runConfigId = runConfigId;
 	}
+
 	public String getUutId() {
 		return uutId;
 	}

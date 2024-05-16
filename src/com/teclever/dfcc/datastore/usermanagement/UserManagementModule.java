@@ -55,18 +55,14 @@ public class UserManagementModule {
 		try {
 			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
 			if (systemConfig != null) {
-				if (loginName.equals(systemConfig.getAdminName())) {
+				if (loginName.equalsIgnoreCase(systemConfig.getAdminName())) {
 //				if (BCrypt.checkpw(password, systemConfig.getAdminPassword())) {
-					if (password.equals(systemConfig.getAdminPassword())) {
+					if (password.equalsIgnoreCase(systemConfig.getAdminPassword())) {
 
 						if (Integer.parseInt(systemConfig.getLoginType()) == 0) {
-							loginResponse.setRoleId("RL_ID_1");
-							loginResponse.setLoginName(loginName);
 							response.setResponseCode(101);
 							response.setResponseMessage("Please Update password");
 						} else if (Integer.parseInt(systemConfig.getLoginType()) == 1) {
-							loginResponse.setRoleId("RL_ID_1");
-							loginResponse.setLoginName(loginName);
 							response.setResponseCode(1);
 							response.setResponseMessage("Login Succesfull");
 						} else {
@@ -135,7 +131,7 @@ public class UserManagementModule {
 				loginResponse.setResponse(userLoginDto.getResponse());
 				loginResponse.setRoleId(userLoginDto.getRoleId());
 //					loginResponse.setRoleName(userRoleMaster.getUserType());
-//				loginResponse.setUserName(userLoginDto.getUserName());
+				loginResponse.setUserName(userLoginDto.getUserName());
 				loginResponse.setLoginName(userLoginDto.getLoginName());
 			} else {
 				Response res = new Response();

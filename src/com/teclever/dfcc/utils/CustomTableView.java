@@ -2,14 +2,19 @@ package com.teclever.dfcc.utils;
 
 import java.lang.reflect.Field;
 
+import com.teclever.dfcc.Controller.ui.AddUserController;
+
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventType;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -32,6 +37,7 @@ public class CustomTableView<T> extends TableView<T> {
     public static final EventType<Event> COLUMN_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "COLUMN_BUTTON_CLICKED");
 
 	String classname;
+	String digitalSignature;
 
 	@SuppressWarnings("deprecation")
 	public CustomTableView(ObservableList<T> items, Class<T> clazz, boolean addUserColumn, boolean addCheckColumn) {
@@ -39,7 +45,12 @@ public class CustomTableView<T> extends TableView<T> {
 		classname = clazz.getSimpleName();
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm());
-		setTableMenuButtonVisible(false); // Hide the table menu button
+		setTableMenuButtonVisible(false);
+		setPadding(new Insets(10));
+		setStyle("-fx-background-color:#1C67A9;");
+		
+	
+		
 		if (addCheckColumn) {
 			addCheckboxColumn();
 		}
@@ -50,34 +61,77 @@ public class CustomTableView<T> extends TableView<T> {
 	}
 
 	private void initializeColumns(Class<T> clazz) {
-		for (Field field : clazz.getDeclaredFields()) {
-			String name = field.getName();
-			name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
-			TableColumn<T, String> column = new TableColumn<>(name.toUpperCase());
-			column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-			column.setReorderable(false);
-			getColumns().add(column);
+		
+		
+		 AddUserController addUserController = new AddUserController();
+		    for (Field field : clazz.getDeclaredFields()) {
+		    	
+		        String name = field.getName();
+		        name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
+		        
+		        TableColumn<T, Object> column = new TableColumn<>(name.toUpperCase());
+		        if (field.getName().equals("digitalSignature")) {
+		            column.setCellValueFactory(image -> {
+		                T value = image.getValue();
+		                if (value != null) {
+		                    Image userImage = addUserController.getUserImage(value);
+		                    return new SimpleObjectProperty<>(userImage);
+		                } else {
+		                    return new SimpleObjectProperty<>(null);
+		                }
+		            });
+		            column.setCellFactory(image -> new TableCell<T, Object>() {
+		                private final ImageView imageView = new ImageView();
+		            
+		    	        
+		                @Override
+		                protected void updateItem(Object item, boolean empty) {
+		                    super.updateItem(item, empty);
+		                    if (empty || item == null) {
+		                        setGraphic(null);
+		                    } else {
+		                        Image image = (Image) item;
+		                        imageView.setImage(image);
+		                        
+		                        // Set fixed dimensions for the ImageView
+		                        double preferredWidth = 100; // Set your preferred size
+		                        double preferredHeight = 50;
+		                        imageView.setFitWidth(preferredWidth);
+		                        imageView.setFitHeight(preferredHeight);
+		                        // Set the ImageView inside the TableCell
+		                        setStyle("-fx-padding: 0,2,0,0");
+		                        setGraphic(imageView);
+		                    }
+		                }
+		            });
+		        } else {
+		            column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
+		        }
+		        column.setReorderable(false);
+		        getColumns().add(column);
+		    }
+		    resizeColumnsToFitContent();
 		}
-		resizeColumnsToFitContent();
-	}
 
 	public void addNewUserColumn() {
 
-		Button addButton = new Button("+ Add " + classname);
-		addButton.setStyle("-fx-font-size: 18px;-fx-background-color: #169BD5; -fx-text-fill: white;-fx-margin:5px");
-		addButton.setOnAction(event -> {
-			fireEvent(new Event(CustomTableView.COLUMN_BUTTON_CLICKED_EVENT));
-		});
+//		Button addButton = new Button("+ Add " + classname);
+//		addButton.setStyle("-fx-font-size: 15px;-fx-background-color: #ffffff; -fx-text-fill: black;-fx-border-color:black;-fx-bor");
+//		
+//		addButton.setOnAction(event -> {
+//			fireEvent(new Event(CustomTableView.COLUMN_BUTTON_CLICKED_EVENT));
+//		});
 
 		TableColumn<T, Void> actionCol = new TableColumn<>();
-		if (classname.equals("User")) {
-			actionCol.setGraphic(addButton);
-		}
+//		if (classname.equals("User")) {
+//			actionCol.setGraphic(addButton);
+//		}
 
 		actionCol.setReorderable(false);
-		actionCol.setPrefWidth(20);
+		actionCol.setPrefWidth(10);
 		actionCol.setCellFactory(col -> new NewTableCellCheck<>(this));
 		getColumns().add(actionCol);
+		
 	}
 
 	private void addCheckboxColumn() {
@@ -221,6 +275,7 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 			T rowData = getTableView().getItems().get(getIndex());
 			tableView.getSelectionModel().select(rowData);
 			tableView.getSelectedItems().add(rowData);
+			
 			fireEvent(new Event(CustomTableView.EDIT_BUTTON_CLICKED_EVENT));
 		});
 
