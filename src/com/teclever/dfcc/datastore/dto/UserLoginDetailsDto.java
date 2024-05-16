@@ -6,14 +6,10 @@ import java.sql.Date;
 import com.teclever.datastore.dto.Response;
 
 public class UserLoginDetailsDto {
-	
+
 	private String userId;
 
-//	private String userName;
-
 	private String loginName;
-
-//	private String empId;
 
 	private String password;
 
@@ -21,10 +17,12 @@ public class UserLoginDetailsDto {
 
 	private String roleId;
 
+	private String roleName;
+	
 	private Date date;
 
 	private Response response;
-	
+
 	public String getUserId() {
 		return userId;
 	}
@@ -33,14 +31,6 @@ public class UserLoginDetailsDto {
 		this.userId = userId;
 	}
 
-//	public String getUserName() {
-//		return userName;
-//	}
-//
-//	public void setUserName(String userName) {
-//		this.userName = userName;
-//	}
-
 	public String getLoginName() {
 		return loginName;
 	}
@@ -48,14 +38,6 @@ public class UserLoginDetailsDto {
 	public void setLoginName(String loginName) {
 		this.loginName = loginName;
 	}
-
-//	public String getEmpId() {
-//		return empId;
-//	}
-//
-//	public void setEmpId(String empId) {
-//		this.empId = empId;
-//	}
 
 	public String getPassword() {
 		return password;
@@ -97,5 +79,12 @@ public class UserLoginDetailsDto {
 		this.response = response;
 	}
 
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
 
 }

@@ -29,12 +29,12 @@ public class UserManagementModule {
 			UserRoleMasterDetailsService userRole = new UserRoleMasterDetailsService();
 			Map<String, String> userType = userRole.getAllUserType();
 			List<UserRoleMasterDto> listUserRoleDto = new ArrayList<>();
-			for(Map.Entry<String, String> entry : userType.entrySet()) {
+			for (Map.Entry<String, String> entry : userType.entrySet()) {
 				UserRoleMasterDto userDto = new UserRoleMasterDto();
 				userDto.setRoleId(entry.getKey());
 				userDto.setUserType(entry.getValue());
 				listUserRoleDto.add(userDto);
-				
+
 			}
 			response.setResponseCode(1);
 			response.setResponseMessage("Fetching User Role Successfull");
@@ -43,7 +43,7 @@ public class UserManagementModule {
 			return userRoleResponse;
 		} catch (Exception e) {
 			response.setResponseCode(0);
-			response.setResponseMessage("Error  "+e.getLocalizedMessage());
+			response.setResponseMessage("Error  " + e.getLocalizedMessage());
 			userRoleResponse.setResponse(response);
 			return userRoleResponse;
 		}
@@ -55,16 +55,24 @@ public class UserManagementModule {
 		try {
 			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
 			if (systemConfig != null) {
-				if (loginName.equalsIgnoreCase(systemConfig.getAdminName())) {
+				if (loginName.equals(systemConfig.getAdminName())) {
 //				if (BCrypt.checkpw(password, systemConfig.getAdminPassword())) {
-					if (password.equalsIgnoreCase(systemConfig.getAdminPassword())) {
+					if (password.equals(systemConfig.getAdminPassword())) {
 
 						if (Integer.parseInt(systemConfig.getLoginType()) == 0) {
 							response.setResponseCode(101);
 							response.setResponseMessage("Please Update password");
+							loginResponse.setLoginName(loginName);
+							loginResponse.setRoleId("RL_ID_1");
+							loginResponse.setResponse(response);
+							return loginResponse;
 						} else if (Integer.parseInt(systemConfig.getLoginType()) == 1) {
 							response.setResponseCode(1);
 							response.setResponseMessage("Login Succesfull");
+							loginResponse.setLoginName(loginName);
+							loginResponse.setRoleId("RL_ID_1");
+							loginResponse.setResponse(response);
+							return loginResponse;
 						} else {
 							response.setResponseCode(0);
 							response.setResponseMessage("Error in SystemCofiguration File");
@@ -83,6 +91,8 @@ public class UserManagementModule {
 				response.setResponseMessage("Login Unsuccesfull SystemConfig File Error");
 			}
 		} catch (Exception e) {
+			response.setResponseCode(0);
+			response.setResponseMessage("Login Unsuccesfull " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		loginResponse.setResponse(response);
@@ -92,23 +102,17 @@ public class UserManagementModule {
 	public Response changePasswordForBellAdmin(String password) {
 		Response res = new Response();
 		try {
-//			SystemConfigManagement systemConfigManagment = new SystemConfigManagement();
 			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
-//			if (BCrypt.checkpw(password, systemConfig.getAdminPassword())) {
-//				systemConfig.setAdminPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+
 			systemConfig.setAdminPassword(password);
 			systemConfig.setLoginType("1");
+
 			SystemConfigManagement.setConfiguration(systemConfig);
-//			SystemConfigManagement.updateSystemConfig(systemConfig, password, password, password);
-			// CALL the Encrypt and Save to SystermConfig file method.
 			res.setResponseCode(1);
 			res.setResponseMessage("Password updated Successufull ");
-//			} else {
-//				res.setResponseCode(0);
-//				res.setResponseMessage("Incorrect Old Password ");
-//			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			res.setResponseCode(0);
+			res.setResponseMessage("Password updated Unsuccessufull " + e.getLocalizedMessage());
 		}
 		return res;
 	}
@@ -130,8 +134,6 @@ public class UserManagementModule {
 			if (userAccess) {
 				loginResponse.setResponse(userLoginDto.getResponse());
 				loginResponse.setRoleId(userLoginDto.getRoleId());
-//					loginResponse.setRoleName(userRoleMaster.getUserType());
-				loginResponse.setUserName(userLoginDto.getUserName());
 				loginResponse.setLoginName(userLoginDto.getLoginName());
 			} else {
 				Response res = new Response();
@@ -139,20 +141,7 @@ public class UserManagementModule {
 				res.setResponseMessage("User Not Allowed to Login");
 				loginResponse.setResponse(res);
 			}
-			/*
-			 * List<UserRoleMasterDetails> userRole =
-			 * userRoleService.getUserRoleMasterDetails(optionType);
-			 * 
-			 * for (UserRoleMasterDetails userRoleMaster : userRole) { if
-			 * (userRoleMaster.getRoleId().equalsIgnoreCase(userLoginDto.getRoleId())) {
-			 * loginResponse.setResponse(userLoginDto.getResponse());
-			 * loginResponse.setRoleId(userLoginDto.getRoleId());
-			 * loginResponse.setRoleName(userRoleMaster.getUserType());
-			 * loginResponse.setUserName(userLoginDto.getUserName());
-			 * loginResponse.setLoginName(userLoginDto.getLoginName()); break;
-			 * 
-			 * } }
-			 */
+
 		} catch (Exception e) {
 			System.out.println("Exception in User Management ");
 			e.printStackTrace();
@@ -185,14 +174,15 @@ public class UserManagementModule {
 				response.setResponse(res);
 				return response;
 			}
+			UserRoleMasterDetailsService userRole = new UserRoleMasterDetailsService();
+			Map<String, String> userType = userRole.getAllUserType();
 			for (UserLoginDetails userLoginDetails : userLoginResponse) {
 				UserLoginDetailsDto userLoginDto = new UserLoginDetailsDto();
 
 				userLoginDto.setUserId(userLoginDetails.getUserId());
-//				userLoginDto.setUserName(userLoginDetails.getUserName());
 				userLoginDto.setLoginName(userLoginDetails.getLoginName());
-//				userLoginDto.setEmpId(userLoginDetails.getEmpId());
 				userLoginDto.setRoleId(userLoginDetails.getRoleId());
+				userLoginDto.setRoleName(userType.get(userLoginDetails.getRoleId()));
 				userLoginDto.setDate(userLoginDetails.getDate());
 				userLoginDto.setDigitalSignature(userLoginDetails.getDigitalSignature());
 
@@ -226,9 +216,7 @@ public class UserManagementModule {
 			}
 			UserLoginDetails newUser = new UserLoginDetails();
 			newUser.setLoginName(userLoginDto.getLoginName());
-//			newUser.setUserName(userLoginDto.getUserName());
 			newUser.setPassword(userLoginDto.getPassword());
-//			newUser.setEmpId(userLoginDto.getEmpId());
 			newUser.setRoleId(userLoginDto.getRoleId());
 			Date utilDate = new Date();
 			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
@@ -239,15 +227,11 @@ public class UserManagementModule {
 
 			response.setUserId(userAddResponse.getUserId());
 			response.setLoginName(userAddResponse.getLoginName());
-//			response.setUserName(userAddResponse.getUserName());
 			response.setPassword(userAddResponse.getPassword());
-//			response.setEmpId(userAddResponse.getEmpId());
 			response.setRoleId(userAddResponse.getRoleId());
 			response.setDate(userAddResponse.getDate());
 			response.setDigitalSignature(userAddResponse.getDigitalSignature());
 			response.setResponse(userAddResponse.getResponse());
-			System.out.println(userAddResponse.getResponse().getResponseCode() + " "
-					+ userAddResponse.getResponse().getResponseMessage());
 			return response;
 
 		} catch (Exception e) {
@@ -265,9 +249,7 @@ public class UserManagementModule {
 			UserLoginDetails newUser = new UserLoginDetails();
 			newUser.setUserId(userLoginDto.getUserId());
 			newUser.setLoginName(userLoginDto.getLoginName());
-//			newUser.setUserName(userLoginDto.getUserName());
 			newUser.setPassword(userLoginDto.getPassword());
-//			newUser.setEmpId(userLoginDto.getEmpId());
 			newUser.setRoleId(userLoginDto.getRoleId());
 			newUser.setDate(userLoginDto.getDate());
 			newUser.setDigitalSignature(userLoginDto.getDigitalSignature());
@@ -318,8 +300,6 @@ public class UserManagementModule {
 
 			if (response != null) {
 				userLoginDetailresponse.setLoginName(response.getLoginName());
-//				userLoginDetailresponse.setUserName(response.getUserName());
-//				userLoginDetailresponse.setEmpId(response.getEmpId());
 				userLoginDetailresponse.setUserId(response.getUserId());
 				userLoginDetailresponse.setRoleId(response.getRoleId());
 				userLoginDetailresponse.setDigitalSignature(response.getDigitalSignature());
