@@ -128,6 +128,34 @@ public class RunConfigurationManagement {
 
 		return dtoList;
 	}
+	
+	
+		// API : GET ALL RUN CONFIG
+		public List<RunConfigurationDto> getAllRunConfig() {
+			RunConfigurationService service = new RunConfigurationService();
+			RunConfigurationResponse serviceResponse = service.getAllRunConfigurations();
+
+			List<RunConfigurationDto> dtoList = new ArrayList<>();
+
+			if (serviceResponse.getResponseCode() == 1) {
+				List<RunConfiguration> runConfigurations = serviceResponse.getRunConfigurations();
+
+				for (RunConfiguration runConfig : runConfigurations) {
+					RunConfigurationDto dto = new RunConfigurationDto();
+					dto.setRunConfigId(runConfig.getRunConfigId());
+					dto.setUutId(runConfig.getUutId());
+					dto.setTestTypeId(runConfig.getTestTypeId());
+					dto.setConfigFile(runConfig.getConfigFile());
+					dto.setAitess(runConfig.getAitess());
+					dto.setDriver(runConfig.getDriver());
+					dtoList.add(dto);
+				}
+			} else {
+				System.err.println("Failed to fetch run configurations: " + serviceResponse.getResponseMessage());
+			}
+
+			return dtoList;
+		}
 
 	//API : DELETE RUN CONFIG
 	public RunConfigurationDto[] deleteRunConfig(String runConfigId) {
@@ -192,7 +220,7 @@ public class RunConfigurationManagement {
 		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
 			Transaction transaction = session.beginTransaction();
 			RunPathMasterService pathMasterService = new RunPathMasterService();
-			Response pathsResponse = pathMasterService.savePathsToDatabase(runConfiguration.getConfigFile(),
+			Response pathsResponse = pathMasterService.saveRunPathsToDatabase(runConfiguration.getConfigFile(),
 					runConfiguration.getTestTypeId(), runConfiguration.getRunConfigId());
 			if (pathsResponse.getResponseCode() == 0) {
 				transaction.rollback();
@@ -204,99 +232,68 @@ public class RunConfigurationManagement {
 			System.err.println("Failed to update paths in the database: " + e.getMessage());
 		}
 	}
-
-	private String fetchRunPathMasterIdForMacro(String runConfigId) {
-		String runPathMasterId = null;
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT r.runPathMasterId FROM RunPathMaster r WHERE r.runConfigId = :runConfigId AND r.masterPath = 'macros'",
-					String.class);
-			query.setParameter("runConfigId", runConfigId);
-			List<String> results = query.getResultList();
-			if (!results.isEmpty()) {
-				runPathMasterId = results.get(0);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return runPathMasterId;
+	
+	public String fetchRunPathMasterIdForMacro(String runConfigId) {
+        try {
+            RunPathMasterService runPathMasterService = new RunPathMasterService();
+        	return runPathMasterService.fetchRunPathMasterIdForMacro(runConfigId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 	}
+	
+	 public List<String> fetchMacroFilePathsFromRunPathMaster(String runPathMasterId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchMacroFilePathsFromRunPathMaster(runPathMasterId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return new ArrayList<>();
+	        }
+	    }
 
-	private List<String> fetchMacroFilePathsFromRunPathMaster(String runPathMasterId) {
-		List<String> macroFilePaths = new ArrayList<>();
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT location FROM RunPathMaster WHERE runPathMasterId = :runPathMasterId AND masterPath = 'macros'",
-					String.class);
-			query.setParameter("runPathMasterId", runPathMasterId);
-			macroFilePaths = query.getResultList();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return macroFilePaths;
-	}
+	 public String fetchRunPathMasterIdForSymbol(String runConfigId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchRunPathMasterIdForSymbol(runConfigId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    }
 
-	private String fetchRunPathMasterIdForSymbol(String runConfigId) {
-		String runPathMasterId = null;
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT r.runPathMasterId FROM RunPathMaster r WHERE r.runConfigId = :runConfigId AND r.masterPath = 'symbols'",
-					String.class);
-			query.setParameter("runConfigId", runConfigId);
-			List<String> results = query.getResultList();
-			if (!results.isEmpty()) {
-				runPathMasterId = results.get(0);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return runPathMasterId;
-	}
+	    public List<String> fetchSymbolFilePathsFromRunPathMaster(String runPathMasterId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchSymbolFilePathsFromRunPathMaster(runPathMasterId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return new ArrayList<>();
+	        }
+	    }
 
-	private List<String> fetchSymbolFilePathsFromRunPathMaster(String runPathMasterId) {
-		List<String> symbolFilePaths = new ArrayList<>();
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT location FROM RunPathMaster WHERE runPathMasterId = :runPathMasterId AND masterPath = 'symbols'",
-					String.class);
-			query.setParameter("runPathMasterId", runPathMasterId);
-			symbolFilePaths = query.getResultList();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return symbolFilePaths;
-	}
 
-	private String fetchRunPathMasterIdForTestFile(String runConfigId) {
-		String runPathMasterId = null;
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT r.runPathMasterId FROM RunPathMaster r WHERE r.runConfigId = :runConfigId AND r.masterPath = 'tpf'",
-					String.class);
-			query.setParameter("runConfigId", runConfigId);
-			List<String> results = query.getResultList();
-			if (!results.isEmpty()) {
-				runPathMasterId = results.get(0);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return runPathMasterId;
-	}
 
-	private List<String> fetchTestFilePathsFromRunPathMaster(String runPathMasterId) {
-		List<String> testFilePaths = new ArrayList<>();
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Query<String> query = session.createQuery(
-					"SELECT location FROM RunPathMaster WHERE runPathMasterId = :runPathMasterId AND masterPath = 'tpf'",
-					String.class);
-			query.setParameter("runPathMasterId", runPathMasterId);
-			testFilePaths = query.getResultList();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return testFilePaths;
-	}
+	    public String fetchRunPathMasterIdForTestFile(String runConfigId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchRunPathMasterIdForTestFile(runConfigId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    }
+
+	    public List<String> fetchTestFilePathsFromRunPathMaster(String runPathMasterId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchTestFilePathsFromRunPathMaster(runPathMasterId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return new ArrayList<>();
+	        }
+	    }
 	
 	
 	

@@ -16,33 +16,34 @@ import com.teclever.dfcc.datastore.dto.SymbolDto;
 
 public class SymbolFileManagement {
 	
-	//GET ALL SYMBOL LIST BASED ON RUN PATH MASTER ID
-	public static List<SymbolDto> getAllSymbolsByRunPathMasterId(String runPathMasterId) {
+	//GET SYMBOL LIST BY TEST TYPE
+    public static List<SymbolDto> getAllSymbols(String runConfigId) {
         List<SymbolDto> symbolDtos = new ArrayList<>();
-        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Symbol> symbols = session.createQuery("FROM Symbol WHERE runPathMasterId = :runPathMasterId AND deleteStatus = false", Symbol.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
+        try {
+            SymbolService symbolService = new SymbolService();
+            List<String> runPathMasterIds = symbolService.getRunPathMasterIdsByRunConfigId(runConfigId);
 
-            for (Symbol symbol : symbols) {
-                SymbolDto symbolDto = new SymbolDto();
-                symbolDto.setSymbolId(symbol.getSymbolId()); 
-                symbolDto.setSymbolName(symbol.getSymbolName());
-                symbolDto.setSymbolType(symbol.getSymbolType()); 
-                symbolDto.setMin(symbol.getMin());
-                symbolDto.setMax(symbol.getMax());
-                symbolDto.setFileName(symbol.getFileName()); 
-                symbolDto.setRunPathMasterId(symbol.getRunPathMasterId());
-                symbolDtos.add(symbolDto);
+            // Fetch macros based on runPathMasterIds and deleteStatus
+            for (String runPathMasterId : runPathMasterIds) {
+                List<Symbol> symbols = symbolService.getAllSymbolsByRunPathMasterId(runPathMasterId);
+                for (Symbol symbol : symbols) {
+	                SymbolDto symbolDto = new SymbolDto();
+	                symbolDto.setSymbolId(symbol.getSymbolId()); 
+	                symbolDto.setSymbolName(symbol.getSymbolName());
+	                symbolDto.setSymbolType(symbol.getSymbolType()); 
+	                symbolDto.setMin(symbol.getMin());
+	                symbolDto.setMax(symbol.getMax());
+	                symbolDto.setFileName(symbol.getFileName()); 
+	                symbolDto.setRunPathMasterId(symbol.getRunPathMasterId());
+	                symbolDtos.add(symbolDto);
+                }
             }
-
-            transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return symbolDtos;
     }
+	
 	
 	    public static List<SymbolDto> saveSymbols(List<String> fileNamePaths, String runPathMasterId) {
 	        List<String> filePaths = null;
