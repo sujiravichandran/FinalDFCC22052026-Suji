@@ -11,21 +11,49 @@ public class AdminCenterContentController {
     private StackPane VDDConfigStackPane = new StackPane();
     private StackPane faultCodeConfigStackPane = new StackPane();
 
- 
-    public AdminCenterContentController() {
-        centerStackPane.getChildren().addAll(userManagementStackPane, VDDConfigStackPane, faultCodeConfigStackPane); 
-    }
 
+
+ 
     public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
         switch (selectedMenu) {
             case "User Management":
-            	userManagementStackPane.setStyle("-fx-background-color:green;-fx-background-radius:15px;");
-            	userManagementStackPane.toFront();
+                UserManagementController userManagementController = new UserManagementController();
+            	if (centerStackPane.getChildren().contains(userManagementStackPane)) {
+            	    boolean removed = centerStackPane.getChildren().remove(userManagementStackPane);
+            	    if (removed) {
+            	      	userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
+            	        centerStackPane.getChildren().add(userManagementStackPane);
+            	    } else {
+            	        System.out.println("User-Node was not found or couldn't be removed.");
+            	    }
+            	} else {
+            	  	userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
+        	        centerStackPane.getChildren().add(userManagementStackPane);
+            	}
+//            	userManagementStackPane.toFront();
                 break;
+                
             case "VDD Config":
-                VDDConfigStackPane.setStyle("-fx-background-color:red;-fx-background-radius:15px;");
+//                VDDConfigController vddConfigController = new VDDConfigController();
+//            	if (centerStackPane.getChildren().contains(VDDConfigStackPane)) {
+//            	    boolean removed = centerStackPane.getChildren().remove(VDDConfigStackPane);
+//            	    System.out.println("inside vdd contains");
+//            	    if (removed) {
+//            	    	  System.out.println("inside vdd remove");
+//                    	VDDConfigStackPane.getChildren().add(vddConfigController.createUserManagemenGridPane());
+//
+//            	        centerStackPane.getChildren().add(VDDConfigStackPane);
+//            	    } else {
+//            	        System.out.println("Vdd-Node was not found or couldn't be removed.");
+//            	    }
+//            	} else {
+//                	VDDConfigStackPane.getChildren().add(vddConfigController.createUserManagemenGridPane());
+//        	        centerStackPane.getChildren().add(VDDConfigStackPane);
+//            	    System.out.println("Vdd-Node is not a child of the StackPane.");
+//            	}
                 VDDConfigStackPane.toFront();
                 break;
+                
             case "Results":
                 faultCodeConfigStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");
                 faultCodeConfigStackPane.toFront();

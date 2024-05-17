@@ -10,7 +10,7 @@ public class User {
 	
 	private String roleType;
 	
-	private Blob digitalSignature;
+	public  Blob digitalSignature;
 
 
 	public String getUserId() {

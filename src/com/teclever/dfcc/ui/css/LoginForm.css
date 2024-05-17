@@ -98,5 +98,6 @@
 	-fx-font-size: 16px; 
     -fx-font-weight: bold;
     -fx-padding: 5px;
+        -fx-cursor: hand;
 }
 
