@@ -10,6 +10,7 @@ public class AdminCenterContentController {
     private StackPane userManagementStackPane = new StackPane();
     private StackPane VDDConfigStackPane = new StackPane();
     private StackPane faultCodeConfigStackPane = new StackPane();
+    private StackPane stageConfigStackPane = new StackPane();
 
 
 
@@ -29,6 +30,24 @@ public class AdminCenterContentController {
             	} else {
             	  	userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
         	        centerStackPane.getChildren().add(userManagementStackPane);
+            	}
+//            	userManagementStackPane.toFront();
+                break;
+                
+            case "Stage Config":
+            	stageConfigStackPane.setStyle("-fx-background-color:white;-fx-background-radius:15px;");
+            	StageConfigurationController stageConfig = new StageConfigurationController();
+            	if (centerStackPane.getChildren().contains(stageConfigStackPane)) {
+            	    boolean removed = centerStackPane.getChildren().remove(stageConfigStackPane);
+            	    if (removed) {
+            	    	stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
+            	        centerStackPane.getChildren().add(stageConfigStackPane);
+            	    } else {
+            	        System.out.println("Stage-Node was not found or couldn't be removed.");
+            	    }
+            	} else {
+            		stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
+        	        centerStackPane.getChildren().add(stageConfigStackPane);
             	}
 //            	userManagementStackPane.toFront();
                 break;

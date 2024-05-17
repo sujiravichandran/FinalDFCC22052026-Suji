@@ -1,9 +1,5 @@
 package com.teclever.dfcc;
 
-import com.teclever.datastore.configuration.DataStoreConfiguration;
-import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
-import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
@@ -12,6 +8,13 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.HashMap;
+
+import com.teclever.datastore.configuration.DataStoreConfiguration;
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
+import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -43,6 +46,8 @@ extends Application {
         String hbm2ddlAuto = "update";
         String showSql = "true";
         DataStoreConfiguration dataStore = new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
+        
+      
         Main.launch(args);
     }
 
