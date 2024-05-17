@@ -11,6 +11,7 @@ import com.teclever.datastore.entities.RunConfiguration;
 import com.teclever.datastore.entities.TestTypeMasterDetails;
 import com.teclever.datastore.response.RunConfigurationResponse;
 import com.teclever.datastore.response.TestTypeMasterDetailsResponse;
+import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.MacroService;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.RunPathMasterService;
@@ -21,6 +22,7 @@ import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -90,6 +92,13 @@ public class RunConfigurationManagement {
 				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
 				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation, runPathMasterId2);
 				System.out.println(testFileLocation);
+				
+				// download file
+				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(runConfigId);
+				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
+				List<String> downloadFilesPaths = DownloadFileManagement.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
+				System.out.println(downloadFileLocation);
+				
 
 			} else {
 				System.err.println("Failed to add Run Configuration: " + serviceResponse.getResponseMessage());
@@ -190,6 +199,16 @@ public class RunConfigurationManagement {
 	        if (testFileResponse.getResponseCode() == 0) {
 	            System.err.println("Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
 	        }
+	        
+	        List<String> runPathMasterIdForDownloadFiles = pathMasterService.getRunPathMasterIdsForDownloadFiles(runConfigId);
+	        DownloadFileService downloadFileService = new DownloadFileService();
+	        Response downloadFileResponse = downloadFileService.updateDownloadFilesDeleteStatus(runPathMasterIdForDownloadFiles, true);
+	        if (downloadFileResponse.getResponseCode() == 0) {
+	            System.err.println("Failed to update delete status for download files: " + downloadFileResponse.getResponseMessage());
+	        }
+	        
+	        
+	        
 
 	        // Retrieve and return updated RunConfigurationDto array
 	        List<RunConfiguration> runConfigurations = serviceResponse.getRunConfigurations();
@@ -295,6 +314,27 @@ public class RunConfigurationManagement {
 	        }
 	    }
 	
+	    
+	    
+	    public String fetchRunPathMasterIdForDownloadFile(String runConfigId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchRunPathMasterIdForDownloadFile(runConfigId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    }
+
+	    public List<String> fetchDownloadFilePathsFromRunPathMaster(String runPathMasterId) {
+	        try {
+	            RunPathMasterService runPathMasterService = new RunPathMasterService();
+	            return runPathMasterService.fetchDownloadFilePathsFromRunPathMaster(runPathMasterId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return new ArrayList<>();
+	        }
+	    }
 	
 	
 }
