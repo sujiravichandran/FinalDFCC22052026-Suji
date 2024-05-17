@@ -16,31 +16,30 @@ import org.hibernate.Transaction;
 
 public class TestPlanFileManagement {
     
-	 // API: GET ALL TEST FILES BASED ON RUN PATH MASTER ID
-    public static List<TestFileDto> getAllTestFilesByRunPathMasterId(String runPathMasterId) {
+	//GET TPF FILES LIST
+    public static List<TestFileDto> getAllTestFiles(String runConfigId) {
         List<TestFileDto> testFileDtos = new ArrayList<>();
-        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<TestFile> testFiles = session.createQuery("FROM TestFile WHERE runPathMasterId = :runPathMasterId AND deleteStatus = false", TestFile.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
+        try {
+            TestFileService testFileService = new TestFileService();
+            List<String> runPathMasterIds = testFileService.getRunPathMasterIdsByRunConfigId(runConfigId);
 
-            for (TestFile testFile : testFiles) {
-                TestFileDto testFileDto = new TestFileDto();
-                testFileDto.setTestFileId(testFile.getTestFileId());
-                testFileDto.setTestFileName(testFile.getTestFileName());
-                testFileDto.setRunPathMasterId(testFile.getRunPathMasterId());
-                testFileDtos.add(testFileDto);
+            // Fetch test files based on runPathMasterIds and deleteStatus
+            for (String runPathMasterId : runPathMasterIds) {
+                List<TestFile> testFiles = testFileService.getAllTestFilesByRunPathMasterId(runPathMasterId);
+                for (TestFile testFile : testFiles) {
+	                TestFileDto testFileDto = new TestFileDto();
+	                testFileDto.setTestFileId(testFile.getTestFileId()); 
+	                testFileDto.setTestFileName(testFile.getTestFileName());
+	                testFileDto.setRunPathMasterId(testFile.getRunPathMasterId());
+	                testFileDtos.add(testFileDto);
+                }
             }
-
-            transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return testFileDtos;
     }
-	
-	
+
 	
     public static List<String> saveTestFilesToDatabase(List<String> testPlanFilePaths, String runPathMasterId) {
         TestFileService testFileService = new TestFileService();

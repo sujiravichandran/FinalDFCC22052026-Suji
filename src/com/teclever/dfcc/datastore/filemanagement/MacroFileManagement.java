@@ -18,33 +18,32 @@ import com.teclever.dfcc.datastore.dto.MacroDto;
 
 public class MacroFileManagement {
 	
-	
-	 //API : GET ALL THE MACRO LIST BASED ON RUN PATH MASTER ID
-    public static List<MacroDto> getAllMacrosByRunPathMasterId(String runPathMasterId) {
+	//GET ALL MACROS 
+    public static List<MacroDto> getAllMacros(String runConfigId) {
         List<MacroDto> macroDtos = new ArrayList<>();
-        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Macro> macros = session.createQuery("FROM Macro WHERE runPathMasterId = :runPathMasterId AND deleteStatus = false", Macro.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
+        try {
+            MacroService macroService = new MacroService();
+            List<String> runPathMasterIds = macroService.getRunPathMasterIdsByRunConfigId(runConfigId);
 
-            for (Macro macro : macros) {
-                MacroDto macroDto = new MacroDto();
-                macroDto.setMacroId(macro.getMacroId()); 
-                macroDto.setMacroName(macro.getMacroName());
-                macroDto.setFileName(macro.getFileName()); 
-                macroDto.setRunPathMasterId(macro.getRunPathMasterId());
-                macroDtos.add(macroDto);
+            // Fetch macros based on runPathMasterIds and deleteStatus
+            for (String runPathMasterId : runPathMasterIds) {
+                List<Macro> macros = macroService.getAllMacrosByRunPathMasterId(runPathMasterId);
+                for (Macro macro : macros) {
+                    MacroDto macroDto = new MacroDto();
+                    macroDto.setMacroId(macro.getMacroId());
+                    macroDto.setMacroName(macro.getMacroName());
+                    macroDto.setFileName(macro.getFileName());
+                    macroDto.setRunPathMasterId(macro.getRunPathMasterId());
+                    macroDtos.add(macroDto);
+                }
             }
-
-            transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return macroDtos;
     }
-	
-	
+
+
 	
 	// GET MACRONAME WITH THEIR FILE NAME AND SAVE TO DB
     public static List<MacroDto> saveMacroNames(List<String> fileNamePaths, String runPathMasterId) {
