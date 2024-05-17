@@ -1,0 +1,44 @@
+#addUserMainContainer{
+	-fx-background-color: #222831;
+	-fx-padding: 5px 30px;
+}
+
+.adduser-title{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 20px;
+	-fx-font-weight : 700;
+	-fx-padding:5px 0;
+}
+
+.adduser-label {
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 16px;
+}
+.adduser-input{
+	-fx-font-size: 16px;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-padding: 5px;
+}
+
+.adduser-sign {
+    -fx-background-color: #f0f0f0; 
+    -fx-min-height: 70px; 
+    -fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+}
+
+.button {
+ 	-fx-min-width: 100px;
+	-fx-background-color: #77ABAE;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size: 16px; 
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-cursor: hand;
+}
+
+.button-box{
+	-fx-alignment: center;
+}
+

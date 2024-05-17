@@ -1,8 +1,9 @@
 package com.teclever.dfcc.utils;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
-
-import com.teclever.dfcc.Controller.ui.AddUserController;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,7 +15,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -61,74 +61,65 @@ public class CustomTableView<T> extends TableView<T> {
 	}
 
 	private void initializeColumns(Class<T> clazz) {
-		
-		
-		 AddUserController addUserController = new AddUserController();
-		    for (Field field : clazz.getDeclaredFields()) {
-		    	
-		        String name = field.getName();
-		        name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
-		        
-		        TableColumn<T, Object> column = new TableColumn<>(name.toUpperCase());
-		        if (field.getName().equals("digitalSignature")) {
-		            column.setCellValueFactory(image -> {
-		                T value = image.getValue();
-		                if (value != null) {
-		                    Image userImage = addUserController.getUserImage(value);
-		                    return new SimpleObjectProperty<>(userImage);
-		                } else {
-		                    return new SimpleObjectProperty<>(null);
-		                }
-		            });
-		            column.setCellFactory(image -> new TableCell<T, Object>() {
-		                private final ImageView imageView = new ImageView();
-		            
-		    	        
-		                @Override
-		                protected void updateItem(Object item, boolean empty) {
-		                    super.updateItem(item, empty);
-		                    if (empty || item == null) {
-		                        setGraphic(null);
-		                    } else {
-		                        Image image = (Image) item;
-		                        imageView.setImage(image);
-		                        
-		                        // Set fixed dimensions for the ImageView
-		                        double preferredWidth = 100; // Set your preferred size
-		                        double preferredHeight = 50;
-		                        imageView.setFitWidth(preferredWidth);
-		                        imageView.setFitHeight(preferredHeight);
-		                        // Set the ImageView inside the TableCell
-		                        setStyle("-fx-padding: 0,2,0,0");
-		                        setGraphic(imageView);
-		                    }
-		                }
-		            });
-		        } else {
-		            column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-		        }
-		        column.setReorderable(false);
-		        getColumns().add(column);
-		    }
-		    resizeColumnsToFitContent();
-		}
+	    for (Field field : clazz.getDeclaredFields()) {
+	        String name = field.getName();
+	        name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
+
+	        TableColumn<T, Object> column;
+
+	        if (field.getType() == Blob.class) {
+	            column = new TableColumn<>(name.toUpperCase());
+	            column.setCellValueFactory(cellData -> {
+	                T value = cellData.getValue();
+	                try {
+	                    Blob blob = (Blob) field.get(value);
+	                    if (blob != null) {
+	                        InputStream inputStream = blob.getBinaryStream();
+	                        Image image = new Image(inputStream);
+	                        return new SimpleObjectProperty<>(image);
+	                    } else {
+	                        return new SimpleObjectProperty<>(null);
+	                    }
+	                } catch (SQLException | IllegalAccessException e) {
+	                    e.printStackTrace();
+	                    return new SimpleObjectProperty<>(null);
+	                }
+	            });
+	            column.setCellFactory(e -> new TableCell<T, Object>() {
+	                private final ImageView imageView = new ImageView();
+
+	                @Override
+	                protected void updateItem(Object item, boolean empty) {
+	                    super.updateItem(item, empty);
+	                    if (empty || item == null) {
+	                        setGraphic(null);
+	                    } else {
+	                        Image image = (Image) item;
+	                        imageView.setImage(image);
+	                        imageView.setFitWidth(100);
+	                        imageView.setFitHeight(60);
+	                        setGraphic(imageView);
+	                    }
+	                }
+	            });
+	        } else {
+	            column = new TableColumn<>(name.toUpperCase());
+	            column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
+	        }
+
+	        column.setReorderable(false);
+	        getColumns().add(column);
+	    }
+	    resizeColumnsToFitContent();
+	}
+
+
 
 	public void addNewUserColumn() {
-
-//		Button addButton = new Button("+ Add " + classname);
-//		addButton.setStyle("-fx-font-size: 15px;-fx-background-color: #ffffff; -fx-text-fill: black;-fx-border-color:black;-fx-bor");
-//		
-//		addButton.setOnAction(event -> {
-//			fireEvent(new Event(CustomTableView.COLUMN_BUTTON_CLICKED_EVENT));
-//		});
-
 		TableColumn<T, Void> actionCol = new TableColumn<>();
-//		if (classname.equals("User")) {
-//			actionCol.setGraphic(addButton);
-//		}
 
 		actionCol.setReorderable(false);
-		actionCol.setPrefWidth(10);
+
 		actionCol.setCellFactory(col -> new NewTableCellCheck<>(this));
 		getColumns().add(actionCol);
 		
@@ -252,7 +243,7 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		delBtn = new Button();
 		delBtn.setGraphic(deleteImageView);
 		delBtn.setStyle(
-				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;");
+				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
 		delBtn.setOnAction(event -> {
 			tableView.getSelectedItems().clear();
 			T rowData = getTableView().getItems().get(getIndex());
@@ -269,7 +260,7 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		editBtn = new Button();
 		editBtn.setGraphic(editImageView);
 		editBtn.setStyle(
-				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;");
+				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
 		editBtn.setOnAction(event -> {
 			tableView.getSelectedItems().clear();
 			T rowData = getTableView().getItems().get(getIndex());

@@ -1,6 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +16,6 @@ import javax.imageio.ImageIO;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
-import com.teclever.dfcc.model.User;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -79,13 +77,16 @@ public class AddUserController implements Initializable {
 
 	UserManagementModule userManagement = new UserManagementModule();
 
+	String imageUrl;
+
 	byte[] imageData;
 
-	private UserConfigurationController mainPageController;
+	private UserManagementController mainPageController;
+	
+	AdminCenterContentController adminCenterContentController = new AdminCenterContentController();
+	UserManagementController userManagementController = new UserManagementController();
 
-	private String roleId;
-
-	public void setMainPageController(UserConfigurationController mainPageController) {
+	public void setMainPageController(UserManagementController mainPageController) {
 		this.mainPageController = mainPageController;
 	}
 
@@ -95,7 +96,8 @@ public class AddUserController implements Initializable {
 	}
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
-//		addUserMainContainer.getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
+		addUserMainContainer.getStylesheets()
+				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
 		addUserRoleType();
 	}
 
@@ -104,26 +106,6 @@ public class AddUserController implements Initializable {
 		userRoleType.put("SQUADRAN ADMIN", "RL_ID_3");
 		userRoleType.put("SQUADRAN USER", "RL_ID_4");
 	}
-	
-	public <T> Image getUserImage(T item) {
-        if (item instanceof User) {
-            User user = (User) item;
-            Blob digitalSignatureBlob = user.getDigitalSignature();
-            if (digitalSignatureBlob != null) {
-                try (InputStream inputStream = digitalSignatureBlob.getBinaryStream()) {
-                    byte[] imageBytes = inputStream.readAllBytes();
-                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(imageBytes);
-                    Image image = new Image(byteArrayInputStream);
-                    
-                    return image;
-                } catch (SQLException | IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
 
 	private void createAddUserPopup(String userId) {
 		heading = new Label("Add User");
@@ -168,12 +150,12 @@ public class AddUserController implements Initializable {
 		digitalSignaturePane.setAlignment(Pos.CENTER);
 
 		signImage = new ImageView();
-		double preferredWidth = 100; // Set your preferred size
-		double preferredHeight = 50;
-		signImage.setFitWidth(preferredWidth);
-		signImage.setFitHeight(preferredHeight);
+		signImage.setPreserveRatio(true);
+		signImage.setFitHeight(130);
+		signImage.setFitWidth(130);
 
 		digitalSignaturePane.getChildren().add(signImage);
+
 		HBox uploadButtonBox = new HBox();
 		uploadButtonBox.setAlignment(Pos.CENTER);
 		Button uploadButton = new Button("Upload");
@@ -191,11 +173,12 @@ public class AddUserController implements Initializable {
 		addButton.setOnAction(e -> handleValidateData(null));
 		cancelButton.setOnAction(e -> handleCancelButton());
 
-		buttonContainerBox.getChildren().addAll(addButton, cancelButton);
+		buttonContainerBox.getChildren().addAll(cancelButton,addButton);
 
 		if (userId != null) {
 			heading.setText("Update User");
 			userTypeBox.setVisible(false);
+			userTypeBox.setManaged(false);
 			passwordLabel.setText("Enter New Password");
 			confirmPasswordLabel.setText("Confirm New Password");
 			addButton.setText("Update User");
@@ -221,10 +204,6 @@ public class AddUserController implements Initializable {
 				return;
 			}
 			Image image = new Image(selectedFile.toURI().toString());
-			double preferredWidth = 100; // Set your preferred size
-			double preferredHeight = 50;
-			signImage.setFitWidth(preferredWidth);
-			signImage.setFitHeight(preferredHeight);
 			signImage.setImage(image);
 			try {
 				imageData = Files.readAllBytes(selectedFile.toPath());
@@ -237,8 +216,7 @@ public class AddUserController implements Initializable {
 	private void setEditUserData(String userId) {
 		UserLoginDetailsDto userDetails = userManagement.getUserByUserId(userId);
 		userNameTextField.setText(userDetails.getLoginName());
-		userId = userDetails.getUserId();
-		roleId = userDetails.getRoleId();
+		userTypeBox.setValue(userDetails.getRoleId());
 		Blob blob = userDetails.getDigitalSignature();
 		if (blob != null) {
 			try (InputStream is = blob.getBinaryStream()) {
@@ -294,7 +272,7 @@ public class AddUserController implements Initializable {
 
 	private void handleAddNewUser() {
 		UserLoginDetailsDto addUserData = new UserLoginDetailsDto();
-		addUserData.setRoleId(userRoleType.get(userTypeBox.getValue()));
+		addUserData.setRoleId(userRoleType.get(userTypeBox.getValue()));;
 		addUserData.setLoginName(userNameTextField.getText());
 		addUserData.setPassword(confirmPasswordTextField.getText());
 		try {
@@ -303,38 +281,37 @@ public class AddUserController implements Initializable {
 			e.printStackTrace();
 		}
 
-		UserLoginDetailsDto addUserDetails = userManagement.addUser(addUserData);
-		if (addUserDetails.getResponse().getResponseCode() == 1) {
-			Notifications.showSuccessAlert(addUserDetails.getResponse().getResponseMessage());
+		UserLoginDetailsDto userDetails = userManagement.addUser(addUserData);
+		if (userDetails.getResponse().getResponseCode() == 1) {
+			Notifications.showSuccessAlert(userDetails.getResponse().getResponseMessage());
+			mainPageController.refreshUserList();
 			Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
 			stage.close();
-			mainPageController.refreshUserList();
+			
 		} else {
-			Notifications.showErrorAlert(addUserDetails.getResponse().getResponseMessage());
+			Notifications.showErrorAlert(userDetails.getResponse().getResponseMessage());
 		}
 	}
 
 	private void handleEditUserData(String userId) {
-		UserLoginDetailsDto EditUserData = new UserLoginDetailsDto();
-		EditUserData.setUserId(userId);
-		EditUserData.setRoleId(roleId);
-		EditUserData.setLoginName(userNameTextField.getText());
-		EditUserData.setPassword(confirmPasswordTextField.getText());
+		UserLoginDetailsDto addUserData = new UserLoginDetailsDto();
+		addUserData.setUserId(userId);
+		addUserData.setLoginName(userNameTextField.getText());
+		addUserData.setPassword(confirmPasswordTextField.getText());
 		try {
-			EditUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
+			addUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		Response EditUserDetails = userManagement.updateUser(EditUserData);
-		System.out.println();
-		if (EditUserDetails.getResponseCode() == 1) {
-			Notifications.showSuccessAlert(EditUserDetails.getResponseMessage());
+		Response editDetails = userManagement.updateUser(addUserData);
+		if (editDetails.getResponseCode() == 1) {
+			Notifications.showSuccessAlert(editDetails.getResponseMessage());
+			mainPageController.refreshUserList();
 			Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
 			stage.close();
-			mainPageController.refreshUserList();
 		} else {
-			Notifications.showErrorAlert(EditUserDetails.getResponseMessage());
+			Notifications.showErrorAlert(editDetails.getResponseMessage());
 		}
 
 	}
@@ -344,4 +321,37 @@ public class AddUserController implements Initializable {
 		stage.close();
 	}
 
+
+
 }
+
+
+
+//try {
+//	FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/AddUser.fxml"));
+//	Parent root = addUserPopup.load();
+//
+//	AddUserController controller = addUserPopup.getController();
+//	if (userData != null) {
+//		controller.setuserData(userData.getUserId());
+//	} else {
+//		controller.setuserData(null);
+//	}
+//	controller.setMainPageController(this);
+//
+//	Stage stage = new Stage();
+//	stage.setTitle("Edit User");
+//	stage.initModality(Modality.APPLICATION_MODAL);
+//	stage.initStyle(StageStyle.UNDECORATED);
+//
+//	Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
+//    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
+//    stage.setX(centerX);
+//    stage.setY(centerY);
+//	
+//	stage.setScene(new Scene(root));
+//	stage.showAndWait();
+//} catch (IOException e) {
+//	e.printStackTrace();
+//}
