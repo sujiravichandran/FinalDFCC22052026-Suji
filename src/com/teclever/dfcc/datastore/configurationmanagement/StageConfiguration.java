@@ -1,24 +1,36 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.StageLevelResponse;
 import com.teclever.datastore.dto.StageMasterLevelResponse;
 import com.teclever.datastore.dto.SubLevelResponseDto;
+import com.teclever.datastore.entities.SessionMaster;
+import com.teclever.datastore.entities.TestFile;
+import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
 import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
+import com.teclever.datastore.service.SessionMasterService;
+import com.teclever.datastore.service.TestFileService;
+import com.teclever.datastore.service.TestFilesStagesMappingService;
+import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
+import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelDto;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
+import com.teclever.dfcc.datastore.dto.StagesFilesDTO;
+import com.teclever.dfcc.datastore.dto.StagesFilesResponseDTO;
 
 public class StageConfiguration {
 
@@ -354,6 +366,78 @@ public class StageConfiguration {
 			return levelOneResponseDto;
 		}
 	}
+	 public Response addTestFilesToStage(List<String> fileIds, String stageLevel) {
+			Response response = new Response();
+			try {
+				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+				response = testFilesStagesMappingService.addTestFilesStagesMapping(stageLevel, fileIds);
+			} catch (Exception ex) {
+				response.setResponseCode(0);
+				response.setResponseMessage("Error" + ex.getLocalizedMessage());
+			}
+			return response;
+		}
+	    
+		public StagesFilesResponseDTO getTestFilesByStageLevel(String stageLevel) {
+			StagesFilesResponseDTO response = new StagesFilesResponseDTO();
+			try {
+				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+				GetResponse res = testFilesStagesMappingService.getTestFilesStagesMappingByLastLevelReference(stageLevel);
+				List<TestFilesStagesMapping> lst = new ArrayList<TestFilesStagesMapping>();
+				lst = (List<TestFilesStagesMapping>) res.getResponseList();
+				TestFileService testFileService = new TestFileService();
+			//	GetResponse res1 = testFileService.getAllTestFiles();
+				List<TestFile> lstTestFiles = new ArrayList<TestFile>();
+				lstTestFiles= testFileService.getAllTestFiles();
+				Map<String, String> testFileIdName = new HashMap<String, String>();
+				Map<String, String> testFileIdPathId = new HashMap<String, String>();
+				for (TestFile testFiles : lstTestFiles) {
+					testFileIdName.put(testFiles.getTestFileId(), testFiles.getTestFileName());
+				
+				}
+				List<StagesFilesDTO> listStagesFiles = new ArrayList<StagesFilesDTO>();
+				for (TestFilesStagesMapping testFilesStagesMapping : lst) {
+					StagesFilesDTO stagesFilesDTO = new StagesFilesDTO();
+					stagesFilesDTO.setTestFileId(testFilesStagesMapping.getTestFileId());
+					stagesFilesDTO.setLevelStage(testFilesStagesMapping.getStageLevel());
+					stagesFilesDTO.setPathMasterId(testFileIdPathId.get(testFilesStagesMapping.getTestFileId()));
+					listStagesFiles.add(stagesFilesDTO);
+				}
+				response.setResponseList(listStagesFiles);
+				response.setCode(11);
+				response.setMsg("Fetched");
+			} catch (Exception ex) {
+				response.setCode(0);
+				response.setMsg("Error Not Fetched");
+				response.setEmsg(ex.getLocalizedMessage());
+			}
+			return response;
+		}
+		public List<SessionMasterDTO> getSessionMasterList()
+		{
+			List<SessionMasterDTO>lst = new ArrayList();
+			try
+			{
+				SessionMasterService sessionMasterService = new SessionMasterService();
+				GetResponse res = sessionMasterService.getAllSessionMaster();
+				List<SessionMaster> sessionList = new ArrayList();
+				sessionList = (List<SessionMaster>) res.getResponseList();
+				System.out.println("%%%%%%%%%"+sessionList.size());
+				for(SessionMaster sessionMaster:sessionList)
+				{
+					SessionMasterDTO sessionMasterDTO = new SessionMasterDTO();
+					sessionMasterDTO.setSessionMasterId(sessionMaster.getSessionMasterId());
+					sessionMasterDTO.setSessionTypeName(sessionMaster.getSessionTypeName());
+					lst.add(sessionMasterDTO);
+					
+				}
+				
+			}catch(Exception ex)
+			{
+				System.out.println("Error" +ex.getLocalizedMessage());
+			}
+			return lst;
+		}
 
 
 }
