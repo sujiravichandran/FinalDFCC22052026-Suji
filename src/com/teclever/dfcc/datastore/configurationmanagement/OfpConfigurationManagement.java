@@ -9,6 +9,7 @@ import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.OfpConfiguration;
 import com.teclever.datastore.response.OfpConfigurationResponse;
+import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.MacroService;
 import com.teclever.datastore.service.OfpConfigurationService;
 import com.teclever.datastore.service.RunPathMasterService;
@@ -17,6 +18,7 @@ import com.teclever.datastore.service.TestFileService;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
+import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -58,9 +60,16 @@ public class OfpConfigurationManagement {
 				// test file
 				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(ofpConfigId);
 				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
-				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,
-						runPathMasterId2);
+				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,runPathMasterId2);
 				System.out.println(testFileLocation);
+				
+				
+				// download file
+				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(ofpConfigId);
+				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
+				List<String> downloadFilesPaths = DownloadFileManagement.saveDownloadFilesToDatabase(downloadFileLocation,runPathMasterId3);
+				System.out.println(downloadFileLocation);
+				
 
 			} else {
 				System.err.println("Failed to add Ofp Configuration: " + serviceResponse.getResponseMessage());
@@ -106,6 +115,14 @@ public class OfpConfigurationManagement {
 			if (testFileResponse.getResponseCode() == 0) {
 				System.err.println(
 						"Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
+			}
+			
+			List<String> runPathMasterIdForDownloadFiles = pathMasterService.getRunPathMasterIdsForDownloadFiles(ofpConfigId);
+			DownloadFileService downloadFileService = new DownloadFileService();
+			Response downloadFileResponse = downloadFileService.updateDownloadFilesDeleteStatus(runPathMasterIdForDownloadFiles, true);
+			if (downloadFileResponse.getResponseCode() == 0) {
+				System.err.println(
+						"Failed to update delete status for download files: " + downloadFileResponse.getResponseMessage());
 			}
 
 			// Retrieve and return updated RunConfigurationDto array
@@ -256,6 +273,29 @@ public class OfpConfigurationManagement {
 			RunPathMasterService runPathMasterService = new RunPathMasterService();
 
 			return runPathMasterService.fetchTestFilePathsFromRunPathMasterOfp(runPathMasterId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
+	
+	
+	public String fetchRunPathMasterIdForDownloadFile(String ofpConfigId) {
+		try {
+			RunPathMasterService runPathMasterService = new RunPathMasterService();
+
+			return runPathMasterService.fetchRunPathMasterIdForDownloadFileOfp(ofpConfigId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<String> fetchDownloadFilePathsFromRunPathMaster(String runPathMasterId) {
+		try {
+			RunPathMasterService runPathMasterService = new RunPathMasterService();
+
+			return runPathMasterService.fetchDownloadFilePathsFromRunPathMasterOfp(runPathMasterId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ArrayList<>();
