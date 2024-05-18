@@ -11,6 +11,8 @@ public class AdminCenterContentController {
     private StackPane VDDConfigStackPane = new StackPane();
     private StackPane faultCodeConfigStackPane = new StackPane();
     private StackPane stageConfigStackPane = new StackPane();
+    private StackPane testFilesStackPane = new StackPane();
+
 
 
 
@@ -49,7 +51,6 @@ public class AdminCenterContentController {
             		stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
         	        centerStackPane.getChildren().add(stageConfigStackPane);
             	}
-//            	userManagementStackPane.toFront();
                 break;
                 
             case "VDD Config":
@@ -68,6 +69,22 @@ public class AdminCenterContentController {
             	}
                 VDDConfigStackPane.toFront();
                 break;
+                
+            case "Test Files":
+          	  TestFilesController testFilesController = new TestFilesController();
+            	if (centerStackPane.getChildren().contains(testFilesStackPane)) {
+            	    boolean removed = centerStackPane.getChildren().remove(testFilesStackPane);
+            	    if (removed) {
+            	    	testFilesStackPane.getChildren().add(testFilesController.createVddConfigGridPane());
+            	        centerStackPane.getChildren().add(testFilesStackPane);
+            	    } else {
+            	        System.out.println("User-Node was not found or couldn't be removed.");
+            	    }
+            	} else {
+            		testFilesStackPane.getChildren().add(testFilesController.createVddConfigGridPane());
+        	        centerStackPane.getChildren().add(testFilesStackPane);
+            	}
+            	break;
                 
             case "Results":
                 faultCodeConfigStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");
