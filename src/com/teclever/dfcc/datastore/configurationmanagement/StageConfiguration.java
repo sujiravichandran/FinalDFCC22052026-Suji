@@ -236,6 +236,13 @@ public class StageConfiguration {
 		Response response = new Response();
 		try {
 			String levelType = levelId.substring(0, 2);
+			// Delete
+			TestFilesStagesMappingService test = new TestFilesStagesMappingService();
+			GetResponse res1 = test.getTestFilesStagesMappingByLastLevelReference(levelId);
+			List<?> resList = res1.getResponseList();
+			if (resList.size() > 0) {
+				test.deleteTestFilesMapping(levelId);
+			}
 			switch (levelType) {
 			case "L1":
 				LevelOneMasterService levelOne = new LevelOneMasterService();

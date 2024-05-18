@@ -2,6 +2,7 @@ package com.teclever.dfcc.datastore.dto;
 
 public class CardDetailsDTO {
 	private int cardDetailsId;
+	private String cardName;
 	private int aitessId;
 	private String cardIdentificationText;
 	private int totalNumberOfCards;
@@ -29,8 +30,12 @@ public class CardDetailsDTO {
 	}
 	public void setTotalNumberOfCards(int totalNumberOfCards) {
 		this.totalNumberOfCards = totalNumberOfCards;
+	}
+	public String getCardName() {
+		return cardName;
+	}
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
 	} 
-	
-	
 
 }
