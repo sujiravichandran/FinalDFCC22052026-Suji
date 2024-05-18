@@ -2,7 +2,6 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,17 +16,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.exception.ConstraintViolationException;
 
+import com.teclever.datastore.dto.FaultCodeMasterResponse;
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.FaultCodeMaster;
-import com.teclever.datastore.entities.VDD;
 import com.teclever.datastore.service.FaultCodeMasterService;
-import com.teclever.datastore.service.VDDService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.datastore.dto.FaultCodeAddResponse;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
-import com.teclever.dfcc.datastore.dto.VDDDto;
-import com.teclever.dfcc.datastore.dto.VDDResponse;
 
 public class FaultCodeManagement {
 	public static String[] headers = { "FaultCodeId", "FaultCodeDescription" };
@@ -50,8 +49,9 @@ public class FaultCodeManagement {
 			System.out.println(faultCodeServiceResponse.getCode());
 			for (Object object : faultCodeServiceResponse.getResponseList()) {
 				FaultCodeMaster faultCodeMaster = (FaultCodeMaster) object;
-				FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCode(),
-						faultCodeMaster.getFaultCodeDescription());
+				FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),
+						faultCodeMaster.getFaultCode(), faultCodeMaster.getFaultCodeDescription(),
+						faultCodeMaster.getFalutCodeFilePath());
 				faultCodeList.add(faultCodeDTO);
 			}
 			res.setResponseCode(1);
@@ -69,7 +69,7 @@ public class FaultCodeManagement {
 		}
 	}
 
-	public FaultCodeResponse addFaultCode(List<FaultCodeDTO> listOfFaultCodeDto,String faultCodeFilePath) {
+	public FaultCodeResponse addListFaultCode(List<FaultCodeDTO> listOfFaultCodeDto, String faultCodeFilePath) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		try {
@@ -93,21 +93,67 @@ public class FaultCodeManagement {
 					faultCodeMaster.setFaultCodeDescription(faultCodeDTO.getFaultCodeDescription());
 					faultCodeMaster.setFalutCodeFilePath(faultCodeFilePath);
 					listofFaultCodeMaster.add(faultCodeMaster);
-				}else {
-					System.out.println(" Repeted Fault Code " +faultCodeDTO.getFaultCode() + " Description " + faultCodeDTO.getFaultCodeDescription());
+				} else {
+					System.out.println(" Repeted Fault Code " + faultCodeDTO.getFaultCode() + " Description "
+							+ faultCodeDTO.getFaultCodeDescription());
 				}
 			}
-			
-			GetResponse response = faultCodeMasterService.addListOfFaultCodeMaster(listofFaultCodeMaster);
-			res.setResponseCode(response.getCode());
-			res.setResponseMessage(response.getMsg());
-			faultCodeResponse.setResponse(res);
+
+			FaultCodeMasterResponse response = faultCodeMasterService.addListOfFaultCodeMaster(listofFaultCodeMaster);
+			List<FaultCodeDTO> faultCodeList = new ArrayList<>();
+			if (response.getResponse().getResponseCode() == 1 && response.getFaultCodeMasterList().size() > 0) {
+				for (Object entry : response.getFaultCodeMasterList()) {
+					FaultCodeMaster faultCodeMaster = (FaultCodeMaster) entry;
+					FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),
+							faultCodeMaster.getFaultCode(), faultCodeMaster.getFaultCodeDescription(),
+							faultCodeMaster.getFalutCodeFilePath());
+					faultCodeList.add(faultCodeDTO);
+				}
+			}
+			faultCodeResponse.setExcelResponse(response.getExcelResponse());
+			faultCodeResponse.setResponse(response.getResponse());
+			faultCodeResponse.setFaultCodeList(faultCodeList);
 			return faultCodeResponse;
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Fetching VDD Unsuccessfull " + e);
 			faultCodeResponse.setResponse(res);
 			return faultCodeResponse;
+		}
+	}
+
+	public FaultCodeAddResponse addFaultCode(int faultCode, String faultCodeDescription, String faultCodefilePath) {
+		FaultCodeAddResponse faultCodeAddResponse = new FaultCodeAddResponse();
+		Response res = new Response();
+		try {
+			if (faultCode == 0) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Add FaultCode Unsuccessfull : Please Input Valid FaultCode ");
+				faultCodeAddResponse.setResponse(res);
+				return faultCodeAddResponse;
+			}
+			FaultCodeMasterService faultCodeMasterService = new FaultCodeMasterService();
+
+			FaultCodeMaster faultCodeMaster = new FaultCodeMaster();
+
+			faultCodeMaster.setFaultCode(faultCode);
+			faultCodeMaster.setFaultCodeDescription(faultCodeDescription);
+			faultCodeMaster.setFalutCodeFilePath(faultCodefilePath);
+
+			GetObjResponse response = faultCodeMasterService.addFaultCodeMaster(faultCodeMaster);
+			FaultCodeMaster faultCodeMasterResponse = (FaultCodeMaster) response.getObject();
+			FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMasterResponse.getFaultCodeId(),
+					faultCodeMasterResponse.getFaultCode(), faultCodeMasterResponse.getFaultCodeDescription(),
+					faultCodeMasterResponse.getFalutCodeFilePath());
+
+			faultCodeAddResponse.setResponse(response.getResponse());
+			faultCodeAddResponse.setFaultCodeMaster(faultCodeDTO);
+			return faultCodeAddResponse;
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Add FaultCode Unsuccessfull ");
+			faultCodeAddResponse.setResponse(res);
+			return faultCodeAddResponse;
 		}
 	}
 
@@ -188,11 +234,20 @@ public class FaultCodeManagement {
 				}
 				listOfFaultCodeDto.add(faultCodeDto);
 			}
-			res.setResponseCode(1);
-			res.setResponseMessage("Import Successful ");
-			faultCodeResponse.setResponse(res);
-			faultCodeResponse.setFaultCodeList(listOfFaultCodeDto);
+			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path);
 			workbook.close();
+//			if (faultCodeResponse.getResponse().getResponseCode() == 0) {
+//				res = faultCodeResponse.getResponse();
+//				workbook.close();
+//				return faultCodeResponse;
+//			}
+//			res.setResponseCode(1);
+//			res.setResponseMessage("Import Successful ");
+//			faultCodeResponse.setResponse(res);
+//			faultCodeResponse.setFaultCodeList(listOfFaultCodeDto);
+//			workbook.close();
+		} catch (ConstraintViolationException ex) {
+			System.out.println("Exception is handled.............");
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Error while importing " + e.getLocalizedMessage());

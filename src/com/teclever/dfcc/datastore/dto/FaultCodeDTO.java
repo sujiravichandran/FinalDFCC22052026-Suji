@@ -3,14 +3,39 @@ package com.teclever.dfcc.datastore.dto;
 
 public class FaultCodeDTO {
 
+	private String faultCodeMasterId;
+
 	private int faultCode;
 
 	private String faultCodeDescription;
+	
+	private String faultCodeFilePath;
 
-	public FaultCodeDTO(int faultCode, String faultCodeDescription) {
+	
+
+	public FaultCodeDTO(String faultCodeMasterId, int faultCode, String faultCodeDescription,
+			String faultCodeFilePath) {
 		super();
+		this.faultCodeMasterId = faultCodeMasterId;
 		this.faultCode = faultCode;
 		this.faultCodeDescription = faultCodeDescription;
+		this.faultCodeFilePath = faultCodeFilePath;
+	}
+
+	public String getFaultCodeFilePath() {
+		return faultCodeFilePath;
+	}
+
+	public void setFaultCodeFilePath(String faultCodeFilePath) {
+		this.faultCodeFilePath = faultCodeFilePath;
+	}
+
+	public String getFaultCodeMasterId() {
+		return faultCodeMasterId;
+	}
+
+	public void setFaultCodeMasterId(String faultCodeMasterId) {
+		this.faultCodeMasterId = faultCodeMasterId;
 	}
 
 	public FaultCodeDTO() {
