@@ -10,6 +10,7 @@ import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.model.SymbolFile;
+import com.teclever.dfcc.model.User;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.TableViewFactory;
 
@@ -20,6 +21,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -29,12 +31,12 @@ import javafx.scene.layout.RowConstraints;
 public class SymbolFilesController {
 	private GridPane symbolFilesParentGridPane = new GridPane();
 	private GridPane symbolFilesTitleGridPane = new GridPane();
-	private GridPane midGridPane = new GridPane();
+	private GridPane symbolFilemidGridPane = new GridPane();
 	private GridPane symbolFileTableGridPane = new GridPane();
 
 	private Label aitessTypeLabel = new Label("AITESS TYPE");
-	private Label driverLabel = new Label("Driver");
-	private Label configFileLabel = new Label("SELECT CONFIG FILE");
+	private Label driverLabel = new Label("DRIVER");
+	private Label configFileLabel;
 
 	private ComboBox<String> uut_type_field;
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
@@ -109,7 +111,6 @@ public class SymbolFilesController {
 	private HBox headerHbox() {
 		Label headerLabel = new Label("SYMBOL FILES");
 		headerLabel.getStyleClass().add("symbolFiles-headerLabel");
-		headerLabel.setPadding(new Insets(0, 0, 0, 20));
 
 		HBox headerLabelHbox = new HBox(10);
 		headerLabelHbox.setAlignment(Pos.CENTER_LEFT);
@@ -122,7 +123,6 @@ public class SymbolFilesController {
 		Button addSymbolButton = new Button("ADD SYMBOLS");
 //		addButton.setOnAction(e -> onClickGETButton());
 		HBox headerButtonHbox = new HBox(10);
-		headerButtonHbox.setPadding(new Insets(0, 20, 0, 0));
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
 		headerButtonHbox.getChildren().add(addSymbolButton);
@@ -132,37 +132,52 @@ public class SymbolFilesController {
 	private GridPane symbolFilesMiddleContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(15);
-
 		ColumnConstraints secondColumn = new ColumnConstraints();
 		secondColumn.setPercentWidth(15);
-
 		ColumnConstraints thirdColumn = new ColumnConstraints();
 		thirdColumn.setPercentWidth(15);
-
 		ColumnConstraints fourthColumn = new ColumnConstraints();
 		fourthColumn.setPercentWidth(15);
-
 		ColumnConstraints fifthColumn = new ColumnConstraints();
 		fifthColumn.setPercentWidth(40);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		midGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn, fifthColumn);
-		midGridPane.getRowConstraints().addAll(firstRow);
-		midGridPane.setAlignment(Pos.CENTER);
-		midGridPane.setPadding(new Insets(10));
+		symbolFilemidGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn,
+				fifthColumn);
+		symbolFilemidGridPane.getRowConstraints().addAll(firstRow);
+		symbolFilemidGridPane.setAlignment(Pos.CENTER);
+		symbolFilemidGridPane.setPadding(new Insets(10));
+
+		symbolFilemidGridPane.add(createUutTypeField(), 0, 0);
+		symbolFilemidGridPane.add(createTestTypeField(), 1, 0);
+		symbolFilemidGridPane.add(createAitessType(), 2, 0);
+		symbolFilemidGridPane.add(createDriverNameLabel(), 3, 0);
+		symbolFilemidGridPane.add(createConfigLabel(), 4, 0);
+
+		symbolFilemidGridPane.getStyleClass().add("symbolFiles-Container");
+		return symbolFilemidGridPane;
+	}
+
+	private HBox createUutTypeField() {
 		uut_type_field.setPromptText("UUT TYPE");
+
+		HBox uutTypeHBox = new HBox(10);
+		uutTypeHBox.setAlignment(Pos.CENTER);
+		uutTypeHBox.getChildren().add(uut_type_field);
+
+		return uutTypeHBox;
+	}
+
+	private HBox createTestTypeField() {
 		test_type_field.setPromptText("TEST TYPE");
 
-		midGridPane.add(uut_type_field, 0, 0);
-		midGridPane.add(test_type_field, 1, 0);
-		midGridPane.add(createAitessType(), 2, 0);
-		midGridPane.add(createDriverNameLabel(), 3, 0);
-		midGridPane.add(createConfigLabel(), 4, 0);
+		HBox testTypeHBox = new HBox(10);
+		testTypeHBox.setAlignment(Pos.CENTER);
+		testTypeHBox.getChildren().add(test_type_field);
 
-		midGridPane.getStyleClass().add("symbolFiles-Container");
-		return midGridPane;
+		return testTypeHBox;
 	}
 
 	private HBox createAitessType() {
@@ -171,6 +186,10 @@ public class SymbolFilesController {
 		aitessTypeLabel.setPrefWidth(200);
 		aitessTypeLabel.setAlignment(Pos.CENTER);
 		aitessTypeLabel.setPadding(new Insets(0, 0, 0, 0));
+
+		Tooltip aitessTooltip = new Tooltip();
+		aitessTooltip.textProperty().bind(aitessTypeLabel.textProperty());
+		aitessTypeLabel.setTooltip(aitessTooltip);
 
 		HBox aitessTypeHBox = new HBox(10);
 		aitessTypeHBox.setAlignment(Pos.CENTER);
@@ -187,6 +206,10 @@ public class SymbolFilesController {
 		driverLabel.setPadding(new Insets(0, 0, 0, 0));
 		driverLabel.getStyleClass().add("label_field");
 
+		Tooltip driverTooltip = new Tooltip();
+		driverTooltip.textProperty().bind(driverLabel.textProperty());
+		driverLabel.setTooltip(driverTooltip);
+
 		HBox driverTypeHBox = new HBox(10);
 		driverTypeHBox.setAlignment(Pos.CENTER);
 		driverTypeHBox.getChildren().add(driverLabel);
@@ -195,15 +218,20 @@ public class SymbolFilesController {
 	}
 
 	private HBox createConfigLabel() {
+		configFileLabel = new Label("CONFIG FILE");
 		configFileLabel.setAlignment(Pos.CENTER);
 		configFileLabel.getStyleClass().add("label_field");
 		configFileLabel.setPadding(new Insets(0, 0, 0, 0));
 		configFileLabel.setMaxWidth(Double.MAX_VALUE);
 
+		Tooltip configFileTooltip = new Tooltip();
+		configFileTooltip.textProperty().bind(configFileLabel.textProperty());
+		configFileLabel.setTooltip(configFileTooltip);
+
 		HBox configLabelHBox = new HBox(10);
 		configLabelHBox.setAlignment(Pos.CENTER);
-		configLabelHBox.getChildren().add(configFileLabel);
 		configLabelHBox.setMaxWidth(Double.MAX_VALUE);
+		configLabelHBox.getChildren().add(configFileLabel);
 
 		HBox.setHgrow(configFileLabel, Priority.ALWAYS);
 		HBox.setHgrow(configLabelHBox, Priority.ALWAYS);
@@ -219,15 +247,9 @@ public class SymbolFilesController {
 		uut_type_field.setItems(uutTypeList);
 		uut_type_field.setOnAction((event) -> {
 			this.UUT_ID = fetchUutId(uut_type_field.getValue());
+			testTypeList.clear();
 			initializeTestTypeComboBox();
-			fetchingTableData();
-			
 		});
-	}
-	private void fetchingTableData() {
-		TEST_TYPE_ID = fetchTestTypeId(test_type_field.getValue());
-		RUN_CONFIG_ID = fetchRunConfigID(TEST_TYPE_ID);
-		setSymbolFileTableData();
 	}
 
 	private String fetchUutId(String uutType) {
@@ -247,7 +269,7 @@ public class SymbolFilesController {
 			testTypeList.add(testType.getTestName());
 		}
 		test_type_field.setItems(testTypeList);
-		test_type_field.setOnAction((event) ->fetchingTableData());
+		test_type_field.setOnAction((event) -> fetchingTableData());
 	}
 
 	private String fetchTestTypeId(String testTypeName) {
@@ -257,6 +279,12 @@ public class SymbolFilesController {
 			}
 		}
 		return null;
+	}
+
+	private void fetchingTableData() {
+		TEST_TYPE_ID = fetchTestTypeId(test_type_field.getValue());
+		RUN_CONFIG_ID = fetchRunConfigID(TEST_TYPE_ID);
+		setSymbolFileTableData();
 	}
 
 	private String fetchRunConfigID(String testTypeID) {
@@ -270,9 +298,9 @@ public class SymbolFilesController {
 				configFileLabel.setText(runConfigDto.getConfigFile());
 				break;
 			} else {
-				aitessTypeLabel.setText("----");
-				driverLabel.setText("----");
-				configFileLabel.setText("----");
+				aitessTypeLabel.setText("AITESS TYPE");
+				driverLabel.setText("DRIVER");
+				configFileLabel.setText("CONFIG FILE");
 			}
 		}
 		return runConfigId;
@@ -302,6 +330,20 @@ public class SymbolFilesController {
 			tableData.add(symbolData);
 		}
 		customTableView_symbolFiles = userFactory.createTableView(tableData, true, false);
+		customTableView_symbolFiles.addEventHandler(CustomTableView.EDIT_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<SymbolFile> selectedItems = customTableView_symbolFiles.getSelectedItems();
+			for (SymbolFile rowData : selectedItems) {
+				System.out.println(rowData);
+//				handleAddEditButtonClicked(rowData);
+			}
+		});
+
+		customTableView_symbolFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<SymbolFile> selectedItems = customTableView_symbolFiles.getSelectedItems();
+			for (SymbolFile rowData : selectedItems) {
+//				handleDeleteButtonClicked(rowData);
+			}
+		});
 		symbolFileTableGridPane.add(customTableView_symbolFiles, 0, 0);
 	}
 }
