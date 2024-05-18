@@ -1,0 +1,38 @@
+.headerLabel{
+	-fx-text-fill:#003360;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+}
+
+.aitessMaster-Container{
+	-fx-background-color: #222831;
+	-fx-background-radius: 10px;
+}
+
+.aitessMaster-combobox-Label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 20.0px;
+	-fx-font-weight: bold;
+}
+
+.list-cell:hover{
+	-fx-background-color: #909398;
+}
+
+.combo-box {
+    -fx-font-size: 17.0px;
+    -fx-background-color: #FFFFFF;
+    -fx-border-width: 1.0px;
+    -fx-border-radius: 10.0px;
+    -fx-background-radius: 10.0px;
+    -fx-pref-width: 200px;
+}
+
+.button {
+    -fx-background-color: #77ABAE ;
+    -fx-text-fill:#FFFFFF;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
