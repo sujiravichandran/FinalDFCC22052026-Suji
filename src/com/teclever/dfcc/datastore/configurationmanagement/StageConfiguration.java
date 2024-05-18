@@ -438,6 +438,24 @@ public class StageConfiguration {
 			}
 			return lst;
 		}
+		
+	//Delete Stages Mapping.
+	public Response deleteStagesMapping(int testFileMappingId)
+	{
+		Response res = new Response();
+		try
+		{
+			TestFilesStagesMappingService testMappingService = new TestFilesStagesMappingService();
+			res = testMappingService.deleteTestFileFromStages(testFileMappingId);
+		}
+		catch(Exception ex)
+		{
+			res.setResponseCode(0);
+			res.setResponseMessage("Not Deleted");
+		}
+		return res;
+	}
+	
 
 
 }
