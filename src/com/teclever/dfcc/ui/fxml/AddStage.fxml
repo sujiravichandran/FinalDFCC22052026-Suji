@@ -140,7 +140,7 @@
             </VBox>
             <HBox alignment="CENTER" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="add_new_stage_button" mnemonicParsing="false" onAction="#onClickAddStage1" text="Add New Stage">
+                  <Button fx:id="add_new_stage_button" mnemonicParsing="false" onAction="#onClickAddOrEditStage1" text="Add New Stage">
                      <font>
                         <Font size="16.0" />
                      </font>
@@ -150,7 +150,7 @@
                         <Font size="16.0" />
                      </font>
                   </Button>
-                  <Button fx:id="update_button" layoutX="55.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickUpdateStage" text="Update">
+                  <Button fx:id="update_button" layoutX="55.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickUpdateSubStage" text="Update">
                      <font>
                         <Font size="16.0" />
                      </font>

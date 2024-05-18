@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
@@ -59,11 +60,11 @@ import javafx.stage.StageStyle;
 
 public class StageConfigurationController {
 	private GridPane stageParentGrid = new GridPane();
+	private GridPane stageConfigBottomGridPane = new GridPane();
 	private StackPane stageConfigStackPane = new StackPane();
 	private HBox stageConfigTopHbox = new HBox(10);
 	private HBox stageConfigMidHbox = new HBox(30);
-	private GridPane stageConfigBottomGridPane = new GridPane();
-
+	
 	private ComboBox<String> uut_type_field;
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
@@ -80,6 +81,7 @@ public class StageConfigurationController {
 	private Button addNewStageButton = new Button("Add New Stage");
 	private ListView<String> stage1_listView = new ListView<>();
 	private TreeView<Node> sessionTreeView = new TreeView<>();
+	
 	private ObservableList<SessionStage> session_l1Data = FXCollections.observableArrayList();
 	private ObservableList<SessionSubStage> session_l2Data = FXCollections.observableArrayList();
 	private ObservableList<SessionSubStage> session_l3Data = FXCollections.observableArrayList();
@@ -91,8 +93,8 @@ public class StageConfigurationController {
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	private RunConfigurationManagement runConfig = new RunConfigurationManagement();
-	private StageConfiguration stageConfig = new StageConfiguration();
 	private TestMapingController testMapingController = new TestMapingController();
+	private StageConfiguration stageConfig = new StageConfiguration();
 	private Notifications notify;
 
 	public StageConfigurationController() {
@@ -168,7 +170,6 @@ public class StageConfigurationController {
 			notify.showErrorAlert("Please select User Type");
 		} else {
 			session_l1Data = getStage1FromDb(UUT_ID, USER_ROLE_ID);
-
 			stageConfigBottomGridPane.setDisable(false);
 			initializeStage1ListView();
 			initializeTreeView();
@@ -270,7 +271,7 @@ public class StageConfigurationController {
 	private void setSearchableTextField() {
 		FilteredList<SessionStage> filteredData = new FilteredList<>(session_l1Data, p -> true);
 		SortedList<SessionStage> sortedList = new SortedList<>(filteredData);
-
+		
 		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredData.setPredicate(sessionStage -> {
 				if (newValue == null || newValue.isEmpty()) {
@@ -292,9 +293,7 @@ public class StageConfigurationController {
 			}
 			ObservableList<String> stringList = FXCollections.observableArrayList();
 			sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
-
 			stage1_listView.setItems(stringList);
-
 		});
 	}
 
@@ -343,9 +342,7 @@ public class StageConfigurationController {
 					String testTypeID = fetchTestTypeIdByName(testTypeName);
 					RUN_CONFIG_ID = fetchRunConfigID(testTypeID);
 					if (RUN_CONFIG_ID != null) {
-						System.out.println("Run Configuration ID: " + RUN_CONFIG_ID);
 						stageConfigBottomGridPane.setDisable(false);
-//		                stageConfigBottomGridPane.getChildren().remove(testMapingController.TestMappingView("null","null"));
 						stageConfigBottomGridPane.add(
 								testMapingController.TestMappingView(UUT_ID, RUN_CONFIG_ID, testTypeID, stageId), 1, 0);
 					} else {
@@ -413,34 +410,12 @@ public class StageConfigurationController {
 							Label label = (Label) hBoxChild;
 							testInfoMap.put("testTypeName", label.getText());
 						}
-//						if (hBoxChild instanceof Label && hBoxChild.getStyleClass().contains("stage-label")) {
-//							Label label = (Label) hBoxChild;
-//							testInfoMap.put("stageId", label.getText()); 
-//						}
 					}
 				}
 			}
 		}
 		return testInfoMap.isEmpty() ? null : testInfoMap;
 	}
-//	private String extractTestTypeNameFromNode(Node node) {
-//	    if (node instanceof GridPane) {
-//	        GridPane gridPane = (GridPane) node;
-//	        for (Node child : gridPane.getChildren()) {
-//	            if (child instanceof HBox) {
-//	                HBox hBox = (HBox) child;
-//	                for (Node hBoxChild : hBox.getChildren()) {
-//	                    if (hBoxChild instanceof Label && hBoxChild.getStyleClass().contains("label_field")) {
-//	                        Label label = (Label) hBoxChild;
-//	                        return label.getText();
-////	                    	
-//	                    }
-//	                }
-//	            }
-//	        }
-//	    }
-//	    return null;
-//	}
 
 	private GridPane createL1UI(SessionStage stage1) {
 		Label l1_label = new Label(stage1.getL1_name());
@@ -471,29 +446,17 @@ public class StageConfigurationController {
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setId(stage1.getId());
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
-		ImageView addBtn = createImageButton("/Resources/Images/add.jpg", "ADD", event -> {
-			System.out.println("ADD button clicked for stage: " + stage1.toString());
-			addSubStage(stage1.getId(), stage1.getL1_name());
-		});
-		ImageView editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> {
-			System.out.println("Edit button clicked for stage: " + stage1.toString());
-			editStage1(stage1);
-		});
-		ImageView delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event -> {
-			System.out.println("DEL button clicked for stage: " + stage1.toString());
-			deleteStage(stage1.getId());
-		});
+		Button addBtn = createImageButton("/Resources/Images/add.jpg", "ADD", event -> addSubStage(stage1.getId(), stage1.getL1_name()));
+		
+		Button editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> editStage1(stage1));
+		
+		Button delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event ->deleteStage(stage1.getId()));
 
 		buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
 		buttonsContainer.setVisible(false);
 
-		gridPaneL1.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
-			buttonsContainer.setVisible(true);
-		});
-
-		gridPaneL1.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
-			buttonsContainer.setVisible(false);
-		});
+		gridPaneL1.addEventFilter(MouseEvent.MOUSE_ENTERED, e ->buttonsContainer.setVisible(true));
+		gridPaneL1.addEventFilter(MouseEvent.MOUSE_EXITED, e -> buttonsContainer.setVisible(false));
 
 		gridPaneL1.add(labelContainer, 0, 0);
 		gridPaneL1.add(buttonsContainer, 1, 0);
@@ -512,19 +475,12 @@ public class StageConfigurationController {
 		Label stageLabel = createStageLabel(stage.getL_name(), "stage-label");
 
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
-		ImageView addBtn = createImageButton("/Resources/Images/AddIcon.png", "ADD", event -> {
-			System.out.println("ADD button clicked for stage: " + stage.toString());
-			addSubStage(stage.getId(), stage.getL_name());
-		});
-		ImageView editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> {
-			System.out.println("Edit button clicked for stage: " + stage.toString());
+		Button addBtn = createImageButton("/Resources/Images/AddIcon.png", "ADD", event ->addSubStage(stage.getId(), stage.getL_name()));
+		Button editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> {
 			String testTypeName = fetchTestTypeNameById(stage.getTestType());
 			editStage(stage.getId(), stage.getpId(), stage.getL_name(), testTypeName);
 		});
-		ImageView delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event -> {
-			System.out.println("DEL button clicked for stage: " + stage.toString());
-			deleteStage(stage.getId());
-		});
+		Button delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event ->deleteStage(stage.getId()));
 
 		buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
 		buttonsContainer.setVisible(false);
@@ -538,8 +494,6 @@ public class StageConfigurationController {
 	}
 
 	private void createStageFieldUI(SessionSubStage stage, GridPane gridPane, HBox buttonsContainer) {
-		System.out.println(stage.getTestType());
-		System.out.println("+++++++++++++++++++++" + stage.getId());
 		String testTypeName = fetchTestTypeNameById(stage.getTestType());
 		Label stageField = createStageLabel(testTypeName, "label_field");
 		stageField.setPrefWidth(Region.USE_COMPUTED_SIZE);
@@ -547,7 +501,7 @@ public class StageConfigurationController {
 
 		HBox stageHBox = createStageHBox(createStageLabel(stage.getL_name(), "stage-label"), stageField,
 				(HBox) gridPane.getChildren().get(1));
-
+		
 		gridPane.add(stageHBox, 0, 0);
 		gridPane.add(buttonsContainer, 1, 0);
 	}
@@ -570,6 +524,7 @@ public class StageConfigurationController {
 				HBox buttonsContainer = new HBox(10);
 				buttonsContainer.setId(stageL2.getId());
 				GridPane gridPaneL2 = new GridPane();
+//				gridPaneL2.setPadding(new Insets(7,7,5,0));
 				gridPaneL2 = createStageUI(stageL2, gridPaneL2, buttonsContainer, parentItem);
 
 				TreeItem<Node> stageItemL2 = new TreeItem<>(gridPaneL2);
@@ -665,42 +620,26 @@ public class StageConfigurationController {
 	}
 
 	private void addNewStage() {
-		try {
-			FXMLLoader addStagePopup = new FXMLLoader(
-					getClass().getResource("/com/teclever/dfcc/ui/fxml/AddStage.fxml"));
-			Parent root = addStagePopup.load();
-			AddStageController controller = addStagePopup.getController();
-			controller.setNewStageData(stageNameField.getText(), UUT_ID, USER_ROLE_ID);
-			controller.setMainPageController(this);
-			Stage stage = new Stage();
-			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.initStyle(StageStyle.UNDECORATED);
-			stage.setScene(new Scene(root));
-			stage.showAndWait();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+	    openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+	            controller -> controller.setNewStageData(stageNameField.getText(), UUT_ID, USER_ROLE_ID));
 	}
-
 	private void addSubStage(String id, String stageName) {
 		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setAddSubStageData(UUT_ID, id, stageName));
 	}
 
 	private void editStage1(SessionStage stage1) {
-		System.out.println("STAGE_1- update: " + stage1.toString());
 		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setEditStage1Data(stage1, UUT_ID, USER_ROLE_ID));
 	}
 
 	private void editStage(String id, String pId, String stageName, String testtype) {
 		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
-				controller -> controller.setEditStageData(UUT_ID, id, pId, stageName, testtype));
+				controller -> controller.setEditSubStageData(UUT_ID, id, pId, stageName, testtype));
 	}
 
 	private void deleteStage(String id) {
-		com.teclever.datastore.dto.Response response = stageConfig.deleteStageLevelById(id);
-		System.out.println("DEL--------------"+id);
+		Response response = stageConfig.deleteStageLevelById(id);
 		if (response.getResponseCode() == 1) {
 			notify.showSuccessAlert(response.getResponseMessage());
 			refreshStageList();
@@ -722,8 +661,7 @@ public class StageConfigurationController {
 				stage.setL1_name(levelOneDto.getStageName());
 				stage.setId(levelOneDto.getLevelOneId());
 
-				ArrayList<String> sessionIdsList = new ArrayList<>(
-						Arrays.asList(levelOneDto.getSessionIds().split(",")));
+				ArrayList<String> sessionIdsList = new ArrayList<>(Arrays.asList(levelOneDto.getSessionIds().split(",")));
 				stage.setSessionType(sessionIdsList);
 
 				if (levelOneDto.getNextLevel().equals("Y")) {
@@ -761,14 +699,16 @@ public class StageConfigurationController {
 		return subStageList;
 	}
 
-	private ImageView createImageButton(String imagePath, String tooltipText, EventHandler<ActionEvent> action) {
-		Image image = new Image(getClass().getResourceAsStream(imagePath));
-		ImageView imageView = new ImageView(image);
+	private Button createImageButton(String imagePath, String tooltipText, EventHandler<ActionEvent> action) {
+		ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream(imagePath)));
 		imageView.setFitWidth(20);
 		imageView.setFitHeight(20);
-		imageView.setOnMouseClicked(e -> action.handle(new ActionEvent()));
-		imageView.setStyle("-fx-background-color: white;");
-		return imageView;
+		Button button = new Button();
+		button.setGraphic(imageView);
+		button.setStyle(
+				"-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0; -fx-margin: 0;");
+		button.setOnAction(action);
+		return button;
 	}
 
 	private Label createStageLabel(String text, String styleClass) {
