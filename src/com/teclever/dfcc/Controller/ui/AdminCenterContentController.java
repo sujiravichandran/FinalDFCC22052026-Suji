@@ -12,11 +12,9 @@ public class AdminCenterContentController {
     private StackPane faultCodeConfigStackPane = new StackPane();
     private StackPane stageConfigStackPane = new StackPane();
     private StackPane testFilesStackPane = new StackPane();
+    private StackPane symbolFilesConfigStackPane = new StackPane();
 
 
-
-
- 
     public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
         switch (selectedMenu) {
             case "User Management":
@@ -85,6 +83,25 @@ public class AdminCenterContentController {
         	        centerStackPane.getChildren().add(testFilesStackPane);
             	}
             	break;
+            	
+ case "Symbol Files":
+            	
+            	symbolFilesConfigStackPane.setStyle("-fx-background-color:white;-fx-background-radius:15px;");
+            	SymbolFilesController symbolFilesConfig = new SymbolFilesController();
+            	if (centerStackPane.getChildren().contains(symbolFilesConfigStackPane)) {
+            	    boolean removed = centerStackPane.getChildren().remove(symbolFilesConfigStackPane);
+            	    if (removed) {
+            	    	symbolFilesConfigStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
+            	        centerStackPane.getChildren().add(symbolFilesConfigStackPane);
+            	    } else {
+            	        System.out.println("Stage-Node was not found or couldn't be removed.");
+            	    }
+            	} else {
+            		symbolFilesConfigStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
+        	        centerStackPane.getChildren().add(symbolFilesConfigStackPane);
+            	}
+    			symbolFilesConfigStackPane.toFront();
+    			break;
                 
             case "Results":
                 faultCodeConfigStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");

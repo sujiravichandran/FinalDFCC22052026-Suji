@@ -9,6 +9,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
+import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 //import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.model.SessionStage;
@@ -103,7 +104,7 @@ public class AddStageController implements Initializable {
 
 	private String stage1Name;
 	private String UUT_ID;
-	private String userType;
+	private String USER_TYPE;
 	private String PARENT_ID;
 	private String CHILD_ID;
 	private String TEST_TYPE_ID;
@@ -122,50 +123,40 @@ public class AddStageController implements Initializable {
 	public void setNewStageData(String stage1Name, String uutType, String userType) {
 		this.stage1Name = stage1Name;
 		this.UUT_ID = uutType;
-		this.userType = userType;
-		setupNewStage(stage1Name);
-//		List<SessionMasterDTO> sessionTypeList=stageConfig.getSessionMasterList();
-//		System.out.println(sessionTypeList.size());
-//		System.out.println("SESSION TYPE LIST: "+sessionTypeList.toString());
+		this.USER_TYPE = userType;
+		initializeNewStage1(stage1Name);
+		List<SessionMasterDTO> sessionTypeList=stageConfig.getSessionMasterList();
+		System.out.println("SESSION TYPE LIST: "+sessionTypeList.toString());
 	}
 
-	private void setupNewStage(String stage1Name) {
-		
+	private void initializeNewStage1(String stage1Name) {
 		headerLabel.setText("Add New Stage");
 		stage_name_field.setText(stage1Name);
-		parent_stage_name_box.setVisible(false);
-		parent_stage_name_box.setManaged(false);
-		sub_stage_name_box.setVisible(false);
-		sub_stage_name_box.setManaged(false);
-		test_type_box.setVisible(false);
-		test_type_box.setManaged(false);
-		add_subStage_button.setVisible(false);
-		add_subStage_button.setManaged(false);
-		update_button.setVisible(false);
-		update_button.setManaged(false);
+		fetchUIForStage1();
 	}
 
 	public void setEditStage1Data(SessionStage stage1Data,String uutType,String userType) {
 		this.sessionStage = stage1Data;
 		this.UUT_ID = uutType;
-		this.userType = userType;
-		setupEditStage1(stage1Data);
+		this.USER_TYPE = userType;
+		initializeEditStage1(stage1Data);
 	}
 
-	private void setupEditStage1(SessionStage stage1Data) {
+	private void initializeEditStage1(SessionStage stage1Data) {
 		headerLabel.setText("Edit Stage1");
 		add_new_stage_button.setText("Update Stage");
 		stage_name_field.setText(stage1Data.getL1_name());
 
 		List<String> sessionTypes = stage1Data.getSessionType();
-
-		// Check the checkboxes based on the session types
 		checkboxProduction.setSelected(sessionTypes.contains("Production"));
 		checkboxTrails.setSelected(sessionTypes.contains("Trails"));
 		checkboxBls.setSelected(sessionTypes.contains("BLS"));
 		checkboxPqt.setSelected(sessionTypes.contains("PQT"));
 		checkboxFru.setSelected(sessionTypes.contains("FRU"));
 
+		fetchUIForStage1();
+	}
+	private void fetchUIForStage1() {
 		parent_stage_name_box.setVisible(false);
 		parent_stage_name_box.setManaged(false);
 		sub_stage_name_box.setVisible(false);
@@ -179,7 +170,7 @@ public class AddStageController implements Initializable {
 	}
 
 	@FXML
-	void onClickAddStage1(ActionEvent event) {
+	void onClickAddOrEditStage1(ActionEvent event) {
 		String selectedSessionType = "";
 		if (checkboxProduction.isSelected()) {
 			selectedSessionType += "Production,";
@@ -200,54 +191,48 @@ public class AddStageController implements Initializable {
 			selectedSessionType = selectedSessionType.substring(0, selectedSessionType.length() - 1);
 		}
 		if (add_new_stage_button.getText().equals("Add New Stage")) {
-			LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage1Name, selectedSessionType, UUT_ID,
-					userType);
+			LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage_name_field.getText(), selectedSessionType, UUT_ID,
+					USER_TYPE);
 			if (response.getResponse().getResponseCode() == 1) {
-				LevelOneDto levelOne = response.getLevelOneResponse();
 				notify.showSuccessAlert(response.getResponse().getResponseMessage());
-				Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-				stage.close();
-				mainPageController.refreshStageList();
-//				mainPageController.setStage1PId(levelOne.getLevelOneId());
+				closeAndRefresh();
 			} else {
 				notify.showErrorAlert(response.getResponse().getResponseMessage());
 			}
 		} else if (add_new_stage_button.getText().equals("Update Stage")) {
-			System.out.println("UPDATE STAGE: " + sessionStage.toString());
 			LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),stage_name_field.getText(), selectedSessionType, UUT_ID,
-					userType);
+					USER_TYPE);
 			if (response.getResponse().getResponseCode() == 1) {
-				LevelOneDto levelOne = response.getLevelOneResponse();
 				notify.showSuccessAlert(response.getResponse().getResponseMessage());
-				Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-				stage.close();
-				mainPageController.refreshStageList();
-//				mainPageController.setStage1PId(levelOne.getLevelOneId());
+				closeAndRefresh();
 			} else {
 				notify.showErrorAlert(response.getResponse().getResponseMessage());
 			}
 		}
 
 	}
+	private void closeAndRefresh() {
+		Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
+		stage.close();
+		mainPageController.refreshStageList();
+	}
 
 	public void setAddSubStageData(String uutID, String pId, String stageName) {
 		this.UUT_ID = uutID;
-		setupAddSubStage(pId, stageName);
+		initializeAddSubStage(pId, stageName);
 	}
 
-	private void setupAddSubStage(String pId, String stageName) {
-		initializeComboBox();
-		headerLabel.setText("Add Sub-Stage");
+	private void initializeAddSubStage(String pId, String stageName) {
 		this.PARENT_ID = pId;
+
+		headerLabel.setText("Add Sub-Stage");
 		stage_parent_name_field.setText(stageName);
-		session_type_box.setVisible(false);
-		session_type_box.setManaged(false);
+		
 		stage_name_box.setVisible(false);
 		stage_name_box.setManaged(false);
 		update_button.setVisible(false);
 		update_button.setManaged(false);
-		add_new_stage_button.setVisible(false);
-		add_new_stage_button.setManaged(false);
+		fetchUIForSubStage();
 	}
 
 	@FXML
@@ -260,57 +245,49 @@ public class AddStageController implements Initializable {
 					TEST_TYPE_ID);
 			if (response.getResponse().getResponseCode() == 1) {
 				notify.showSuccessAlert(response.getResponse().getResponseMessage());
-				Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-				stage.close();
-				mainPageController.refreshStageList();
+				closeAndRefresh();
 			} else {
 				notify.showErrorAlert(response.getResponse().getResponseMessage());
 			}
-
 		}
-
 	}
 
-	public void setEditStageData(String uutID, String childId, String pId, String stageName, String testType) {
+	public void setEditSubStageData(String uutID, String childId, String pId, String stageName, String testType) {
 		this.UUT_ID = uutID;
-		setupEditStage(childId, pId, stageName, testType);
+		initializeEditSubStage(childId, pId, stageName, testType);
 	}
 
-	private void setupEditStage(String childId, String pId, String stageName, String testType) {
-		initializeComboBox();
-
+	private void initializeEditSubStage(String childId, String pId, String stageName, String testType) {
 		this.PARENT_ID = pId;
 		this.CHILD_ID = childId;
 
-		headerLabel.setText("Edit Stage");
-		session_type_box.setVisible(false);
-		session_type_box.setManaged(false);
+		headerLabel.setText("Edit Sub-Stage");
+		stage_name_field.setText(stageName);
+		stage_testType_field.setValue(testType);
+		
 		parent_stage_name_box.setVisible(false);
 		parent_stage_name_box.setManaged(false);
 		sub_stage_name_box.setVisible(false);
 		sub_stage_name_box.setManaged(false);
 		add_subStage_button.setVisible(false);
 		add_subStage_button.setManaged(false);
+		fetchUIForSubStage();
+	}
+	private void fetchUIForSubStage() {
+		session_type_box.setVisible(false);
+		session_type_box.setManaged(false);
 		add_new_stage_button.setVisible(false);
 		add_new_stage_button.setManaged(false);
-		stage_name_field.setText(stageName);
-		stage_testType_field.setValue(testType);
+		initializeComboBox();
 	}
 
 	@FXML
-	void onClickUpdateStage(ActionEvent event) {
-		System.out.println("ttID-onclick: " + TEST_TYPE_ID);
-		System.out.println("UPDATE: " + CHILD_ID + " :" + PARENT_ID + " :" + stage_child_name_field.getText() + " :"
-				+ TEST_TYPE_ID);
-
-//			String levelId,String parentId, String stageName, String testTypeId
+	void onClickUpdateSubStage(ActionEvent event) {
 		LevelsAddResponse response = stageConfig.updateStageMasterLevel(CHILD_ID, PARENT_ID, stage_name_field.getText(),
 				TEST_TYPE_ID);
 		if (response.getResponse().getResponseCode() == 1) {
 			notify.showSuccessAlert(response.getResponse().getResponseMessage());
-			Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-			stage.close();
-			mainPageController.refreshStageList();
+			closeAndRefresh();
 		} else {
 			notify.showErrorAlert(response.getResponse().getResponseMessage());
 		}
