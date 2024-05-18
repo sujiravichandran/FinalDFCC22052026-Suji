@@ -53,23 +53,19 @@ public class AdminCenterContentController {
                 break;
                 
             case "VDD Config":
-//                VDDConfigController vddConfigController = new VDDConfigController();
-//            	if (centerStackPane.getChildren().contains(VDDConfigStackPane)) {
-//            	    boolean removed = centerStackPane.getChildren().remove(VDDConfigStackPane);
-//            	    System.out.println("inside vdd contains");
-//            	    if (removed) {
-//            	    	  System.out.println("inside vdd remove");
-//                    	VDDConfigStackPane.getChildren().add(vddConfigController.createUserManagemenGridPane());
-//
-//            	        centerStackPane.getChildren().add(VDDConfigStackPane);
-//            	    } else {
-//            	        System.out.println("Vdd-Node was not found or couldn't be removed.");
-//            	    }
-//            	} else {
-//                	VDDConfigStackPane.getChildren().add(vddConfigController.createUserManagemenGridPane());
-//        	        centerStackPane.getChildren().add(VDDConfigStackPane);
-//            	    System.out.println("Vdd-Node is not a child of the StackPane.");
-//            	}
+                VDDConfigurationController vddConfigurationController = new VDDConfigurationController();
+            	if (centerStackPane.getChildren().contains(VDDConfigStackPane)) {
+            	    boolean removed = centerStackPane.getChildren().remove(VDDConfigStackPane);
+            	    if (removed) {
+            	      	VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
+            	        centerStackPane.getChildren().add(VDDConfigStackPane);
+            	    } else {
+            	        System.out.println("User-Node was not found or couldn't be removed.");
+            	    }
+            	} else {
+            		VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
+        	        centerStackPane.getChildren().add(VDDConfigStackPane);
+            	}
                 VDDConfigStackPane.toFront();
                 break;
                 
