@@ -152,17 +152,20 @@ public class AitessConfigurationManagement {
 
 	// Card Details API's
 	// To Get The Driver Name For The Selected UUTID
-	public Map<Integer, String> getAitessIdDriverName(String uutId) {
-		Map<Integer, String> AitessIdDriverName = new HashMap<Integer, String>();
+	public Map<Integer,Map<String, String>> getAitessIdDriverName(String uutId) {
+		 Map<Integer,Map<String, String>>  aitessIdDriverDetails = new HashMap<Integer,Map<String, String>> ();
 		AitessConfigurationService service = new AitessConfigurationService();
 
 		AitessConfigurationResponse res = service.getAllAitessConfigurationByUutId(uutId);
 		List<AitessConfiguration> aitessList = new ArrayList();
 		aitessList = res.getConfigurations();
 		for (AitessConfiguration aitessConfiguration : aitessList) {
-			AitessIdDriverName.put(aitessConfiguration.getAitessId(), aitessConfiguration.getDriverName());
+			Map<String,String>driverDetails = new HashMap<String,String>();
+			driverDetails.put("driverName", aitessConfiguration.getDriverName());
+			driverDetails.put("driverVersion", aitessConfiguration.getDriverVersion());
+			aitessIdDriverDetails.put(aitessConfiguration.getAitessId(), driverDetails);
 		}
-		return AitessIdDriverName;
+		return aitessIdDriverDetails;
 	}
 
 	// Card Details For Selected Driver Alis aitessId
@@ -176,6 +179,7 @@ public class AitessConfigurationManagement {
 			List<CardDetailsDTO> cardDTOList = new ArrayList<CardDetailsDTO>();
 			for (CardDetails cardDetails : cardList) {
 				CardDetailsDTO cardDetailsDTO = new CardDetailsDTO();
+				cardDetailsDTO.setCardName(cardDetails.getCardName());
 				cardDetailsDTO.setAitessId(cardDetails.getAitessId());
 				cardDetailsDTO.setCardDetailsId(cardDetails.getCardDetailsId());
 				cardDetailsDTO.setCardIdentificationText(cardDetails.getCardIdentificationText());
