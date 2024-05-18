@@ -13,6 +13,8 @@ public class AdminCenterContentController {
     private StackPane stageConfigStackPane = new StackPane();
     private StackPane testFilesStackPane = new StackPane();
     private StackPane symbolFilesConfigStackPane = new StackPane();
+    private StackPane aitessMasterStackPane = new StackPane();
+    private StackPane runConfigurationStackPane = new StackPane();
 
 
     public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
@@ -102,7 +104,47 @@ public class AdminCenterContentController {
             	}
     			symbolFilesConfigStackPane.toFront();
     			break;
+    			
+               	
+     case "AITESS Master":
+                	
+    	 aitessMasterStackPane.setStyle("-fx-background-color:white;-fx-background-radius:15px;");
+                	AitessMasterController aitessMasterController = new AitessMasterController();
+                	if (centerStackPane.getChildren().contains(aitessMasterStackPane)) {
+                	    boolean removed = centerStackPane.getChildren().remove(aitessMasterStackPane);
+                	    if (removed) {
+                	    	aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
+                	        centerStackPane.getChildren().add(aitessMasterStackPane);
+                	    } else {
+                	        System.out.println("Stage-Node was not found or couldn't be removed.");
+                	    }
+                	} else {
+                		aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
+            	        centerStackPane.getChildren().add(aitessMasterStackPane);
+                	}
+                	aitessMasterStackPane.toFront();
+        			break;
                 
+        			
+     case "Run Config":
+     	
+    	 runConfigurationStackPane.setStyle("-fx-background-color:white;-fx-background-radius:15px;");
+    	 RunConfigurationController runConfigurationController = new RunConfigurationController();
+                	if (centerStackPane.getChildren().contains(runConfigurationStackPane)) {
+                	    boolean removed = centerStackPane.getChildren().remove(runConfigurationStackPane);
+                	    if (removed) {
+                	    	runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
+                	        centerStackPane.getChildren().add(runConfigurationStackPane);
+                	    } else {
+                	        System.out.println("Stage-Node was not found or couldn't be removed.");
+                	    }
+                	} else {
+                		runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
+            	        centerStackPane.getChildren().add(runConfigurationStackPane);
+                	}
+                	runConfigurationStackPane.toFront();
+        			break;
+        			
             case "Results":
                 faultCodeConfigStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");
                 faultCodeConfigStackPane.toFront();

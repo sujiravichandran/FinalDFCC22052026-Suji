@@ -7,14 +7,14 @@ public class RunAitessConfiguration {
 	private String configFile;
 	private String aitess;
 	private String driver;
-	public RunAitessConfiguration(String uuttype, String testType, String configFile, String aitess, String driver) {
-		super();
-		this.uuttype = uuttype;
-		this.testType = testType;
-		this.configFile = configFile;
-		this.aitess = aitess;
-		this.driver = driver;
-	}
+//	public RunAitessConfiguration(String uuttype, String testType, String configFile, String aitess, String driver) {
+//		super();
+//		this.uuttype = uuttype;
+//		this.testType = testType;
+//		this.configFile = configFile;
+//		this.aitess = aitess;
+//		this.driver = driver;
+//	}
 	public String getUuttype() {
 		return uuttype;
 	}

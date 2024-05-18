@@ -4,6 +4,8 @@ public class Aitess {
 
 	private String UutType;
 	
+	private int aitessId;
+	
 	private String aitessName;
 
 	private String aitessCommand;
@@ -12,7 +14,7 @@ public class Aitess {
 	
 	private String driverName;
 	
-	private String driverCommande;
+	private String driverCommand;
 	
 	private String driverVersion;
 
@@ -22,6 +24,14 @@ public class Aitess {
 
 	public void setUutType(String uutType) {
 		UutType = uutType;
+	}
+
+	public int getAitessId() {
+		return aitessId;
+	}
+
+	public void setAitessId(int aitessId) {
+		this.aitessId = aitessId;
 	}
 
 	public String getAitessName() {
@@ -56,12 +66,12 @@ public class Aitess {
 		this.driverName = driverName;
 	}
 
-	public String getDriverCommande() {
-		return driverCommande;
+	public String getDriverCommand() {
+		return driverCommand;
 	}
 
-	public void setDriverCommande(String driverCommande) {
-		this.driverCommande = driverCommande;
+	public void setDriverCommand(String driverCommand) {
+		this.driverCommand = driverCommand;
 	}
 
 	public String getDriverVersion() {
@@ -71,6 +81,7 @@ public class Aitess {
 	public void setDriverVersion(String driverVersion) {
 		this.driverVersion = driverVersion;
 	}
+
 
 
 	
