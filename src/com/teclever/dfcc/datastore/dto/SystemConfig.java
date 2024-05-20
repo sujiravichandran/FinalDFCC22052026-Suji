@@ -12,6 +12,7 @@ public class SystemConfig {
     private String checksumHeading;
     private List<String> checksums;
     private String pChecksum;
+    private String pJarFile;
 	public String getFirstLine() {
 		return firstLine;
 	}
@@ -66,4 +67,11 @@ public class SystemConfig {
 	public void setpChecksum(String pChecksum) {
 		this.pChecksum = pChecksum;
 	}
+	public String getpJarFile() {
+		return pJarFile;
+	}
+	public void setpJarFile(String pJarFile) {
+		this.pJarFile = pJarFile;
+	}
+	
 }
