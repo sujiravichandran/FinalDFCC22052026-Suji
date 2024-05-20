@@ -2,15 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -23,80 +19,19 @@
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
-         </children></HBox>
+         </children>
+         <padding>
+            <Insets top="10.0" />
+         </padding></HBox>
       <VBox fx:id="addstageForm" alignment="CENTER" layoutY="50.0" prefWidth="400.0" spacing="10.0">
          <padding>
-            <Insets bottom="20.0" left="30.0" right="30.0" />
+            <Insets bottom="20.0" left="30.0" right="30.0" top="10.0" />
          </padding>
          <children>
             <VBox fx:id="session_type_box" alignment="CENTER_LEFT" prefHeight="85.0" prefWidth="100.0">
                <VBox.margin>
                   <Insets left="10.0" />
                </VBox.margin>
-               <children>
-               <Label text="Select Session Types:">
-                                 <font>
-                                    <Font size="16.0" />
-                                 </font>
-                              </Label>
-                              <GridPane alignment="CENTER" prefWidth="805.0">
-                                <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                </columnConstraints>
-                                <rowConstraints>
-                        <RowConstraints />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                </rowConstraints>
-                                 <children>
-                                    <CheckBox fx:id="checkboxTrails" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="140.0" text="Trails" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font>
-                                       <GridPane.margin>
-                                          <Insets left="10.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="checkboxBls" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="140.0" text="BLS" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font>
-                                       <GridPane.margin>
-                                          <Insets left="10.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="checkboxPqt" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="140.0" text="PQT" textAlignment="CENTER" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font>
-                                       <GridPane.margin>
-                                          <Insets left="10.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="checkboxProduction" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="140.0" text="Production" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font>
-                                       <GridPane.margin>
-                                          <Insets left="10.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="checkboxFru" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="140.0" text="FRU" textAlignment="CENTER" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font>
-                                       <GridPane.margin>
-                                          <Insets left="10.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets left="10.0" right="10.0" />
-                                 </VBox.margin>
-                              </GridPane>
-               </children>
             </VBox>
             <VBox fx:id="parent_stage_name_box" alignment="CENTER_LEFT" prefWidth="100.0">
                <children>
@@ -161,8 +96,14 @@
                      </font>
                   </Button>
                </children>
+               <padding>
+                  <Insets bottom="10.0" top="10.0" />
+               </padding>
             </HBox>
          </children>
        </VBox>
    </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
 </AnchorPane>
