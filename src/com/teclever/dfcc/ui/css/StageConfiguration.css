@@ -1,3 +1,7 @@
+.stageConfig-main-container{
+	-fx-background-color: #FFFFFF;
+	-fx-background-radius:15px;
+}
 .stageConfig-header-label{
 	-fx-text-fill:#003360;
 	-fx-font-size: 30.0px;

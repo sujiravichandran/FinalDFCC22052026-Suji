@@ -121,6 +121,8 @@ public class RunConfigurationController {
 		runconfigurationGridPane.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/RunConfiguration.css").toExternalForm());
 
+		runconfigurationGridPane.getStyleClass().add("runConfiguration-main-container");
+		
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -171,7 +173,6 @@ public class RunConfigurationController {
 
 		Label pageTitle = new Label("RUN CONFIGURATION");
 		pageTitle.getStyleClass().add("runConfiguration-headerLabel");
-		pageTitle.setPadding(new Insets(0, 0, 0, 20));
 		titleHbox.setAlignment(Pos.CENTER_LEFT);
 		titleHbox.getChildren().add(pageTitle);
 		return titleHbox;
@@ -181,7 +182,6 @@ public class RunConfigurationController {
 
 		Button addButton = new Button("ADD AITESS");
 		addButton.setOnAction(e -> onClickGETButton());
-		buttonHbox.setPadding(new Insets(0, 20, 0, 0));
 
 		buttonHbox.setAlignment(Pos.CENTER_RIGHT);
 		buttonHbox.getChildren().add(addButton);
