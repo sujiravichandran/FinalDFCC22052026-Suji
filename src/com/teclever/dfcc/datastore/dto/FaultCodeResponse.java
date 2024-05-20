@@ -11,7 +11,7 @@ public class FaultCodeResponse {
 
 	private Response response;
 
-	private Map<Integer, String> excelResponse;
+	private Map<Integer, String> mapResponse;
 
 	public List<FaultCodeDTO> getFaultCodeList() {
 		return faultCodeList;
@@ -29,12 +29,12 @@ public class FaultCodeResponse {
 		this.response = response;
 	}
 
-	public Map<Integer, String> getExcelResponse() {
-		return excelResponse;
+	public Map<Integer, String> getMapResponse() {
+		return mapResponse;
 	}
 
-	public void setExcelResponse(Map<Integer, String> excelResponse) {
-		this.excelResponse = excelResponse;
+	public void setMapResponse(Map<Integer, String> mapResponse) {
+		this.mapResponse = mapResponse;
 	}
 
 }

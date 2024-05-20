@@ -2,11 +2,14 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -18,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.exception.ConstraintViolationException;
 
+import com.opencsv.CSVReader;
 import com.teclever.datastore.dto.FaultCodeMasterResponse;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
@@ -28,7 +32,9 @@ import com.teclever.dfcc.datastore.dto.FaultCodeAddResponse;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 
-public class FaultCodeManagement {
+import org.apache.commons.lang3.StringUtils;
+
+public class FaultCodeConfiguration {
 	public static String[] headers = { "FaultCodeId", "FaultCodeDescription" };
 
 	public FaultCodeResponse getFaultCodeList() {
@@ -110,7 +116,7 @@ public class FaultCodeManagement {
 					faultCodeList.add(faultCodeDTO);
 				}
 			}
-			faultCodeResponse.setExcelResponse(response.getExcelResponse());
+			faultCodeResponse.setMapResponse(response.getExcelResponse());
 			faultCodeResponse.setResponse(response.getResponse());
 			faultCodeResponse.setFaultCodeList(faultCodeList);
 			return faultCodeResponse;
@@ -157,45 +163,66 @@ public class FaultCodeManagement {
 		}
 	}
 
-	public FaultCodeResponse extractingFaultCodeFile(String path) {
+	public FaultCodeResponse faultCodeFile(String path) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		try {
-			String baseFileName = path.substring(path.lastIndexOf("/") + 1);
-			System.out.println(baseFileName + !path.endsWith(".xlsx"));
-			InputStream inputStream = new FileInputStream(new File(path));
-			if (!path.endsWith(".xlsx")) {
+			if (path.endsWith(".xlsx")) {
+				return extractingFaultCodeExcelFile(path);
+			} else if (path.endsWith(".csv")) {
+				return extractingFaultCodeCSVFile(path);
+			} else {
 				res.setResponseCode(0);
-				res.setResponseMessage("Please upload an excel file! ");
+				res.setResponseMessage("Please upload an Excel Or CSV file! ");
 				faultCodeResponse.setResponse(res);
 				return faultCodeResponse;
 			}
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Error while importing " + e.getLocalizedMessage());
+			faultCodeResponse.setResponse(res);
+			return faultCodeResponse;
+		}
+	}
+
+	private FaultCodeResponse extractingFaultCodeExcelFile(String path) {
+		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
+		Response res = new Response();
+		Map<Integer, String> errors = new HashMap<>();
+
+		try {
+//			if (!path.endsWith(".xlsx")) {
+//				res.setResponseCode(0);
+//				res.setResponseMessage("Please upload an excel file! ");
+//				faultCodeResponse.setResponse(res);
+//				return faultCodeResponse;
+//			}
+
+			InputStream inputStream = new FileInputStream(new File(path));
 			Workbook workbook = new XSSFWorkbook(inputStream);
 			Sheet sheet = workbook.getSheetAt(0);
 			Iterator<Row> rows = sheet.iterator();
 			List<FaultCodeDTO> listOfFaultCodeDto = new ArrayList<>();
 
-			int rowNumber = 0;
 			while (rows.hasNext()) {
 				Row currentRow = rows.next();
 
-				// skip header
 				if (currentRow.getRowNum() == 0) {
 
 					for (int cellIndex = 0; cellIndex < headers.length; cellIndex++) {
 						Cell cell = currentRow.getCell(cellIndex);
 
 						if (cell.getCellType() == CellType.STRING) {
-							if (cellIndex == 0 && !cell.getStringCellValue().contains("faultCodeId")) {
+							if (cellIndex == 0 && !cell.getStringCellValue().contains("FaultCode")) {
 								res.setResponseMessage("In ROW " + currentRow.getRowNum() + " and CELL "
-										+ cell.getColumnIndex() + " " + "value must be faultCodeId");
+										+ cell.getColumnIndex() + " " + "value must be FaultCode");
 								res.setResponseCode(0);
 								workbook.close();
 								faultCodeResponse.setResponse(res);
 								return faultCodeResponse;
-							} else if (cellIndex == 1 && !cell.getStringCellValue().contains("faultCodeDescription")) {
+							} else if (cellIndex == 1 && !cell.getStringCellValue().contains("Description")) {
 								res.setResponseMessage("In ROW " + currentRow.getRowNum() + " and CELL "
-										+ cell.getColumnIndex() + " " + "value must be faultCodeDescription");
+										+ cell.getColumnIndex() + " " + "value must be Description");
 								res.setResponseCode(0);
 								workbook.close();
 								faultCodeResponse.setResponse(res);
@@ -203,49 +230,88 @@ public class FaultCodeManagement {
 							}
 						}
 					}
-					rowNumber++;
 					continue;
 				}
 
-				Iterator<Cell> cellsInRow = currentRow.iterator();
 				FaultCodeDTO faultCodeDto = new FaultCodeDTO();
-				while (cellsInRow.hasNext()) {
-					Cell currentCell = cellsInRow.next();
-					switch (currentCell.getColumnIndex()) {
-					case 0:
-						if (currentCell.getCellType() != CellType.BLANK) {
+				/*
+				 * Iterator<Cell> cellsInRow = currentRow.iterator(); while
+				 * (cellsInRow.hasNext()) { Cell currentCell = cellsInRow.next(); switch
+				 * (currentCell.getColumnIndex()) { case 0: if (currentCell.getCellType() !=
+				 * CellType.BLANK) {
+				 * 
+				 * if (currentCell.getCellType() == CellType.NUMERIC) { String b = new
+				 * DataFormatter().formatCellValue(currentRow.getCell(0));
+				 * faultCodeDto.setFaultCode(Integer.parseInt(String.valueOf(b))); } } break;
+				 * 
+				 * case 1:
+				 * faultCodeDto.setFaultCodeDescription(currentCell.getStringCellValue()); ;
+				 * break;
+				 * 
+				 * default: break; } }
+				 */
 
-							if (currentCell.getCellType() == CellType.NUMERIC) {
-								String b = new DataFormatter().formatCellValue(currentRow.getCell(0));
-								faultCodeDto.setFaultCode(Integer.parseInt(String.valueOf(b)));
+				boolean hasError = false;
+				StringBuilder errorMsg = new StringBuilder();
+
+				for (int cellIndex = 0; cellIndex < 2; cellIndex++) {
+					Cell currentCell = currentRow.getCell(cellIndex);
+
+					switch (cellIndex) {
+					case 0:
+						if (currentCell != null && currentCell.getCellType() != CellType.BLANK) {
+							if (currentCell.getCellType() == CellType.NUMERIC
+									|| StringUtils.isNumeric(new DataFormatter().formatCellValue(currentCell))) {
+								String faultCodeStr = new DataFormatter().formatCellValue(currentCell);
+								faultCodeDto.setFaultCode(Integer.parseInt(faultCodeStr));
+							} else {
+								hasError = true;
+								errorMsg.append("Fault code is not a valid number at row ")
+										.append(currentRow.getRowNum()).append(". ");
 							}
+						} else {
+							hasError = true;
+							errorMsg.append("Fault code is missing at row ").append(currentRow.getRowNum())
+									.append(". ");
 						}
 						break;
 
 					case 1:
-						faultCodeDto.setFaultCodeDescription(currentCell.getStringCellValue());
-						;
+						if (currentCell != null && currentCell.getCellType() == CellType.STRING
+								&& StringUtils.isNotBlank(currentCell.getStringCellValue())) {
+							faultCodeDto.setFaultCodeDescription(currentCell.getStringCellValue());
+						} else {
+							hasError = true;
+							errorMsg.append("Fault code description is empty or not a string at row ")
+									.append(currentRow.getRowNum()).append(". ");
+						}
 						break;
 
 					default:
 						break;
 					}
-
 				}
-				listOfFaultCodeDto.add(faultCodeDto);
+
+				if (hasError) {
+					errors.put(currentRow.getRowNum(), errorMsg.toString());
+				} else {
+					listOfFaultCodeDto.add(faultCodeDto);
+				}
+
+//				listOfFaultCodeDto.add(faultCodeDto);
+			}
+			// If there are errors, set the response accordingly
+			if (!errors.isEmpty()) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Errors found during Excel import.");
+				faultCodeResponse.setResponse(res);
+				faultCodeResponse.setMapResponse(errors);
+				workbook.close();
+				return faultCodeResponse;
 			}
 			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path);
 			workbook.close();
-//			if (faultCodeResponse.getResponse().getResponseCode() == 0) {
-//				res = faultCodeResponse.getResponse();
-//				workbook.close();
-//				return faultCodeResponse;
-//			}
-//			res.setResponseCode(1);
-//			res.setResponseMessage("Import Successful ");
-//			faultCodeResponse.setResponse(res);
-//			faultCodeResponse.setFaultCodeList(listOfFaultCodeDto);
-//			workbook.close();
+
 		} catch (ConstraintViolationException ex) {
 			System.out.println("Exception is handled.............");
 		} catch (Exception e) {
@@ -258,4 +324,95 @@ public class FaultCodeManagement {
 		return faultCodeResponse;
 	}
 
+	private FaultCodeResponse extractingFaultCodeCSVFile(String path) {
+		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
+		Response res = new Response();
+		Map<Integer, String> errors = new HashMap<>();
+		try {
+//			if (!path.endsWith(".csv")) {
+//				res.setResponseCode(0);
+//				res.setResponseMessage("Please upload an CSV file! ");
+//				faultCodeResponse.setResponse(res);
+//				return faultCodeResponse;
+//			}
+			CSVReader reader = new CSVReader(new FileReader(path));
+			int lineNumber = 0;
+
+			String[] line;
+			// Check the header
+			if ((line = reader.readNext()) != null) {
+				lineNumber++;
+				if (line.length < 2 || !line[0].equalsIgnoreCase("FaultCode")
+						|| !line[1].equalsIgnoreCase("Description")) {
+					res.setResponseCode(0);
+					res.setResponseMessage("CSV header must be 'FaultCode' and 'Description'");
+					errors.put(lineNumber, "Line " + lineNumber + "CSV header must be 'faultCode' and 'Description'");
+					faultCodeResponse.setResponse(res);
+					faultCodeResponse.setMapResponse(errors);
+					return faultCodeResponse;
+				}
+			} else {
+				res.setResponseCode(0);
+				res.setResponseMessage("CSV file is empty");
+				faultCodeResponse.setResponse(res);
+				return faultCodeResponse;
+			}
+			List<FaultCodeDTO> listOfFaultCodeDto = new ArrayList<>();
+			while ((line = reader.readNext()) != null) {
+				lineNumber++;
+				// Check for empty lines
+				if (line.length == 0) {
+					continue; // skip empty lines
+				}
+				FaultCodeDTO faultCodeDto = new FaultCodeDTO();
+
+				boolean hasError = false;
+				StringBuilder errorMsg = new StringBuilder();
+
+				if (line.length < 2) {
+					errors.put(lineNumber, "Line " + lineNumber + " is missing fields.");
+					continue;
+				}
+				// Validate fault code
+				if (StringUtils.isNumeric(line[0])) {
+					faultCodeDto.setFaultCode(Integer.parseInt(line[0]));
+				} else {
+					hasError = true;
+					errorMsg.append("Fault code is not a valid number at line ").append(lineNumber).append(". ");
+				}
+
+				// Validate fault code description
+				if (StringUtils.isNotBlank(line[1])) {
+					faultCodeDto.setFaultCodeDescription(line[1]);
+				} else {
+					hasError = true;
+					errorMsg.append("Fault code description is empty at line ").append(lineNumber).append(". ");
+				}
+
+				if (hasError) {
+					errors.put(lineNumber, errorMsg.toString());
+				} else {
+					listOfFaultCodeDto.add(faultCodeDto);
+				}
+			}
+			// If there are errors, set the response accordingly
+			if (!errors.isEmpty()) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Errors found during CSV import.");
+				faultCodeResponse.setResponse(res);
+				faultCodeResponse.setMapResponse(errors);
+				return faultCodeResponse;
+			}
+			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path);
+
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Error while importing " + e.getLocalizedMessage());
+			faultCodeResponse.setResponse(res);
+			e.printStackTrace();
+			return faultCodeResponse;
+		}
+
+		return faultCodeResponse;
+	}
 }
