@@ -2,51 +2,44 @@ package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.entities.MacroButtonMap;
-import com.teclever.datastore.entities.MacroButtonMasterDetails;
 import com.teclever.datastore.response.ButtonNamesResponse;
 import com.teclever.datastore.response.MacroButtonMapResponse;
-import com.teclever.datastore.response.MacroButtonMasterDetailsResponse;
 import com.teclever.datastore.service.MacroButtonMapService;
-import com.teclever.datastore.service.MacroButtonMasterDetailsService;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
-import com.teclever.dfcc.datastore.dto.MacroButtonMasterDetailsDto;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class MacroConfigurationManagement {
 
-	//API GET MACRO BUTTON LIST BASED ON UUT ID
-    public List<MacroButtonMasterDetailsDto> getAllMacroButtonsByUutId(String uutId) {
-        List<MacroButtonMasterDetailsDto> buttonDtoList = new ArrayList<>();
-        MacroButtonMasterDetailsService masterDetailsService = new MacroButtonMasterDetailsService();
-        MacroButtonMasterDetailsResponse response = masterDetailsService.getButtonsByUutId(uutId);
-        
+    // API GET MACRO BUTTON LIST BASED ON UUT ID
+    public List<MacroButtonMapDto> getAllMacroButtonsByUutId(String uutId) {
+        List<MacroButtonMapDto> buttonDtoList = new ArrayList<>();
+        MacroButtonMapService buttonMapService = new MacroButtonMapService();
+        MacroButtonMapResponse response = buttonMapService.getButtonsByUutId(uutId);
+
         if (response.getResponseCode() == 1) {
-            for (MacroButtonMasterDetails button : response.getMacroButtons()) {
-                MacroButtonMasterDetailsDto buttonDto = new MacroButtonMasterDetailsDto();
-                buttonDto.setButtonNumber(button.getButtonNumber());
-                buttonDto.setButtonId(button.getButtonId());
-                buttonDto.setUutId(button.getUutId());
+            for (MacroButtonMap buttonMap : response.getButtonMapList()) {
+                MacroButtonMapDto buttonDto = new MacroButtonMapDto();
+                buttonDto.setButtonNumber(buttonMap.getButtonNumber());
+                buttonDto.setButtonId(buttonMap.getButtonId());
+                buttonDto.setUutId(buttonMap.getUutId());
+                buttonDto.setButtonName(buttonMap.getButtonName());
+                buttonDto.setCommand(buttonMap.getCommand());
                 buttonDtoList.add(buttonDto);
             }
         } else {
             System.out.println("Error: " + response.getResponseMessage());
         }
-
         return buttonDtoList;
     }
-    
-    
-    //API : UPDATING THE MACRO BUTTON (ENTERING BUTTON NAME AND COMMAND)
+
+    // API: UPDATING THE MACRO BUTTON (ENTERING BUTTON NAME AND COMMAND)
     public List<MacroButtonMapDto> updateMacroButtonMap(List<MacroButtonMapDto> buttonMapDtoList) {
         MacroButtonMapService buttonMapService = new MacroButtonMapService();
 
@@ -77,7 +70,7 @@ public class MacroConfigurationManagement {
 
         return updatedButtonMapDtoList;
     }
-    
+
     // GET BUTTON NAMES BY UUTID
     public ButtonNamesResponse getButtonNamesByUutId(String uutId) {
         ButtonNamesResponse response = new ButtonNamesResponse();
@@ -108,6 +101,5 @@ public class MacroConfigurationManagement {
         return response;
     }
 
-    
 }
 
