@@ -6,12 +6,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 
 public class TestPlanFileManagement {
@@ -53,7 +55,7 @@ public class TestPlanFileManagement {
                 Files.walk(dir)
                      .filter(Files::isRegularFile)
                      .forEach(path -> {
-                         String fileName = path.getFileName().toString(); 
+                         String fileName = path.toString();
                          String testFileId = TestFileService.generateUniqueTestFileId();
                          TestFile testFile = new TestFile(); 
                          testFile.setTestFileId(testFileId); 
@@ -72,16 +74,15 @@ public class TestPlanFileManagement {
         return testPlanFilePaths;
     }
  // Method to mark previous test file rows as deleted
-    private static void markPreviousTestFileRowsAsDeleted(String runPathMasterId) {
+    public static void markPreviousTestFileRowsAsDeleted(String runPathMasterId) {
+    	TestFileService testFileService = new TestFileService();
+        List<TestFile> testFiles = testFileService.getTestFilesByRunPathMasterId(runPathMasterId);
+
         try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            List<TestFile> testFiles = session.createQuery("FROM TestFile WHERE runPathMasterId = :runPathMasterId", TestFile.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
-
             for (TestFile testFile : testFiles) {
-                testFile.setDeleteStatus(true); 
+                testFile.setDeleteStatus(true);
                 session.merge(testFile);
             }
 

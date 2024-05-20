@@ -6,8 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.Symbol;
@@ -76,16 +78,15 @@ public class SymbolFileManagement {
 	    }
 	
 	    // Method to mark previous symbol rows as deleted
-	    private static void markPreviousSymbolRowsAsDeleted(String runPathMasterId) {
+	    public static void markPreviousSymbolRowsAsDeleted(String runPathMasterId) {
+	    	SymbolService symbolService = new SymbolService();
+	        List<Symbol> symbols = symbolService.getSymbolsByRunPathMasterId(runPathMasterId);
+
 	        try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
 	            Transaction transaction = session.beginTransaction();
 
-	            List<Symbol> symbols = session.createQuery("FROM Symbol WHERE runPathMasterId = :runPathMasterId", Symbol.class)
-	                                        .setParameter("runPathMasterId", runPathMasterId)
-	                                        .getResultList();
-
 	            for (Symbol symbol : symbols) {
-	                symbol.setDeleteStatus(true); 
+	                symbol.setDeleteStatus(true);
 	                session.merge(symbol);
 	            }
 

@@ -6,10 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.teclever.dfcc.datastore.dto.SymbolDto;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.teclever.dfcc.datastore.dto.SymbolDto;
 
 public class SymbolFileParser {
     public static List<SymbolDto> parseSymbols(List<String> filePaths, String runPathMasterId) {
@@ -17,7 +17,7 @@ public class SymbolFileParser {
         for (String filePath : filePaths) {
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 String line;
-                String fileName = new File(filePath).getName();
+                String fileName = filePath;
                 String symbolName = null;
                 String symbolType = null;
                 String minValue = null;

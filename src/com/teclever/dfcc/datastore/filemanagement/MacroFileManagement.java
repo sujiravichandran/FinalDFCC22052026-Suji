@@ -6,10 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.Macro;
@@ -17,7 +15,7 @@ import com.teclever.datastore.service.MacroService;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 
 public class MacroFileManagement {
-	
+		
 	//GET ALL MACROS 
     public static List<MacroDto> getAllMacros(String runConfigId) {
         List<MacroDto> macroDtos = new ArrayList<>();
@@ -58,7 +56,7 @@ public class MacroFileManagement {
             try {
                 List<String> parsedMacroNames = macroParser.parse(fileName);
                 for (String macroName : parsedMacroNames) {
-                    String filename = Paths.get(fileName).getFileName().toString();
+                    String filename = Paths.get(fileName).toString();
 
                     Response response = macroService.saveMacroToDatabase(macroName, filename, runPathMasterId);
                     if (response.getResponseCode() == 1) {
@@ -76,19 +74,15 @@ public class MacroFileManagement {
         return macroNames;
     }
 
-    // Method to mark previous macro rows as deleted
-    private static void markPreviousMacroRowsAsDeleted(String runPathMasterId) {
+    public static void markPreviousMacroRowsAsDeleted(String runPathMasterId) {
+    	MacroService macroService = new MacroService();
+        List<Macro> macros = macroService.getMacrosByRunPathMasterId(runPathMasterId);
+
         try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            // Query the database to find macros associated with the given runPathMasterId
-            List<Macro> macros = session.createQuery("FROM Macro WHERE runPathMasterId = :runPathMasterId", Macro.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
-
-            // Mark all macros associated with the runPathMasterId as deleted
             for (Macro macro : macros) {
-                macro.setDeleteStatus(true); 
+                macro.setDeleteStatus(true);
                 session.merge(macro);
             }
 
