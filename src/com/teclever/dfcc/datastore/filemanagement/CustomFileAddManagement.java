@@ -2,6 +2,7 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.RunPathMaster;
+import com.teclever.datastore.service.RunPathMasterService;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 
 public class CustomFileAddManagement {
@@ -106,21 +109,30 @@ public class CustomFileAddManagement {
 
 	}
 
-	public Response addCustomSymbolFiles(String runId, List<String> filePaths) {
+	public Response addCustomSymbolFiles(String runId, List<String> filePaths,String fileType) {
 		Response res = new Response();
 		try {
-			Path currentPath = null;
-			Path masterPath = null;
+			RunPathMasterService runPathMasterService = new RunPathMasterService();
+			RunPathMaster runMaster = new RunPathMaster();
+			runMaster=	runPathMasterService.fetchMasterPathForFiles(runId,fileType);
+			Path masterPath = Paths.get(runMaster.getLocation());
+
+		
 			
 			//To Fetch Files Name And FileNamePaths...
 			List<String> fileNames = new ArrayList<>();
 			Map<String,String>filesNamesPath = new HashMap<String,String>();
+			String currentFileString = "";
 			for (String filePath : filePaths) {
 				Path path = Paths.get(filePath);
 				String files = path.getFileName().toString();
 				filesNamesPath.put(files,filePath);
 				fileNames.add(files);
+				currentFileString = path.getParent().toString();
+				
 			}
+			Path currentPath = Paths.get(currentFileString);
+			
 			//To Get the Which Files are Not Available in the Path Master Location
 			Map<String, String> FilesMsg = copyingListOfFiles(currentPath, masterPath, fileNames);
 			Map<String, String> filePathCheckSumValues = new HashMap<String, String>();
@@ -155,8 +167,11 @@ public class CustomFileAddManagement {
 			{
 				res.setResponseCode(res1.getResponseCode());
 				res.setResponseMessage(res1.getResponseMessage());
+				return res;
 			}
-
+			//Symbol File Parser
+			
+			
 		} catch (Exception ex) {
 
 		}
