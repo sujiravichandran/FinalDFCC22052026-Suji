@@ -17,6 +17,7 @@ public class AdminCenterContentController {
 	private StackPane macroFilesConfigStackPane = new StackPane();
 	private StackPane downloadCodeConfigStackPane = new StackPane();
 	private StackPane cpciCardStackPane = new StackPane();
+	private StackPane macroButtonsStackPane = new StackPane();
 	
 	UserManagementController userManagementController = new UserManagementController();
 	StageConfigurationController stageConfig = new StageConfigurationController();
@@ -27,6 +28,7 @@ public class AdminCenterContentController {
 	AitessSymbolFilesController symbolFilesConfig = new AitessSymbolFilesController();
 	AitessMacroFilesController macroFilesConfig = new AitessMacroFilesController();
 	AitessDownloadCodeController downloadCodeConfig = new AitessDownloadCodeController();
+	MacroButtonsController macroButtonsController = new MacroButtonsController();
 	CPCICardController cpciCardController = new CPCICardController();
 	
 	public AdminCenterContentController() {
@@ -39,11 +41,12 @@ public class AdminCenterContentController {
 		symbolFilesConfigStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
 		macroFilesConfigStackPane.getChildren().add(macroFilesConfig.macroFilesConfigParentGrid());
 		downloadCodeConfigStackPane.getChildren().add(downloadCodeConfig.downloadCodeConfigParentGrid());
+		macroButtonsStackPane.getChildren().add(macroButtonsController.createMacroButtonsMainGridPane());
 		cpciCardStackPane.getChildren().add(cpciCardController.createcpciCardConfigGridPane());
 		
 		centerStackPane.getChildren().addAll(userManagementStackPane, stageConfigStackPane, VDDConfigStackPane,
 				aitessMasterStackPane, runConfigurationStackPane, testFilesStackPane, symbolFilesConfigStackPane,
-				macroFilesConfigStackPane, downloadCodeConfigStackPane,cpciCardStackPane);
+				macroFilesConfigStackPane, downloadCodeConfigStackPane,macroButtonsStackPane,cpciCardStackPane);
 	}
 
 	public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
@@ -74,6 +77,9 @@ public class AdminCenterContentController {
 			break;
 		case "Download Code":
 			downloadCodeConfigStackPane.toFront();
+			break;
+		case "MACRO Buttons":
+			macroButtonsStackPane.toFront();
 			break;
 		case "cPCI card's Details":
 			cpciCardStackPane.toFront();
