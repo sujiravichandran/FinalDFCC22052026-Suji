@@ -13,15 +13,15 @@ import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
 public class SystemConfigManagement {
-	private static final String SECRET_KEY = "TECLEVER@0001";
-//	static String currentDirectory = System.getProperty("user.dir");
-//	static String configFileName = currentDirectory+ "\\systemconfig.dat";
-//	static String directoryToCheck = currentDirectory +"\\libs";
-//  static String parentJarFilePath = currentDirectory + "\\main.jar";
+	private static final String SECRET_KEY = "Te6lever@2024.bel";
+	static String currentDirectory = System.getProperty("user.dir");
+	static String configFileName = currentDirectory+ "/SystemConfig.dat";
+	static String directoryToCheck = currentDirectory +"/libs";
+	static String parentJarFilePath = currentDirectory + "/DFCC-TesterV0.9.jar";
 	private static SystemConfig configuration;
-	static String configFileName = "C:\\configFile\\systemconfig.dat";
-	static String directoryToCheck = "C:\\configFile\\libs";
-	static String parentJarFilePath ="C:\\configFile\\main.jar";
+//	static String configFileName = "C:\\Deployment\\SystemConfig.dat";
+//	static String directoryToCheck = "C:\\Deployment\\libs";
+//	static String parentJarFilePath ="C:\\Deployment\\DFCC-TesterV0.9.jar";
 	
 	public static SystemConfig getConfiguration() {
 		return configuration;
@@ -57,6 +57,12 @@ public class SystemConfigManagement {
 	                validateResponse.setResponse(response);
 		            return validateResponse;
 	            }
+	            // Validate pJarFile name
+	            ValidateResponse pJarFileValidationResponse = validatepJarFileName(configuration, parentJarFilePath);
+	            if (pJarFileValidationResponse.getResponse().getResponseCode() == 0) {
+	                return pJarFileValidationResponse;
+	            }
+	            
 	            validateResponse = SystemConfigManagement.validateChecksum(configuration, directoryToCheck,parentJarFilePath);
 	            return validateResponse;
 	        } else {
@@ -139,22 +145,47 @@ public class SystemConfigManagement {
 		byte[] encryptedBytes = cipher.doFinal(data.getBytes());
 		return Base64.getEncoder().encodeToString(encryptedBytes);
 	}
+	
+	// Method to validate if pJarFile name matches
+	public static ValidateResponse validatepJarFileName(SystemConfig config, String jarFilePath) {
+	    Response response = new Response();
+	    ValidateResponse validateResponse = new ValidateResponse();
+	    File jarFile = new File(jarFilePath);
+	    if (!jarFile.exists() || !jarFile.isFile()) {
+	        response.setResponseCode(0);
+	        response.setResponseMessage("Jar File Not Found");
+	    } else if (!config.getpJarFile().equals(jarFilePath)) {
+	        System.out.println(config.getpJarFile());
+	        response.setResponseCode(0);
+	        response.setResponseMessage("Jar File Name Mismatch");
+	    } else {
+	        // Jar file exists and names match, set response code to 1 indicating success
+	        response.setResponseCode(1);
+	        response.setResponseMessage("Jar File Found and Matched");
+	    }
+	    validateResponse.setResponse(response);
+	    return validateResponse;
+	}
+
+
+	
+	
 	public static ValidateResponse validateChecksum(SystemConfig config, String directory,String parentJarFilePath) throws IOException {
 	    Response response = new Response();
 	    List<CheckSum> checkSumList = new ArrayList<>();
 	    List<String> filesAndChecksums = config.getChecksums();
 	    Map<String, String> calculatedChecksums = calculateChecksums(directory);
 	    // Validate JAR file checksum
-//	    ValidateResponse jarFileValidationResponse = validateJarFileChecksum(config, parentJarFilePath);
-//	    response.setResponseCode(jarFileValidationResponse.getResponse().getResponseCode());
-//	    response.setResponseMessage(jarFileValidationResponse.getResponse().getResponseMessage());
-//	    checkSumList.addAll(jarFileValidationResponse.getCheckSumList());
+	    ValidateResponse jarFileValidationResponse = validateJarFileChecksum(config, parentJarFilePath);
+	    response.setResponseCode(jarFileValidationResponse.getResponse().getResponseCode());
+	    response.setResponseMessage(jarFileValidationResponse.getResponse().getResponseMessage());
+	    checkSumList.addAll(jarFileValidationResponse.getCheckSumList());
 	  
-	    CheckSum jarCheckSum = new CheckSum();
-	    jarCheckSum.setFile(parentJarFilePath);
-	    jarCheckSum.setChecksumValue("");
-	    jarCheckSum.setMsg("OK");
-	    checkSumList.add(jarCheckSum);
+//	    CheckSum jarCheckSum = new CheckSum();
+//	    jarCheckSum.setFile(parentJarFilePath);
+//	    jarCheckSum.setChecksumValue("");
+//	    jarCheckSum.setMsg("OK");
+//	    checkSumList.add(jarCheckSum);
 	  
 	    // Check if all files in the system config exist in the calculated checksums
 	    for (String fileChecksum : filesAndChecksums) {
@@ -166,7 +197,7 @@ public class SystemConfigManagement {
 	        checkSum.setFile(filename);
 	        checkSum.setChecksumValue(calculatedChecksum);
 	        if (calculatedChecksum == null) {
-	            checkSum.setMsg("File Missing");
+	            checkSum.setMsg("NOT OK");
 	        } else if (!calculatedChecksum.equals(checksum)) {
 	            checkSum.setMsg("NOT OK");
 	        } else {
