@@ -1,23 +1,30 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
-import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
-import com.teclever.dfcc.model.SymbolFile;
-import com.teclever.dfcc.model.User;
+import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
+import com.teclever.dfcc.model.AitessMacroFiles;
+import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -27,16 +34,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
-public class SymbolFilesController {
-	private GridPane symbolFilesParentGridPane = new GridPane();
-	private GridPane symbolFilesTitleGridPane = new GridPane();
-	private GridPane symbolFilemidGridPane = new GridPane();
-	private GridPane symbolFileTableGridPane = new GridPane();
+public class AitessMacroFilesController {
+	private GridPane macroFilesParentGridPane = new GridPane();
+	private GridPane macroFilesTitleGridPane = new GridPane();
+	private GridPane macroFilemidGridPane = new GridPane();
+	private GridPane macroFileTableGridPane = new GridPane();
 
 	private Label aitessTypeLabel = new Label("AITESS TYPE");
 	private Label driverLabel = new Label("DRIVER");
-	private Label configFileLabel;
+	private Label configFileLabel = new Label("CONFIG FILE");
 
 	private ComboBox<String> uut_type_field;
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
@@ -51,21 +62,21 @@ public class SymbolFilesController {
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	private RunConfigurationManagement runConfig = new RunConfigurationManagement();
-	private SymbolFileManagement symbolFileManagement = new SymbolFileManagement();
+	private MacroFileManagement macroFileManagement = new MacroFileManagement();
 
-	private TableViewFactory<SymbolFile> userFactory = new SymbolFileTableViewFactory();
-	private CustomTableView<SymbolFile> customTableView_symbolFiles;
+	private TableViewFactory<AitessMacroFiles> userFactory = new MacroFilesTableViewFactory();
+	private CustomTableView<AitessMacroFiles> customTableView_macroFiles;
 
-	public SymbolFilesController() {
+	public AitessMacroFilesController() {
 		uut_type_field = new ComboBox<>();
 		test_type_field = new ComboBox<>();
 		initializeUUTTypeComboBox();
 	}
 
-	public GridPane symbolFilesConfigParentGrid() {
-		symbolFilesParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SymbolFiles.css").toExternalForm());
-
+	public GridPane macroFilesConfigParentGrid() {
+		macroFilesParentGridPane.getStylesheets()
+		.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMacroFiles.css").toExternalForm());
+		macroFilesParentGridPane.getStyleClass().add("macroFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -76,20 +87,20 @@ public class SymbolFilesController {
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(86);
 
-		symbolFilesParentGridPane.setPadding(new Insets(10));
-		symbolFilesParentGridPane.setVgap(5);
+		macroFilesParentGridPane.setPadding(new Insets(10));
+		macroFilesParentGridPane.setVgap(5);
 
-		symbolFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
-		symbolFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		macroFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
+		macroFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
-		symbolFilesParentGridPane.add(symbolFilesTopContainer(), 0, 0);
-		symbolFilesParentGridPane.add(symbolFilesMiddleContainer(), 0, 1);
-		symbolFilesParentGridPane.add(createSymbolFileTable(), 0, 2);
+		macroFilesParentGridPane.add(macroFilesTopContainer(), 0, 0);
+		macroFilesParentGridPane.add(macroFilesMiddleContainer(), 0, 1);
+		macroFilesParentGridPane.add(createAitessMacroFilesTable(), 0, 2);
 
-		return symbolFilesParentGridPane;
+		return macroFilesParentGridPane;
 	}
 
-	private GridPane symbolFilesTopContainer() {
+	private GridPane macroFilesTopContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 
@@ -99,18 +110,18 @@ public class SymbolFilesController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		symbolFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		symbolFilesTitleGridPane.getRowConstraints().addAll(firstRow);
+		macroFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		macroFilesTitleGridPane.getRowConstraints().addAll(firstRow);
 
-		symbolFilesTitleGridPane.add(headerHbox(), 0, 0);
-		symbolFilesTitleGridPane.add(createButtonHbox(), 1, 0);
+		macroFilesTitleGridPane.add(headerHbox(), 0, 0);
+		macroFilesTitleGridPane.add(createButtonHbox(), 1, 0);
 
-		return symbolFilesTitleGridPane;
+		return macroFilesTitleGridPane;
 	}
 
 	private HBox headerHbox() {
-		Label headerLabel = new Label("SYMBOL FILES");
-		headerLabel.getStyleClass().add("symbolFiles-headerLabel");
+		Label headerLabel = new Label("MACRO FILES");
+		headerLabel.getStyleClass().add("macroFiles-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);
 		headerLabelHbox.setAlignment(Pos.CENTER_LEFT);
@@ -120,16 +131,16 @@ public class SymbolFilesController {
 
 	private HBox createButtonHbox() {
 
-		Button addSymbolButton = new Button("ADD SYMBOLS");
-//		addButton.setOnAction(e -> onClickGETButton());
+		Button addFileButton = new Button("ADD FILE");
+		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
-		headerButtonHbox.getChildren().add(addSymbolButton);
+		headerButtonHbox.getChildren().add(addFileButton);
 		return headerButtonHbox;
 	}
 
-	private GridPane symbolFilesMiddleContainer() {
+	private GridPane macroFilesMiddleContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(15);
 		ColumnConstraints secondColumn = new ColumnConstraints();
@@ -144,20 +155,20 @@ public class SymbolFilesController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		symbolFilemidGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn,
+		macroFilemidGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn,
 				fifthColumn);
-		symbolFilemidGridPane.getRowConstraints().addAll(firstRow);
-		symbolFilemidGridPane.setAlignment(Pos.CENTER);
-		symbolFilemidGridPane.setPadding(new Insets(10));
+		macroFilemidGridPane.getRowConstraints().addAll(firstRow);
+		macroFilemidGridPane.setAlignment(Pos.CENTER);
+		macroFilemidGridPane.setPadding(new Insets(10));
 
-		symbolFilemidGridPane.add(createUutTypeField(), 0, 0);
-		symbolFilemidGridPane.add(createTestTypeField(), 1, 0);
-		symbolFilemidGridPane.add(createAitessType(), 2, 0);
-		symbolFilemidGridPane.add(createDriverNameLabel(), 3, 0);
-		symbolFilemidGridPane.add(createConfigLabel(), 4, 0);
+		macroFilemidGridPane.add(createUutTypeField(), 0, 0);
+		macroFilemidGridPane.add(createTestTypeField(), 1, 0);
+		macroFilemidGridPane.add(createAitessType(), 2, 0);
+		macroFilemidGridPane.add(createDriverNameLabel(), 3, 0);
+		macroFilemidGridPane.add(createConfigLabel(), 4, 0);
 
-		symbolFilemidGridPane.getStyleClass().add("symbolFiles-Container");
-		return symbolFilemidGridPane;
+		macroFilemidGridPane.getStyleClass().add("macroFiles-Container");
+		return macroFilemidGridPane;
 	}
 
 	private HBox createUutTypeField() {
@@ -182,7 +193,6 @@ public class SymbolFilesController {
 
 	private HBox createAitessType() {
 
-		aitessTypeLabel.setPadding(new Insets(10));
 		aitessTypeLabel.setPrefWidth(200);
 		aitessTypeLabel.setAlignment(Pos.CENTER);
 		aitessTypeLabel.setPadding(new Insets(0, 0, 0, 0));
@@ -200,7 +210,6 @@ public class SymbolFilesController {
 	}
 
 	private HBox createDriverNameLabel() {
-		driverLabel.setPadding(new Insets(10));
 		driverLabel.setPrefWidth(200);
 		driverLabel.setAlignment(Pos.CENTER);
 		driverLabel.setPadding(new Insets(0, 0, 0, 0));
@@ -218,7 +227,6 @@ public class SymbolFilesController {
 	}
 
 	private HBox createConfigLabel() {
-		configFileLabel = new Label("CONFIG FILE");
 		configFileLabel.setAlignment(Pos.CENTER);
 		configFileLabel.getStyleClass().add("label_field");
 		configFileLabel.setPadding(new Insets(0, 0, 0, 0));
@@ -255,7 +263,6 @@ public class SymbolFilesController {
 	private String fetchUutId(String uutType) {
 		for (UUTMasterDetailsDto uut : uutDataList) {
 			if (uut.getUutType().equals(uutType)) {
-				System.out.println("234 " + uut.getUutId());
 				return uut.getUutId();
 			}
 		}
@@ -263,7 +270,6 @@ public class SymbolFilesController {
 	}
 
 	private void initializeTestTypeComboBox() {
-		System.out.println("COMBO_UUT: " + UUT_ID);
 		testTypeDataList = FXCollections.observableArrayList(runConfig.getTestTypeByUUTId(UUT_ID));
 		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
 			testTypeList.add(testType.getTestName());
@@ -284,7 +290,7 @@ public class SymbolFilesController {
 	private void fetchingTableData() {
 		TEST_TYPE_ID = fetchTestTypeId(test_type_field.getValue());
 		RUN_CONFIG_ID = fetchRunConfigID(TEST_TYPE_ID);
-		setSymbolFileTableData();
+		setAitessMacroFilesTableData();
 	}
 
 	private String fetchRunConfigID(String testTypeID) {
@@ -306,52 +312,101 @@ public class SymbolFilesController {
 		return runConfigId;
 	}
 
-	private GridPane createSymbolFileTable() {
+	private GridPane createAitessMacroFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		symbolFileTableGridPane.getColumnConstraints().addAll(firstColumn);
-		symbolFileTableGridPane.getRowConstraints().addAll(firstRow);
+		macroFileTableGridPane.getColumnConstraints().addAll(firstColumn);
+		macroFileTableGridPane.getRowConstraints().addAll(firstRow);
 
-		setSymbolFileTableData();
-		return symbolFileTableGridPane;
+		setAitessMacroFilesTableData();
+		return macroFileTableGridPane;
+	}
+	private void onClickAddFileButton() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select File");
+		fileChooser.getExtensionFilters()
+				.addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+		File selectedFile = fileChooser.showOpenDialog(macroFilesParentGridPane.getScene().getWindow());
+//		 if (selectedFile != null) {
+//	            String filePath = selectedFile.getAbsolutePath();
+//	            VDDResponse response = vddManagement.extractingVDDFile(filePath);
+//	            if(response.getResponse().getResponseCode()==1) {
+//	            	Notifications.showSuccessAlert("File Uploaded Successfully");
+//	            	refreshVddConfigList();
+//	            }else if(response.getResponse().getResponseCode()==0) {
+//	            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
+//	            }
+//	      }	
 	}
 
-	private void setSymbolFileTableData() {
-		List<SymbolDto> symbolDtoList = symbolFileManagement.getAllSymbols(RUN_CONFIG_ID);
-		ObservableList<SymbolFile> tableData = FXCollections.observableArrayList();
+	private void setAitessMacroFilesTableData() {
+		
+		List<MacroDto> macroFileDtoList = macroFileManagement.getAllMacros(RUN_CONFIG_ID);
+		ObservableList<AitessMacroFiles> tableData = FXCollections.observableArrayList();
+		List<AitessMacroDetails> detailsList = new ArrayList<>();
 
-		for (SymbolDto symbols : symbolDtoList) {
-			SymbolFile symbolData = new SymbolFile();
-			symbolData.setFileName(symbols.getFileName());
-			tableData.add(symbolData);
+		for (MacroDto macroDto : macroFileDtoList) {
+			AitessMacroFiles existingFile = tableData.stream()
+					.filter(f -> f.getFileName().equals(macroDto.getFileName())).findFirst().orElse(null);
+
+			if (existingFile == null) {
+				AitessMacroFiles newFile = new AitessMacroFiles();
+				newFile.setFileName(macroDto.getFileName());
+				tableData.add(newFile);
+			}
+
+			AitessMacroDetails macrodetails = new AitessMacroDetails();
+			macrodetails.setFileName(macroDto.getFileName());
+			macrodetails.setMacroName(macroDto.getMacroName());;
+			detailsList.add(macrodetails);
 		}
-		customTableView_symbolFiles = userFactory.createTableView(tableData, true, false);
-		customTableView_symbolFiles.addEventHandler(CustomTableView.EDIT_BUTTON_CLICKED_EVENT, event -> {
-			ObservableList<SymbolFile> selectedItems = customTableView_symbolFiles.getSelectedItems();
-			for (SymbolFile rowData : selectedItems) {
-				System.out.println(rowData);
-//				handleAddEditButtonClicked(rowData);
+		
+		
+		customTableView_macroFiles = userFactory.createTableView(tableData, true, false);
+		customTableView_macroFiles.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
+			for (AitessMacroFiles rowData : selectedItems) {
+				try {
+					FXMLLoader addStagePopup = new FXMLLoader(
+							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
+					Parent root = addStagePopup.load();
+
+					AitessMacroPopupController controller = new AitessMacroPopupController();
+					controller = addStagePopup.getController();
+					List<AitessMacroDetails> fileDetails = detailsList.stream()
+							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
+							.collect(Collectors.toList());
+					controller.setMacroDetails(fileDetails);
+					
+					Stage stage = new Stage();
+					stage.initModality(Modality.APPLICATION_MODAL);
+					stage.initStyle(StageStyle.UNDECORATED);
+					stage.centerOnScreen();
+					stage.setScene(new Scene(root));
+					stage.showAndWait();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 
-		customTableView_symbolFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
-			ObservableList<SymbolFile> selectedItems = customTableView_symbolFiles.getSelectedItems();
-			for (SymbolFile rowData : selectedItems) {
-//				handleDeleteButtonClicked(rowData);
+		customTableView_macroFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
+			for (AitessMacroFiles rowData : selectedItems) {
 			}
 		});
-		symbolFileTableGridPane.add(customTableView_symbolFiles, 0, 0);
+		macroFileTableGridPane.add(customTableView_macroFiles, 0, 0);
 	}
 }
 
-class SymbolFileTableViewFactory implements TableViewFactory<SymbolFile> {
+class MacroFilesTableViewFactory implements TableViewFactory<AitessMacroFiles> {
 	@Override
-	public CustomTableView<SymbolFile> createTableView(ObservableList<SymbolFile> items, boolean addUserColumn,
+	public CustomTableView<AitessMacroFiles> createTableView(ObservableList<AitessMacroFiles> items, boolean addUserColumn,
 			boolean addCheckboxColumn) {
-		return new CustomTableView<>(items, SymbolFile.class, addUserColumn, addCheckboxColumn);
+		return new CustomTableView<>(items, AitessMacroFiles.class, addUserColumn, addCheckboxColumn);
 	}
 }

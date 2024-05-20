@@ -26,11 +26,6 @@ import javafx.scene.layout.VBox;
 
 public class TestMapingController {
 	private ObservableList<TestFileDto> testFiles = FXCollections.observableArrayList();
-//			new TestFileDto("1", "TestFilename", "RunPath1"), new TestFileDto("2", "TestFile2", "RunPath2"),
-//			new TestFileDto("3", "TestFile3", "RunPath3"), new TestFileDto("4", "file", "RunPath3"),
-//			new TestFileDto("5", "abcd", "RunPath3"), new TestFileDto("6", "abcde", "RunPath1"),
-//			new TestFileDto("7", "xxx1234", "RunPath2"), new TestFileDto("8", "xxABC", "RunPath3"),
-//			new TestFileDto("9", "file789", "RunPath3"), new TestFileDto("10", "Test 009", "RunPath3"));
 	private ListView<TestFileDto> listView;
 	private ObservableList<TestFileDto> filteredList = FXCollections.observableArrayList();
 	private ObservableList<TestFileDto> newList = FXCollections.observableArrayList();
@@ -40,52 +35,58 @@ public class TestMapingController {
 
 	private Notifications notify;
 	private TextArea displayTextArea;
+	private VBox testMapVBox = new VBox(10);
+
 	private Button saveTestFilesButton, selectAllButton;
 	private String TEST_TYPE_ID;
+	private String STAGE_ID;
+	private String UUT_ID;
+	private String RUN_CONFIG_ID;
 
 	private void getTestFiles(String runConfigID) {
-        StagesFilesResponseDTO getResponse = stageConfig.getTestFilesByStageLevel("L2_002");
-        List<StagesFilesDTO> stagesFileDTO = getResponse.getResponseList();
-        List<String> idList = new ArrayList<>();
+		if (runConfigID == null) {
+			return;
+		}
 
-        for (StagesFilesDTO stagesFile : stagesFileDTO) {
-        	System.err.println("dto: "+stagesFile.getTestFileId());
-            if (stagesFile.getLevelStage().equals("L2_002")) {
-            	idList.add(stagesFile.getTestFileId());
-            }
-        }
-        List<TestFileDto> testFileDtos = testFileManagement.getAllTestFiles(runConfigID);
-        for (TestFileDto fileDto : testFileDtos) {
-            if (idList.contains(fileDto.getTestFileId())) {
-                fileDto.setSelected(true);
-            }
-        }
+		StagesFilesResponseDTO getResponse = stageConfig.getTestFilesByStageLevel(STAGE_ID);
+		List<StagesFilesDTO> stagesFileDTO = getResponse.getResponseList();
+		List<String> idList = new ArrayList<>();
 
-        // Finally, set the testFiles observable list
-        testFiles.setAll(testFileDtos);
+		if (stagesFileDTO != null) {
+			testMapVBox.setDisable(false);
+			for (StagesFilesDTO stagesFile : stagesFileDTO) {
+				if (stagesFile.getLevelStage().equals(STAGE_ID)) {
+					idList.add(stagesFile.getTestFileId());
+				}
+			}
+		}
+
+		List<TestFileDto> testFileDtos = testFileManagement.getAllTestFiles(runConfigID);
+		for (TestFileDto fileDto : testFileDtos) {
+			if (idList.contains(fileDto.getTestFileId())) {
+				fileDto.setSelected(true);
+			}
+		}
+
+		testFiles.setAll(testFileDtos);
 	}
 
-  
-	
-	
-//	private void getTestFiles() {
-//		StagesFilesResponseDTO getResponse = stageConfig.getTestFilesByStageLevel("L2_002");
-//		System.out.println("getRESPONSEListSize: " + getResponse.getResponseList().size());
-//		System.out.println("getRESPONSE: " + getResponse.getCode());
-//
-//		List<StagesFilesDTO> stagesFileDTO = getResponse.getResponseList();
-//
-//	}
+	public void refresh() {
+		if (displayTextArea != null) {
+			testFiles.clear();
+			displayTextArea.clear();
+			testMapVBox.setDisable(true);
+		}
+	}
 
 	public VBox TestMappingView(String uutID, String runConfigID, String testTypeID, String stageId) {
 		System.out.println("RECEIVER: " + uutID + " : " + runConfigID + ":" + testTypeID + ":" + stageId);
 		this.TEST_TYPE_ID = testTypeID;
+		this.STAGE_ID = stageId;
+		this.UUT_ID = uutID;
+		this.RUN_CONFIG_ID = runConfigID;
 		getTestFiles(runConfigID);
-
-//		List<TestFileDto> testFileDtos = testFileManagement.getAllTestFiles(runConfigID);
-//		testFiles = FXCollections.observableArrayList(testFileManagement.getAllTestFiles(runConfigID));
-
-		VBox testMapVBox = new VBox(10);
+		testMapVBox.getChildren().clear();
 		displayTextArea = new TextArea();
 		displayTextArea.setEditable(false);
 		displayTextArea.getStyleClass().add("test-mapping-textArea");
@@ -113,7 +114,6 @@ public class TestMapingController {
 		testMapVBox.getStyleClass().add("stageConfig-bottom-view-container-list");
 		testMapVBox.setAlignment(Pos.CENTER);
 		testMapVBox.setPadding(new Insets(10));
-//		updatedisplayTextArea();
 		return testMapVBox;
 	}
 
@@ -184,7 +184,6 @@ public class TestMapingController {
 	}
 
 	private void onSaveSelectedFiles() {
-		System.out.println("Selected TestFileIds:");
 		List<String> selectedTestFileIds = new ArrayList<>();
 		for (TestFileDto file : testFiles) {
 			if (file.isSelected()) {
@@ -192,18 +191,11 @@ public class TestMapingController {
 			}
 		}
 
-		Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, "L2_002");
-		System.out.println(res.getResponseCode());
-		System.out.println(selectedTestFileIds);
+		Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID);
 		notify.showSuccessAlert("Saved successfully");
+	}
 
-//		System.out.println("Selected Files:");
-//		for (TestFileDto file : testFiles) {
-//			if (file.isSelected()) {
-////				stageId, listof fileId
-//				System.out.println("TestFileDto format: " + file);
-//			}
-//		}
-//		notify.showSuccessAlert("Saved successfully");
+	public boolean isInitialized() {
+		return displayTextArea != null;
 	}
 }

@@ -6,6 +6,7 @@
 .stageConfig-container{
 	-fx-background-color: #222831;
 	-fx-background-radius: 10.0px; 
+	
 }
 .stageConfig-bottom-view-container{
 	-fx-background-color: #31363F;
@@ -23,7 +24,7 @@
 
 .session-stage-l1-label {
 	-fx-text-fill: #FFFFFF;
-    -fx-font-size: 18.0px;
+    -fx-font-size: 20.0px;
 	-fx-font-weight:bold;
 }
 .session-type-label {
@@ -35,7 +36,7 @@
 }
 .stage-label {
 	-fx-text-fill: #FFFFFF;
-    -fx-font-size: 18.0px;
+    -fx-font-size: 20.0px;
 }
 .label_field{
 	-fx-text-fill: #FFFFFF;

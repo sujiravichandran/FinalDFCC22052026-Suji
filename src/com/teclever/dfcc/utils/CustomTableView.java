@@ -33,8 +33,11 @@ public class CustomTableView<T> extends TableView<T> {
 	}
 
 	public static final EventType<Event> EDIT_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "EDIT_BUTTON_CLICKED");
-	public static final EventType<Event> DELETE_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "DELETE_BUTTON_CLICKED");
-    public static final EventType<Event> COLUMN_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "COLUMN_BUTTON_CLICKED");
+	public static final EventType<Event> VIEW_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "VIEW_BUTTON_CLICKED");
+	public static final EventType<Event> DELETE_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY,
+			"DELETE_BUTTON_CLICKED");
+	public static final EventType<Event> COLUMN_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY,
+			"COLUMN_BUTTON_CLICKED");
 
 	String classname;
 	String digitalSignature;
@@ -47,10 +50,8 @@ public class CustomTableView<T> extends TableView<T> {
 		getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm());
 		setTableMenuButtonVisible(false);
 		setPadding(new Insets(10));
-		setStyle("-fx-background-color:#1C67A9;");
-		
-	
-		
+		setStyle("-fx-background-color:#222831;");
+
 		if (addCheckColumn) {
 			addCheckboxColumn();
 		}
@@ -61,68 +62,80 @@ public class CustomTableView<T> extends TableView<T> {
 	}
 
 	private void initializeColumns(Class<T> clazz) {
-	    for (Field field : clazz.getDeclaredFields()) {
-	        String name = field.getName();
-	        name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
+		for (Field field : clazz.getDeclaredFields()) {
+			String name = field.getName();
+			name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
 
-	        TableColumn<T, Object> column;
+			TableColumn<T, Object> column;
 
-	        if (field.getType() == Blob.class) {
-	            column = new TableColumn<>(name.toUpperCase());
-	            column.setCellValueFactory(cellData -> {
-	                T value = cellData.getValue();
-	                try {
-	                    Blob blob = (Blob) field.get(value);
-	                    if (blob != null) {
-	                        InputStream inputStream = blob.getBinaryStream();
-	                        Image image = new Image(inputStream);
-	                        return new SimpleObjectProperty<>(image);
-	                    } else {
-	                        return new SimpleObjectProperty<>(null);
-	                    }
-	                } catch (SQLException | IllegalAccessException e) {
-	                    e.printStackTrace();
-	                    return new SimpleObjectProperty<>(null);
-	                }
-	            });
-	            column.setCellFactory(e -> new TableCell<T, Object>() {
-	                private final ImageView imageView = new ImageView();
+			if (field.getType() == Blob.class) {
+				column = new TableColumn<>(name.toUpperCase());
+				column.setCellValueFactory(cellData -> {
+					T value = cellData.getValue();
+					try {
+						Blob blob = (Blob) field.get(value);
+						if (blob != null) {
+							InputStream inputStream = blob.getBinaryStream();
+							Image image = new Image(inputStream);
+							return new SimpleObjectProperty<>(image);
+						} else {
+							return new SimpleObjectProperty<>(null);
+						}
+					} catch (SQLException | IllegalAccessException e) {
+						e.printStackTrace();
+						return new SimpleObjectProperty<>(null);
+					}
+				});
+				column.setCellFactory(e -> new TableCell<T, Object>() {
+					private final ImageView imageView = new ImageView();
 
-	                @Override
-	                protected void updateItem(Object item, boolean empty) {
-	                    super.updateItem(item, empty);
-	                    if (empty || item == null) {
-	                        setGraphic(null);
-	                    } else {
-	                        Image image = (Image) item;
-	                        imageView.setImage(image);
-	                        imageView.setFitWidth(100);
-	                        imageView.setFitHeight(60);
-	                        setGraphic(imageView);
-	                    }
-	                }
-	            });
-	        } else {
-	            column = new TableColumn<>(name.toUpperCase());
-	            column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-	        }
+					@Override
+					protected void updateItem(Object item, boolean empty) {
+						super.updateItem(item, empty);
+						if (empty || item == null) {
+							setGraphic(null);
+						} else {
+							Image image = (Image) item;
+							imageView.setImage(image);
+							imageView.setFitWidth(100);
+							imageView.setFitHeight(60);
+							setGraphic(imageView);
+						}
+					}
+				});
+			} else {
+				column = new TableColumn<>(name.toUpperCase());
+				column.setReorderable(false);
+				column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
+				if (field.getName().equals("fileName")) {
+					column.setCellFactory(e -> new TableCell<T, Object>() {
+						@Override
+						protected void updateItem(Object item, boolean empty) {
+							super.updateItem(item, empty);
+							if (empty || item == null) {
+								setText(null);
+								setGraphic(null);
+							} else {
+								setText(item.toString());
+								setGraphic(null);
+								setStyle("-fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 150px;");
+							}
+						}
+					});
+				}
+			}
 
-	        column.setReorderable(false);
-	        getColumns().add(column);
-	    }
-	    resizeColumnsToFitContent();
+			getColumns().add(column);
+		}
+		resizeColumnsToFitContent();
 	}
-
-
 
 	public void addNewUserColumn() {
 		TableColumn<T, Void> actionCol = new TableColumn<>();
-
 		actionCol.setReorderable(false);
-
 		actionCol.setCellFactory(col -> new NewTableCellCheck<>(this));
 		getColumns().add(actionCol);
-		
+
 	}
 
 	private void addCheckboxColumn() {
@@ -152,12 +165,10 @@ public class CustomTableView<T> extends TableView<T> {
 				if (cellData != null) {
 					cellWidth = measureTextWidth(cellData.toString(), column);
 				} else {
-					// Handle null cellData - use a generic placeholder text if appropriate
 					cellWidth = measureTextWidth("Empty", column);
 				}
 				maxWidth = Math.max(maxWidth, cellWidth);
 			}
-			// Ensure the column width is not less than a minimum width
 			column.setPrefWidth(Math.max(MIN_COLUMN_WIDTH, maxWidth + 10));
 		}
 	}
@@ -228,50 +239,38 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 	private final HBox hBox;
 	private final Button editBtn;
 	private final Button delBtn;
+	private final Button viewBtn;
 	private final CustomTableView<T> tableView;
 
 	public NewTableCellCheck(CustomTableView<T> tableView) {
 		this.tableView = tableView;
-		hBox = new HBox(5);
+		hBox = new HBox(10);
 		hBox.setAlignment(Pos.CENTER);
 
-		// Initialize the delete button with its icon
-		Image deleteImage = new Image(getClass().getResourceAsStream("/Resources/Images/DeleteIcon.png"));
-		ImageView deleteImageView = new ImageView(deleteImage);
-		deleteImageView.setFitWidth(20);
-		deleteImageView.setFitHeight(20);
-		delBtn = new Button();
-		delBtn.setGraphic(deleteImageView);
-		delBtn.setStyle(
-				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
-		delBtn.setOnAction(event -> {
-			tableView.getSelectedItems().clear();
-			T rowData = getTableView().getItems().get(getIndex());
-			tableView.getSelectionModel().select(rowData);
-			tableView.getSelectedItems().add(rowData);
-			fireEvent(new Event(CustomTableView.DELETE_BUTTON_CLICKED_EVENT));
-		});
+		delBtn = createButton("/Resources/Images/DeleteIcon.png", CustomTableView.DELETE_BUTTON_CLICKED_EVENT);
+		editBtn = createButton("/Resources/Images/EditIcon.png", CustomTableView.EDIT_BUTTON_CLICKED_EVENT);
+		viewBtn = createButton("/Resources/Images/View.png", CustomTableView.VIEW_BUTTON_CLICKED_EVENT);
 
-		// Initialize the edit button with its icon
-		Image editImage = new Image(getClass().getResourceAsStream("/Resources/Images/EditIcon.png"));
-		ImageView editImageView = new ImageView(editImage);
-		editImageView.setFitWidth(20);
-		editImageView.setFitHeight(20);
-		editBtn = new Button();
-		editBtn.setGraphic(editImageView);
-		editBtn.setStyle(
-				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
-		editBtn.setOnAction(event -> {
-			tableView.getSelectedItems().clear();
-			T rowData = getTableView().getItems().get(getIndex());
-			tableView.getSelectionModel().select(rowData);
-			tableView.getSelectedItems().add(rowData);
-			
-			fireEvent(new Event(CustomTableView.EDIT_BUTTON_CLICKED_EVENT));
-		});
-
-		// Initially add only the delete button
 		hBox.getChildren().add(delBtn);
+	}
+
+	private Button createButton(String iconPath, EventType<Event> eventType) {
+		Image image = new Image(getClass().getResourceAsStream(iconPath));
+		ImageView imageView = new ImageView(image);
+		imageView.setFitWidth(20);
+		imageView.setFitHeight(20);
+		Button button = new Button();
+		button.setGraphic(imageView);
+		button.setStyle(
+				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
+		button.setOnAction(event -> {
+			tableView.getSelectedItems().clear();
+			T rowData = getTableView().getItems().get(getIndex());
+			tableView.getSelectionModel().select(rowData);
+			tableView.getSelectedItems().add(rowData);
+			fireEvent(new Event(eventType));
+		});
+		return button;
 	}
 
 	@Override
@@ -280,14 +279,22 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		if (empty) {
 			setGraphic(null);
 		} else {
-			// Dynamically add the edit button if the class name is 'User'
 			T rowData = getTableView().getItems().get(getIndex());
-			if (rowData != null && rowData.getClass().getSimpleName().equals("User")) {
-				if (!hBox.getChildren().contains(editBtn)) {
-					hBox.getChildren().add(0, editBtn); // Add edit button before delete button
+			if (rowData != null) {
+				String className = rowData.getClass().getSimpleName();
+				hBox.getChildren().clear();
+				hBox.getChildren().add(delBtn);
+				switch (className) {
+				case "User":
+					hBox.getChildren().add(0, editBtn);
+					break;
+				case "AitessMacroFiles":
+				case "AitessSymbolFiles":
+					hBox.getChildren().add(0, viewBtn);
+					break;
+				default:
+					break;
 				}
-			} else {
-				hBox.getChildren().remove(editBtn); // Remove edit button if not 'User'
 			}
 			setGraphic(hBox);
 		}

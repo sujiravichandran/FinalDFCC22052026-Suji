@@ -1,6 +1,7 @@
 package com.teclever.dfcc.model;
 
-public class SymbolFile {
+public class AitessTestFiles {
+	
 	private String fileName;
 
 	public String getFileName() {
@@ -10,9 +11,6 @@ public class SymbolFile {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	
-	
-	
-	
+
 	
 }
