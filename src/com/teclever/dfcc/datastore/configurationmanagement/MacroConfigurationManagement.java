@@ -42,10 +42,10 @@ public class MacroConfigurationManagement {
         return buttonDtoList;
     }
 
+ 
     // API: UPDATING THE MACRO BUTTON (ENTERING BUTTON NAME AND COMMAND)
-    public List<MacroButtonMapDto> updateMacroButtonMap(List<MacroButtonMapDto> buttonMapDtoList) {
+    public MacroButtonMapResponse updateMacroButtonMap(List<MacroButtonMapDto> buttonMapDtoList) {
         MacroButtonMapService buttonMapService = new MacroButtonMapService();
-
         // Convert DTOs to entities
         List<MacroButtonMap> buttonMapList = new ArrayList<>();
         for (MacroButtonMapDto dto : buttonMapDtoList) {
@@ -57,21 +57,9 @@ public class MacroConfigurationManagement {
             buttonMap.setUutId(dto.getUutId());
             buttonMapList.add(buttonMap);
         }
-
         MacroButtonMapResponse response = buttonMapService.updateButtonDetails(buttonMapList);
-
-        List<MacroButtonMapDto> updatedButtonMapDtoList = new ArrayList<>();
-        for (MacroButtonMap buttonMap : response.getButtonMapList()) {
-            MacroButtonMapDto buttonMapDto = new MacroButtonMapDto();
-            buttonMapDto.setButtonId(buttonMap.getButtonId());
-            buttonMapDto.setButtonNumber(buttonMap.getButtonNumber());
-            buttonMapDto.setButtonName(buttonMap.getButtonName());
-            buttonMapDto.setCommand(buttonMap.getCommand());
-            buttonMapDto.setUutId(buttonMap.getUutId());
-            updatedButtonMapDtoList.add(buttonMapDto);
-        }
-
-        return updatedButtonMapDtoList;
+        // No need to convert the response, return as is
+        return response;
     }
 
     // GET BUTTON NAMES BY UUTID
