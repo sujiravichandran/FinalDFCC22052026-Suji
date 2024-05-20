@@ -1,3 +1,7 @@
+.runConfiguration-main-container{
+	-fx-background-color: #FFFFFF;
+	-fx-background-radius: 10px;	
+}
 .runConfiguration-headerLabel{
 	-fx-text-fill:#003360;
 	-fx-font-size: 30.0px;

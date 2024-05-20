@@ -286,6 +286,7 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 				hBox.getChildren().add(delBtn);
 				switch (className) {
 				case "User":
+				case "CPCICard":
 					hBox.getChildren().add(0, editBtn);
 					break;
 				case "AitessMacroFiles":

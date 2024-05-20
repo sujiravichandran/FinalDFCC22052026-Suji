@@ -123,6 +123,7 @@ public class StageConfigurationController {
 		stageParentGrid.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/StageConfiguration.css").toExternalForm());
 
+		stageParentGrid.getStyleClass().add("stageConfig-main-container");
 		ColumnConstraints column1 = new ColumnConstraints();
 		column1.setPercentWidth(100);
 
