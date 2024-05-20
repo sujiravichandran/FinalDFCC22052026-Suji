@@ -6,8 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.entities.DownloadFile;
 import com.teclever.datastore.service.DownloadFileService;
@@ -53,7 +55,7 @@ public class DownloadFileManagement {
                 Files.walk(dir)
                      .filter(Files::isRegularFile)
                      .forEach(path -> {
-                         String fileName = path.getFileName().toString(); 
+                         String fileName = path.toString();
                          DownloadFile downloadFile = new DownloadFile(); 
                          downloadFile.setDownloadFileName(fileName); 
                          downloadFile.setRunPathMasterId(runPathMasterId); 
@@ -70,16 +72,15 @@ public class DownloadFileManagement {
         return downloadFilePaths;
     }
  // Method to mark previous download file rows as deleted
-    private static void markPreviousDownloadFileRowsAsDeleted(String runPathMasterId) {
+    public static void markPreviousDownloadFileRowsAsDeleted(String runPathMasterId) {
+    	DownloadFileService downloadFileService = new DownloadFileService();
+        List<DownloadFile> downloadFiles = downloadFileService.getDownloadFilesByRunPathMasterId(runPathMasterId);
+
         try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            List<DownloadFile> downloadFiles = session.createQuery("FROM DownloadFile WHERE runPathMasterId = :runPathMasterId", DownloadFile.class)
-                                        .setParameter("runPathMasterId", runPathMasterId)
-                                        .getResultList();
-
             for (DownloadFile downloadFile : downloadFiles) {
-                downloadFile.setDeleteStatus(true); 
+                downloadFile.setDeleteStatus(true);
                 session.merge(downloadFile);
             }
 
