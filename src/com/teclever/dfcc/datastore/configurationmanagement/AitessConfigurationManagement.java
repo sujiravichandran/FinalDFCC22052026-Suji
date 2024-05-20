@@ -1,9 +1,14 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.AitessConfiguration;
 import com.teclever.datastore.entities.CardDetails;
@@ -152,15 +157,15 @@ public class AitessConfigurationManagement {
 
 	// Card Details API's
 	// To Get The Driver Name For The Selected UUTID
-	public Map<Integer,Map<String, String>> getAitessIdDriverName(String uutId) {
-		 Map<Integer,Map<String, String>>  aitessIdDriverDetails = new HashMap<Integer,Map<String, String>> ();
+	public Map<Integer, Map<String, String>> getAitessIdDriverName(String uutId) {
+		Map<Integer, Map<String, String>> aitessIdDriverDetails = new HashMap<Integer, Map<String, String>>();
 		AitessConfigurationService service = new AitessConfigurationService();
 
 		AitessConfigurationResponse res = service.getAllAitessConfigurationByUutId(uutId);
 		List<AitessConfiguration> aitessList = new ArrayList();
 		aitessList = res.getConfigurations();
 		for (AitessConfiguration aitessConfiguration : aitessList) {
-			Map<String,String>driverDetails = new HashMap<String,String>();
+			Map<String, String> driverDetails = new HashMap<String, String>();
 			driverDetails.put("driverName", aitessConfiguration.getDriverName());
 			driverDetails.put("driverVersion", aitessConfiguration.getDriverVersion());
 			aitessIdDriverDetails.put(aitessConfiguration.getAitessId(), driverDetails);
@@ -236,6 +241,7 @@ public class AitessConfigurationManagement {
 			cardDetails.setAitessId(cardDetailsDTO.getAitessId());
 			cardDetails.setCardIdentificationText(cardDetailsDTO.getCardIdentificationText());
 			cardDetails.setDeleteStatus(false);
+			cardDetails.setCardName(cardDetailsDTO.getCardName());
 			cardDetails.setTotalNumberOfCards(cardDetailsDTO.getTotalNumberOfCards());
 			response = cardDetailsService.addCardDetail(cardDetails);
 
@@ -280,11 +286,12 @@ public class AitessConfigurationManagement {
 
 			CardDetails cardDetails = new CardDetails();
 			cardDetails.setCardDetailsId(cardDetailsDTO.getCardDetailsId());
+			cardDetails.setCardName(cardDetailsDTO.getCardName());
 			cardDetails.setAitessId(cardDetailsDTO.getAitessId());
 			cardDetails.setCardIdentificationText(cardDetailsDTO.getCardIdentificationText());
 			cardDetails.setDeleteStatus(false);
 			cardDetails.setTotalNumberOfCards(cardDetailsDTO.getTotalNumberOfCards());
-
+			response =cardDetailsService.updateCardDetail(cardDetails);
 		} catch (Exception ex) {
 			response.setResponseCode(0);
 			response.setResponseMessage("Not Updated");
@@ -304,5 +311,7 @@ public class AitessConfigurationManagement {
 		}
 		return res;
 	}
+
+
 
 }
