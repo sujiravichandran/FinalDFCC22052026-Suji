@@ -133,7 +133,7 @@ public class VDDManagement {
 				String filePathString = parts[1].substring(0, parts[1].lastIndexOf("/") + 1); 
 
 
-				VDDDto vDDDto = new VDDDto(fileCheckSum, filePathString, fileName, baseFileName);
+				VDDDto vDDDto = new VDDDto(fileCheckSum, filePathString, fileName, path);
 				vDDList.add(vDDDto);
 
 			}
@@ -147,6 +147,7 @@ public class VDDManagement {
 			res.setResponseCode(0);
 			res.setResponseMessage("Fetching VDD Unsuccessfull " + e);
 			vDDResponse.setResponse(res);
+			e.printStackTrace();
 			return vDDResponse;
 		}
 
