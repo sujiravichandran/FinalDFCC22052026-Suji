@@ -1,7 +1,10 @@
 package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -79,8 +82,8 @@ public class VDDManagement {
 					vdd.setvDDFileCheckSum(vDDDto.getFileCheckSum());
 
 					listofVDD.add(vdd);
-				}else {
-					System.out.println(" File Name " +vDDDto.getFileName() + "File path " + vDDDto.getFilePath());
+				} else {
+					System.out.println(" File Name " + vDDDto.getFileName() + "File path " + vDDDto.getFilePath());
 				}
 			}
 			res = vDDService.addListOfVDD(listofVDD);
@@ -94,7 +97,7 @@ public class VDDManagement {
 	}
 
 	public Response addVDD(VDDDto vDDDto) {
-		
+
 		Response res = new Response();
 		try {
 			VDD vdd = new VDD();
@@ -130,8 +133,7 @@ public class VDDManagement {
 
 				String fileCheckSum = parts[0];
 				String fileName = parts[1].substring(parts[1].lastIndexOf("/") + 1);
-				String filePathString = parts[1].substring(0, parts[1].lastIndexOf("/") + 1); 
-
+				String filePathString = parts[1].substring(0, parts[1].lastIndexOf("/") + 1);
 
 				VDDDto vDDDto = new VDDDto(fileCheckSum, filePathString, fileName, baseFileName);
 				vDDList.add(vDDDto);
@@ -151,4 +153,33 @@ public class VDDManagement {
 		}
 
 	}
+
+	public Response exportVDDDetails(String filePathFileName) {
+		Response res = new Response();
+		// String filePath = "C:\\test\\test\\output.txt";
+
+		// Ensuring the directory exists
+		java.io.File file = new java.io.File(filePathFileName);
+		file.getParentFile().mkdirs();
+
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePathFileName))) {
+			VDDResponse vDDResponse = getListOfVDD();
+			List<VDDDto> vDDList = vDDResponse.getvDDList();
+
+			for (VDDDto vDDDto : vDDList) {
+				writer.write(vDDDto.getFilePath() + " " + vDDDto.getFileCheckSum());
+				writer.newLine();
+			}
+
+			res.setResponseCode(1);
+			res.setResponseMessage("VDD File Generated Successfully");
+		} catch (Exception ex) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Error generating VDD file: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		return res;
+	}
+
 }

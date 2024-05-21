@@ -7,6 +7,13 @@ public class AddFilesDetailsDTO {
 	private String fromFilePath;
 	private String masterPathId;
 	private String location;
+	private String msg;
+	public String getMsg() {
+		return msg;
+	}
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
 	public String getFileName() {
 		return fileName;
 	}
