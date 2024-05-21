@@ -42,42 +42,35 @@ public class ValidateChecksum {
 					switch (runPathMaster.getMasterPath()) {
 					case "tpf":
 						List<TestFileDto> listOfTestPlanFile = TestPlanFileManagement
-								.getAllTestFiles(runPathMaster.getRunPathMasterId());
+								.getAllTestFilesByRunPathMasterId(runPathMaster.getRunPathMasterId());
 						for (TestFileDto testFileDto : listOfTestPlanFile) {
-							if (!setOfTestPlanFile.contains(testFileDto.getTestFileName())) {
-								setOfTestPlanFile.add(testFileDto.getTestFileName());
-							}
+							setOfTestPlanFile.add(testFileDto.getTestFileName());
 						}
 						tpfFilePath = runPathMaster.getLocation();
 						break;
 
 					case "symbols":
 						List<SymbolDto> listOfSymbols = SymbolFileManagement
-								.getAllSymbols(runPathMaster.getRunPathMasterId());
+								.getAllSymbolsByRunPathMasterId(runPathMaster.getRunPathMasterId());
+
 						for (SymbolDto symbolDto : listOfSymbols) {
-							if (!setOfSymbols.contains(symbolDto.getFileName())) {
-								setOfSymbols.add(symbolDto.getFileName());
-							}
+							setOfSymbols.add(symbolDto.getFileName());
 						}
 						symboleFilePath = runPathMaster.getLocation();
 						break;
-					case "macro":
-						List<MacroDto> macroDto = MacroFileManagement.getAllMacros(runPathMaster.getRunPathMasterId());
+					case "macros":
+						List<MacroDto> macroDto = MacroFileManagement
+								.getAllMacrobyRunPathMassterId(runPathMaster.getRunPathMasterId());
 						for (MacroDto macro : macroDto) {
-							if (!setOfMacro.contains(macro.getFileName())) {
-								setOfMacro.add(macro.getFileName());
-							}
+							setOfMacro.add(macro.getFileName());
 						}
-
 						macrosFilePath = runPathMaster.getLocation();
 						break;
 					case "download":
 						List<DownloadFileDto> listOfDownloadFile = DownloadFileManagement
-								.getAllDownloadFiles(runPathMaster.getRunPathMasterId());
+								.getAllDownloadFilesByRunPathId(runPathMaster.getRunPathMasterId());
 						for (DownloadFileDto macro : listOfDownloadFile) {
-							if (!setOfDownloadFile.contains(macro.getDownloadFileName())) {
-								setOfDownloadFile.add(macro.getDownloadFileName());
-							}
+							setOfDownloadFile.add(macro.getDownloadFileName());
 						}
 						downloadFilePath = runPathMaster.getLocation();
 						break;
@@ -90,21 +83,22 @@ public class ValidateChecksum {
 			VDDManagement vddManagement = new VDDManagement();
 			VDDResponse vddResponse = vddManagement.getListOfVDD();
 			List<VDDDto> listOfVdd = vddResponse.getvDDList();
-
-			if (listOfVdd.size() != (setOfTestPlanFile.size() + setOfSymbols.size() + setOfMacro.size()
-					+ setOfDownloadFile.size())) {
-				response.setResponseCode(0);
-				response.setResponseMessage("File Count Mist Matching ");
-				return response;
-			}
+//			System.out.println(listOfVdd.size()+" "+(setOfTestPlanFile.size()+ setOfSymbols.size() + setOfMacro.size() +setOfDownloadFile.size())+"="+setOfTestPlanFile.size()+ "+" + setOfSymbols.size() + "+" + setOfMacro.size() + "+"
+//					+ setOfDownloadFile.size());
+//			if (listOfVdd.size() != (setOfTestPlanFile.size() + setOfSymbols.size() + setOfMacro.size()
+//					+ setOfDownloadFile.size())) {
+//				response.setResponseCode(0);
+//				response.setResponseMessage("File Count Mist Matching ");
+//				return response;
+//			}
 			Map<String, String> temparyMap = new HashMap<>();
 			temparyMap.putAll(SystemConfigManagement.calculateChecksums(tpfFilePath));
 			temparyMap.putAll(SystemConfigManagement.calculateChecksums(symboleFilePath));
 			temparyMap.putAll(SystemConfigManagement.calculateChecksums(macrosFilePath));
 			temparyMap.putAll(SystemConfigManagement.calculateChecksums(downloadFilePath));
-
 			for (VDDDto vddDto : listOfVdd) {
-				if ((temparyMap.get(vddDto.getFilePath() + vddDto.getFileName()) != null)) {
+				if ((temparyMap.get(vddDto.getFileName()) != null)) {
+					System.out.println(vddDto.getFileCheckSum());
 					if (!(temparyMap.get(vddDto.getFilePath() + vddDto.getFileName())
 							.equals(vddDto.getFileCheckSum()))) {
 						response.setResponseCode(0);

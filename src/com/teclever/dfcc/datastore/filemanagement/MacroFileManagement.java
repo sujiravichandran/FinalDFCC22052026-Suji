@@ -108,5 +108,24 @@ public class MacroFileManagement {
         }
         return filePaths;
     }
+    
+    public static List<MacroDto> getAllMacrobyRunPathMassterId(String runPathMasterId){
+    	List<MacroDto> macroDtos = new ArrayList<>();
+        try {
+            MacroService macroService = new MacroService();
+    		 List<Macro> macros = macroService.getAllMacrosByRunPathMasterId(runPathMasterId);
+             for (Macro macro : macros) {
+                 MacroDto macroDto = new MacroDto();
+                 macroDto.setMacroId(macro.getMacroId());
+                 macroDto.setMacroName(macro.getMacroName());
+                 macroDto.setFileName(macro.getFileName());
+                 macroDto.setRunPathMasterId(macro.getRunPathMasterId());
+                 macroDtos.add(macroDto);
+             }
+             return macroDtos;
+		} catch (Exception e) {
+			throw e;
+		}
+    }
 
     }
