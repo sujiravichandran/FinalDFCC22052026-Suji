@@ -118,6 +118,24 @@ public class UserManagementModule {
 		return res;
 	}
 
+	public Response updateOption(String option) {
+		Response res = new Response();
+		try {
+			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
+
+			
+			systemConfig.setLaunchType(option);
+
+			SystemConfigManagement.setConfiguration(systemConfig);
+			res.setResponseCode(1);
+			res.setResponseMessage("LaunchType updated Successufull ");
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("LaunchType updated Unsuccessufull " + e.getLocalizedMessage());
+		}
+		return res;
+	}
+
 	public LoginResponse authenticateUser(String loginName, String password, String optionType) {
 		LoginResponse loginResponse = new LoginResponse();
 		try {

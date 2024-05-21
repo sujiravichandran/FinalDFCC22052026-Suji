@@ -227,6 +227,72 @@ public class SystemConfigManagement {
 	}
 
 
+// <<<<<<< Development-Code
+// =======
+	
+	
+// 	public static ValidateResponse validateChecksum(SystemConfig config, String directory,String parentJarFilePath) throws IOException {
+// 	    Response response = new Response();
+// 	    List<CheckSum> checkSumList = new ArrayList<>();
+// 	    List<String> filesAndChecksums = config.getChecksums();
+// 	    Map<String, String> calculatedChecksums = calculateChecksums(directory);
+// 	    // Validate JAR file checksum
+// 	    ValidateResponse jarFileValidationResponse = validateJarFileChecksum(config, parentJarFilePath);
+// 	    response.setResponseCode(jarFileValidationResponse.getResponse().getResponseCode());
+// 	    response.setResponseMessage(jarFileValidationResponse.getResponse().getResponseMessage());
+// 	    checkSumList.addAll(jarFileValidationResponse.getCheckSumList());
+	  
+// //	    CheckSum jarCheckSum = new CheckSum();
+// //	    jarCheckSum.setFile(parentJarFilePath);
+// //	    jarCheckSum.setChecksumValue("");
+// //	    jarCheckSum.setMsg("OK");
+// //	    checkSumList.add(jarCheckSum);
+	  
+// 	    // Check if all files in the system config exist in the calculated checksums
+// 	    for (String fileChecksum : filesAndChecksums) {
+// 	        String[] parts = fileChecksum.split(" : ");
+// 	        String filename = parts[0];
+// 	        String checksum = parts[1];
+// 	        String calculatedChecksum = calculatedChecksums.get(filename);
+// 	        CheckSum checkSum = new CheckSum();
+// 	        checkSum.setFile(filename);
+// 	        checkSum.setChecksumValue(calculatedChecksum);
+// 	        if (calculatedChecksum == null) {
+// 	            checkSum.setMsg("NOT OK");
+// 	        } else if (!calculatedChecksum.equals(checksum)) {
+// 	            checkSum.setMsg("NOT OK");
+// 	        } else {
+// 	            checkSum.setMsg("OK");
+// 	        }
+// 	        checkSumList.add(checkSum);
+// 	    }
+// 	    response.setResponseCode(1);
+// 	    response.setResponseMessage("SystemConfig file read Successful");
+	  
+// 	    ValidateResponse validateResponse = new ValidateResponse();
+// 	    validateResponse.setResponse(response);
+// 	    validateResponse.setCheckSumList(checkSumList);
+// 	    return validateResponse;
+// 	}
+// 	public static Map<String, String> calculateChecksums(String directory) throws IOException {
+// 	    Map<String, String> checksums = new HashMap<>();
+// 	    try {
+// 	        Files.walk(Paths.get(directory))
+// 	                .filter(Files::isRegularFile)
+// 	                .forEach(file -> {
+// 	                    try {
+// 	                        String checksum = getFileChecksum(file.toFile());
+// 	                        checksums.put(file.toString(), checksum);
+// 	                    } catch (IOException e) {
+// 	                        e.printStackTrace();
+// 	                    }
+// 	                });
+// 	    } catch (IOException e) {
+// 	        throw new IOException("Error reading files from directory: " + e.getMessage());
+// 	    }
+// 	    return checksums;
+// 	}
+// >>>>>>> tec-dfcc
 	private static String getFileChecksum(File file) throws IOException {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
