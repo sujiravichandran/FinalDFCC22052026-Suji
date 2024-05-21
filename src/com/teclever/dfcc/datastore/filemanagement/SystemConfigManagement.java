@@ -6,13 +6,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -227,9 +230,6 @@ public class SystemConfigManagement {
 	}
 
 
-// <<<<<<< Development-Code
-// =======
-	
 	
 // 	public static ValidateResponse validateChecksum(SystemConfig config, String directory,String parentJarFilePath) throws IOException {
 // 	    Response response = new Response();
@@ -274,25 +274,24 @@ public class SystemConfigManagement {
 // 	    validateResponse.setCheckSumList(checkSumList);
 // 	    return validateResponse;
 // 	}
-// 	public static Map<String, String> calculateChecksums(String directory) throws IOException {
-// 	    Map<String, String> checksums = new HashMap<>();
-// 	    try {
-// 	        Files.walk(Paths.get(directory))
-// 	                .filter(Files::isRegularFile)
-// 	                .forEach(file -> {
-// 	                    try {
-// 	                        String checksum = getFileChecksum(file.toFile());
-// 	                        checksums.put(file.toString(), checksum);
-// 	                    } catch (IOException e) {
-// 	                        e.printStackTrace();
-// 	                    }
-// 	                });
-// 	    } catch (IOException e) {
-// 	        throw new IOException("Error reading files from directory: " + e.getMessage());
-// 	    }
-// 	    return checksums;
-// 	}
-// >>>>>>> tec-dfcc
+ 	public static Map<String, String> calculateChecksums(String directory) throws IOException {
+ 	    Map<String, String> checksums = new HashMap<>();
+ 	    try {
+ 	        Files.walk(Paths.get(directory))
+ 	                .filter(Files::isRegularFile)
+ 	                .forEach(file -> {
+ 	                    try {
+ 	                        String checksum = getFileChecksum(file.toFile());
+ 	                        checksums.put(file.toString(), checksum);
+ 	                    } catch (IOException e) {
+ 	                        e.printStackTrace();
+ 	                    }
+ 	                });
+ 	    } catch (IOException e) {
+ 	        throw new IOException("Error reading files from directory: " + e.getMessage());
+ 	    }
+ 	    return checksums;
+ 	}
 	private static String getFileChecksum(File file) throws IOException {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
