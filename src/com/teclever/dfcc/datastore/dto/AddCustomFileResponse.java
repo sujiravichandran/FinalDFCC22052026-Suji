@@ -5,41 +5,35 @@ import java.util.Map;
 
 public class AddCustomFileResponse {
 	
-	private int code;
-	private String msg;
+	private int responseCode;
+	private String responseMsg;
 	private String eMsg;
-	private Map<String,String>copiedFileNameMsgMap;
-	private Map<String,String>existFileNameMsgMap;
 	private List<AddFilesDetailsDTO>addedFilesDetailsList;
-	public int getCode() {
-		return code;
+	private List<AddFilesDetailsDTO>existingFileDetailsList;
+
+	public int getResponseCode() {
+		return responseCode;
 	}
-	public void setCode(int code) {
-		this.code = code;
+	public void setResponseCode(int responseCode) {
+		this.responseCode = responseCode;
 	}
-	public String getMsg() {
-		return msg;
+	public String getResponseMsg() {
+		return responseMsg;
 	}
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public void setResponseMsg(String responseMsg) {
+		this.responseMsg = responseMsg;
+	}
+	public List<AddFilesDetailsDTO> getExistingFileDetailsList() {
+		return existingFileDetailsList;
+	}
+	public void setExistingFileDetailsList(List<AddFilesDetailsDTO> existingFileDetailsList) {
+		this.existingFileDetailsList = existingFileDetailsList;
 	}
 	public String geteMsg() {
 		return eMsg;
 	}
 	public void seteMsg(String eMsg) {
 		this.eMsg = eMsg;
-	}
-	public Map<String, String> getCopiedFileNameMsgMap() {
-		return copiedFileNameMsgMap;
-	}
-	public void setCopiedFileNameMsgMap(Map<String, String> copiedFileNameMsgMap) {
-		this.copiedFileNameMsgMap = copiedFileNameMsgMap;
-	}
-	public Map<String, String> getExistFileNameMsgMap() {
-		return existFileNameMsgMap;
-	}
-	public void setExistFileNameMsgMap(Map<String, String> existFileNameMsgMap) {
-		this.existFileNameMsgMap = existFileNameMsgMap;
 	}
 	public List<AddFilesDetailsDTO> getAddedFilesDetailsList() {
 		return addedFilesDetailsList;
