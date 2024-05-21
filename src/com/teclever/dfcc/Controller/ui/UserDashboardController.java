@@ -1,4 +1,4 @@
-package com.teclever.dfcc.Controller.ui;
+										package com.teclever.dfcc.Controller.ui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

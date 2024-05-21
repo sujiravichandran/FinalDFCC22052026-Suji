@@ -9,6 +9,20 @@ public class CheckSum {
 	public int getsNo() {
 		return sNo;
 	}
+	
+	public CheckSum() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public CheckSum(int sNo, String file, String checksumValue, String msg) {
+		super();
+		this.sNo = sNo;
+		this.file = file;
+		this.checksumValue = checksumValue;
+		this.msg = msg;
+	}
+
 	public void setsNo(int sNo) {
 		this.sNo = sNo;
 	}
