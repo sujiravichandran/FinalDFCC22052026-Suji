@@ -213,7 +213,7 @@ public class SystemConfigManagement {
 	    validateResponse.setCheckSumList(checkSumList);
 	    return validateResponse;
 	}
-	private static Map<String, String> calculateChecksums(String directory) throws IOException {
+	public static Map<String, String> calculateChecksums(String directory) throws IOException {
 	    Map<String, String> checksums = new HashMap<>();
 	    try {
 	        Files.walk(Paths.get(directory))
