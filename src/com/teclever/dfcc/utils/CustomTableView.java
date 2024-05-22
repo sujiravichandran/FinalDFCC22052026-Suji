@@ -130,6 +130,20 @@ public class CustomTableView<T> extends TableView<T> {
 		resizeColumnsToFitContent();
 	}
 
+
+	   public void hideColumn(String headerText) {
+	        TableColumn<T, ?> columnToRemove = null;
+	        for (TableColumn<T, ?> column : getColumns()) {
+	            if (column.getText().equals(headerText)) {
+	                columnToRemove = column;
+	                break;
+	            }
+	        }
+	        if (columnToRemove != null) {
+	            getColumns().remove(columnToRemove);
+	        }
+	    }
+	
 	public void addNewUserColumn() {
 		TableColumn<T, Void> actionCol = new TableColumn<>();
 		actionCol.setReorderable(false);

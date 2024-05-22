@@ -5,7 +5,11 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.utils.CustomButton;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -50,6 +54,7 @@ public class AddAitessController {
     private TextField textDriverName;
     @FXML
     private TextField textDriverVersion;
+    
     AitessMasterController mainPageController;
     
     
@@ -59,53 +64,90 @@ public class AddAitessController {
     
     
     public void initialize() {
-        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>(){
-
+        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                UUTMasterDetailsDto[] uutDataList;
-                HashMap<String, String> nameId = new HashMap<String, String>();
-                AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-                UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList = configManager.getAllUUT();
-                int n = uutDataList.length;
-                int n2 = 0;
-                while (n2 < n) {
-                    UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-                    nameId.put(uutType.getUutType(), uutType.getUutId());
-                    ++n2;
+                if (validateFields()) {
+                    UUTMasterDetailsDto[] uutDataList;
+                    HashMap<String, String> nameId = new HashMap<>();
+                    AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+                    UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList = configManager.getAllUUT();
+                    int n = uutDataList.length;
+                    int n2 = 0;
+                    while (n2 < n) {
+                        UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
+                        nameId.put(uutType.getUutType(), uutType.getUutId());
+                        ++n2;
+                    }
+                    AitessConfigurationDto aitessConfigurationDTO = new AitessConfigurationDto();
+                    aitessConfigurationDTO.setAitessName(AddAitessController.this.textAitessName.getText());
+                    aitessConfigurationDTO.setAitessCommand(AddAitessController.this.textAitessCommand.getText());
+                    aitessConfigurationDTO.setAitessVersion(AddAitessController.this.textAitessVersion.getText());
+                    aitessConfigurationDTO.setDriverName(AddAitessController.this.textDriverName.getText());
+                    aitessConfigurationDTO.setDriverCommand(AddAitessController.this.textDriverCommand.getText());
+                    aitessConfigurationDTO.setDriverVersion(AddAitessController.this.textDriverVersion.getText());
+                    aitessConfigurationDTO.setUutId(nameId.get(AitessMasterController.UUTdropdownValue));
+                    AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
+                    AitessConfigurationResponse response = configurationManagement.addAitessConfig(
+                            aitessConfigurationDTO, nameId.get(AitessMasterController.UUTdropdownValue));
+                    System.out.println("Response Code: " + response.getResponseCode());
+                    System.out.println("Response Message: " + response.getResponseMessage());
+                    mainPageController.refresh();
+                    Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
+                    stage.close();
                 }
-                AitessConfigurationDto aitessConfigurationDTO = new AitessConfigurationDto();
-                aitessConfigurationDTO.setAitessName(AddAitessController.this.textAitessName.getText());
-                aitessConfigurationDTO.setAitessCommand(AddAitessController.this.textAitessCommand.getText());
-                aitessConfigurationDTO.setAitessVersion(AddAitessController.this.textAitessVersion.getText());
-                aitessConfigurationDTO.setDriverName(AddAitessController.this.textDriverName.getText());
-                aitessConfigurationDTO.setDriverCommand(AddAitessController.this.textDriverCommand.getText());
-                aitessConfigurationDTO.setDriverVersion(AddAitessController.this.textDriverVersion.getText());
-                aitessConfigurationDTO.setUutId((String)nameId.get(AitessMasterController.UUTdropdownValue));
-                AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
-                AitessConfigurationResponse response = configurationManagement.addAitessConfig(aitessConfigurationDTO, (String)nameId.get(AitessMasterController.UUTdropdownValue));
-                System.out.println("Response Code: " + response.getResponseCode());
-                System.out.println("Response Message: " + response.getResponseMessage());
-                mainPageController.refresh();
-                Stage stage = (Stage)AddAitessController.this.adduser.getScene().getWindow();
-                stage.close();
-                
             }
         });
         saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
         this.hboxSave.getChildren().add(saveButton);
         this.hboxSave.setAlignment(Pos.CENTER);
-        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>(){
 
+        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Stage stage = (Stage)AddAitessController.this.adduser.getScene().getWindow();
+                Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
                 stage.close();
             }
         });
         cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
         this.hboxCancel.getChildren().add(cancelButton);
         this.hboxCancel.setAlignment(Pos.CENTER);
+    }
+    
+    private boolean validateFields() {
+        if (textAitessName.getText().isEmpty()) {
+            showAlert("AITESS Name is required");
+            return false;
+        }
+        if (textAitessCommand.getText().isEmpty()) {
+            showAlert("AITESS Command is required");
+            return false;
+        }
+        if (textAitessVersion.getText().isEmpty()) {
+            showAlert("AITESS Version is required");
+            return false;
+        }
+        if (textDriverName.getText().isEmpty()) {
+            showAlert("Driver Name is required");
+            return false;
+        }
+        if (textDriverCommand.getText().isEmpty()) {
+            showAlert("Driver Command is required");
+            return false;
+        }
+        if (textDriverVersion.getText().isEmpty()) {
+            showAlert("Driver Version is required");
+            return false;
+        }
+        return true;
+    }
+    
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Validation Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void alertBox(String text, ActionEvent actionEvent) {
