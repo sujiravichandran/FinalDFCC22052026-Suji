@@ -138,7 +138,7 @@ public class AitessTestFilesController {
 		if(RUN_CONFIG_ID!=null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
-			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
 			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(testFilesParentGridPane.getScene().getWindow());
 			List<String> filePaths = new ArrayList<>();
 			if (selectedFiles != null) {
@@ -174,7 +174,6 @@ public class AitessTestFilesController {
 		customTableView_testFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessTestFiles> selectedItems = customTableView_testFiles.getSelectedItems();
 			for (AitessTestFiles rowData : selectedItems) {
-				System.out.println(rowData.getFileName());
 				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "tpf");
 				if (res.getResponseCode() == 1) {
 					tableData.clear();
