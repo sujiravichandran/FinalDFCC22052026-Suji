@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.utils.Notifications;
@@ -102,9 +103,13 @@ public class AddUserController implements Initializable {
 	}
 
 	public void addUserRoleType() {
-		userRoleType.put("SQUADRON ADMIN", "RL_ID_2");
-		userRoleType.put("BEL USER", "RL_ID_3");
-		userRoleType.put("SQUADRON USER", "RL_ID_4");
+		if(UserData.getRoleId().equals("RL_ID_1")) {
+			userRoleType.put("SQUADRON USER", "RL_ID_4");
+			userRoleType.put("SQUADRON ADMIN", "RL_ID_2");
+			userRoleType.put("BEL USER", "RL_ID_3");
+		}else if(UserData.getRoleId().equals("RL_ID_2")) {
+			userRoleType.put("SQUADRON USER", "RL_ID_4");
+		}	
 	}
 
 	private void createAddUserPopup(String userId) {

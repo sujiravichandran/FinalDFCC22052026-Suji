@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.SystemConfig;
+import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -39,6 +41,8 @@ public class LaunchTypePopupController {
 	
 	UserManagementModule userManagementModule = new UserManagementModule();
 	
+	String previousOption;
+	
 	public void initialize() {
 		launchTypeMainContainer.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LaunchType.css").toExternalForm());
@@ -46,6 +50,12 @@ public class LaunchTypePopupController {
 	}
 	
 	private void createLaunchTypePopupContent() {
+		SystemConfig response = SystemConfigManagement.getConfiguration();
+		System.out.println(response.getLaunchType());
+		if(response.getLaunchType() != null) {
+			previousOption = response.getLaunchType();
+		}
+		
 		launchTypeTitle.setText("Select Launch Type");
 		launchTypeTitle.getStyleClass().add("launch-type-title");
 		launchTypeHeading.getChildren().add(launchTypeTitle);
@@ -77,6 +87,12 @@ public class LaunchTypePopupController {
 		closeButton.setOnAction(e -> closeLaunchTypePopup());
 		
 		saveButton.setOnAction(e -> saveLaunchType());
+		
+		if(previousOption.equals("o1")) {
+			option1RadioButton.setSelected(true);
+		}else {
+			option2RadioButton.setSelected(true);
+		}
 		
 		launchTypeForm.getChildren().addAll(option1HBox, option2HBox, buttonHBox);
 	}

@@ -1,5 +1,8 @@
 										package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.UserData;
+
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -81,37 +84,78 @@ public class UserDashboardController {
 		menuTreeView.getStyleClass().add("menu-container");
 		menuTreeView.setShowRoot(false);
 
-		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null) {
-				Label selectedLabel = newValue.getValue();
-				System.out.println("Selected Label: " + selectedLabel.getText());
+//		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue != null) {
+//				Label selectedLabel = newValue.getValue();
+//				System.out.println("Selected Label: " + selectedLabel.getText());
+//
+//				centerContentController.createUserCenterContent(bottomMidTopGridPane,selectedLabel.getText());
+//				
+//				if (!newValue.getChildren().isEmpty()) {
+//					newValue.getChildren().forEach(subMenuItem -> {
+//					});
+//				}
+//			}
+//		});
+		
+		menuTreeView.setOnMouseClicked(event -> {
+		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
+		    if (selectedItem != null) {
+		        Label selectedLabel = selectedItem.getValue();
+		        System.out.println("id--"+selectedLabel.getId());			        
+		        System.out.println("Selected Label: " + selectedLabel.getText());
 
-				centerContentController.createUserCenterContent(bottomMidTopGridPane,selectedLabel.getText());
-				
-				if (!newValue.getChildren().isEmpty()) {
-					newValue.getChildren().forEach(subMenuItem -> {
-					});
-				}
-			}
+		        if (selectedItem.getChildren().isEmpty()) {
+		        	centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());
+		        }
+
+		        if (!selectedItem.getChildren().isEmpty()) {
+		            selectedItem.getChildren().forEach(subMenuItem -> {
+		            });
+		        }
+		    }
 		});
 
-		addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
-		addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "Advanced Data", "/Resources/Images/menuImages/advance_testing.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "Self Test", "/Resources/Images/menuImages/self_test.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "LRU Testing", "/Resources/Images/menuImages/lru_test.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/test_summary.png",
-				new String[] { "SubMenu1", "SubMenu2" });
-		addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/history_reports.png",
-				new String[] { "SubMenu1", "SubMenu2" });
+		if(UserData.getRoleId().equals("RL_ID_3")) {
+			addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+					new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
+			addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
+			addTreeItemWithChildren(rootItem, "Advanced Data Analysis", "/Resources/Images/menuImages/advance_testing.png",
+					null);
+			addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+					new String[] { "Session Report", "Advanced Report", "UUT Report/Datapack" });
+		}else if(UserData.getRoleId().equals("RL_ID_4")) {
+			addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+					new String[] { "Self Test", "SRU/LRU Test" });
+			addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+					null);
+			addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/advance_testing.png",
+					null);
+			addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+					null);
+			addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/reports.png",
+					null);
+		}
+		
+//		addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
+//		addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "Advanced Data", "/Resources/Images/menuImages/advance_testing.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "Self Test", "/Resources/Images/menuImages/self_test.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "LRU Testing", "/Resources/Images/menuImages/lru_test.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/test_summary.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
+//		addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/history_reports.png",
+//				new String[] { "SubMenu1", "SubMenu2" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
 
@@ -198,7 +242,11 @@ public class UserDashboardController {
 		exitBox.getChildren().add(exitLabel);
 		exitBox.getStyleClass().add("exit-button");
 		exitLabel.getStyleClass().add("exit-text");
-
+		
+		logoutBox.setOnMouseClicked(e -> Platform.exit());
+		exitBox.setOnMouseClicked(e -> Platform.exit());
+		
+		
 		bottomButtonGridPane.add(logoutBox, 0, 0);
 		bottomButtonGridPane.add(exitBox, 1, 0);
 

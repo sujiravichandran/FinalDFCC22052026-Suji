@@ -1,5 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.UserData;
+
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -106,18 +109,36 @@ public class AdminDashboardController {
 		        }
 		    }
 		});
-		addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
-		addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
-		addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
-		addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
-				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
-		addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
-				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
-		addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
-		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
-		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
-		addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
-				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
+		
+		if(UserData.getRoleId().equals("RL_ID_1")) {
+			addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
+			addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
+					new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
+			addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
+					new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
+			addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
+			addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
+			addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
+			addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
+					new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
+		}else if (UserData.getRoleId().equals("RL_ID_2")) {
+			addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
+		}
+		
+//		addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
+//		addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
+//		addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
+//		addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
+//				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
+//		addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
+//				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
+//		addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
+//		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
+//		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
+//		addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
+//				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
 
@@ -179,6 +200,9 @@ public class AdminDashboardController {
 		exitBox.getStyleClass().add("exit-button");
 		exitLabel.getStyleClass().add("exit-text");
 
+		logoutBox.setOnMouseClicked(e -> Platform.exit());
+		exitBox.setOnMouseClicked(e -> Platform.exit());
+		
 		bottomButtonGridPane.add(logoutBox, 0, 0);
 		bottomButtonGridPane.add(exitBox, 1, 0);
 

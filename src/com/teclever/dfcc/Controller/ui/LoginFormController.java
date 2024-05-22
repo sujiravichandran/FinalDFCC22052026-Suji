@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.LoginResponse;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
@@ -243,10 +244,12 @@ public class LoginFormController {
 				if (parent instanceof GridPane) {
 					StackPane parent1 = (StackPane) parent.getParent();
 					parent1.getChildren().clear();
-					if (loginResponse.getRoleId().equals("RL_ID_1")) {
+
+					UserData.setRoleId(loginResponse.getRoleId());
+					if (loginResponse.getRoleId().equals("RL_ID_1") || loginResponse.getRoleId().equals("RL_ID_2")) {
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
-					} else {
+					} else if(loginResponse.getRoleId().equals("RL_ID_3") || loginResponse.getRoleId().equals("RL_ID_4")) {
 						UserDashboardController userDashboardController = new UserDashboardController();
 						parent1.getChildren().add(userDashboardController.createUserDashboard());
 					}
@@ -256,8 +259,6 @@ public class LoginFormController {
 			}
 		});
 
-		userNameTextField.setText("BelAdmin");
-		passwordHideField.setText("Admin@123");
 		return loginGridPane;
 	}
 
@@ -368,6 +369,7 @@ public class LoginFormController {
 					if (parent instanceof GridPane) {
 						StackPane parent1 = (StackPane) parent.getParent();
 						parent1.getChildren().clear();
+						UserData.setRoleId("RL_ID_1");
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
 					}

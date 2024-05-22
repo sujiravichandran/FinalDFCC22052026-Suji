@@ -109,7 +109,7 @@ extends Application {
         int n2 = 0;
         while (n2 < n) {
             UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-            System.out.println("UUT Type--------   " + uutType.getUutType());
+//            System.out.println("UUT Type--------   " + uutType.getUutType());
             nameIdMap.put(uutType.getUutType(), uutType.getUutId());
             idNameMap.put(uutType.getUutId(), uutType.getUutType());
             ++n2;
