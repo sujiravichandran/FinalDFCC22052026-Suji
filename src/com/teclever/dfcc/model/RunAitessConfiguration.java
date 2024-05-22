@@ -1,20 +1,18 @@
 package com.teclever.dfcc.model;
 
 public class RunAitessConfiguration {
-
+	private String runConfigId;
 	private String uuttype;
 	private String testType;
 	private String configFile;
 	private String aitess;
 	private String driver;
-//	public RunAitessConfiguration(String uuttype, String testType, String configFile, String aitess, String driver) {
-//		super();
-//		this.uuttype = uuttype;
-//		this.testType = testType;
-//		this.configFile = configFile;
-//		this.aitess = aitess;
-//		this.driver = driver;
-//	}
+	public String getRunConfigId() {
+		return runConfigId;
+	}
+	public void setRunConfigId(String runConfigId) {
+		this.runConfigId = runConfigId;
+	}
 	public String getUuttype() {
 		return uuttype;
 	}
@@ -33,11 +31,12 @@ public class RunAitessConfiguration {
 	public void setConfigFile(String configFile) {
 		this.configFile = configFile;
 	}
+	
 	public String getAitess() {
 		return aitess;
 	}
-	public void setAitess(String aitess) {
-		this.aitess = aitess;
+	public void setAitess(String string) {
+		this.aitess = string;
 	}
 	public String getDriver() {
 		return driver;
@@ -45,6 +44,7 @@ public class RunAitessConfiguration {
 	public void setDriver(String driver) {
 		this.driver = driver;
 	}
+	
 	
 	
 	

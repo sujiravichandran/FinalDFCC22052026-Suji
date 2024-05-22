@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.teclever.datastore.response.RunConfigurationResponse;
+import javax.swing.table.DefaultTableModel;
+
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
-import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
@@ -29,7 +29,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -41,30 +43,28 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-
-
 class RunAitessTableViewFactory implements TableViewFactory<RunAitessConfiguration> {
 
-
 	@Override
-	public CustomTableView<RunAitessConfiguration> createTableView(ObservableList<RunAitessConfiguration> items, boolean addUserColumn,
-			boolean addCheckboxColumn) {
-		return new CustomTableView<>(items, RunAitessConfiguration.class, addUserColumn,addCheckboxColumn);
-	
+	public CustomTableView<RunAitessConfiguration> createTableView(ObservableList<RunAitessConfiguration> items,
+			boolean addUserColumn, boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, RunAitessConfiguration.class, addUserColumn, addCheckboxColumn);
+
 	}
 
 }
 
 public class RunConfigurationController {
-	
+
 	public static String runuutTypeValue;
 	public static String runuutTypeId;
 	public static String testTypeValue;
 	public static String aitessTypeValue;
 	public static String fileConfigName;
 	public static String driverName;
-	Map<String,String> aitessNameDriverNameMap = new HashMap<String,String>();
-
+	Map<String, String> aitessNameDriverNameMap = new HashMap<String, String>();
+	Map<Integer, String> aitessIDName = new HashMap<Integer, String>();
+	Map<String, String> testTypeNameId = new HashMap<String, String>();
 
 	private GridPane runconfigurationGridPane = new GridPane();
 	private HBox titleHbox = new HBox(10);
@@ -79,25 +79,26 @@ public class RunConfigurationController {
 
 	public ComboBox<String> uutTypeField;
 //	public ComboBox<String> testTypeField;
-	Label testTypeField ;
+	Label testTypeField;
 	Label aitessType = new Label("AITESS TYPE");
 	Label driverLabel = new Label("Driver");
 	Label configFile = new Label("SELECT CONFIG FILE");
 
-	
-	
-	
+	private DefaultTableModel tableModel;
+	private static final int ID_COLUMN_INDEX = 0;
+
 	private HBox bottomHbox = new HBox(30);
-	
+
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-	
+	private RunConfigurationManagement runconfigManager = new RunConfigurationManagement();
+
 	public RunConfigurationController() {
 		uutTypeField = new ComboBox<>();
 //		testTypeField = new ComboBox<>();
 		loadUUTTypes();
 		setupDisplayTable(runuutTypeId);
 		setupDriverLabel();
-		
+
 ////		uutTypeField.setDisable(false);
 //        testTypeField.setVisible(false);
 //        aitessType.setVisible(false);	
@@ -115,14 +116,14 @@ public class RunConfigurationController {
 //		runConfigurationController.driverLabel.setVisible(true);
 //		runConfigurationController.testTypeField.setVisible(true);
 //		}
-	
+
 	public GridPane runconfigurationGridPane() {
 
 		runconfigurationGridPane.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/RunConfiguration.css").toExternalForm());
-
-		runconfigurationGridPane.getStyleClass().add("runConfiguration-main-container");
 		
+		runconfigurationGridPane.getStyleClass().add("runConfiguration-main-container");
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -173,6 +174,7 @@ public class RunConfigurationController {
 
 		Label pageTitle = new Label("RUN CONFIGURATION");
 		pageTitle.getStyleClass().add("runConfiguration-headerLabel");
+		pageTitle.setPadding(new Insets(0, 0, 0, 20));
 		titleHbox.setAlignment(Pos.CENTER_LEFT);
 		titleHbox.getChildren().add(pageTitle);
 		return titleHbox;
@@ -182,6 +184,7 @@ public class RunConfigurationController {
 
 		Button addButton = new Button("ADD AITESS");
 		addButton.setOnAction(e -> onClickGETButton());
+		buttonHbox.setPadding(new Insets(0, 20, 0, 0));
 
 		buttonHbox.setAlignment(Pos.CENTER_RIGHT);
 		buttonHbox.getChildren().add(addButton);
@@ -202,7 +205,7 @@ public class RunConfigurationController {
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-		
+
 		uutTypeField.setOnAction((event) -> runuutTypeAction());
 
 		midGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn, fifthColumn);
@@ -218,7 +221,7 @@ public class RunConfigurationController {
 //	midGridPane.getChildren().addAll(midHBoxUUTType);
 		return midGridPane;
 	}
-	
+
 	private void loadUUTTypes() {
 		try {
 			ArrayList<String> uutTypeList = new ArrayList<String>();
@@ -240,7 +243,6 @@ public class RunConfigurationController {
 
 	private HBox createUUTypeComboBox() {
 
-		
 		uutTypeField.setPromptText("UUT TYPE");
 
 //	    uut_type_field.setPadding(new Insets( 0,0,0,20));
@@ -279,13 +281,12 @@ public class RunConfigurationController {
 		return midHBoxAitessType;
 	}
 
-
 	private HBox createDriverNameLabel() {
 
 //		Label driverName = new Label("DRIVER NAME");
 		driverLabel.setPadding(new Insets(10));
 		driverLabel.setPrefWidth(200);
-		
+
 		driverLabel.setAlignment(Pos.CENTER);
 		driverLabel.setPadding(new Insets(0, 0, 0, 0));
 		midHBoxDriverName.setAlignment(Pos.CENTER);
@@ -295,32 +296,32 @@ public class RunConfigurationController {
 
 		return midHBoxDriverName;
 	}
-	
-	private void setupDriverLabel() {
-			aitessTypeValue = (String) this.uutTypeField.getValue();
-			CompletableFuture.supplyAsync(() -> {
-		         driverName = fetchDriverNameFromDatabase(aitessTypeValue);
-		        return driverName;
-		    }).thenAccept(driverName -> {
-		        Platform.runLater(() -> {
-		            driverLabel.setText( driverName);
-		        });
-		    }).exceptionally(e -> {
-		        e.printStackTrace();
-		        return null;
-		    }); 
-	}
-	
-	private String fetchDriverNameFromDatabase(String driverName) {
-	    try {
-	  
-	         driverName = aitessNameDriverNameMap.get(aitessTypeValue);
 
-	        return driverName;
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return null;
-	    }
+	private void setupDriverLabel() {
+		aitessTypeValue = (String) this.uutTypeField.getValue();
+		CompletableFuture.supplyAsync(() -> {
+			driverName = fetchDriverNameFromDatabase(aitessTypeValue);
+			return driverName;
+		}).thenAccept(driverName -> {
+			Platform.runLater(() -> {
+				driverLabel.setText(driverName);
+			});
+		}).exceptionally(e -> {
+			e.printStackTrace();
+			return null;
+		});
+	}
+
+	private String fetchDriverNameFromDatabase(String driverName) {
+		try {
+
+			driverName = aitessNameDriverNameMap.get(aitessTypeValue);
+
+			return driverName;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private HBox createConfigLabel() {
@@ -342,28 +343,24 @@ public class RunConfigurationController {
 
 	private void onClickGETButton() {
 		try {
-			FXMLLoader loader = new FXMLLoader(
-					this.getClass().getResource("/com/teclever/dfcc/ui/fxml/AddRun.fxml"));
-			Parent root =  loader.load();
-			
+			FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/com/teclever/dfcc/ui/fxml/AddRun.fxml"));
+			Parent root = loader.load();
+
 			Stage popupStage = new Stage();
-			AddRunConfigurationController controller=loader.getController();
+			AddRunConfigurationController controller = loader.getController();
 			controller.setMainPageController(this);
 			popupStage.initModality(Modality.APPLICATION_MODAL);
 			popupStage.initStyle(StageStyle.UNDECORATED);
 			Scene scene = new Scene(root);
 			popupStage.setScene(scene);
 			popupStage.showAndWait();
-			
+
 			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
-		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
-		    popupStage.setX(centerX);
-		    popupStage.setY(centerY);
-		    
-		    
-		    
-			
+			double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
+			double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
+			popupStage.setX(centerX);
+			popupStage.setY(centerY);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -375,9 +372,9 @@ public class RunConfigurationController {
 		return bottomHbox;
 
 	}
-	
+
 	private void setupDisplayTable(String uutId) {
-		
+
 		System.out.println("Entered Diaplay");
 		Map uutIdNameMap = DFCCConstant.getUutIdNameMap();
 		RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
@@ -390,48 +387,84 @@ public class RunConfigurationController {
 			// configFile, String aitess, String driver) {
 			RunAitessConfiguration runAitessData = new RunAitessConfiguration();
 			runAitessData.setUuttype((String) uutIdNameMap.get(RunAitessConfiguration2.getUutId()));
-			runAitessData.setTestType(RunAitessConfiguration2.getTestTypeId());
+			runAitessData.setTestType(testTypeNameId.get(RunAitessConfiguration2.getTestTypeId()));
 			runAitessData.setAitess(RunAitessConfiguration2.getAitess());
 			runAitessData.setDriver(RunAitessConfiguration2.getDriver());
 			runAitessData.setConfigFile(RunAitessConfiguration2.getConfigFile());
+			runAitessData.setRunConfigId(RunAitessConfiguration2.getRunConfigId());
 			driverData.add(runAitessData);
-			
+
 		}
 		RunAitessTableViewFactory driverFactory = new RunAitessTableViewFactory();
 		CustomTableView customTableView = driverFactory.createTableView(driverData, true, false);
+
+		customTableView.hideColumn("RUN CONFIG ID");
+
 //		customTableView.setPrefWidth(1321.0);
 		customTableView.setPrefWidth(1613.0);
+		customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<RunAitessConfiguration> selectedItems = customTableView.getSelectedItems();
+			for (RunAitessConfiguration runAitess : selectedItems) {
+				handleDeleteButtonClicked(runAitess);
+			}
+		});
+
 		this.bottomHbox.getChildren().clear();
 		this.bottomHbox.getChildren().add(customTableView);
 	}
-	
-	
-	
+
 	void runuutTypeAction() {
 		System.out.println("Entered Into runuutTypeAction ");
-		runuutTypeValue = (String)uutTypeField.getValue();
-		System.out.println("runuutTypeValue"+runuutTypeValue);
+		runuutTypeValue = (String) uutTypeField.getValue();
+		System.out.println("runuutTypeValue" + runuutTypeValue);
 		Map nameIdMap = DFCCConstant.getUutNameIdMap();
 		runuutTypeId = (String) nameIdMap.get(runuutTypeValue);
 		AddRunConfigurationController addRunConfigurationController = new AddRunConfigurationController();
-		AddRunConfigurationController.runuutTypeId =runuutTypeId;
-		AddRunConfigurationController.runuutTypeValue =runuutTypeValue;
+		AddRunConfigurationController.runuutTypeId = runuutTypeId;
+		AddRunConfigurationController.runuutTypeValue = runuutTypeValue;
 		setupDisplayTable(runuutTypeId);
-		System.out.println("id"+runuutTypeId);
+		System.out.println("id" + runuutTypeId);
+		RunConfigurationManagement rcm = new RunConfigurationManagement();
+		TestTypeMasterDetailsDto[] array = rcm.getTestTypeByUUTId(runuutTypeId);
+		TestTypeMasterDetailsDto[] testTypeMasterDetailsDtoArray = array;
+		int n = array.length;
+		int n2 = 0;
+		while (n2 < n) {
+			TestTypeMasterDetailsDto t = testTypeMasterDetailsDtoArray[n2];
+			testTypeNameId.put(t.getTestTypeId(), t.getTestName());
+			++n2;
+		}
 		addRunConfigurationController.loadAitessTypes(runuutTypeId);
 		addRunConfigurationController.loadTestTypes(runuutTypeId);
 //		System.out.println("DropDown     " + (String) uutTypeField.getValue());
 
 	}
-	
-//	void DataSet() {
-//		
-//		System.out.println("Enterd into Dataset Method");
-//		aitessType.setVisible(true);
-//		configFile.setVisible(true);
-//		driverLabel.setVisible(true);
-//		testTypeField.setVisible(true);
-//	}
+
+	private void handleDeleteButtonClicked(RunAitessConfiguration runConfigDto) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText(null);
+		alert.setContentText(
+				"Are you sure you want to delete Aitess Run Configuration: " + runConfigDto.getAitess() + "?");
+
+		ButtonType buttonTypeYes = new ButtonType("Yes");
+		ButtonType buttonTypeNo = new ButtonType("No");
+
+		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+		alert.showAndWait().ifPresent(buttonType -> {
+			if (buttonType == buttonTypeYes) {
+				deleteRunConfig(runConfigDto.getRunConfigId());
+			}
+		});
+	}
+
+	private void deleteRunConfig(String runConfigId) {
+		RunConfigurationManagement runConfManagement = new RunConfigurationManagement();
+		runConfManagement.deleteRunConfig(runConfigId);
+		runuutTypeAction();
+
+	}
 
 	public void alertBox(String text) {
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -439,8 +472,7 @@ public class RunConfigurationController {
 		alert.setContentText(text);
 		alert.showAndWait();
 	}
-	
-	
-	
-	
+
+	//
+
 }

@@ -51,7 +51,10 @@ public class AddRunConfigurationController {
     public static String fileConfigName;
     public static String driverName;
     Map<String, String> aitessNameDriverNameMap = new HashMap<String, String>();
-
+    Map<String, Integer> aitessNameAitessId = new HashMap<String, Integer>();
+    static Map< Integer, String> aitessIdAitessName = new HashMap<Integer, String>();
+    Map<String,String>  TestTypeNameId= new HashMap<String,String>();
+    
     RunConfigurationController runConfigurationController = new RunConfigurationController();
     
     @FXML
@@ -109,83 +112,104 @@ public class AddRunConfigurationController {
         setupDriverLabel();
 		setupAddButton();
     }
-    private void setupAddButton() {
-        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                // Create a confirmation alert
-                Alert alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Dialog");
-                alert.setHeaderText("Overwrite Confirmation");
-                alert.setContentText("Are you sure you want to overwrite this test type?");
+		private void setupAddButton() {
+	        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
+	            @Override
+	            public void handle(ActionEvent event) {
+	                List<String> validationErrors = validateFields();
+	                if (validationErrors.isEmpty()) {
+	                    // Create a confirmation alert
+	                    Alert alert = new Alert(AlertType.CONFIRMATION);
+	                    alert.setTitle("Confirmation Dialog");
+	                    alert.setHeaderText("Overwrite Confirmation");
+	                    alert.setContentText("Are you sure you want to overwrite this test type?");
 
-                ButtonType buttonYes = new ButtonType("Yes", ButtonData.YES);
-                ButtonType buttonNo = new ButtonType("No", ButtonData.NO);
-                alert.getButtonTypes().setAll(buttonYes, buttonNo);
+	                    ButtonType buttonYes = new ButtonType("Yes", ButtonData.YES);
+	                    ButtonType buttonNo = new ButtonType("No", ButtonData.NO);
+	                    alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-                // Show the alert and wait for a response
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent() && result.get() == buttonYes) {
-                    // User chose YES, proceed with the save operation
-                    HashMap<String, String> nameId = new HashMap<>();
-                    AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-                    UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
-                    
-                    for (UUTMasterDetailsDto uutType : uutDataList) {
-                        nameId.put(uutType.getUutType(), uutType.getUutId());
-                    }
-                    
-                    RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
-                    runaitessConfigurationDTO.setAitess(aitessTypeValue);
-                    runaitessConfigurationDTO.setConfigFile(fileConfigName);
-                    runaitessConfigurationDTO.setTestTypeId(testTypeValue);
-                    runaitessConfigurationDTO.setDriver(driverName);
-                    runaitessConfigurationDTO.setUutId(nameId.get(RunConfigurationController.runuutTypeValue));
-                   
+	                    // Show the alert and wait for a response
+	                    Optional<ButtonType> result = alert.showAndWait();
+	                    if (result.isPresent() && result.get() == buttonYes) {
+	                        // User chose YES, proceed with the save operation
+	                        HashMap<String, String> nameId = new HashMap<>();
+	                        HashMap<String, String> testId = new HashMap<>();
+	                        AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+	                        UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
 
-                    RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
-                    RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
-                    
-                    mainPageController.testTypeField.setText(testTypeValue);
-                    mainPageController.aitessType.setText(aitessTypeValue);
-                    mainPageController.driverLabel.setText(driverName);
-                    mainPageController.configFile.setText(fileConfigName);
-                    
-                    
-                    // Close the popup stage
-                    Stage stage = (Stage) addrun.getScene().getWindow();
-                    stage.close();
+	                        for (UUTMasterDetailsDto uutType : uutDataList) {
+	                            nameId.put(uutType.getUutType(), uutType.getUutId());
+	                        }
 
-                    // Refresh the main page
-                    mainPageController.refresh();
-                    
-                    // Call DataSet() method to set all the data to the respective fields
-                   // DataSet();
-                    
-                } else {
-                    // User chose NO or closed the dialog, do nothing
-                }
-                
-            }
-                 
-        });
-        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
-        saveButton.setAlignment(Pos.CENTER);
-        this.hboxSave.getChildren().add(saveButton);
-        this.hboxSave.setAlignment(Pos.CENTER);
+	                        RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
+	                        runaitessConfigurationDTO.setAitess(aitessTypeValue);
+	                        runaitessConfigurationDTO.setConfigFile(fileConfigName);
+	                        runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
+	                        runaitessConfigurationDTO.setDriver(driverName);
+	                        runaitessConfigurationDTO.setUutId(nameId.get(RunConfigurationController.runuutTypeValue));
 
-        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Stage stage = (Stage) AddRunConfigurationController.this.addrun.getScene().getWindow();
-                stage.close();
-            }
-        });
-        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
-        cancelButton.setAlignment(Pos.CENTER);
+	                        RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
+	                        RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
 
-        this.hboxCancel.getChildren().add(cancelButton);
-        this.hboxCancel.setAlignment(Pos.CENTER);
+	                        mainPageController.testTypeField.setText(testTypeValue);
+	                        mainPageController.aitessType.setText(aitessTypeValue);
+	                        mainPageController.driverLabel.setText(driverName);
+	                        mainPageController.configFile.setText(fileConfigName);
+
+	                        // Close the popup stage
+	                        Stage stage = (Stage) addrun.getScene().getWindow();
+	                        stage.close();
+
+	                        // Refresh the main page
+	                        mainPageController.refresh();
+	                    }
+	                } else {
+	                    // Show alert if validation fails
+	                    Alert alert = new Alert(AlertType.WARNING);
+	                    alert.setTitle("Validation Warning");
+	                    alert.setHeaderText("Incomplete Data");
+	                    alert.setContentText(String.join("\n", validationErrors));
+	                    alert.showAndWait();
+	                }
+	            }
+	        });
+
+	        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+	        saveButton.setAlignment(Pos.CENTER);
+	        this.hboxSave.getChildren().add(saveButton);
+	        this.hboxSave.setAlignment(Pos.CENTER);
+
+	        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>() {
+	            @Override
+	            public void handle(ActionEvent event) {
+	                Stage stage = (Stage) AddRunConfigurationController.this.addrun.getScene().getWindow();
+	                stage.close();
+	            }
+	        });
+	        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+	        cancelButton.setAlignment(Pos.CENTER);
+
+	        this.hboxCancel.getChildren().add(cancelButton);
+	        this.hboxCancel.setAlignment(Pos.CENTER);
+	    }
+    
+    private List<String> validateFields() {
+        List<String> errors = new ArrayList<>();
+        
+        if (testType.getValue() == null) {
+            errors.add("Please enter the TestType.");
+        }
+        if (aitessType.getValue() == null) {
+            errors.add("Please enter the AitessType.");
+        }
+        if (fileConfigName == null || fileConfigName.isEmpty()) {
+            errors.add("Please select the File Configuration.");
+        }
+        if (driverName == null || driverName.isEmpty()) {
+            errors.add("Please enter the Driver Name.");
+        }
+
+        return errors;
     }
     
 
@@ -199,7 +223,9 @@ public class AddRunConfigurationController {
         int n2 = 0;
         while (n2 < n) {
             TestTypeMasterDetailsDto t = testTypeMasterDetailsDtoArray[n2];
+            TestTypeNameId.put(t.getTestName(), t.getTestTypeId());
             testLst.add(t.getTestName());
+            
             ++n2;
         }
         System.out.println("uutType" + uutType);
@@ -213,9 +239,11 @@ public class AddRunConfigurationController {
 	void testTypeAction(ActionEvent event) {
     	
 		testTypeValue = (String) testType.getValue();
-		System.out.println("Test Type ADD RUNCONfig: " + testType.getValue());
+		System.out.println("Test Type ADD RUNCONfig: " + testType.getId());
 		
 	}
+    
+  
     
     @FXML
     void selectConfigfileAction(ActionEvent event) {
@@ -280,8 +308,11 @@ public class AddRunConfigurationController {
                 for (AitessConfigurationDto uutType : uutDataList) {
                     aitessTypeList.add(uutType.getAitessName());
                     aitessNameDriverNameMap.put(uutType.getAitessName(), uutType.getDriverName());
+                    aitessNameAitessId.put(uutType.getAitessName(),uutType.getAitessId());
+                    aitessIdAitessName.put(uutType.getAitessId(),uutType.getAitessName());
                 }
             }
+          
             System.out.println("Size aitessTypeList------- " + aitessTypeList.size());
             System.out.println("RUNAitesTypeList-------" + aitessTypeList);
             ObservableList<String> types = FXCollections.observableArrayList(aitessTypeList);

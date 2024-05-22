@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.table.DefaultTableModel;
+
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.Aitess;
 import com.teclever.dfcc.utils.CustomTableView;
-import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -66,6 +68,7 @@ public class AitessMasterController {
 		setupDisplayTable(UUTdropdownValue);
 
 	}
+
 	public void refresh() {
 		uUTdropdownAction();
 	}
@@ -74,6 +77,7 @@ public class AitessMasterController {
 
 		aitessMasterGridPane.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMaster.css").toExternalForm());
+		aitessMasterGridPane.getStyleClass().add("aitessMaster-main-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -116,7 +120,7 @@ public class AitessMasterController {
 	private HBox headingHbox() {
 		Label pageHeading = new Label("AITESS MASTER");
 		pageHeading.getStyleClass().add("headerLabel");
-//		pageHeading.setPadding(new Insets(0, 0, 0, 20));
+		pageHeading.setPadding(new Insets(0, 0, 0, 20));
 		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
 		return headingHbox;
@@ -128,7 +132,7 @@ public class AitessMasterController {
 
 		Button addButton = new Button("+ADD");
 		addButton.setOnAction(e -> onClickGETButton());
-		
+
 		uutTypeField.setOnAction((event) -> uUTdropdownAction());
 
 		midHbox.getChildren().addAll(uutLabel, uutTypeField, addButton);
@@ -141,10 +145,10 @@ public class AitessMasterController {
 		try {
 			FXMLLoader loader = new FXMLLoader(
 					this.getClass().getResource("/com/teclever/dfcc/ui/fxml/AddAitess.fxml"));
-			Parent root =  loader.load();
-			
+			Parent root = loader.load();
+
 			Stage popupStage = new Stage();
-			AddAitessController controller=loader.getController();
+			AddAitessController controller = loader.getController();
 			controller.setMainPageController(this);
 			popupStage.initModality(Modality.APPLICATION_MODAL);
 			popupStage.initStyle(StageStyle.UNDECORATED);
@@ -178,26 +182,57 @@ public class AitessMasterController {
 			e.printStackTrace();
 		}
 	}
+//
+//	private void deleteAitess(int aitessId) {
+//	    try {
+//	        AitessConfigurationDto[] response = configManager.deleteAitessConfig(aitessId);
+//	        if (response.length == 1) {
+//	            Notifications.showSuccessAlert("Successfully Deleted");
+//	            removeRowFromTable(tableModel, aitessId);
+//	            
+//	        } 
+//	    } catch (Exception e) {
+//	        Notifications.showErrorAlert("Error deleting Aitess configuration: " + e.getMessage());
+//	    }
+//	}
+//
+//	private void handleDeleteAitessButtonClicked(Aitess aitess) {
+//	    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//	    alert.setTitle("Confirmation Dialog");
+//	    alert.setHeaderText(null);
+//	    alert.setContentText("Are you sure you want to delete this Aitess configuration?");
+//
+//	    ButtonType buttonTypeYes = new ButtonType("Yes");
+//	    ButtonType buttonTypeNo = new ButtonType("No");
+//
+//	    alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+//
+//	    alert.showAndWait().ifPresent(buttonType -> {
+//	        if (buttonType == buttonTypeYes) {
+//	            deleteAitess(aitess.getAitessId());
+//	            System.out.println("DELETED AITESS" + aitess.getAitessId());
+//	        }
+//	    });
+//	}
+//
+//	private void removeRowFromTable(DefaultTableModel tableModel, int aitessId) {
+//	    for (int i = 0; i < tableModel.getRowCount(); i++) {
+//	        if ((int) tableModel.getValueAt(i, ID_COLUMN_INDEX) == aitessId) {
+//	            tableModel.removeRow(i);
+//	            break;
+//	        }
+//	        uUTdropdownAction();
+//	    }
+//	    // Alternatively, you might need to refresh the entire table
+//	    // reloadTableData();
+//	}
 
-	private void deleteAitess(int aitessId) {
-		try {
-			AitessConfigurationDto[] response = configManager.deleteAitessConfig(aitessId);
-			if (response.length == 1) {
-				Notifications.showSuccessAlert("Successfully Deleted");
-//	                AitessMasterController();  // Reload the configurations
-			} else {
-//	                Notifications.showErrorAlert("Error deleting Aitess configuration: " + response[0].getResponseMessage());
-			}
-		} catch (Exception e) {
-			Notifications.showErrorAlert("Error deleting Aitess configuration: " + e.getMessage());
-		}
-	}
-
-	private void handleDeleteAitessButtonClicked(Aitess aitess) {
+	private void handleDeleteButtonClicked(Aitess aitessDto) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
 		alert.setHeaderText(null);
-		alert.setContentText("Are you sure you want to delete this Aitess configuration?");
+		alert.setContentText(
+				"Are you sure you want to delete Aitess Run Configuration: " + aitessDto.getAitessId() + "?");
 
 		ButtonType buttonTypeYes = new ButtonType("Yes");
 		ButtonType buttonTypeNo = new ButtonType("No");
@@ -206,11 +241,16 @@ public class AitessMasterController {
 
 		alert.showAndWait().ifPresent(buttonType -> {
 			if (buttonType == buttonTypeYes) {
-				deleteAitess(aitess.getAitessId());
-
-				System.out.println("DELETED AITESS" + aitess.getAitessId());
+				deleteAitess(aitessDto.getAitessId());
 			}
 		});
+	}
+
+	private void deleteAitess(int AitessId) {
+		AitessConfigurationManagement aitessConfManagement = new AitessConfigurationManagement();
+		aitessConfManagement.deleteAitessConfig(AitessId);
+		uUTdropdownAction();
+
 	}
 
 	private void setupDisplayTable(String uutId) {
@@ -220,7 +260,7 @@ public class AitessMasterController {
 		AitessConfigurationManagement aitessConfiguration = new AitessConfigurationManagement();
 		List<AitessConfigurationDto> lst = aitessConfiguration.getAitessConfig(this.uutNameIdMap.get(UUTdropdownValue));
 		ObservableList<Aitess> driverData = FXCollections.observableArrayList();
-		
+
 		for (AitessConfigurationDto aitess : lst) {
 			Aitess aitessData = new Aitess();
 			System.out.println("Aitess Config" + aitessData.getUutType());
@@ -236,12 +276,14 @@ public class AitessMasterController {
 		}
 		AitessTableViewFactory driverFactory = new AitessTableViewFactory();
 		CustomTableView customTableView = driverFactory.createTableView(driverData, true, false);
+		
+		customTableView.hideColumn("AITESS ID");
 
 		customTableView.setPrefWidth(1613.0);
 		customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<Aitess> selectedItems = customTableView.getSelectedItems();
 			for (Aitess aitess : selectedItems) {
-				handleDeleteAitessButtonClicked(aitess);
+				handleDeleteButtonClicked(aitess);
 			}
 		});
 
@@ -261,16 +303,14 @@ public class AitessMasterController {
 	}
 
 	void uUTdropdownAction() {
-		
-			AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
-			UUTdropdownValue = (String) this.uutTypeField.getValue();
-			System.out.println("UUT TYPESSS " + UUTdropdownValue);
-			List<AitessConfigurationDto> lst = configurationManagement.getAitessConfig(UUTdropdownValue);
-			System.out.println("lst Size" + lst.size());
-			this.setupDisplayTable(UUTdropdownValue);
-	
-		
-		
+
+		AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
+		UUTdropdownValue = (String) this.uutTypeField.getValue();
+		System.out.println("UUT TYPESSS " + UUTdropdownValue);
+		List<AitessConfigurationDto> lst = configurationManagement.getAitessConfig(UUTdropdownValue);
+		System.out.println("lst Size" + lst.size());
+		this.setupDisplayTable(UUTdropdownValue);
+
 	}
 
 }
