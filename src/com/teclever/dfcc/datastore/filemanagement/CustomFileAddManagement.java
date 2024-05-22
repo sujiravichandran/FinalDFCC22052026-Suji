@@ -123,11 +123,14 @@ public class CustomFileAddManagement {
 				res.setResponseMsg("All Files are Already Exist's");
 			}
 			List<String> availbleFilePaths = new ArrayList<String>();
+			List<String> pathMasterFilePaths = new ArrayList<String>();
 			// Available files Creating CheckSum For Files...
 			if (FilesMsg.size() > 0) {
 				for (String fileName : FilesMsg.keySet()) {
 					String pathFile = filesNamesPath.get(fileName);
 					Path path = Paths.get(pathFile);
+					String pathMasterPaths = runMaster.getLocation()+path.getFileName().toString();
+					pathMasterFilePaths.add(pathMasterPaths);
 					// masterpath
 					availbleFilePaths.add(pathFile);
 					String checksum = calculateChecksum(path);
@@ -146,6 +149,7 @@ public class CustomFileAddManagement {
 					v1.setFileCheckSum(filePathCheckSumValues.get(filePath));
 					Path path = Paths.get(filePath);
 					String fileName = path.getFileName().toString();
+					System.out.println("fileName---------"+fileName);
 					v1.setFileName(fileName);
 					v1.setBaseFileName("Custom Added File's");
 					System.out.println("File Name  :" + fileName + "CheckSum :" + filePathCheckSumValues.get(filePath));
@@ -176,14 +180,14 @@ public class CustomFileAddManagement {
 				 * runMaster.getRunPathMasterId()); default: System.out.println("Default"); }
 				 */
 
-				if (fileType.equalsIgnoreCase("symbol")) {
-					SymbolFileManagement.saveSymbols(availbleFilePaths, runMaster.getRunPathMasterId());
+				if (fileType.equalsIgnoreCase("symbols")) {
+					SymbolFileManagement.saveSymbolsForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
 
 				} else if (fileType.equalsIgnoreCase("tpf")) {
-					TestPlanFileManagement.saveTestFilesToDatabase(availbleFilePaths, runMaster.getRunPathMasterId());
+					TestPlanFileManagement.saveTestFilesToDatabaseForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
 
-				} else if (fileType.equalsIgnoreCase("macro")) {
-					MacroFileManagement.saveMacroNames(availbleFilePaths, runMaster.getRunPathMasterId());
+				} else if (fileType.equalsIgnoreCase("macros")) {
+					MacroFileManagement.saveMacroNamesForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
 				} else {
 					System.out.println("File Type is Invalid..");
 				}
@@ -208,6 +212,8 @@ public class CustomFileAddManagement {
 					}
 
 				}
+				
+				
 				res.setResponseMsg("All Files are Added");
 				res.setResponseCode(1);
 				res.setAddedFilesDetailsList(addedFileList);

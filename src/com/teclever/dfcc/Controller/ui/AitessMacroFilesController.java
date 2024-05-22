@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
+import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -38,14 +42,17 @@ public class AitessMacroFilesController {
 
 	private AitessConfigHeader configHeader = new AitessConfigHeader("AITESS");
 	private MacroFileManagement macroFileManagement = new MacroFileManagement();
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
 
 	private TableViewFactory<AitessMacroFiles> userFactory = new MacroFilesTableViewFactory();
 	private CustomTableView<AitessMacroFiles> customTableView_macroFiles;
 	private ObservableList<AitessMacroFiles> tableData = FXCollections.observableArrayList();
 
+	private String RUN_CONFIG_ID;
 	public AitessMacroFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				setAitessMacroFilesTableData(newRunConfigId);
 			} else {
 				tableData.clear();
@@ -139,20 +146,23 @@ public class AitessMacroFilesController {
 	private void onClickAddFileButton() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-		File selectedFile = fileChooser.showOpenDialog(macroFilesParentGridPane.getScene().getWindow());
-//	 if (selectedFile != null) {
-//            String filePath = selectedFile.getAbsolutePath();
-//            VDDResponse response = vddManagement.extractingVDDFile(filePath);
-//            if(response.getResponse().getResponseCode()==1) {
-//            	Notifications.showSuccessAlert("File Uploaded Successfully");
-//            	refreshVddConfigList();
-//            }else if(response.getResponse().getResponseCode()==0) {
-//            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
-//            }
-//      }	
-	}
+//		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.sym"));
+		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(macroFilesParentGridPane.getScene().getWindow());
+		List<String> filePaths = new ArrayList<>();
+		if (selectedFiles != null) {
+			for (File file : selectedFiles) {
+				filePaths.add(file.getAbsolutePath());
+			}
 
+			AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "macros");
+			if (res.getResponseCode() == 1) {
+	            	 tableData.clear();
+				setAitessMacroFilesTableData(RUN_CONFIG_ID);
+			} else {
+				Notifications.showErrorAlert("Files not added");
+			}
+		}
+	}
 	private void setAitessMacroFilesTableData(String runConfigId) {
 		List<MacroDto> macroFileDtoList = macroFileManagement.getAllMacros(runConfigId);
 		List<AitessMacroFiles.AitessMacroDetails> detailsList = new ArrayList<>();
@@ -203,7 +213,13 @@ public class AitessMacroFilesController {
 		customTableView_macroFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
 			for (AitessMacroFiles rowData : selectedItems) {
-				// Handle delete action
+				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "macros");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessMacroFilesTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("File not deleted");
+				}
 			}
 		});
 

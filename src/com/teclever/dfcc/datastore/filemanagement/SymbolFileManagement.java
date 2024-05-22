@@ -77,6 +77,38 @@ public class SymbolFileManagement {
 		return symbols;
 	}
 
+	public static List<SymbolDto> saveSymbolsForCustomFiles(List<String> fileNamePaths, String runPathMasterId) {
+		List<String> filePaths = null;
+		try {
+			filePaths = fetchSymbolFilePathsDoubleSlash(fileNamePaths);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<SymbolDto> symbols = SymbolFileParser.parseSymbols(filePaths, runPathMasterId);
+		SymbolService symbolService = new SymbolService();
+
+		// Mark previous macro rows as deleted before adding new ones
+		//markPreviousSymbolRowsAsDeleted(runPathMasterId);
+
+		for (SymbolDto symbolDto : symbols) {
+			String symbolName = symbolDto.getSymbolName();
+			String symbolType = symbolDto.getSymbolType();
+			String minValue = symbolDto.getMin();
+			String maxValue = symbolDto.getMax();
+			String fileName = symbolDto.getFileName();
+			Response response = symbolService.saveSymbolToDatabase(symbolName, symbolType, minValue, maxValue, fileName,
+					runPathMasterId);
+			if (response.getResponseCode() == 1) {
+				System.out.println("Symbol saved successfully: " + symbolName);
+			} else {
+				System.err.println("Failed to save symbol: " + symbolName + " Error: " + response.getResponseMessage());
+			}
+		}
+		return symbols;
+	}
+
+	
 	// Method to mark previous symbol rows as deleted
 	public static void markPreviousSymbolRowsAsDeleted(String runPathMasterId) {
 		SymbolService symbolService = new SymbolService();

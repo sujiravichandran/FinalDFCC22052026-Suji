@@ -1,49 +1,31 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
-import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
-import com.teclever.dfcc.datastore.dto.DownloadFileDto;
-import com.teclever.dfcc.datastore.dto.MacroDto;
-import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
-import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
-import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
+import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
-import com.teclever.dfcc.model.AitessDownloadCode;
-import com.teclever.dfcc.model.AitessMacroFiles;
-import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class AitessTestFilesController {
 	private GridPane testFilesParentGridPane = new GridPane();
@@ -52,14 +34,18 @@ public class AitessTestFilesController {
 
 	private AitessConfigHeader configHeader = new AitessConfigHeader("AITESS");
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
 
 	private TableViewFactory<AitessTestFiles> userFactory = new TestFilesTableViewFactory();
 	private CustomTableView<AitessTestFiles> customTableView_testFiles;
 	private ObservableList<AitessTestFiles> tableData = FXCollections.observableArrayList();
-	
+
+	private String RUN_CONFIG_ID;
+
 	public AitessTestFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				setAitessTestFilesTableData(newRunConfigId);
 			} else {
 				tableData.clear();
@@ -144,25 +130,35 @@ public class AitessTestFilesController {
 		testFileTableGridPane.getColumnConstraints().addAll(firstColumn);
 		testFileTableGridPane.getRowConstraints().addAll(firstRow);
 		testFileTableGridPane.getStyleClass().add("testFiles-Container");
-		
+
 		return testFileTableGridPane;
 	}
 
 	private void onClickAddFileButton() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-		File selectedFile = fileChooser.showOpenDialog(testFilesParentGridPane.getScene().getWindow());
-//		 if (selectedFile != null) {
-//	            String filePath = selectedFile.getAbsolutePath();
-//	            VDDResponse response = vddManagement.extractingVDDFile(filePath);
-//	            if(response.getResponse().getResponseCode()==1) {
-//	            	Notifications.showSuccessAlert("File Uploaded Successfully");
-//	            	refreshVddConfigList();
-//	            }else if(response.getResponse().getResponseCode()==0) {
-//	            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
-//	            }
-//	      }	
+		if(RUN_CONFIG_ID!=null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select File");
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(testFilesParentGridPane.getScene().getWindow());
+			List<String> filePaths = new ArrayList<>();
+			if (selectedFiles != null) {
+				for (File file : selectedFiles) {
+					filePaths.add(file.getAbsolutePath());
+				}
+
+				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessTestFilesTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("Files not added");
+				}
+			}
+		}else {
+			Notifications.showWarningAlert("Please select UUT Type and Test Type");
+		}
+		
+
 	}
 
 	private void setAitessTestFilesTableData(String runConfigId) {
@@ -178,6 +174,14 @@ public class AitessTestFilesController {
 		customTableView_testFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessTestFiles> selectedItems = customTableView_testFiles.getSelectedItems();
 			for (AitessTestFiles rowData : selectedItems) {
+				System.out.println(rowData.getFileName());
+				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "tpf");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessTestFilesTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("File not deleted");
+				}
 			}
 		});
 		testFileTableGridPane.add(customTableView_testFiles, 0, 0);

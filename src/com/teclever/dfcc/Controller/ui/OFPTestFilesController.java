@@ -1,12 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
+import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -19,6 +25,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.FileChooser;
 
 public class OFPTestFilesController {
 	
@@ -28,14 +35,17 @@ public class OFPTestFilesController {
 	
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
+	private CustomFileAddManagement customFileAddManagement=new CustomFileAddManagement();
 	
 	private TableViewFactory<AitessTestFiles> userFactory = new OFPTestFilesTableViewFactory();
 	private CustomTableView<AitessTestFiles> customTableView_testFiles;
 	private ObservableList<AitessTestFiles> tableData = FXCollections.observableArrayList();
+	private String RUN_CONFIG_ID;
 	
 	public OFPTestFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 				setAitessTestFilesTableData(newRunConfigId);
 			} else {
@@ -105,7 +115,7 @@ public class OFPTestFilesController {
 	private HBox createButtonHbox() {
 
 		Button addFileButton = new Button("ADD FILE");
-//		addFileButton.setOnAction(e -> onClickAddFileButton());
+		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
@@ -115,7 +125,33 @@ public class OFPTestFilesController {
 	
 	
 
+	private void onClickAddFileButton() {
 
+		if(RUN_CONFIG_ID!=null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select File");
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			 List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpTestFilesParentGridPane.getScene().getWindow());
+			 List<String> filePaths = new ArrayList<>();
+			 if (selectedFiles != null) {
+		            for (File file : selectedFiles) {
+		                filePaths.add(file.getAbsolutePath());
+		            }
+		           
+		            AddCustomFileResponse res=customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
+		            if(res.getResponseCode()==1) {
+		            	 tableData.clear();
+		 	            setAitessTestFilesTableData(RUN_CONFIG_ID);
+		            }else {
+		            	Notifications.showErrorAlert("Files not added");
+		            }
+			 }
+		}else {
+			Notifications.showWarningAlert("Please select UUT Type");
+		}
+		
+		 
+	}
 	private GridPane createOFPTestFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -142,6 +178,13 @@ public class OFPTestFilesController {
 		customTableView_testFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessTestFiles> selectedItems = customTableView_testFiles.getSelectedItems();
 			for (AitessTestFiles rowData : selectedItems) {
+				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "tpf");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessTestFilesTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("File not deleted");
+				}
 			}
 		});
 		ofpTestFilesTableGridPane.add(customTableView_testFiles, 0, 0);
