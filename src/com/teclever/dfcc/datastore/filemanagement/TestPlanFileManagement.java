@@ -46,7 +46,7 @@ public class TestPlanFileManagement {
 		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
 			Transaction transaction = session.beginTransaction();
 
-			markPreviousTestFileRowsAsDeleted(runPathMasterId);
+		//	markPreviousTestFileRowsAsDeleted(runPathMasterId);
 
 			for (String filePath : testPlanFilePaths) {
 				Path dir = Paths.get(filePath);
@@ -70,6 +70,36 @@ public class TestPlanFileManagement {
 		return testPlanFilePaths;
 	}
 
+	public static List<String> saveTestFilesToDatabaseForCustomFiles(List<String> testPlanFilePaths, String runPathMasterId) {
+		TestFileService testFileService = new TestFileService();
+		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+			Transaction transaction = session.beginTransaction();
+
+		//	markPreviousTestFileRowsAsDeleted(runPathMasterId);
+
+			for (String filePath : testPlanFilePaths) {
+				Path dir = Paths.get(filePath);
+				Files.walk(dir).filter(Files::isRegularFile).forEach(path -> {
+					String fileName = path.toString();
+					String testFileId = TestFileService.generateUniqueTestFileId();
+					TestFile testFile = new TestFile();
+					testFile.setTestFileId(testFileId);
+					testFile.setTestFileName(fileName);
+					testFile.setRunPathMasterId(runPathMasterId);
+					testFileService.saveTestFileToDatabase(testFile);
+				});
+			}
+
+			session.flush();
+			session.clear();
+			transaction.commit();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return testPlanFilePaths;
+	}
+
+	
 	// Method to mark previous test file rows as deleted
 	public static void markPreviousTestFileRowsAsDeleted(String runPathMasterId) {
 		TestFileService testFileService = new TestFileService();

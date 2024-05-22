@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
 import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -189,7 +191,13 @@ public class OFPMacroFilesController {
 		customTableView_macroFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
 			for (AitessMacroFiles rowData : selectedItems) {
-				// Handle delete action
+//				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "symbols");
+//				if (res.getResponseCode() == 1) {
+//					tableData.clear();
+//					setSymbolFileTableData(RUN_CONFIG_ID);
+//				} else {
+//					Notifications.showErrorAlert("File not deleted");
+//				}
 			}
 		});
 		ofpMacroFilesTableGridPane.getChildren().clear();

@@ -73,6 +73,36 @@ public class MacroFileManagement {
 
         return macroNames;
     }
+    
+    public static List<MacroDto> saveMacroNamesForCustomFiles(List<String> fileNamePaths, String runPathMasterId) {
+        List<MacroDto> macroNames = new ArrayList<>();
+        MacroService macroService = new MacroService();
+
+        // Mark previous macro rows as deleted before adding new ones
+        //markPreviousMacroRowsAsDeleted(runPathMasterId);
+
+        for (String fileName : fileNamePaths) {
+            MacroFileParser macroParser = new MacroFileParser();
+            try {
+                List<String> parsedMacroNames = macroParser.parse(fileName);
+                for (String macroName : parsedMacroNames) {
+                    String filename = Paths.get(fileName).toString();
+
+                    Response response = macroService.saveMacroToDatabase(macroName, filename, runPathMasterId);
+                    if (response.getResponseCode() == 1) {
+                        MacroDto macroDto = new MacroDto(macroName, filename, runPathMasterId);
+                        macroNames.add(macroDto);
+                    } else {
+                        System.err.println("Failed to save macro: " + macroName + " Error: " + response.getResponseMessage());
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return macroNames;
+    }
 
     public static void markPreviousMacroRowsAsDeleted(String runPathMasterId) {
     	MacroService macroService = new MacroService();
