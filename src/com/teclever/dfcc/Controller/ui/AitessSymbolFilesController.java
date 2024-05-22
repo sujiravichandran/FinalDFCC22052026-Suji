@@ -208,18 +208,24 @@ public class AitessSymbolFilesController {
 							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
 					Parent root = addStagePopup.load();
 
-					AitessSymbolPopupController controller = new AitessSymbolPopupController();
-					controller = addStagePopup.getController();
+					
 					List<AitessSymbolDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
-					controller.setSymbolDetails(fileDetails);
-					Stage stage = new Stage();
-					stage.initModality(Modality.APPLICATION_MODAL);
-					stage.initStyle(StageStyle.UNDECORATED);
-					stage.centerOnScreen();
-					stage.setScene(new Scene(root));
-					stage.showAndWait();
+					System.out.println("216----"+fileDetails.size());
+					if(fileDetails.size() <2) {
+						Notifications.showWarningAlert("No data in selected file");
+					}else {
+						AitessSymbolPopupController controller =  addStagePopup.getController();
+						controller.setSymbolDetails(fileDetails);
+						Stage stage = new Stage();
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.initStyle(StageStyle.UNDECORATED);
+						stage.centerOnScreen();
+						stage.setScene(new Scene(root));
+						stage.showAndWait();
+					}
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

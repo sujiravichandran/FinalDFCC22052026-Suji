@@ -1,12 +1,15 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
+import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
 import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
@@ -28,6 +31,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -40,14 +44,17 @@ public class OFPMacroFilesController {
 	
 	private MacroFileManagement macroFileManagement = new MacroFileManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
 	
 	private TableViewFactory<AitessMacroFiles> userFactory = new OFPMacroFilesTableViewFactory();
 	private CustomTableView<AitessMacroFiles> customTableView_macroFiles;
 	private ObservableList<AitessMacroFiles> tableData = FXCollections.observableArrayList();
 	
+	private String RUN_CONFIG_ID;
 	public OFPMacroFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 				setAitessMacroFilesTableData(newRunConfigId);
 			} else {
@@ -117,7 +124,7 @@ public class OFPMacroFilesController {
 	private HBox createButtonHbox() {
 
 		Button addFileButton = new Button("ADD FILE");
-//		addFileButton.setOnAction(e -> onClickAddFileButton());
+		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
@@ -140,6 +147,30 @@ public class OFPMacroFilesController {
 		ofpMacroFilesTableGridPane.getStyleClass().add("ofpMacroFiles-container");
 		return ofpMacroFilesTableGridPane;
 	
+	}
+	private void onClickAddFileButton() {
+		if(RUN_CONFIG_ID!=null) {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select File");
+//		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.sym"));
+		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpMacroFilesParentGridPane.getScene().getWindow());
+		List<String> filePaths = new ArrayList<>();
+		if (selectedFiles != null) {
+			for (File file : selectedFiles) {
+				filePaths.add(file.getAbsolutePath());
+			}
+
+			AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "macros");
+			if (res.getResponseCode() == 1) {
+	            	 tableData.clear();
+				setAitessMacroFilesTableData(RUN_CONFIG_ID);
+			} else {
+				Notifications.showErrorAlert("Files not added");
+			}
+		}
+		}else {
+			Notifications.showWarningAlert("Please select UUT Type");
+		}
 	}
 	private void setAitessMacroFilesTableData(String runConfigId) {
 		List<MacroDto> macroFileDtoList = macroFileManagement.getAllMacros(runConfigId);
@@ -170,18 +201,24 @@ public class OFPMacroFilesController {
 							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
 					Parent root = addStagePopup.load();
 
-					AitessMacroPopupController controller = addStagePopup.getController();
+					
 					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
-					controller.setMacroDetails(fileDetails);
+					if(fileDetails.size() <2) {
+						Notifications.showWarningAlert("No data in selected file");
+					}else {
+						AitessMacroPopupController controller = addStagePopup.getController();
+						controller.setMacroDetails(fileDetails);
 
-					Stage stage = new Stage();
-					stage.initModality(Modality.APPLICATION_MODAL);
-					stage.initStyle(StageStyle.UNDECORATED);
-					stage.centerOnScreen();
-					stage.setScene(new Scene(root));
-					stage.showAndWait();
+						Stage stage = new Stage();
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.initStyle(StageStyle.UNDECORATED);
+						stage.centerOnScreen();
+						stage.setScene(new Scene(root));
+						stage.showAndWait();
+					}
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -191,13 +228,13 @@ public class OFPMacroFilesController {
 		customTableView_macroFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
 			for (AitessMacroFiles rowData : selectedItems) {
-//				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "symbols");
-//				if (res.getResponseCode() == 1) {
-//					tableData.clear();
-//					setSymbolFileTableData(RUN_CONFIG_ID);
-//				} else {
-//					Notifications.showErrorAlert("File not deleted");
-//				}
+				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "macros");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessMacroFilesTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("File not deleted");
+				}
 			}
 		});
 		ofpMacroFilesTableGridPane.getChildren().clear();

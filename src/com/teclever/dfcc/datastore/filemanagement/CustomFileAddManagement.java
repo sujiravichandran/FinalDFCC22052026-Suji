@@ -273,7 +273,7 @@ public class CustomFileAddManagement {
 				symbolService.deleteSymbolByFileNameMarkedAsDelete(filePath);
 				
 			}
-			else if(fileType.equalsIgnoreCase("macro")){
+			else if(fileType.equalsIgnoreCase("macros")){
 				MacroService macroService = new MacroService();
 				macroService.deleteMacrosByFileNameMarkAsDelete(filePath);
 			}else

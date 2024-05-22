@@ -54,6 +54,7 @@ public class MacroFileManagement {
         for (String fileName : fileNamePaths) {
             MacroFileParser macroParser = new MacroFileParser();
             try {
+              	macroService.saveMacroToDatabase("--", fileName, runPathMasterId);
                 List<String> parsedMacroNames = macroParser.parse(fileName);
                 for (String macroName : parsedMacroNames) {
                     String filename = Paths.get(fileName).toString();
@@ -84,6 +85,7 @@ public class MacroFileManagement {
         for (String fileName : fileNamePaths) {
             MacroFileParser macroParser = new MacroFileParser();
             try {
+            	macroService.saveMacroToDatabase("--", fileName, runPathMasterId);
                 List<String> parsedMacroNames = macroParser.parse(fileName);
                 for (String macroName : parsedMacroNames) {
                     String filename = Paths.get(fileName).toString();

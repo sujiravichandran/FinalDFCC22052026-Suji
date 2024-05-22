@@ -54,8 +54,14 @@ public class SymbolFileManagement {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		List<SymbolDto> symbols = SymbolFileParser.parseSymbols(filePaths, runPathMasterId);
 		SymbolService symbolService = new SymbolService();
+		for(String fileNamePath:fileNamePaths)
+		{
+			symbolService.saveSymbolToDatabase("--", "--", "--", "--", fileNamePath,
+					runPathMasterId);
+		}
+		List<SymbolDto> symbols = SymbolFileParser.parseSymbols(filePaths, runPathMasterId);
+		
 
 		// Mark previous macro rows as deleted before adding new ones
 		markPreviousSymbolRowsAsDeleted(runPathMasterId);

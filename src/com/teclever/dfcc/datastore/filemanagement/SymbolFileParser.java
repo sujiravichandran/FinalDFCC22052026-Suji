@@ -23,6 +23,7 @@ public class SymbolFileParser {
                 String symbolType = null;
                 String minValue = null;
                 String maxValue = null;
+                
 
                 Pattern keyValuePattern = Pattern.compile("(?i)\\b(SYMB|STYPE|MIN|MAX)\\b\\s*=\\s*(\\S+)");
                 
