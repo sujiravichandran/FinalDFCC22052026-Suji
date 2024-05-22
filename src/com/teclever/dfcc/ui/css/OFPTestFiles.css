@@ -1,18 +1,16 @@
-.testFiles-parent-container{
+.ofpTestFiles-parent-container{
 	-fx-background-color:white;
 	-fx-background-radius:15px;
 }
-
-.testFiles-headerLabel{
+.ofpTestFiles-headerLabel{
 	-fx-text-fill:#003360;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
-.testFiles-Container{
+.ofpTestFiles-container{
 	-fx-background-color: #222831;
 	-fx-background-radius: 10px;
 }
-
 
 
 .button {
