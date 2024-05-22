@@ -144,6 +144,7 @@ public class AitessMacroFilesController {
 	}
 
 	private void onClickAddFileButton() {
+		if(RUN_CONFIG_ID!=null) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
 //		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.sym"));
@@ -162,6 +163,9 @@ public class AitessMacroFilesController {
 				Notifications.showErrorAlert("Files not added");
 			}
 		}
+		}else {
+			Notifications.showWarningAlert("Please select UUT Type and Test Type");
+		}
 	}
 	private void setAitessMacroFilesTableData(String runConfigId) {
 		List<MacroDto> macroFileDtoList = macroFileManagement.getAllMacros(runConfigId);
@@ -178,6 +182,7 @@ public class AitessMacroFilesController {
 			}
 
 			AitessMacroFiles.AitessMacroDetails macroDetails = new AitessMacroFiles.AitessMacroDetails();
+//			System.out.println(macroDetails.getMacroName());
 			macroDetails.setFileName(macroDto.getFileName());
 			macroDetails.setMacroName(macroDto.getMacroName());
 			detailsList.add(macroDetails);
@@ -192,18 +197,28 @@ public class AitessMacroFilesController {
 							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
 					Parent root = addStagePopup.load();
 
-					AitessMacroPopupController controller = addStagePopup.getController();
+//					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()
+//						    .filter(detail -> detail.getFileName().equals(rowData.getFileName()) && !detail.getMacroName().equals("--"))
+//						    .collect(Collectors.toList());
 					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
-					controller.setMacroDetails(fileDetails);
+					System.out.println("200----"+fileDetails.size());
+					if(fileDetails.size() <2) {
+						Notifications.showWarningAlert("No data in selected file");
+					}else {
+						AitessMacroPopupController controller = addStagePopup.getController();
+						controller.setMacroDetails(fileDetails);
+						Stage stage = new Stage();
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.initStyle(StageStyle.UNDECORATED);
+						stage.centerOnScreen();
+						stage.setScene(new Scene(root));
+						stage.showAndWait();
+					}
+					
 
-					Stage stage = new Stage();
-					stage.initModality(Modality.APPLICATION_MODAL);
-					stage.initStyle(StageStyle.UNDECORATED);
-					stage.centerOnScreen();
-					stage.setScene(new Scene(root));
-					stage.showAndWait();
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
