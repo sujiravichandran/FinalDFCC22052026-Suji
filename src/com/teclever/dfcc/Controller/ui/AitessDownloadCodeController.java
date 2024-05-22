@@ -1,0 +1,181 @@
+package com.teclever.dfcc.Controller.ui;
+
+import java.io.File;
+import java.util.List;
+
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.DownloadFileDto;
+import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
+import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
+import com.teclever.dfcc.model.AitessDownloadCode;
+import com.teclever.dfcc.model.AitessMacroFiles;
+import com.teclever.dfcc.utils.AitessConfigHeader;
+import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.TableViewFactory;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.stage.FileChooser;
+
+public class AitessDownloadCodeController {
+	private GridPane downloadCodeParentGridPane = new GridPane();
+	private GridPane downloadCodeTitleGridPane = new GridPane();
+	private GridPane downloadCodeTableGridPane = new GridPane();
+
+	private AitessConfigHeader configHeader = new AitessConfigHeader("AITESS");
+	private DownloadFileManagement downloadFileManagement = new DownloadFileManagement();
+
+	private TableViewFactory<AitessDownloadCode> userFactory = new DownloadCodeTableViewFactory();
+	private CustomTableView<AitessDownloadCode> customTableView_downloadCode;
+	private ObservableList<AitessDownloadCode> tableData = FXCollections.observableArrayList();
+	
+	public AitessDownloadCodeController() {
+		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
+			if (newRunConfigId != null) {
+				setAitessDownloadCodeTableData(newRunConfigId);
+			} else {
+				tableData.clear();
+			}
+		});
+	}
+
+	public GridPane downloadCodeConfigParentGrid() {
+		downloadCodeParentGridPane.getStylesheets()
+		.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessDownloadCode.css").toExternalForm());
+		downloadCodeParentGridPane.getStyleClass().add("downloadCode-parent-container");
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(7);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(7);
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(86);
+
+		downloadCodeParentGridPane.setPadding(new Insets(10));
+		downloadCodeParentGridPane.setVgap(5);
+
+		downloadCodeParentGridPane.getColumnConstraints().addAll(firstColumn);
+		downloadCodeParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+
+		downloadCodeParentGridPane.add(downloadCodeTopContainer(), 0, 0);
+		downloadCodeParentGridPane.add(configHeader.aitessMiddleContainer(), 0, 1);
+		downloadCodeParentGridPane.add(createAitessDownloadCodeTable(), 0, 2);
+
+		return downloadCodeParentGridPane;
+	}
+
+	private GridPane downloadCodeTopContainer() {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(50);
+
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+		downloadCodeTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		downloadCodeTitleGridPane.getRowConstraints().addAll(firstRow);
+
+		downloadCodeTitleGridPane.add(headerHbox(), 0, 0);
+		downloadCodeTitleGridPane.add(createButtonHbox(), 1, 0);
+
+		return downloadCodeTitleGridPane;
+	}
+
+	private HBox headerHbox() {
+		Label headerLabel = new Label("DOWNLOAD CODE");
+		headerLabel.getStyleClass().add("downloadCode-headerLabel");
+
+		HBox headerLabelHbox = new HBox(10);
+		headerLabelHbox.setAlignment(Pos.CENTER_LEFT);
+		headerLabelHbox.getChildren().add(headerLabel);
+		return headerLabelHbox;
+	}
+
+	private HBox createButtonHbox() {
+
+		Button addFileButton = new Button("ADD FILE");
+		addFileButton.setOnAction(e -> onClickAddFileButton());
+		HBox headerButtonHbox = new HBox(10);
+
+		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
+		headerButtonHbox.getChildren().add(addFileButton);
+		return headerButtonHbox;
+	}
+
+	
+
+	private GridPane createAitessDownloadCodeTable() {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+		downloadCodeTableGridPane.getColumnConstraints().addAll(firstColumn);
+		downloadCodeTableGridPane.getRowConstraints().addAll(firstRow);
+		downloadCodeTableGridPane.getStyleClass().add("downloadCode-Container");
+		return downloadCodeTableGridPane;
+	}
+	private void onClickAddFileButton() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select File");
+		fileChooser.getExtensionFilters()
+				.addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+		File selectedFile = fileChooser.showOpenDialog(downloadCodeParentGridPane.getScene().getWindow());
+//		 if (selectedFile != null) {
+//	            String filePath = selectedFile.getAbsolutePath();
+//	            VDDResponse response = vddManagement.extractingVDDFile(filePath);
+//	            if(response.getResponse().getResponseCode()==1) {
+//	            	Notifications.showSuccessAlert("File Uploaded Successfully");
+//	            	refreshVddConfigList();
+//	            }else if(response.getResponse().getResponseCode()==0) {
+//	            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
+//	            }
+//	      }	
+	}
+
+	private void setAitessDownloadCodeTableData(String runConfigId) {
+		List<DownloadFileDto> doenloadFileDtoList = downloadFileManagement.getAllDownloadFiles(runConfigId);
+
+		for (DownloadFileDto downloadFileDto : doenloadFileDtoList) {
+			AitessDownloadCode downloadCodeData = new AitessDownloadCode();
+			downloadCodeData.setFileName(downloadFileDto.getDownloadFileName());
+			tableData.add(downloadCodeData);
+		}
+		customTableView_downloadCode = userFactory.createTableView(tableData, true, false);
+
+		customTableView_downloadCode.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
+			ObservableList<AitessDownloadCode> selectedItems = customTableView_downloadCode.getSelectedItems();
+			for (AitessDownloadCode rowData : selectedItems) {
+			}
+		});
+		downloadCodeTableGridPane.add(customTableView_downloadCode, 0, 0);
+	}
+}
+
+class DownloadCodeTableViewFactory implements TableViewFactory<AitessDownloadCode> {
+	@Override
+	public CustomTableView<AitessDownloadCode> createTableView(ObservableList<AitessDownloadCode> items, boolean addUserColumn,
+			boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, AitessDownloadCode.class, addUserColumn, addCheckboxColumn);
+	}
+
+}

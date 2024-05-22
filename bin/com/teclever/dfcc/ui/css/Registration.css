@@ -1,0 +1,47 @@
+#tophbox #gridimage #Logo{
+   -fx-background-image: url("/Resources/Images/BELLOGO.png");
+	-fx-background-repeat:stretch;
+}
+#tophbox #gridimage #Company{
+   -fx-background-image: url("/Resources/Images/NAME.png");
+	-fx-background-repeat:stretch; 
+}
+
+#tophbox #gridimage #tecleverLogo{
+   -fx-background-image: url("/Resources/Images/tecleverlogo60.png");
+   -fx-background-position: center ;
+	-fx-background-repeat:stretch;
+}
+
+#txtusername{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+#txtpassword{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+#txtconformpassword{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+#txtemail{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+#usertype{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+#Login{
+	-fx-text-fill:"#169BD5";
+    -fx-background-color: transparent;
+}
+
+#Digitalsign{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}

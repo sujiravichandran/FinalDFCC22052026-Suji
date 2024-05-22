@@ -1,0 +1,74 @@
+.user-management-container{
+	-fx-background-color:#FFFFFF;
+	-fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
+.user-management-title{
+	-fx-font-size:30px;
+	-fx-font-weight:bold;
+	-fx-text-fill:#003360;
+}
+.add-user-btn{
+	-fx-min-width:100px;
+	-fx-background-color: #003360;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size:16px;
+	-fx-font-weight:bold;
+	-fx-padding:10px;
+	-fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-cursor:hand;
+}
+
+
+
+
+.add-edit-user-popup{
+	-fx-background-color: #222831;
+	-fx-padding: 5px 30px;
+	-fx-border-radius: 10px;
+	-fx-background-radius: 10px;
+}
+.add-edit-title{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 24px;
+	-fx-font-weight : 700;
+	-fx-padding:5px 0;
+}
+.add-user-role-box{
+	-fx-font-size: 16px;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+}
+.add-user-role-box .list-view{
+	-fx-font-size: 10px;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+}
+.add-user-popup-label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 20px;
+}
+.add-user-popup-input{
+	-fx-font-size: 20px;
+	-fx-font-weight: bold;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-padding: 10px;
+}
+.add-user-sign-box{
+	-fx-background-color: #FFFFFF; 
+    -fx-min-height: 150px; 
+    -fx-max-height: 150px; 
+    -fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+}
+.add-user-popup-btn{
+	-fx-min-width: 150px;
+	-fx-background-color: #77ABAE;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size: 20px; 
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-cursor: hand;
+}

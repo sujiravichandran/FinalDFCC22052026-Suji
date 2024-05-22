@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="parentcontainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="897.0" prefWidth="1323.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.DashboardController">
+   <children>
+      <HBox prefHeight="71.0" prefWidth="1323.0">
+         <children>
+            <Label alignment="CENTER" prefHeight="49.0" prefWidth="717.0" text="C O N F I G U R A T I O N ">
+               <font>
+                  <Font size="33.0" />
+               </font>
+               <HBox.margin>
+                  <Insets left="300.0" top="11.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

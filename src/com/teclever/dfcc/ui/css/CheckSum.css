@@ -1,0 +1,28 @@
+#checkSumMainContainer{
+	-fx-background-color: #31363F;
+}
+.check-sum-title{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 18px;
+	-fx-font-weight : 700;
+	-fx-padding:3px 0;
+}
+.check-sum-table .table-cell {
+    -fx-font-size: 12px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.check-sum-table .column-header .label {
+    -fx-font-size: 14px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.check-sum-ok-btn{
+	-fx-min-width:100px;
+	-fx-font-size: 12px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+      -fx-cursor: hand;
+}

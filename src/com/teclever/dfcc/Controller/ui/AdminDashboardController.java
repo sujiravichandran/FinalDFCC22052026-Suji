@@ -1,0 +1,227 @@
+package com.teclever.dfcc.Controller.ui;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
+
+public class AdminDashboardController {
+	private GridPane bottomMainGridPane = new GridPane();
+	private GridPane bottomGridPane = new GridPane();
+	private GridPane bottomMidTopGridPane = new GridPane();
+
+	AdminCenterContentController adminCenterContentController = new AdminCenterContentController();
+	
+	public GridPane createAdminDashboard() {
+		bottomMainGridPane.getStylesheets()
+				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
+		bottomMainGridPane.setHgap(10);
+
+		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
+		bottomLeftColumn.setPercentWidth(17);
+		ColumnConstraints bottomMidColumn = new ColumnConstraints();
+		bottomMidColumn.setPercentWidth(83);
+
+		RowConstraints bottomRow = new RowConstraints();
+		bottomRow.setPercentHeight(100);
+
+		bottomMainGridPane.getColumnConstraints().addAll(bottomLeftColumn, bottomMidColumn);
+		bottomMainGridPane.getRowConstraints().add(bottomRow);
+
+		bottomMainGridPane.add(createBottomleftGridPane(), 0, 0);
+		bottomMainGridPane.add(createBottomMidGridPane(), 1, 0);
+
+		return bottomMainGridPane;
+
+	}
+
+	private GridPane createBottomleftGridPane() {
+		GridPane bottomLeftGridPane = new GridPane();
+		bottomLeftGridPane.setVgap(10);
+
+		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
+		bottomLeftColumn.setPercentWidth(100);
+
+		RowConstraints bottomLeftTopRow = new RowConstraints();
+		bottomLeftTopRow.setPercentHeight(93);
+
+		RowConstraints bottomLeftBottomRow = new RowConstraints();
+		bottomLeftBottomRow.setPercentHeight(7);
+
+		bottomLeftGridPane.getColumnConstraints().add(bottomLeftColumn);
+		bottomLeftGridPane.getRowConstraints().addAll(bottomLeftTopRow, bottomLeftBottomRow);
+
+		bottomLeftGridPane.add(createMenuBox(), 0, 0);
+		bottomLeftGridPane.add(createButtonBox(), 0, 1);
+
+		return bottomLeftGridPane;
+	}
+
+	private TreeView<Label> createMenuBox() {
+		TreeItem<Label> rootItem = new TreeItem<>();
+		rootItem.setExpanded(true);
+		TreeView<Label> menuTreeView = new TreeView<>(rootItem);
+		menuTreeView.getStyleClass().add("menu-container");
+		menuTreeView.setShowRoot(false);
+
+//		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue != null) {
+//				Label selectedLabel = newValue.getValue();
+//				System.out.println("Selected Label: " + selectedLabel.getText());
+//
+//				if (newValue.getChildren().isEmpty()) {
+//					adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane,selectedLabel.getText());
+//				}
+//
+//				
+//				if (!newValue.getChildren().isEmpty()) {
+//					newValue.getChildren().forEach(subMenuItem -> {
+////						Label subMenuLabel = subMenuItem.getValue();
+////		            	System.out.println("- " + subMenuLabel.getText());
+//					});
+//				}
+//			}
+//		});
+		menuTreeView.setOnMouseClicked(event -> {
+		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
+		    if (selectedItem != null) {
+		        Label selectedLabel = selectedItem.getValue();
+		        System.out.println("id--"+selectedLabel.getId());			        
+		        System.out.println("Selected Label: " + selectedLabel.getText());
+
+		        if (selectedItem.getChildren().isEmpty()) {
+		            adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane, selectedLabel.getText());
+		        }
+
+		        if (!selectedItem.getChildren().isEmpty()) {
+		            selectedItem.getChildren().forEach(subMenuItem -> {
+		            });
+		        }
+		    }
+		});
+		addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
+		addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
+		addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
+		addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
+				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
+		addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
+				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
+		addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
+		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
+		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
+		addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
+				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
+
+		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
+
+		return menuTreeView;
+	}
+
+	private void addTreeItemWithChildren(TreeItem<Label> parent, String text, String imagePath, String[] children) {
+		Image menuImage = new Image(imagePath);
+		Label newMenuItem = new Label(text);
+		ImageView menuImageView = new ImageView(menuImage);
+		menuImageView.setFitWidth(newMenuItem.getFont().getSize() + 30);
+		menuImageView.setFitHeight(newMenuItem.getFont().getSize() + 30);
+		menuImageView.getStyleClass().add("menu-image");
+
+		newMenuItem.setGraphic(menuImageView);
+		newMenuItem.getStyleClass().add("menu-item");
+
+		TreeItem<Label> menuItem = new TreeItem<>(newMenuItem);
+
+		if (children != null) {
+			for (String child : children) {
+				Label newSubMenuItem = new Label(child);
+				TreeItem<Label> childItem = new TreeItem<>(newSubMenuItem);
+				menuItem.getChildren().add(childItem);
+				newSubMenuItem.getStyleClass().add("sub-menu-item");
+			}
+		}
+		parent.getChildren().add(menuItem);
+	}
+
+
+	private GridPane createButtonBox() {
+		GridPane bottomButtonGridPane = new GridPane();
+		bottomButtonGridPane.setHgap(10);
+		bottomButtonGridPane.setVgap(10);
+
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(50);
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+		bottomButtonGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		bottomButtonGridPane.getRowConstraints().addAll(firstRow);
+
+		VBox logoutBox = new VBox();
+		logoutBox.setAlignment(Pos.CENTER);
+		Label logoutLabel = new Label("Logout");
+		logoutBox.getChildren().add(logoutLabel);
+		logoutBox.getStyleClass().add("logout-button");
+		logoutLabel.getStyleClass().add("logout-text");
+
+		VBox exitBox = new VBox();
+		exitBox.setAlignment(Pos.CENTER);
+		Label exitLabel = new Label("Exit");
+		exitBox.getChildren().add(exitLabel);
+		exitBox.getStyleClass().add("exit-button");
+		exitLabel.getStyleClass().add("exit-text");
+
+		bottomButtonGridPane.add(logoutBox, 0, 0);
+		bottomButtonGridPane.add(exitBox, 1, 0);
+
+		return bottomButtonGridPane;
+
+	}
+
+	
+	private GridPane createBottomMidGridPane() {
+		bottomGridPane.setVgap(10);
+		
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		bottomGridPane.getColumnConstraints().addAll(firstColumn);
+		bottomGridPane.getRowConstraints().addAll(firstRow);
+				
+
+		bottomGridPane.add(createBottomMidContentArea(),0, 0);
+		
+		return bottomGridPane;
+	}
+
+	
+	
+	private GridPane createBottomMidContentArea(){
+		
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+		
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		bottomMidTopGridPane.getColumnConstraints().addAll(firstColumn);
+		bottomMidTopGridPane.getRowConstraints().addAll(firstRow);
+		
+		bottomMidTopGridPane.getStyleClass().add("center-container");
+		
+		return bottomMidTopGridPane;
+
+
+	}
+}

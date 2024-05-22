@@ -1,0 +1,34 @@
+#Terminalpane{
+	-fx-background-color: transparent;
+}
+
+#Terminalpane #leftterminal{
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color:#F7F6F4;
+}
+
+#textArealeft{
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-font-size: 25;
+     -fx-font-family: Arial Narrow;
+}
+
+#rightTerminal{
+	-fx-background-color: transparent;
+}
+
+#textAreaRight{
+	-fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-color:#F7F6F4;
+    -fx-font-size: 25;
+     -fx-font-family: Arial Narrow;
+}
+
+#textFiedRight{
+	-fx-border-color: black;
+    -fx-background-color: #CBCAC9;
+
+    }

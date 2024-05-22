@@ -1,0 +1,98 @@
+.macro-button-container{
+	-fx-background-color: #FFFFFF;
+	-fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
+.macro-button-title{
+	-fx-font-size:30px;
+	-fx-font-weight:bold;
+	-fx-text-fill:#003360;
+}
+.macro-button-save-btn{
+	-fx-min-width:100px;
+	-fx-background-color: #003360;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size:16px;
+	-fx-font-weight:bold;
+	-fx-padding:10px;
+	-fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-cursor:hand;
+}
+
+.macro-button-option-container{
+	-fx-background-color:#222831;
+	-fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
+
+
+
+
+
+.list-cell {
+    -fx-font-size: 16px;
+   	-fx-font-weight:bold;
+}
+.list-cell:hover {
+    -fx-background-color: #909398; 
+}
+.list-cel:selected{
+	 -fx-background-color: #31363F; 
+}
+
+
+.combo-box {
+	-fx-background-color: #ffffff;
+    -fx-font-size: 17.0px;
+    -fx-border-radius: 5.0px;
+    -fx-background-radius: 5.0px;
+    -fx-pref-width: 200px;
+}
+.combo-box .list-view {
+    -fx-pref-width: 170.0px;
+}
+
+
+.macro-button-list-container{
+	-fx-background-color:#222831;
+	-fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
+.macro-button-list-title-box{
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+.macro-button-list-title{
+	-fx-font-size: 18px;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-fill: #FFFFFF;
+	-fx-padding:10px
+}
+.macro-button-list-data-box{
+	-fx-background-color:#FFFFFF;
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+.macro-button-list-data-label{
+	-fx-font-size: 18px;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-padding:10px
+}
+.macro-button-list-data-input{
+	-fx-font-size: 18px;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-padding:10px;
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+#tophbox #gridimage #Logo{
+   -fx-background-image: url("/Resources/Images/BELLOGO.png");
+	-fx-background-repeat:stretch;
+}
+#tophbox #gridimage #Company{
+   -fx-background-image: url("/Resources/Images/NAME.png");
+	-fx-background-repeat:stretch; 
+}
+
+
+#usertype{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+
+#usertype .list-cell{
+	-fx-font-size:15pt
+    
+}
+
+#uutno{
+	-fx-border-color: black;
+    -fx-background-color: transparent;
+}

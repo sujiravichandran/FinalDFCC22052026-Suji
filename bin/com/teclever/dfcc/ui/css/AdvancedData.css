@@ -1,0 +1,41 @@
+#adduser{
+	-fx-background-color: #169BD5;
+}
+
+
+#advancedpane{
+	-fx-background-image: url("/Images/u46.png");
+	-fx-background-repeat: stretch;
+}
+#visualizer{
+	-fx-border-color: #169BD5;
+	-fx-border-width: 3;
+	-fx-text-fill: #169BD5;
+	-fx-font-style:bold;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 11,-10,8,5 );
+}
+#compare
+{
+	-fx-border-color: #169BD5;
+	-fx-border-width: 3;
+	-fx-text-fill: #169BD5;
+	-fx-font-style:bold;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 11,-10,8,5 );
+	
+}
+#sidepane
+{
+	-fx-background-color:  #f2f2f2;
+	
+}
+
+#add
+{
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,-10,-5 );
+}
+#cancel
+{
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 11,-10,-10,-5 );
+}

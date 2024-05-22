@@ -1,0 +1,29 @@
+#launchTypeMainContainer{
+	-fx-background-color: #31363F;
+}
+.launch-type-title{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 18px;
+	-fx-font-weight : 700;
+	-fx-padding:5px 0;
+}
+
+.launch-type-radio-btn{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 14px;
+	-fx-padding:5px 0;
+}
+.launch-type-radio-btn-label{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 14px;
+	-fx-padding:5px 0;
+}
+.launch-type-btn{
+	-fx-min-width: 100px;
+	-fx-background-color: #77ABAE;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size: 14px; 
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-cursor: hand;
+}

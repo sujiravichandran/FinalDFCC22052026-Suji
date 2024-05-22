@@ -1,0 +1,31 @@
+#hourcombo{
+	-fx-border-color: #F56E1E;
+	-fx-border-width: 2;
+	-fx-text-fill: #169BD5;
+	-fx-font-style:bold;
+    -fx-background-color: transparent;
+    
+}
+
+#runtestbutton{
+	
+	-fx-background-image: url("/Resources/Images/u372.png");
+	-fx-min-height: 25px;
+	-fx-min-width: 25px;
+	
+}
+#runbutton{
+	
+	-fx-background-image: url("/Resources/Images/u372.png");
+	-fx-background-repeat:space;
+	-fx-min-height: 25px;
+	-fx-min-width: 25px;
+}
+
+#runfulltest{
+	
+	-fx-background-image: url("/Resources/Images/u372.png");
+	-fx-background-repeat:space;
+	-fx-min-height: 25px;
+	-fx-min-width: 25px;
+}

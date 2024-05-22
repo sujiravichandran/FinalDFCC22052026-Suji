@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="adduser" prefHeight="543.0" prefWidth="400.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="543.0" prefWidth="400.0" spacing="10.0">
+         <children>
+            <Label fx:id="headinglbl" prefHeight="25.0" prefWidth="122.0" text="ADD AITESS" textFill="WHITE">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Label>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelAitessname" text="AITESS Name" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textAitessName" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelAitessCommand" text="AITESS Command" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textAitessCommand" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelAitessVersion" text="AITESS Version" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textAitessVersion" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelDriverName" text="Driver Name" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textDriverName" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelDriverCommand" text="Driver Command" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textDriverCommand" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelDriverVersion" text="Driver Version" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textDriverVersion" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <HBox prefHeight="73.0" prefWidth="300.0">
+               <children>
+                  <HBox fx:id="hboxSave" prefHeight="100.0" prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin></HBox>
+                  <HBox fx:id="hboxCancel" prefHeight="100.0" prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin></HBox>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="50.0" right="50.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</Pane>

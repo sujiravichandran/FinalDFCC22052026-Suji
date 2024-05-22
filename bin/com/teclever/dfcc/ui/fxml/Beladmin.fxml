@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="parentcontainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #ffffff;" stylesheets="@../css/Dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.BeladminController">
+   <children>
+      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <left>
+            <VBox fx:id="vboxLeft" minHeight="200.0" minWidth="192.0" prefHeight="910.0" prefWidth="301.0" style="-fx-border-color: black; -fx-background-color: white;" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="Userconfiguration" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#userConfigurationAction" prefHeight="67.0" prefWidth="299.0" stylesheets="@../css/UserConfiguration.css" text="USER CONFIGURATION">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="RunConfiguration" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="80.0" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#runConfigurationAction" prefHeight="67.0" prefWidth="299.0" stylesheets="@../css/UserConfiguration.css" text="RUN CONFIGURATION">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="Aitessconfiguration" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#aitessConfigurationAction" prefHeight="67.0" prefWidth="299.0" stylesheets="@../css/UserConfiguration.css" text="AITESS CONFIGURATION">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="Macroconfiguration" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#macroConfigurationAction" prefHeight="67.0" prefWidth="299.0" stylesheets="@../css/UserConfiguration.css" text="MACRO CONFIGURATION">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <HBox fx:id="logouthbox" prefHeight="43.0" prefWidth="299.0">
+                     <children>
+                        <Pane fx:id="logoutimg" prefHeight="28.0" prefWidth="36.0" stylesheets="@../css/Dashboard.css">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="70.0" top="5.0" />
+                           </HBox.margin>
+                        </Pane>
+                        <Button fx:id="logout" alignment="CENTER" mnemonicParsing="false" onAction="#logoutAction" prefHeight="31.0" prefWidth="126.0" text="LOGOUT" textAlignment="CENTER" HBox.hgrow="NEVER">
+                           <font>
+                              <Font name="Arial" size="21.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="15.0" top="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="-5.0" top="-5.0" />
+                           </padding>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="473.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <Button fx:id="exit" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#exitAction" prefHeight="40.0" prefWidth="299.0" text="EXIT" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="21.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+            </VBox>
+         </left>
+         <top>
+            <HBox fx:id="tophbox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="140.0" minWidth="1920.0" style="-fx-background-color: #bbe1f4; -fx-border-color: black;" BorderPane.alignment="CENTER">
+               <children>
+                  <GridPane fx:id="gridimage" maxWidth="-Infinity" prefHeight="78.0" prefWidth="1920.0" HBox.hgrow="NEVER">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="540.6666463216145" minWidth="10.0" prefWidth="418.99997965494794" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1362.3333740234375" minWidth="10.0" prefWidth="1084.3333536783855" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="593.0" minWidth="10.0" prefWidth="414.00004069010424" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Pane fx:id="Logo" prefHeight="200.0" prefWidth="200.0">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </Pane>
+                        <Pane fx:id="Company" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                           <children>
+                              <HBox layoutX="-1.0" layoutY="105.0" prefHeight="34.0" prefWidth="1086.0">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="543.0">
+                                       <children>
+                                          <Label text="USERNAME : PROTOTYPE">
+                                             <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets left="40.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="34.0" prefWidth="487.0">
+                                       <children>
+                                          <Label text="EMPID : 2X221">
+                                             <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets left="50.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                 </children>
+                              </HBox>
+                           </children></Pane>
+                        <Pane fx:id="Logo1" prefHeight="200.0" prefWidth="200.0" />
+                        <Pane fx:id="tecleverLogo" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" />
+                     </children>
+                  </GridPane>
+               </children>
+            </HBox>
+         </top>
+         <bottom>
+            <HBox fx:id="BottomHbox" prefHeight="43.0" prefWidth="1920.0" style="-fx-background-color: #77c6e7; -fx-border-color: black;" BorderPane.alignment="CENTER" />
+         </bottom>
+         <center>
+            <AnchorPane fx:id="centerpane" prefHeight="200.0" prefWidth="1320.0" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox prefHeight="895.0" prefWidth="1619.0">
+                     <children>
+                        <Pane fx:id="greenscreen" prefHeight="895.0" prefWidth="1619.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                           <children>
+                              <AnchorPane fx:id="centerpane1" prefHeight="200.0" prefWidth="1320.0">
+                                 <children>
+                                    <VBox prefHeight="895.0" prefWidth="1619.0">
+                                       <children>
+                                          <Pane fx:id="greenscreen1" prefHeight="895.0" prefWidth="1619.0">
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                             <children>
+                                                <AnchorPane prefHeight="943.0" prefWidth="1619.0">
+                                                   <children>
+                                                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="1619.0" style="-fx-border-color: black;">
+                                                         <children>
+                                                            <Label text="USER CONFIGURATION">
+                                                               <font>
+                                                                  <Font name="Arial Bold" size="50.0" />
+                                                               </font>
+                                                            </Label>
+                                                         </children>
+                                                      </HBox>
+                                                      <Pane fx:id="Tableview" layoutX="1.0" layoutY="103.0" prefHeight="793.0" prefWidth="1617.0" />
+                                                   </children>
+                                                </AnchorPane>
+                                             </children>
+                                          </Pane>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </Pane>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

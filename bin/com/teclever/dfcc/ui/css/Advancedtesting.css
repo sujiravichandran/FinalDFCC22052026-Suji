@@ -1,0 +1,54 @@
+
+#testadvance{
+	-fx-background-color: #66ffff;
+}
+#statusadvance{
+	-fx-background-color: #66ffff;
+}
+#pcountadvance{
+	-fx-background-color: #66ffff;
+}
+#fcountadvance{
+	-fx-background-color: #66ffff;
+}
+#interfacetest{
+	-fx-text-fill:  #169BD5;
+}
+#customtest{
+	-fx-text-fill:  #169BD5;
+}
+#selecttesturl{
+	-fx-border-color:#66ffff;
+	-fx-background-color: transparent;
+	-fx-text-fill:  #169BD5;
+}
+#treminalcommand{
+	-fx-text-fill:  #169BD5;
+}
+#symbol
+{
+	-fx-text-fill:  #169BD5;
+}
+#macname{
+	-fx-text-fill:  #169BD5;
+}
+#outputpath{
+	-fx-border-color:#66ffff;
+	-fx-background-color: transparent;
+	-fx-text-fill:  #169BD5;
+}
+#urltextchecksum{
+	-fx-border-color:#66ffff;
+	-fx-background-color: transparent;
+	-fx-text-fill:  #169BD5;
+}
+#urltextdownload{
+	-fx-border-color:#66ffff;
+	-fx-background-color: transparent;
+	-fx-text-fill:  #169BD5;
+}
+
+
+
+
+

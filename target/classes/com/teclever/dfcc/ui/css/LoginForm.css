@@ -1,0 +1,103 @@
+.login-title{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 35px;
+	-fx-font-weight: bold;
+}
+.login-label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 20px;
+	-fx-font-weight: bold;
+}
+.login-input{
+	-fx-font-size: 20px;
+	-fx-font-weight: bold;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-padding: 15px;
+}
+.checkbox-label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 16px; 
+	-fx-cursor:hand;
+}
+.login-btn-box{
+	-fx-background-color: #77ABAE;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-cursor:hand;
+}
+.login-btn{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 20px; 
+	-fx-font-weight: bold;
+}
+
+.admin-password-change-popup{
+	-fx-background-color: #222831;
+	-fx-padding: 15px;
+	-fx-border-radius: 10px;
+	-fx-background-radius: 10px;
+}
+.admin-password-change-popup .popup-title{
+	-fx-text-fill : #FFFFFF;
+	-fx-font-size : 24px;
+	-fx-font-weight : 700;
+}
+
+.admin-password-change-popup .popup-label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 22px;
+}
+.admin-password-change-popup .popup-input{
+	-fx-font-size: 22px;
+	-fx-font-weight: bold;
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-padding: 10px;
+}
+
+.admin-password-change-popup .popup-btn{
+	-fx-min-width: 150px;
+	-fx-background-color: #77ABAE;
+	-fx-text-fill: #FFFFFF;
+	-fx-font-size: 22px; 
+	-fx-border-radius: 5px;
+	-fx-background-radius: 5px;
+	-fx-cursor: hand;
+}
+
+.check-sum-data-box{
+	-fx-background-color: #222831;
+	-fx-border-radius: 10px;
+	-fx-background-radius: 10px;
+	-fx-padding: 5px 15px;
+}
+
+.check-sum-title{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 24px; 
+	-fx-font-weight: bold;
+	-fx-padding: 5px;
+}
+
+
+.check-sum-table .table-cell {
+    -fx-font-size: 16px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
+
+.check-sum-table .column-header .label {
+    -fx-font-size: 18px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
+
+.check-sum-ok-btn{
+	-fx-min-width:100px;
+	-fx-font-size: 16px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+        -fx-cursor: hand;
+}
+

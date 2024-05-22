@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="parentcontainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #ffffff;" stylesheets="@../css/Dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.DashboardController">
+   <children>
+      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <left>
+            <VBox fx:id="vboxLeft" minHeight="200.0" minWidth="192.0" prefHeight="910.0" prefWidth="301.0" style="-fx-border-color: black; -fx-background-color: white;" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="dashboard" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#dashboardAction" prefHeight="67.0" prefWidth="299.0" text="DASHBOARD">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </Button>
+                  <MenuButton fx:id="testing" alignment="CENTER" mnemonicParsing="false" onMouseEntered="#testMouseEnter" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="TESTING">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="testcontext" prefWidth="0.0">
+                           <items>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="session" mnemonicParsing="false" onAction="#sessionAction" text="SESSION TESTING" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="srcmodule" mnemonicParsing="false" onAction="#srcmoduleAction" text="SRU MODULE TESTING" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="advanced" mnemonicParsing="false" onAction="#advancedAction" text="ADVANCED TESTING" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="producttest" mnemonicParsing="false" onAction="#producttestAction" text="PRODUCTION QUALIFICATION TESTING" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="results" alignment="CENTER" mnemonicParsing="false" onMouseEntered="#resultMouseEnter" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="RESULTS">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="resultcontext" prefWidth="100.0">
+                           <items>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="currentexectionresult" mnemonicParsing="false" onAction="#currentexectionresultAction" text="CURRENT EXECUTION RESULTS" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="sessionresult" mnemonicParsing="false" onAction="#sessionresultAction" text="SESSION RESULTS" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="unitresult" mnemonicParsing="false" onAction="#unitresultAction" text="CURRENT UNIT RESULTS" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <Button fx:id="advanceddata" alignment="CENTER" contentDisplay="CENTER" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#advanceddataAction" prefHeight="47.0" prefWidth="299.0" text="ADVANCED DATA ANALYSIS" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="19.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </Button>
+                  <MenuButton fx:id="reports" alignment="CENTER" mnemonicParsing="false" onMouseEntered="#reportMouseEnter" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="REPORTS">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext">
+                           <items>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="sessionreports" mnemonicParsing="false" onAction="#sessionreportsAction" text="SESSION REPORT" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="advancedreports" mnemonicParsing="false" onAction="#advancedreportsAction" text="ADVANCED REPORT" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="uutreport" mnemonicParsing="false" onAction="#uutreportAction" text="UUT REPORT/DATA PACK" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="selftest" alignment="CENTER" mnemonicParsing="false" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="SELF TEST">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext1" />
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="Lrutesting" alignment="CENTER" mnemonicParsing="false" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="LRU TESTING">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext11" />
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="Testsummary" alignment="CENTER" mnemonicParsing="false" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="TEST SUMMARY- FAULTY SRU IDENTIFICATION" textAlignment="CENTER" wrapText="true">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext111" />
+                     </contextMenu>
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="Historyreport" alignment="CENTER" mnemonicParsing="false" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" text="HISTORY REPORTS" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext1111" />
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <MenuButton fx:id="Testvalidation" alignment="CENTER" minHeight="33.0" mnemonicParsing="false" popupSide="RIGHT" prefHeight="67.0" prefWidth="301.0" style="-fx-border-color: black;" stylesheets="@../css/Dashboard.css" text="TEST VALIDATION" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <contextMenu>
+                        <ContextMenu fx:id="reportcontext11111" />
+                     </contextMenu>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </MenuButton>
+                  <Button fx:id="configuration" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="212.0" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#configurationAction" prefHeight="45.0" prefWidth="299.0" stylesheets="@../css/Dashboard.css" text="CONFIGURATION" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="21.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="300.0" />
+                     </VBox.margin>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="logbook" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="646.0" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#logbookAction" prefHeight="45.0" prefWidth="299.0" stylesheets="@../css/Dashboard.css" text="LOG BOOK" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="21.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </Button>
+                  <HBox fx:id="logouthbox" prefHeight="43.0" prefWidth="299.0">
+                     <children>
+                        <Pane fx:id="logoutimg" prefHeight="28.0" prefWidth="36.0" stylesheets="@../css/Dashboard.css">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="70.0" top="5.0" />
+                           </HBox.margin>
+                        </Pane>
+                        <Button fx:id="logout" alignment="CENTER" mnemonicParsing="false" onAction="#logoutAction" prefHeight="31.0" prefWidth="126.0" text="LOGOUT" textAlignment="CENTER" HBox.hgrow="NEVER">
+                           <font>
+                              <Font name="Arial" size="21.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="15.0" top="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="-5.0" top="-5.0" />
+                           </padding>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <Button fx:id="exit" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="691.0" minHeight="35.0" minWidth="190.0" mnemonicParsing="false" onAction="#exitAction" prefHeight="40.0" prefWidth="299.0" text="EXIT" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="21.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+         </left>
+         <right>
+            <VBox fx:id="rmainvbox" minHeight="-Infinity" minWidth="-Infinity" prefHeight="829.0" prefWidth="301.0" style="-fx-border-color: black;" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox fx:id="vboxtop" prefHeight="331.0" prefWidth="299.0" style="-fx-background-color: white;">
+                     <children>
+                        <Label fx:id="aitess" alignment="CENTER" prefHeight="45.0" prefWidth="297.0" text="AITESS">
+                           <font>
+                              <Font size="30.0" />
+                           </font>
+                        </Label>
+                        <HBox prefHeight="21.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="aitess2" alignment="CENTER" contentDisplay="CENTER" text="AITESS">
+                                 <HBox.margin>
+                                    <Insets left="35.0" top="2.0" />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets left="12.0" />
+                                 </padding>
+                              </Label>
+                              <Label fx:id="running" text="RUNNING">
+                                 <HBox.margin>
+                                    <Insets left="12.0" top="4.0" />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets left="12.0" />
+                                 </padding>
+                              </Label>
+                              <Button fx:id="refresh" alignment="CENTER" contentDisplay="CENTER" minHeight="20.0" mnemonicParsing="false" onAction="#refreshAction" prefHeight="24.0" prefWidth="40.0" textAlignment="CENTER">
+                                 <HBox.margin>
+                                    <Insets left="10.0" right="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="20.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <Label fx:id="cardstatus" alignment="CENTER" text="SC CARD STATUS">
+                           <VBox.margin>
+                              <Insets left="80.0" top="20.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox prefHeight="15.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="cardsonline" alignment="CENTER" text="CARDS ONLINE">
+                                 <HBox.margin>
+                                    <Insets left="45.0" top="5.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="cardsonlineno" alignment="CENTER" prefHeight="17.0" prefWidth="82.0" text="18">
+                                 <HBox.margin>
+                                    <Insets left="15.0" top="7.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="30.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="203.0" prefHeight="15.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="cardsoffline" alignment="CENTER" text="CARDS OFFLINE">
+                                 <HBox.margin>
+                                    <Insets left="45.0" top="3.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="cardsofflineno" alignment="CENTER" prefHeight="17.0" prefWidth="82.0" text="1">
+                                 <HBox.margin>
+                                    <Insets left="7.0" top="13.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="30.0" />
+                           </VBox.margin>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="vboxbottom" prefHeight="580.0" prefWidth="299.0" style="-fx-background-color: white;">
+                     <children>
+                        <Label fx:id="DFCC" alignment="CENTER" prefHeight="45.0" prefWidth="297.0" text="DFCC">
+                           <font>
+                              <Font size="30.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="dffccpoweron" mnemonicParsing="false" onAction="#DfccpoweronAction" prefHeight="50.0" prefWidth="299.0" text="DFCC POWER ON">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                           <VBox.margin>
+                              <Insets left="52.0" right="52.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Label fx:id="temprature" alignment="CENTER" contentDisplay="CENTER" text="TEMPRATURE">
+                           <VBox.margin>
+                              <Insets left="85.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox prefHeight="22.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="percentageg1" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="33.5">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="percentageg2" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="33.5">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="173.0" prefHeight="22.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="percentageg3" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="33.5">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="percentageg4" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="33.5">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <Label fx:id="poweronstatus" text="DFCC POWER ON STATUS">
+                           <VBox.margin>
+                              <Insets left="50.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox prefHeight="19.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="dch1" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH1">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="dch2" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH2">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox prefHeight="19.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="dch3" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH3">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="dch4" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH4">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <Label fx:id="onlinestatus" text="ONLINE STATUS">
+                           <VBox.margin>
+                              <Insets left="85.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox prefHeight="20.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="och1" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH1">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="och2" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH2">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox prefHeight="19.0" prefWidth="299.0">
+                           <children>
+                              <Label fx:id="och3" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH3">
+                                 <HBox.margin>
+                                    <Insets left="57.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="och4" alignment="CENTER" prefHeight="17.0" prefWidth="58.0" text="CH4">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="32.0" prefWidth="299.0">
+                           <children>
+                              <Button fx:id="initdfcc" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="INIT DFCC">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="powerreset" layoutX="30.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="POWER RESET">
+                                 <HBox.margin>
+                                    <Insets left="15.0" right="15.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="336.0" prefHeight="32.0" prefWidth="299.0">
+                           <children>
+                              <Button fx:id="eeprom" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="ERASE EEPROM">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="cyclepower" layoutX="30.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="CYCLE POWER">
+                                 <HBox.margin>
+                                    <Insets left="15.0" right="15.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="368.0" prefHeight="32.0" prefWidth="299.0">
+                           <children>
+                              <Button fx:id="checkofp" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="CHECK OFP">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="checkwdm" layoutX="30.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="CHECK WDM">
+                                 <HBox.margin>
+                                    <Insets left="15.0" right="15.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </right>
+         <top>
+            <HBox fx:id="tophbox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="140.0" minWidth="1920.0" style="-fx-background-color: #bbe1f4; -fx-border-color: black;" BorderPane.alignment="CENTER">
+               <children>
+                  <GridPane fx:id="gridimage" maxWidth="-Infinity" prefHeight="78.0" prefWidth="1920.0" HBox.hgrow="NEVER">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="540.6666463216145" minWidth="10.0" prefWidth="418.99997965494794" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1362.3333740234375" minWidth="10.0" prefWidth="1084.3333536783855" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="593.0" minWidth="10.0" prefWidth="414.00004069010424" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Pane fx:id="Logo" prefHeight="200.0" prefWidth="200.0">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </Pane>
+                        <Pane fx:id="Company" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                           <children>
+                              <HBox layoutX="-1.0" layoutY="107.0" prefHeight="34.0" prefWidth="1086.0">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="543.0">
+                                       <children>
+                                          <Label text="USERNAME : PROTOTYPE">
+                                             <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets left="40.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="34.0" prefWidth="487.0">
+                                       <children>
+                                          <Label text="EMPID : 2X221">
+                                             <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets left="50.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                 </children>
+                              </HBox>
+                           </children></Pane>
+                        <Pane fx:id="Logo1" prefHeight="200.0" prefWidth="200.0" />
+                        <Pane fx:id="tecleverLogo1" prefHeight="200.0" prefWidth="200.0" />
+                        <Pane fx:id="tecleverLogo" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" />
+                     </children>
+                  </GridPane>
+               </children>
+            </HBox>
+         </top>
+         <bottom>
+            <HBox fx:id="BottomHbox" prefHeight="43.0" prefWidth="1920.0" style="-fx-background-color: #77c6e7; -fx-border-color: black;" BorderPane.alignment="CENTER" />
+         </bottom>
+         <center>
+            <AnchorPane fx:id="centerpane" prefHeight="200.0" prefWidth="1320.0" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox prefHeight="895.0" prefWidth="1320.0">
+                     <children>
+                        <Pane fx:id="greenscreen" prefHeight="624.0" prefWidth="1316.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                           <children>
+                              <AnchorPane prefHeight="943.0" prefWidth="1322.0">
+                                 <children>
+                                    <Pane fx:id="getscreen" layoutY="-1.0" prefHeight="597.0" prefWidth="1319.0">
+                                       <children>
+                                          <HBox fx:id="Hboxcenter" layoutX="-4.0" layoutY="-1.0" prefHeight="898.0" prefWidth="1321.0" stylesheets="@../css/Dashboard.css">
+                                             <children>
+                                                <Pane fx:id="image" prefHeight="983.0" prefWidth="290.0">
+                                                   <children>
+                                                      <Pane fx:id="filghtimg" layoutX="7.0" layoutY="6.0" prefHeight="188.0" prefWidth="285.0" stylesheets="@../css/Dashboard.css" />
+                                                   </children>
+                                                </Pane>
+                                                <Pane prefHeight="898.0" prefWidth="227.0" stylesheets="@../css/Dashboard.css">
+                                                   <children>
+                                                      <Label alignment="CENTER" layoutY="40.0" prefHeight="36.0" prefWidth="227.0" text="SESSION" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font size="25.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" layoutX="-3.0" layoutY="93.0" prefHeight="36.0" prefWidth="231.0" text="UUT VERSION" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font size="15.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" layoutX="-4.0" layoutY="135.0" prefHeight="36.0" prefWidth="231.0" text="[SLNO]" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font size="15.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" layoutX="-4.0" layoutY="173.0" prefHeight="36.0" prefWidth="231.0" text="22-04-2023" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font size="15.0" />
+                                                         </font>
+                                                      </Label>
+                                                   </children>
+                                                </Pane>
+                                                <Pane prefHeight="991.0" prefWidth="228.0">
+                                                   <children>
+                                                      <Label alignment="CENTER" layoutX="1.0" layoutY="40.0" prefHeight="36.0" prefWidth="226.0" text="CURRENT PROGRESS" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font size="22.0" />
+                                                         </font>
+                                                      </Label>
+                                                   </children>
+                                                </Pane>
+                                                <Pane fx:id="Previousactivitywin" prefHeight="898.0" prefWidth="307.0">
+                                                   <children>
+                                                      <TextField alignment="CENTER" layoutX="31.0" layoutY="46.0" prefHeight="20.0" prefWidth="231.0" style="-fx-border-color: black;" text="PREVIOUS ACTIVITY : BURN IN">
+                                                         <padding>
+                                                            <Insets left="2.0" />
+                                                         </padding>
+                                                         <font>
+                                                            <Font name="Arial" size="13.0" />
+                                                         </font>
+                                                      </TextField>
+                                                      <TextField alignment="CENTER" layoutX="31.0" layoutY="75.0" prefHeight="20.0" prefWidth="231.0" style="-fx-border-color: black;" text="CURRENT ACTIVITY : R1">
+                                                         <padding>
+                                                            <Insets left="2.0" />
+                                                         </padding>
+                                                         <font>
+                                                            <Font name="Arial" size="13.0" />
+                                                         </font>
+                                                      </TextField>
+                                                      <Pane fx:id="tick" layoutX="266.0" layoutY="44.0" prefHeight="26.0" prefWidth="39.0" />
+                                                      <Pane fx:id="flag" layoutX="267.0" layoutY="75.0" prefHeight="26.0" prefWidth="39.0" />
+                                                   </children>
+                                                </Pane>
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </Pane>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="325.0" prefWidth="1325.0">
+                           <children>
+                              <VBox fx:id="tVbox" prefHeight="294.0" prefWidth="1319.0">
+                                 <children>
+                                    <TextArea fx:id="terminalwindow" prefHeight="262.0" prefWidth="1310.0" style="-fx-background-color: gray;" stylesheets="@../css/Dashboard.css" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin></TextArea>
+                                    <Pane prefHeight="45.0" prefWidth="1325.0" VBox.vgrow="NEVER">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                       <children>
+                                          <TextField fx:id="inputbox" layoutX="12.0" layoutY="5.0" prefHeight="31.0" prefWidth="1141.0" promptText="Enter Your Input" stylesheets="@../css/Dashboard.css" />
+                                          <Button fx:id="inputwrite" layoutX="1166.0" layoutY="5.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="135.0" text="WRITE">
+                                             <font>
+                                                <Font name="Arial Narrow" size="15.0" />
+                                             </font>
+                                             <cursor>
+                                                <Cursor fx:constant="HAND" />
+                                             </cursor>
+                                          </Button>
+                                       </children>
+                                    </Pane>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </Pane>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>
