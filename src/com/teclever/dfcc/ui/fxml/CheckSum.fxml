@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="checkSumMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="530.0" prefWidth="1260.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.CheckSumPopupController">
+   <children>
+      <HBox fx:id="checkSumHeading" alignment="CENTER" prefHeight="50.0" prefWidth="1260.0" />
+      <VBox fx:id="checkSumDataBox" layoutY="50.0" prefHeight="480.0" prefWidth="1260.0" spacing="10.0">
+         <padding>
+            <Insets bottom="10.0" left="5.0" right="5.0" />
+         </padding>
+       </VBox>
+   </children>
+</AnchorPane>

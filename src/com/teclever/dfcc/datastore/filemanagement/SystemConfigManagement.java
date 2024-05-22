@@ -37,8 +37,18 @@ public class SystemConfigManagement {
 			SystemConfigManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 	static String parentJarFile = new File(
 			SystemConfigManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
-	static String configFileName = currentDirectory + File.separator + "SystemConfig.dat";
-	// static String directoryToCheck = currentDirectory+ File.separator;
+//	static String configFileName = currentDirectory + File.separator + "SystemConfig.dat";
+
+	//Windows
+		static String configFileName = "C:\\config\\SystemConfig.dat";
+		static {
+	        try {
+	            configuration = loadSystemConfig(configFileName);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	
 	private static SystemConfig configuration;
 
 	public static SystemConfig getConfiguration() {

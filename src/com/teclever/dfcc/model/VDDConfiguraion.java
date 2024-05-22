@@ -1,10 +1,10 @@
 package com.teclever.dfcc.model;
 
 public class VDDConfiguraion {
-
+	
+	private String path;
 	private String fileName;
 	private String checksumValue;
-	private String path;
 	
 	public String getFileName() {
 		return fileName;

@@ -123,6 +123,20 @@ public class AdminCenterContentController {
 		case "cPCI card's Details":
 			cpciCardStackPane.toFront();
 			break;
+		case "Launch type":
+			LaunchTypeController launchTypeController = new LaunchTypeController();
+			launchTypeController.createLaunchTypePopup();
+			break;
+			
+		case "Admin Password":
+			AdminPasswordController adminPasswordController = new AdminPasswordController();
+			adminPasswordController.createAdminPasswordPopup();
+			break;
+			
+		case "CheckSum Data":
+			CheckSumController checkSumController = new CheckSumController();
+			checkSumController.createCheckSumDataPopup();
+			break;
 		case "Results":
 			faultCodeConfigStackPane.toFront();
 			break;

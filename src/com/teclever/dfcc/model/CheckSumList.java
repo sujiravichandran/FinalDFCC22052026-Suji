@@ -3,8 +3,8 @@ package com.teclever.dfcc.model;
 public class CheckSumList {
 
 	private String fileName;
-	private String status;
 	private String checkSumValue;
+	private String status;
 	
 	public String getFileName() {
 		return fileName;
