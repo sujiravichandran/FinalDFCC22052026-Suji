@@ -242,14 +242,6 @@ public class MacroButtonsController {
             
             updatedMacroButtonList.add(updatedButton);
         }
-        for(MacroButtonMapDto button : updatedMacroButtonList) {
-        	System.out.println("--------------");
-        	System.out.println(button.getButtonId());
-        	System.out.println(button.getButtonName());
-        	System.out.println(button.getCommand());
-        	System.out.println(UUT_ID);
-        	System.out.println("--------------");
-        }
         
         MacroButtonMapResponse response = macroConfigurationManagement.updateMacroButtonMap(updatedMacroButtonList);
         if(response.getResponseCode() == 1){
