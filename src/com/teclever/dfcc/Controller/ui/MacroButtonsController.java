@@ -227,6 +227,10 @@ public class MacroButtonsController {
     }
     
     private void saveMacroButtonData() {
+    	if(UUT_ID == null) {
+    		Notifications.showWarningAlert("Please Selcet UUT Type...");
+    		return;
+    	}
         List<MacroButtonMapDto> updatedMacroButtonList = new ArrayList<>();
         
         for (int i = 0; i < macroButtonList.size(); i++) {
