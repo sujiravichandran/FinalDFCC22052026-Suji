@@ -184,7 +184,9 @@ public class StageConfigurationController {
 			initializeTreeView();
 			initializeListeners();
 			setSearchableTextField();
-
+			if (testMapingController.isInitialized()) {
+                testMapingController.refresh();
+            }
 		}
 	}
 
@@ -372,8 +374,9 @@ public class StageConfigurationController {
 					}else {
 						if (testMapingController.isInitialized()) {
 	                        testMapingController.refresh();
+	                        notify.showWarningAlert("RUN CONFIG is null");
 	                    }
-						notify.showWarningAlert("RUN CONFIG is null");
+						
 					}
 				}
 			}

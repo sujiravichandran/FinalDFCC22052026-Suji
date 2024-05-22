@@ -35,6 +35,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -104,6 +105,9 @@ public class AddRunConfigurationController {
 
     @FXML
     public void initialize() {
+    	Tooltip ofpTooltip = new Tooltip();
+        ofpTooltip.textProperty().bind(selectConfigfile.textProperty());
+        selectConfigfile.setTooltip(ofpTooltip);
     	
     	 System.out.println("Initialize method called");
     	 
