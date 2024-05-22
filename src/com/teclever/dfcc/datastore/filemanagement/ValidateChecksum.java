@@ -92,7 +92,7 @@ public class ValidateChecksum {
 				if(!(fileNamewithPath.contains(vddDto.getFileName()))){
 					CheckSum checkSum = new CheckSum();
 					checkSum.setFile(vddDto.getFileName());
-					checkSum.setMsg("No File ");
+					checkSum.setMsg("No File");
 					checkSum.setChecksumValue(vddDto.getFileCheckSum());
 					listOfCheckSum.add(checkSum);
 				}
