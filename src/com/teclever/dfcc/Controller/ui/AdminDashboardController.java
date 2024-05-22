@@ -71,25 +71,41 @@ public class AdminDashboardController {
 		menuTreeView.getStyleClass().add("menu-container");
 		menuTreeView.setShowRoot(false);
 
-		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null) {
-				Label selectedLabel = newValue.getValue();
-				System.out.println("Selected Label: " + selectedLabel.getText());
+//		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue != null) {
+//				Label selectedLabel = newValue.getValue();
+//				System.out.println("Selected Label: " + selectedLabel.getText());
+//
+//				if (newValue.getChildren().isEmpty()) {
+//					adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane,selectedLabel.getText());
+//				}
+//
+//				
+//				if (!newValue.getChildren().isEmpty()) {
+//					newValue.getChildren().forEach(subMenuItem -> {
+////						Label subMenuLabel = subMenuItem.getValue();
+////		            	System.out.println("- " + subMenuLabel.getText());
+//					});
+//				}
+//			}
+//		});
+		menuTreeView.setOnMouseClicked(event -> {
+		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
+		    if (selectedItem != null) {
+		        Label selectedLabel = selectedItem.getValue();
+		        System.out.println("id--"+selectedLabel.getId());			        
+		        System.out.println("Selected Label: " + selectedLabel.getText());
 
-				if (newValue.getChildren().isEmpty()) {
-					adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane,selectedLabel.getText());
-				}
+		        if (selectedItem.getChildren().isEmpty()) {
+		            adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane, selectedLabel.getText());
+		        }
 
-				
-				if (!newValue.getChildren().isEmpty()) {
-					newValue.getChildren().forEach(subMenuItem -> {
-//						Label subMenuLabel = subMenuItem.getValue();
-//		            	System.out.println("- " + subMenuLabel.getText());
-					});
-				}
-			}
+		        if (!selectedItem.getChildren().isEmpty()) {
+		            selectedItem.getChildren().forEach(subMenuItem -> {
+		            });
+		        }
+		    }
 		});
-
 		addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
 		addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
 		addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
@@ -101,7 +117,7 @@ public class AdminDashboardController {
 		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
 		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
 		addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
-				new String[] { "Launch type", "Admin Password" });
+				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
 

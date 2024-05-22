@@ -102,9 +102,9 @@ public class AddUserController implements Initializable {
 	}
 
 	public void addUserRoleType() {
-		userRoleType.put("BEL USER", "RL_ID_2");
-		userRoleType.put("SQUADRAN ADMIN", "RL_ID_3");
-		userRoleType.put("SQUADRAN USER", "RL_ID_4");
+		userRoleType.put("SQUADRON ADMIN", "RL_ID_2");
+		userRoleType.put("BEL USER", "RL_ID_3");
+		userRoleType.put("SQUADRON USER", "RL_ID_4");
 	}
 
 	private void createAddUserPopup(String userId) {
@@ -243,6 +243,8 @@ public class AddUserController implements Initializable {
 	}
 
 	private void handleValidateData(String userId) {
+		String newPassword = passwordTextField.getText();
+		String confirmPassword = confirmPasswordTextField.getText();
 		if (userId == null && userTypeBox.getValue() == null) {
 			Notifications.showWarningAlert("Please select user role...");
 			return;
@@ -261,7 +263,29 @@ public class AddUserController implements Initializable {
 		} else if (!passwordTextField.getText().equals(confirmPasswordTextField.getText())) {
 			Notifications.showWarningAlert("Password and confirm password mismatch..");
 			return;
-		} else {
+		} 
+		
+		StringBuilder errorMessage = new StringBuilder();
+		if (confirmPassword.length() < 8) {
+			errorMessage.append("Password must be at least 8 characters long.\n");
+		}
+		if (!confirmPassword.matches(".*[a-z].*")) {
+			errorMessage.append("Password must contain at least one lowercase letter.\n");
+		}
+		if (!confirmPassword.matches(".*[A-Z].*")) {
+			errorMessage.append("Password must contain at least one uppercase letter.\n");
+		}
+		if (!confirmPassword.matches(".*\\d.*")) {
+			errorMessage.append("Password must contain at least one digit.\n");
+		}
+		if (!confirmPassword.matches(".*[!@#$%^&*()].*")) {
+			errorMessage.append("Password must contain at least one special character.\n");
+		}
+
+		if (errorMessage.length() > 0) {
+			Notifications.showErrorAlert(errorMessage.toString());
+			return;
+		}else {
 			if (userId == null) {
 				handleAddNewUser();
 			} else {

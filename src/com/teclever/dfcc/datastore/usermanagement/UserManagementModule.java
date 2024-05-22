@@ -148,6 +148,7 @@ public class UserManagementModule {
 				return loginResponse;
 			}
 			UserRoleMasterDetailsService userRoleService = new UserRoleMasterDetailsService();
+			System.out.println("roleId---"+userLoginDto.getRoleId());
 			boolean userAccess = userRoleService.getUserRoleMasterByRoleIdOptionType(userLoginDto.getRoleId(),
 					optionType);
 			if (userAccess) {

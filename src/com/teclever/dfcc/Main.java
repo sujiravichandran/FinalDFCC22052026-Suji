@@ -21,6 +21,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -93,6 +94,7 @@ extends Application {
         Scale scale = new Scale(w, h, 0.0, 0.0);
         root.getTransforms().add(scale);
         Scene scene = new Scene(root);
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/Resources/Images/DFCC-Logo.png")));
         primaryStage.setMaximized(true);
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setScene(scene);

@@ -256,9 +256,11 @@ public class LoginFormController {
 			}
 		});
 
+		userNameTextField.setText("BelAdmin");
+		passwordHideField.setText("Admin@123");
 		return loginGridPane;
 	}
-	
+
 	public void handleBelAdminPasswordChange() {
 	    GridPane passwordChangePage = createPasswordChangePage();
 	    
@@ -411,18 +413,18 @@ public class LoginFormController {
 
 	private void setupGridPane(GridPane gridPane) {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(25);
+		firstColumn.setPercentWidth(2);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(96);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(25);
+		thirdColumn.setPercentWidth(2);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(20);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(60);
+		secondRow.setPercentHeight(90);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(20);
+		thirdRow.setPercentHeight(5);
 
 		gridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		gridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
@@ -470,6 +472,8 @@ public class LoginFormController {
 		TableView<CheckSumList> tableView = new TableView<>();
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
+		 tableView.setPrefHeight(900); 
 
 		TableColumn<CheckSumList, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
