@@ -14,6 +14,7 @@ import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.RunPathMaster;
+import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.MacroService;
 import com.teclever.datastore.service.RunPathMasterService;
 import com.teclever.datastore.service.SymbolService;
@@ -188,7 +189,11 @@ public class CustomFileAddManagement {
 
 				} else if (fileType.equalsIgnoreCase("macros")) {
 					MacroFileManagement.saveMacroNamesForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
-				} else {
+				} else if (fileType.equalsIgnoreCase("download")) {
+					DownloadFileManagement.saveDownloadFilesToDatabaseForCustomAdding(pathMasterFilePaths, runMaster.getRunPathMasterId());
+				}
+				
+				else {
 					System.out.println("File Type is Invalid..");
 				}
 				List<AddFilesDetailsDTO> addedFileList = new ArrayList<AddFilesDetailsDTO>();
@@ -276,7 +281,11 @@ public class CustomFileAddManagement {
 			else if(fileType.equalsIgnoreCase("macros")){
 				MacroService macroService = new MacroService();
 				macroService.deleteMacrosByFileNameMarkAsDelete(filePath);
-			}else
+			}else if(fileType.equalsIgnoreCase("download")){
+				DownloadFileService downloadFileService = new DownloadFileService();
+				downloadFileService.deleteDownloadFileByFileNameMarkedAsDelete(filePath);
+			}
+			else
 			{
 				System.out.println("Error");
 			}

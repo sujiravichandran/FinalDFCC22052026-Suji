@@ -66,6 +66,31 @@ public class DownloadFileManagement {
 		}
 		return downloadFilePaths;
 	}
+	
+	public static List<String> saveDownloadFilesToDatabaseForCustomAdding(List<String> downloadFilePaths, String runPathMasterId) {
+		DownloadFileService downloadFileService = new DownloadFileService();
+		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+			Transaction transaction = session.beginTransaction();
+
+			//markPreviousDownloadFileRowsAsDeleted(runPathMasterId);
+
+			for (String filePath : downloadFilePaths) {
+					
+					DownloadFile downloadFile = new DownloadFile();
+					downloadFile.setDownloadFileName(filePath);
+					downloadFile.setRunPathMasterId(runPathMasterId);
+					downloadFileService.saveDownloadFileToDatabase(downloadFile);
+				
+			}
+
+			session.flush();
+			session.clear();
+			transaction.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return downloadFilePaths;
+	}
 
 	// Method to mark previous download file rows as deleted
 	private static void markPreviousDownloadFileRowsAsDeleted(String runPathMasterId) {
