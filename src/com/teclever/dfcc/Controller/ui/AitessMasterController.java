@@ -74,8 +74,7 @@ public class AitessMasterController {
 
 		aitessMasterGridPane.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMaster.css").toExternalForm());
-		
-		aitessMasterGridPane.getStyleClass().add("aitessMaster-main-container");
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -117,6 +116,7 @@ public class AitessMasterController {
 	private HBox headingHbox() {
 		Label pageHeading = new Label("AITESS MASTER");
 		pageHeading.getStyleClass().add("headerLabel");
+//		pageHeading.setPadding(new Insets(0, 0, 0, 20));
 		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
 		return headingHbox;

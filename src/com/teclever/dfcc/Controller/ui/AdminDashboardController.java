@@ -96,7 +96,7 @@ public class AdminDashboardController {
 		addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
 				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
 		addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
-				new String[] { "OFP Master", "Test Files", "Symbol Files", "Macro Files", "Download Code" });
+				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
 		addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
 		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
 		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);

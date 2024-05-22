@@ -1,18 +1,16 @@
-.testFiles-parent-container{
+.ofpMacroFiles-parent-container{
 	-fx-background-color:white;
 	-fx-background-radius:15px;
 }
-
-.testFiles-headerLabel{
+.ofpMacroFiles-headerLabel{
 	-fx-text-fill:#003360;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
-.testFiles-Container{
+.ofpMacroFiles-container{
 	-fx-background-color: #222831;
 	-fx-background-radius: 10px;
 }
-
 
 
 .button {

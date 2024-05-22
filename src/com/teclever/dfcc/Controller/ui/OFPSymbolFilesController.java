@@ -1,19 +1,13 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
-import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
-import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
-import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
-import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
-import com.teclever.dfcc.model.AitessMacroFiles;
 import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessSymbolFiles.AitessSymbolDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
@@ -28,45 +22,43 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class AitessSymbolFilesController {
-	private GridPane symbolFilesParentGridPane = new GridPane();
-	private GridPane symbolFilesTitleGridPane = new GridPane();
-	private GridPane symbolFileTableGridPane = new GridPane();
-
-	private AitessConfigHeader configHeader = new AitessConfigHeader("AITESS");
+public class OFPSymbolFilesController {
+	
+	private GridPane ofpSymbolFilesParentGridPane = new GridPane();
+	private GridPane ofpSymbolFilesTitleGridPane = new GridPane();
+	private GridPane ofpSymbolFilesTableGridPane = new GridPane();
+	
 	private SymbolFileManagement symbolFileManagement = new SymbolFileManagement();
-
-	private TableViewFactory<AitessSymbolFiles> userFactory = new SymbolFilesTableViewFactory();
+	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
+	
+	private TableViewFactory<AitessSymbolFiles> userFactory = new OFPSymbolFilesTableViewFactory();
 	private CustomTableView<AitessSymbolFiles> customTableView_symbolFiles;
 	private ObservableList<AitessSymbolFiles> tableData = FXCollections.observableArrayList();
-
-	public AitessSymbolFilesController() {
+	
+	public OFPSymbolFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
-				setSymbolFileTableData(newRunConfigId);
+				tableData.clear();
+				setAitessSymbolFilesTableData(newRunConfigId);
 			} else {
 				tableData.clear();
 			}
 		});
 	}
-
-	public GridPane symbolFilesConfigParentGrid() {
-		symbolFilesParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessSymbolFiles.css").toExternalForm());
-		symbolFilesParentGridPane.getStyleClass().add("symbolFiles-parent-container");
+	
+	public GridPane ofpSymbolFileParentGrid() {
+		ofpSymbolFilesParentGridPane.getStylesheets()
+		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPSymbolFiles.css").toExternalForm());
+		ofpSymbolFilesParentGridPane.getStyleClass().add("ofpSymbolFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -77,20 +69,22 @@ public class AitessSymbolFilesController {
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(86);
 
-		symbolFilesParentGridPane.setPadding(new Insets(10));
-		symbolFilesParentGridPane.setVgap(5);
+		ofpSymbolFilesParentGridPane.setPadding(new Insets(10));
+		ofpSymbolFilesParentGridPane.setVgap(5);
 
-		symbolFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
-		symbolFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		ofpSymbolFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
+		ofpSymbolFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
-		symbolFilesParentGridPane.add(symbolFilesTopContainer(), 0, 0);
-		symbolFilesParentGridPane.add(configHeader.aitessMiddleContainer(), 0, 1);
-		symbolFilesParentGridPane.add(createSymbolFileTable(), 0, 2);
+		ofpSymbolFilesParentGridPane.add(ofpSymbolFilesTopContainer(), 0, 0);
+		ofpSymbolFilesParentGridPane.add(configHeader.aitessMiddleContainer(), 0, 1);
+		ofpSymbolFilesParentGridPane.add(createOFPSymbolFilesTable(), 0, 2);
 
-		return symbolFilesParentGridPane;
+		return ofpSymbolFilesParentGridPane;
 	}
 
-	private GridPane symbolFilesTopContainer() {
+
+
+	private GridPane ofpSymbolFilesTopContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 
@@ -100,18 +94,18 @@ public class AitessSymbolFilesController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		symbolFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		symbolFilesTitleGridPane.getRowConstraints().addAll(firstRow);
+		ofpSymbolFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		ofpSymbolFilesTitleGridPane.getRowConstraints().addAll(firstRow);
 
-		symbolFilesTitleGridPane.add(headerHbox(), 0, 0);
-		symbolFilesTitleGridPane.add(createButtonHbox(), 1, 0);
+		ofpSymbolFilesTitleGridPane.add(headerHbox(), 0, 0);
+		ofpSymbolFilesTitleGridPane.add(createButtonHbox(), 1, 0);
 
-		return symbolFilesTitleGridPane;
+		return ofpSymbolFilesTitleGridPane;
 	}
 
 	private HBox headerHbox() {
 		Label headerLabel = new Label("SYMBOL FILES");
-		headerLabel.getStyleClass().add("symbolFiles-headerLabel");
+		headerLabel.getStyleClass().add("ofpSymbolFiles-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);
 		headerLabelHbox.setAlignment(Pos.CENTER_LEFT);
@@ -122,45 +116,31 @@ public class AitessSymbolFilesController {
 	private HBox createButtonHbox() {
 
 		Button addFileButton = new Button("ADD FILE");
-		addFileButton.setOnAction(e -> onClickAddFileButton());
+//		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
 		headerButtonHbox.getChildren().add(addFileButton);
 		return headerButtonHbox;
 	}
+	
+	
 
-	private GridPane createSymbolFileTable() {
+
+	private GridPane createOFPSymbolFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		symbolFileTableGridPane.getColumnConstraints().addAll(firstColumn);
-		symbolFileTableGridPane.getRowConstraints().addAll(firstRow);
-		symbolFileTableGridPane.getStyleClass().add("symbolFiles-Container");
-		return symbolFileTableGridPane;
+		ofpSymbolFilesTableGridPane.getColumnConstraints().addAll(firstColumn);
+		ofpSymbolFilesTableGridPane.getRowConstraints().addAll(firstRow);
+		ofpSymbolFilesTableGridPane.getStyleClass().add("ofpSymbolFiles-container");
+		return ofpSymbolFilesTableGridPane;
+	
 	}
-
-	private void onClickAddFileButton() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-		File selectedFile = fileChooser.showOpenDialog(symbolFilesParentGridPane.getScene().getWindow());
-//		 if (selectedFile != null) {
-//	            String filePath = selectedFile.getAbsolutePath();
-//	            VDDResponse response = vddManagement.extractingVDDFile(filePath);
-//	            if(response.getResponse().getResponseCode()==1) {
-//	            	Notifications.showSuccessAlert("File Uploaded Successfully");
-//	            	refreshVddConfigList();
-//	            }else if(response.getResponse().getResponseCode()==0) {
-//	            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
-//	            }
-//	      }	
-	}
-
-	private void setSymbolFileTableData(String runConfigId) {
+	private void setAitessSymbolFilesTableData(String runConfigId) {
 		List<SymbolDto> symbolDtoList = symbolFileManagement.getAllSymbols(runConfigId);
 		List<AitessSymbolDetails> detailsList = new ArrayList<>();
 
@@ -214,11 +194,12 @@ public class AitessSymbolFilesController {
 			for (AitessSymbolFiles rowData : selectedItems) {
 			}
 		});
-		symbolFileTableGridPane.add(customTableView_symbolFiles, 0, 0);
+		ofpSymbolFilesTableGridPane.getChildren().clear();
+		ofpSymbolFilesTableGridPane.add(customTableView_symbolFiles, 0, 0);
 	}
-}
 
-class SymbolFilesTableViewFactory implements TableViewFactory<AitessSymbolFiles> {
+}
+class OFPSymbolFilesTableViewFactory implements TableViewFactory<AitessSymbolFiles> {
 	@Override
 	public CustomTableView<AitessSymbolFiles> createTableView(ObservableList<AitessSymbolFiles> items,
 			boolean addUserColumn, boolean addCheckboxColumn) {

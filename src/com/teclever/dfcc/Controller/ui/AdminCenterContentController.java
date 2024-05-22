@@ -10,24 +10,40 @@ public class AdminCenterContentController {
 	private StackPane VDDConfigStackPane = new StackPane();
 	private StackPane faultCodeConfigStackPane = new StackPane();
 	private StackPane stageConfigStackPane = new StackPane();
+	
 	private StackPane aitessMasterStackPane = new StackPane();
 	private StackPane runConfigurationStackPane = new StackPane();
-	private StackPane testFilesStackPane = new StackPane();
-	private StackPane symbolFilesConfigStackPane = new StackPane();
-	private StackPane macroFilesConfigStackPane = new StackPane();
-	private StackPane downloadCodeConfigStackPane = new StackPane();
+	private StackPane aitessTestFileStackPane = new StackPane();
+	private StackPane aitessSymbolFilesStackPane = new StackPane();
+	private StackPane aitessMacroFilesStackPane = new StackPane();
+	private StackPane aitessDownloadCodeStackPane = new StackPane();
+	
+	private StackPane ofpMasterStackPane = new StackPane();
+	private StackPane ofpTestFilesStackPane = new StackPane();
+	private StackPane ofpSymbolFilesStackPane = new StackPane();
+	private StackPane ofpMacroFilesStackPane = new StackPane();
+	private StackPane ofpDownloadCodeStackPane = new StackPane();
+	
 	private StackPane cpciCardStackPane = new StackPane();
 	private StackPane macroButtonsStackPane = new StackPane();
 	
 	UserManagementController userManagementController = new UserManagementController();
 	StageConfigurationController stageConfig = new StageConfigurationController();
 	VDDConfigurationController vddConfigurationController = new VDDConfigurationController();
+	
 	AitessMasterController aitessMasterController = new AitessMasterController();
 	RunConfigurationController runConfigurationController = new RunConfigurationController();
 	AitessTestFilesController testFilesController = new AitessTestFilesController();
 	AitessSymbolFilesController symbolFilesConfig = new AitessSymbolFilesController();
 	AitessMacroFilesController macroFilesConfig = new AitessMacroFilesController();
 	AitessDownloadCodeController downloadCodeConfig = new AitessDownloadCodeController();
+	
+	OFPMasterController ofpMasterController = new OFPMasterController();
+	OFPTestFilesController ofpTestFilesController = new OFPTestFilesController();
+	OFPSymbolFilesController ofpSymbolFilesController=new OFPSymbolFilesController();
+	OFPMacroFilesController ofpMacroFilesController=new OFPMacroFilesController();
+	OFPDownloadCodeController ofpDownloadCodeController=new OFPDownloadCodeController();
+	
 	MacroButtonsController macroButtonsController = new MacroButtonsController();
 	CPCICardController cpciCardController = new CPCICardController();
 	
@@ -35,18 +51,26 @@ public class AdminCenterContentController {
 		userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
 		stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
 		VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
+		
 		aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
 		runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
-		testFilesStackPane.getChildren().add(testFilesController.testFilesConfigParentGrid());
-		symbolFilesConfigStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
-		macroFilesConfigStackPane.getChildren().add(macroFilesConfig.macroFilesConfigParentGrid());
-		downloadCodeConfigStackPane.getChildren().add(downloadCodeConfig.downloadCodeConfigParentGrid());
+		aitessTestFileStackPane.getChildren().add(testFilesController.testFilesConfigParentGrid());
+		aitessSymbolFilesStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
+		aitessMacroFilesStackPane.getChildren().add(macroFilesConfig.macroFilesConfigParentGrid());
+		aitessDownloadCodeStackPane.getChildren().add(downloadCodeConfig.downloadCodeConfigParentGrid());
+		
+		ofpMasterStackPane.getChildren().add(ofpMasterController.ofpMasterConfigParentGrid());
+		ofpTestFilesStackPane.getChildren().add(ofpTestFilesController.ofpTestFileParentGrid());
+		ofpSymbolFilesStackPane.getChildren().add(ofpSymbolFilesController.ofpSymbolFileParentGrid());
+		ofpMacroFilesStackPane.getChildren().add(ofpMacroFilesController.ofpMacroFileParentGrid());
+		ofpDownloadCodeStackPane.getChildren().add(ofpDownloadCodeController.ofpDownloadCodeParentGrid());
+		
 		macroButtonsStackPane.getChildren().add(macroButtonsController.createMacroButtonsMainGridPane());
 		cpciCardStackPane.getChildren().add(cpciCardController.createcpciCardConfigGridPane());
 		
 		centerStackPane.getChildren().addAll(userManagementStackPane, stageConfigStackPane, VDDConfigStackPane,
-				aitessMasterStackPane, runConfigurationStackPane, testFilesStackPane, symbolFilesConfigStackPane,
-				macroFilesConfigStackPane, downloadCodeConfigStackPane,macroButtonsStackPane,cpciCardStackPane);
+				aitessMasterStackPane, runConfigurationStackPane, aitessTestFileStackPane, aitessSymbolFilesStackPane,
+				aitessMacroFilesStackPane, aitessDownloadCodeStackPane,ofpMasterStackPane,ofpTestFilesStackPane,ofpSymbolFilesStackPane,ofpMacroFilesStackPane,ofpDownloadCodeStackPane,macroButtonsStackPane,cpciCardStackPane);
 	}
 
 	public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
@@ -67,16 +91,31 @@ public class AdminCenterContentController {
 			runConfigurationStackPane.toFront();
 			break;
 		case "Test Files":
-			testFilesStackPane.toFront();
+			aitessTestFileStackPane.toFront();
 			break;
 		case "Symbol Files":
-			symbolFilesConfigStackPane.toFront();
+			aitessSymbolFilesStackPane.toFront();
 			break;
 		case "Macro Files":
-			macroFilesConfigStackPane.toFront();
+			aitessMacroFilesStackPane.toFront();
 			break;
 		case "Download Code":
-			downloadCodeConfigStackPane.toFront();
+			aitessDownloadCodeStackPane.toFront();
+			break;
+		case "OFP Master":
+			ofpMasterStackPane.toFront();
+			break;
+		case "Test Plan":
+			ofpTestFilesStackPane.toFront();
+			break;
+		case "Symbol Plan":
+			ofpSymbolFilesStackPane.toFront();
+			break;
+		case "Macro Plan":
+			ofpMacroFilesStackPane.toFront();
+			break;
+		case "Download Plan":
+			ofpDownloadCodeStackPane.toFront();
 			break;
 		case "MACRO Buttons":
 			macroButtonsStackPane.toFront();

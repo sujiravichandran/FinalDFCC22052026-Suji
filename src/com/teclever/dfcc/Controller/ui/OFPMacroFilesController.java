@@ -1,6 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.stream.Collectors;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
+import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -26,39 +26,38 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class AitessMacroFilesController {
-	private GridPane macroFilesParentGridPane = new GridPane();
-	private GridPane macroFilesTitleGridPane = new GridPane();
-	private GridPane macroFileTableGridPane = new GridPane();
-
-	private AitessConfigHeader configHeader = new AitessConfigHeader("AITESS");
+public class OFPMacroFilesController {
+	
+	private GridPane ofpMacroFilesParentGridPane = new GridPane();
+	private GridPane ofpMacroFilesTitleGridPane = new GridPane();
+	private GridPane ofpMacroFilesTableGridPane = new GridPane();
+	
 	private MacroFileManagement macroFileManagement = new MacroFileManagement();
-
-	private TableViewFactory<AitessMacroFiles> userFactory = new MacroFilesTableViewFactory();
+	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
+	
+	private TableViewFactory<AitessMacroFiles> userFactory = new OFPMacroFilesTableViewFactory();
 	private CustomTableView<AitessMacroFiles> customTableView_macroFiles;
 	private ObservableList<AitessMacroFiles> tableData = FXCollections.observableArrayList();
-
-	public AitessMacroFilesController() {
+	
+	public OFPMacroFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				tableData.clear();
 				setAitessMacroFilesTableData(newRunConfigId);
 			} else {
 				tableData.clear();
 			}
 		});
 	}
-
-	public GridPane macroFilesConfigParentGrid() {
-
-		macroFilesParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMacroFiles.css").toExternalForm());
-		macroFilesParentGridPane.getStyleClass().add("macroFiles-parent-container");
-
+	
+	public GridPane ofpMacroFileParentGrid() {
+		ofpMacroFilesParentGridPane.getStylesheets()
+		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPMacroFiles.css").toExternalForm());
+		ofpMacroFilesParentGridPane.getStyleClass().add("ofpMacroFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -69,20 +68,22 @@ public class AitessMacroFilesController {
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(86);
 
-		macroFilesParentGridPane.setPadding(new Insets(10));
-		macroFilesParentGridPane.setVgap(5);
+		ofpMacroFilesParentGridPane.setPadding(new Insets(10));
+		ofpMacroFilesParentGridPane.setVgap(5);
 
-		macroFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
-		macroFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		ofpMacroFilesParentGridPane.getColumnConstraints().addAll(firstColumn);
+		ofpMacroFilesParentGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
-		macroFilesParentGridPane.add(macroFilesTopContainer(), 0, 0);
-		macroFilesParentGridPane.add(configHeader.aitessMiddleContainer(), 0, 1);
-		macroFilesParentGridPane.add(createAitessMacroFilesTable(), 0, 2);
-		return macroFilesParentGridPane;
+		ofpMacroFilesParentGridPane.add(ofpMacroFilesTopContainer(), 0, 0);
+		ofpMacroFilesParentGridPane.add(configHeader.aitessMiddleContainer(), 0, 1);
+		ofpMacroFilesParentGridPane.add(createOFPMacroFilesTable(), 0, 2);
 
+		return ofpMacroFilesParentGridPane;
 	}
 
-	private GridPane macroFilesTopContainer() {
+
+
+	private GridPane ofpMacroFilesTopContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 
@@ -92,18 +93,18 @@ public class AitessMacroFilesController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		macroFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		macroFilesTitleGridPane.getRowConstraints().addAll(firstRow);
+		ofpMacroFilesTitleGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		ofpMacroFilesTitleGridPane.getRowConstraints().addAll(firstRow);
 
-		macroFilesTitleGridPane.add(headerHbox(), 0, 0);
-		macroFilesTitleGridPane.add(createButtonHbox(), 1, 0);
+		ofpMacroFilesTitleGridPane.add(headerHbox(), 0, 0);
+		ofpMacroFilesTitleGridPane.add(createButtonHbox(), 1, 0);
 
-		return macroFilesTitleGridPane;
+		return ofpMacroFilesTitleGridPane;
 	}
 
 	private HBox headerHbox() {
 		Label headerLabel = new Label("MACRO FILES");
-		headerLabel.getStyleClass().add("macroFiles-headerLabel");
+		headerLabel.getStyleClass().add("ofpMacroFiles-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);
 		headerLabelHbox.setAlignment(Pos.CENTER_LEFT);
@@ -114,45 +115,30 @@ public class AitessMacroFilesController {
 	private HBox createButtonHbox() {
 
 		Button addFileButton = new Button("ADD FILE");
-		addFileButton.setOnAction(e -> onClickAddFileButton());
+//		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
 		headerButtonHbox.getChildren().add(addFileButton);
 		return headerButtonHbox;
 	}
+	
+	
 
-	private GridPane createAitessMacroFilesTable() {
+
+	private GridPane createOFPMacroFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		macroFileTableGridPane.getColumnConstraints().addAll(firstColumn);
-		macroFileTableGridPane.getRowConstraints().addAll(firstRow);
-		macroFileTableGridPane.getStyleClass().add("macroFiles-Container");
-
-		return macroFileTableGridPane;
+		ofpMacroFilesTableGridPane.getColumnConstraints().addAll(firstColumn);
+		ofpMacroFilesTableGridPane.getRowConstraints().addAll(firstRow);
+		ofpMacroFilesTableGridPane.getStyleClass().add("ofpMacroFiles-container");
+		return ofpMacroFilesTableGridPane;
+	
 	}
-
-	private void onClickAddFileButton() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-		File selectedFile = fileChooser.showOpenDialog(macroFilesParentGridPane.getScene().getWindow());
-//	 if (selectedFile != null) {
-//            String filePath = selectedFile.getAbsolutePath();
-//            VDDResponse response = vddManagement.extractingVDDFile(filePath);
-//            if(response.getResponse().getResponseCode()==1) {
-//            	Notifications.showSuccessAlert("File Uploaded Successfully");
-//            	refreshVddConfigList();
-//            }else if(response.getResponse().getResponseCode()==0) {
-//            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
-//            }
-//      }	
-	}
-
 	private void setAitessMacroFilesTableData(String runConfigId) {
 		List<MacroDto> macroFileDtoList = macroFileManagement.getAllMacros(runConfigId);
 		List<AitessMacroFiles.AitessMacroDetails> detailsList = new ArrayList<>();
@@ -206,17 +192,16 @@ public class AitessMacroFilesController {
 				// Handle delete action
 			}
 		});
-
-		macroFileTableGridPane.getChildren().clear();
-		macroFileTableGridPane.add(customTableView_macroFiles, 0, 0);
+		ofpMacroFilesTableGridPane.getChildren().clear();
+		ofpMacroFilesTableGridPane.add(customTableView_macroFiles, 0, 0);
 	}
+
 }
-
-
-class MacroFilesTableViewFactory implements TableViewFactory<AitessMacroFiles> {
+class OFPMacroFilesTableViewFactory implements TableViewFactory<AitessMacroFiles> {
 	@Override
 	public CustomTableView<AitessMacroFiles> createTableView(ObservableList<AitessMacroFiles> items,
 			boolean addUserColumn, boolean addCheckboxColumn) {
 		return new CustomTableView<>(items, AitessMacroFiles.class, addUserColumn, addCheckboxColumn);
 	}
 }
+
