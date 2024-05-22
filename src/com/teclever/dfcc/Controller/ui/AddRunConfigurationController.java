@@ -112,86 +112,108 @@ public class AddRunConfigurationController {
         setupDriverLabel();
 		setupAddButton();
     }
-		private void setupAddButton() {
-	        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
-	            @Override
-	            public void handle(ActionEvent event) {
-	                List<String> validationErrors = validateFields();
-	                if (validationErrors.isEmpty()) {
-	                    // Create a confirmation alert
-	                    Alert alert = new Alert(AlertType.CONFIRMATION);
-	                    alert.setTitle("Confirmation Dialog");
-	                    alert.setHeaderText("Overwrite Confirmation");
-	                    alert.setContentText("Are you sure you want to overwrite this test type?");
+    private void setupAddButton() {
+        CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                List<String> validationErrors = validateFields();
+                if (validationErrors.isEmpty()) {
+                    // Check if data already exists
+                    boolean dataExists = false;
+                    HashMap<String, String> nameId = new HashMap<>();
+                    AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+                    UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
 
-	                    ButtonType buttonYes = new ButtonType("Yes", ButtonData.YES);
-	                    ButtonType buttonNo = new ButtonType("No", ButtonData.NO);
-	                    alert.getButtonTypes().setAll(buttonYes, buttonNo);
+                    for (UUTMasterDetailsDto uutType : uutDataList) {
+                        nameId.put(uutType.getUutType(), uutType.getUutId());
+                    }
 
-	                    // Show the alert and wait for a response
-	                    Optional<ButtonType> result = alert.showAndWait();
-	                    if (result.isPresent() && result.get() == buttonYes) {
-	                        // User chose YES, proceed with the save operation
-	                        HashMap<String, String> nameId = new HashMap<>();
-	                        HashMap<String, String> testId = new HashMap<>();
-	                        AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-	                        UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
+                    String uutId = nameId.get(RunConfigurationController.runuutTypeValue);
+                    RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
+                    List<RunConfigurationDto> existingConfigs = runConfiguration.getRunConfig(uutId);
 
-	                        for (UUTMasterDetailsDto uutType : uutDataList) {
-	                            nameId.put(uutType.getUutType(), uutType.getUutId());
-	                        }
+                    for (RunConfigurationDto config : existingConfigs) {
+                        if (config.getUutId().equals(uutId) && config.getTestTypeId().equals(TestTypeNameId.get(testTypeValue))) {
+                            dataExists = true;
+                            break;
+                        }
+                    }
 
-	                        RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
-	                        runaitessConfigurationDTO.setAitess(aitessTypeValue);
-	                        runaitessConfigurationDTO.setConfigFile(fileConfigName);
-	                        runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
-	                        runaitessConfigurationDTO.setDriver(driverName);
-	                        runaitessConfigurationDTO.setUutId(nameId.get(RunConfigurationController.runuutTypeValue));
+                    if (dataExists) {
+                        // Create a confirmation alert
+                        Alert alert = new Alert(AlertType.CONFIRMATION);
+                        alert.setTitle("Confirmation Dialog");
+                        alert.setHeaderText("Overwrite Confirmation");
+                        alert.setContentText("Are you sure you want to overwrite this test type?");
 
-	                        RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
-	                        RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
+                        ButtonType buttonYes = new ButtonType("Yes", ButtonData.YES);
+                        ButtonType buttonNo = new ButtonType("No", ButtonData.NO);
+                        alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-	                        mainPageController.testTypeField.setText(testTypeValue);
-	                        mainPageController.aitessType.setText(aitessTypeValue);
-	                        mainPageController.driverLabel.setText(driverName);
-	                        mainPageController.configFile.setText(fileConfigName);
+                        // Show the alert and wait for a response
+                        Optional<ButtonType> result = alert.showAndWait();
+                        if (result.isPresent() && result.get() == buttonYes) {
+                            // User chose YES, proceed with the save operation
+                            saveRunConfiguration(uutId);
+                        }
+                    } else {
+                        // Data does not exist, proceed with save without confirmation
+                        saveRunConfiguration(uutId);
+                    }
+                } else {
+                    // Show alert if validation fails
+                    Alert alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Validation Warning");
+                    alert.setHeaderText("Incomplete Data");
+                    alert.setContentText(String.join("\n", validationErrors));
+                    alert.showAndWait();
+                }
+            }
+        });
 
-	                        // Close the popup stage
-	                        Stage stage = (Stage) addrun.getScene().getWindow();
-	                        stage.close();
+        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+        saveButton.setAlignment(Pos.CENTER);
+        this.hboxSave.getChildren().add(saveButton);
+        this.hboxSave.setAlignment(Pos.CENTER);
 
-	                        // Refresh the main page
-	                        mainPageController.refresh();
-	                    }
-	                } else {
-	                    // Show alert if validation fails
-	                    Alert alert = new Alert(AlertType.WARNING);
-	                    alert.setTitle("Validation Warning");
-	                    alert.setHeaderText("Incomplete Data");
-	                    alert.setContentText(String.join("\n", validationErrors));
-	                    alert.showAndWait();
-	                }
-	            }
-	        });
+        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Stage stage = (Stage) AddRunConfigurationController.this.addrun.getScene().getWindow();
+                stage.close();
+            }
+        });
+        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+        cancelButton.setAlignment(Pos.CENTER);
 
-	        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
-	        saveButton.setAlignment(Pos.CENTER);
-	        this.hboxSave.getChildren().add(saveButton);
-	        this.hboxSave.setAlignment(Pos.CENTER);
+        this.hboxCancel.getChildren().add(cancelButton);
+        this.hboxCancel.setAlignment(Pos.CENTER);
+    }
 
-	        CustomButton cancelButton = new CustomButton("CANCEL", new EventHandler<ActionEvent>() {
-	            @Override
-	            public void handle(ActionEvent event) {
-	                Stage stage = (Stage) AddRunConfigurationController.this.addrun.getScene().getWindow();
-	                stage.close();
-	            }
-	        });
-	        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
-	        cancelButton.setAlignment(Pos.CENTER);
+    private void saveRunConfiguration(String uutId) {
+        RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
+        runaitessConfigurationDTO.setAitess(aitessTypeValue);
+        runaitessConfigurationDTO.setConfigFile(fileConfigName);
+        runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
+        runaitessConfigurationDTO.setDriver(driverName);
+        runaitessConfigurationDTO.setUutId(uutId);
 
-	        this.hboxCancel.getChildren().add(cancelButton);
-	        this.hboxCancel.setAlignment(Pos.CENTER);
-	    }
+        RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
+        RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
+
+        mainPageController.testTypeField.setText(testTypeValue);
+        mainPageController.aitessType.setText(aitessTypeValue);
+        mainPageController.driverLabel.setText(driverName);
+        mainPageController.configFile.setText(fileConfigName);
+
+        // Close the popup stage
+        Stage stage = (Stage) addrun.getScene().getWindow();
+        stage.close();
+
+        // Refresh the main page
+        mainPageController.refresh();
+    }
+
     
     private List<String> validateFields() {
         List<String> errors = new ArrayList<>();
@@ -242,8 +264,6 @@ public class AddRunConfigurationController {
 		System.out.println("Test Type ADD RUNCONfig: " + testType.getId());
 		
 	}
-    
-  
     
     @FXML
     void selectConfigfileAction(ActionEvent event) {
