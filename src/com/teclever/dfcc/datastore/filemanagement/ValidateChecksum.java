@@ -1,5 +1,11 @@
 package com.teclever.dfcc.datastore.filemanagement;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,16 +15,18 @@ import java.util.Set;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.RunPathMaster;
 import com.teclever.datastore.service.RunPathMasterService;
+import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
+import com.teclever.dfcc.datastore.dto.ValidateResponse;
 
 public class ValidateChecksum {
-
-	public Response validate() {
+	public ValidateResponse validate() {
+		ValidateResponse validateResponse= new ValidateResponse();
 		Response response = new Response();
 		try {
 			RunPathMasterService runPathMasterService = new RunPathMasterService();
@@ -26,17 +34,14 @@ public class ValidateChecksum {
 			if (map == null) {
 				response.setResponseCode(0);
 				response.setResponseMessage("Run Config is Empty ");
-				return response;
+				validateResponse.setResponse(response);
+				return validateResponse;
 			}
 			Set<String> setOfTestPlanFile = new HashSet<>();
 			Set<String> setOfSymbols = new HashSet<>();
 			Set<String> setOfMacro = new HashSet<>();
 			Set<String> setOfDownloadFile = new HashSet<>();
 
-			String tpfFilePath = "";
-			String symboleFilePath = "";
-			String macrosFilePath = "";
-			String downloadFilePath = "";
 			for (Map.Entry<String, Set<RunPathMaster>> mapData : map.entrySet()) {
 				for (RunPathMaster runPathMaster : mapData.getValue()) {
 					switch (runPathMaster.getMasterPath()) {
@@ -46,7 +51,6 @@ public class ValidateChecksum {
 						for (TestFileDto testFileDto : listOfTestPlanFile) {
 							setOfTestPlanFile.add(testFileDto.getTestFileName());
 						}
-						tpfFilePath = runPathMaster.getLocation();
 						break;
 
 					case "symbols":
@@ -56,7 +60,6 @@ public class ValidateChecksum {
 						for (SymbolDto symbolDto : listOfSymbols) {
 							setOfSymbols.add(symbolDto.getFileName());
 						}
-						symboleFilePath = runPathMaster.getLocation();
 						break;
 					case "macros":
 						List<MacroDto> macroDto = MacroFileManagement
@@ -64,7 +67,6 @@ public class ValidateChecksum {
 						for (MacroDto macro : macroDto) {
 							setOfMacro.add(macro.getFileName());
 						}
-						macrosFilePath = runPathMaster.getLocation();
 						break;
 					case "download":
 						List<DownloadFileDto> listOfDownloadFile = DownloadFileManagement
@@ -72,7 +74,6 @@ public class ValidateChecksum {
 						for (DownloadFileDto macro : listOfDownloadFile) {
 							setOfDownloadFile.add(macro.getDownloadFileName());
 						}
-						downloadFilePath = runPathMaster.getLocation();
 						break;
 
 					default:
@@ -83,44 +84,121 @@ public class ValidateChecksum {
 			VDDManagement vddManagement = new VDDManagement();
 			VDDResponse vddResponse = vddManagement.getListOfVDD();
 			List<VDDDto> listOfVdd = vddResponse.getvDDList();
-//			System.out.println(listOfVdd.size()+" "+(setOfTestPlanFile.size()+ setOfSymbols.size() + setOfMacro.size() +setOfDownloadFile.size())+"="+setOfTestPlanFile.size()+ "+" + setOfSymbols.size() + "+" + setOfMacro.size() + "+"
-//					+ setOfDownloadFile.size());
-//			if (listOfVdd.size() != (setOfTestPlanFile.size() + setOfSymbols.size() + setOfMacro.size()
-//					+ setOfDownloadFile.size())) {
-//				response.setResponseCode(0);
-//				response.setResponseMessage("File Count Mist Matching ");
-//				return response;
 //			}
-			Map<String, String> temparyMap = new HashMap<>();
-			temparyMap.putAll(SystemConfigManagement.calculateChecksums(tpfFilePath));
-			temparyMap.putAll(SystemConfigManagement.calculateChecksums(symboleFilePath));
-			temparyMap.putAll(SystemConfigManagement.calculateChecksums(macrosFilePath));
-			temparyMap.putAll(SystemConfigManagement.calculateChecksums(downloadFilePath));
-			for (VDDDto vddDto : listOfVdd) {
-				if ((temparyMap.get(vddDto.getFileName()) != null)) {
-					System.out.println(vddDto.getFileCheckSum());
-					if (!(temparyMap.get(vddDto.getFilePath() + vddDto.getFileName())
-							.equals(vddDto.getFileCheckSum()))) {
-						response.setResponseCode(0);
-						response.setResponseMessage("CheckSum is MisMatch ");
-						return response;
-					}
+			Map<String, String> vddMap = new HashMap<>();
 
-				} else {
-					response.setResponseCode(0);
-					response.setResponseMessage("File Name misMatch ");
-					return response;
-				}
+			for (VDDDto vddDto : listOfVdd) {
+				vddMap.put(vddDto.getFilePath()+vddDto.getFileName(), vddDto.getFileCheckSum());
+				System.out.println(vddDto.getFilePath()+vddDto.getFileName());
 			}
+			List<CheckSum> listOfCheckSum = new ArrayList<>();
+			
+			for(String testPlanFile:setOfTestPlanFile) {
+				CheckSum checkSum = new CheckSum();
+				if(vddMap.get(testPlanFile)==null) {
+					checkSum.setFile(testPlanFile);
+					checkSum.setMsg("No VDD File ");
+					listOfCheckSum.add(checkSum);
+					continue;
+				}
+				
+				checkSum=validateChecksum(testPlanFile,vddMap.get(testPlanFile));
+				listOfCheckSum.add(checkSum);
+			}
+			for(String symbolFile:setOfSymbols) {
+				CheckSum checkSum = new CheckSum();
+				if(vddMap.get(symbolFile)==null) {
+					checkSum.setFile(symbolFile);
+					checkSum.setMsg("No VDD File ");
+					listOfCheckSum.add(checkSum);
+					continue;
+				}
+				checkSum=validateChecksum(symbolFile,vddMap.get(symbolFile));
+				listOfCheckSum.add(checkSum);
+			}
+			for(String macroFile:setOfMacro) {
+				CheckSum checkSum = new CheckSum();
+				if(vddMap.get(macroFile)==null) {
+					checkSum.setFile(macroFile);
+					checkSum.setMsg("No VDD File ");
+					listOfCheckSum.add(checkSum);
+					continue;
+				}
+				checkSum=validateChecksum(macroFile,vddMap.get(macroFile));
+				listOfCheckSum.add(checkSum);
+			}
+			for(String downloadFile:setOfDownloadFile) {
+				CheckSum checkSum = new CheckSum();
+				if(vddMap.get(downloadFile)==null) {
+					checkSum.setFile(downloadFile);
+					checkSum.setMsg("No VDD File ");
+					listOfCheckSum.add(checkSum);
+					continue;
+				}
+				checkSum=validateChecksum(downloadFile,vddMap.get(downloadFile));
+				listOfCheckSum.add(checkSum);
+			}
+			response.setResponseCode(1);
+			response.setResponseMessage("Validate Succesfull ");
+			validateResponse.setCheckSumList(listOfCheckSum);
+			validateResponse.setResponse(response);
 		} catch (Exception e) {
 			response.setResponseCode(0);
 			response.setResponseMessage("");
+			validateResponse.setResponse(response);
+			
 			e.printStackTrace();
 
 		}
-		response.setResponseCode(1);
-		response.setResponseMessage("Validate Succesfull ");
-		return response;
+		return validateResponse;
 	}
+	
+	
+	private CheckSum validateChecksum(String fullFileName, String fileCheckSum) {
+		CheckSum responseCheckSum = new CheckSum();
+		String fileCalcCheckSum;
+		try {
+			fileCalcCheckSum = getFileChecksum(new File(fullFileName));
+			responseCheckSum.setFile(fullFileName);
+			File file = new File(fullFileName);
+			if (!file.exists()) {
+				responseCheckSum.setChecksumValue("");
+				responseCheckSum.setMsg("NOT OK");
+				System.out.println("FileName NOT OK "+fullFileName + "::::::" );
 
+			} else if(fileCheckSum.equals(fileCalcCheckSum)) {
+				responseCheckSum.setChecksumValue(fileCalcCheckSum);
+				responseCheckSum.setMsg("OK");
+				System.out.println("FileName "+fullFileName + "::::::" +fileCalcCheckSum);
+			} else {
+				responseCheckSum.setChecksumValue(fileCalcCheckSum);
+				responseCheckSum.setMsg("NOT OK");
+				System.out.println("FileName NOT OK "+fullFileName + "::::::" +fileCalcCheckSum);
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return responseCheckSum;
+	}
+	
+	private static String getFileChecksum(File file) throws IOException {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			byte[] bytes = Files.readAllBytes(file.toPath());
+			byte[] hashBytes = digest.digest(bytes);
+			StringBuilder hexString = new StringBuilder();
+			for (byte b : hashBytes) {
+				String hex = Integer.toHexString(0xff & b);
+				if (hex.length() == 1)
+					hexString.append('0');
+				hexString.append(hex);
+			}
+			return hexString.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException("MD5 algorithm not found: " + e.getMessage());
+		}
+	}
 }

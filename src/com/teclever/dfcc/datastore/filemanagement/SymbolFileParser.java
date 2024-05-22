@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,7 +18,7 @@ public class SymbolFileParser {
         for (String filePath : filePaths) {
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 String line;
-                String fileName = filePath;
+                String fileName = Paths.get(filePath).toString();
                 String symbolName = null;
                 String symbolType = null;
                 String minValue = null;

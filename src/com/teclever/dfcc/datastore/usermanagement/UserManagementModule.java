@@ -53,44 +53,44 @@ public class UserManagementModule {
 		LoginResponse loginResponse = new LoginResponse();
 		Response response = new Response();
 		try {
-//			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
-//			if (systemConfig != null) {
-//				if (loginName.equals(systemConfig.getAdminName())) {
-////				if (BCrypt.checkpw(password, systemConfig.getAdminPassword())) {
-//					if (password.equals(systemConfig.getAdminPassword())) {
-//
-//						if (Integer.parseInt(systemConfig.getLoginType()) == 0) {
-//							response.setResponseCode(101);
-//							response.setResponseMessage("Please Update password");
-//							loginResponse.setLoginName(loginName);
-//							loginResponse.setRoleId("RL_ID_1");
-//							loginResponse.setResponse(response);
-//							return loginResponse;
-//						} else if (Integer.parseInt(systemConfig.getLoginType()) == 1) {
-//							response.setResponseCode(1);
-//							response.setResponseMessage("Login Succesfull");
-//							loginResponse.setLoginName(loginName);
-//							loginResponse.setRoleId("RL_ID_1");
-//							loginResponse.setResponse(response);
-//							return loginResponse;
-//						} else {
-//							response.setResponseCode(0);
-//							response.setResponseMessage("Error in SystemCofiguration File");
-//						}
-//					} else {
-//						response.setResponseCode(0);
-//						response.setResponseMessage("Please Enter valid Password ");
-//					}
-//
-//				} else {
-//
-//					return authenticateUser(loginName, password, systemConfig.getLaunchType());
-//				}
-//			} else {
-//				response.setResponseCode(0);
-//				response.setResponseMessage("Login Unsuccesfull SystemConfig File Error");
-//			}
-			return authenticateUser(loginName, password, "o1");
+			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
+			if (systemConfig != null) {
+				if (loginName.equals(systemConfig.getAdminName())) {
+//				if (BCrypt.checkpw(password, systemConfig.getAdminPassword())) {
+					if (password.equals(systemConfig.getAdminPassword())) {
+
+						if (Integer.parseInt(systemConfig.getLoginType()) == 0) {
+							response.setResponseCode(101);
+							response.setResponseMessage("Please Update password");
+							loginResponse.setLoginName(loginName);
+							loginResponse.setRoleId("RL_ID_1");
+							loginResponse.setResponse(response);
+							return loginResponse;
+						} else if (Integer.parseInt(systemConfig.getLoginType()) == 1) {
+							response.setResponseCode(1);
+							response.setResponseMessage("Login Succesfull");
+							loginResponse.setLoginName(loginName);
+							loginResponse.setRoleId("RL_ID_1");
+							loginResponse.setResponse(response);
+							return loginResponse;
+						} else {
+							response.setResponseCode(0);
+							response.setResponseMessage("Error in SystemCofiguration File");
+						}
+					} else {
+						response.setResponseCode(0);
+						response.setResponseMessage("Please Enter valid Password ");
+					}
+
+				} else {
+
+					return authenticateUser(loginName, password, systemConfig.getLaunchType());
+				}
+			} else {
+				response.setResponseCode(0);
+				response.setResponseMessage("Login Unsuccesfull SystemConfig File Error");
+			}
+//			return authenticateUser(loginName, password, "o1");
 		} catch (Exception e) {
 			response.setResponseCode(0);
 			response.setResponseMessage("Login Unsuccesfull " + e.getLocalizedMessage());
