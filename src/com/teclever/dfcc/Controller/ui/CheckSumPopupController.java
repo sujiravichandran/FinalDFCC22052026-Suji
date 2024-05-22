@@ -45,7 +45,7 @@ public class CheckSumPopupController {
 
 
 	private void createCheckSumPopupContent() {
-		checkSumTitle.setText("CheckSum Data");
+		checkSumTitle.setText("Checksum Data");
 		checkSumTitle.getStyleClass().add("check-sum-title");
 		checkSumHeading.getChildren().add(checkSumTitle);
 		
@@ -126,8 +126,11 @@ public class CheckSumPopupController {
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
 						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
-					} else if("NO VDD FILE".equalsIgnoreCase(item)) {
-						setText("No VDD File");
+					} else if("NO VDD INFO".equalsIgnoreCase(item)) {
+						setText("No VDD Info");
+						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
+					}else if("NO FILE".equalsIgnoreCase(item)) {
+						setText("No File");
 						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
 					}
 				}

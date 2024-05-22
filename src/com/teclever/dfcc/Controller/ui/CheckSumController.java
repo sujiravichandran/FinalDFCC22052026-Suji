@@ -17,7 +17,7 @@ public class CheckSumController {
 			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/CheckSum.fxml"));
 			Parent root = addUserPopup.load();
 			Stage stage = new Stage();
-			stage.setTitle("Change Password");
+			stage.setTitle("Checksum Data ");
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.initStyle(StageStyle.UNDECORATED);
 
