@@ -14,7 +14,10 @@ import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.RunPathMaster;
+import com.teclever.datastore.service.MacroService;
 import com.teclever.datastore.service.RunPathMasterService;
+import com.teclever.datastore.service.SymbolService;
+import com.teclever.datastore.service.TestFileService;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.AddFilesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.VDDDto;
@@ -248,4 +251,50 @@ public class CustomFileAddManagement {
 		return sb.toString();
 	}
 
+	public Response deleteFile(String filePath,String fileType)
+	{
+		Response res = new Response();
+		try
+		{
+			deleteFileByPath(filePath);
+			if(fileType.equalsIgnoreCase("tpf"))
+			{
+				TestFileService testFileService = new TestFileService();
+				testFileService.deleteTestByFileNameMarkAsDelete(filePath);
+			}else if(fileType.equalsIgnoreCase("symbols"))
+			{
+				SymbolService symbolService = new SymbolService();
+				symbolService.deleteSymbolByFileNameMarkedAsDelete(filePath);
+				
+			}
+			else if(fileType.equalsIgnoreCase("macro")){
+				MacroService macroService = new MacroService();
+				macroService.deleteMacrosByFileNameMarkAsDelete(filePath);
+			}else
+			{
+				System.out.println("Error");
+			}
+			res.setResponseCode(1);
+			res.setResponseMessage("Deleted");
+			
+		}catch(Exception ex)
+		{
+			res.setResponseCode(0);
+			res.setResponseMessage("Not Deleted  Error:"+ex.getLocalizedMessage());
+		}
+		return res;
+	}
+	
+	public void deleteFileByPath(String fileName)
+	{
+	 Path filePath = Paths.get(fileName);
+     
+     try {
+         // Delete the file
+         Files.delete(filePath);
+         System.out.println("File deleted successfully.");
+     } catch (Exception e) {
+         System.err.println("File Not deleted");
+     }
+	}
 }
