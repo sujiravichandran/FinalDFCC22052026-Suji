@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -46,7 +47,14 @@ public class AddOFPController {
 
 	    @FXML
 	    private Button select_config_button;
-
+	    
+	   
+	    @FXML
+	    private void initialize() {
+	        Tooltip ofpTooltip = new Tooltip();
+	        ofpTooltip.textProperty().bind(select_config_button.textProperty());
+	        select_config_button.setTooltip(ofpTooltip);
+	    }
     @FXML
     private TextField stage_parent_name_field1;
     private OFPMasterController mainPageController;
@@ -70,6 +78,8 @@ public class AddOFPController {
     	ofpConfigurationDto.setOfpVersion(ofp_version_field.getText());
     	ofpConfigurationDto.setConfigFile(selectedConfigFile);
     	
+    	
+ 	    
     	OfpConfigurationResponse response= ofpConfig.addOfpConfig(ofpConfigurationDto, UUT_ID);
     	if(response.getResponseCode() == 1) {
     		Stage stage = (Stage) addOfpMainContainer.getScene().getWindow();
@@ -91,6 +101,8 @@ public class AddOFPController {
 		File selectedFile = fileChooser.showOpenDialog(addOfpMainContainer.getScene().getWindow());
 		 if (selectedFile != null) {
 			 selectedConfigFile = selectedFile.getAbsolutePath();
+			 select_config_button.setText(selectedConfigFile);
+			 
 	      }	
 
     }

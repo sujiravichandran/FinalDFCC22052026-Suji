@@ -1,9 +1,17 @@
 package com.teclever.dfcc.model;
 
 public class OFP {
+	private String ofpConfigId;
 	private String ofpName;
 	private String ofpVersion;
 	private String configFile;
+	
+	public String getOfpConfigId() {
+		return ofpConfigId;
+	}
+	public void setOfpConfigId(String ofpConfigId) {
+		this.ofpConfigId = ofpConfigId;
+	}
 	public String getOfpName() {
 		return ofpName;
 	}

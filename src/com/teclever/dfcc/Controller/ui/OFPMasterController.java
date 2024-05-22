@@ -7,6 +7,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
+import com.teclever.dfcc.model.Aitess;
 import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.model.OFP;
@@ -22,8 +23,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -58,8 +62,8 @@ public class OFPMasterController {
 			}
 		});
 	}
-	
 	public void refresh() {
+		tableData.clear();
 		setOfpMasterTableData(UUT_ID);
 	}
 
@@ -147,6 +151,7 @@ public class OFPMasterController {
 				stage.centerOnScreen();
 				stage.setScene(new Scene(root));
 				stage.showAndWait();
+				refresh();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -170,6 +175,32 @@ public class OFPMasterController {
 
 	}
 	
+	private void handleDeleteButtonClicked(OFP ofpDto) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText(null);
+		alert.setContentText(
+				"Are you sure you want to delete OFP Configuration: " + ofpDto.getOfpName() + "?");
+
+		ButtonType buttonTypeYes = new ButtonType("Yes");
+		ButtonType buttonTypeNo = new ButtonType("No");
+
+		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+		alert.showAndWait().ifPresent(buttonType -> {
+			if (buttonType == buttonTypeYes) {
+				deleteOfp(ofpDto.getOfpConfigId());
+			}
+		});
+	}
+
+	private void deleteOfp(String ofpConfigId) {
+		OfpConfigurationManagement ofpConfManagement = new OfpConfigurationManagement();
+		
+		ofpConfManagement.deleteOfpConfig(ofpConfigId);
+		refresh();
+	}
+	
 	private void setOfpMasterTableData(String uutId) {
 		List<OfpConfigurationDto> getOfpConfigList=ofpConfig.getOfpConfig(uutId);
 		for (OfpConfigurationDto ofpConfigDto : getOfpConfigList) {
@@ -177,13 +208,18 @@ public class OFPMasterController {
 			ofpData.setOfpName(ofpConfigDto.getOfpName());
 			ofpData.setOfpVersion(ofpConfigDto.getOfpVersion());
 			ofpData.setConfigFile(ofpConfigDto.getConfigFile());
+			ofpData.setOfpConfigId(ofpConfigDto.getOfpConfigId());
 			tableData.add(ofpData);
 		}
 
 		customTableView_ofpMaster = userFactory.createTableView(tableData, true, false);
+		customTableView_ofpMaster.hideColumn("OFP CONFIG ID");
+		
 		customTableView_ofpMaster.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<OFP> selectedItems = customTableView_ofpMaster.getSelectedItems();
 			for (OFP rowData : selectedItems) {
+				
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		ofpMasterTableGridPane.getChildren().clear();
