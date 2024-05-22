@@ -130,7 +130,7 @@ public class OFPTestFilesController {
 		if(RUN_CONFIG_ID!=null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
-			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
 			 List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpTestFilesParentGridPane.getScene().getWindow());
 			 List<String> filePaths = new ArrayList<>();
 			 if (selectedFiles != null) {

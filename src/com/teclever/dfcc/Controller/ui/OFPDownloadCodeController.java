@@ -1,12 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.DownloadFileDto;
+import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.model.AitessDownloadCode;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -19,6 +25,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.FileChooser;
 
 public class OFPDownloadCodeController {
 	
@@ -28,14 +35,17 @@ public class OFPDownloadCodeController {
 	
 	private DownloadFileManagement downloadFileManagement = new DownloadFileManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
-	
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
+
 	private TableViewFactory<AitessDownloadCode> userFactory = new OFPDownloadCodeTableViewFactory();
 	private CustomTableView<AitessDownloadCode> customTableView_downloadCode;
 	private ObservableList<AitessDownloadCode> tableData = FXCollections.observableArrayList();
+	private String RUN_CONFIG_ID;
 	
 	public OFPDownloadCodeController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 				setAitessDownloadCodeTableData(newRunConfigId);
 			} else {
@@ -105,7 +115,7 @@ public class OFPDownloadCodeController {
 	private HBox createButtonHbox() {
 
 		Button addFileButton = new Button("ADD FILE");
-//		addFileButton.setOnAction(e -> onClickAddFileButton());
+		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);
@@ -129,10 +139,35 @@ public class OFPDownloadCodeController {
 		return ofpDownloadCodeTableGridPane;
 	
 	}
-	private void setAitessDownloadCodeTableData(String runConfigId) {
-		List<DownloadFileDto> doenloadFileDtoList = downloadFileManagement.getAllDownloadFiles(runConfigId);
+	private void onClickAddFileButton() {
+		if(RUN_CONFIG_ID!=null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select File");
+//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpDownloadCodeParentGridPane.getScene().getWindow());
+			List<String> filePaths = new ArrayList<>();
+			if (selectedFiles != null) {
+				for (File file : selectedFiles) {
+					filePaths.add(file.getAbsolutePath());
+				}
 
-		for (DownloadFileDto downloadFileDto : doenloadFileDtoList) {
+				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "download");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("Files not added");
+				}
+			}
+		}else {
+			Notifications.showWarningAlert("Please select UUT Type and Test Type");
+		}
+
+}
+	private void setAitessDownloadCodeTableData(String runConfigId) {
+		List<DownloadFileDto> downloadFileDtoList = downloadFileManagement.getAllDownloadFiles(runConfigId);
+
+		for (DownloadFileDto downloadFileDto : downloadFileDtoList) {
 			AitessDownloadCode downloadCodeData = new AitessDownloadCode();
 			downloadCodeData.setFileName(downloadFileDto.getDownloadFileName());
 			tableData.add(downloadCodeData);
@@ -142,6 +177,13 @@ public class OFPDownloadCodeController {
 		customTableView_downloadCode.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessDownloadCode> selectedItems = customTableView_downloadCode.getSelectedItems();
 			for (AitessDownloadCode rowData : selectedItems) {
+				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "download");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
+				} else {
+					Notifications.showErrorAlert("File not deleted");
+				}
 			}
 		});
 		ofpDownloadCodeTableGridPane.add(customTableView_downloadCode, 0, 0);
