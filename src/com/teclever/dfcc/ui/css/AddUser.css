@@ -1,44 +1,50 @@
 #addUserMainContainer{
-	-fx-background-color: #31363F;
-	-fx-padding: 5px 30px;
+	 -fx-background-color:#222831;
+}
+#headerLabel{
+	 -fx-font-size: 24.0px;
+	  -fx-font-weight: bold;
+}
+.label {
+   -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill:#FFFFFF;
+}
+.text-field {
+	 -fx-font-size: 16.0px;
+	 -fx-font-weight: bold;
+    -fx-background-color: #FFFFFF; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+    -fx-pref-width: 300.0px;
+}
+.custom-checkbox {
+  -fx-text-fill:#FFFFFF;
+	-fx-font-size: 16.0px; 
+	-fx-cursor:hand;
+	 -fx-padding: 5.0px;
 }
 
-.adduser-title{
-	-fx-text-fill : #FFFFFF;
-	-fx-font-size : 20px;
-	-fx-font-weight : 700;
-	-fx-padding:5px 0;
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: #FFFFFF; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
 }
 
-.adduser-label {
-	-fx-text-fill:#FFFFFF;
-	-fx-font-size: 16px;
-}
-.adduser-input{
-	-fx-font-size: 16px;
-	-fx-border-radius: 5px;
-	-fx-background-radius: 5px;
-	-fx-padding: 5px;
-}
-
-.adduser-sign {
-    -fx-background-color: #f0f0f0; 
-    -fx-min-height: 70px; 
-    -fx-border-radius: 5px;
-	-fx-background-radius: 5px;
-}
 
 .button {
- 	-fx-min-width: 100px;
-	-fx-background-color: #77ABAE;
-	-fx-text-fill: #FFFFFF;
-	-fx-font-size: 16px; 
-	-fx-border-radius: 5px;
-	-fx-background-radius: 5px;
-	-fx-cursor: hand;
+    -fx-background-color: #77ABAE ; 
+    -fx-text-fill:#FFFFFF; 
+    -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px; 
 }
-
-.button-box{
-	-fx-alignment: center;
+.button:hover {
+	-fx-text-fill:#77ABAE; 
+    -fx-background-color:#FFFFFF; 
+    -fx-border-color: white; 
 }
-
