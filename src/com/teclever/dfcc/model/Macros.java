@@ -2,17 +2,19 @@ package com.teclever.dfcc.model;
 
 public class Macros {
 
+	private String id;
 	private int buttonNo;
-
 	private String buttonName;
-
 	private String buttonCommand;
 
-	public Macros(int buttonNo, String buttonName, String buttonCommand) {
-		super();
-		this.buttonNo = buttonNo;
-		this.buttonName = buttonName;
-		this.buttonCommand = buttonCommand;
+	
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public int getButtonNo() {

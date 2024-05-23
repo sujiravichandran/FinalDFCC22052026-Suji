@@ -169,7 +169,7 @@ public class AddCPCICardController implements Initializable {
 		int totalCard = Integer.parseInt(totalCardText);
 		
 		CardDetailsDTO editedCardData = new CardDetailsDTO();
-		editedCardData.setCardDetailsId(cardData.getCardId());
+		editedCardData.setCardDetailsId(cardData.getId());
 		editedCardData.setAitessId(AITESS_ID);
 		editedCardData.setCardName(cardName);
 		editedCardData.setCardIdentificationText(cardIdentification);

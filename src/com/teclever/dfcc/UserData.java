@@ -1,7 +1,5 @@
 package com.teclever.dfcc;
 
-import java.util.Map;
-
 public class UserData {
     private static String roleId;
 
@@ -11,7 +9,5 @@ public class UserData {
 
 	public static void setRoleId(String roleId) {
 		UserData.roleId = roleId;
-	}
-    
-    
+	}  
 }

@@ -30,6 +30,7 @@ public class AdminCenterContentController {
 	UserManagementController userManagementController = new UserManagementController();
 	StageConfigurationController stageConfig = new StageConfigurationController();
 	VDDConfigurationController vddConfigurationController = new VDDConfigurationController();
+	FaultCodeConfigurationController faultCodeConfigurationController = new FaultCodeConfigurationController();
 	
 	AitessMasterController aitessMasterController = new AitessMasterController();
 	RunConfigurationController runConfigurationController = new RunConfigurationController();
@@ -51,6 +52,7 @@ public class AdminCenterContentController {
 		userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
 		stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
 		VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
+		faultCodeConfigStackPane.getChildren().add(faultCodeConfigurationController.createFaultCodeConfigGridPane());
 		
 		aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
 		runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
@@ -68,7 +70,7 @@ public class AdminCenterContentController {
 		macroButtonsStackPane.getChildren().add(macroButtonsController.createMacroButtonsMainGridPane());
 		cpciCardStackPane.getChildren().add(cpciCardController.createcpciCardConfigGridPane());
 		
-		centerStackPane.getChildren().addAll(userManagementStackPane, stageConfigStackPane, VDDConfigStackPane,
+		centerStackPane.getChildren().addAll(userManagementStackPane, stageConfigStackPane, VDDConfigStackPane,faultCodeConfigStackPane,
 				aitessMasterStackPane, runConfigurationStackPane, aitessTestFileStackPane, aitessSymbolFilesStackPane,
 				aitessMacroFilesStackPane, aitessDownloadCodeStackPane,ofpMasterStackPane,ofpTestFilesStackPane,ofpSymbolFilesStackPane,ofpMacroFilesStackPane,ofpDownloadCodeStackPane,macroButtonsStackPane,cpciCardStackPane);
 	}
@@ -83,6 +85,9 @@ public class AdminCenterContentController {
 			break;
 		case "VDD Config":
 			VDDConfigStackPane.toFront();
+			break;
+		case "Fault Code Config":
+			faultCodeConfigStackPane.toFront();
 			break;
 		case "AITESS Master":
 			aitessMasterStackPane.toFront();

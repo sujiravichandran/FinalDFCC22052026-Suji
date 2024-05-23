@@ -86,8 +86,7 @@ public class VDDConfigurationController {
 
 		HBox addUserBox = new HBox();
 		addUserBox.setAlignment(Pos.CENTER_RIGHT);
-		Button addUserBtn = new Button("Upload File");
-		addUserBtn.getStyleClass().add("vdd-config-upload-btn");
+		Button addUserBtn = new Button("ADD FILE");
 		addUserBox.getChildren().add(addUserBtn);
 
 		addUserBtn.setOnAction(e -> {
@@ -141,7 +140,7 @@ public class VDDConfigurationController {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
 		fileChooser.getExtensionFilters()
-				.addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+				.addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 		File selectedFile = fileChooser.showOpenDialog(vddConfigMainGridPane.getScene().getWindow());
 		 if (selectedFile != null) {
 	            String filePath = selectedFile.getAbsolutePath();

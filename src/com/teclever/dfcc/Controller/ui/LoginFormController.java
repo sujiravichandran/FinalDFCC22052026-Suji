@@ -258,6 +258,9 @@ public class LoginFormController {
 				Notifications.showErrorAlert(loginResponse.getResponse().getResponseMessage());
 			}
 		});
+		
+		userNameTextField.setText("BelAdmin");
+		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;
 	}

@@ -132,7 +132,6 @@ public class CPCICardController {
 			HBox addUserBox = new HBox();
 			addUserBox.setAlignment(Pos.CENTER_RIGHT);
 			addUserBtn.setText("+ ADD cPCI CARD");;
-			addUserBtn.getStyleClass().add("cpci-card-add-btn");
 			addUserBtn.setDisable(true);
 			addUserBox.getChildren().add(addUserBtn);
 
@@ -286,7 +285,7 @@ public class CPCICardController {
 			if(cpciCardList.getCardLst() != null) {
 				for (CardDetailsDTO list : cpciCardList.getCardLst()) {
 					CPCICard cardData = new CPCICard();
-					cardData.setCardId(list.getCardDetailsId());
+					cardData.setId(list.getCardDetailsId());
 					cardData.setCardName(list.getCardName());
 					cardData.setCardIdentificationText(list.getCardIdentificationText());
 					cardData.setTotalCards(list.getTotalNumberOfCards());
@@ -353,7 +352,7 @@ public class CPCICardController {
 
 			alert.showAndWait().ifPresent(buttonType -> {
 				if (buttonType == buttonTypeYes) {
-					deleteCpciCard(deteteCard.getCardId());
+					deleteCpciCard(deteteCard.getId());
 				}
 			});
 		}

@@ -117,7 +117,6 @@ public class UserManagementController {
 		HBox addUserBox = new HBox();
 		addUserBox.setAlignment(Pos.CENTER_RIGHT);
 		Button addUserBtn = new Button("+ ADD USER");
-		addUserBtn.getStyleClass().add("add-user-btn");
 		addUserBox.getChildren().add(addUserBtn);
 
 		addUserBtn.setOnAction(e -> {
@@ -151,7 +150,7 @@ public class UserManagementController {
 		if (userList.getResponse().getResponseCode() != 0) {
 			for (UserLoginDetailsDto user : userList.getUserList()) {
 				User userData = new User();
-				userData.setUserId(user.getUserId());
+				userData.setId(user.getUserId());
 				userData.setUserName(user.getLoginName());
 				userData.setRoleType(user.getRoleId());
 				userData.setDigitalSignature(user.getDigitalSignature());
@@ -185,7 +184,7 @@ public class UserManagementController {
 
 			AddUserController controller = addUserPopup.getController();
 			if (userData != null) {
-				controller.setuserData(userData.getUserId());
+				controller.setuserData(userData.getId());
 			} else {
 				controller.setuserData(null);
 			}
@@ -222,7 +221,7 @@ public class UserManagementController {
 
 		alert.showAndWait().ifPresent(buttonType -> {
 			if (buttonType == buttonTypeYes) {
-				deleteUser(userData.getUserId());
+				deleteUser(userData.getId());
 			}
 		});
 	}
