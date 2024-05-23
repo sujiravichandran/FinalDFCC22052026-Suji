@@ -195,11 +195,11 @@ public class UserManagementController {
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.initStyle(StageStyle.UNDECORATED);
 
-			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
-		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
-		    stage.setX(centerX);
-		    stage.setY(centerY);
+//			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
+//		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
+//		    stage.setX(centerX);
+//		    stage.setY(centerY);
 			
 			stage.setScene(new Scene(root));
 			stage.showAndWait();

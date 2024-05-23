@@ -19,10 +19,16 @@
     -fx-padding: 2px;
 }
 
-.check-sum-ok-btn{
-	-fx-min-width:100px;
-	-fx-font-size: 12px; 
+.button {
+    -fx-background-color: #77ABAE ; 
+    -fx-text-fill:#FFFFFF; 
+    -fx-font-size: 16.0px;
     -fx-font-weight: bold;
-    -fx-padding: 5px;
-      -fx-cursor: hand;
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px; 
+}
+.button:hover {
+	-fx-text-fill:#77ABAE; 
+    -fx-background-color:#FFFFFF; 
+    -fx-border-color: white; 
 }
