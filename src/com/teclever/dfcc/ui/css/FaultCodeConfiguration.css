@@ -1,14 +1,13 @@
-.vdd-config-container{
+.fault-code-config-container{
 	-fx-background-color:#FFFFFF;
 	-fx-background-radius: 15px;
     -fx-border-radius: 15px;
 }
-.vdd-config-title{
+.fault-code-config-title{
 	-fx-font-size:30px;
 	-fx-font-weight:bold;
 	-fx-text-fill:#003360;
 }
-
 .button {
     -fx-background-color: #77ABAE ; 
     -fx-text-fill:#FFFFFF; 

@@ -95,9 +95,8 @@ public class AdminDashboardController {
 		menuTreeView.setOnMouseClicked(event -> {
 		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
 		    if (selectedItem != null) {
-		        Label selectedLabel = selectedItem.getValue();
-		        System.out.println("id--"+selectedLabel.getId());			        
-		        System.out.println("Selected Label: " + selectedLabel.getText());
+		        Label selectedLabel = selectedItem.getValue();		        
+//		        System.out.println("Selected Label: " + selectedLabel.getText());
 
 		        if (selectedItem.getChildren().isEmpty()) {
 		            adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane, selectedLabel.getText());

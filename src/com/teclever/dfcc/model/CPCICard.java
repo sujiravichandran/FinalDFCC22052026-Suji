@@ -2,18 +2,17 @@ package com.teclever.dfcc.model;
 
 public class CPCICard {
 	
-	private int cardId;
+	private int id;
 	private String cardName;
 	private String cardIdentificationText;
 	private int totalCards;
 	
 	
-
-	public int getCardId() {
-		return cardId;
+	public int getId() {
+		return id;
 	}
-	public void setCardId(int cardId) {
-		this.cardId = cardId;
+	public void setId(int id) {
+		this.id = id;
 	}
 	public String getCardName() {
 		return cardName;

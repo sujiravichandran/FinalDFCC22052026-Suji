@@ -95,7 +95,6 @@ public class MacroButtonsController {
         HBox addUserBox = new HBox();
         addUserBox.setAlignment(Pos.CENTER_RIGHT);
         Button addUserBtn = new Button("SAVE");
-        addUserBtn.getStyleClass().add("macro-button-save-btn");
         addUserBox.getChildren().add(addUserBtn);
 
         addUserBtn.setOnAction(e -> {

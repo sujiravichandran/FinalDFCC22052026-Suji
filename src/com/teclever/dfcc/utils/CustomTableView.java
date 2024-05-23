@@ -67,6 +67,10 @@ public class CustomTableView<T> extends TableView<T> {
 			name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
 
 			TableColumn<T, Object> column;
+			
+			if(field.getName().equals("id")) {
+				continue;
+			}
 
 			if (field.getType() == Blob.class) {
 				column = new TableColumn<>(name.toUpperCase());
@@ -107,7 +111,7 @@ public class CustomTableView<T> extends TableView<T> {
 				column = new TableColumn<>(name.toUpperCase());
 				column.setReorderable(false);
 				column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-				if (field.getName().equals("fileName")) {
+				if (field.getName().equals("fileName") || field.getName().equals("path")) {
 					column.setCellFactory(e -> new TableCell<T, Object>() {
 						@Override
 						protected void updateItem(Object item, boolean empty) {

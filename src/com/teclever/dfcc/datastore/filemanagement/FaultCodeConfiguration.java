@@ -52,7 +52,6 @@ public class FaultCodeConfiguration {
 			}
 
 			List<FaultCodeDTO> faultCodeList = new ArrayList<>();
-			System.out.println(faultCodeServiceResponse.getCode());
 			for (Object object : faultCodeServiceResponse.getResponseList()) {
 				FaultCodeMaster faultCodeMaster = (FaultCodeMaster) object;
 				FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),
