@@ -84,7 +84,7 @@ public class AddStageController implements Initializable {
 	private Button add_new_stage_button;
 	@FXML
 	private Button update_button;
-	
+
 	private String stage1Name;
 	private String UUT_ID;
 	private String USER_TYPE;
@@ -99,7 +99,6 @@ public class AddStageController implements Initializable {
 	private RunConfigurationManagement runConfig = new RunConfigurationManagement();
 	private StageConfiguration stageConfig = new StageConfiguration();
 	private StageConfigurationController mainPageController;
-	private Notifications notify;
 
 	public void setMainPageController(StageConfigurationController mainPageController) {
 		this.mainPageController = mainPageController;
@@ -112,7 +111,7 @@ public class AddStageController implements Initializable {
 		initializeNewStage1(stage1Name);
 		initializeSessionTypeCheckBox();
 	}
-	
+
 	private void initializeSessionTypeCheckBox() {
 		List<SessionMasterDTO> sessionTypeList = stageConfig.getSessionMasterList();
 		initializeSessionTypeCheckBoxes(sessionTypeList);
@@ -132,25 +131,25 @@ public class AddStageController implements Initializable {
 	}
 
 	private void initializeEditStage1(SessionStage stage1Data) {
-	    headerLabel.setText("Edit Stage1");
-	    add_new_stage_button.setText("Update Stage");
-	    stage_name_field.setText(stage1Data.getL1_name());
+		headerLabel.setText("Edit Stage1");
+		add_new_stage_button.setText("Update Stage");
+		stage_name_field.setText(stage1Data.getL1_name());
 
-	    List<String> sessionTypeIds = stage1Data.getSessionType();
-	    session_type_box.getChildren().clear();
-	    
-	    List<SessionMasterDTO> sessionTypeList = stageConfig.getSessionMasterList();
-	    for (SessionMasterDTO session : sessionTypeList) {
-	        CheckBox checkBox = new CheckBox(session.getSessionTypeName());
-	        checkBox.getStyleClass().add("custom-checkbox");
-	        checkBox.setUserData(session); 
-	        if (sessionTypeIds.contains(session.getSessionMasterId())) {
-	            checkBox.setSelected(true);
-	        }
-	        session_type_box.getChildren().add(checkBox);
-	    }
+		List<String> sessionTypeIds = stage1Data.getSessionType();
+		session_type_box.getChildren().clear();
 
-	    fetchUIForStage1();
+		List<SessionMasterDTO> sessionTypeList = stageConfig.getSessionMasterList();
+		for (SessionMasterDTO session : sessionTypeList) {
+			CheckBox checkBox = new CheckBox(session.getSessionTypeName());
+			checkBox.getStyleClass().add("custom-checkbox");
+			checkBox.setUserData(session);
+			if (sessionTypeIds.contains(session.getSessionMasterId())) {
+				checkBox.setSelected(true);
+			}
+			session_type_box.getChildren().add(checkBox);
+		}
+
+		fetchUIForStage1();
 	}
 
 	private void fetchUIForStage1() {
@@ -165,52 +164,51 @@ public class AddStageController implements Initializable {
 		update_button.setVisible(false);
 		update_button.setManaged(false);
 	}
-	
+
 	private void initializeSessionTypeCheckBoxes(List<SessionMasterDTO> sessionTypeList) {
-	    session_type_box.getChildren().clear(); 
-	    for (SessionMasterDTO session : sessionTypeList) {
-	        CheckBox checkBox = new CheckBox(session.getSessionTypeName());
-	        checkBox.getStyleClass().add("custom-checkbox"); 
-	        checkBox.setUserData(session); 
-	        session_type_box.getChildren().add(checkBox);
-	    }
+		session_type_box.getChildren().clear();
+		for (SessionMasterDTO session : sessionTypeList) {
+			CheckBox checkBox = new CheckBox(session.getSessionTypeName());
+			checkBox.getStyleClass().add("custom-checkbox");
+			checkBox.setUserData(session);
+			session_type_box.getChildren().add(checkBox);
+		}
 	}
-	
+
 	@FXML
 	void onClickAddOrEditStage1(ActionEvent event) {
-	    StringBuilder selectedSessionTypeIds = new StringBuilder();
-	    for (Node node : session_type_box.getChildren()) {
-	        if (node instanceof CheckBox) {
-	            CheckBox checkBox = (CheckBox) node;
-	            if (checkBox.isSelected()) {
-	                SessionMasterDTO session = (SessionMasterDTO) checkBox.getUserData();
-	                selectedSessionTypeIds.append(session.getSessionMasterId()).append(",");
-	            }
-	        }
-	    }
-	    if (selectedSessionTypeIds.length() > 0) {
-	        selectedSessionTypeIds.setLength(selectedSessionTypeIds.length() - 1); // Remove trailing comma
-	    }
+		StringBuilder selectedSessionTypeIds = new StringBuilder();
+		for (Node node : session_type_box.getChildren()) {
+			if (node instanceof CheckBox) {
+				CheckBox checkBox = (CheckBox) node;
+				if (checkBox.isSelected()) {
+					SessionMasterDTO session = (SessionMasterDTO) checkBox.getUserData();
+					selectedSessionTypeIds.append(session.getSessionMasterId()).append(",");
+				}
+			}
+		}
+		if (selectedSessionTypeIds.length() > 0) {
+			selectedSessionTypeIds.setLength(selectedSessionTypeIds.length() - 1); // Remove trailing comma
+		}
 
-	    if (add_new_stage_button.getText().equals("Add New Stage")) {
-	        LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage_name_field.getText(),
-	                selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
-	        if (response.getResponse().getResponseCode() == 1) {
-	            closeAndRefresh();
-	        } else {
-	            notify.showErrorAlert(response.getResponse().getResponseMessage());
-	        }
-	    } else if (add_new_stage_button.getText().equals("Update Stage")) {
-	        LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),
-	                stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
-	        if (response.getResponse().getResponseCode() == 1) {
-	            closeAndRefresh();
-	        } else {
-	            notify.showErrorAlert(response.getResponse().getResponseMessage());
-	        }
-	    }
+		if (add_new_stage_button.getText().equals("Add New Stage")) {
+			LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage_name_field.getText(),
+					selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
+			if (response.getResponse().getResponseCode() == 1) {
+				closeAndRefresh();
+			} else {
+				Notifications.showErrorAlert(response.getResponse().getResponseMessage());
+			}
+		} else if (add_new_stage_button.getText().equals("Update Stage")) {
+			LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),
+					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
+			if (response.getResponse().getResponseCode() == 1) {
+				closeAndRefresh();
+			} else {
+				Notifications.showErrorAlert(response.getResponse().getResponseMessage());
+			}
+		}
 	}
-	
 
 	private void closeAndRefresh() {
 		Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
@@ -239,7 +237,7 @@ public class AddStageController implements Initializable {
 	@FXML
 	void onClickAddSubStage(ActionEvent event) {
 		if (stage_child_name_field.getText().isEmpty()) {
-			notify.showWarningAlert("Please provide Sub stage Name");
+			Notifications.showWarningAlert("Please provide Sub stage Name");
 		} else {
 			LevelsAddResponse response = stageConfig.addStageMasterLevel(PARENT_ID, stage_child_name_field.getText(),
 					TEST_TYPE_ID);
@@ -247,7 +245,7 @@ public class AddStageController implements Initializable {
 //				notify.showSuccessAlert(response.getResponse().getResponseMessage());
 				closeAndRefresh();
 			} else {
-				notify.showErrorAlert(response.getResponse().getResponseMessage());
+				Notifications.showErrorAlert(response.getResponse().getResponseMessage());
 			}
 		}
 	}
@@ -281,7 +279,7 @@ public class AddStageController implements Initializable {
 		add_new_stage_button.setManaged(false);
 		initializeComboBox();
 	}
-	
+
 	@FXML
 	void onClickUpdateSubStage(ActionEvent event) {
 		LevelsAddResponse response = stageConfig.updateStageMasterLevel(CHILD_ID, PARENT_ID, stage_name_field.getText(),
@@ -290,7 +288,7 @@ public class AddStageController implements Initializable {
 //			notify.showSuccessAlert(response.getResponse().getResponseMessage());
 			closeAndRefresh();
 		} else {
-			notify.showErrorAlert(response.getResponse().getResponseMessage());
+			Notifications.showErrorAlert(response.getResponse().getResponseMessage());
 		}
 	}
 

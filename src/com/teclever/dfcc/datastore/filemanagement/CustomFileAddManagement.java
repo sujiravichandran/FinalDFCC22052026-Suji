@@ -283,7 +283,7 @@ public class CustomFileAddManagement {
 				macroService.deleteMacrosByFileNameMarkAsDelete(filePath);
 			}else if(fileType.equalsIgnoreCase("download")){
 				DownloadFileService downloadFileService = new DownloadFileService();
-//				downloadFileService.deleteDownloadFileByFileNameMarkedAsDelete(filePath);
+				downloadFileService.deleteDownloadFileByFileNameMarkedAsDelete(filePath);
 			}
 			else
 			{
