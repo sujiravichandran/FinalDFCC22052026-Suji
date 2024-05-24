@@ -120,7 +120,6 @@ public class AitessMasterController {
 	private HBox headingHbox() {
 		Label pageHeading = new Label("AITESS MASTER");
 		pageHeading.getStyleClass().add("headerLabel");
-		pageHeading.setPadding(new Insets(0, 0, 0, 20));
 		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
 		return headingHbox;
@@ -263,14 +262,13 @@ public class AitessMasterController {
 
 		for (AitessConfigurationDto aitess : lst) {
 			Aitess aitessData = new Aitess();
-			System.out.println("Aitess Config" + aitessData.getUutType());
-			aitessData.setUutType(this.uutIdNameMap.get(aitess.getUutId()));
 			aitessData.setAitessCommand(aitess.getAitessCommand());
 			aitessData.setAitessName(aitess.getAitessName());
 			aitessData.setAitessVersion(aitess.getAitessVersion());
 			aitessData.setDriverName(aitess.getDriverName());
 			aitessData.setDriverVersion(aitess.getDriverVersion());
-			aitessData.setDriverCommand(aitess.getDriverCommand());
+			aitessData.setLoadDriverCommand(aitess.getLoadDriverCommand());
+			aitessData.setUnloadDriverCommand(aitess.getUnloadDriverCommand());
 			aitessData.setAitessId(aitess.getAitessId());
 			driverData.add(aitessData);
 		}

@@ -1,14 +1,14 @@
 package com.teclever.dfcc.model;
 
 public class Aitess {
-
-	private String UutType;
 	
 	private int aitessId;
 	
 	private String aitessName;
-
 	private String aitessCommand;
+	
+	private String loadDriverCommand;
+	private String unloadDriverCommand;
 
 	private String aitessVersion;
 	
@@ -18,12 +18,29 @@ public class Aitess {
 	
 	private String driverVersion;
 
-	public String getUutType() {
-		return UutType;
+
+	public String getAitessCommand() {
+		return aitessCommand;
 	}
 
-	public void setUutType(String uutType) {
-		UutType = uutType;
+	public void setAitessCommand(String aitessCommand) {
+		this.aitessCommand = aitessCommand;
+	}
+
+	public String getLoadDriverCommand() {
+		return loadDriverCommand;
+	}
+
+	public void setLoadDriverCommand(String loadDriverCommand) {
+		this.loadDriverCommand = loadDriverCommand;
+	}
+
+	public String getUnloadDriverCommand() {
+		return unloadDriverCommand;
+	}
+
+	public void setUnloadDriverCommand(String unloadDriverCommand) {
+		this.unloadDriverCommand = unloadDriverCommand;
 	}
 
 	public int getAitessId() {
@@ -42,13 +59,6 @@ public class Aitess {
 		this.aitessName = aitessName;
 	}
 
-	public String getAitessCommand() {
-		return aitessCommand;
-	}
-
-	public void setAitessCommand(String aitessCommand) {
-		this.aitessCommand = aitessCommand;
-	}
 
 	public String getAitessVersion() {
 		return aitessVersion;

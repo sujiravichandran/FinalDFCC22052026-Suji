@@ -8,12 +8,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="adduser" prefHeight="543.0" prefWidth="400.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
+<Pane fx:id="adduser" prefHeight="634.0" prefWidth="400.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
    <children>
-      <VBox alignment="TOP_CENTER" prefHeight="543.0" prefWidth="400.0" spacing="10.0">
+      <VBox alignment="TOP_CENTER" prefHeight="634.0" prefWidth="400.0" spacing="10.0">
          <children>
             <Label fx:id="headinglbl" prefHeight="25.0" prefWidth="122.0" text="ADD AITESS" textFill="WHITE">
                <font>
@@ -96,7 +96,7 @@
             </VBox>
             <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
                <children>
-                  <Label fx:id="labelDriverCommand" text="Driver Command" textFill="WHITE">
+                  <Label fx:id="labelLoadDriver" text="Load Driver" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="16.0" />
                      </font>
@@ -104,7 +104,24 @@
                         <Insets />
                      </VBox.margin>
                   </Label>
-                  <TextField fx:id="textDriverCommand" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                  <TextField fx:id="textLoadDriver" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
+               <children>
+                  <Label fx:id="labelUnLoadDriver" text="UnLoad Driver" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="textUnLoadDriver" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
@@ -133,15 +150,14 @@
                   <HBox fx:id="hboxSave" prefHeight="100.0" prefWidth="150.0">
                      <HBox.margin>
                         <Insets right="20.0" />
-                     </HBox.margin></HBox>
+                     </HBox.margin>
+                  </HBox>
                   <HBox fx:id="hboxCancel" prefHeight="100.0" prefWidth="150.0">
                      <HBox.margin>
                         <Insets left="20.0" />
-                     </HBox.margin></HBox>
+                     </HBox.margin>
+                  </HBox>
                </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
             </HBox>
          </children>
          <padding>
