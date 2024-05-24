@@ -174,7 +174,6 @@ public class RunConfigurationController {
 
 		Label pageTitle = new Label("RUN CONFIGURATION");
 		pageTitle.getStyleClass().add("runConfiguration-headerLabel");
-		pageTitle.setPadding(new Insets(0, 0, 0, 20));
 		titleHbox.setAlignment(Pos.CENTER_LEFT);
 		titleHbox.getChildren().add(pageTitle);
 		return titleHbox;
@@ -244,8 +243,7 @@ public class RunConfigurationController {
 	private HBox createUUTypeComboBox() {
 
 		uutTypeField.setPromptText("UUT TYPE");
-
-//	    uut_type_field.setPadding(new Insets( 0,0,0,20));
+		midHBoxUUTType.setPadding(new Insets(0, 0, 0, 18.5));
 		midHBoxUUTType.setAlignment(Pos.CENTER);
 		midHBoxUUTType.getChildren().add(uutTypeField);
 

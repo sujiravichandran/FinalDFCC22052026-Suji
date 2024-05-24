@@ -21,8 +21,8 @@
 
 .runConfiguration-DriveName{
 	-fx-background-color: transparent;
-	-fx-background-radius: 10px;
-	-fx-border-radius: 10px;
+	-fx-background-radius: 5px;
+	-fx-border-radius: 5px;
 	-fx-text-fill:#ffffff;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
@@ -33,8 +33,8 @@
 
 .runConfiguration-AiteesType{
 	-fx-background-color: transparent;
-	-fx-background-radius: 10px;
-	-fx-border-radius: 10px;
+	-fx-background-radius: 5px;
+	-fx-border-radius: 5px;
 	-fx-text-fill:#ffffff;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
@@ -45,8 +45,8 @@
 
 .runConfiguration-ConfigFile{
 	-fx-background-color: transparent;
-	-fx-background-radius: 10px;
-	-fx-border-radius: 10px;
+	-fx-background-radius: 5px;
+	-fx-border-radius: 5px;
 	-fx-text-fill:#ffffff;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
@@ -60,11 +60,13 @@
 
 .combo-box {
 
-	-fx-background-color: #ffffff;
-    -fx-font-size: 17.0px;
-    -fx-border-radius: 10.0px;
-    -fx-background-radius: 10.0px;
+-fx-background-color: #ffffff;
+    -fx-font-size: 16.0px;
+    -fx-border-radius: 5.0px;
+    -fx-background-radius: 5.0px;
     -fx-pref-width: 200px;
+    -fx-font-weight: bold;
+
 }
 
 .button {
@@ -72,6 +74,6 @@
     -fx-text-fill:#FFFFFF;
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-border-radius: 10px;
+    -fx-border-radius: px;
     -fx-background-radius: 10px;
 }

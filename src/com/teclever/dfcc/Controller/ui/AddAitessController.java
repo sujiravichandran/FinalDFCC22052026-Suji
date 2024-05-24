@@ -37,7 +37,10 @@ public class AddAitessController {
     @FXML
     private Label labelAitessname;
     @FXML
-    private Label labelDriverCommand;
+    private Label labelLoadDriver;
+
+    @FXML
+    private Label labelUnLoadDriver;
     @FXML
     private Label labelDriverName;
     @FXML
@@ -49,7 +52,10 @@ public class AddAitessController {
     @FXML
     private TextField textAitessVersion;
     @FXML
-    private TextField textDriverCommand;
+    private TextField textLoadDriver;
+
+    @FXML
+    private TextField textUnLoadDriver;
     @FXML
     private TextField textDriverName;
     @FXML
@@ -84,7 +90,8 @@ public class AddAitessController {
                     aitessConfigurationDTO.setAitessCommand(AddAitessController.this.textAitessCommand.getText());
                     aitessConfigurationDTO.setAitessVersion(AddAitessController.this.textAitessVersion.getText());
                     aitessConfigurationDTO.setDriverName(AddAitessController.this.textDriverName.getText());
-                    aitessConfigurationDTO.setDriverCommand(AddAitessController.this.textDriverCommand.getText());
+                    aitessConfigurationDTO.setLoadDriverCommand(AddAitessController.this.textLoadDriver.getText());
+                    aitessConfigurationDTO.setUnloadDriverCommand(AddAitessController.this.textUnLoadDriver.getText());
                     aitessConfigurationDTO.setDriverVersion(AddAitessController.this.textDriverVersion.getText());
                     aitessConfigurationDTO.setUutId(nameId.get(AitessMasterController.UUTdropdownValue));
                     AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
@@ -131,8 +138,12 @@ public class AddAitessController {
             showAlert("Driver Name is required");
             return false;
         }
-        if (textDriverCommand.getText().isEmpty()) {
-            showAlert("Driver Command is required");
+        if (textLoadDriver.getText().isEmpty()) {
+            showAlert("Load Driver is required");
+            return false;
+        }
+        if (textUnLoadDriver.getText().isEmpty()) {
+            showAlert("UnLoad Driver is required");
             return false;
         }
         if (textDriverVersion.getText().isEmpty()) {
