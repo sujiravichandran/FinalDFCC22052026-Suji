@@ -75,7 +75,8 @@ public class TestMapingController {
 		if (displayTextArea != null) {
 			testFiles.clear();
 			displayTextArea.clear();
-			testMapVBox.setDisable(true);
+//			testFiles.add(null);
+//			testMapVBox.setDisable(true);
 		}
 	}
 
@@ -190,9 +191,14 @@ public class TestMapingController {
 				selectedTestFileIds.add(file.getTestFileId());
 			}
 		}
+		if(STAGE_ID!=null) {
+			Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID);
+			Notifications.showSuccessAlert("Saved successfully");
+		}else {
+			Notifications.showErrorAlert("Not saved-missing stageID");
+		}
 
-		Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID);
-		notify.showSuccessAlert("Saved successfully");
+		
 	}
 
 	public boolean isInitialized() {

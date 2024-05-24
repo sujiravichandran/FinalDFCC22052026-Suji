@@ -71,13 +71,13 @@ public class StageConfigurationController {
 	private HBox stageConfigTopHbox = new HBox(10);
 	private HBox stageConfigMidHbox = new HBox(30);
 
-	private ComboBox<String> uut_type_field;
+	private ComboBox<String> uut_type_field = new ComboBox<>();
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
 	private String RUN_CONFIG_ID;
 
-	private ComboBox<String> user_type_field;
+	private ComboBox<String> user_type_field = new ComboBox<>();
 	private ObservableList<String> userTypeList = FXCollections.observableArrayList();
 	private String USER_ROLE_ID;
 
@@ -86,6 +86,7 @@ public class StageConfigurationController {
 	private ListView<String> stage1_listView = new ListView<>();
 	private TreeView<Node> sessionTreeView = new TreeView<>();
 
+	private ObservableList<String> stage1List = FXCollections.observableArrayList();
 	private ObservableList<SessionStage> session_l1Data = FXCollections.observableArrayList();
 	private ObservableList<SessionSubStage> session_l2Data = FXCollections.observableArrayList();
 	private ObservableList<SessionSubStage> session_l3Data = FXCollections.observableArrayList();
@@ -104,19 +105,15 @@ public class StageConfigurationController {
 	private Notifications notify;
 
 	public StageConfigurationController() {
-		uut_type_field = new ComboBox<>();
 		initializeUUTTypeComboBox();
-
-		user_type_field = new ComboBox<>();
 		initializeUserTypeComboBox();
 
-		stageConfigBottomGridPane.setDisable(true);
 		List<SessionMasterDTO> sessionTypeList = stageConfig.getSessionMasterList();
 		initializeSessionTypeMap(sessionTypeList);
 	}
 
 	public void refreshStageList() {
-		onClickGETButton();
+		fetchStageData();
 	}
 
 	public GridPane stageConfigParentGrid() {
@@ -159,32 +156,27 @@ public class StageConfigurationController {
 	private HBox stageConfigMidContainer() {
 		Label uutLabel = new Label("Select UUT Type:");
 		uutLabel.getStyleClass().add("stageConfig-comboBox-label");
-
 		Label userLabel = new Label("Select User Type:");
 		userLabel.getStyleClass().add("stageConfig-comboBox-label");
 
-		Button getButton = new Button("GET");
-		getButton.setOnAction(e -> onClickGETButton());
-
-		stageConfigMidHbox.getChildren().addAll(uutLabel, uut_type_field, userLabel, user_type_field, getButton);
+		stageConfigMidHbox.getChildren().addAll(uutLabel, uut_type_field, userLabel, user_type_field);
 		stageConfigMidHbox.getStyleClass().add("stageConfig-container");
 		stageConfigMidHbox.setAlignment(Pos.CENTER);
 		return stageConfigMidHbox;
 	}
 
-	private void onClickGETButton() {
+	private void fetchStageData() {
 		if (UUT_ID == null) {
-			notify.showErrorAlert("Please select UUT Type");
+			Notifications.showErrorAlert("Please select UUT Type");
 		} else if (USER_ROLE_ID == null) {
-			notify.showErrorAlert("Please select User Type");
+			Notifications.showErrorAlert("Please select User Type");
 		} else {
 			session_l1Data = getStage1FromDb(UUT_ID, USER_ROLE_ID);
-			stageConfigBottomGridPane.setDisable(false);
+			stageConfigBottomGridPane.add(stageConfigTreeView(), 0, 0);
 			initializeStage1ListView();
 			initializeTreeView();
 			initializeListeners();
 			setSearchableTextField();
-
 		}
 	}
 
@@ -194,7 +186,13 @@ public class StageConfigurationController {
 			uutTypeList.add(uut.getUutType());
 		}
 		uut_type_field.setItems(uutTypeList);
-		uut_type_field.setOnAction((event) -> UUT_ID = fetchUutId(uut_type_field.getValue()));
+		uut_type_field.setOnAction((event) -> {
+			UUT_ID = fetchUutId(uut_type_field.getValue());
+			userTypeList.clear();
+			stage1List.clear();
+			stageConfigBottomGridPane.getChildren().clear();
+			initializeUserTypeComboBox();
+		});
 	}
 
 	private String fetchUutId(String uutType) {
@@ -208,19 +206,22 @@ public class StageConfigurationController {
 
 	private void initializeUserTypeComboBox() {
 		UserRoleResponse userRoleResponse = userManagementModule.getAllUserType();
-		if (userRoleResponse.getResponse().getResponseCode() == 1) {
-			List<UserRoleMasterDto> listOfUserRoleMaster = userRoleResponse.getListOfUserRoleMaster();
-			for (UserRoleMasterDto userRole : listOfUserRoleMaster) {
-				userTypeList.add(userRole.getUserType());
-			}
-			user_type_field.getItems().addAll(userTypeList);
-			user_type_field.setOnAction(event -> {
-				String selectedUserType = user_type_field.getValue();
-				USER_ROLE_ID = fetchUserRoleId(selectedUserType, listOfUserRoleMaster);
-			});
-		} else {
-			System.out.println("Failed to fetch user roles: " + userRoleResponse.getResponse().getResponseMessage());
+		List<UserRoleMasterDto> listOfUserRoleMaster = userRoleResponse.getListOfUserRoleMaster();
+		for (UserRoleMasterDto userRole : listOfUserRoleMaster) {
+			userTypeList.add(userRole.getUserType());
 		}
+		user_type_field.setItems(userTypeList);
+		user_type_field.setOnAction(event -> {
+			USER_ROLE_ID = fetchUserRoleId(user_type_field.getValue(), listOfUserRoleMaster);
+			if (USER_ROLE_ID != null) {
+				stage1List.clear();
+				stageConfigBottomGridPane.getChildren()
+						.removeIf(node -> GridPane.getColumnIndex(node) == 1 && GridPane.getRowIndex(node) == 0);
+
+				fetchStageData();
+			}
+
+		});
 	}
 
 	private String fetchUserRoleId(String userType, List<UserRoleMasterDto> listOfUserRoleMaster) {
@@ -243,8 +244,6 @@ public class StageConfigurationController {
 
 		stageConfigBottomGridPane.getColumnConstraints().addAll(column1, column2);
 		stageConfigBottomGridPane.getRowConstraints().addAll(row1);
-		stageConfigBottomGridPane.add(stageConfigTreeView(), 0, 0);
-//		stageConfigBottomGridPane.add(testMapingController.TestMappingView("null","null"), 1, 0);
 
 		stageConfigBottomGridPane.getStyleClass().add("stageConfig-container");
 		stageConfigBottomGridPane.setHgap(10);
@@ -252,14 +251,13 @@ public class StageConfigurationController {
 	}
 
 	private VBox stageConfigTreeView() {
-		VBox treeVBox = new VBox(10);
-		HBox stage1HBox = new HBox(10);
-
 		addNewStageButton.setOnAction(e -> addNewStage());
-
+		
+		HBox stage1HBox = new HBox(10);
 		stage1HBox.getChildren().addAll(stageNameField, addNewStageButton);
 		stage1HBox.setAlignment(Pos.CENTER_LEFT);
-
+		
+		VBox treeVBox = new VBox(10);
 		treeVBox.getChildren().addAll(stage1HBox, stage1_listView, sessionTreeView);
 		treeVBox.getStyleClass().add("stageConfig-bottom-view-container");
 		treeVBox.setPadding(new Insets(10));
@@ -267,7 +265,7 @@ public class StageConfigurationController {
 	}
 
 	private void initializeStage1ListView() {
-		ObservableList<String> stage1List = FXCollections.observableArrayList();
+
 		for (SessionStage sessionStage : session_l1Data) {
 			stage1List.add(sessionStage.getL1_name());
 		}
@@ -353,7 +351,6 @@ public class StageConfigurationController {
 		sessionTreeView.getStyleClass().add("tree-view");
 		sessionTreeView.setShowRoot(false);
 		sessionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
 			if (newValue != null) {
 				Node selectedNode = newValue.getValue();
 				Map<String, String> testInfoMap = extractTestTypeInfoFromNode(selectedNode);
@@ -363,18 +360,22 @@ public class StageConfigurationController {
 					String testTypeID = fetchTestTypeIdByName(testTypeName);
 					RUN_CONFIG_ID = fetchRunConfigID(testTypeID);
 					if (RUN_CONFIG_ID != null) {
-						 ObservableList<Node> children = stageConfigBottomGridPane.getChildren();
-						    children.removeIf(node -> GridPane.getRowIndex(node) == 0 && GridPane.getColumnIndex(node) == 1);
-						    
-						stageConfigBottomGridPane.setDisable(false);
+						ObservableList<Node> children = stageConfigBottomGridPane.getChildren();
+						children.removeIf(
+								node -> GridPane.getRowIndex(node) == 0 && GridPane.getColumnIndex(node) == 1);
 						stageConfigBottomGridPane.add(
 								testMapingController.TestMappingView(UUT_ID, RUN_CONFIG_ID, testTypeID, stageId), 1, 0);
-					}else {
-						if (testMapingController.isInitialized()) {
-	                        testMapingController.refresh();
-	                    }
-						notify.showWarningAlert("RUN CONFIG is null");
+					} else {
+						stageConfigBottomGridPane.getChildren().removeIf(
+								node -> GridPane.getColumnIndex(node) == 1 && GridPane.getRowIndex(node) == 0);
+
+						Label warningLabel = new Label("Please add test files for selected test type");
+						warningLabel.getStyleClass().add("warning-label");
+						HBox warningBox = new HBox(10, warningLabel);
+						warningBox.setAlignment(Pos.CENTER);
+						stageConfigBottomGridPane.add(warningBox, 1, 0);
 					}
+
 				}
 			}
 		});
@@ -428,19 +429,24 @@ public class StageConfigurationController {
 		if (node instanceof GridPane) {
 			GridPane gridPane = (GridPane) node;
 			for (Node child : gridPane.getChildren()) {
+				testInfoMap.put("stageId", gridPane.getId());
 				if (child instanceof HBox) {
 					HBox hBox = (HBox) child;
-					testInfoMap.put("stageId", hBox.getId());
+					boolean containsLabelField = false;
 					for (Node hBoxChild : hBox.getChildren()) {
 						if (hBoxChild instanceof Label && hBoxChild.getStyleClass().contains("label_field")) {
 							Label label = (Label) hBoxChild;
 							testInfoMap.put("testTypeName", label.getText());
+							containsLabelField = true;
 						}
+					}
+					if (containsLabelField) {
+						return testInfoMap;
 					}
 				}
 			}
 		}
-		return testInfoMap.isEmpty() ? null : testInfoMap;
+		return null;
 	}
 
 	private GridPane createLevel1UI(SessionStage stage1) {
@@ -455,8 +461,8 @@ public class StageConfigurationController {
 			sessionTypeHbox.setAlignment(Pos.CENTER);
 
 			for (String typeId : sessionTypes) {
-				String typeName = sessionTypeMap.get(typeId); // Get the session type name using the ID
-				Label typeField = createStageLabel(typeName, "session-type-label"); // Use the name instead of the ID
+				String typeName = sessionTypeMap.get(typeId);
+				Label typeField = createStageLabel(typeName, "session-type-label");
 				typeField.setPrefWidth(Region.USE_COMPUTED_SIZE);
 				typeField.setAlignment(Pos.CENTER);
 				sessionTypeHbox.getChildren().add(typeField);
@@ -528,14 +534,12 @@ public class StageConfigurationController {
 
 		HBox stageHBox = createStageHBox(createStageLabel(stage.getL_name(), "stage-label"), stageField,
 				(HBox) gridPane.getChildren().get(1));
-
 		gridPane.add(stageHBox, 0, 0);
 		gridPane.add(buttonsContainer, 1, 0);
 	}
 
 	private String fetchTestTypeNameById(String testTypeId) {
 		testTypeDataList = FXCollections.observableArrayList(runConfig.getTestTypeByUUTId(UUT_ID));
-
 		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
 			if (testType.getTestTypeId().equals(testTypeId)) {
 				return testType.getTestName();
@@ -549,9 +553,9 @@ public class StageConfigurationController {
 		for (SessionSubStage stageL2 : s2) {
 			if (stageL2.getpId().equals(stageL1.getId())) {
 				HBox buttonsContainer = new HBox(10);
-				buttonsContainer.setId(stageL2.getId());
 
 				GridPane gridPaneL2 = new GridPane();
+				gridPaneL2.setId(stageL2.getId());
 				gridPaneL2 = createSubStagesUI(stageL2, gridPaneL2, buttonsContainer, parentItem);
 //				gridPaneL2.setPadding(new Insets(7,7,5,0));
 
@@ -576,6 +580,7 @@ public class StageConfigurationController {
 				buttonsContainer.setId(stageL3.getId());
 
 				GridPane gridPaneL3 = new GridPane();
+				gridPaneL3.setId(stageL3.getId());
 				gridPaneL3 = createSubStagesUI(stageL3, gridPaneL3, buttonsContainer, parentItem);
 
 				TreeItem<Node> stageItemL3 = new TreeItem<>(gridPaneL3);
@@ -599,6 +604,7 @@ public class StageConfigurationController {
 				buttonsContainer.setId(stageL4.getId());
 
 				GridPane gridPaneL4 = new GridPane();
+				gridPaneL4.setId(stageL4.getId());
 				gridPaneL4 = createSubStagesUI(stageL4, gridPaneL4, buttonsContainer, parentItem);
 
 				TreeItem<Node> stageItemL4 = new TreeItem<>(gridPaneL4);
@@ -622,6 +628,7 @@ public class StageConfigurationController {
 				buttonsContainer.setId(stageL5.getId());
 
 				GridPane gridPaneL5 = new GridPane();
+				gridPaneL5.setId(stageL5.getId());
 				gridPaneL5 = createSubStagesUI(stageL5, gridPaneL5, buttonsContainer, parentItem);
 
 				TreeItem<Node> stageItemL5 = new TreeItem<>(gridPaneL5);
@@ -660,6 +667,7 @@ public class StageConfigurationController {
 	private void addSubStage(String id, String stageName) {
 		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setAddSubStageData(UUT_ID, id, stageName));
+		 sessionTreeView.getSelectionModel().getSelectedItem().setExpanded(true);
 	}
 
 	private void editStage1(SessionStage stage1) {
