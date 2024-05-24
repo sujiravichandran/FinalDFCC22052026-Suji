@@ -8,16 +8,12 @@ public class AitessConfigurationDto {
 	private String aitessCommand;
 	private String aitessVersion;
 	private String driverName;
-	private String driverCommand;
+	private String loadDriverCommand;
+	private String unloadDriverCommand;
 	private String driverVersion;
 	private boolean deleteStatus;
 	
-	public boolean isDeleteStatus() {
-		return deleteStatus;
-	}
-	public void setDeleteStatus(boolean deleteStatus) {
-		this.deleteStatus = deleteStatus;
-	}
+	
 	public int getAitessId() {
 		return aitessId;
 	}
@@ -54,11 +50,17 @@ public class AitessConfigurationDto {
 	public void setDriverName(String driverName) {
 		this.driverName = driverName;
 	}
-	public String getDriverCommand() {
-		return driverCommand;
+	public String getLoadDriverCommand() {
+		return loadDriverCommand;
 	}
-	public void setDriverCommand(String driverCommand) {
-		this.driverCommand = driverCommand;
+	public void setLoadDriverCommand(String loadDriverCommand) {
+		this.loadDriverCommand = loadDriverCommand;
+	}
+	public String getUnloadDriverCommand() {
+		return unloadDriverCommand;
+	}
+	public void setUnloadDriverCommand(String unloadDriverCommand) {
+		this.unloadDriverCommand = unloadDriverCommand;
 	}
 	public String getDriverVersion() {
 		return driverVersion;
@@ -66,10 +68,16 @@ public class AitessConfigurationDto {
 	public void setDriverVersion(String driverVersion) {
 		this.driverVersion = driverVersion;
 	}
+	public boolean isDeleteStatus() {
+		return deleteStatus;
+	}
+	public void setDeleteStatus(boolean deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
 	public AitessConfigurationDto() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
+	
 	
 
 	
