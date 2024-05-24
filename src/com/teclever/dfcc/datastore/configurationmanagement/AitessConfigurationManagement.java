@@ -59,7 +59,8 @@ public class AitessConfigurationManagement {
 		aitessConfiguration.setAitessCommand(aitessConfigurationDto.getAitessCommand());
 		aitessConfiguration.setAitessVersion(aitessConfigurationDto.getAitessVersion());
 		aitessConfiguration.setDriverName(aitessConfigurationDto.getDriverName());
-		aitessConfiguration.setDriverCommand(aitessConfigurationDto.getDriverCommand());
+		aitessConfiguration.setLoadDriverCommand(aitessConfigurationDto.getLoadDriverCommand());
+		aitessConfiguration.setUnloadDriverCommand(aitessConfigurationDto.getUnloadDriverCommand());
 		aitessConfiguration.setDriverVersion(aitessConfigurationDto.getDriverVersion());
 		aitessConfiguration.setDeleteStatus(aitessConfigurationDto.isDeleteStatus());
 
@@ -85,7 +86,10 @@ public class AitessConfigurationManagement {
 				dto.setAitessCommand(configuration.getAitessCommand());
 				dto.setAitessVersion(configuration.getAitessVersion());
 				dto.setDriverName(configuration.getDriverName());
-				dto.setDriverCommand(configuration.getDriverCommand());
+				dto.setLoadDriverCommand(configuration.getLoadDriverCommand());
+				dto.setUnloadDriverCommand(configuration.getUnloadDriverCommand());
+
+				
 				dto.setDriverVersion(configuration.getDriverVersion());
 				dtoList.add(dto);
 			}
@@ -117,7 +121,9 @@ public class AitessConfigurationManagement {
 					dto.setAitessCommand(configuration.getAitessCommand());
 					dto.setAitessVersion(configuration.getAitessVersion());
 					dto.setDriverName(configuration.getDriverName());
-					dto.setDriverCommand(configuration.getDriverCommand());
+					dto.setLoadDriverCommand(configuration.getLoadDriverCommand());
+					dto.setUnloadDriverCommand(configuration.getUnloadDriverCommand());
+
 					dto.setDriverVersion(configuration.getDriverVersion());
 					dto.setDeleteStatus(configuration.isDeleteStatus());
 					dtoList.add(dto);
