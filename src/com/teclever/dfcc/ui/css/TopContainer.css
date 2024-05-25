@@ -1,16 +1,17 @@
+@import url("Global.css");
+
 .top-container{
-	-fx-background-color: #FFFFFF;
+	-fx-background-color: header-bg;
 	-fx-background-radius: 15px;
     -fx-border-radius: 15px;
 }
 .companyName {
 	-fx-font-size: 34px;
 	-fx-font-weight: bold;
-	-fx-text-fill: #0F1728;
-	-fx-font-family: "Gabarito";
+	-fx-text-fill: heading-text-color;
 }
 .companyNameSub{
 	-fx-font-size: 18px;
 	-fx-font-weight: bold;
-	-fx-text-fill: #444852;
+	-fx-text-fill: sub-text-color;
 }

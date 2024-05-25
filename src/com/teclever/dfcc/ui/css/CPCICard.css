@@ -1,29 +1,17 @@
+@import url("Global.css");
+
 .cpci-card-container{
-	-fx-background-color: #FFFFFF;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 }
 .cpci-card-title{
-	-fx-text-fill:#003360;
+	-fx-text-fill: heading-text-color;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
-.button {
-    -fx-background-color: #77ABAE ; 
-    -fx-text-fill:#FFFFFF; 
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-border-radius: 10px; 
-    -fx-background-radius: 10px; 
-}
-.button:hover {
-	-fx-text-fill:#77ABAE; 
-    -fx-background-color:#FFFFFF; 
-    -fx-border-color: white; 
-}
-
 
 .cpci-card-option-container{
-	-fx-background-color: #222831;
+	-fx-background-color: dark-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius:10px;
 }
@@ -33,10 +21,10 @@
 	-fx-background-color: transparent;
 	-fx-background-radius: 5px;
 	-fx-border-radius: 5px;
-	-fx-text-fill:#ffffff;
+	-fx-text-fill: primary-text-color;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
-	-fx-border-color:#ffffff;
+	-fx-border-color: primary-text-color;
 	-fx-border-width:2px;
 }
 
@@ -45,7 +33,7 @@
    	-fx-font-weight:bold;
 }
 .list-cell:hover {
-    -fx-background-color: #909398; 
+    -fx-background-color: hover-menu-bg; 
 }
 .list-cel:selected{
 	 -fx-background-color: #31363F; 
@@ -53,7 +41,7 @@
 
 
 .combo-box {
-	-fx-background-color: #ffffff;
+	-fx-background-color: primary-text-color;
     -fx-font-size: 17.0px;
     -fx-border-radius: 5.0px;
     -fx-background-radius: 5.0px;
@@ -63,3 +51,16 @@
     -fx-pref-width: 170.0px;
 }
 
+.button {
+	-fx-min-width:150px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+}
