@@ -1,50 +1,58 @@
+@import url("Global.css");
+
+
 #addStageMainContainer{
-	 -fx-background-color:#222831;
+	 -fx-background-color:form-bg;
 }
 #headerLabel{
 	 -fx-font-size: 24.0px;
 	  -fx-font-weight: bold;
 }
-.label {
-   -fx-font-size: 16.0px;
-    -fx-font-weight: bold;
-    -fx-text-fill:#FFFFFF;
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: form-label; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
 }
+
 .text-field {
 	 -fx-font-size: 16.0px;
 	 -fx-font-weight: bold;
-    -fx-background-color: #FFFFFF; 
+    -fx-background-color: form-input; 
     -fx-border-width: 1.0px; 
     -fx-border-radius: 10.0px; 
     -fx-background-radius: 10.0px;
     -fx-pref-width: 300.0px;
 }
+
+.label {
+   -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill:form-label;
+}
+.combo-box .list-cell:hover {
+    -fx-background-color: #037bdd; 
+    -fx-text-fill: form-label; 
+}
+
+.button {
+	-fx-min-width: 150px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
 .custom-checkbox {
-  -fx-text-fill:#FFFFFF;
+  -fx-text-fill:form-label;
 	-fx-font-size: 16.0px; 
 	-fx-cursor:hand;
 	 -fx-padding: 5.0px;
-}
-
-.combo-box {
-    -fx-font-size: 16.0px;
-    -fx-background-color: #FFFFFF; 
-    -fx-border-width: 1.0px; 
-    -fx-border-radius: 10.0px; 
-    -fx-background-radius: 10.0px;
-}
-
-
-.button {
-    -fx-background-color: #77ABAE ; 
-    -fx-text-fill:#FFFFFF; 
-    -fx-font-size: 16.0px;
-    -fx-font-weight: bold;
-    -fx-border-radius: 10.0px; 
-    -fx-background-radius: 10.0px; 
-}
-.button:hover {
-	-fx-text-fill:#77ABAE; 
-    -fx-background-color:#FFFFFF; 
-    -fx-border-color: white; 
 }

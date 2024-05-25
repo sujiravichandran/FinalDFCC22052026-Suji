@@ -1,3 +1,5 @@
+@import url("Global.css");
+
 .main-container{
-	-fx-background-color: #222831;
+	-fx-background-color: primary-color;
 }
