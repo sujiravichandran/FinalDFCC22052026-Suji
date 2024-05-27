@@ -62,9 +62,17 @@ public class TerminalPopupController {
 		terminalOperationsGridPane.getRowConstraints().addAll(firstRow);
 		webEngine = terminalWebView.getEngine();
 		webEngine.loadContent("<html><body style='background-color:black; color:white; font-family:monospace;'></body></html>");
-
+		webEngine.documentProperty().addListener((observable, oldDoc, newDoc) -> {
+            if (newDoc != null) {
+                webEngine.executeScript(
+                    "window.scrollBy({ top: 1000, left: 0, behavior: 'smooth' });"
+                );
+                webEngine.executeScript(
+                    "setInterval(function() { window.scrollBy(0, 20); }, 5);"
+                );
+            }
+        });
 		handler1 = new ProcessControl();
-		terminalTextField.requestFocus();
 
 	}
 
@@ -86,15 +94,15 @@ public class TerminalPopupController {
 //        backgroundThread.start();
 //    }
 
-	private void appendTextToWebView(String text) {
-
-		String currentContent = (String) webEngine.executeScript("document.body.innerText");
-		String updatedContent = currentContent + text;
-		webEngine.loadContent(
-				"<html><body contenteditable='true' style='background-color:black; color:white; font-family:monospace;'>"
-						+ updatedContent + "</body></html>");
-		webEngine.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-	}
+//	private void appendTextToWebView(String text) {
+//
+//		String currentContent = (String) webEngine.executeScript("document.body.innerText");
+//		String updatedContent = currentContent + text;
+//		webEngine.loadContent(
+//				"<html><body contenteditable='true' style='background-color:black; color:white; font-family:monospace;'>"
+//						+ updatedContent + "</body></html>");
+//		webEngine.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+//	}
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
@@ -120,9 +128,9 @@ public class TerminalPopupController {
 
 	@FXML
 	void onClickMinimize(ActionEvent event) {
-		handler1.WritingProcess("exit\n");
-		handler1.WritingProcess("exit\n");
-		handler1.stopProcesses();
+//		handler1.WritingProcess("exit\n");
+//		handler1.WritingProcess("exit\n");
+//		handler1.stopProcesses();
 		Stage stage = (Stage) terminalPopupMainContainer.getScene().getWindow();
 		stage.hide();
 

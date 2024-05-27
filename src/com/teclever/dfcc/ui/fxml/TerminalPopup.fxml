@@ -19,7 +19,7 @@
          </padding>
          <children>
             <Label fx:id="headerLabel" text="TERMINAL" />
-            <WebView fx:id="terminalWebView" prefHeight="350.0" prefWidth="880.0" />
+            <WebView fx:id="terminalWebView" prefHeight="450.0" prefWidth="880.0" />
            
             <GridPane fx:id="terminalOperationsGridPane" alignment="CENTER" hgap="10.0">
              
