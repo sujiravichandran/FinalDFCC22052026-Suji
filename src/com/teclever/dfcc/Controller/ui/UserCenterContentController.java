@@ -10,6 +10,8 @@ public class UserCenterContentController {
     private StackPane dashboardStackPane = new StackPane();
     private StackPane testingStackPane = new StackPane();
     private StackPane resultsStackPane = new StackPane();
+    
+    private TerminalController terminalController = new TerminalController();
 
  
     public UserCenterContentController() {
@@ -30,7 +32,11 @@ public class UserCenterContentController {
                 resultsStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");
                 resultsStackPane.toFront();
                 break;
-        }
+            case "Show Terminal":
+    			terminalController.createTerminalPopup();
+    			break;
+    		}
+        
         
         
         if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
