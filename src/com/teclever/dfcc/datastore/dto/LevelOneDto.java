@@ -12,6 +12,8 @@ public class LevelOneDto {
 
 	private String nextLevel;
 
+	private boolean defaultStatus;
+
 	public String getLevelOneId() {
 		return levelOneId;
 	}
@@ -23,8 +25,6 @@ public class LevelOneDto {
 	public String getStageName() {
 		return stageName;
 	}
-
-
 
 	public String getSessionIds() {
 		return sessionIds;
@@ -53,5 +53,13 @@ public class LevelOneDto {
 	public void setNextLevel(String nextLevel) {
 		this.nextLevel = nextLevel;
 	}
-	
+
+	public boolean isDefaultStatus() {
+		return defaultStatus;
+	}
+
+	public void setDefaultStatus(boolean defaultStatus) {
+		this.defaultStatus = defaultStatus;
+	}
+
 }
