@@ -40,7 +40,7 @@ public class SystemConfigManagement {
 //	static String configFileName = currentDirectory + File.separator + "SystemConfig.dat";
 
 	//Windows
-		static String configFileName = "C:\\configFile\\systemconfig.dat";
+		static String configFileName = "C:\\config\\systemconfig.dat";
 		static {
 	        try {
 	            configuration = loadSystemConfig(configFileName);

@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
@@ -15,9 +16,11 @@ import com.teclever.dfcc.utils.Notifications;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -35,6 +38,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class LoginFormController {
 
@@ -250,6 +256,28 @@ public class LoginFormController {
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
 					} else if(loginResponse.getRoleId().equals("RL_ID_3") || loginResponse.getRoleId().equals("RL_ID_4")) {
+						
+//						try {
+//							FXMLLoader sessionLoader = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/Session.fxml"));
+//							Parent sessionRoot = sessionLoader.load();
+//							SessionController sessionController = sessionLoader.getController();
+//							sessionController.setUserType(loginResponse.getRoleId());
+//							sessionController.initializeSession();
+////							parent1.getChildren().add(sessionRoot);
+//							
+//							Stage stage = new Stage();
+//							stage.initModality(Modality.APPLICATION_MODAL);
+//							stage.initStyle(StageStyle.UNDECORATED);
+//							stage.centerOnScreen();
+//							stage.setScene(new Scene(sessionRoot));
+//							stage.showAndWait();
+//							
+//							
+//						} catch (IOException e1) {
+//							e1.printStackTrace();
+//						}
+						
+						
 						UserDashboardController userDashboardController = new UserDashboardController();
 						parent1.getChildren().add(userDashboardController.createUserDashboard());
 					}
