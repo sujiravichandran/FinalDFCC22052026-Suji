@@ -1,0 +1,39 @@
+#terminalPopupMainContainer{
+	 -fx-background-color:#909398;
+	 
+}
+
+#headerLabel{
+	 -fx-font-size: 24.0px;
+	  -fx-font-weight: bold;
+}
+.label {
+   -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill:#FFFFFF;
+}
+.text-field {
+	 -fx-font-size: 16.0px;
+	 -fx-font-weight: bold;
+    -fx-background-color: #FFFFFF; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+    -fx-pref-width: 300.0px;
+}
+
+
+
+.button {
+    -fx-background-color: #77ABAE ; 
+    -fx-text-fill:#FFFFFF; 
+    -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px; 
+}
+.button:hover {
+	-fx-text-fill:#77ABAE; 
+    -fx-background-color:#FFFFFF; 
+    -fx-border-color: white; 
+}
