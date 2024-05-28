@@ -1,54 +1,57 @@
+@import url("Global.css");
 .stageConfig-main-container{
-	-fx-background-color: #FFFFFF;
+	-fx-background-color: light-bg;
 	-fx-background-radius:15px;
 }
 .stageConfig-header-label{
-	-fx-text-fill:#003360;
+	-fx-text-fill:heading-text-color;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
 .stageConfig-container{
-	-fx-background-color: #222831;
-	-fx-background-radius: 10.0px; 
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
 	
 }
 .stageConfig-bottom-view-container{
-	-fx-background-color: #31363F;
+	-fx-background-color: secondary-color;
 	-fx-background-radius: 10.0px;
 }
 .stageConfig-bottom-view-container-list{
-	-fx-background-color: #31363F;
+	-fx-background-color: secondary-color;
 }
 
 .stageConfig-comboBox-label{
-	-fx-text-fill:#FFFFFF;
-	-fx-font-size: 20.0px;
+	-fx-text-fill:form-label;
+	-fx-font-size: 18.0px;
 	-fx-font-weight: bold;	
 }
 
 .session-stage-l1-label {
-	-fx-text-fill: #FFFFFF;
+	-fx-text-fill: form-label;
     -fx-font-size: 20.0px;
 	-fx-font-weight:bold;
 }
 .warning-label{
-	-fx-text-fill: #FFFFFF;
+	-fx-text-fill: form-label;
     -fx-font-size: 20.0px;
+    -fx-font-weight:bold;
 }
 .session-type-label {
 	-fx-text-fill: black;
-    -fx-background-color: #D3D3D3;
+    -fx-background-color: button-bg;
     -fx-background-radius: 20.0px;
     -fx-font-size: 14.0px;
 	-fx-font-weight:normal;
 }
 .stage-label {
-	-fx-text-fill: #FFFFFF;
+	-fx-text-fill: form-label;
     -fx-font-size: 20.0px;
+    -fx-font-weight:bold;
 }
-.label_field{
-	-fx-text-fill: #FFFFFF;
-    -fx-font-size: 16.0px;
+.testType_label{
+	-fx-text-fill: primary-text-color;
+    -fx-font-size: 14.0px;
 	-fx-background-color: red; 
 	-fx-background-radius: 20.0px;
 	-fx-font-weight:normal;
@@ -61,7 +64,7 @@
    	-fx-font-weight:bold;
 }
 .list-cell:hover {
-    -fx-background-color: #909398; 
+	  -fx-background-color: #037bdd; 
 }
 .list-cel:selected{
 	 -fx-background-color: #31363F; 
@@ -74,15 +77,16 @@
 	-fx-background-color: #31363F; 
 }
 .tree-cell:hover{
-	-fx-text-fill: #FFFFFF;
+	-fx-text-fill: primary-text-color;
 	-fx-background-color: #D3D3D3; 
 }
 .tree-cell:selected{
-	-fx-text-fill: #FFFFFF;
+	-fx-text-fill: primary-text-color;
 	-fx-background-color: #909398; 
 }
 .tree-cell > .tree-disclosure-node  {
 	-fx-font-weight:bold;
+	 -fx-font-size: 18.0px;
 	}
 
 .test-mapping-textArea{
@@ -106,7 +110,7 @@
 
 .combo-box {
     -fx-font-size: 18.0px;
-    -fx-background-color: #FFFFFF; 
+    -fx-background-color: form-label; 
     -fx-border-width: 1.0px; 
     -fx-border-radius: 10.0px; 
     -fx-background-radius: 10.0px;
@@ -118,17 +122,17 @@
 }
 
 .button {
-    -fx-background-color: #77ABAE ; 
-    -fx-text-fill:#FFFFFF; 
-    -fx-font-size: 18.0px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-border-radius: 10.0px; 
-    -fx-background-radius: 10.0px; 
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
 }
 .button:hover {
-	-fx-text-fill:#77ABAE; 
-    -fx-background-color:#FFFFFF; 
-    -fx-border-color: white; 
+    -fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
 }
 
 

@@ -4,8 +4,16 @@
 #addStageMainContainer{
 	 -fx-background-color:form-bg;
 }
+
 #headerLabel{
 	 -fx-font-size: 24.0px;
+	  -fx-font-weight: bold;
+}
+#makeDefaultCheckBox{
+	 -fx-text-fill:form-label;
+	-fx-font-size: 16.0px; 
+	-fx-cursor:hand;
+	 -fx-padding: 5.0px;
 	  -fx-font-weight: bold;
 }
 .combo-box {
