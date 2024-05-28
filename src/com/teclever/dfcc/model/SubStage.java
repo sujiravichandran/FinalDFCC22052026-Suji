@@ -1,23 +1,13 @@
 package com.teclever.dfcc.model;
 
-import java.util.ArrayList;
-
-public class SessionSubStage {
+public class SubStage {
 	private String id;
 	private String pId;
 	private String l_name;
 	private String testType;
 	private boolean hasNext;
+	private boolean parentDefault;
 	
-//	public SessionSubStage(String id, String pId, String l_name, String testType, boolean hasNext) {
-//		super();
-//		this.id = id;
-//		this.pId = pId;
-//		this.l_name = l_name;
-//		this.testType = testType;
-//		this.hasNext = hasNext;
-//	}
-//	
 	public String getId() {
 		return id;
 	}
@@ -51,6 +41,15 @@ public class SessionSubStage {
 	}
 	public void setHasNext(boolean hasNext) {
 		this.hasNext = hasNext;
+	}
+
+	
+	public boolean isParentDefault() {
+		return parentDefault;
+	}
+
+	public void setParentDefault(boolean parentDefault) {
+		this.parentDefault = parentDefault;
 	}
 
 	@Override

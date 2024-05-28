@@ -38,9 +38,7 @@ public class TestMapingController {
 	private VBox testMapVBox = new VBox(10);
 
 	private Button saveTestFilesButton, selectAllButton;
-	private String TEST_TYPE_ID;
 	private String STAGE_ID;
-	private String UUT_ID;
 	private String RUN_CONFIG_ID;
 
 	private void getTestFiles(String runConfigID) {
@@ -75,17 +73,14 @@ public class TestMapingController {
 		if (displayTextArea != null) {
 			testFiles.clear();
 			displayTextArea.clear();
-//			testFiles.add(null);
-//			testMapVBox.setDisable(true);
 		}
 	}
 
-	public VBox TestMappingView(String uutID, String runConfigID, String testTypeID, String stageId) {
-		System.out.println("RECEIVER: " + uutID + " : " + runConfigID + ":" + testTypeID + ":" + stageId);
-		this.TEST_TYPE_ID = testTypeID;
-		this.STAGE_ID = stageId;
-		this.UUT_ID = uutID;
+	public VBox TestMappingView( String runConfigID, String stageId) {
+		System.out.println("RECEIVER: "+ runConfigID + ":" + stageId);
 		this.RUN_CONFIG_ID = runConfigID;
+		this.STAGE_ID = stageId;
+		
 		getTestFiles(runConfigID);
 		testMapVBox.getChildren().clear();
 		displayTextArea = new TextArea();
@@ -198,7 +193,6 @@ public class TestMapingController {
 			Notifications.showErrorAlert("Not saved-missing stageID");
 		}
 
-		
 	}
 
 	public boolean isInitialized() {
