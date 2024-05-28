@@ -1,39 +1,32 @@
-*{
-	primary-color: #222831;
-	secondary-color: #31363F;
-	
-	primary-text-color: #FFFFFF;
-	secondary-text-color: #0F1728;
-	sub-text-color: #444852;
-		
-	heading-text-color: #0F1728;
-	
-	header-bg: #FFFFFF;
-	
-	light-bg: #FFFFFF;
-	dark-bg: #222831;
-	
-	button-bg: #77ABAE;
-	button-text:#FFFFFF;
-	
-	login-button-bg: #FFFFFF;
-	login-button-text: #EE0E00;
-	
-	
-	selected-menu-bg: #FFFFFF;
-	selected-menu-text: #0F1728;
-	hover-menu-bg: #909398;
-	hover-menu-text:#0F1728;
-	
-	right-card-bg: #FFFFFF;
-	right-card-text: #0F1728;
-	
-	right-card-button-bg:#FFFFFF;
-	right-card-button-text:#0F1728;
-	
-	form-bg: #31363F;
-	form-label: #FFFFFF;
-	form-title: #FFFFFF;
-	form-input: #FFFFFF;
-
+* {
+    primary-color: #00B0F5;
+    secondary-color: #0091C2;
+    secondary-color-2: #00E0FF;
+    complementary-color: #F54B00;
+    primary-text-color: #FFFFFF;
+    secondary-text-color: #0F1728;
+    sub-text-color: #444852;
+    heading-text-color: #0F1728;
+    header-bg: #FFFFFF;
+    light-bg: #FFFFFF;
+    dark-bg: #222831;
+    button-bg: #005C7A;
+    button-text: #FFFFFF;
+    login-button-bg: #FFFFFF;
+    login-button-text: #EE0E00;
+    selected-menu-bg: #E0F7FF;
+    selected-menu-text: #0F1728;
+    hover-menu-bg: #B3E6FF;
+    hover-menu-text: #0F1728;
+    right-card-bg: #FFFFFF;
+    right-card-text: #0F1728;
+    right-card-button-bg: #FFFFFF;
+    right-card-button-text: #0F1728;
+    form-bg: #0F1728;
+    form-label: #FFFFFF;
+    form-title: #FFFFFF;
+    form-input: #FFFFFF;
+    table-bg: #005C7A;
+    table-header-bg: #0073A5;
+    table-row-bg:#00A3D4;
 }

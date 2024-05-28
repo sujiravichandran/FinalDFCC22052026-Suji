@@ -1,7 +1,7 @@
 @import url("Global.css");
 
 #launchTypeMainContainer{
-	 -fx-background-color: dark-bg;
+	 -fx-background-color: form-bg;
 }
 #headerLabel{
 	 -fx-font-size: 24.0px;
