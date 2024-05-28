@@ -54,7 +54,7 @@
 
 
 .middle-menu{
-	-fx-background-color: #31363F; 
+	-fx-background-color: secondary-color; 
     -fx-background-radius: 10px;
     -fx-border-radius: 10px; 
     -fx-padding:10px;

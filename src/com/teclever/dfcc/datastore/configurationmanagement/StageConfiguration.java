@@ -241,7 +241,7 @@ public class StageConfiguration {
 			TestFilesStagesMappingService test = new TestFilesStagesMappingService();
 			GetResponse res1 = test.getTestFilesStagesMappingByLastLevelReference(levelId);
 			List<?> resList = res1.getResponseList();
-			if (resList.size() > 0) {
+			if (resList!=null && resList.size() > 0) {
 				test.deleteTestFilesMapping(levelId);
 			}
 			switch (levelType) {
