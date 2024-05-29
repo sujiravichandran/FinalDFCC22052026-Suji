@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="Jars/mysql-connector-j-8.0.31.jar"/>
 	<classpathentry kind="lib" path="Jars/ProcessControl.jar"/>
 	<classpathentry kind="lib" path="Jars/dboperation.jar"/>
+	<classpathentry kind="lib" path="Jars/mongoDbConnection1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
