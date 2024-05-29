@@ -7,7 +7,7 @@ public class ResultStoreConnection {
 	
 	
 	 	private static final String DEFAULT_USERNAME = "root";
-	    private static final String DEFAULT_PASSWORD = "roodt";
+	    private static final String DEFAULT_PASSWORD = "root";
 	    private static final String DEFAULT_HOST = "localhost";
 	    private static final int DEFAULT_PORT = 27017;
 	    private static final String DEFAULT_AUTH_SOURCE = "admin";
