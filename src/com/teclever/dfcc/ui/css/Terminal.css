@@ -1,0 +1,43 @@
+@import url("Global.css");
+#terminalPopupMainContainer{
+	 -fx-background-color:#909398;
+    -fx-border-radius: 5.0px; 
+    -fx-background-radius: 5.0px;
+}
+
+
+#headerLabel{
+	 -fx-font-size: 24.0px;
+	  -fx-font-weight: bold;
+}
+.label {
+   -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill:form-label;
+}
+.text-field {
+	 -fx-font-size: 16.0px;
+	 -fx-font-weight: bold;
+    -fx-background-color: form-input; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+  
+}
+
+
+
+.button {
+	
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}

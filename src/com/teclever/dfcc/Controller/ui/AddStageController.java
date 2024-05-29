@@ -10,9 +10,8 @@ import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
 import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
-//import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
-import com.teclever.dfcc.model.SessionStage;
+import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
@@ -84,14 +83,15 @@ public class AddStageController implements Initializable {
 	private Button add_new_stage_button;
 	@FXML
 	private Button update_button;
+	@FXML
+	private CheckBox makeDefaultCheckBox;
 
 	private String stage1Name;
 	private String UUT_ID;
-	private String USER_TYPE;
 	private String PARENT_ID;
 	private String CHILD_ID;
 	private String TEST_TYPE_ID;
-	private SessionStage sessionStage;
+	private StageOne sessionStage;
 
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
 	private ObservableList<String> testTypeList = FXCollections.observableArrayList();
@@ -104,10 +104,10 @@ public class AddStageController implements Initializable {
 		this.mainPageController = mainPageController;
 	}
 
-	public void setNewStageData(String stage1Name, String uutType, String userType) {
+	public void setNewStageData(String stage1Name, String uutType) {
 		this.stage1Name = stage1Name;
 		this.UUT_ID = uutType;
-		this.USER_TYPE = userType;
+
 		initializeNewStage1(stage1Name);
 		initializeSessionTypeCheckBox();
 	}
@@ -123,17 +123,17 @@ public class AddStageController implements Initializable {
 		fetchUIForStage1();
 	}
 
-	public void setEditStage1Data(SessionStage stage1Data, String uutType, String userType) {
+	public void setEditStage1Data(StageOne stage1Data, String uutType) {
 		this.sessionStage = stage1Data;
 		this.UUT_ID = uutType;
-		this.USER_TYPE = userType;
 		initializeEditStage1(stage1Data);
 	}
 
-	private void initializeEditStage1(SessionStage stage1Data) {
+	private void initializeEditStage1(StageOne stage1Data) {
 		headerLabel.setText("Edit Stage1");
 		add_new_stage_button.setText("Update Stage");
 		stage_name_field.setText(stage1Data.getL1_name());
+		makeDefaultCheckBox.setSelected(stage1Data.isDefault());
 
 		List<String> sessionTypeIds = stage1Data.getSessionType();
 		session_type_box.getChildren().clear();
@@ -193,7 +193,7 @@ public class AddStageController implements Initializable {
 
 		if (add_new_stage_button.getText().equals("Add New Stage")) {
 			LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage_name_field.getText(),
-					selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
+					selectedSessionTypeIds.toString(), UUT_ID,  makeDefaultCheckBox.isSelected());
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
 			} else {
@@ -201,7 +201,7 @@ public class AddStageController implements Initializable {
 			}
 		} else if (add_new_stage_button.getText().equals("Update Stage")) {
 			LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),
-					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID, USER_TYPE);
+					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID,  makeDefaultCheckBox.isSelected());
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
 			} else {
@@ -242,7 +242,6 @@ public class AddStageController implements Initializable {
 			LevelsAddResponse response = stageConfig.addStageMasterLevel(PARENT_ID, stage_child_name_field.getText(),
 					TEST_TYPE_ID);
 			if (response.getResponse().getResponseCode() == 1) {
-//				notify.showSuccessAlert(response.getResponse().getResponseMessage());
 				closeAndRefresh();
 			} else {
 				Notifications.showErrorAlert(response.getResponse().getResponseMessage());
@@ -273,6 +272,8 @@ public class AddStageController implements Initializable {
 	}
 
 	private void fetchUIForSubStage() {
+		makeDefaultCheckBox.setVisible(false);
+		makeDefaultCheckBox.setManaged(false);
 		session_type_box.setVisible(false);
 		session_type_box.setManaged(false);
 		add_new_stage_button.setVisible(false);
@@ -285,7 +286,6 @@ public class AddStageController implements Initializable {
 		LevelsAddResponse response = stageConfig.updateStageMasterLevel(CHILD_ID, PARENT_ID, stage_name_field.getText(),
 				TEST_TYPE_ID);
 		if (response.getResponse().getResponseCode() == 1) {
-//			notify.showSuccessAlert(response.getResponse().getResponseMessage());
 			closeAndRefresh();
 		} else {
 			Notifications.showErrorAlert(response.getResponse().getResponseMessage());

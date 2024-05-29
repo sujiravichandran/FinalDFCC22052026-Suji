@@ -10,10 +10,22 @@ public class UserCenterContentController {
     private StackPane dashboardStackPane = new StackPane();
     private StackPane testingStackPane = new StackPane();
     private StackPane resultsStackPane = new StackPane();
+    private StackPane selfTestStackPane = new StackPane();
+    private StackPane lruTestStackPane = new StackPane();
 
- 
+    SelfTestController selfTestController = new SelfTestController();
+    
+    LRUTestingController lruTestController = new LRUTestingController();
+    
     public UserCenterContentController() {
-        centerStackPane.getChildren().addAll(dashboardStackPane, testingStackPane, resultsStackPane);
+        
+        
+        selfTestStackPane.getChildren().add(selfTestController.createSelfTestMainContainerGridPane());
+        
+        lruTestStackPane.getChildren().add(lruTestController.createlruTestMainContainerGridPane());
+        
+        centerStackPane.getChildren().addAll(dashboardStackPane, testingStackPane, resultsStackPane, selfTestStackPane, lruTestStackPane);
+        
     }
 
     public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
@@ -30,6 +42,14 @@ public class UserCenterContentController {
                 resultsStackPane.setStyle("-fx-background-color:yellow;-fx-background-radius:15px;");
                 resultsStackPane.toFront();
                 break;
+            case "Self Test":
+            	selfTestStackPane.toFront();
+                break;
+                
+            case "SRU/LRU Test":
+            	lruTestStackPane.toFront();
+                break;
+                
         }
         
         

@@ -1,4 +1,4 @@
-										package com.teclever.dfcc.Controller.ui;
+package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.UserData;
 
@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -713,12 +714,17 @@ public class UserDashboardController {
 		bottomGridPane.getColumnConstraints().addAll(firstColumn);
 		bottomGridPane.getRowConstraints().addAll(firstRow, secondRow);
 		
-		Pane newPane = new Pane();
-		newPane.getStyleClass().add("center-container");
+		Button showTerminalButton = new Button("SHOW TERMINAL");
+		showTerminalButton.setMaxWidth(Double.MAX_VALUE);  
+	    showTerminalButton.setMaxHeight(Double.MAX_VALUE);
+		showTerminalButton.getStyleClass().add("show-terminal-button");
 		
+		showTerminalButton.setOnAction(e->{
+			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal");
+		});
 
 		bottomGridPane.add(createBottomMidContentArea(),0, 0);
-		bottomGridPane.add(newPane, 0, 1);
+		bottomGridPane.add(showTerminalButton, 0, 1);
 		
 		return bottomGridPane;
 	}

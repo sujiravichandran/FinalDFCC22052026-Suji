@@ -1,0 +1,7 @@
+@import url("Global.css");
+
+.bottom-sub-container{
+	-fx-background-color: secondary-color;
+	-fx-border-radius:10px;
+	-fx-background-radius:10px;
+}

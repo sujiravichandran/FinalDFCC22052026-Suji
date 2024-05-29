@@ -20,8 +20,8 @@ public class BottomContainerController {
 		bottomPane.prefWidthProperty().bind(bottomStackPane.prefWidthProperty());
 		bottomPane.prefHeightProperty().bind(bottomStackPane.prefHeightProperty());
 		bottomStackPane.getChildren().add(bottomPane);
-
-
+		
+		
 	    ColumnConstraints columnLeft = new ColumnConstraints();
 	    columnLeft.setPercentWidth(6);
 		ColumnConstraints columnMid = new ColumnConstraints();
@@ -42,8 +42,12 @@ public class BottomContainerController {
 	    bottomSubPane.prefWidthProperty().bind(columnMid.prefWidthProperty());
 	    bottomSubPane.prefHeightProperty().bind(rowMid.prefHeightProperty());
 	
-	    bottomSubPane.setStyle("-fx-background-color: #31363F;-fx-border-radius:10px;-fx-background-radius:10px");
-	
+//	    bottomSubPane.setStyle("-fx-background-color: #31363F;-fx-border-radius:10px;-fx-background-radius:10px");
+	    bottomSubPane.getStyleClass().add("bottom-sub-container");
+		bottomStackPane.getStylesheets()
+		.add(getClass().getResource("/com/teclever/dfcc/ui/css/BottomContainer.css").toExternalForm());
+
+
 	    bottomGridPane.add(bottomSubPane, 1, 1);
 	    
 		    

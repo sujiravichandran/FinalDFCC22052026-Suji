@@ -1,10 +1,8 @@
 package com.teclever.dfcc.utils;
-
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Blob;
 import java.sql.SQLException;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -23,25 +21,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-
 public class CustomTableView<T> extends TableView<T> {
 	private final ObservableList<T> selectedItems = FXCollections.observableArrayList();
 	private static final double MIN_COLUMN_WIDTH = 50;
-
 	public ObservableList<T> getSelectedItems() {
 		return selectedItems;
 	}
-
 	public static final EventType<Event> EDIT_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "EDIT_BUTTON_CLICKED");
 	public static final EventType<Event> VIEW_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY, "VIEW_BUTTON_CLICKED");
 	public static final EventType<Event> DELETE_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY,
 			"DELETE_BUTTON_CLICKED");
 	public static final EventType<Event> COLUMN_BUTTON_CLICKED_EVENT = new EventType<>(Event.ANY,
 			"COLUMN_BUTTON_CLICKED");
-
 	String classname;
 	String digitalSignature;
-
 	@SuppressWarnings("deprecation")
 	public CustomTableView(ObservableList<T> items, Class<T> clazz, boolean addUserColumn, boolean addCheckColumn) {
 		super(items);
@@ -51,7 +44,6 @@ public class CustomTableView<T> extends TableView<T> {
 		setTableMenuButtonVisible(false);
 		setPadding(new Insets(10));
 		setStyle("-fx-background-color:#222831;");
-
 		if (addCheckColumn) {
 			addCheckboxColumn();
 		}
@@ -60,18 +52,15 @@ public class CustomTableView<T> extends TableView<T> {
 			addNewUserColumn();
 		}
 	}
-
 	private void initializeColumns(Class<T> clazz) {
 		for (Field field : clazz.getDeclaredFields()) {
 			String name = field.getName();
 			name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
-
 			TableColumn<T, Object> column;
 			
 			if(field.getName().equals("id")) {
 				continue;
 			}
-
 			if (field.getType() == Blob.class) {
 				column = new TableColumn<>(name.toUpperCase());
 				column.setCellValueFactory(cellData -> {
@@ -92,7 +81,6 @@ public class CustomTableView<T> extends TableView<T> {
 				});
 				column.setCellFactory(e -> new TableCell<T, Object>() {
 					private final ImageView imageView = new ImageView();
-
 					@Override
 					protected void updateItem(Object item, boolean empty) {
 						super.updateItem(item, empty);
@@ -128,13 +116,10 @@ public class CustomTableView<T> extends TableView<T> {
 					});
 				}
 			}
-
 			getColumns().add(column);
 		}
 		resizeColumnsToFitContent();
 	}
-
-
 	   public void hideColumn(String headerText) {
 	        TableColumn<T, ?> columnToRemove = null;
 	        for (TableColumn<T, ?> column : getColumns()) {
@@ -153,9 +138,7 @@ public class CustomTableView<T> extends TableView<T> {
 		actionCol.setReorderable(false);
 		actionCol.setCellFactory(col -> new NewTableCellCheck<>(this));
 		getColumns().add(actionCol);
-
 	}
-
 	private void addCheckboxColumn() {
 		TableColumn<T, Boolean> checkboxColumn = new TableColumn<>("");
 		checkboxColumn.setCellValueFactory(cellData -> {
@@ -166,13 +149,11 @@ public class CustomTableView<T> extends TableView<T> {
 			});
 			return booleanProp;
 		});
-
 		checkboxColumn.setCellFactory(p -> new CheckBoxTableCell<>(this));
 		checkboxColumn.setReorderable(false);
 		checkboxColumn.setPrefWidth(30);
 		getColumns().add(0, checkboxColumn);
 	}
-
 	private void resizeColumnsToFitContent() {
 		for (TableColumn<T, ?> column : getColumns()) {
 			column.setPrefWidth(TableView.USE_COMPUTED_SIZE);
@@ -190,26 +171,21 @@ public class CustomTableView<T> extends TableView<T> {
 			column.setPrefWidth(Math.max(MIN_COLUMN_WIDTH, maxWidth + 10));
 		}
 	}
-
 	private double measureTextWidth(String text, TableColumn<T, ?> column) {
 		javafx.scene.text.Text helper = new javafx.scene.text.Text();
 		helper.setText(text);
 		return helper.getLayoutBounds().getWidth();
 	}
-
 }
-
 class CheckBoxTableCell<T> extends TableCell<T, Boolean> {
 	private final CheckBox checkBox;
 	private final CustomTableView<T> tableView;
-
 	public CheckBoxTableCell(CustomTableView<T> tableView) {
 		this.tableView = tableView;
 		checkBox = new CheckBox();
 		checkBox.setAlignment(Pos.CENTER);
 		setAlignment(Pos.CENTER);
 		setGraphic(checkBox);
-
 		checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			if (!isEmpty()) {
 				T item = getTableView().getItems().get(getIndex());
@@ -224,7 +200,6 @@ class CheckBoxTableCell<T> extends TableCell<T, Boolean> {
 			}
 		});
 	}
-
 	@Override
 	protected void updateItem(Boolean item, boolean empty) {
 		super.updateItem(item, empty);
@@ -238,7 +213,6 @@ class CheckBoxTableCell<T> extends TableCell<T, Boolean> {
 				row.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
 					checkBox.setSelected(isNowSelected);
 				});
-
 				checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
 					if (isNowSelected != row.isSelected()) {
 						if (isNowSelected) {
@@ -252,26 +226,21 @@ class CheckBoxTableCell<T> extends TableCell<T, Boolean> {
 		}
 	}
 }
-
 class NewTableCellCheck<T> extends TableCell<T, Void> {
 	private final HBox hBox;
 	private final Button editBtn;
 	private final Button delBtn;
 	private final Button viewBtn;
 	private final CustomTableView<T> tableView;
-
 	public NewTableCellCheck(CustomTableView<T> tableView) {
 		this.tableView = tableView;
 		hBox = new HBox(10);
 		hBox.setAlignment(Pos.CENTER);
-
 		delBtn = createButton("/Resources/Images/DeleteIcon.png", CustomTableView.DELETE_BUTTON_CLICKED_EVENT);
 		editBtn = createButton("/Resources/Images/EditIcon.png", CustomTableView.EDIT_BUTTON_CLICKED_EVENT);
 		viewBtn = createButton("/Resources/Images/View.png", CustomTableView.VIEW_BUTTON_CLICKED_EVENT);
-
 		hBox.getChildren().add(delBtn);
 	}
-
 	private Button createButton(String iconPath, EventType<Event> eventType) {
 		Image image = new Image(getClass().getResourceAsStream(iconPath));
 		ImageView imageView = new ImageView(image);
@@ -290,7 +259,6 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		});
 		return button;
 	}
-
 	@Override
 	protected void updateItem(Void item, boolean empty) {
 		super.updateItem(item, empty);

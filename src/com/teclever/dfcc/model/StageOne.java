@@ -3,21 +3,14 @@ package com.teclever.dfcc.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SessionStage {
+public class StageOne {
 	private String id;
 	private String l1_name;
 	private String uutType;
 	private ArrayList<String> sessionType;
 	private boolean hasNext;
+	private boolean isDefault;
 	
-//	public SessionStage(int id, String l1_name, String uutType, ArrayList<String> sessionType,boolean hasNext) {
-//		super();
-//		this.id = id;
-//		this.l1_name = l1_name;
-//		this.uutType = uutType;
-//		this.sessionType = sessionType;
-//		this.hasNext = hasNext;
-//	}
 	
 	public String getId() {
 		return id;
@@ -49,11 +42,19 @@ public class SessionStage {
 	public void setHasNext(boolean hasNext) {
 		this.hasNext = hasNext;
 	}
+	
+	public boolean isDefault() {
+		return isDefault;
+	}
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
 	@Override
 	public String toString() {
 		return "SessionStage [id=" + id + ", l1_name=" + l1_name + ", uutType=" + uutType + ", sessionType="
-				+ sessionType + ", hasNext=" + hasNext + "]";
+				+ sessionType + ", hasNext=" + hasNext + ", isDefault=" + isDefault + "]";
 	}
+	
 	
 }
 

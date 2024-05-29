@@ -34,11 +34,11 @@ import com.teclever.dfcc.datastore.dto.StagesFilesResponseDTO;
 
 public class StageConfiguration {
 
-	public StageMasterLevelOneResponse getLevelOneStageMaster(String uutId, String userType) {
+	public StageMasterLevelOneResponse getLevelOneStageMaster(String uutId) {
 		StageMasterLevelOneResponse stageMasterLevelOne = new StageMasterLevelOneResponse();
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
-			StageLevelResponse serviceResponse = levelOne.getLevelTOneMasterByUUTId(uutId, userType);
+			StageLevelResponse serviceResponse = levelOne.getLevelTOneMasterByUUTId(uutId);
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
 				stageMasterLevelOne.setResponse(serviceResponse.getResponse());
@@ -56,7 +56,7 @@ public class StageConfiguration {
 				levelOneDto.setSessionIds(levelOneEntity.getSessionIds());
 				levelOneDto.setUutId(levelOneEntity.getUutId());
 				levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
-
+				levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
 				listOfLevelOnDto.add(levelOneDto);
 
 			}
@@ -137,12 +137,13 @@ public class StageConfiguration {
 	}
 
 	public LevelOneAddResponse addLevelOneStageMaster(String stageName, String sessions, String uutIds,
-			String userType) {
+			boolean defaultStatus) {
 		LevelOneAddResponse levelOneResponseDto = new LevelOneAddResponse();
 
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
-			StageMasterLevelResponse serviceResponse = levelOne.addLevelOneStage(stageName, sessions, uutIds, userType);
+			StageMasterLevelResponse serviceResponse = levelOne.addLevelOneStage(stageName, sessions, uutIds,
+					defaultStatus);
 			levelOneResponseDto.setResponse(serviceResponse.getResponse());
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
@@ -240,7 +241,7 @@ public class StageConfiguration {
 			TestFilesStagesMappingService test = new TestFilesStagesMappingService();
 			GetResponse res1 = test.getTestFilesStagesMappingByLastLevelReference(levelId);
 			List<?> resList = res1.getResponseList();
-			if (resList.size() > 0) {
+			if (resList!=null && resList.size() > 0) {
 				test.deleteTestFilesMapping(levelId);
 			}
 			switch (levelType) {
@@ -277,8 +278,9 @@ public class StageConfiguration {
 		}
 		return response;
 	}
-	
-	public LevelsAddResponse updateStageMasterLevel(String levelId,String parentId, String stageName, String testTypeId) {
+
+	public LevelsAddResponse updateStageMasterLevel(String levelId, String parentId, String stageName,
+			String testTypeId) {
 		LevelsAddResponse levelsResponseDto = new LevelsAddResponse();
 		try {
 			StageMasterLevelResponse subLevelserviceResponse = new StageMasterLevelResponse();
@@ -287,20 +289,20 @@ public class StageConfiguration {
 			switch (levelType) {
 			case "L2":
 				LevelTwoMasterService levelTwo = new LevelTwoMasterService();
-				subLevelserviceResponse = levelTwo.updateLevelTwoStage(levelId,parentId, stageName, testTypeId);
+				subLevelserviceResponse = levelTwo.updateLevelTwoStage(levelId, parentId, stageName, testTypeId);
 				break;
 			case "L3":
 				LevelThreeService levelThree = new LevelThreeService();
-				subLevelserviceResponse = levelThree.updateLevelThreeStage(levelId,parentId, stageName, testTypeId);
+				subLevelserviceResponse = levelThree.updateLevelThreeStage(levelId, parentId, stageName, testTypeId);
 				break;
 			case "L4":
 				LevelFourMasterSevice levelFour = new LevelFourMasterSevice();
-				subLevelserviceResponse = levelFour.updateLevelFourStage(levelId,parentId, stageName, testTypeId);
+				subLevelserviceResponse = levelFour.updateLevelFourStage(levelId, parentId, stageName, testTypeId);
 
 				break;
 			case "L5":
 				LevelFiveMasterService levelFive = new LevelFiveMasterService();
-				subLevelserviceResponse = levelFive.updateLevelFiveStage(levelId,parentId, stageName, testTypeId);
+				subLevelserviceResponse = levelFive.updateLevelFiveStage(levelId, parentId, stageName, testTypeId);
 
 				break;
 			default:
@@ -338,14 +340,15 @@ public class StageConfiguration {
 			return levelsResponseDto;
 		}
 	}
-	
-	public LevelOneAddResponse updateLevelOneStageMaster(String levelOneId,String stageName, String sessions, String uutIds,
-			String userType) {
+
+	public LevelOneAddResponse updateLevelOneStageMaster(String levelOneId, String stageName, String sessions,
+			String uutIds, boolean defaultStatus) {
 		LevelOneAddResponse levelOneResponseDto = new LevelOneAddResponse();
 
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
-			StageMasterLevelResponse serviceResponse = levelOne.updateLevelOneStageMaster(levelOneId,stageName, sessions, uutIds, userType);
+			StageMasterLevelResponse serviceResponse = levelOne.updateLevelOneStageMaster(levelOneId, stageName,
+					sessions, uutIds, defaultStatus);
 			levelOneResponseDto.setResponse(serviceResponse.getResponse());
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
@@ -373,96 +376,88 @@ public class StageConfiguration {
 			return levelOneResponseDto;
 		}
 	}
-	 public Response addTestFilesToStage(List<String> fileIds, String stageLevel) {
-			Response response = new Response();
-			try {
-				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
-				response = testFilesStagesMappingService.addTestFilesStagesMapping(stageLevel, fileIds);
-			} catch (Exception ex) {
-				response.setResponseCode(0);
-				response.setResponseMessage("Error" + ex.getLocalizedMessage());
-			}
-			return response;
+
+	public Response addTestFilesToStage(List<String> fileIds, String stageLevel) {
+		Response response = new Response();
+		try {
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			response = testFilesStagesMappingService.addTestFilesStagesMapping(stageLevel, fileIds);
+		} catch (Exception ex) {
+			response.setResponseCode(0);
+			response.setResponseMessage("Error" + ex.getLocalizedMessage());
 		}
-	    
-		public StagesFilesResponseDTO getTestFilesByStageLevel(String stageLevel) {
-			StagesFilesResponseDTO response = new StagesFilesResponseDTO();
-			try {
-				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
-				GetResponse res = testFilesStagesMappingService.getTestFilesStagesMappingByLastLevelReference(stageLevel);
-				List<TestFilesStagesMapping> lst = new ArrayList<TestFilesStagesMapping>();
-				lst = (List<TestFilesStagesMapping>) res.getResponseList();
-				TestFileService testFileService = new TestFileService();
-			//	GetResponse res1 = testFileService.getAllTestFiles();
-				List<TestFile> lstTestFiles = new ArrayList<TestFile>();
-				lstTestFiles= testFileService.getAllTestFiles();
-				Map<String, String> testFileIdName = new HashMap<String, String>();
-				Map<String, String> testFileIdPathId = new HashMap<String, String>();
-				for (TestFile testFiles : lstTestFiles) {
-					testFileIdName.put(testFiles.getTestFileId(), testFiles.getTestFileName());
-				
-				}
-				List<StagesFilesDTO> listStagesFiles = new ArrayList<StagesFilesDTO>();
-				for (TestFilesStagesMapping testFilesStagesMapping : lst) {
-					StagesFilesDTO stagesFilesDTO = new StagesFilesDTO();
-					stagesFilesDTO.setTestFileId(testFilesStagesMapping.getTestFileId());
-					stagesFilesDTO.setLevelStage(testFilesStagesMapping.getStageLevel());
-					stagesFilesDTO.setPathMasterId(testFileIdPathId.get(testFilesStagesMapping.getTestFileId()));
-					listStagesFiles.add(stagesFilesDTO);
-				}
-				response.setResponseList(listStagesFiles);
-				response.setCode(11);
-				response.setMsg("Fetched");
-			} catch (Exception ex) {
-				response.setCode(0);
-				response.setMsg("Error Not Fetched");
-				response.setEmsg(ex.getLocalizedMessage());
+		return response;
+	}
+
+	public StagesFilesResponseDTO getTestFilesByStageLevel(String stageLevel) {
+		StagesFilesResponseDTO response = new StagesFilesResponseDTO();
+		try {
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse res = testFilesStagesMappingService.getTestFilesStagesMappingByLastLevelReference(stageLevel);
+			List<TestFilesStagesMapping> lst = new ArrayList<TestFilesStagesMapping>();
+			lst = (List<TestFilesStagesMapping>) res.getResponseList();
+			TestFileService testFileService = new TestFileService();
+			// GetResponse res1 = testFileService.getAllTestFiles();
+			List<TestFile> lstTestFiles = new ArrayList<TestFile>();
+			lstTestFiles = testFileService.getAllTestFiles();
+			Map<String, String> testFileIdName = new HashMap<String, String>();
+			Map<String, String> testFileIdPathId = new HashMap<String, String>();
+			for (TestFile testFiles : lstTestFiles) {
+				testFileIdName.put(testFiles.getTestFileId(), testFiles.getTestFileName());
+
 			}
-			return response;
-		}
-		public List<SessionMasterDTO> getSessionMasterList()
-		{
-			List<SessionMasterDTO>lst = new ArrayList();
-			try
-			{
-				SessionMasterService sessionMasterService = new SessionMasterService();
-				GetResponse res = sessionMasterService.getAllSessionMaster();
-				List<SessionMaster> sessionList = new ArrayList();
-				sessionList = (List<SessionMaster>) res.getResponseList();
-				System.out.println("%%%%%%%%%"+sessionList.size());
-				for(SessionMaster sessionMaster:sessionList)
-				{
-					SessionMasterDTO sessionMasterDTO = new SessionMasterDTO();
-					sessionMasterDTO.setSessionMasterId(sessionMaster.getSessionMasterId());
-					sessionMasterDTO.setSessionTypeName(sessionMaster.getSessionTypeName());
-					lst.add(sessionMasterDTO);
-					
-				}
-				
-			}catch(Exception ex)
-			{
-				System.out.println("Error" +ex.getLocalizedMessage());
+			List<StagesFilesDTO> listStagesFiles = new ArrayList<StagesFilesDTO>();
+			for (TestFilesStagesMapping testFilesStagesMapping : lst) {
+				StagesFilesDTO stagesFilesDTO = new StagesFilesDTO();
+				stagesFilesDTO.setTestFileId(testFilesStagesMapping.getTestFileId());
+				stagesFilesDTO.setLevelStage(testFilesStagesMapping.getStageLevel());
+				stagesFilesDTO.setPathMasterId(testFileIdPathId.get(testFilesStagesMapping.getTestFileId()));
+				listStagesFiles.add(stagesFilesDTO);
 			}
-			return lst;
+			response.setResponseList(listStagesFiles);
+			response.setCode(11);
+			response.setMsg("Fetched");
+		} catch (Exception ex) {
+			response.setCode(0);
+			response.setMsg("Error Not Fetched");
+			response.setEmsg(ex.getLocalizedMessage());
 		}
-		
-	//Delete Stages Mapping.
-	public Response deleteStagesMapping(int testFileMappingId)
-	{
+		return response;
+	}
+
+	public List<SessionMasterDTO> getSessionMasterList() {
+		List<SessionMasterDTO> lst = new ArrayList<>();
+		try {
+			SessionMasterService sessionMasterService = new SessionMasterService();
+			GetResponse res = sessionMasterService.getAllSessionMaster();
+			List<SessionMaster> sessionList = new ArrayList<>();
+			sessionList = (List<SessionMaster>) res.getResponseList();
+			System.out.println("%%%%%%%%%" + sessionList.size());
+			for (SessionMaster sessionMaster : sessionList) {
+				SessionMasterDTO sessionMasterDTO = new SessionMasterDTO();
+				sessionMasterDTO.setSessionMasterId(sessionMaster.getSessionMasterId());
+				sessionMasterDTO.setSessionTypeName(sessionMaster.getSessionTypeName());
+				lst.add(sessionMasterDTO);
+
+			}
+
+		} catch (Exception ex) {
+			System.out.println("Error" + ex.getLocalizedMessage());
+		}
+		return lst;
+	}
+
+	// Delete Stages Mapping.
+	public Response deleteStagesMapping(int testFileMappingId) {
 		Response res = new Response();
-		try
-		{
+		try {
 			TestFilesStagesMappingService testMappingService = new TestFilesStagesMappingService();
 			res = testMappingService.deleteTestFileFromStages(testFileMappingId);
-		}
-		catch(Exception ex)
-		{
+		} catch (Exception ex) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Not Deleted");
 		}
 		return res;
 	}
-	
-
 
 }
