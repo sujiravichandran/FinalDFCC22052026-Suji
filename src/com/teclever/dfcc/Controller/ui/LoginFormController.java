@@ -249,6 +249,7 @@ public class LoginFormController {
 				Parent parent = loginGridPane.getParent();
 				if (parent instanceof GridPane) {
 					StackPane parent1 = (StackPane) parent.getParent();
+					System.out.println("--------ll--------"+parent1);
 					parent1.getChildren().clear();
 
 					UserData.setRoleId(loginResponse.getRoleId());
@@ -256,30 +257,11 @@ public class LoginFormController {
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
 					} else if(loginResponse.getRoleId().equals("RL_ID_3") || loginResponse.getRoleId().equals("RL_ID_4")) {
+						SessionCreationController sessionCreationController=new SessionCreationController();
+						parent1.getChildren().add(sessionCreationController.createSession());
 						
-//						try {
-//							FXMLLoader sessionLoader = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/Session.fxml"));
-//							Parent sessionRoot = sessionLoader.load();
-//							SessionController sessionController = sessionLoader.getController();
-//							sessionController.setUserType(loginResponse.getRoleId());
-//							sessionController.initializeSession();
-////							parent1.getChildren().add(sessionRoot);
-//							
-//							Stage stage = new Stage();
-//							stage.initModality(Modality.APPLICATION_MODAL);
-//							stage.initStyle(StageStyle.UNDECORATED);
-//							stage.centerOnScreen();
-//							stage.setScene(new Scene(sessionRoot));
-//							stage.showAndWait();
-//							
-//							
-//						} catch (IOException e1) {
-//							e1.printStackTrace();
-//						}
-						
-						
-						UserDashboardController userDashboardController = new UserDashboardController();
-						parent1.getChildren().add(userDashboardController.createUserDashboard());
+//						UserDashboardController userDashboardController = new UserDashboardController();
+//						parent1.getChildren().add(userDashboardController.createUserDashboard());
 					}
 				}
 			} else {
@@ -287,7 +269,7 @@ public class LoginFormController {
 			}
 		});
 		
-		userNameTextField.setText("BelAdmin");
+		userNameTextField.setText("beluser");
 		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;
