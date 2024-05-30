@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.crypto.bcrypt.BCrypt;
-
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.UserLoginDetailsResponse;
 import com.teclever.datastore.entities.UserLoginDetails;
@@ -148,13 +146,13 @@ public class UserManagementModule {
 				return loginResponse;
 			}
 			UserRoleMasterDetailsService userRoleService = new UserRoleMasterDetailsService();
-			System.out.println("roleId---"+userLoginDto.getRoleId());
 			boolean userAccess = userRoleService.getUserRoleMasterByRoleIdOptionType(userLoginDto.getRoleId(),
 					optionType);
 			if (userAccess) {
 				loginResponse.setResponse(userLoginDto.getResponse());
 				loginResponse.setRoleId(userLoginDto.getRoleId());
 				loginResponse.setLoginName(userLoginDto.getLoginName());
+				loginResponse.setUserId(userLoginDto.getUserId());
 			} else {
 				Response res = new Response();
 				res.setResponseCode(0);

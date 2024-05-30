@@ -4,7 +4,7 @@ public class FaultCodeSessionMappingDTO {
 
 	private int faultCodeLinkSessionId;
 	private String faultCodeId;
-	private String stageId;
+	private String sessionId;
 
 	public int getFaultCodeLinkSessionId() {
 		return faultCodeLinkSessionId;
@@ -22,12 +22,12 @@ public class FaultCodeSessionMappingDTO {
 		this.faultCodeId = faultCodeId;
 	}
 
-	public String getStageId() {
-		return stageId;
+	public String getSessionId() {
+		return sessionId;
 	}
 
-	public void setStageId(String stageId) {
-		this.stageId = stageId;
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 }
