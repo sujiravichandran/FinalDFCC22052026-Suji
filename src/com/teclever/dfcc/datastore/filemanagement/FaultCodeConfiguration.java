@@ -60,14 +60,14 @@ public class FaultCodeConfiguration {
 				faultCodeList.add(faultCodeDTO);
 			}
 			res.setResponseCode(1);
-			res.setResponseMessage("Get VDD Successfull");
+			res.setResponseMessage("Get FaultCode Successfull");
 			faultCodeResponse.setResponse(res);
 			faultCodeResponse.setFaultCodeList(faultCodeList);
 			return faultCodeResponse;
 
 		} catch (Exception e) {
 			res.setResponseCode(0);
-			res.setResponseMessage("Fetching VDD Unsuccessfull " + e);
+			res.setResponseMessage("Fetching FaultCode Unsuccessfull ");
 			faultCodeResponse.setResponse(res);
 			e.printStackTrace();
 			return faultCodeResponse;
