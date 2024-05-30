@@ -16,7 +16,8 @@ public class BottomContainerController {
 	private Pane bottomSubPane = new Pane();
 	private GridPane bottomGridPane = new GridPane();
 	
-	public StackPane createBottomGridPane() {			
+	public StackPane createBottomGridPane() {	
+		bottomStackPane.setId("bottomStackpane");
 		bottomPane.prefWidthProperty().bind(bottomStackPane.prefWidthProperty());
 		bottomPane.prefHeightProperty().bind(bottomStackPane.prefHeightProperty());
 		bottomStackPane.getChildren().add(bottomPane);

@@ -52,9 +52,9 @@ public class VDDConfigurationController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(93);
+		secondRow.setPercentHeight(95);
 		
 		vddConfigMainGridPane.setPadding(new Insets(10));
 		vddConfigMainGridPane.setVgap(5);

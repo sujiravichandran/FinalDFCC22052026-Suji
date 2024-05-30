@@ -1,15 +1,20 @@
 * {
     primary-color: #00B0F5;
     secondary-color: #0091C2;
+    
     secondary-color-2: #00E0FF;
     complementary-color: #F54B00;
+    
     primary-text-color: #FFFFFF;
     secondary-text-color: #0F1728;
     sub-text-color: #444852;
+    
     heading-text-color: #0F1728;
     header-bg: #FFFFFF;
+    
     light-bg: #FFFFFF;
-    dark-bg: #222831;
+    dark-bg: #0091C2;
+    
     button-bg: #005C7A;
     button-text: #FFFFFF;
     login-button-bg: #FFFFFF;
@@ -22,11 +27,14 @@
     right-card-text: #0F1728;
     right-card-button-bg: #FFFFFF;
     right-card-button-text: #0F1728;
+    
     form-bg: #0F1728;
     form-label: #FFFFFF;
     form-title: #FFFFFF;
     form-input: #FFFFFF;
-    table-bg: #005C7A;
-    table-header-bg: #0073A5;
-    table-row-bg:#00A3D4;
+    
+    table-bg: #005c7a;
+    table-header-bg: #0073a5;
+    table-row-bg:#00a3d4;
+    
 }

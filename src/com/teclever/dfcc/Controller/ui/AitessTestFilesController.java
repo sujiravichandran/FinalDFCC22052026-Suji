@@ -61,11 +61,11 @@ public class AitessTestFilesController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(7);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(86);
+		thirdRow.setPercentHeight(88);
 
 		testFilesParentGridPane.setPadding(new Insets(10));
 		testFilesParentGridPane.setVgap(5);

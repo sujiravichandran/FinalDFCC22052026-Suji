@@ -81,9 +81,9 @@ public class UserManagementController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(93);
+		secondRow.setPercentHeight(95);
 
 		userManagementGridPane.setPadding(new Insets(10));
 		userManagementGridPane.setVgap(5);
