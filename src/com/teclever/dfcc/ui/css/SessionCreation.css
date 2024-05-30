@@ -1,0 +1,80 @@
+@import url("Global.css");
+
+.session-creation-main-container{
+	-fx-background-color:secondary-color;
+	-fx-background-radius:15px;
+	-fx-padding: 5px 50px;
+}
+.session-creation-headerLabel{
+	-fx-text-fill:heading-text-color;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+}
+.session-creation-container{
+	-fx-border-color: light-bg; 
+	-fx-border-width: 2px; 
+	-fx-border-radius: 10px; 
+	-fx-background-color: primary-color; 
+	-fx-background-radius: 10px;
+	-fx-padding:15px;
+}
+.field-label{
+	-fx-text-fill: secondary-text-color;
+    -fx-font-size: 20.0px;
+    -fx-font-weight:bold;
+}
+.text-field {
+	 -fx-font-size: 18.0px;
+	 -fx-font-weight: bold;
+    -fx-background-color: form-input; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+.button {
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
+.text-area{
+	-fx-font-size: 18.0px;
+	-fx-font-weight: bold;
+	-fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: form-input; 
+    -fx-font-weight: bold;
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+
+
+.table-view .column-header{
+    -fx-font-size: 18.0px;
+    -fx-pref-height: 40.0px;
+    -fx-alignment: CENTER;
+	-fx-background-color: secondary-color;
+}
+.table-row-cell .table-cell {
+    -fx-font-size: 16.0px;
+    -fx-alignment: CENTER;
+}
+.check-box-tree-cell .tree-disclosure-node {
+	-fx-font-size: 16px;
+    -fx-padding: 5 5 0 0.333em;
+}
+.check-box-tree-cell{
+	-fx-font-size: 18.0px;
+    -fx-font-weight: bold;
+}

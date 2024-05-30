@@ -3,11 +3,10 @@ package com.teclever.dfcc.model;
 public class FaultCodeList {
 	private int code;
 	private String codeDescription;
+	private String faultCodeId;
+	private boolean selected;
 
-	public FaultCodeList(int code, String codeDescription) {
-		this.code = code;
-		this.codeDescription = codeDescription;
-	}
+
 
 	public int getCode() {
 		return code;
@@ -23,6 +22,22 @@ public class FaultCodeList {
 
 	public void setCodeDescription(String codeDescription) {
 		this.codeDescription = codeDescription;
+	}
+
+	public String getFaultCodeId() {
+		return faultCodeId;
+	}
+
+	public void setFaultCodeId(String faultCodeId) {
+		this.faultCodeId = faultCodeId;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 
 	@Override
