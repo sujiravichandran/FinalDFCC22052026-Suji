@@ -74,7 +74,7 @@ public class SelfTestController {
 		
 		selfTestMainContainerGridPane.getColumnConstraints().addAll(firstColumn);
 		selfTestMainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
-		selfTestMainContainerGridPane.setPadding(new Insets(0, 5, 5, 5));
+		selfTestMainContainerGridPane.setPadding(new Insets(5, 5, 5, 5));
 		selfTestMainContainerGridPane.add(headingGridPane(), 0, 0);
 		selfTestMainContainerGridPane.add(selfTestMidContainer(), 0, 1);
 		selfTestMainContainerGridPane.add(selfTestBottomContainer(), 0, 2);
@@ -107,7 +107,7 @@ public class SelfTestController {
 	private HBox headingHbox() {
 		
 		pageHeading.getStyleClass().add("headerLabel");
-		pageHeading.setPadding(new Insets(0, 0, 0, 5));
+//		pageHeading.setPadding(new Insets(0, 0, 0, 0));
 		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
 		
@@ -133,10 +133,10 @@ public class SelfTestController {
 		thirdColumn.setPercentWidth(33.33);
 		
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(10);
+		firstRow.setPercentHeight(8);
 		
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(90);
+		secondRow.setPercentHeight(92);
 		
 		midContainerGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn );
 		midContainerGridPane.getRowConstraints().addAll(firstRow,secondRow );
