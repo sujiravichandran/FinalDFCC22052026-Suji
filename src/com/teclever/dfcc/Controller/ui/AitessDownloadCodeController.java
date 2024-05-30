@@ -47,6 +47,7 @@ public class AitessDownloadCodeController {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
+				tableData.clear();
 				setAitessDownloadCodeTableData(newRunConfigId);
 			} else {
 				tableData.clear();

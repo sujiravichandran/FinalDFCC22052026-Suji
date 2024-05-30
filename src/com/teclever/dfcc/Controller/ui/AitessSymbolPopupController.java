@@ -40,36 +40,26 @@ public class AitessSymbolPopupController {
 	@FXML
 	public void initialize() {
 		symbolNameColumn.setCellValueFactory(new PropertyValueFactory<>("symbolName"));
+		symbolNameColumn.setReorderable(false);
+		symbolNameColumn.setSortable(false);
+		symbolNameColumn.setStyle("-fx-alignment: CENTER;");
+		
 		symbolTypeColumn.setCellValueFactory(new PropertyValueFactory<>("symbolType"));
+		symbolTypeColumn.setReorderable(false);
+		symbolTypeColumn.setSortable(false);
+		symbolTypeColumn.setStyle("-fx-alignment: CENTER;");
+		
 		minColumn.setCellValueFactory(new PropertyValueFactory<>("min"));
+		minColumn.setReorderable(false);
+		minColumn.setSortable(false);
+		minColumn.setStyle("-fx-alignment: CENTER;");
+		
 		maxColumn.setCellValueFactory(new PropertyValueFactory<>("max"));
-
-		setColumnCenterAlignment(symbolNameColumn);
-		setColumnCenterAlignment(symbolTypeColumn);
-		setColumnCenterAlignment(minColumn);
-		setColumnCenterAlignment(maxColumn);
+		maxColumn.setReorderable(false);
+		maxColumn.setSortable(false);
+		maxColumn.setStyle("-fx-alignment: CENTER;");
 	}
 
-	private <T> void setColumnCenterAlignment(TableColumn<AitessSymbolDetails, T> column) {
-		column.setCellFactory(new Callback<TableColumn<AitessSymbolDetails, T>, TableCell<AitessSymbolDetails, T>>() {
-			@Override
-			public TableCell<AitessSymbolDetails, T> call(TableColumn<AitessSymbolDetails, T> param) {
-				return new TableCell<AitessSymbolDetails, T>() {
-					@Override
-					protected void updateItem(T item, boolean empty) {
-						super.updateItem(item, empty);
-						if (item == null || empty) {
-							setText(null);
-							setStyle("");
-						} else {
-							setText(item.toString());
-							setAlignment(Pos.CENTER); 
-						}
-					}
-				};
-			}
-		});
-	}
 
 	public void setSymbolDetails(List<AitessSymbolDetails> symbolDetails) {
 		ObservableList<AitessSymbolDetails> detailsData = FXCollections.observableArrayList(symbolDetails);

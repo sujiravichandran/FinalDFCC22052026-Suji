@@ -53,6 +53,7 @@ public class AitessMacroFilesController {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
+				tableData.clear();
 				setAitessMacroFilesTableData(newRunConfigId);
 			} else {
 				tableData.clear();

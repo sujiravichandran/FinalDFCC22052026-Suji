@@ -86,10 +86,10 @@ public class LRUTestingController {
 		firstColumn.setPercentWidth(100);
 		
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(5);
+		firstRow.setPercentHeight(7);
 		
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(52);
+		secondRow.setPercentHeight(50);
 		
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(43);

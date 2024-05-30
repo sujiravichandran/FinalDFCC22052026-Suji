@@ -64,6 +64,7 @@ public class AitessSymbolFilesController {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
+				tableData.clear();
 				setSymbolFileTableData(newRunConfigId);
 			} else {
 				tableData.clear();
