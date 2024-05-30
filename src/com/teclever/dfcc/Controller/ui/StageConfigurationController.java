@@ -281,7 +281,6 @@ public class StageConfigurationController {
 		sessionTreeView.getStyleClass().add("tree-view");
 		sessionTreeView.setShowRoot(false);
 		sessionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//			System.out.println("PARENT CHECK: "+newValue.getValue().getId());
 			if (newValue != null) {
 				String stageId = newValue.getValue().getId();
 				Node selectedNode = newValue.getValue();
@@ -399,8 +398,12 @@ public class StageConfigurationController {
 
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
-		buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
 		buttonsContainer.setVisible(false);
+		if(stage1.isDefault()) {
+			buttonsContainer.getChildren().addAll(addBtn);
+		}else {
+			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
+		}
 
 		ColumnConstraints column1 = new ColumnConstraints();
 		column1.setHgrow(Priority.ALWAYS);
@@ -436,7 +439,7 @@ public class StageConfigurationController {
 		buttonsContainer.setPadding(new Insets(0, 10, 0, 0));
 		buttonsContainer.setVisible(false);
 		if (stage.isParentDefault()) {
-			buttonsContainer.getChildren().addAll(addBtn);
+			buttonsContainer.getChildren().add(addBtn);
 		} else if (stage.getId().startsWith("L5")) {
 			buttonsContainer.getChildren().addAll(editBtn, delBtn);
 		} else {

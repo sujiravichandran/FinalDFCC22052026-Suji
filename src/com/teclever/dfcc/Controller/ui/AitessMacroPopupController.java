@@ -8,15 +8,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class AitessMacroPopupController {
 
@@ -35,25 +32,9 @@ public class AitessMacroPopupController {
 	@FXML
 	public void initialize() {
 		macroNameColumn.setCellValueFactory(new PropertyValueFactory<>("macroName"));
-		macroNameColumn.setCellFactory(
-				new Callback<TableColumn<AitessMacroDetails, String>, TableCell<AitessMacroDetails, String>>() {
-					@Override
-					public TableCell<AitessMacroDetails, String> call(TableColumn<AitessMacroDetails, String> param) {
-						return new TableCell<AitessMacroDetails, String>() {
-							@Override
-							protected void updateItem(String item, boolean empty) {
-								super.updateItem(item, empty);
-								if (item == null || empty) {
-									setText(null);
-									setStyle("");
-								} else {
-									setText(item);
-									setAlignment(Pos.CENTER); 
-								}
-							}
-						};
-					}
-				});
+		macroNameColumn.setReorderable(false);
+		macroNameColumn.setSortable(false);
+		macroNameColumn.setStyle("-fx-alignment: CENTER;");
 	}
 
 	public void setMacroDetails(List<AitessMacroDetails> macroDetails) {

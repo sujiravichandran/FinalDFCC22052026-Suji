@@ -16,6 +16,8 @@ public class UserCenterContentController {
     SelfTestController selfTestController = new SelfTestController();
     
     LRUTestingController lruTestController = new LRUTestingController();
+    private TerminalController terminalController = new TerminalController();
+
     
     public UserCenterContentController() {
         
@@ -49,6 +51,9 @@ public class UserCenterContentController {
             case "SRU/LRU Test":
             	lruTestStackPane.toFront();
                 break;
+            case "Show Terminal":
+    			terminalController.createTerminalPopup();
+    			break;
                 
         }
         
