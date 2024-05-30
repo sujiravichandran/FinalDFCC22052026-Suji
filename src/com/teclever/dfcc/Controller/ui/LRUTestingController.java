@@ -86,10 +86,10 @@ public class LRUTestingController {
 		firstColumn.setPercentWidth(100);
 		
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		secondRow.setPercentHeight(52);
 		
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(43);
@@ -396,7 +396,8 @@ private VBox subTestVBox() {
 
 	private HBox startTestHBox() {
 		Button startTest = new Button("Start Test");
-		startTestHBox.getStyleClass().add("midheader-hbox");
+		startTest.setPrefWidth(200);
+//		startTestHBox.getStyleClass().add("midheader-hbox");
 //		startTestHBox.setPadding(new Insets(5,0,5,0));
 		startTestHBox.setAlignment(Pos.CENTER);
 		startTestHBox.getChildren().add(startTest);
@@ -466,9 +467,9 @@ private VBox subTestVBox() {
 	
 	private HBox goNoGoLabel() {
 		Label goNoGo = new Label("GO/NOGO");
-		goNoGo.getStyleClass().add("gonogo-label");
-		
-		goNoGoLabel.setMaxWidth(Double.MAX_VALUE);
+		goNoGo.getStyleClass().add("label-gonogo");
+		goNoGo.setPadding(new Insets(5, 0, 5, 0));
+		goNoGo.setPrefWidth(200);
 		goNoGo.setAlignment(Pos.CENTER);
 		goNoGoLabel.setAlignment(Pos.CENTER);
 		goNoGoLabel.getChildren().add(goNoGo);

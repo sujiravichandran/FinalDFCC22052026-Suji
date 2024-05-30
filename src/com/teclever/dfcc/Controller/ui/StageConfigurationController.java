@@ -110,11 +110,11 @@ public class StageConfigurationController {
 		column1.setPercentWidth(100);
 
 		RowConstraints row1 = new RowConstraints();
-		row1.setPercentHeight(7);
+		row1.setPercentHeight(5);
 		RowConstraints row2 = new RowConstraints();
 		row2.setPercentHeight(7);
 		RowConstraints row3 = new RowConstraints();
-		row3.setPercentHeight(86);
+		row3.setPercentHeight(88);
 
 		stageParentGrid.getColumnConstraints().addAll(column1);
 		stageParentGrid.getRowConstraints().addAll(row1, row2, row3);
@@ -130,7 +130,7 @@ public class StageConfigurationController {
 	}
 
 	private HBox stageConfigTopContainer() {
-		Label headerLabel = createLabel("STAGE CONFIGURATION", "stageConfig-header-label");
+		Label headerLabel = new Label("STAGE CONFIGURATION");
 		headerLabel.getStyleClass().add("stageConfig-header-label");
 
 		stageConfigTopHbox.setAlignment(Pos.CENTER_LEFT);

@@ -10,9 +10,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
-public class TopContainerController {
+public class TopContainerAfterLoginController {
 	
 	private GridPane topGridPane = new GridPane();
+	private ImageView belImageView = new ImageView();
+	private ImageView tecleverImageView = new ImageView();
+	private HBox belLogoHBox = new HBox();
+	private HBox tecleverLogoHBox = new HBox();
 	
 	public GridPane createTopGridPane() {
 		topGridPane.setId("topContainer");
@@ -42,17 +46,16 @@ public class TopContainerController {
 	}
 	
 	private HBox createBelLogo() {
-		ImageView imageView = new ImageView();
         Image image = new Image("/Resources/Images/bell2.png"); 
-        imageView.setImage(image);
-        imageView.setFitWidth(350);
-        imageView.setFitHeight(120);
+        belImageView.setImage(image);
+        belImageView.setFitWidth(250);
+        belImageView.setFitHeight(90);
+        belImageView.setCache(false);
        
-        HBox belLogo = new HBox();
-        belLogo.setAlignment(Pos.CENTER);
-        belLogo.getChildren().add(imageView);
+        belLogoHBox.setAlignment(Pos.CENTER);
+        belLogoHBox.getChildren().add(belImageView);
 
-		return belLogo;
+		return belLogoHBox;
 	}
 	
 	private VBox createTitle() {
@@ -68,16 +71,15 @@ public class TopContainerController {
 	}
 
 	private HBox createTecleverLogo() {
-		ImageView imageView = new ImageView();
         Image image = new Image("/Resources/Images/teclever.png"); 
-        imageView.setImage(image);
-        imageView.setFitWidth(350);
-        imageView.setFitHeight(120);
+        tecleverImageView.setImage(image);
+        tecleverImageView.setFitWidth(200);
+        tecleverImageView.setFitHeight(90);
        
-        HBox tecleverLogo = new HBox();
-        tecleverLogo.setAlignment(Pos.CENTER);
-        tecleverLogo.getChildren().add(imageView);
+        tecleverLogoHBox.setAlignment(Pos.CENTER);
+        tecleverLogoHBox.getChildren().add(tecleverImageView);
 
-		return tecleverLogo;
+		return tecleverLogoHBox;
 	}
+		
 }

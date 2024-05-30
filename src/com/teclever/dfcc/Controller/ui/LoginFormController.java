@@ -1,6 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
@@ -16,11 +15,10 @@ import com.teclever.dfcc.utils.Notifications;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -38,9 +36,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class LoginFormController {
 
@@ -48,6 +43,8 @@ public class LoginFormController {
 	private GridPane loginGridPane = new GridPane();
 	private final SystemConfigManagement systemConfigManagement = new SystemConfigManagement();
 	private final UserManagementModule userManagementModule = new UserManagementModule();
+	TopContainerAfterLoginController topContainerAfterLoginController = new TopContainerAfterLoginController();
+
 
 	Boolean checkSumFinalResult = true;
 
@@ -246,22 +243,36 @@ public class LoginFormController {
 			if (loginResponse.getResponse().getResponseCode() == 101) {
 				handleBelAdminPasswordChange();
 			} else if (loginResponse.getResponse().getResponseCode() == 1) {
+
+				UserData.setRoleId(loginResponse.getRoleId());
+				
+				
+				GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();
+				mainContainerGridPane.getRowConstraints().get(0).setPercentHeight(10);
+				mainContainerGridPane.getRowConstraints().get(1).setPercentHeight(90);
+				
+				ObservableList<Node> childrenToRemove = FXCollections.observableArrayList();
+				for (Node child : mainContainerGridPane.getChildren()) {
+				    Integer rowIndex = GridPane.getRowIndex(child);
+				    if (rowIndex != null && rowIndex == 0) {
+				        childrenToRemove.add(child);
+				    }
+				}
+				
+				mainContainerGridPane.getChildren().removeAll(childrenToRemove);
+				mainContainerGridPane.add(topContainerAfterLoginController.createTopGridPane(), 0, 0);	
+				
 				Parent parent = loginGridPane.getParent();
 				if (parent instanceof GridPane) {
 					StackPane parent1 = (StackPane) parent.getParent();
-					System.out.println("--------ll--------"+parent1);
 					parent1.getChildren().clear();
 
-					UserData.setRoleId(loginResponse.getRoleId());
 					if (loginResponse.getRoleId().equals("RL_ID_1") || loginResponse.getRoleId().equals("RL_ID_2")) {
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
 					} else if(loginResponse.getRoleId().equals("RL_ID_3") || loginResponse.getRoleId().equals("RL_ID_4")) {
 						SessionCreationController sessionCreationController=new SessionCreationController();
-						parent1.getChildren().add(sessionCreationController.createSession());
-						
-//						UserDashboardController userDashboardController = new UserDashboardController();
-//						parent1.getChildren().add(userDashboardController.createUserDashboard());
+						parent1.getChildren().add(sessionCreationController.createSession());			
 					}
 				}
 			} else {
@@ -269,7 +280,7 @@ public class LoginFormController {
 			}
 		});
 		
-		userNameTextField.setText("beluser");
+		userNameTextField.setText("BelAdmin");
 		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;

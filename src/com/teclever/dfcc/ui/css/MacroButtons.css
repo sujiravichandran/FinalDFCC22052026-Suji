@@ -26,8 +26,8 @@
 
 .macro-button-option-container{
 	-fx-background-color:dark-bg;
-	-fx-background-radius: 15px;
-    -fx-border-radius: 15px;
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
 }
 
 

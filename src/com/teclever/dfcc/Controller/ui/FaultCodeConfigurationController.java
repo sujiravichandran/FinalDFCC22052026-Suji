@@ -53,9 +53,9 @@ public class FaultCodeConfigurationController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(93);
+		secondRow.setPercentHeight(95);
 		
 		faultCodeConfigMainGridPane.setPadding(new Insets(10));
 		faultCodeConfigMainGridPane.setVgap(5);

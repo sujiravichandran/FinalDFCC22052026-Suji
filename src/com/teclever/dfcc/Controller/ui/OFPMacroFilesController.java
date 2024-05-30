@@ -71,11 +71,11 @@ public class OFPMacroFilesController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(7);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(86);
+		thirdRow.setPercentHeight(88);
 
 		ofpMacroFilesParentGridPane.setPadding(new Insets(10));
 		ofpMacroFilesParentGridPane.setVgap(5);

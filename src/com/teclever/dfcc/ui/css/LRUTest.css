@@ -97,6 +97,15 @@
 	-fx-padding: 5px 15px;
 }
 
+.label-gonogo {
+    -fx-background-color: light-bg;
+    -fx-text-fill:dark-bg;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
 .button {
     -fx-background-color: button-bg;
     -fx-text-fill:button-text;

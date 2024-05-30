@@ -62,11 +62,11 @@ public class AitessDownloadCodeController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(7);
+		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(7);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(86);
+		thirdRow.setPercentHeight(88);
 
 		downloadCodeParentGridPane.setPadding(new Insets(10));
 		downloadCodeParentGridPane.setVgap(5);

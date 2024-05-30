@@ -12,6 +12,7 @@ public class MainContainerController {
 
 	public GridPane createSubGridPane() {
 		subGridPane.setVgap(10);
+		subGridPane.setId("mainContainer");
 		ColumnConstraints subColumn = new ColumnConstraints();
 		subColumn.setPercentWidth(100);
 
