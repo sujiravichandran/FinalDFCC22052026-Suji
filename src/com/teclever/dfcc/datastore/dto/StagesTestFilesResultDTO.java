@@ -22,6 +22,28 @@ public class StagesTestFilesResultDTO {
 
 	private String startTime;
 
+	public StagesTestFilesResultDTO(String sessionStagesTestFilesResultId, String sessionId, String stageId,
+			String testFileId, String systemResultInfoId, String rdfPath, String rdfFileName, String testStatus,
+			String dStarCount, String startTime, String endTime) {
+		super();
+		this.sessionStagesTestFilesResultId = sessionStagesTestFilesResultId;
+		this.sessionId = sessionId;
+		this.stageId = stageId;
+		this.testFileId = testFileId;
+		this.systemResultInfoId = systemResultInfoId;
+		this.rdfPath = rdfPath;
+		this.rdfFileName = rdfFileName;
+		this.testStatus = testStatus;
+		this.dStarCount = dStarCount;
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
+
+	public StagesTestFilesResultDTO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getSessionStagesTestFilesResultId() {
 		return sessionStagesTestFilesResultId;
 	}
