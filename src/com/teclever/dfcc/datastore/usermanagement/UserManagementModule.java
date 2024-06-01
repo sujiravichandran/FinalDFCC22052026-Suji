@@ -5,9 +5,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.UserLoginDetailsResponse;
+import com.teclever.datastore.entities.LoginSession;
 import com.teclever.datastore.entities.UserLoginDetails;
+import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.service.UserRoleMasterDetailsService;
 import com.teclever.dfcc.datastore.dto.LoginResponse;
@@ -17,9 +20,11 @@ import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.dto.UserRoleMasterDto;
 import com.teclever.dfcc.datastore.dto.UserRoleResponse;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class UserManagementModule {
-
+	
+	// GET USER TYPE WITH ROLE ID
 	public UserRoleResponse getAllUserType() {
 		UserRoleResponse userRoleResponse = new UserRoleResponse();
 		Response response = new Response();
@@ -47,6 +52,7 @@ public class UserManagementModule {
 		}
 	}
 
+	
 	public LoginResponse validateUser(String loginName, String password) {
 		LoginResponse loginResponse = new LoginResponse();
 		Response response = new Response();
@@ -116,12 +122,12 @@ public class UserManagementModule {
 		return res;
 	}
 
+	// UPDATE OPTION "o1" OR "o2"
 	public Response updateOption(String option) {
 		Response res = new Response();
 		try {
 			SystemConfig systemConfig = SystemConfigManagement.getConfiguration();
 
-			
 			systemConfig.setLaunchType(option);
 
 			SystemConfigManagement.setConfiguration(systemConfig);
@@ -134,7 +140,8 @@ public class UserManagementModule {
 		return res;
 	}
 
-	public LoginResponse authenticateUser(String loginName, String password, String optionType) {
+	// VALIDATE LOGIN DETAILS WITH DB DATA (NOT FOR BEL ADMIN)
+	private LoginResponse authenticateUser(String loginName, String password, String optionType) {
 		LoginResponse loginResponse = new LoginResponse();
 		try {
 
@@ -153,6 +160,7 @@ public class UserManagementModule {
 				loginResponse.setRoleId(userLoginDto.getRoleId());
 				loginResponse.setLoginName(userLoginDto.getLoginName());
 				loginResponse.setUserId(userLoginDto.getUserId());
+				saveLoginInfo(userLoginDto.getUserId());				
 			} else {
 				Response res = new Response();
 				res.setResponseCode(0);
@@ -333,5 +341,27 @@ public class UserManagementModule {
 			System.out.println(e.getLocalizedMessage());
 		}
 		return userLoginDetailresponse;
+	}
+
+	private Response saveLoginInfo(String userId) {
+		Response res = new Response();
+		try {
+			LoginSessionService loginSessionService = new LoginSessionService();
+			LoginSession loginSessionDetails = new LoginSession();
+			loginSessionDetails.setUserId(userId);
+
+			loginSessionDetails.setLoginTime(new Date());
+			GetObjResponse loginSessionResponse = loginSessionService.addLoginSession(loginSessionDetails);
+			if(loginSessionResponse.getObject()!=null) {
+				LoginSession loginSession = (LoginSession) loginSessionResponse.getObject();
+				currentSessionDetails.setLoginSessionId(loginSession.getLoginSessionId());
+			}
+			res.setResponseCode(loginSessionResponse.getResponse().getResponseCode());
+			res.setResponseMessage(loginSessionResponse.getResponse().getResponseMessage());
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Save Login Information Unsuccessful ");
+		}
+		return res;
 	}
 }
