@@ -1,21 +1,29 @@
 package com.teclever.dfcc.model;
 
+import java.util.Date;
+
 public class SessionDetails {
 	private String sessionName;
-	private String date;
+	private Date date;
+	private String sessionId;
 	
-	public SessionDetails(String sessionName, String date) {
-		this.sessionName = sessionName;
-		this.date = date;
-		
+	
+	public String getSessionId() {
+		return sessionId;
+	}
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 	public String getSessionName() {
 		return sessionName;
-	}public String getDate() {
-		return date;
 	}public void setSessionName(String sessionName) {
 		this.sessionName = sessionName;
-	}public void setDate(String date) {
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
 		this.date = date;
 	}
+	
 }
