@@ -36,9 +36,10 @@ import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionManagement {
-	
+
 	// SESSION ENTITY : SAVE SESSION
 	public Response saveSession(SessionDTO sessionDTO) {
 		Response res = new Response();
@@ -46,7 +47,7 @@ public class SessionManagement {
 			SessionService sessionService = new SessionService();
 			SessionDto sessionDto = new SessionDto();
 			Date utilDate = new Date();
-			 java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 			sessionDto.setCreationDate(sqlDate);
 			sessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
 			sessionDto.setDfccSNo(sessionDTO.getDfccSNo());
@@ -59,13 +60,14 @@ public class SessionManagement {
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 //			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			GetObjResponse resObj = sessionService.addSession(sessionDto);
+//			System.out.println("SESSION ENTITY Table Response Code " + resObj.getResponse().getResponseCode()
+//					+ " And Message is " + resObj.getResponse().getResponseMessage());
 			if (resObj.getResponse().getResponseCode() == 0) {
-				System.out.println("Response Message "+ resObj.getResponse().getResponseMessage());
 				return resObj.getResponse();
 			}
 			SessionDto sessionResponseDto = (SessionDto) resObj.getObject();
 			String sessionId = sessionResponseDto.getSessionId();
-			List<SessionToStagesMappingDTO> sessionStages =  sessionDTO.getSessionStagesList();
+			List<SessionToStagesMappingDTO> sessionStages = sessionDTO.getSessionStagesList();
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
 				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
@@ -84,8 +86,9 @@ public class SessionManagement {
 				sessionToStagesMappingList.add(sessionStagesMapping);
 			}
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
-			Response resp=sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
-
+			Response resp = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
+//			System.out.println("SESSION STAGE MAPPING Table Response Code " + resp.getResponseCode()
+//					+ " And Message is " + resp.getResponseMessage());
 			List<String> faultCodeList = sessionDTO.getFaultCodeMappingList();
 			if (faultCodeList.size() > 0) {
 				FaultCodeSessionMappingService faultCodeSessionMappingService = new FaultCodeSessionMappingService();
@@ -93,24 +96,20 @@ public class SessionManagement {
 					faultCodeSessionMappingService.addFaultCodeSession(faultCodeSessionId, sessionId);
 				}
 			}
+
 			LoginSessionService loginSessionService = new LoginSessionService();
-			LoginSession loginSessionDetails = new LoginSession();
-			loginSessionDetails.setUserId(sessionDTO.getUserId());
-			loginSessionDetails.setSessionId(sessionId);
+			Response response = loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(),
+					sessionId, null);
 
-			loginSessionDetails.setLoginTime(new Date());
-			GetObjResponse loginSessionResponse = loginSessionService.addLoginSession(loginSessionDetails);
-			if (loginSessionResponse.getObject() != null) {
-
-//				LoginSessionDetails loginSessionEntity = (LoginSessionDetails) loginSessionResponse.getObject();
-			}
+//			System.out.println("LOGIN SESSION Table Response Code " + response.getResponseCode() + " And Message is "
+//					+ response.getResponseMessage());
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Session Created Successfully..!");
 
 		} catch (Exception ex) {
 			res.setResponseCode(0);
-			res.setResponseMessage("Session Not Created"+ex.getLocalizedMessage());
+			res.setResponseMessage("Session Not Created" + ex.getLocalizedMessage());
 			ex.printStackTrace();
 
 		}
@@ -296,6 +295,8 @@ public class SessionManagement {
 				}
 				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
 			}
+			LoginSessionService loginSessionService = new LoginSessionService();
+			loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionEntityId, null);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull");
 			sessionDtoResponse.setResponse(res);

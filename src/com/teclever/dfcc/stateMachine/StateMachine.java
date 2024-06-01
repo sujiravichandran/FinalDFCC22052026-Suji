@@ -6,29 +6,24 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 
 public class StateMachine {
 	enum TestState {
-		PENDING,
-		RUNNING,
-		PAUSED, 
-		STOPPED,
-		COMPLETED
+		PENDING, RUNNING, PAUSED, STOPPED, COMPLETED
 	}
+
 	enum RunningTestName {
-		OTHER,
-		SELF_TEST,
-		LRU_SRU_TEST,
-		SESSION_TEST,
-		ADVANCED_TEST
+		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
 	}
+
 	private static TestState testState = TestState.PENDING;
-	private static RunningTestName runningTestName = RunningTestName.OTHER ;
+	private static RunningTestName runningTestName = RunningTestName.OTHER;
 
 	public static TestState getTestState() {
 		return testState;
 	}
+
 	public static void setTestState(TestState newState) {
 		testState = newState;
 	}
-	
+
 	public static RunningTestName getRunningTestName() {
 		return runningTestName;
 	}
@@ -36,8 +31,6 @@ public class StateMachine {
 	public static void setRunningTestName(RunningTestName newState) {
 		runningTestName = newState;
 	}
-
-
 
 
 	public static class currentSessionDetails{
@@ -49,7 +42,7 @@ public class StateMachine {
 		private static String sessionTypeID;
 		private static String sessionTypeName;
 		private static String runConfigId;
-			
+		private static int loginSessionId;
 			
 		public static String getUserId() {
 			return userId;
@@ -99,7 +92,13 @@ public class StateMachine {
 		public static void setRunConfigId(String runConfigId) {
 			currentSessionDetails.runConfigId = runConfigId;
 		}
-	
+		public static int getLoginSessionId() {
+			return loginSessionId;
+		}
+
+		public static void setLoginSessionId(int loginSessionId) {
+			currentSessionDetails.loginSessionId = loginSessionId;
+		}
 				
 	}
 	
@@ -140,15 +139,16 @@ public class StateMachine {
 			currentTestDetails.completionPercentage = completionPercentage;
 		}
 				
+
 	}
-	
-	private static List<StageObject> stageDatalist ;
-	
+
+	private static List<StageObject> stageDatalist;
+
 	public static List<StageObject> getStageDatalist() {
 		return stageDatalist;
 	}
+
 	public static void setStageDatalist(List<StageObject> stageDatalist) {
 		StateMachine.stageDatalist = stageDatalist;
 	}
 }
-
