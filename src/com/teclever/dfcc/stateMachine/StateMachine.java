@@ -41,111 +41,105 @@ public class StateMachine {
 
 
 	public static class currentSessionDetails{
-		private String userId;
-		private String uutId;
-		private String uutType;
-		private String testType;
-		private String sessionId;
-		private String sessionName;
-		private String sessionTypeID;
-		private String sessionTypeName;
-		private String runConfigId;
-		
-		public String getUserId() {
+		private static String userId;
+		private static String uutId;
+		private static String uutType;
+		private static String sessionId;
+		private static String sessionName;
+		private static String sessionTypeID;
+		private static String sessionTypeName;
+		private static String runConfigId;
+			
+			
+		public static String getUserId() {
 			return userId;
 		}
-		public void setUserId(String userId) {
-			this.userId = userId;
+		public static void setUserId(String userId) {
+			currentSessionDetails.userId = userId;
 		}
-		public String getUutId() {
+		public static String getUutId() {
 			return uutId;
 		}
-		public void setUutId(String uutId) {
-			this.uutId = uutId;
+		public static void setUutId(String uutId) {
+			currentSessionDetails.uutId = uutId;
 		}
-		public String getUutType() {
+		public static String getUutType() {
 			return uutType;
 		}
-		public void setUutType(String uutType) {
-			this.uutType = uutType;
+		public static void setUutType(String uutType) {
+			currentSessionDetails.uutType = uutType;
 		}
-		public String getTestType() {
-			return testType;
-		}
-		public void setTestType(String testType) {
-			this.testType = testType;
-		}
-		public String getSessionId() {
+		public static String getSessionId() {
 			return sessionId;
 		}
-		public void setSessionId(String sessionId) {
-			this.sessionId = sessionId;
+		public static void setSessionId(String sessionId) {
+			currentSessionDetails.sessionId = sessionId;
 		}
-		public String getSessionName() {
+		public static String getSessionName() {
 			return sessionName;
 		}
-		public void setSessionName(String sessionName) {
-			this.sessionName = sessionName;
+		public static void setSessionName(String sessionName) {
+			currentSessionDetails.sessionName = sessionName;
 		}
-		public String getSessionTypeID() {
+		public static String getSessionTypeID() {
 			return sessionTypeID;
 		}
-		public void setSessionTypeID(String sessionTypeID) {
-			this.sessionTypeID = sessionTypeID;
+		public static void setSessionTypeID(String sessionTypeID) {
+			currentSessionDetails.sessionTypeID = sessionTypeID;
 		}
-		public String getSessionTypeName() {
+		public static String getSessionTypeName() {
 			return sessionTypeName;
 		}
-		public void setSessionTypeName(String sessionTypeName) {
-			this.sessionTypeName = sessionTypeName;
+		public static void setSessionTypeName(String sessionTypeName) {
+			currentSessionDetails.sessionTypeName = sessionTypeName;
 		}
-		public String getRunConfigId() {
+		public static String getRunConfigId() {
 			return runConfigId;
 		}
-		public void setRunConfigId(String runConfigId) {
-			this.runConfigId = runConfigId;
+		public static void setRunConfigId(String runConfigId) {
+			currentSessionDetails.runConfigId = runConfigId;
 		}
+	
 				
 	}
 	
 	public static class currentTestDetails{
-		private String runningTestPageId;
-		private String testType;
-		private int testFileCount;
-		private int repeatCount;
-		private double completionPercentage;
-		
-		public String getRunningTestPageId() {
+		private static String runningTestPageId;
+		private static String testType;
+		private static int testFileCount;
+		private static int repeatCount;
+		private static double completionPercentage;
+		public static String getRunningTestPageId() {
 			return runningTestPageId;
 		}
-		public void setRunningTestPageId(String runningTestPageId) {
-			this.runningTestPageId = runningTestPageId;
+		public static void setRunningTestPageId(String runningTestPageId) {
+			currentTestDetails.runningTestPageId = runningTestPageId;
 		}
-		public String getTestType() {
+		public static String getTestType() {
 			return testType;
 		}
-		public void setTestType(String testType) {
-			this.testType = testType;
+		public static void setTestType(String testType) {
+			currentTestDetails.testType = testType;
 		}
-		public int getTestFileCount() {
+		public static int getTestFileCount() {
 			return testFileCount;
 		}
-		public void setTestFileCount(int testFileCount) {
-			this.testFileCount = testFileCount;
+		public static void setTestFileCount(int testFileCount) {
+			currentTestDetails.testFileCount = testFileCount;
 		}
-		public int getRepeatCount() {
+		public static int getRepeatCount() {
 			return repeatCount;
 		}
-		public void setRepeatCount(int repeatCount) {
-			this.repeatCount = repeatCount;
+		public static void setRepeatCount(int repeatCount) {
+			currentTestDetails.repeatCount = repeatCount;
 		}
-		public double getCompletionPercentage() {
+		public static double getCompletionPercentage() {
 			return completionPercentage;
 		}
-		public void setCompletionPercentage(double completionPercentage) {
-			this.completionPercentage = completionPercentage;
+		public static void setCompletionPercentage(double completionPercentage) {
+			currentTestDetails.completionPercentage = completionPercentage;
 		}
-		
+				
 	}
 	
 	private static List<StageObject> stageDatalist ;

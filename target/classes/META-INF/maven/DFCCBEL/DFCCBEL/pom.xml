@@ -35,6 +35,15 @@
 			<artifactId>opencsv</artifactId>
 			<version>5.3</version>
 		</dependency>
+
+		
+		<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>mongodb-driver-sync</artifactId>
+    <version>5.0.0</version>
+</dependency>
+
+
 		<dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -50,6 +59,7 @@
 			<artifactId>pty4j</artifactId>
 			<version>0.9.1</version>
 		</dependency>
+
 	</dependencies>
 	<repositories>
 		<repository>
