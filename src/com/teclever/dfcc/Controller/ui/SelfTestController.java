@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.List;
 import java.util.Random;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.model.SelfTest;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
@@ -60,7 +61,7 @@ public class SelfTestController {
 	public GridPane createSelfTestMainContainerGridPane() {
 
 		selfTestMainContainerGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
 
 		getData();

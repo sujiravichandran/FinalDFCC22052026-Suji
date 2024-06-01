@@ -2,6 +2,8 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,7 +18,7 @@ public class TerminalController {
 	    public void createTerminalPopup() {
 	        if (terminalStage == null) {
 	            try {
-	                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/TerminalPopup.fxml"));
+	                FXMLLoader loader = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/TerminalPopup.fxml"));
 	                Parent root = loader.load();
 	                terminalStage = new Stage();
 	                terminalStage.initModality(Modality.APPLICATION_MODAL);

@@ -7,16 +7,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
-import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
-import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
-import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
-import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
-import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
-import com.teclever.dfcc.model.AitessMacroFiles;
 import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessSymbolFiles.AitessSymbolDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
@@ -32,13 +27,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -74,7 +66,7 @@ public class AitessSymbolFilesController {
 
 	public GridPane symbolFilesConfigParentGrid() {
 		symbolFilesParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessSymbolFiles.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessSymbolFiles.css").toExternalForm());
 		symbolFilesParentGridPane.getStyleClass().add("symbolFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -206,7 +198,7 @@ public class AitessSymbolFilesController {
 			for (AitessSymbolFiles rowData : selectedItems) {
 				try {
 					FXMLLoader addStagePopup = new FXMLLoader(
-							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
+							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
 					Parent root = addStagePopup.load();
 
 					

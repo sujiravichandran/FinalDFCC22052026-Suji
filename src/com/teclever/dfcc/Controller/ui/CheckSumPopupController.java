@@ -2,9 +2,9 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
-import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.filemanagement.ValidateChecksum;
 import com.teclever.dfcc.model.CheckSumList;
 import com.teclever.dfcc.utils.Notifications;
@@ -39,7 +39,7 @@ public class CheckSumPopupController {
 
 	public void initialize() {
 		checkSumMainContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/CheckSum.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CheckSum.css").toExternalForm());
 		createCheckSumPopupContent();
 	}
 

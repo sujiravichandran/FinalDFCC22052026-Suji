@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
@@ -56,7 +57,7 @@ public class OFPDownloadCodeController {
 	
 	public GridPane ofpDownloadCodeParentGrid() {
 		ofpDownloadCodeParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPDownloadCode.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPDownloadCode.css").toExternalForm());
 		ofpDownloadCodeParentGridPane.getStyleClass().add("ofpDownloadCode-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);

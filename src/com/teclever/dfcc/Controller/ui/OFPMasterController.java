@@ -3,13 +3,10 @@ package com.teclever.dfcc.Controller.ui;
 import java.io.IOException;
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
-import com.teclever.dfcc.datastore.dto.TestFileDto;
-import com.teclever.dfcc.model.Aitess;
-import com.teclever.dfcc.model.AitessSymbolFiles;
-import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.model.OFP;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -24,10 +21,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -69,7 +66,7 @@ public class OFPMasterController {
 
 	public GridPane ofpMasterConfigParentGrid() {
 		ofpMasterParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPMaster.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPMaster.css").toExternalForm());
 		ofpMasterParentGridPane.getStyleClass().add("ofpMaster-parent-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -139,7 +136,7 @@ public class OFPMasterController {
 	private void onClickAddOFPButton() {
 		if(UUT_ID!=null) {
 			try {
-				FXMLLoader addOfpPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/AddOFP.fxml"));
+				FXMLLoader addOfpPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddOFP.fxml"));
 				Parent root = addOfpPopup.load();
 				AddOFPController controller = addOfpPopup.getController();
 				controller.setUutID(UUT_ID);

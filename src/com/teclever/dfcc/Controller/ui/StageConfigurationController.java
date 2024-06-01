@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
@@ -103,7 +104,7 @@ public class StageConfigurationController {
 
 	public GridPane stageConfigParentGrid() {
 		stageParentGrid.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/StageConfiguration.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/StageConfiguration.css").toExternalForm());
 
 		stageParentGrid.getStyleClass().add("stageConfig-main-container");
 		ColumnConstraints column1 = new ColumnConstraints();
@@ -391,10 +392,10 @@ public class StageConfigurationController {
 			labelContainer.getChildren().add(sessionTypeHbox);
 		}
 
-		Button addBtn = createImageButton("/Resources/Images/AddIcon.png", "ADD",
+		Button addBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage1.getId(), stage1.getL1_name()));
-		Button editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> editStage1(stage1));
-		Button delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event -> deleteStage(stage1.getId()));
+		Button editBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/Edit.png", "Edit", event -> editStage1(stage1));
+		Button delBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/delete.png", "DEL", event -> deleteStage(stage1.getId()));
 
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
@@ -426,10 +427,10 @@ public class StageConfigurationController {
 
 		Label stageLabel = createLabel(stage.getL_name(), "stage-label");
 
-		Button addBtn = createImageButton("/Resources/Images/AddIcon.png", "ADD",
+		Button addBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage.getId(), stage.getL_name()));
-		Button delBtn = createImageButton("/Resources/Images/delete.png", "DEL", event -> deleteStage(stage.getId()));
-		Button editBtn = createImageButton("/Resources/Images/Edit.png", "Edit", event -> {
+		Button delBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/delete.png", "DEL", event -> deleteStage(stage.getId()));
+		Button editBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/Edit.png", "Edit", event -> {
 			String testTypeName = fetchTestTypeNameById(stage.getTestType());
 			editStage(stage.getId(), stage.getpId(), stage.getL_name(), testTypeName);
 		});
@@ -565,23 +566,23 @@ public class StageConfigurationController {
 	}
 
 	private void addNewStage() {
-		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setNewStageData(stageNameField.getText(), UUT_ID));
 	}
 
 	private void addSubStage(String id, String stageName) {
-		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setAddSubStageData(UUT_ID, id, stageName));
 //		sessionTreeView.getSelectionModel().getSelectedItem().setExpanded(true);
 	}
 
 	private void editStage1(StageOne stage1) {
-		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setEditStage1Data(stage1, UUT_ID));
 	}
 
 	private void editStage(String id, String pId, String stageName, String testtype) {
-		openStagePopup("/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setEditSubStageData(UUT_ID, id, pId, stageName, testtype));
 	}
 

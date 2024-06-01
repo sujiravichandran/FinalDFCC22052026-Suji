@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -20,7 +22,7 @@ public class TopContainerAfterLoginController {
 	
 	public GridPane createTopGridPane() {
 		topGridPane.setId("topContainer");
-		topGridPane.getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/TopContainer.css").toExternalForm());
+		topGridPane.getStylesheets().add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/TopContainer.css").toExternalForm());
 		
 		ColumnConstraints topLeftColumn = new ColumnConstraints();
 		topLeftColumn.setPercentWidth(20);
@@ -46,7 +48,7 @@ public class TopContainerAfterLoginController {
 	}
 	
 	private HBox createBelLogo() {
-        Image image = new Image("/Resources/Images/bell2.png"); 
+        Image image = new Image(DFCCConstant.JARSTRING+"/Resources/Images/bell2.png"); 
         belImageView.setImage(image);
         belImageView.setFitWidth(250);
         belImageView.setFitHeight(90);
@@ -71,7 +73,7 @@ public class TopContainerAfterLoginController {
 	}
 
 	private HBox createTecleverLogo() {
-        Image image = new Image("/Resources/Images/teclever.png"); 
+        Image image = new Image(DFCCConstant.JARSTRING+"/Resources/Images/teclever.png"); 
         tecleverImageView.setImage(image);
         tecleverImageView.setFitWidth(200);
         tecleverImageView.setFitHeight(90);

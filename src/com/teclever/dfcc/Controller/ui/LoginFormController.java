@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.LoginResponse;
@@ -50,7 +51,7 @@ public class LoginFormController {
 
 	public GridPane createLoginForm() {
 		loginConatinerGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(6);
@@ -121,7 +122,7 @@ public class LoginFormController {
 
 		StackPane loginLogoStackPane = new StackPane();
 		ImageView loginLogo = new ImageView();
-		Image image = new Image("/Resources/Images/login_title.png");
+		Image image = new Image(DFCCConstant.JARSTRING+"/Resources/Images/login_title.png");
 		loginLogo.setImage(image);
 		loginLogo.setFitWidth(180);
 		loginLogo.setFitHeight(120);
@@ -323,7 +324,7 @@ public class LoginFormController {
 		VBox changeAdminPasswordBVBox = new VBox(10);
 		changeAdminPasswordBVBox.getStyleClass().add("admin-password-change-popup");
 		changeAdminPasswordBVBox.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 
 		
 		HBox titleHBox = new HBox(5);
@@ -463,7 +464,7 @@ public class LoginFormController {
 		checkSumDataBox.setAlignment(Pos.CENTER);
 		checkSumDataBox.getStyleClass().add("check-sum-data-box");
 		checkSumDataBox.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 
 		HBox checkSumTitleBox = new HBox();
 		checkSumTitleBox.setAlignment(Pos.CENTER);

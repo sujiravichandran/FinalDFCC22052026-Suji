@@ -41,7 +41,7 @@ extends Application {
         System.out.println("Hello World!");
         String driverClass = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/dfcc";
-        String username = "root";
+        String username = "admin";
         String password = "root";
         String dialect = "org.hibernate.dialect.MySQLDialect";
         String hbm2ddlAuto = "update";
@@ -85,7 +85,7 @@ extends Application {
         if (!lockAcquired) {
             return;
         }
-        Parent root = (Parent)FXMLLoader.load(this.getClass().getResource("/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
+        Parent root = (Parent)FXMLLoader.load(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
         Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
         double width = resolution.getWidth();
         double height = resolution.getHeight();
@@ -94,12 +94,12 @@ extends Application {
         Scale scale = new Scale(w, h, 0.0, 0.0);
         root.getTransforms().add(scale);
         Scene scene = new Scene(root);
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/Resources/Images/DFCC-Logo.png")));
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/DFCC-Logo.png")));
         primaryStage.setMaximized(true);
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setScene(scene);
         primaryStage.show();
-        scene.getStylesheets().add(this.getClass().getResource("/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
+        scene.getStylesheets().add(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
         AitessConfigurationManagement configManager = new AitessConfigurationManagement();
         UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
         HashMap<String, String> idNameMap = new HashMap<String, String>();

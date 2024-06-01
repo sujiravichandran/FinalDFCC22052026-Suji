@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 
 import javafx.application.Platform;
@@ -24,7 +25,7 @@ public class AdminDashboardController {
 	
 	public GridPane createAdminDashboard() {
 		bottomMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
 
 		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
@@ -110,33 +111,33 @@ public class AdminDashboardController {
 		});
 		
 		if(UserData.getRoleId().equals("RL_ID_1")) {
-			addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
-			addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
-			addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
-			addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
+			addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "VDD Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png", null);
+			addTreeItemWithChildren(rootItem, "Fault Code Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "AITESS Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 					new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
-			addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
+			addTreeItemWithChildren(rootItem, "OFP Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 					new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
-			addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
-			addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
-			addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
-			addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
+			addTreeItemWithChildren(rootItem, "Stage Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png", null);
+			addTreeItemWithChildren(rootItem, "MACRO Buttons", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png", null);
+			addTreeItemWithChildren(rootItem, "cPCI card's Details", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png", null);
+			addTreeItemWithChildren(rootItem, "Utility", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
 					new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 		}else if (UserData.getRoleId().equals("RL_ID_2")) {
-			addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
 		}
 		
-//		addTreeItemWithChildren(rootItem, "User Management", "/Resources/Images/menuImages/dashboard.png", null);
-//		addTreeItemWithChildren(rootItem, "VDD Config", "/Resources/Images/menuImages/testing.png", null);
-//		addTreeItemWithChildren(rootItem, "Fault Code Config", "/Resources/Images/menuImages/results.png", null);
-//		addTreeItemWithChildren(rootItem, "AITESS Config", "/Resources/Images/menuImages/advance_testing.png",
+//		addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
+//		addTreeItemWithChildren(rootItem, "VDD Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png", null);
+//		addTreeItemWithChildren(rootItem, "Fault Code Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png", null);
+//		addTreeItemWithChildren(rootItem, "AITESS Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 //				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
-//		addTreeItemWithChildren(rootItem, "OFP Config", "/Resources/Images/menuImages/reports.png",
+//		addTreeItemWithChildren(rootItem, "OFP Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 //				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
-//		addTreeItemWithChildren(rootItem, "Stage Config", "/Resources/Images/menuImages/self_test.png", null);
-//		addTreeItemWithChildren(rootItem, "MACRO Buttons", "/Resources/Images/menuImages/lru_test.png", null);
-//		addTreeItemWithChildren(rootItem, "cPCI card's Details", "/Resources/Images/menuImages/test_summary.png", null);
-//		addTreeItemWithChildren(rootItem, "Utility", "/Resources/Images/menuImages/history_reports.png",
+//		addTreeItemWithChildren(rootItem, "Stage Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png", null);
+//		addTreeItemWithChildren(rootItem, "MACRO Buttons", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png", null);
+//		addTreeItemWithChildren(rootItem, "cPCI card's Details", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png", null);
+//		addTreeItemWithChildren(rootItem, "Utility", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
 //				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));

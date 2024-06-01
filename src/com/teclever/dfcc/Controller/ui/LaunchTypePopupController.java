@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
@@ -51,7 +52,7 @@ public class LaunchTypePopupController {
 	
 	public void initialize() {
 		launchTypeMainContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LaunchType.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LaunchType.css").toExternalForm());
 		createLaunchTypePopupContent();
 	}
 	
@@ -161,7 +162,7 @@ public class LaunchTypePopupController {
 //	
 //	public void initialize() {
 //		launchTypeMainContainer.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LaunchType.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LaunchType.css").toExternalForm());
 //		createLaunchTypePopupContent();
 //	}
 //	
