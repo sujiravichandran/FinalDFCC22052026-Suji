@@ -187,11 +187,22 @@ public class SelfTestController {
 		    Timeline timeline = new Timeline();
 		    for (int i = 200; i <= 218; i++) {
 		        int index = i;
-		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+1), event -> {
+		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
 		            Platform.runLater(() -> {
 		            	Random random = new Random();
 		            	int randomValue = random.nextInt(2) + 1;
 		                SelfTestStateObject.updateSelfTestRack1Cardstatus("L3_" + index, null, randomValue);
+		            });
+		        });
+		        timeline.getKeyFrames().add(keyFrame);
+		    }
+		    for (int i = 219; i <= 221; i++) {
+		        int index = i;
+		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
+		            Platform.runLater(() -> {
+		            	Random random = new Random();
+		            	int randomValue = random.nextInt(2) + 1;
+		                SelfTestStateObject.updateSelfTestcPCICardstatus("L3_" + index, null, randomValue);
 		            });
 		        });
 		        timeline.getKeyFrames().add(keyFrame);
