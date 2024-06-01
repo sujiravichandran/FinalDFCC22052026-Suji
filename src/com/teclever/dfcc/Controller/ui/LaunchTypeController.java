@@ -23,7 +23,7 @@ public class LaunchTypeController {
 			stage.initStyle(StageStyle.UNDECORATED);
 
 			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
+		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 750) / 2;
 		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 200) / 2;
 		    stage.setX(centerX);
 		    stage.setY(centerY);
