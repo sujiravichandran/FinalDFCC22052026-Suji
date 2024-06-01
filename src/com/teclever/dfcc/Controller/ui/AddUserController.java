@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
@@ -128,7 +129,7 @@ public class AddUserController {
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addUserMainContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
 	}
 
 	private void createAddUserPopup(String userId) {
@@ -419,7 +420,7 @@ public class AddUserController {
 //
 //	public void initialize(URL arg0, ResourceBundle arg1) {
 //		addUserMainContainer.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
 //		addUserRoleType();
 //	}
 //

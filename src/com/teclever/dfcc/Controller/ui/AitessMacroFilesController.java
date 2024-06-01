@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
@@ -64,7 +65,7 @@ public class AitessMacroFilesController {
 	public GridPane macroFilesConfigParentGrid() {
 
 		macroFilesParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMacroFiles.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessMacroFiles.css").toExternalForm());
 		macroFilesParentGridPane.getStyleClass().add("macroFiles-parent-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -195,7 +196,7 @@ public class AitessMacroFilesController {
 			for (AitessMacroFiles rowData : selectedItems) {
 				try {
 					FXMLLoader addStagePopup = new FXMLLoader(
-							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
+							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
 					Parent root = addStagePopup.load();
 
 //					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()

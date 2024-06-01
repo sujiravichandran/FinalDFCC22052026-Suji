@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
@@ -57,7 +58,7 @@ public class AitessDownloadCodeController {
 
 	public GridPane downloadCodeConfigParentGrid() {
 		downloadCodeParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessDownloadCode.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessDownloadCode.css").toExternalForm());
 		downloadCodeParentGridPane.getStyleClass().add("downloadCode-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);

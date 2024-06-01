@@ -4,10 +4,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
-import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
 import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
@@ -301,7 +301,7 @@ public class AddStageController implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addStageMainContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AddStage.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddStage.css").toExternalForm());
 	}
 
 	private void initializeComboBox() {

@@ -2,6 +2,8 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -15,7 +17,7 @@ public class LaunchTypeController {
 	
 	public void createLaunchTypePopup() {
 		try {
-			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/LaunchType.fxml"));
+			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/LaunchType.fxml"));
 			Parent root = addUserPopup.load();
 			Stage stage = new Stage();
 			stage.setTitle("Select Launch Type");

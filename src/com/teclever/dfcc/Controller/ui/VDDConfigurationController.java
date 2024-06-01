@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
 import com.teclever.dfcc.datastore.filemanagement.VDDManagement;
@@ -45,7 +46,7 @@ public class VDDConfigurationController {
 	
 	public GridPane createVddConfigGridPane() {
 		vddConfigMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/VDDConfiguration.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/VDDConfiguration.css").toExternalForm());
 		vddConfigMainGridPane.getStyleClass().add("vdd-config-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();

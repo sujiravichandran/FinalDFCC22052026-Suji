@@ -2,6 +2,8 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -14,7 +16,7 @@ import javafx.stage.StageStyle;
 public class AdminPasswordController {
 	public void createAdminPasswordPopup() {
 		try {
-			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/AdminPassword.fxml"));
+			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AdminPassword.fxml"));
 			Parent root = addUserPopup.load();
 			Stage stage = new Stage();
 			stage.setTitle("Change Password");

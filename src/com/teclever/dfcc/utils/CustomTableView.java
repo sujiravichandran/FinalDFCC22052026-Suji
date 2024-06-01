@@ -3,6 +3,9 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Blob;
 import java.sql.SQLException;
+
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -40,7 +43,7 @@ public class CustomTableView<T> extends TableView<T> {
 		super(items);
 		classname = clazz.getSimpleName();
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm());
+		getStylesheets().add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm());
 		setTableMenuButtonVisible(false);
 		setPadding(new Insets(10));
 		setStyle("-fx-background-color:#222831;");
@@ -236,9 +239,9 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		this.tableView = tableView;
 		hBox = new HBox(10);
 		hBox.setAlignment(Pos.CENTER);
-		delBtn = createButton("/Resources/Images/DeleteIcon.png", CustomTableView.DELETE_BUTTON_CLICKED_EVENT);
-		editBtn = createButton("/Resources/Images/EditIcon.png", CustomTableView.EDIT_BUTTON_CLICKED_EVENT);
-		viewBtn = createButton("/Resources/Images/View.png", CustomTableView.VIEW_BUTTON_CLICKED_EVENT);
+		delBtn = createButton(DFCCConstant.JARSTRING+"/Resources/Images/DeleteIcon.png", CustomTableView.DELETE_BUTTON_CLICKED_EVENT);
+		editBtn = createButton(DFCCConstant.JARSTRING+"/Resources/Images/EditIcon.png", CustomTableView.EDIT_BUTTON_CLICKED_EVENT);
+		viewBtn = createButton(DFCCConstant.JARSTRING+"/Resources/Images/View.png", CustomTableView.VIEW_BUTTON_CLICKED_EVENT);
 		hBox.getChildren().add(delBtn);
 	}
 	private Button createButton(String iconPath, EventType<Event> eventType) {

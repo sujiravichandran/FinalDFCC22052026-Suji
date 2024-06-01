@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.UserGetAllResponse;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
@@ -18,7 +19,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -31,7 +31,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -74,7 +73,7 @@ public class UserManagementController {
 	public GridPane createUserManagemenGridPane() {
 
 		userManagementGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
 		userManagementGridPane.getStyleClass().add("user-management-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -179,7 +178,7 @@ public class UserManagementController {
 
 	private void handleAddEditButtonClicked(User userData) {
 		try {
-			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource("/com/teclever/dfcc/ui/fxml/AddUser.fxml"));
+			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddUser.fxml"));
 			Parent root = addUserPopup.load();
 
 			AddUserController controller = addUserPopup.getController();
@@ -332,7 +331,7 @@ public class UserManagementController {
 //	public GridPane createUserManagemenGridPane() {
 //
 //		userManagementGridPane.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
 //		userManagementGridPane.getStyleClass().add("user-management-container");
 //		
 //		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -487,7 +486,7 @@ public class UserManagementController {
 //		VBox addEditUserVBox = new VBox(10);
 //		addEditUserVBox.getStyleClass().add("add-edit-user-popup");
 //		addEditUserVBox.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserManagement.css").toExternalForm());
 //
 //		HBox titleHBox = new HBox(5);
 //		titleHBox.setAlignment(Pos.CENTER);

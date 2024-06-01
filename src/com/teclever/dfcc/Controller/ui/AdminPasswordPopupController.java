@@ -2,6 +2,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -59,7 +60,7 @@ public class AdminPasswordPopupController {
 
 	public void initialize() {
 		changePasswordMainContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AdminPassword.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AdminPassword.css").toExternalForm());
 		createLaunchTypePopupContent();
 	}
 
@@ -160,7 +161,7 @@ public class AdminPasswordPopupController {
 //
 //	public void initialize() {
 //		changePasswordMainContainer.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AdminPassword.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AdminPassword.css").toExternalForm());
 //		createLaunchTypePopupContent();
 //	}
 //

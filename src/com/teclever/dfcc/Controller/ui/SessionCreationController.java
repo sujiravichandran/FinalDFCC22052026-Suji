@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
@@ -25,7 +26,6 @@ import com.teclever.dfcc.datastore.dto.StageMasterLevelDto;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
-import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -162,7 +162,7 @@ public class SessionCreationController {
 
 	public GridPane createSession() {
 		sessionCreationParentGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SessionCreation.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SessionCreation.css").toExternalForm());
 		sessionCreationParentGridPane.setVgap(10);
 
 		ColumnConstraints firstColumn = new ColumnConstraints();

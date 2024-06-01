@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
@@ -67,7 +68,7 @@ public class OFPSymbolFilesController {
 	
 	public GridPane ofpSymbolFileParentGrid() {
 		ofpSymbolFilesParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPSymbolFiles.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPSymbolFiles.css").toExternalForm());
 		ofpSymbolFilesParentGridPane.getStyleClass().add("ofpSymbolFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -202,7 +203,7 @@ public class OFPSymbolFilesController {
 			for (AitessSymbolFiles rowData : selectedItems) {
 				try {
 					FXMLLoader addStagePopup = new FXMLLoader(
-							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
+							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
 					Parent root = addStagePopup.load();
 
 					

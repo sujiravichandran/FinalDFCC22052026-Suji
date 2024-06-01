@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.response.MacroButtonMapResponse;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
@@ -50,7 +51,7 @@ public class MacroButtonsController {
 
     public GridPane createMacroButtonsMainGridPane() {
         macroButtonsMainGridPane.getStylesheets()
-                .add(getClass().getResource("/com/teclever/dfcc/ui/css/MacroButtons.css").toExternalForm());
+                .add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/MacroButtons.css").toExternalForm());
         macroButtonsMainGridPane.getStyleClass().add("macro-button-container");
         
         ColumnConstraints firstColumn = new ColumnConstraints();
@@ -306,7 +307,7 @@ public class MacroButtonsController {
 //
 //    public GridPane createMacroButtonsMainGridPane() {
 //        macroButtonsMainGridPane.getStylesheets()
-//                .add(getClass().getResource("/com/teclever/dfcc/ui/css/MacroButtons.css").toExternalForm());
+//                .add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/MacroButtons.css").toExternalForm());
 //        macroButtonsMainGridPane.getStyleClass().add("macro-button-container");
 //        
 //        ColumnConstraints firstColumn = new ColumnConstraints();
