@@ -10,7 +10,6 @@ public class SessionDTO {
 	private String sessionName;
 	private String sessionTypeMasterId;
 	private String userId;
-	private String dfccType;
 	private String dfccSNo;
 	private String dfccPartNo;
 	private Date creationDate;
@@ -74,14 +73,6 @@ public class SessionDTO {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
-	}
-
-	public String getDfccType() {
-		return dfccType;
-	}
-
-	public void setDfccType(String dfccType) {
-		this.dfccType = dfccType;
 	}
 
 	public String getDfccSNo() {

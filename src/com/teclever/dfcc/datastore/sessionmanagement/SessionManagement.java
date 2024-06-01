@@ -11,7 +11,7 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.StageLevelResponse;
-import com.teclever.datastore.entities.LoginSessionDetails;
+import com.teclever.datastore.entities.LoginSession;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
@@ -50,7 +50,6 @@ public class SessionManagement {
 			sessionDto.setCreationDate(sqlDate);
 			sessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
 			sessionDto.setDfccSNo(sessionDTO.getDfccSNo());
-			sessionDto.setDfccType(sessionDTO.getDfccType());
 			sessionDto.setSessionName(sessionDTO.getSessionName());
 			sessionDto.setSessionTypeMasterId(sessionDTO.getSessionTypeMasterId());
 			sessionDto.setUserId(sessionDTO.getUserId());
@@ -95,7 +94,7 @@ public class SessionManagement {
 				}
 			}
 			LoginSessionService loginSessionService = new LoginSessionService();
-			LoginSessionDetails loginSessionDetails = new LoginSessionDetails();
+			LoginSession loginSessionDetails = new LoginSession();
 			loginSessionDetails.setUserId(sessionDTO.getUserId());
 			loginSessionDetails.setSessionId(sessionId);
 
@@ -269,7 +268,6 @@ public class SessionManagement {
 			sessionDtoResponse.setSessionName(sessionEntity.getSessionName());
 			sessionDtoResponse.setSessionTypeMasterId(sessionEntity.getSessionTypeMasterId());
 			sessionDtoResponse.setUserId(sessionEntity.getUserId());
-			sessionDtoResponse.setDfccType(sessionEntity.getDfccType());
 			sessionDtoResponse.setDfccSNo(sessionEntity.getDfccSNo());
 			sessionDtoResponse.setDfccPartNo(sessionEntity.getDfccPartNo());
 			sessionDtoResponse.setCreationDate(sessionEntity.getCreationDate());

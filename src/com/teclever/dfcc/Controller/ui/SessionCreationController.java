@@ -431,12 +431,12 @@ public class SessionCreationController {
 
 		SessionDTO sessionDTO = new SessionDTO();
 		sessionDTO.setUutId(UUT_ID);
-		sessionDTO.setDfccType(UUT_ID);
+//		sessionDTO.setDfccType(UUT_ID);
 		sessionDTO.setSessionName(sessionNameField.getText());
 		sessionDTO.setSessionTypeMasterId(SESSION_TYPE_ID);
 		sessionDTO.setUserId(USER_ID);
-		sessionDTO.setDfccSNo(Integer.parseInt(dfccSNoField.getText()));
-		sessionDTO.setDfccPartNo(Integer.parseInt(dfccPartNoField.getText()));
+		sessionDTO.setDfccSNo(dfccSNoField.getText());
+		sessionDTO.setDfccPartNo(dfccPartNoField.getText());
 		sessionDTO.setStartRemarks(startRemarksTextArea.getText());
 		sessionDTO.setSessionStagesList(sessionStagesList);
 		sessionDTO.setFaultCodeMappingList(selectedFaultCodeList);
