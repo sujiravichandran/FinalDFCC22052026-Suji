@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
@@ -91,18 +92,32 @@ public class TerminalPopupController {
                 );
             }
         });
-		handler1 = new ProcessControl(queue);
+
+//		handler1 = new ProcessControl(queue);
+
+
 
 	}
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
+
+
+//    	 String inputText = terminalTextField.getText().trim();
+//         if (!inputText.isEmpty()) {
+//             appendTextToWebView(inputText + "\n");
+//             terminalTextField.clear(); 
+//         }
+		TestManagerManagement tm = new TestManagerManagement();
+		tm.preLoadDriver();
+
 		String inputCommand = terminalTextField.getText() + "\n";
 		if (!processLaunched) {
 			CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
-			handler1.LaunchingProcess(inputCommand, launcherFuture1);
+			handler1.LaunchingProcess(inputCommand, launcherFuture1,null,false,null);
 			launcherFuture1.thenRun(() -> {
-				handler1.ReadingProcess();
+
+//				handler1.ReadingProcess();
 				new Thread(() -> {
 					try {
 						while (true) {
@@ -119,6 +134,8 @@ public class TerminalPopupController {
 						e1.printStackTrace();
 					}
 				}).start();
+				//handler1.ReadingProcess(webEngine);
+
 			});
 			processLaunched = true;
 		} else {

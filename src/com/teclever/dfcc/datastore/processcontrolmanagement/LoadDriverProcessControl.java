@@ -13,9 +13,11 @@ public class LoadDriverProcessControl {
     private ProcessControl loadDriverProcessControl;
     private BlockingQueue<String> loadDriverQueue = new ArrayBlockingQueue<>(100);
     private Thread outputProcessingThread;
+    private boolean isTerminalLaunched = false; // Flag to track terminal launch status
+    private boolean isDriverLoaded = false; // Flag to track driver load status
 
     private LoadDriverProcessControl() {
-        loadDriverProcessControl = new ProcessControl(loadDriverQueue);
+        loadDriverProcessControl = new ProcessControl();
     }
 
     public static synchronized LoadDriverProcessControl getInstance() {
@@ -25,29 +27,45 @@ public class LoadDriverProcessControl {
         return instance;
     }
 
+    public boolean isDriverLoaded() {
+        return isDriverLoaded;
+    }
+
     void launchLoadDriver(String command) {
-        CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
-        loadDriverProcessControl.LaunchingProcess(command, launcherFuture);
-        launcherFuture.thenRun(() -> {
-            loadDriverProcessControl.ReadingProcess();
-            outputProcessingThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        String cleanText;
-                        String output = loadDriverQueue.take();
-                        cleanText = cleanOutput(output);
-                        cleanText = cleanText.replaceAll("\\(B", "");
-                        cleanText = cleanText.replaceAll("]104", "");
-                        final String finalLine = cleanText;
-                        
-                        System.out.println(finalLine);
+        if (!isTerminalLaunched) {
+            CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
+            loadDriverProcessControl.LaunchingProcess(command, launcherFuture,loadDriverQueue,false,null);
+            launcherFuture.thenRun(() -> {
+                //loadDriverProcessControl.ReadingProcess();
+                outputProcessingThread = new Thread(() -> {
+                    try {
+                        while (true) {
+                            String cleanText;
+                            String output = loadDriverQueue.take();
+                            cleanText = cleanOutput(output);
+                            cleanText = cleanText.replaceAll("\\(B", "");
+                            cleanText = cleanText.replaceAll("]104", "");
+                            final String finalLine = cleanText;
+                            
+                            System.out.println(finalLine);
+                        }
+                    } catch (InterruptedException e1) {
+                        // Thread interrupted, stopping gracefully
                     }
-                } catch (InterruptedException e1) {
-                    // Thread interrupted, stopping gracefully
-                }
+                });
+                outputProcessingThread.start();
+                isTerminalLaunched = true; // Set the flag to true after launching terminal
+                isDriverLoaded = true; // Set the flag to true after launching driver
             });
-            outputProcessingThread.start();
-        });
+        } else {
+            System.out.println("Terminal already launched. Skipping additional launch.");
+        }
+    }
+
+    
+    
+    void write(String command) {
+    	 loadDriverProcessControl.WritingProcess(command + "\n");
     }
 
     void terminateLoadDriver(String command) {
@@ -57,6 +75,8 @@ public class LoadDriverProcessControl {
         if (outputProcessingThread != null) {
             outputProcessingThread.interrupt(); 
         }
+        isDriverLoaded = false; // Reset driver load flag
+
     }
 
     private String cleanOutput(String output) {
@@ -66,4 +86,9 @@ public class LoadDriverProcessControl {
         Matcher matcher1 = pattern1.matcher(output);
         return matcher1.replaceAll("");
     }
+    
+    public String getOutputFromQueue() throws InterruptedException {
+        return cleanOutput(loadDriverQueue.take());
+    }
+    
 }

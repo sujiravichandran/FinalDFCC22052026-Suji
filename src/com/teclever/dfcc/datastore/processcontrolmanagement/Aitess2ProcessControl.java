@@ -13,7 +13,7 @@ public class Aitess2ProcessControl {
     private Thread outputProcessingThread;
 
     private Aitess2ProcessControl() {
-        aitess2ProcessControl = new ProcessControl(queue);
+        //aitess2ProcessControl = new ProcessControl(queue);
     }
 
     public static synchronized Aitess2ProcessControl getInstance() {
@@ -24,22 +24,22 @@ public class Aitess2ProcessControl {
     }
 
     public void launchAitess(String command) {
-        CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
-        aitess2ProcessControl.LaunchingProcess(command, launcherFuture);
-        launcherFuture.thenRun(() -> {
-            aitess2ProcessControl.ReadingProcess();
-            outputProcessingThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        String output = queue.take();
-                        System.out.println(output);
-                    }
-                } catch (InterruptedException e1) {
-                    // Thread interrupted, stopping gracefully
-                }
-            });
-            outputProcessingThread.start();
-        });
+//        CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
+//        aitess2ProcessControl.LaunchingProcess(command, launcherFuture);
+//        launcherFuture.thenRun(() -> {
+//            aitess2ProcessControl.ReadingProcess();
+//            outputProcessingThread = new Thread(() -> {
+//                try {
+//                    while (true) {
+//                        String output = queue.take();
+//                        System.out.println(output);
+//                    }
+//                } catch (InterruptedException e1) {
+//                    // Thread interrupted, stopping gracefully
+//                }
+//            });
+//            outputProcessingThread.start();
+//        });
     }
 
     public void executeTestFiles(String command) {

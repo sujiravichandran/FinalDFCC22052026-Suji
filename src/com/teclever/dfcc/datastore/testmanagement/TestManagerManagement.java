@@ -1,25 +1,69 @@
 package com.teclever.dfcc.datastore.testmanagement;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
-import com.teclever.datastore.dto.GetObjResponse;
-import com.teclever.datastore.dto.Response;
-import com.teclever.datastore.entities.SessionEntity;
-import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.datastore.service.SessionSelectedStagesService;
-import com.teclever.datastore.service.SessionService;
-import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
-import com.teclever.datastore.service.SessionStagesTestFilesResultService;
-import com.teclever.datastore.utils.GetResponse;
-import com.teclever.dfcc.datastore.dto.StagesTestFilesResultDTO;
+import com.teclever.dfcc.datastore.processcontrolmanagement.Aitess1ProcessControl;
+import com.teclever.dfcc.datastore.processcontrolmanagement.ProcessControlManagement;
 
 public class TestManagerManagement {
-		
-	public void startTest(String sessionId, String stageId, String testTypeId,String listOfTestFiles,int repeatCount, boolean stopOnError)
+	
+	private static String homeLocation = "home/bel/desktop/";
+	private static String configHomeLocation = "home/bel/desktop/config.dat";
+	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
+	private static String cacheFilePath = "home/bel/desktop/.cache";
+	ProcessControlManagement pcm = new ProcessControlManagement();
+    AitessAction action;
+
+	public enum AitessAction {
+	    TERMINATE,
+	    LOAD_AITESS,
+	    EXECUTE_TPF_FILES
+	}
+
+
+	
+    public void preLoadDriver() {
+    	
+        // Get uutId from STATE MACHINE
+        String uutId = "UUT1";
+        
+        //testTypeId for SELF TEST
+        String testTypeId = "TT1";
+
+        RunConfigurationService runConfigurationService = new RunConfigurationService();
+
+        // Get runConfigId based on uutId and testTypeId
+        String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+
+        // Get runConfigId Details from DB in object
+        AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
+
+        // Load driver in STARTUP mode and returning Driver Card Details
+//        ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
+        ProcessControlManagement.loadDriver("cd /home/teclever/Documents/load_data",null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
+
+        //wait for some time after loading driver ????
+        
+        
+        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
+        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
+        deleteCacheFile(cacheFilePath);								//delete cache file
+        //Loading Aitess
+        ProcessControlManagement.loadAitess(aitess.getAitessCommand());  
+    	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
+    	pcm.startAitess1ManagementThread();
+    	//aitess1ProcessControl.write(aitess.getAitessCommand());
+        
+    }
+	
+	
+	
+	public void startTest(String sessionId, String stageId, String testTypeId,String testfile,int repeatCount, boolean stopOnError)
 	{
 		//get uutId from STATE MACHINE
 		String uutId = "UUT1";
@@ -38,123 +82,102 @@ public class TestManagerManagement {
 		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
 		
 		System.out.println();
-		
-			
-		if(currentAitess.getDriverName().equals(aitess.getDriverName()))
-		{
-			System.out.println("<< Drivers Matched >> "+ "currentAitess: "+currentAitess.getDriverName()+ " ::: " +"aitess: " + aitess.getDriverName());
-		}else 
-		{
-			System.out.println("<< Drivers NOT Matched >> "+ "currentAitess: "+currentAitess.getDriverName()+ " ::: " +"aitess: " + aitess.getDriverName());
-		}
-	
-		
-		if(currentAitess.getAitessName().equals(aitess.getAitessName()))
-		{
-			System.out.println("<< Aitess Matched >> "+ "currentAitess: "+currentAitess.getAitessName()+ " ::: " +"aitess: " + aitess.getAitessName());
-			
-		}else
-		{
-			System.out.println("<< Aitess NOT Matched >> "+ "currentAitess: "+currentAitess.getAitessName()+ " ::: " +"aitess: " + aitess.getAitessName());
+    	Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();
 
-		}
-		
-		
-		if(currentAitess.getConfigFile().equals(aitess.getConfigFile()))
+			
+		if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
+
+            ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
+            System.out.println("<< Drivers NOT Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
+        } else {
+            System.out.println("<< Drivers Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
+        
+        }
+	
+		if(!currentAitess.getConfigFile().equals(aitess.getConfigFile()))
+		{
+	        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
+	        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
+	        deleteCacheFile(cacheFilePath);								//delete cache file
+	        
+			System.out.println("<< ConfigFile NOT Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
+			
+		}else 
 		{
 			System.out.println("<< ConfigFile Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
-
-		}else 
-		{
-			System.out.println("<< ConfigFile NOT Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
-
 		}
 		
-		
-		
-	}
+
+		if (!currentAitess.getAitessName().equals(aitess.getAitessName())) {
+	        action = AitessAction.TERMINATE;
+	    } else if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
+	        action = AitessAction.LOAD_AITESS;      
+	    } else {
+	        action = AitessAction.EXECUTE_TPF_FILES;
+	    }
 	
+		
 	
-	private Response updateStatusAndRunCount(String sessionId, String testTypeId, int repeatCount) {
-		Response res = new Response();
-		try {
-			SessionService sessionService = new SessionService();
-			GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-			SessionEntity sessionEntity = (SessionEntity) objResponse.getObject();
-			Date utilDate = new Date();
-			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-			sessionEntity.setStartDate(sqlDate);
-			res = sessionService.updateSession(sessionEntity);
-			if (res.getResponseCode() == 0) {
-				return res;
-			}
-			SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
-			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId,
-					testTypeId);
-			if (res.getResponseCode() == 0) {
-				return res;
-			}
-		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Update Unsuccessful ");
-
-		}
-		return res;
-
+	 switch (action) {
+     case TERMINATE:
+	        try {
+	            pcm.waitForAitessExpectedOutput(">>>");
+	        } catch (InterruptedException e) {
+	            e.printStackTrace();
+	        }	    
+         aitess1ProcessControl.terminateAitess("exit");
+         break;
+         
+     case LOAD_AITESS:
+	        try {
+	            pcm.waitForAitessExpectedOutput("STRING FOR DETECTING AITESS TERMINATING PROCESS FINISHED ???");
+	        } catch (InterruptedException e) {
+	            e.printStackTrace();
+	        }
+         ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(), 0, ProcessControlManagement.LoadMode.SWITCH);
+         copyConfigFile(aitess.getConfigFile(), configHomeLocation);
+         copyConfigFile(startupUserFileLocation, homeLocation);
+         deleteCacheFile(cacheFilePath);
+         aitess1ProcessControl.write(aitess.getAitessCommand());
+         break;
+         
+     case EXECUTE_TPF_FILES:
+		    try {
+		        pcm.waitForAitessExpectedOutput(">>>");
+		    } catch (InterruptedException e) {
+		        e.printStackTrace();
+		    }
+         aitess1ProcessControl.write("@" + testfile);
+         
+         break;
+	 }
+	 
 	}
 
-	private Response addSelectedTestFile(List<String> testFileId, String stageId) {
-		Response res = new Response();
-		try {
-			SessionStagesSelectedTestFilesService selectedTestFile = new SessionStagesSelectedTestFilesService();
-			res = selectedTestFile.addSelectedFilesToStages(testFileId, stageId);
-		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Add Selected Test File Unsuccessful ");
+		private void copyConfigFile(String sourcePath, String destinationPath) {
+		    try {
+		        Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+		        System.out.println("Config file copied from " + sourcePath + " to " + destinationPath);
+		    } catch (IOException e) {
+		        System.err.println("An error occurred while copying the config file: " + e.getMessage());
+		        e.printStackTrace();
+		    }
 		}
-		return res;
-	}
 
-	public Response saveTestFileResult(List<StagesTestFilesResultDTO> listOfTestFileResultData) {
-		Response res = new Response();
-		try {
-			SessionStagesTestFilesResultService selectedTestFile = new SessionStagesTestFilesResultService();
-			List<SessionStagesTestFilesResult> listOfTestFileResult = new ArrayList<>();
-			for (StagesTestFilesResultDTO stagesTestFilesResultDTO : listOfTestFileResultData) {
-				SessionStagesTestFilesResult testFileResult = new SessionStagesTestFilesResult();
-				testFileResult.setSessionStagesTestFilesResultId(
-						stagesTestFilesResultDTO.getSessionStagesTestFilesResultId());
-				testFileResult.setSessionId(stagesTestFilesResultDTO.getSessionId());
-				testFileResult.setStageId(stagesTestFilesResultDTO.getStageId());
-				testFileResult.setTestFileId(stagesTestFilesResultDTO.getTestFileId());
-				testFileResult.setSystemResultInfoId(stagesTestFilesResultDTO.getSystemResultInfoId());
-				testFileResult.setRdfPath(stagesTestFilesResultDTO.getRdfPath());
-				testFileResult.setRdfFileName(stagesTestFilesResultDTO.getRdfFileName());
-				testFileResult.setTestStatus(stagesTestFilesResultDTO.getTestStatus());
-				testFileResult.setdStarCount(stagesTestFilesResultDTO.getdStarCount());
-				testFileResult.setStartTime(stagesTestFilesResultDTO.getStartTime());
-				testFileResult.setEndTime(stagesTestFilesResultDTO.getEndTime());
-
-				listOfTestFileResult.add(testFileResult);
-			}
-			GetResponse getObjResponse = selectedTestFile.addTestFilesResult(listOfTestFileResult);
-			List<StagesTestFilesResultDTO> listOfTestFileResultDto = new ArrayList<>();
-			for (Object obj : getObjResponse.getResponseList()) {
-				SessionStagesTestFilesResult testFileResult = (SessionStagesTestFilesResult) obj;
-				StagesTestFilesResultDTO stagesTestFilesResultDTO = new StagesTestFilesResultDTO(
-						testFileResult.getSessionStagesTestFilesResultId(), testFileResult.getSessionId(),
-						testFileResult.getStageId(), testFileResult.getTestFileId(),
-						testFileResult.getSystemResultInfoId(), testFileResult.getRdfPath(),
-						testFileResult.getRdfFileName(), testFileResult.getTestStatus(), testFileResult.getdStarCount(),
-						testFileResult.getStartTime(), testFileResult.getEndTime());
-				listOfTestFileResultDto.add(stagesTestFilesResultDTO);
-			}
-//			return listOfTestFileResultDto;
-		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Add Selected Test File Unsuccessful ");
-		}
-		return res;
-	}
-
+		 private void deleteCacheFile(String cacheFilePath) {
+		        try {
+		            Path path = Paths.get(cacheFilePath);
+		            if (Files.exists(path)) {
+		                Files.delete(path);
+		                System.out.println("Cache file deleted from " + cacheFilePath);
+		            } else {
+		                System.out.println("Cache file does not exist at " + cacheFilePath);
+		            }
+		        } catch (IOException e) {
+		            System.err.println("An error occurred while deleting the cache file: " + e.getMessage());
+		            e.printStackTrace();
+		        }
+		 }
+		
+		
 }
