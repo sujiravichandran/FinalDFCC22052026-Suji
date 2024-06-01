@@ -75,7 +75,7 @@ public class TestManagerManagement {
 	}
 	
 	
-	public Response updateStatusAndRunCount(String sessionId, String testTypeId, int repeatCount) {
+	private Response updateStatusAndRunCount(String sessionId, String testTypeId, int repeatCount) {
 		Response res = new Response();
 		try {
 			SessionService sessionService = new SessionService();
@@ -103,7 +103,7 @@ public class TestManagerManagement {
 
 	}
 
-	public Response addSelectedTestFile(List<String> testFileId, String stageId) {
+	private Response addSelectedTestFile(List<String> testFileId, String stageId) {
 		Response res = new Response();
 		try {
 			SessionStagesSelectedTestFilesService selectedTestFile = new SessionStagesSelectedTestFilesService();
@@ -115,7 +115,7 @@ public class TestManagerManagement {
 		return res;
 	}
 
-	public Response addTestFileResult(List<StagesTestFilesResultDTO> listOfTestFileResultData) {
+	public Response saveTestFileResult(List<StagesTestFilesResultDTO> listOfTestFileResultData) {
 		Response res = new Response();
 		try {
 			SessionStagesTestFilesResultService selectedTestFile = new SessionStagesTestFilesResultService();
