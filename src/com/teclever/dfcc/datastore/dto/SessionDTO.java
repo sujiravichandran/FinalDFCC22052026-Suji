@@ -11,8 +11,8 @@ public class SessionDTO {
 	private String sessionTypeMasterId;
 	private String userId;
 	private String dfccType;
-	private int dfccSNo;
-	private int dfccPartNo;
+	private String dfccSNo;
+	private String dfccPartNo;
 	private Date creationDate;
 	private Date startDate;
 	private Date endDate;
@@ -84,19 +84,19 @@ public class SessionDTO {
 		this.dfccType = dfccType;
 	}
 
-	public int getDfccSNo() {
+	public String getDfccSNo() {
 		return dfccSNo;
 	}
 
-	public void setDfccSNo(int dfccSNo) {
+	public void setDfccSNo(String dfccSNo) {
 		this.dfccSNo = dfccSNo;
 	}
 
-	public int getDfccPartNo() {
+	public String getDfccPartNo() {
 		return dfccPartNo;
 	}
 
-	public void setDfccPartNo(int dfccPartNo) {
+	public void setDfccPartNo(String dfccPartNo) {
 		this.dfccPartNo = dfccPartNo;
 	}
 
