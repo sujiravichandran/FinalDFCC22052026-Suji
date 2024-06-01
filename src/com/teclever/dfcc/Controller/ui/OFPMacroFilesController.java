@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
-import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -65,7 +65,7 @@ public class OFPMacroFilesController {
 	
 	public GridPane ofpMacroFileParentGrid() {
 		ofpMacroFilesParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPMacroFiles.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPMacroFiles.css").toExternalForm());
 		ofpMacroFilesParentGridPane.getStyleClass().add("ofpMacroFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -198,7 +198,7 @@ public class OFPMacroFilesController {
 			for (AitessMacroFiles rowData : selectedItems) {
 				try {
 					FXMLLoader addStagePopup = new FXMLLoader(
-							getClass().getResource("/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
+							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
 					Parent root = addStagePopup.load();
 
 					

@@ -120,7 +120,7 @@ public class RunConfigurationController {
 	public GridPane runconfigurationGridPane() {
 
 		runconfigurationGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/RunConfiguration.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/RunConfiguration.css").toExternalForm());
 		
 		runconfigurationGridPane.getStyleClass().add("runConfiguration-main-container");
 
@@ -341,7 +341,7 @@ public class RunConfigurationController {
 
 	private void onClickGETButton() {
 		try {
-			FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/com/teclever/dfcc/ui/fxml/AddRun.fxml"));
+			FXMLLoader loader = new FXMLLoader(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddRun.fxml"));
 			Parent root = loader.load();
 
 			Stage popupStage = new Stage();

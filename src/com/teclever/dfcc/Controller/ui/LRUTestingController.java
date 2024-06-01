@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.model.LRUTest;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -79,7 +81,7 @@ public class LRUTestingController {
 	public GridPane createlruTestMainContainerGridPane() {
 
 		lruTestMainContainerGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
 		lruTestMainContainerGridPane.getStyleClass().add("lruTest-main-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -495,7 +497,7 @@ private VBox subTestVBox() {
 	private TableView<LRUTest> createTableView() {
 		TableView<LRUTest> tableView = new TableView<>();
 		tableView.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 //		tableView.setPrefWidth(1250);

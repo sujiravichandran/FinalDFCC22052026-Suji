@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -15,7 +17,7 @@ public class MainWindowController{
 		
 	public void initialize() {
 		mainWindow.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
 		GridPane mainGridPane = new GridPane();
 		mainGridPane.prefWidthProperty().bind(mainWindow.prefWidthProperty());
 		mainGridPane.prefHeightProperty().bind(mainWindow.prefHeightProperty());

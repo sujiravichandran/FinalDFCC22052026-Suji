@@ -2,6 +2,7 @@ package com.teclever.dfcc.utils;
 
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
@@ -85,7 +86,7 @@ public class AitessConfigHeader {
 
 	public GridPane aitessMiddleContainer() {
 		aitessMiddleGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessConfigHeader.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessConfigHeader.css").toExternalForm());
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(15);

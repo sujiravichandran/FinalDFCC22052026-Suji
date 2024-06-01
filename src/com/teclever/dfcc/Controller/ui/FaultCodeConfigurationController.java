@@ -2,11 +2,11 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.model.FaultCodeConfig;
-import com.teclever.dfcc.model.VDDConfiguraion;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -46,7 +46,7 @@ public class FaultCodeConfigurationController {
 	
 	public GridPane createFaultCodeConfigGridPane() {
 		faultCodeConfigMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/FaultCodeConfiguration.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/FaultCodeConfiguration.css").toExternalForm());
 		faultCodeConfigMainGridPane.getStyleClass().add("fault-code-config-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();

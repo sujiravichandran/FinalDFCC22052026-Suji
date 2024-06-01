@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -46,7 +48,7 @@ public class BottomContainerController {
 //	    bottomSubPane.setStyle("-fx-background-color: #31363F;-fx-border-radius:10px;-fx-background-radius:10px");
 	    bottomSubPane.getStyleClass().add("bottom-sub-container");
 		bottomStackPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/BottomContainer.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/BottomContainer.css").toExternalForm());
 
 
 	    bottomGridPane.add(bottomSubPane, 1, 1);
@@ -54,7 +56,7 @@ public class BottomContainerController {
 		    
 	    bottomStackPane.getChildren().add(bottomGridPane);
 		 
-	    Image backgroundImage = new Image("/Resources/Images/TejasBG_3_1600x800.png");
+	    Image backgroundImage = new Image(DFCCConstant.JARSTRING+"/Resources/Images/TejasBG_3_1600x800.png");
 	    ImageView backgroundImageView = new ImageView(backgroundImage);
 
 		StackPane.setAlignment(backgroundImageView, Pos.TOP_LEFT);

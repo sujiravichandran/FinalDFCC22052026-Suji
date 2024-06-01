@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -36,7 +37,7 @@ public class UserDashboardController {
 	
 	public GridPane createUserDashboard() {
 		bottomMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
 
 		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
@@ -133,44 +134,44 @@ public class UserDashboardController {
 		});
 
 		if(UserData.getRoleId().equals("RL_ID_3")) {
-			addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
-			addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+			addTreeItemWithChildren(rootItem, "Dashboard", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
 					new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
-			addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+			addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
 					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
-			addTreeItemWithChildren(rootItem, "Advanced Data Analysis", "/Resources/Images/menuImages/advance_testing.png",
+			addTreeItemWithChildren(rootItem, "Advanced Data Analysis", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 					null);
-			addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+			addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 					new String[] { "Session Report", "Advanced Report", "UUT Report/Datapack" });
 		}else if(UserData.getRoleId().equals("RL_ID_4")) {
-			addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+			addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
 					new String[] { "Self Test", "SRU/LRU Test" });
-			addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+			addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
 					null);
-			addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/advance_testing.png",
+			addTreeItemWithChildren(rootItem, "Test Summary", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 					null);
-			addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+			addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 					null);
-			addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/reports.png",
+			addTreeItemWithChildren(rootItem, "History Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 					null);
 		}
 		
-//		addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
-//		addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+//		addTreeItemWithChildren(rootItem, "Dashboard", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
+//		addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+//		addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Advanced Data", "/Resources/Images/menuImages/advance_testing.png",
+//		addTreeItemWithChildren(rootItem, "Advanced Data", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+//		addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Self Test", "/Resources/Images/menuImages/self_test.png",
+//		addTreeItemWithChildren(rootItem, "Self Test", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "LRU Testing", "/Resources/Images/menuImages/lru_test.png",
+//		addTreeItemWithChildren(rootItem, "LRU Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/test_summary.png",
+//		addTreeItemWithChildren(rootItem, "Test Summary", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/history_reports.png",
+//		addTreeItemWithChildren(rootItem, "History Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
@@ -830,7 +831,7 @@ public class UserDashboardController {
 //	
 //	public GridPane createDashboard() {
 //		bottomMainGridPane.getStylesheets()
-//				.add(getClass().getResource("/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 //		bottomMainGridPane.setHgap(10);
 //
 //		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
@@ -903,22 +904,22 @@ public class UserDashboardController {
 //			}
 //		});
 //
-//		addTreeItemWithChildren(rootItem, "Dashboard", "/Resources/Images/menuImages/dashboard.png", null);
-//		addTreeItemWithChildren(rootItem, "Testing", "/Resources/Images/menuImages/testing.png",
+//		addTreeItemWithChildren(rootItem, "Dashboard", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
+//		addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Results", "/Resources/Images/menuImages/results.png",
+//		addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Advanced Data", "/Resources/Images/menuImages/advance_testing.png",
+//		addTreeItemWithChildren(rootItem, "Advanced Data", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Reports", "/Resources/Images/menuImages/reports.png",
+//		addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Self Test", "/Resources/Images/menuImages/self_test.png",
+//		addTreeItemWithChildren(rootItem, "Self Test", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "LRU Testing", "/Resources/Images/menuImages/lru_test.png",
+//		addTreeItemWithChildren(rootItem, "LRU Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "Test Summary", "/Resources/Images/menuImages/test_summary.png",
+//		addTreeItemWithChildren(rootItem, "Test Summary", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
-//		addTreeItemWithChildren(rootItem, "History Reports", "/Resources/Images/menuImages/history_reports.png",
+//		addTreeItemWithChildren(rootItem, "History Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
 //
 //		menuTreeView.setPadding(new Insets(5, 10, 5, 10));

@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.CardDetailsDTO;
 import com.teclever.dfcc.model.CPCICard;
@@ -88,7 +89,7 @@ public class AddCPCICardController {
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addCpciCardContainer.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AddCPCICard.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddCPCICard.css").toExternalForm());
 	}
 
 
@@ -242,7 +243,7 @@ public class AddCPCICardController {
 //	}
 //
 //	public void initialize(URL arg0, ResourceBundle arg1) {
-//		addCpciCardContainer.getStylesheets().add(getClass().getResource("/com/teclever/dfcc/ui/css/AddCPCICard.css").toExternalForm());
+//		addCpciCardContainer.getStylesheets().add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddCPCICard.css").toExternalForm());
 //		setNumericInputOnly(totalCardTextField);
 //	}
 //

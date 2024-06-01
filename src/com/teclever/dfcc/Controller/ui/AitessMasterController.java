@@ -76,7 +76,7 @@ public class AitessMasterController {
 	public GridPane aitessMasterGridPane() {
 
 		aitessMasterGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AitessMaster.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessMaster.css").toExternalForm());
 		aitessMasterGridPane.getStyleClass().add("aitessMaster-main-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -143,7 +143,7 @@ public class AitessMasterController {
 	private void onClickGETButton() {
 		try {
 			FXMLLoader loader = new FXMLLoader(
-					this.getClass().getResource("/com/teclever/dfcc/ui/fxml/AddAitess.fxml"));
+					this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddAitess.fxml"));
 			Parent root = loader.load();
 
 			Stage popupStage = new Stage();
@@ -254,7 +254,7 @@ public class AitessMasterController {
 
 	private void setupDisplayTable(String uutId) {
 		System.out.println("Entered Display");
-		String css = this.getClass().getResource("/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm();
+		String css = this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm();
 		this.bottomHbox.getStylesheets().add(css);
 		AitessConfigurationManagement aitessConfiguration = new AitessConfigurationManagement();
 		List<AitessConfigurationDto> lst = aitessConfiguration.getAitessConfig(this.uutNameIdMap.get(UUTdropdownValue));

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
@@ -56,7 +57,7 @@ public class OFPTestFilesController {
 	
 	public GridPane ofpTestFileParentGrid() {
 		ofpTestFilesParentGridPane.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/OFPTestFiles.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPTestFiles.css").toExternalForm());
 		ofpTestFilesParentGridPane.getStyleClass().add("ofpTestFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);

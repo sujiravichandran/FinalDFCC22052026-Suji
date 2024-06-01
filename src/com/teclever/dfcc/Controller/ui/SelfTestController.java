@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.List;
 import java.util.Random;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.model.SelfTest;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
@@ -60,7 +61,7 @@ public class SelfTestController {
 	public GridPane createSelfTestMainContainerGridPane() {
 
 		selfTestMainContainerGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
 
 		getData();
@@ -186,11 +187,22 @@ public class SelfTestController {
 		    Timeline timeline = new Timeline();
 		    for (int i = 200; i <= 218; i++) {
 		        int index = i;
-		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+1), event -> {
+		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
 		            Platform.runLater(() -> {
 		            	Random random = new Random();
 		            	int randomValue = random.nextInt(2) + 1;
 		                SelfTestStateObject.updateSelfTestRack1Cardstatus("L3_" + index, null, randomValue);
+		            });
+		        });
+		        timeline.getKeyFrames().add(keyFrame);
+		    }
+		    for (int i = 219; i <= 221; i++) {
+		        int index = i;
+		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
+		            Platform.runLater(() -> {
+		            	Random random = new Random();
+		            	int randomValue = random.nextInt(2) + 1;
+		                SelfTestStateObject.updateSelfTestcPCICardstatus("L3_" + index, null, randomValue);
 		            });
 		        });
 		        timeline.getKeyFrames().add(keyFrame);
