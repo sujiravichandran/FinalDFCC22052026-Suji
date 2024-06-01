@@ -1,6 +1,9 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.UserData;
+import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -24,7 +27,12 @@ public class UserDashboardController {
 	private GridPane bottomGridPane = new GridPane();
 	private GridPane bottomMidTopGridPane = new GridPane();
 
-	UserCenterContentController centerContentController = new UserCenterContentController();
+		UserCenterContentController centerContentController = new UserCenterContentController();
+		SessionManagement sessionManagement = new SessionManagement();
+	
+	public UserDashboardController() {
+		getAllStagesData();
+	}
 	
 	public GridPane createUserDashboard() {
 		bottomMainGridPane.getStylesheets()
@@ -48,10 +56,18 @@ public class UserDashboardController {
 		bottomMainGridPane.add(createBottomMidGridPane(), 1, 0);
 		bottomMainGridPane.add(createBottomRightGridPane(), 2, 0);
 
+
 		return bottomMainGridPane;
 
 	}
-
+	private void getAllStagesData() {
+		SessionStageMapResponse data = sessionManagement.getAllSessionStageMapping("SASN7");
+		if (data.getResponse().getResponseCode() == 1) {
+			StateMachine.setStageDatalist(data.getListOfStageObject());
+		}else {
+			System.out.println("Error in getAllStagesData : "+data.getResponse().getResponseMessage());
+		}
+	}
 	private GridPane createBottomleftGridPane() {
 		GridPane bottomLeftGridPane = new GridPane();
 		bottomLeftGridPane.setVgap(10);
@@ -102,9 +118,8 @@ public class UserDashboardController {
 		menuTreeView.setOnMouseClicked(event -> {
 		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
 		    if (selectedItem != null) {
-		        Label selectedLabel = selectedItem.getValue();
-		        System.out.println("id--"+selectedLabel.getId());			        
-		        System.out.println("Selected Label: " + selectedLabel.getText());
+		        Label selectedLabel = selectedItem.getValue();		        
+//		        System.out.println("Selected Label: " + selectedLabel.getText());
 
 		        if (selectedItem.getChildren().isEmpty()) {
 		        	centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());

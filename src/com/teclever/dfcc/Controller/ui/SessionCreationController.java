@@ -1,20 +1,31 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
+import com.teclever.dfcc.datastore.dto.SessionDTO;
+import com.teclever.dfcc.datastore.dto.SessionDTOResponse;
+import com.teclever.dfcc.datastore.dto.SessionList;
+import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
+import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelDto;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
+import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -22,9 +33,8 @@ import com.teclever.dfcc.model.FaultCodeList;
 import com.teclever.dfcc.model.SessionDetails;
 import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
+import com.teclever.dfcc.utils.Notifications;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -41,6 +51,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -55,18 +66,23 @@ import javafx.util.Callback;
 
 public class SessionCreationController {
 	private GridPane sessionCreationParentGridPane = new GridPane();
+	private Label headerLabel = new Label("SESSION DETAILS");
 	private HBox sessionCreationMiddleBox = new HBox(10);
 	private Button createButton = new Button("OPEN SESSION");
 	private Button cancelButton = new Button("CANCEL");
 
 	// leftBox
 	private TextField sessionNameField = new TextField();
+	private TextField dfccSNoField = new TextField();
+	private TextField dfccPartNoField = new TextField();
 	private Label startRemarksLabel = new Label("Start Remarks");
+	private Label sessionNameLabel = new Label("Session Name");
+	private Label uutTypeLabel = new Label("UUT Type");
+	private Label dfccSNoLabel = new Label("DFCC Serial No");
+	private Label dfccPartNoLabel = new Label("DFCC Part No");
 	private TextArea startRemarksTextArea = new TextArea();
 	private GridPane sessionEntryGridPane = new GridPane();
 	private ComboBox<String> uutTypeField = new ComboBox<String>();
-	private TextField dfccSNoField = new TextField();
-	private TextField dfccPartNoField = new TextField();
 	private Button addButton = new Button("+");
 
 	// middleBox
@@ -75,10 +91,16 @@ public class SessionCreationController {
 	private Label selectStageLabel = new Label("Select Stages");
 	private TreeView<String> treeView = new TreeView<>();
 
+	// rightBox
+	private Button addFaultCodeButton = new Button("ADD FAULT CODE");
+	private Label selectedFaultCodeLabel = new Label("Selected Fault Code");
+	private TextArea faultCodeTextArea = new TextArea();
+
 	private VBox leftContainer = new VBox(10);
 	private VBox middleContainer = new VBox(10);
 	private VBox rightContainer = new VBox(10);
 	private String ROLE_ID;
+	private String USER_ID;
 
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
@@ -88,9 +110,12 @@ public class SessionCreationController {
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
 	private String SESSION_TYPE_ID;
 
+	// SESSION NAME TABLE
 	private TableView<SessionDetails> sessionDetailsTableView = new TableView<>();
 	private TableColumn<SessionDetails, String> sessionNameColumn = new TableColumn<>("Session Name");
 	private TableColumn<SessionDetails, String> dateColumn = new TableColumn<>("Date");
+	private ObservableList<SessionDetails> sessionNameDetailsList = FXCollections.observableArrayList();
+	private String SESSION_ID;
 
 	// FAULT CODE TABLE
 	private TableView<FaultCodeList> faultCodeTableView = new TableView<>();
@@ -99,10 +124,11 @@ public class SessionCreationController {
 	private TableColumn<FaultCodeList, String> descriptionColumn = new TableColumn<>("Description");
 	private List<String> selectedFaultCodeList = new ArrayList<>();
 
+	private UserDashboardController userDashboardController = new UserDashboardController();
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
-	private StageConfiguration stageConfig = new StageConfiguration();
 	private FaultCodeConfiguration faultCodeConfig = new FaultCodeConfiguration();
-	private SessionManagement sessionManagement =new SessionManagement();
+	private SessionManagement sessionManagement = new SessionManagement();
+	private StageConfiguration stageConfig = new StageConfiguration();
 
 	private ObservableList<StageOne> session_l1Data = FXCollections.observableArrayList();
 	private ObservableList<SubStage> session_l2Data = FXCollections.observableArrayList();
@@ -110,22 +136,19 @@ public class SessionCreationController {
 	private ObservableList<SubStage> session_l4Data = FXCollections.observableArrayList();
 	private ObservableList<SubStage> session_l5Data = FXCollections.observableArrayList();
 
-	private final ObservableList<SessionDetails> sessionData = FXCollections.observableArrayList(
-			new SessionDetails("session78", "2/9/2023"), new SessionDetails("session12", "5/10/2023"),
-			new SessionDetails("session598", "11/11/2022"), new SessionDetails("session4", "8/2/2024"),
-			new SessionDetails("session598", "11/11/2022"), new SessionDetails("session4", "8/2/2024"),
-			new SessionDetails("session598", "11/11/2022"), new SessionDetails("session4", "8/2/2024"),
-			new SessionDetails("session598", "11/11/2022"), new SessionDetails("session4", "8/2/2024"),
-			new SessionDetails("session598", "11/11/2022"), new SessionDetails("session4", "8/2/2024"),
-			new SessionDetails("session5", "30/01/2024"));
 	private double originalTextAreaHeight = 0;
+	private List<List<String>> filteredHierarchies;
+	private Set<List<String>> selectedHierarchies = new HashSet<>();
 
 	public SessionCreationController() {
-//		sessionNameField.setFocusTraversable(false);
 		this.ROLE_ID = UserData.getRoleId();
 		if (ROLE_ID.equals("RL_ID_4")) {
 			middleContainer.setVisible(false);
 			middleContainer.setManaged(false);
+		}
+		this.USER_ID = UserData.getUserId();
+		if (USER_ID != null) {
+			populateSessionTableView();
 		}
 
 		initializeUUTTypeComboBox();
@@ -135,142 +158,6 @@ public class SessionCreationController {
 		rightContainer.setDisable(true);
 		enablingFunction(true);
 
-	}
-
-	private ObservableList<StageOne> getStageOneFromDb(String sessionTypeId) {
-		ObservableList<StageOne> stageList = FXCollections.observableArrayList();
-		StageMasterLevelOneResponse response = sessionManagement.getLevelOneStageMasterBySessionId(sessionTypeId);
-
-		if (response.getResponse().getResponseCode() == 1) {
-			for (LevelOneDto levelOneDto : response.getLevelOneResponse()) {
-				System.out.println("CHECK::: " + levelOneDto.getStageName());
-				StageOne stage = new StageOne();
-				stage.setL1_name(levelOneDto.getStageName());
-				stage.setId(levelOneDto.getLevelOneId());
-				stageList.add(stage);
-			}
-		}
-		return stageList;
-	}
-	private ObservableList<SubStage> getSubStagesFromDb(String parentId) {
-		ObservableList<SubStage> subStageList = FXCollections.observableArrayList();
-		StageMasterLevelsResponse response = stageConfig.getStageLevelMaster(parentId);
-
-		if (response.getResponse().getResponseCode() == 1) {
-			for (StageMasterLevelDto levelDto : response.getLevelsResponse()) {
-				SubStage stage = new SubStage();
-				stage.setpId(levelDto.getParentId());
-				stage.setId(levelDto.getLevelId());
-				stage.setL_name(levelDto.getStageName());
-				stage.setTestType(levelDto.getTestType());
-				stage.setHasNext("Y".equals(levelDto.getNextLevel()));
-				subStageList.add(stage);
-			}
-		}
-		return subStageList;
-	}
-
-	private TreeView<String> createTreeViewWithCheckBoxes(ObservableList<StageOne> stageList) {
-	    CustomCheckBoxTreeItem<String> rootItem = new CustomCheckBoxTreeItem<>("Stages", null);
-	    rootItem.setExpanded(true);
-
-	    Map<String, SubStage> subStageMap = new HashMap<>();  
-
-	    for (StageOne stage : stageList) {
-	        CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
-	        rootItem.getChildren().add(item);
-	        addSubStages(item, stage.getId(), subStageMap);
-	    }
-
-	    TreeView<String> treeView = new TreeView<>(rootItem);
-	    treeView.setCellFactory(CheckBoxTreeCell.forTreeView());
-	    treeView.setShowRoot(false);
-
-	    return treeView;
-	}
-
-	private void addSubStages(CustomCheckBoxTreeItem<String> parentItem, String parentId, Map<String, SubStage> subStageMap) {
-	    ObservableList<SubStage> subStages = getSubStagesFromDb(parentId);
-	    for (SubStage subStage : subStages) {
-	        CustomCheckBoxTreeItem<String> subItem = new CustomCheckBoxTreeItem<>(subStage.getL_name(), parentId);
-	        parentItem.getChildren().add(subItem);
-	        subStageMap.put(subItem.getValue(), subStage); 
-
-	        subItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
-	            @Override
-	            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-	                if (newValue) {
-	                    System.out.println("Selected SubStage ID: " + subStage.getpId() + ";;" + subStage.getId() + "----" + subItem.getParentId());
-	                }
-	            }
-	        });
-
-	        if (subStage.isHasNext()) {
-	            addSubStages(subItem, subStage.getId(), subStageMap);
-	        }
-	    }
-	}
-	// TABLEVIEW- SESSIONNAME(LEFT CONTAINER)
-	private void initializeSessionNameTableView() {
-		sessionNameColumn.setCellValueFactory(new PropertyValueFactory<>("sessionName"));
-		sessionNameColumn.setReorderable(false);
-		sessionNameColumn.setStyle("-fx-alignment: CENTER;");
-
-		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
-		dateColumn.setReorderable(false);
-		dateColumn.setStyle("-fx-alignment: CENTER;");
-
-		sessionDetailsTableView.getColumns().add(sessionNameColumn);
-		sessionDetailsTableView.getColumns().add(dateColumn);
-		sessionDetailsTableView.setItems(sessionData);
-		sessionDetailsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-		sessionDetailsTableView.getSelectionModel().selectedItemProperty()
-				.addListener((obs, oldSelection, newSelection) -> {
-					if (newSelection != null) {
-						sessionNameField.setText(newSelection.getSessionName());
-						enablingSessionTable(false);
-						enablingFunction(false);
-					}
-				});
-	}
-
-	// ENABLING SESSION NAME TABLE WITH STARTREMARKS TEXTAREA HEIGHT
-	// ADJUSTMENT(RIGHT CONTAINER)
-	private void enablingSessionTable(boolean value) {
-		sessionDetailsTableView.setVisible(value);
-		sessionDetailsTableView.setManaged(value);
-		adjustStartRemarksTextAreaHeight(value);
-	}
-
-	private void initializeSearchFunctionality() {
-		FilteredList<SessionDetails> filteredList = new FilteredList<>(sessionData, p -> true);
-		SortedList<SessionDetails> sortedList = new SortedList<>(filteredList);
-		sessionNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredList.setPredicate(sessionDetail -> {
-				String lowerCaseFilter = newValue.toLowerCase();
-				return sessionDetail.getSessionName().toLowerCase().contains(lowerCaseFilter);
-			});
-			sortedList.comparatorProperty().bind(sessionDetailsTableView.comparatorProperty());
-			sessionDetailsTableView.setItems(sortedList);
-			if (filteredList.isEmpty()) {
-				enablingSessionTable(false);
-				addButton.setDisable(false);
-				createButton.setText("Create Session");
-				enablingFunction(true);
-			} else {
-				enablingSessionTable(true);
-				addButton.setDisable(true);
-				createButton.setText("Open Session");
-			}
-		});
-	}
-
-	private void enablingFunction(boolean value) {
-		sessionEntryGridPane.setDisable(value);
-		startRemarksLabel.setDisable(value);
-		startRemarksTextArea.setDisable(value);
-		middleContainer.setDisable(value);
 	}
 
 	public GridPane createSession() {
@@ -298,7 +185,6 @@ public class SessionCreationController {
 	}
 
 	private HBox createSessionTitle() {
-		Label headerLabel = new Label("SESSION DETAILS");
 		headerLabel.getStyleClass().add("session-creation-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);
@@ -309,11 +195,11 @@ public class SessionCreationController {
 
 	private HBox createSessionButtonBox() {
 		createButton.setOnAction(e -> {
-//			System.out.println("FAULT CODE: " + selectedFaultCodeList);
+			if (createButton.getText().equals("Create Session")) {
+				saveNewSession();
+			}
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
-
-			UserDashboardController userDashboardController = new UserDashboardController();
 			parent1.getChildren().add(userDashboardController.createUserDashboard());
 		});
 
@@ -340,8 +226,12 @@ public class SessionCreationController {
 	}
 
 	private VBox createLeftContainer() {
-		Label sessionNameLabel = new Label("Session Name");
 		sessionNameLabel.getStyleClass().add("field-label");
+		uutTypeLabel.getStyleClass().add("field-label");
+		dfccSNoLabel.getStyleClass().add("field-label");
+		dfccPartNoLabel.getStyleClass().add("field-label");
+		startRemarksLabel.getStyleClass().add("field-label");
+
 		addButton.setOnAction(e -> onSessionNameAdd());
 
 		GridPane sessionNameFieldBox = new GridPane();
@@ -357,13 +247,6 @@ public class SessionCreationController {
 		sessionNameFieldBox.add(addButton, 1, 0);
 		sessionNameFieldBox.setHgap(10);
 
-		Label uutTypeLabel = new Label("UUT Type");
-		Label dfccSNoLabel = new Label("DFCC Serial No");
-		Label dfccPartNoLabel = new Label("DFCC Part No");
-
-		uutTypeLabel.getStyleClass().add("field-label");
-		dfccSNoLabel.getStyleClass().add("field-label");
-		dfccPartNoLabel.getStyleClass().add("field-label");
 		uutTypeField.prefWidthProperty().bind(sessionEntryGridPane.widthProperty());
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(40);
@@ -386,30 +269,216 @@ public class SessionCreationController {
 		sessionEntryGridPane.add(dfccPartNoField, 1, 2);
 		sessionEntryGridPane.setVgap(10);
 
-		startRemarksLabel.getStyleClass().add("field-label");
-
 		leftContainer.getChildren().addAll(sessionNameLabel, sessionNameFieldBox, sessionDetailsTableView,
 				sessionEntryGridPane, startRemarksLabel, startRemarksTextArea);
 		leftContainer.getStyleClass().add("session-creation-container");
 		return leftContainer;
 	}
 
+	private void populateSessionTableView() {
+		SessionListResponse response = sessionManagement.getAllSessionData(USER_ID);
+		if (response.getResponse().getResponseCode() == 1) {
+			for (SessionList sessionDto : response.getListOfSession()) {
+				SessionDetails sessionDetails = new SessionDetails();
+				sessionDetails.setSessionName(sessionDto.getSessionName());
+				sessionDetails.setSessionId(sessionDto.getSessionId());
+				sessionDetails.setDate(sessionDto.getCreationDate());
+				sessionNameDetailsList.add(sessionDetails);
+			}
+		}
+		sessionDetailsTableView.setItems(sessionNameDetailsList);
+	}
+
+	// ENABLING SESSION NAME TABLE WITH STARTREMARKS TEXTAREA HEIGHT
+	// ADJUSTMENT(RIGHT CONTAINER)
+	private void enablingSessionTable(boolean value) {
+		sessionDetailsTableView.setVisible(value);
+		sessionDetailsTableView.setManaged(value);
+		adjustStartRemarksTextAreaHeight(value);
+	}
+
+	private void initializeSearchFunctionality() {
+		FilteredList<SessionDetails> filteredList = new FilteredList<>(sessionNameDetailsList, p -> true);
+		SortedList<SessionDetails> sortedList = new SortedList<>(filteredList);
+		sessionNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+			filteredList.setPredicate(sessionDetail -> {
+				String lowerCaseFilter = newValue.toLowerCase();
+				return sessionDetail.getSessionName().toLowerCase().contains(lowerCaseFilter);
+			});
+			sortedList.comparatorProperty().bind(sessionDetailsTableView.comparatorProperty());
+			sessionDetailsTableView.setItems(sortedList);
+			if (filteredList.isEmpty()) {
+				enablingSessionTable(false);
+				addButton.setDisable(false);
+				createButton.setText("Create Session");
+				enablingFunction(true);
+			} else {
+				enablingSessionTable(true);
+				addButton.setDisable(true);
+				createButton.setText("Open Session");
+			}
+		});
+	}
+
+	// TABLEVIEW- SESSIONNAME(LEFT CONTAINER)
+	private void initializeSessionNameTableView() {
+		sessionNameColumn.setCellValueFactory(new PropertyValueFactory<>("sessionName"));
+		sessionNameColumn.setReorderable(false);
+		sessionNameColumn.setStyle("-fx-alignment: CENTER;");
+
+		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+		dateColumn.setReorderable(false);
+		dateColumn.setStyle("-fx-alignment: CENTER;");
+
+		sessionDetailsTableView.getColumns().add(sessionNameColumn);
+		sessionDetailsTableView.getColumns().add(dateColumn);
+		sessionDetailsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		sessionDetailsTableView.getSelectionModel().selectedItemProperty()
+				.addListener((obs, oldSelection, newSelection) -> {
+					if (newSelection != null) {
+						sessionNameField.setText(newSelection.getSessionName());
+						SESSION_ID = newSelection.getSessionId();
+						System.out.println("SESSION ID: " + SESSION_ID);
+						enablingSessionTable(false);
+						enablingFunction(false);
+						if (SESSION_ID != null) {
+							retriveSessionDetailsUsingSessionID();
+						}
+					}
+				});
+	}
+
+	private void retriveSessionDetailsUsingSessionID() {
+		SessionDTOResponse sessionListResponse = sessionManagement.getSessionDetailById(SESSION_ID);
+		if (sessionListResponse.getResponse().getResponseCode() == 1) {
+
+			uutTypeField.setValue(fetchUUTNameById(sessionListResponse.getUutId()));
+			dfccPartNoField.setText(String.valueOf(sessionListResponse.getDfccPartNo()));
+			dfccSNoField.setText(String.valueOf(sessionListResponse.getDfccSNo()));
+			startRemarksTextArea.setText(sessionListResponse.getStartRemarks());
+			sessionTypeField.setValue(fetchSessionNameById(sessionListResponse.getSessionTypeMasterId()));
+
+			List<StageObject> stageObjList = sessionListResponse.getSessionStagesList();
+			for (StageObject stageObject : stageObjList) {
+				System.out.println("OBJ: "+stageObject );
+			}
+			
+			if(sessionListResponse.getFaultCodeMappingList()!=null) {
+				List<FaultCodeDTO> faultCodeMappingList = sessionListResponse.getFaultCodeMappingList();
+				StringBuilder faultCodeTextBuilder = new StringBuilder();
+				for (FaultCodeDTO faultCodeDTO : faultCodeMappingList) {
+					faultCodeTextBuilder.append(faultCodeDTO.getFaultCode()).append("-")
+							.append(faultCodeDTO.getFaultCodeDescription()).append("\n");
+				}
+				faultCodeTextArea.setText(faultCodeTextBuilder.toString());
+			}else {
+				faultCodeTextArea.clear();
+				rightContainer.setDisable(true);
+			}
+
+			uutTypeField.setEditable(false);
+			dfccPartNoField.setEditable(false);
+			dfccSNoField.setEditable(false);
+			startRemarksTextArea.setEditable(false);
+			sessionTypeField.setEditable(false);
+			faultCodeTextArea.setEditable(false);
+
+		} else {
+			Notifications.showErrorAlert("Failed to fetch Data for this session");
+		}
+
+	}
+
+	private void enablingFunction(boolean value) {
+		sessionEntryGridPane.setDisable(value);
+		startRemarksLabel.setDisable(value);
+		startRemarksTextArea.setDisable(value);
+		middleContainer.setDisable(value);
+		rightContainer.setDisable(value);
+	}
+
+	private void saveNewSession() {
+		List<SessionToStagesMappingDTO> sessionStagesList = new ArrayList<>();
+		for (List<String> hierarchy : filteredHierarchies) {
+			SessionToStagesMappingDTO mappingDTO = new SessionToStagesMappingDTO();
+			if (hierarchy.size() > 0) {
+				mappingDTO.setTestTypeId(hierarchy.get(0));
+			}
+			if (hierarchy.size() > 1) {
+				mappingDTO.setLevelOneStageId(hierarchy.get(1));
+				System.out.println("H1: " + hierarchy.get(1));
+			}
+			if (hierarchy.size() > 2) {
+				mappingDTO.setLevelTwoStageId(hierarchy.get(2));
+				System.out.println("H2: " + hierarchy.get(2));
+			}
+			if (hierarchy.size() > 3) {
+				mappingDTO.setLevelThreeStageId(hierarchy.get(3));
+				System.out.println("H3: " + hierarchy.get(3));
+			}
+			if (hierarchy.size() > 4) {
+				mappingDTO.setLevelFourStageId(hierarchy.get(4));
+				System.out.println("H4: " + hierarchy.get(4));
+			}
+			if (hierarchy.size() > 5) {
+				mappingDTO.setLevelFiveStageId(hierarchy.get(5));
+				System.out.println("H5: " + hierarchy.get(5));
+			}
+			mappingDTO.setSessionId(SESSION_TYPE_ID);
+			sessionStagesList.add(mappingDTO);
+		}
+
+		SessionDTO sessionDTO = new SessionDTO();
+		sessionDTO.setUutId(UUT_ID);
+		sessionDTO.setDfccType(UUT_ID);
+		sessionDTO.setSessionName(sessionNameField.getText());
+		sessionDTO.setSessionTypeMasterId(SESSION_TYPE_ID);
+		sessionDTO.setUserId(USER_ID);
+		sessionDTO.setDfccSNo(Integer.parseInt(dfccSNoField.getText()));
+		sessionDTO.setDfccPartNo(Integer.parseInt(dfccPartNoField.getText()));
+		sessionDTO.setStartRemarks(startRemarksTextArea.getText());
+		sessionDTO.setSessionStagesList(sessionStagesList);
+		sessionDTO.setFaultCodeMappingList(selectedFaultCodeList);
+
+		Response response = sessionManagement.saveSession(sessionDTO);
+		if (response.getResponseCode() == 1) {
+			System.out.println("Session Created Successfully..!");
+		} else {
+			System.out.println("Session Not Created" + response.getResponseMessage());
+		}
+	}
+
 	private void onSessionNameAdd() {
 		enablingSessionTable(false);
 		enablingFunction(false);
+		clearFields();
+	}
+
+	private void clearFields() {
+		dfccPartNoField.clear();
+		dfccSNoField.clear();
+		startRemarksTextArea.clear();
+		uutTypeField.getSelectionModel().clearSelection();
+		sessionTypeField.getSelectionModel().clearSelection();
+		faultCodeTextArea.clear();
+		rightContainer.setDisable(true);
+		
+		uutTypeField.setEditable(true);
+		dfccPartNoField.setEditable(true);
+		dfccSNoField.setEditable(true);
+		startRemarksTextArea.setEditable(true);
+		sessionTypeField.setEditable(true);
+		faultCodeTextArea.setEditable(true);
 	}
 
 	private VBox createRightContainer() {
 		initializeFaultCodeTableView();
 		populateFaultCodeTableView();
 
-		Button addFaultCodeButton = new Button("ADD FAULT CODE");
 		addFaultCodeButton.prefWidthProperty().bind(rightContainer.widthProperty());
-
-		Label selectedFaultCodeLabel = new Label("Selected Fault Code");
 		selectedFaultCodeLabel.getStyleClass().add("field-label");
 
-		TextArea faultCodeTextArea = new TextArea();
 		addFaultCodeButton.setOnAction(e -> {
 			selectedFaultCodeList.clear();
 			StringBuilder selectedFaultCodes = new StringBuilder();
@@ -514,6 +583,85 @@ public class SessionCreationController {
 		return middleContainer;
 	}
 
+	private TreeView<String> createTreeViewWithCheckBoxes(ObservableList<StageOne> stageList) {
+		CustomCheckBoxTreeItem<String> rootItem = new CustomCheckBoxTreeItem<>("Stages", null);
+		rootItem.setExpanded(true);
+		Map<String, SubStage> subStageMap = new HashMap<>();
+		for (StageOne stage : stageList) {
+			CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
+			rootItem.getChildren().add(item);
+			addSubStages(item, stage.getId(), subStageMap);
+		}
+
+		TreeView<String> treeView = new TreeView<>(rootItem);
+		treeView.setCellFactory(CheckBoxTreeCell.forTreeView());
+		treeView.setShowRoot(false);
+		return treeView;
+	}
+
+	private void addSubStages(CustomCheckBoxTreeItem<String> parentItem, String parentId,
+			Map<String, SubStage> subStageMap) {
+		ObservableList<SubStage> subStages = getSubStagesFromDb(parentId);
+		for (SubStage subStage : subStages) {
+			CustomCheckBoxTreeItem<String> subItem = new CustomCheckBoxTreeItem<>(subStage.getL_name(),
+					subStage.getId());
+			subItem.setParentId(parentId);
+			if (!subStage.isHasNext()) {
+				subItem.setTestType(subStage.getTestType());
+			}
+			parentItem.getChildren().add(subItem);
+			subStageMap.put(subItem.getValue(), subStage);
+			subItem.selectedProperty().addListener((observable, oldValue, newValue) -> {
+				List<String> allParentIdsIncludingSelf = subItem.getAllParentIdsIncludingSelf();
+				if (newValue) {
+					filteredHierarchies = displaySelectedHierarchy(allParentIdsIncludingSelf, subItem.getTestType());
+					filteredHierarchies
+							.forEach(hierarchy -> System.out.println("Selected Node Hierarchy: " + hierarchy));
+				} else {
+					removeHierarchy(allParentIdsIncludingSelf, subItem.getTestType());
+					filteredHierarchies
+							.forEach(hierarchy -> System.out.println("DE-Selected Node Hierarchy: " + hierarchy));
+				}
+			});
+			if (subStage.isHasNext()) {
+				addSubStages(subItem, subStage.getId(), subStageMap);
+			}
+		}
+	}
+
+	private ObservableList<StageOne> getStageOneFromDb(String sessionTypeId) {
+		ObservableList<StageOne> stageList = FXCollections.observableArrayList();
+		StageMasterLevelOneResponse response = sessionManagement.getLevelOneStageMasterBySessionId(sessionTypeId);
+		if (response.getResponse().getResponseCode() == 1) {
+			for (LevelOneDto levelOneDto : response.getLevelOneResponse()) {
+				System.out.println("CHECK::: " + levelOneDto.getStageName());
+				StageOne stage = new StageOne();
+				stage.setL1_name(levelOneDto.getStageName());
+				stage.setId(levelOneDto.getLevelOneId());
+				stageList.add(stage);
+			}
+		}
+		return stageList;
+	}
+
+	private ObservableList<SubStage> getSubStagesFromDb(String parentId) {
+		ObservableList<SubStage> subStageList = FXCollections.observableArrayList();
+		StageMasterLevelsResponse response = stageConfig.getStageLevelMaster(parentId);
+
+		if (response.getResponse().getResponseCode() == 1) {
+			for (StageMasterLevelDto levelDto : response.getLevelsResponse()) {
+				SubStage stage = new SubStage();
+				stage.setpId(levelDto.getParentId());
+				stage.setId(levelDto.getLevelId());
+				stage.setL_name(levelDto.getStageName());
+				stage.setTestType(levelDto.getTestType());
+				stage.setHasNext("Y".equals(levelDto.getNextLevel()));
+				subStageList.add(stage);
+			}
+		}
+		return subStageList;
+	}
+
 	private void initializeUUTTypeComboBox() {
 		uutDataList = FXCollections.observableArrayList(aitessConfig.getAllUUT());
 		for (UUTMasterDetailsDto uut : uutDataList) {
@@ -532,13 +680,12 @@ public class SessionCreationController {
 		sessionTypeField.setOnAction((event) -> {
 			SESSION_TYPE_ID = fetchSessionTypeId(sessionTypeField.getValue());
 			session_l1Data = getStageOneFromDb(SESSION_TYPE_ID);
-			
+
 			treeView = createTreeViewWithCheckBoxes(session_l1Data);
-	        treeView.prefHeightProperty().bind(middleContainer.heightProperty());
-	        middleContainer.getChildren().set(2, treeView);
-	        
-			System.out.println("S1: " + session_l1Data.toString());
-			if (SESSION_TYPE_ID.equals("ST2")) {
+			treeView.prefHeightProperty().bind(middleContainer.heightProperty());
+			middleContainer.getChildren().set(2, treeView);
+
+			if (SESSION_TYPE_ID!=null && SESSION_TYPE_ID.equals("ST2")) {
 				rightContainer.setDisable(false);
 			} else {
 				rightContainer.setDisable(true);
@@ -556,6 +703,15 @@ public class SessionCreationController {
 		return null;
 	}
 
+	private String fetchUUTNameById(String uutId) {
+		for (UUTMasterDetailsDto uut : uutDataList) {
+			if (uut.getUutId().equals(uutId)) {
+				return uut.getUutType();
+			}
+		}
+		return null;
+	}
+
 	private String fetchSessionTypeId(String sessionType) {
 		for (SessionMasterDTO type : sessionDataList) {
 			if (type.getSessionTypeName().equals(sessionType)) {
@@ -563,6 +719,66 @@ public class SessionCreationController {
 			}
 		}
 		return null;
+	}
+
+	private String fetchSessionNameById(String sessionTypeId) {
+		for (SessionMasterDTO type : sessionDataList) {
+			if (type.getSessionMasterId().equals(sessionTypeId)) {
+				return type.getSessionTypeName();
+			}
+		}
+		return null;
+	}
+
+	private List<List<String>> displaySelectedHierarchy(List<String> hierarchy, String testType) {
+		List<String> fullHierarchy = new ArrayList<>(hierarchy);
+		if (testType != null) {
+			fullHierarchy.add(0, testType);
+		}
+		selectedHierarchies.add(fullHierarchy);
+		return filterAndSortHierarchies();
+	}
+
+	private void removeHierarchy(List<String> hierarchy, String testType) {
+		List<String> fullHierarchy = new ArrayList<>();
+		if (testType != null) {
+			fullHierarchy.add(testType);
+		}
+		fullHierarchy.addAll(hierarchy);
+		selectedHierarchies.remove(fullHierarchy);
+		filteredHierarchies = filterAndSortHierarchies();
+	}
+
+	private List<List<String>> filterAndSortHierarchies() {
+		List<List<String>> sortedHierarchies = new ArrayList<>(selectedHierarchies);
+		sortedHierarchies.sort((a, b) -> {
+			int minLength = Math.min(a.size(), b.size());
+			for (int i = 0; i < minLength; i++) {
+				int compare = a.get(i).compareTo(b.get(i));
+				if (compare != 0) {
+					return compare;
+				}
+			}
+			return Integer.compare(a.size(), b.size());
+		});
+
+		List<List<String>> filteredHierarchies = new ArrayList<>();
+		for (int i = 0; i < sortedHierarchies.size(); i++) {
+			boolean isChild = false;
+			List<String> hierarchy = sortedHierarchies.get(i);
+			for (int j = 0; j < i; j++) {
+				List<String> parentHierarchy = sortedHierarchies.get(j);
+				if (parentHierarchy.size() < hierarchy.size()
+						&& hierarchy.subList(0, parentHierarchy.size()).equals(parentHierarchy)) {
+					isChild = true;
+					break;
+				}
+			}
+			if (!isChild) {
+				filteredHierarchies.add(hierarchy);
+			}
+		}
+		return filteredHierarchies;
 	}
 
 	private void adjustStartRemarksTextAreaHeight(boolean tableVisible) {
@@ -584,15 +800,52 @@ public class SessionCreationController {
 		}
 	}
 }
+
 class CustomCheckBoxTreeItem<T> extends CheckBoxTreeItem<T> {
-    private String parentId;
+	private String id;
+	private String parentId;
+	private String testType;
 
-    public CustomCheckBoxTreeItem(T value, String parentId) {
-        super(value);
-        this.parentId = parentId;
-    }
+	public CustomCheckBoxTreeItem(T value, String id) {
+		super(value);
+		this.id = id;
+		this.parentId = null;
+		this.testType = null;
+	}
 
-    public String getParentId() {
-        return parentId;
-    }
+	public String getId() {
+		return id;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
+	public String getTestType() {
+		return testType;
+	}
+
+	public void setTestType(String testType) {
+		this.testType = testType;
+	}
+
+	public List<String> getAllParentIdsIncludingSelf() {
+		List<String> parentIds = new ArrayList<>();
+		TreeItem<T> currentItem = this;
+		while (currentItem != null) {
+			if (currentItem instanceof CustomCheckBoxTreeItem) {
+				String currentItemId = ((CustomCheckBoxTreeItem<T>) currentItem).getId();
+				if (currentItemId != null) {
+					parentIds.add(currentItemId);
+				}
+			}
+			currentItem = currentItem.getParent();
+		}
+		Collections.reverse(parentIds);
+		return parentIds;
+	}
 }

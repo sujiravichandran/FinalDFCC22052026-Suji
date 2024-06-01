@@ -45,7 +45,9 @@ public class SessionManagement {
 		try {
 			SessionService sessionService = new SessionService();
 			SessionDto sessionDto = new SessionDto();
-			sessionDto.setCreationDate(sessionDTO.getCreationDate());
+			Date utilDate = new Date();
+			 java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+			sessionDto.setCreationDate(sqlDate);
 			sessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
 			sessionDto.setDfccSNo(sessionDTO.getDfccSNo());
 			sessionDto.setDfccType(sessionDTO.getDfccType());
@@ -59,7 +61,7 @@ public class SessionManagement {
 //			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			GetObjResponse resObj = sessionService.addSession(sessionDto);
 			if (resObj.getResponse().getResponseCode() == 0) {
-
+				System.out.println("Response Message "+ resObj.getResponse().getResponseMessage());
 				return resObj.getResponse();
 			}
 			SessionDto sessionResponseDto = (SessionDto) resObj.getObject();
@@ -74,6 +76,7 @@ public class SessionManagement {
 				sessionStagesMapping.setStagelLevelId(sessionToStagesMappingDTO.getStagelLevelId());
 				sessionStagesMapping.setStatus("pending");
 				sessionStagesMapping.setRunDate(null);
+				sessionStagesMapping.setTestTypeId(sessionToStagesMappingDTO.getTestTypeId());
 				sessionStagesMapping.setLevelOneStageId(sessionToStagesMappingDTO.getLevelOneStageId());
 				sessionStagesMapping.setLevelTwoStageId(sessionToStagesMappingDTO.getLevelTwoStageId());
 				sessionStagesMapping.setLevelThreeStageId(sessionToStagesMappingDTO.getLevelThreeStageId());
@@ -82,7 +85,7 @@ public class SessionManagement {
 				sessionToStagesMappingList.add(sessionStagesMapping);
 			}
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
-			sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
+			Response resp=sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
 
 			List<String> faultCodeList = sessionDTO.getFaultCodeMappingList();
 			if (faultCodeList.size() > 0) {
@@ -108,7 +111,7 @@ public class SessionManagement {
 
 		} catch (Exception ex) {
 			res.setResponseCode(0);
-			res.setResponseMessage("Session Not Created");
+			res.setResponseMessage("Session Not Created"+ex.getLocalizedMessage());
 			ex.printStackTrace();
 
 		}

@@ -32,9 +32,9 @@ public class MainWindowController{
 		RowConstraints rowTop = new RowConstraints();
 		rowTop.setPercentHeight(1);
 		RowConstraints rowMid = new RowConstraints();
-		rowMid.setPercentHeight(97);
+		rowMid.setPercentHeight(96);
 		RowConstraints rowBottom = new RowConstraints();
-		rowBottom.setPercentHeight(2);
+		rowBottom.setPercentHeight(3);
 		
 		
 		mainGridPane.getColumnConstraints().addAll(columnLeft, columnMid, columnRight);

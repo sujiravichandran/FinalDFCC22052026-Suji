@@ -245,7 +245,9 @@ public class LoginFormController {
 			} else if (loginResponse.getResponse().getResponseCode() == 1) {
 
 				UserData.setRoleId(loginResponse.getRoleId());
-				
+				if (loginResponse.getUserId() != null) {
+					UserData.setUserId(loginResponse.getUserId());
+				}
 				
 				GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();
 				mainContainerGridPane.getRowConstraints().get(0).setPercentHeight(10);
@@ -280,7 +282,7 @@ public class LoginFormController {
 			}
 		});
 		
-		userNameTextField.setText("BelAdmin");
+		userNameTextField.setText("BelUser");
 		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;
