@@ -78,11 +78,6 @@
 	-fx-font-weight: bold;
 	-fx-padding: 5px;
 }
-.selfTest-table .table-cell {
-    -fx-font-size: 16px; 
-    -fx-font-weight: bold;
-    -fx-padding: 5px;
-}
 
 .selftest-sum-data-box{
 	-fx-background-color: #222831;
