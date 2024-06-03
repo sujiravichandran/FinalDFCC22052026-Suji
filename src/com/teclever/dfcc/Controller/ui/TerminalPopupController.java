@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
@@ -50,8 +51,11 @@ public class TerminalPopupController {
 	private WebEngine webEngine;
 	private boolean processLaunched = false;
 	private ProcessControl handler1;
-	private BlockingQueue<String> queue = new ArrayBlockingQueue<>(100);
-	
+	private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(100);
+	private static BlockingQueue<String> loadDriverBQueue = new ArrayBlockingQueue<>(1000000);
+
+	ProcessControl loadDriverProcessController;
+
 	private static final String[][] ANSI_TO_HTML_COLOR_MAP = { { "30", "black" }, { "31", "red" }, { "32", "green" },
 			{ "33", "yellow" }, { "34", "blue" }, { "35", "magenta" }, { "36", "cyan" }, { "37", "white" },
 			{ "90", "gray" }, { "91", "lightred" }, { "92", "lightgreen" }, { "93", "lightyellow" },
@@ -80,28 +84,31 @@ public class TerminalPopupController {
 		terminalOperationsGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		terminalOperationsGridPane.getRowConstraints().addAll(firstRow);
 		webEngine = terminalWebView.getEngine();
-		webEngine.loadContent("<html><body style='background-color:black; color:white; font-family:monospace;'></body></html>");
+		webEngine.loadContent(
+				"<html><body style='background-color:black; color:white; font-family:monospace;'></body></html>");
 		webEngine.documentProperty().addListener((observable, oldDoc, newDoc) -> {
-            if (newDoc != null) {
-                webEngine.executeScript(
-                    "window.scrollBy({ top: 1000, left: 0, behavior: 'smooth' });"
-                );
-                webEngine.executeScript(
-                    "setInterval(function() { window.scrollBy(0, 20); }, 5);"
-                );
-            }
-        });
+			if (newDoc != null) {
+				webEngine.executeScript("window.scrollBy({ top: 1000, left: 0, behavior: 'smooth' });");
+				webEngine.executeScript("setInterval(function() { window.scrollBy(0, 20); }, 5);");
+			}
+		});
+		System.out.println("HANDLER 1 anuj");
 		handler1 = new ProcessControl(queue);
+		loadDriverProcessController = new ProcessControl(loadDriverBQueue);
 
 	}
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
+
 		String inputCommand = terminalTextField.getText() + "\n";
 		if (!processLaunched) {
 			CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
 			handler1.LaunchingProcess(inputCommand, launcherFuture1);
+			System.out.println("On Click Enter");
 			launcherFuture1.thenRun(() -> {
+				// JUN-03
+				// handler1.ReadingProcess(null,true,webEngine);
 				handler1.ReadingProcess();
 				new Thread(() -> {
 					try {
@@ -120,13 +127,58 @@ public class TerminalPopupController {
 					}
 				}).start();
 			});
+
+//			new Thread(() -> {
+//					while (true) {
+
+			CompletableFuture<Void> launcherFuture2 = new CompletableFuture<>();
+			System.out.println("OK1 Before Launching Process");
+			loadDriverProcessController.LaunchingProcess("cd /home/teclever/Documents/load_data" + "\n" + "ll" + "\n",
+					launcherFuture2);
+
+			launcherFuture2.thenRun(() -> {
+				// JUN-03
+				// handler1.ReadingProcess(null,true,webEngine);
+				loadDriverProcessController.ReadingProcess();
+				new Thread(() -> {
+					try {
+						while (true) {
+//									String cleanText;
+							String output = loadDriverBQueue.take();
+							System.out.println("MANI:::");
+							System.out.println(output);
+						}
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}).start();
+			});
 			processLaunched = true;
+
 		} else {
 			handler1.WritingProcess(inputCommand);
+			System.out.println("Calling preLoad Drive KMAN:::");
+
+//			handler1.WritingProcess("cd /home/teclever/Documents/load_data");
+//			System.out.println("Calling Path Command:::");
+
+			/* ____________________________________________________ */
+
+//					}
+			System.out.println("OK1 after Launching Process");
+			loadDriverProcessController.WritingProcess("cat loadDriverOutput.txt" + "\n");
+
+//			}).start();
+
+			/*
+			 * ______________________________________________________________________________
+			 */
+//			TestManagerManagement tm = new TestManagerManagement();
+//			tm.preLoadDriver(webEngine);
 		}
 		terminalTextField.clear();
 	}
-	
+
 	private String ansiToHtml(String text) {
 		text = text.replaceAll("\u001B\\[\\?7h", "");
 		text = UNNECESSARY_ANSI_PATTERN.matcher(text).replaceAll("");
