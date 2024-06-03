@@ -129,6 +129,7 @@ public class SessionCreationController {
 	private FaultCodeConfiguration faultCodeConfig = new FaultCodeConfiguration();
 	private SessionManagement sessionManagement = new SessionManagement();
 	private StageConfiguration stageConfig = new StageConfiguration();
+	private LoadDriverController loadDriverController = new LoadDriverController();
 
 	private ObservableList<StageOne> session_l1Data = FXCollections.observableArrayList();
 	private ObservableList<SubStage> session_l2Data = FXCollections.observableArrayList();
@@ -201,6 +202,7 @@ public class SessionCreationController {
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
 			parent1.getChildren().add(userDashboardController.createUserDashboard());
+//			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
 		});
 
 		cancelButton.setOnAction(e -> {

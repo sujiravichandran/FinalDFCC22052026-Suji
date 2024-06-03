@@ -41,7 +41,7 @@ extends Application {
         System.out.println("Hello World!");
         String driverClass = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/dfcc";
-        String username = "admin";
+        String username = "root";
         String password = "root";
         String dialect = "org.hibernate.dialect.MySQLDialect";
         String hbm2ddlAuto = "update";

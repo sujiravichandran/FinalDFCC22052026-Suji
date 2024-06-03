@@ -5,20 +5,22 @@ import java.util.Random;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
-import com.teclever.dfcc.model.SelfTest;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -51,12 +53,12 @@ public class SelfTestController {
 
 	private VBox midTopVbox3 = new VBox(10);
 
-	private HBox bottomHbox = new HBox(30);
 
 	private Label pageHeading = new Label("SELF TEST");
 	private Label rack2 = new Label("cPCI");
 	private Label rack1 = new Label("RACK-1");
-	private ObservableList<SelfTest> selfTestTableData = FXCollections.observableArrayList();
+	
+	private TableView<SelfTestResult> selfTestTable = new TableView<>();
 
 	public GridPane createSelfTestMainContainerGridPane() {
 
@@ -192,6 +194,13 @@ public class SelfTestController {
 		            	Random random = new Random();
 		            	int randomValue = random.nextInt(2) + 1;
 		                SelfTestStateObject.updateSelfTestRack1Cardstatus("L3_" + index, null, randomValue);
+		                String result ;
+		                if(randomValue == 1) {
+		                	result = "ok";
+		                }else {
+		                	result = "not ok";
+		                }
+		                SelfTestStateObject.addSelfTestResult(new SelfTestStateObject.SelfTestResult("L3_" + index, "File-"+index, result));
 		            });
 		        });
 		        timeline.getKeyFrames().add(keyFrame);
@@ -367,39 +376,77 @@ public class SelfTestController {
 	    }
 		return midTopVbox3;
 	}
+	
+	private TableView<SelfTestResult> selfTestBottomContainer() {
+		selfTestTable = createTableView();
+		
+		return selfTestTable;
 
-	private TableView<SelfTest> createTableView(ObservableList<SelfTest> selfTestTableData) {
-		TableView<SelfTest> tableView = new TableView<>();
-		tableView.getStyleClass().add("selfTest-table .table-cell");
+	}
+
+	private TableView<SelfTestResult> createTableView() {
+		TableView<SelfTestResult> tableView = new TableView<>();
+		tableView.getStylesheets()
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+
+		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		tableView.setPrefWidth(1250);
 		tableView.setPrefHeight(900);
 
-		TableColumn<SelfTest, String> fileNameColumn = new TableColumn<>("File Name");
+		TableColumn<SelfTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<SelfTest, String> resultColumn = new TableColumn<>("Result");
+		TableColumn<SelfTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
-
+		rewriteColumn(resultColumn);
+		
+		SelfTestStateObject.getTestResults().addListener((ListChangeListener<? super SelfTestResult>) change -> {
+			while (change.next()) {
+				if (change.wasAdded()) {
+					int lastIndex = SelfTestStateObject.getTestResults().size() - 1;
+					Platform.runLater(() -> {
+						tableView.scrollTo(lastIndex);
+						tableView.getSelectionModel().select(lastIndex);
+						tableView.getFocusModel().focus(lastIndex);
+					});
+				}
+			}
+		});
+		
 		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-		tableView.setItems(selfTestTableData);
+		tableView.setItems(SelfTestStateObject.getTestResults());
 
 		return tableView;
 	}
-
-	private HBox selfTestBottomContainer() {
-		TableView<SelfTest> tableView = createTableView(selfTestTableData);
-
-		bottomHbox.getStyleClass().add("selfTest-bottom-Container");
-		bottomHbox.getChildren().addAll(tableView);
-
-		return bottomHbox;
-
+	
+	private void rewriteColumn(TableColumn<SelfTestResult, String> resultColumn) {
+		resultColumn.setReorderable(false);
+		resultColumn.setSortable(false);
+		resultColumn.setCellFactory(column -> new TableCell<SelfTestResult, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setStyle("");
+				} else {
+					if ("OK".equalsIgnoreCase(item)) {
+						setText("Passed");
+						setStyle("-fx-background-color: lightgreen;-fx-alignment: CENTER;");
+					} else if ("NOT OK".equalsIgnoreCase(item)) {
+						setText("Failed");
+						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
+					}
+				}
+			}
+		});
 	}
+
+
 }
