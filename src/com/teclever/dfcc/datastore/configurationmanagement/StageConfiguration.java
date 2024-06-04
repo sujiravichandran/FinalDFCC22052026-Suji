@@ -73,7 +73,7 @@ public class StageConfiguration {
 		try {
 			StageLevelResponse serviceResponse = new StageLevelResponse();
 			String levelType = parentId.substring(0, 2);
-			System.out.println("Level Type  " + levelType);
+//			System.out.println("Level Type  " + levelType);
 			switch (levelType) {
 			case "L1":
 				LevelTwoMasterService levelTwo = new LevelTwoMasterService();
