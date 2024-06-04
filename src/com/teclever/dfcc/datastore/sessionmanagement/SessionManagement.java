@@ -11,7 +11,6 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.StageLevelResponse;
-import com.teclever.datastore.entities.LoginSession;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
@@ -36,6 +35,7 @@ import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionManagement {
@@ -56,17 +56,18 @@ public class SessionManagement {
 			sessionDto.setUserId(sessionDTO.getUserId());
 			sessionDto.setUutId(sessionDTO.getUutId());
 			sessionDto.setStartDate(sessionDTO.getStartDate());
-//			sessionDto.setEndDate(sessionDTO.getEndDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
-//			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
+			// SESSION ENTITY : ADD
 			GetObjResponse resObj = sessionService.addSession(sessionDto);
-//			System.out.println("SESSION ENTITY Table Response Code " + resObj.getResponse().getResponseCode()
-//					+ " And Message is " + resObj.getResponse().getResponseMessage());
 			if (resObj.getResponse().getResponseCode() == 0) {
 				return resObj.getResponse();
 			}
 			SessionDto sessionResponseDto = (SessionDto) resObj.getObject();
 			String sessionId = sessionResponseDto.getSessionId();
+
+			// SessionId Update to StateMachine
+			StateMachine.currentSessionDetails.setSessionId(sessionId);
+
 			List<SessionToStagesMappingDTO> sessionStages = sessionDTO.getSessionStagesList();
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
@@ -86,23 +87,25 @@ public class SessionManagement {
 				sessionToStagesMappingList.add(sessionStagesMapping);
 			}
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
-			Response resp = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
-//			System.out.println("SESSION STAGE MAPPING Table Response Code " + resp.getResponseCode()
-//					+ " And Message is " + resp.getResponseMessage());
-			List<String> faultCodeList = sessionDTO.getFaultCodeMappingList();
-			if (faultCodeList.size() > 0) {
-				FaultCodeSessionMappingService faultCodeSessionMappingService = new FaultCodeSessionMappingService();
-				for (String faultCodeSessionId : faultCodeList) {
-					faultCodeSessionMappingService.addFaultCodeSession(faultCodeSessionId, sessionId);
+			// SESSION STAGE MAPPING : ADD
+			res = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
+			if (res.getResponseCode() == 0) {
+				sessionService.deleteSessionEntity(sessionId);
+			} else {
+				List<String> faultCodeList = sessionDTO.getFaultCodeMappingList();
+				if (faultCodeList.size() > 0) {
+					FaultCodeSessionMappingService faultCodeSessionMappingService = new FaultCodeSessionMappingService();
+					for (String faultCodeSessionId : faultCodeList) {
+						faultCodeSessionMappingService.addFaultCodeSession(faultCodeSessionId, sessionId);
+					}
 				}
 			}
 
 			LoginSessionService loginSessionService = new LoginSessionService();
-			Response response = loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(),
-					sessionId, null);
 
-//			System.out.println("LOGIN SESSION Table Response Code " + response.getResponseCode() + " And Message is "
-//					+ response.getResponseMessage());
+			// LOGIN SESSION DETAILS : UPDATE (SESSION ID)
+
+			loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionId, null);
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Session Created Successfully..!");
