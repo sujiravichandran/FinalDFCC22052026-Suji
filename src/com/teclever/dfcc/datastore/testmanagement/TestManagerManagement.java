@@ -9,20 +9,13 @@ import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.processcontrolmanagement.Aitess1ProcessControl;
 import com.teclever.dfcc.datastore.processcontrolmanagement.ProcessControlManagement;
-import com.teclever.utils.ProcessControl;
 
-
-import javafx.scene.web.WebEngine;
 public class TestManagerManagement {
 	
 	private static String homeLocation = "home/bel/desktop/";
 	private static String configHomeLocation = "home/bel/desktop/config.dat";
 	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
 	private static String cacheFilePath = "home/bel/desktop/.cache";
-
-	
-	ProcessControlManagement pcm = new ProcessControlManagement();
-    AitessAction action;
 	ProcessControlManagement pcm = new ProcessControlManagement();
     AitessAction action;
 
@@ -32,37 +25,40 @@ public class TestManagerManagement {
 	    EXECUTE_TPF_FILES
 	}
 
+
 	
-	
-    public void preLoadDriver(WebEngine webEngine) {
+    public void preLoadDriver() {
     	
         // Get uutId from STATE MACHINE
         String uutId = "UUT1";
+        
         //testTypeId for SELF TEST
         String testTypeId = "TT1";
+
         RunConfigurationService runConfigurationService = new RunConfigurationService();
+
         // Get runConfigId based on uutId and testTypeId
         String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+
         // Get runConfigId Details from DB in object
         AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
+
         // Load driver in STARTUP mode and returning Driver Card Details
 //        ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
-        System.out.println("OK OK");
-        ProcessControlManagement pm = new ProcessControlManagement();
-        pm.loadDriver("cd /home/teclever/Documents/load_data",null,1, ProcessControlManagement.LoadMode.STARTUP,webEngine);
-       System.out.println("STart UP DONE");
-        pm.loadDriver("cd /home/teclever/Documents/load_data",null,1, ProcessControlManagement.LoadMode.SWITCH,webEngine);
-                System.out.println("OK OK --  ProcessControlManagement.loadDriver");
-        //wait for some time after loading driver ????
-//        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
-//        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
-//        deleteCacheFile(cacheFilePath);								//delete cache file
-        //Loading Aitess
-       // ProcessControlManagement.loadAitess(aitess.getAitessCommand());
-    	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
-    	//pcm.startAitess1ManagementThread();
-    	//aitess1ProcessControl.write(aitess.getAitessCommand());
+        ProcessControlManagement.loadDriver("cd /home/teclever/Documents/load_data",null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
 
+        //wait for some time after loading driver ????
+        
+        
+        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
+        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
+        deleteCacheFile(cacheFilePath);								//delete cache file
+        //Loading Aitess
+        ProcessControlManagement.loadAitess(aitess.getAitessCommand());  
+    	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
+    	pcm.startAitess1ManagementThread();
+    	//aitess1ProcessControl.write(aitess.getAitessCommand());
+        
     }
 	
 	
@@ -73,6 +69,7 @@ public class TestManagerManagement {
 		String uutId = "UUT1";
 		
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
+
 		//getCurrentRunConfigId Details FROM STATE MACHINE
 		String smRunConfigId = "RUN001";
 		//get currentRunConfigId Details from DB in Object
@@ -89,13 +86,12 @@ public class TestManagerManagement {
 
 			
 		if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
-            //ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
+
+            ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
             System.out.println("<< Drivers NOT Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
         } else {
             System.out.println("<< Drivers Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
-
-
-	
+        
         }
 	
 		if(!currentAitess.getConfigFile().equals(aitess.getConfigFile()))
@@ -103,11 +99,10 @@ public class TestManagerManagement {
 	        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
 	        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
 	        deleteCacheFile(cacheFilePath);								//delete cache file
-
+	        
 			System.out.println("<< ConfigFile NOT Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
 			
-		}else
-
+		}else 
 		{
 			System.out.println("<< ConfigFile Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
 		}
@@ -116,7 +111,7 @@ public class TestManagerManagement {
 		if (!currentAitess.getAitessName().equals(aitess.getAitessName())) {
 	        action = AitessAction.TERMINATE;
 	    } else if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
-	        action = AitessAction.LOAD_AITESS;
+	        action = AitessAction.LOAD_AITESS;      
 	    } else {
 	        action = AitessAction.EXECUTE_TPF_FILES;
 	    }
@@ -129,21 +124,23 @@ public class TestManagerManagement {
 	            pcm.waitForAitessExpectedOutput(">>>");
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
-	        }	   
+	        }	    
          aitess1ProcessControl.terminateAitess("exit");
          break;
+         
      case LOAD_AITESS:
 	        try {
 	            pcm.waitForAitessExpectedOutput("STRING FOR DETECTING AITESS TERMINATING PROCESS FINISHED ???");
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
 	        }
-        // ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(), 0, ProcessControlManagement.LoadMode.SWITCH);
+         ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(), 0, ProcessControlManagement.LoadMode.SWITCH);
          copyConfigFile(aitess.getConfigFile(), configHomeLocation);
          copyConfigFile(startupUserFileLocation, homeLocation);
          deleteCacheFile(cacheFilePath);
          aitess1ProcessControl.write(aitess.getAitessCommand());
          break;
+         
      case EXECUTE_TPF_FILES:
 		    try {
 		        pcm.waitForAitessExpectedOutput(">>>");
@@ -151,10 +148,12 @@ public class TestManagerManagement {
 		        e.printStackTrace();
 		    }
          aitess1ProcessControl.write("@" + testfile);
+         
          break;
 	 }
-	
+	 
 	}
+
 		private void copyConfigFile(String sourcePath, String destinationPath) {
 		    try {
 		        Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
