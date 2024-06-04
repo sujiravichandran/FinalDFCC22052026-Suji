@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -18,11 +17,12 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 public class DriverManagement {
-	
-	 // Validating Driver Card API from output queue
-    public DriverCardDetailsResponse validateDriverCardFromQueue(BlockingQueue<String> outputQueue, int aitessId) {
+
+
+	//Validating Driver Card  API
+    public DriverCardDetailsResponse validateDriverCard(String filePath, int aitessId) {
         List<DriverCard> databaseDriverCards = getDriverCardDetailsBasedOnAitess(aitessId);
-        List<DriverCard> parsedDriverCards = parseOutputFromQueue(outputQueue, aitessId);
+        List<DriverCard> parsedDriverCards = parseFile(filePath, aitessId);
         List<DriverCard> resultDriverCards = new ArrayList<>();
         Map<String, String> dbCardMap = databaseDriverCards.stream()
                 .collect(Collectors.toMap(DriverCard::getCardName, DriverCard::getTotalNumberOfCards));
@@ -41,17 +41,17 @@ public class DriverManagement {
 
         Response response = new Response();
 
-        if (!allPassed) {
-            response.setResponseMessage("Validating Card Status FAILED");
-        } else {
-            response.setResponseMessage("Validating Card Status COMPLETED");
+        if(!allPassed) {
+             response.setResponseMessage("Validating Card Status FAILED");
+        }else {
+        	response.setResponseMessage("Validating Card Status COMPLETED");
         }
 
-        response.setResponseCode(1);
-        driverCardResponse.setDriverCardDetails(resultDriverCards);
+            response.setResponseCode(1);
+	        driverCardResponse.setDriverCardDetails(resultDriverCards);
         return driverCardResponse;
     }
-	
+
 	private  String getCardIdentificationTextByCardName(int aitessId, String cardName) {
         String cardIdentificationText = null;
         try {
@@ -72,68 +72,91 @@ public class DriverManagement {
         }
         return cardIdentificationText;
     }
-	
 
-	 // Parsing output from blocking queue
-    private List<DriverCard> parseOutputFromQueue(BlockingQueue<String> outputQueue, int aitessId) {
-        List<DriverCard> driverCards = new ArrayList<>();
-        // Patterns for matching card initialization lines
-        Pattern cardNamePattern = Pattern.compile("\\*{12}Initializing\\s+(\\w+)\\s+Card\\*{12}");
-        Pattern dynamicPattern = null;
-        String line;
-        String cardName = null;
-        String cardIdentificationText = null;
-        try {
-            while ((line = outputQueue.take()) != null) {
-                Matcher cardNameMatcher = cardNamePattern.matcher(line);
-                if (cardNameMatcher.find()) {
-                    cardName = cardNameMatcher.group(1);
-                    System.out.println("Card Name: " + cardName);
-                    cardIdentificationText = getCardIdentificationTextByCardName(aitessId, cardName);
-                    if (cardIdentificationText != null) {
-                        if (!cardIdentificationText.contains("##NUM##")) {
-                            // Count occurrences of card identification text in subsequent lines
-                            int cardCount = countStringOccurrences(outputQueue, cardIdentificationText);
-                            driverCards.add(new DriverCard(cardName, String.valueOf(cardCount)));
-                        } else {
-                            String dynamicPatternString = cardIdentificationText.replace("##NUM##", "(\\d+)");
-                            dynamicPattern = Pattern.compile(dynamicPatternString);
-                        }
-                    } else {
-                        System.out.println("No card details found for the card: " + cardName);
-                        driverCards.add(new DriverCard(cardName, "0")); // Set card count to 0
-                    }
-                } else if (dynamicPattern != null) {
-                    // Read lines to find the card count using the dynamic pattern
-                    Matcher dynamicMatcher = dynamicPattern.matcher(line);
-                    if (dynamicMatcher.find()) {
-                        int numOfCards = Integer.parseInt(dynamicMatcher.group(1));
-                        driverCards.add(new DriverCard(cardName, String.valueOf(numOfCards)));
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            e.printStackTrace();
-        }
 
-        return driverCards;
-    }
+	  private  List<DriverCard> parseFile(String filePath, int aitessId) {
+	        List<DriverCard> driverCards = new ArrayList<>();
 
- // Helper method to count occurrences of a string in subsequent lines
-    private int countStringOccurrences(BlockingQueue<String> outputQueue, String searchString) throws InterruptedException {
-        int count = 0;
-        String line;
-        while ((line = outputQueue.take()) != null) {
-            if (line.contains(searchString)) {
-                count++;
-            } else {
-                // Stop counting if the line doesn't contain the search string
-                break;
-            }
-        }
-        return count;
-    }
+	        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+	            String line;
+	            Pattern cardNamePattern = Pattern.compile("\\*{12}Initializing\\s+(\\w+)\\s+Card\\*{12}");
+	            String cardName = null;
+	            String cardIdentificationText = null;
+	            Pattern dynamicPattern = null;
+
+	            while ((line = br.readLine()) != null) {
+	                Matcher cardNameMatcher = cardNamePattern.matcher(line);
+
+	                if (cardNameMatcher.find()) {
+	                    cardName = cardNameMatcher.group(1);
+	                    System.out.println("Card Name: " + cardName);
+
+	                    cardIdentificationText = getCardIdentificationTextByCardName(aitessId, cardName);
+	                    if (cardIdentificationText != null) {
+	                        if (!cardIdentificationText.contains("##NUM##")) {
+	                            // Store the current position
+	                            br.mark(10000); // assuming 10000 is sufficient buffer size
+	                            int cardCount = countStringOccurrences(br, cardIdentificationText);
+	                            driverCards.add(new DriverCard(cardName, String.valueOf(cardCount)));
+	                            // Reset the reader to the position marked before counting
+	                            br.reset();
+	                        } else {
+	                            String dynamicPatternString = cardIdentificationText.replace("##NUM##", "(\\d+)");
+	                            dynamicPattern = Pattern.compile(dynamicPatternString);
+	                        }
+	                    } else {
+	                        System.out.println("No card details found for the card: " + cardName);
+	                        driverCards.add(new DriverCard(cardName, "0")); // Set card count to 0
+	                        // Reset state as no valid card identification text was found
+	                        cardName = null;
+	                        cardIdentificationText = null;
+	                        dynamicPattern = null;
+	                    }
+	                } else if (dynamicPattern != null) {
+	                    // Read the lines to find the card count using the dynamic pattern
+	                    Matcher dynamicMatcher = dynamicPattern.matcher(line);
+	                    if (dynamicMatcher.find()) {
+	                        int numOfCards = Integer.parseInt(dynamicMatcher.group(1));
+	                        // System.out.println("Number of Cards: " + numOfCards);
+	                        driverCards.add(new DriverCard(cardName, String.valueOf(numOfCards)));
+	                        // Reset state after adding the card
+	                        cardName = null;
+	                        cardIdentificationText = null;
+	                        dynamicPattern = null;
+	                    }
+	                }
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+
+	        return driverCards;
+	    }
+
+	    private  int countStringOccurrences(BufferedReader br, String pattern) throws IOException {
+	        int count = 0;
+	        String line;
+	        StringBuilder concatenatedLines = new StringBuilder();
+
+	        while ((line = br.readLine()) != null) {
+	            if (line.matches("\\*{12}Initializing\\s+\\w+\\s+Card\\*{12}")) {
+	                // Stop reading if the next card name is found
+	                // Reset the reader to the position marked before counting
+	                br.reset();
+	                break;
+	            }
+	            concatenatedLines.append(line).append("\n");
+	        }
+
+	        String concatenatedText = concatenatedLines.toString();
+	        int index = 0;
+	        while ((index = concatenatedText.indexOf(pattern, index)) != -1) {
+	            index += pattern.length();
+	            count++;
+	        }
+	        return count;
+	    }
+
 
 	 private List<DriverCard> getDriverCardDetailsBasedOnAitess(int aitessId) {
 		    List<DriverCard> driverCardDetails = new ArrayList<>();
@@ -159,5 +182,9 @@ public class DriverManagement {
 		    }
 		    return driverCardDetails;
 		}
-	
+
+
+
 }
+
+

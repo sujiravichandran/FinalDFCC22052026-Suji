@@ -7,15 +7,18 @@ import java.nio.file.Paths;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.processcontrolmanagement.Aitess1ProcessControl;
 import com.teclever.dfcc.datastore.processcontrolmanagement.ProcessControlManagement;
 
+import javafx.scene.web.WebEngine;
+
 public class TestManagerManagement {
 	
-	private static String homeLocation = "home/bel/desktop/";
-	private static String configHomeLocation = "home/bel/desktop/config.dat";
+	private static String homeLocation = "home/bel/desktop/";          //user.home
+	private static String configHomeLocation = "home/bel/desktop/config.dat";  //user.home+/config.dat
 	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
-	private static String cacheFilePath = "home/bel/desktop/.cache";
+	private static String cacheFilePath = "home/bel/desktop/.cache";   //home location + .cache
 	ProcessControlManagement pcm = new ProcessControlManagement();
     AitessAction action;
 
@@ -27,7 +30,7 @@ public class TestManagerManagement {
 
 
 	
-    public void preLoadDriver() {
+    public DriverCardDetailsResponse preLoadDriver() {
     	
         // Get uutId from STATE MACHINE
         String uutId = "UUT1";
@@ -45,18 +48,20 @@ public class TestManagerManagement {
 
         // Load driver in STARTUP mode and returning Driver Card Details
 //        ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
-        ProcessControlManagement.loadDriver("cd /home/teclever/Documents/load_data",null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
+        ProcessControlManagement pc = new ProcessControlManagement();
+        DriverCardDetailsResponse response = pc.loadDriver("cd /home/teclever/Documents/load_data"+"\n",null,1, ProcessControlManagement.LoadMode.STARTUP);
+		return response;
 
         //wait for some time after loading driver ????
         
         
-        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
-        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
-        deleteCacheFile(cacheFilePath);								//delete cache file
+//        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
+//        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
+//        deleteCacheFile(cacheFilePath);								//delete cache file
         //Loading Aitess
-        ProcessControlManagement.loadAitess(aitess.getAitessCommand());  
+        //ProcessControlManagement.loadAitess(aitess.getAitessCommand());  
     	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
-    	pcm.startAitess1ManagementThread();
+    	//pcm.startAitess1ManagementThread();
     	//aitess1ProcessControl.write(aitess.getAitessCommand());
         
     }
@@ -87,7 +92,7 @@ public class TestManagerManagement {
 			
 		if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
 
-            ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
+           // ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
             System.out.println("<< Drivers NOT Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
         } else {
             System.out.println("<< Drivers Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
@@ -134,7 +139,7 @@ public class TestManagerManagement {
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
 	        }
-         ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(), 0, ProcessControlManagement.LoadMode.SWITCH);
+         //ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(), 0, ProcessControlManagement.LoadMode.SWITCH);
          copyConfigFile(aitess.getConfigFile(), configHomeLocation);
          copyConfigFile(startupUserFileLocation, homeLocation);
          deleteCacheFile(cacheFilePath);
