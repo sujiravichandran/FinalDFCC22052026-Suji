@@ -11,6 +11,7 @@ import com.teclever.dfcc.datastore.dto.ValidateResponse;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.model.CheckSumList;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -248,6 +249,7 @@ public class LoginFormController {
 				UserData.setRoleId(loginResponse.getRoleId());
 				if (loginResponse.getUserId() != null) {
 					UserData.setUserId(loginResponse.getUserId());
+					currentSessionDetails.setUserId(loginResponse.getUserId());
 				}
 				
 				GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();

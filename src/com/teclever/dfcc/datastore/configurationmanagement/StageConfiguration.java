@@ -432,7 +432,6 @@ public class StageConfiguration {
 			GetResponse res = sessionMasterService.getAllSessionMaster();
 			List<SessionMaster> sessionList = new ArrayList<>();
 			sessionList = (List<SessionMaster>) res.getResponseList();
-			System.out.println("%%%%%%%%%" + sessionList.size());
 			for (SessionMaster sessionMaster : sessionList) {
 				SessionMasterDTO sessionMasterDTO = new SessionMasterDTO();
 				sessionMasterDTO.setSessionMasterId(sessionMaster.getSessionMasterId());

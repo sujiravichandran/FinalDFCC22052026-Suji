@@ -465,11 +465,11 @@ public class SessionCreationController {
 			       }
 		    	}
 		       
-		       for (Map.Entry<String, StageIdName> entry : l2StageMap.entrySet()) {
-		           String key = entry.getKey();
-		           StageIdName value = entry.getValue();
-		           System.out.println("Key: " + key + ", name: " + value.getStageName() +" parent: " + value.getParentId() + ", test: " + value.getTestTypeId());
-		       }
+//		       for (Map.Entry<String, StageIdName> entry : l2StageMap.entrySet()) {
+//		           String key = entry.getKey();
+//		           StageIdName value = entry.getValue();
+//		           System.out.println("Key: " + key + ", name: " + value.getStageName() +" parent: " + value.getParentId() + ", test: " + value.getTestTypeId());
+//		       }
 
 		       TreeItem<HBox> rootItem = new TreeItem<>();
 		       rootItem.setExpanded(true);
