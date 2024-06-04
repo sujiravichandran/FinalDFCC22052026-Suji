@@ -132,7 +132,7 @@ public class SessionManagement {
 			List<LevelOneDto> listOfLevelOnDto = new ArrayList<>();
 			for (Object levelOneStageMaster : listOfLevelOneStage) {
 				LevelOneResponseDto levelOneEntity = (LevelOneResponseDto) levelOneStageMaster;
-
+//System.out.println("levelOneEntity.getLevelOneId()------"+levelOneEntity.getLevelOneId());
 				LevelOneDto levelOneDto = new LevelOneDto();
 				levelOneDto.setLevelOneId(levelOneEntity.getLevelOneId());
 				levelOneDto.setStageName(levelOneEntity.getStageName());
@@ -193,7 +193,7 @@ public class SessionManagement {
 				stageObject.setL3StageName(levelThreeStage.get(sessionStage.getLevelThreeStageId()));
 
 				stageObject.setL4StageId(sessionStage.getLevelFourStageId());
-				stageObject.setL4StageName(levelFourStage.get(sessionStage.getLevelFiveStageId()));
+				stageObject.setL4StageName(levelFourStage.get(sessionStage.getLevelFourStageId()));
 
 				stageObject.setL5StageId(sessionStage.getLevelFiveStageId());
 				stageObject.setL5StageName(levelFiveStage.get(sessionStage.getLevelFiveStageId()));
