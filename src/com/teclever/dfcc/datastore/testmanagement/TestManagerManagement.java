@@ -49,7 +49,9 @@ public class TestManagerManagement {
         // Load driver in STARTUP mode and returning Driver Card Details
 //        ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
         ProcessControlManagement pc = new ProcessControlManagement();
-        DriverCardDetailsResponse response = pc.loadDriver("cd /home/teclever/Documents/load_data"+"\n",null,1, ProcessControlManagement.LoadMode.STARTUP);
+        DriverCardDetailsResponse response= pc.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
+
+//        DriverCardDetailsResponse response = pc.loadDriver("cd /home/teclever/Documents/load_data"+"\n",null,1, ProcessControlManagement.LoadMode.STARTUP);
 		return response;
 
         //wait for some time after loading driver ????

@@ -4,12 +4,20 @@ public class DriverCard {
 	
 	private String cardName;
 	private String totalNumberOfCards;
+	private String expectedCountOfCards;
 	private String msg;
 	public String getCardName() {
 		return cardName;
 	}
 	public void setCardName(String cardName) {
 		this.cardName = cardName;
+	}
+	
+	public String getExpectedCountOfCards() {
+		return expectedCountOfCards;
+	}
+	public void setExpectedCountOfCards(String expectedCountOfCards) {
+		this.expectedCountOfCards = expectedCountOfCards;
 	}
 	public String getTotalNumberOfCards() {
 		return totalNumberOfCards;
@@ -23,9 +31,10 @@ public class DriverCard {
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-	public DriverCard(String cardName, String totalNumberOfCards) {
+	public DriverCard(String cardName, String totalNumberOfCards, String expectedCountOfCards) {
 		this.cardName = cardName;
 		this.totalNumberOfCards = totalNumberOfCards;
+		this.expectedCountOfCards = expectedCountOfCards;
 	}
 	public DriverCard() {
 		super();

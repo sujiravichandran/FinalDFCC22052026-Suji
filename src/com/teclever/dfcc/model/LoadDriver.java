@@ -1,22 +1,23 @@
 package com.teclever.dfcc.model;
 
 public class LoadDriver {
-	private String cradName;
-	private String foundCardCount;
+	private String cardName;
+	private String expectedCardCount;
 	private String actualCardCount;
 	private String status;
 	
-	public String getCradName() {
-		return cradName;
+	public String getCardName() {
+		return cardName;
 	}
-	public void setCradName(String cradName) {
-		this.cradName = cradName;
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
 	}
-	public String getFoundCardCount() {
-		return foundCardCount;
+		
+	public String getExpectedCardCount() {
+		return expectedCardCount;
 	}
-	public void setFoundCardCount(String foundCardCount) {
-		this.foundCardCount = foundCardCount;
+	public void setExpectedCardCount(String expectedCardCount) {
+		this.expectedCardCount = expectedCardCount;
 	}
 	public String getActualCardCount() {
 		return actualCardCount;
