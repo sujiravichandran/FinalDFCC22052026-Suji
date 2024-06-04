@@ -1,0 +1,155 @@
+@import url("Global.css");
+
+.session-testing-container{
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}
+
+.session-testing-title{
+	-fx-font-size:30px;
+	-fx-font-weight:bold;
+	-fx-text-fill:heading-text-color;
+}
+.session-testing-left-container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+	-fx-padding : 10px;
+}
+.l1_stage-label{
+	-fx-padding: 3px 15px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: primary-text-color;
+    -fx-font-size:18px;
+    -fx-font-weight:bold;
+}
+
+.tree-view {
+    -fx-background-color: dark-bg ;
+    -fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}
+.tree-cell {
+    -fx-background-color: dark-bg ;
+    -fx-text-fill: primary-text-color ;
+    -fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}
+.tree-cell:hover {
+    -fx-background-color: hover-menu-bg;
+}
+.tree-cell:hover .l1_stage-label{
+     -fx-text-fill: hover-menu-text ;
+}
+.tree-cell > .tree-disclosure-node {
+    -fx-padding :13px 0 0 15px;
+}
+.tree-cell > .arrow {
+    -fx-padding :13px 0 0 20px;
+}
+.tree-cell > .tree-disclosure-node > .arrow {
+      -fx-background-color: primary-text-color;
+}
+.tree-cell:hover > .tree-disclosure-node > .arrow {
+    -fx-background-color: secondary-text-color;
+}
+.tree-cell:selected > .tree-disclosure-node > .arrow {
+    -fx-background-color: secondary-text-color;
+}
+.tree-cell:selected {
+    -fx-background-color: selected-menu-bg;
+}
+.tree-cell:selected .l1_stage-label {
+    -fx-text-fill: selected-menu-text;
+}
+
+
+.session-testing-right-container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+	-fx-padding : 10px;
+}
+
+.session-testing-list-view{
+	-fx-border-color: transparent;
+	-fx-border-width: 0; 
+}
+
+.session-testing-list-view .list-cell {
+	-fx-border-color: transparent;
+    -fx-background-color: dark-bg;
+    -fx-padding: 10px;
+    -fx-border-color: transparent; 
+    -fx-border-width: 0px; 
+}
+.session-testing-list-view .list-cell:selected {
+    -fx-background-color: #0078d4; 
+    -fx-text-fill: white;
+}
+
+.select-all-checkbox{
+	-fx-text-fill: primary-text-color; 
+    -fx-font-size:18px;
+    -fx-font-weight:bold;
+}
+.session-testing-checkbox {
+    -fx-text-fill: primary-text-color; 
+    -fx-font-size:18px;
+    -fx-font-weight:bold;
+}
+
+.session-testing-checkbox .box {
+	
+}
+
+.session-testing-checkbox:selected .box {
+    -fx-background-color: #2ecc71; 
+}
+
+.session-testing-checkbox:selected .mark {
+    -fx-background-color: #ffffff;
+}
+
+.session-testing-repeat-count-label{
+    -fx-text-fill: primary-text-color; 
+    -fx-font-size:16px;
+    -fx-font-weight:bold;
+}
+.session-testing-repeat-count-input{
+	-fx-max-width:100px;
+    -fx-font-size:16px;
+    -fx-font-weight:bold;
+}
+
+.button {
+	-fx-min-width:90px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
+
+
+.button-image{
+	 -fx-effect: innershadow(gaussian, button-text, 10, 1.0, 0, 0);
+}
+.button:hover .button-image{
+ 	-fx-effect: innershadow(gaussian, button-bg, 10, 1.0, 0, 0);
+}
+
+
+.session-testing-result-container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}

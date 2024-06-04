@@ -10,12 +10,11 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -29,7 +28,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class SelfTestController {
 
@@ -186,37 +184,62 @@ public class SelfTestController {
 //		});
 		
 		startTest.setOnAction(e -> {
-		    Timeline timeline = new Timeline();
-		    for (int i = 200; i <= 218; i++) {
-		        int index = i;
-		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
-		            Platform.runLater(() -> {
-		            	Random random = new Random();
-		            	int randomValue = random.nextInt(2) + 1;
-		                SelfTestStateObject.updateSelfTestRack1Cardstatus("L3_" + index, null, randomValue);
-		                String result ;
-		                if(randomValue == 1) {
-		                	result = "ok";
-		                }else {
-		                	result = "not ok";
-		                }
-		                SelfTestStateObject.addSelfTestResult(new SelfTestStateObject.SelfTestResult("L3_" + index, "File-"+index, result));
-		            });
-		        });
-		        timeline.getKeyFrames().add(keyFrame);
-		    }
-		    for (int i = 219; i <= 221; i++) {
-		        int index = i;
-		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
-		            Platform.runLater(() -> {
-		            	Random random = new Random();
-		            	int randomValue = random.nextInt(2) + 1;
-		                SelfTestStateObject.updateSelfTestcPCICardstatus("L3_" + index, null, randomValue);
-		            });
-		        });
-		        timeline.getKeyFrames().add(keyFrame);
-		    }
-		    timeline.play();
+		    Task<Void> task = new Task<Void>() {
+		        @Override
+		        protected Void call() throws Exception {
+		            for (SelfTestCardData cardData : SelfTestStateObject.getSelfTestRack1Card()) {
+		                Random random = new Random();
+		                int randomValue = random.nextInt(2) + 1;
+		                
+		                Platform.runLater(() -> {
+		                    SelfTestStateObject.updateSelfTestRack1Cardstatus(cardData.getCardId(), cardData.getCardName(), randomValue);
+		                    SelfTestStateObject.addSelfTestResult(new SelfTestStateObject.SelfTestResult(cardData.getCardId(), cardData.getCardName(), randomValue == 1 ? "ok":"not ok"));
+		                });
+
+		                Thread.sleep(5000);
+		            }
+		            return null;
+		        }
+		    };
+
+		    task.setOnFailed(evt -> task.getException().printStackTrace());
+
+		    new Thread(task).start();
+	
+
+			
+//		    Timeline timeline = new Timeline();
+//		    for (int i = 200; i <= 218; i++) {
+//		        int index = i;
+//		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
+//		            Platform.runLater(() -> {
+//		            	Random random = new Random();
+//		            	int randomValue = random.nextInt(2) + 1;
+//		                SelfTestStateObject.updateSelfTestRack1Cardstatus("L3_" + index, null, randomValue);
+//		                String result ;
+//		                if(randomValue == 1) {
+//		                	result = "ok";
+//		                }else {
+//		                	result = "not ok";
+//		                }
+//		                SelfTestStateObject.addSelfTestResult(new SelfTestStateObject.SelfTestResult("L3_" + index, "File-"+index, result));
+//		            });
+//		        });
+//		        timeline.getKeyFrames().add(keyFrame);
+//		    }
+//		    for (int i = 219; i <= 221; i++) {
+//		        int index = i;
+//		        KeyFrame keyFrame = new KeyFrame(Duration.seconds(i - 200+3), event -> {
+//		            Platform.runLater(() -> {
+//		            	Random random = new Random();
+//		            	int randomValue = random.nextInt(2) + 1;
+//		                SelfTestStateObject.updateSelfTestcPCICardstatus("L3_" + index, null, randomValue);
+//		            });
+//		        });
+//		        timeline.getKeyFrames().add(keyFrame);
+//		    }
+//		    timeline.play();
+		
 		});
 
 

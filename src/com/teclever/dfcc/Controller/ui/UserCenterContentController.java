@@ -11,6 +11,7 @@ public class UserCenterContentController {
 	private StackPane resultsStackPane = new StackPane();
 	private StackPane selfTestStackPane = new StackPane();
 	private StackPane lruTestStackPane = new StackPane();
+	private StackPane sessionTestingStackPane = new StackPane();
 
 	private TerminalController terminalController = new TerminalController();
 
@@ -45,6 +46,17 @@ public class UserCenterContentController {
 				LRUTestingController lruTestController = new LRUTestingController();
 				lruTestStackPane.getChildren().add(lruTestController.createlruTestMainContainerGridPane());
 				centerStackPane.getChildren().add(lruTestStackPane);
+			} else {
+				lruTestStackPane.toFront();
+			}
+			
+			break;
+			
+		case "Session Testing":
+			if (!centerStackPane.getChildren().contains(sessionTestingStackPane)) {
+				SessionTestingController sessionTestingController = new SessionTestingController();
+				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane());
+				centerStackPane.getChildren().add(sessionTestingStackPane);
 			} else {
 				lruTestStackPane.toFront();
 			}

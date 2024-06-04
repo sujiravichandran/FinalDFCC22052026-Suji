@@ -73,7 +73,7 @@ public class StageConfiguration {
 		try {
 			StageLevelResponse serviceResponse = new StageLevelResponse();
 			String levelType = parentId.substring(0, 2);
-			System.out.println("Level Type  " + levelType);
+//			System.out.println("Level Type  " + levelType);
 			switch (levelType) {
 			case "L1":
 				LevelTwoMasterService levelTwo = new LevelTwoMasterService();
@@ -432,7 +432,6 @@ public class StageConfiguration {
 			GetResponse res = sessionMasterService.getAllSessionMaster();
 			List<SessionMaster> sessionList = new ArrayList<>();
 			sessionList = (List<SessionMaster>) res.getResponseList();
-			System.out.println("%%%%%%%%%" + sessionList.size());
 			for (SessionMaster sessionMaster : sessionList) {
 				SessionMasterDTO sessionMasterDTO = new SessionMasterDTO();
 				sessionMasterDTO.setSessionMasterId(sessionMaster.getSessionMasterId());

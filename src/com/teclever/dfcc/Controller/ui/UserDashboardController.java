@@ -5,6 +5,7 @@ import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -31,11 +32,9 @@ public class UserDashboardController {
 		UserCenterContentController centerContentController = new UserCenterContentController();
 		SessionManagement sessionManagement = new SessionManagement();
 	
-	public UserDashboardController() {
-		getAllStagesData();
-	}
 	
 	public GridPane createUserDashboard() {
+		getAllStagesData();
 		bottomMainGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
@@ -62,7 +61,7 @@ public class UserDashboardController {
 
 	}
 	private void getAllStagesData() {
-		SessionStageMapResponse data = sessionManagement.getAllSessionStageMapping("SASN7");
+		SessionStageMapResponse data = sessionManagement.getAllSessionStageMapping(currentSessionDetails.getSessionId());
 		if (data.getResponse().getResponseCode() == 1) {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
 		}else {

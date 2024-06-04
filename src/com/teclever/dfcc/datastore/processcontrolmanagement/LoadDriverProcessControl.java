@@ -17,7 +17,7 @@ public class LoadDriverProcessControl {
     private boolean isDriverLoaded = false; // Flag to track driver load status
 
     private LoadDriverProcessControl() {
-        loadDriverProcessControl = new ProcessControl();
+        loadDriverProcessControl = new ProcessControl(loadDriverQueue);
     }
 
     public static synchronized LoadDriverProcessControl getInstance() {
@@ -34,7 +34,7 @@ public class LoadDriverProcessControl {
     void launchLoadDriver(String command) {
         if (!isTerminalLaunched) {
             CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
-            loadDriverProcessControl.LaunchingProcess(command, launcherFuture,loadDriverQueue,false,null);
+            loadDriverProcessControl.LaunchingProcess(command, launcherFuture);
             launcherFuture.thenRun(() -> {
                 //loadDriverProcessControl.ReadingProcess();
                 outputProcessingThread = new Thread(() -> {
