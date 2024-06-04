@@ -1,9 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.List;
+
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.DriverCard;
+import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
+import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement;
 import com.teclever.dfcc.model.LoadDriver;
 
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
@@ -14,6 +23,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 
 public class LoadDriverController {
 
@@ -24,8 +34,22 @@ public class LoadDriverController {
 	private TableView<LoadDriver> loadDriverTable = new TableView<>();
 	private HBox buttonBox = new HBox();
 	private Button okButton = new Button();
+	private List<DriverCard> loadDriverDataList ;
+	private ObservableList<LoadDriver> loadDriverTableData = FXCollections.observableArrayList();
+	private Boolean loadDriverStatusResult = true;
+	
+	private Button refreshBtn = new Button();
+	TestManagerManagement testManagerManagement = new TestManagerManagement();
+	
+	
 	
 	public GridPane createLoadDriverPage() {
+		DriverCardDetailsResponse loadDriverResponseList = testManagerManagement.preLoadDriver();
+		loadDriverDataList = loadDriverResponseList.getDriverCardDetails();
+		if(loadDriverDataList.size() > 0) {
+			setTableData();
+		}
+		
 		loadDriverMainGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoadDriver.css").toExternalForm());
 		loadDriverMainGridPane.getStyleClass().add("load-driver-container");
@@ -105,8 +129,8 @@ public class LoadDriverController {
 		cardNameColumn.setSortable(false);
 		cardNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<LoadDriver, String> foundCardCountColumn = new TableColumn<>("Founded Cards");
-		foundCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("foundCardCount"));
+		TableColumn<LoadDriver, String> foundCardCountColumn = new TableColumn<>("Expected Cards");
+		foundCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("expectedCardCount"));
 		foundCardCountColumn.setReorderable(false);
 		foundCardCountColumn.setSortable(false);
 		foundCardCountColumn.setStyle("-fx-alignment: CENTER;");
@@ -119,14 +143,28 @@ public class LoadDriverController {
 		
 		TableColumn<LoadDriver, String> statusColumn = new TableColumn<>("Status");
 		statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-//		setupStatusColumn(statusColumn);
+		setupStatusColumn(statusColumn);
 
 		tableView.getColumns().addAll(cardNameColumn, foundCardCountColumn, actualCardCountColumn, statusColumn);
-//		tableView.setItems(checkSumTableData);
+		
+		tableView.setItems(loadDriverTableData);
+//		setTableData();
 		
 		return tableView;
 	}
 	
+	private void setTableData() {
+		for(DriverCard list : loadDriverDataList) {
+			LoadDriver loadDriver = new LoadDriver();
+			loadDriver.setCardName(list.getCardName());
+			loadDriver.setActualCardCount(list.getTotalNumberOfCards());
+			loadDriver.setExpectedCardCount(list.getExpectedCountOfCards());
+			loadDriver.setStatus(list.getMsg());
+			
+			loadDriverTableData.add(loadDriver);
+		}
+	}
+
 	private void setupStatusColumn(TableColumn<LoadDriver, String> statusColumn) {
 		statusColumn.setReorderable(false);
 		statusColumn.setSortable(false);
@@ -143,7 +181,7 @@ public class LoadDriverController {
 						setStyle("-fx-background-color: lightgreen;-fx-alignment: CENTER;");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
-//						loadDriverStatusResult = false;
+						loadDriverStatusResult = false;
 						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
 					}
 				}
@@ -153,9 +191,28 @@ public class LoadDriverController {
 
 	private HBox createLoadDriverButton() {
 		okButton.setText("OK");
+		refreshBtn.setText("Refresh");
+		
+		okButton.setOnAction(e -> {
+			if (loadDriverStatusResult) {
+					StackPane parent = (StackPane) loadDriverMainGridPane.getParent();
+					parent.getChildren().remove(loadDriverMainGridPane);
+					UserDashboardController userDashboardController = new UserDashboardController();
+					parent.getChildren().add(userDashboardController.createUserDashboard());
+			} else {
+				Platform.exit();
+			}
+		});
+		refreshBtn.setOnAction(e ->{
+			DriverCardDetailsResponse loadDriverResponseList = testManagerManagement.preLoadDriver();
+			loadDriverDataList = loadDriverResponseList.getDriverCardDetails();
+			if(loadDriverDataList.size() > 0) {
+				setTableData();
+			}
+		});
 		
 		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.getChildren().add(okButton);
+		buttonBox.getChildren().addAll(okButton);
 		return buttonBox;
 	}
 	

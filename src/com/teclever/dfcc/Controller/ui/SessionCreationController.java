@@ -231,7 +231,9 @@ public class SessionCreationController {
 				
 		StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 		parent1.getChildren().clear();
-		parent1.getChildren().add(userDashboardController.createUserDashboard());
+//		parent1.getChildren().add(userDashboardController.createUserDashboard());
+		parent1.getChildren().add(loadDriverController.createLoadDriverPage());
+
 	}
 
 	private HBox createSessionDetails() {
@@ -692,8 +694,8 @@ public class SessionCreationController {
 			System.out.println("Session Created Successfully..!");
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
-			parent1.getChildren().add(userDashboardController.createUserDashboard());
-//			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
+//			parent1.getChildren().add(userDashboardController.createUserDashboard());
+			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
 		} else {
 			System.out.println("Session Not Created " + response.getResponseMessage());
 		}
