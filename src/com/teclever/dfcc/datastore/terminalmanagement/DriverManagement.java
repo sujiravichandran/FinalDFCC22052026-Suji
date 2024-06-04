@@ -1,5 +1,4 @@
 package com.teclever.dfcc.datastore.terminalmanagement;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -19,7 +17,6 @@ import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
-
 public class DriverManagement {
 	
 	 // Validating Driver Card API from output queue
@@ -27,10 +24,8 @@ public class DriverManagement {
         List<DriverCard> databaseDriverCards = getDriverCardDetailsBasedOnAitess(aitessId);
         List<DriverCard> parsedDriverCards = parseOutputFromQueue(outputQueue, aitessId);
         List<DriverCard> resultDriverCards = new ArrayList<>();
-
         Map<String, String> dbCardMap = databaseDriverCards.stream()
                 .collect(Collectors.toMap(DriverCard::getCardName, DriverCard::getTotalNumberOfCards));
-
         boolean allPassed = true;
         for (DriverCard parsedCard : parsedDriverCards) {
             String dbCardCount = dbCardMap.get(parsedCard.getCardName());
@@ -42,7 +37,6 @@ public class DriverManagement {
             }
             resultDriverCards.add(parsedCard);
         }
-
         DriverCardDetailsResponse driverCardResponse = new DriverCardDetailsResponse();
 
         Response response = new Response();
@@ -64,7 +58,6 @@ public class DriverManagement {
             SessionFactory sessionFactory = DataStoreConfiguration.getSessionFactory();
             Session session = sessionFactory.openSession();
             Transaction transaction = null;
-
             transaction = session.beginTransaction();
             Query<String> query = session.createQuery(
                     "SELECT cardIdentificationText FROM CardDetails WHERE aitessId = :aitessId AND cardName = :cardName AND deleteStatus = :deleteStatus",
@@ -84,23 +77,18 @@ public class DriverManagement {
 	 // Parsing output from blocking queue
     private List<DriverCard> parseOutputFromQueue(BlockingQueue<String> outputQueue, int aitessId) {
         List<DriverCard> driverCards = new ArrayList<>();
-        
         // Patterns for matching card initialization lines
         Pattern cardNamePattern = Pattern.compile("\\*{12}Initializing\\s+(\\w+)\\s+Card\\*{12}");
         Pattern dynamicPattern = null;
-
         String line;
         String cardName = null;
         String cardIdentificationText = null;
-
         try {
             while ((line = outputQueue.take()) != null) {
                 Matcher cardNameMatcher = cardNamePattern.matcher(line);
-
                 if (cardNameMatcher.find()) {
                     cardName = cardNameMatcher.group(1);
                     System.out.println("Card Name: " + cardName);
-
                     cardIdentificationText = getCardIdentificationTextByCardName(aitessId, cardName);
                     if (cardIdentificationText != null) {
                         if (!cardIdentificationText.contains("##NUM##")) {
@@ -147,37 +135,29 @@ public class DriverManagement {
         return count;
     }
 
-	 
 	 private List<DriverCard> getDriverCardDetailsBasedOnAitess(int aitessId) {
 		    List<DriverCard> driverCardDetails = new ArrayList<>();
-
 		    try {
 		        SessionFactory sessionFactory = DataStoreConfiguration.getSessionFactory();
 		        Session session = sessionFactory.openSession();
 		        Transaction transaction = null;
-
 		        transaction = session.beginTransaction();
 		        Query<Object[]> query = session.createQuery(
 		                "SELECT cardName, totalNumberOfCards FROM CardDetails WHERE aitessId = :aitessId AND deleteStatus = :deleteStatus",
 		                Object[].class);
 		        query.setParameter("aitessId", aitessId);
 		        query.setParameter("deleteStatus", false);
-
 		        List<Object[]> results = query.list();
 		        for (Object[] result : results) {
 		            String cardName = (String) result[0];
 		            String totalNumberOfCards = String.valueOf(result[1]);
 		            driverCardDetails.add(new DriverCard(cardName, totalNumberOfCards));
 		        }
-
 		        session.getTransaction().commit();
 		    } catch (Exception ex) {
 		        ex.printStackTrace();
 		    }
-
 		    return driverCardDetails;
 		}
-
-
 	
 }
