@@ -1,4 +1,5 @@
 package com.teclever.dfcc.datastore.testmanagement;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import com.teclever.dfcc.datastore.processcontrolmanagement.Aitess1ProcessContro
 import com.teclever.dfcc.datastore.processcontrolmanagement.ProcessControlManagement;
 import com.teclever.utils.ProcessControl;
 
+
 import javafx.scene.web.WebEngine;
 public class TestManagerManagement {
 	
@@ -17,14 +19,19 @@ public class TestManagerManagement {
 	private static String configHomeLocation = "home/bel/desktop/config.dat";
 	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
 	private static String cacheFilePath = "home/bel/desktop/.cache";
+
 	
 	ProcessControlManagement pcm = new ProcessControlManagement();
     AitessAction action;
+	ProcessControlManagement pcm = new ProcessControlManagement();
+    AitessAction action;
+
 	public enum AitessAction {
 	    TERMINATE,
 	    LOAD_AITESS,
 	    EXECUTE_TPF_FILES
 	}
+
 	
 	
     public void preLoadDriver(WebEngine webEngine) {
@@ -55,6 +62,7 @@ public class TestManagerManagement {
     	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
     	//pcm.startAitess1ManagementThread();
     	//aitess1ProcessControl.write(aitess.getAitessCommand());
+
     }
 	
 	
@@ -78,12 +86,16 @@ public class TestManagerManagement {
 		
 		System.out.println();
     	Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();
+
 			
 		if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
             //ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(), currentAitess.getUnloadDriverCommand(),0, ProcessControlManagement.LoadMode.SWITCH);
             System.out.println("<< Drivers NOT Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
         } else {
             System.out.println("<< Drivers Matched >> " + "currentAitess: " + currentAitess.getDriverName() + " ::: " + "aitess: " + aitess.getDriverName());
+
+
+	
         }
 	
 		if(!currentAitess.getConfigFile().equals(aitess.getConfigFile()))
@@ -91,14 +103,16 @@ public class TestManagerManagement {
 	        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
 	        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
 	        deleteCacheFile(cacheFilePath);								//delete cache file
-	       
+
 			System.out.println("<< ConfigFile NOT Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
 			
 		}else
+
 		{
 			System.out.println("<< ConfigFile Matched >> "+ "currentAitess: "+currentAitess.getConfigFile()+ " ::: " +"aitess: " + aitess.getConfigFile());
 		}
 		
+
 		if (!currentAitess.getAitessName().equals(aitess.getAitessName())) {
 	        action = AitessAction.TERMINATE;
 	    } else if (!currentAitess.getDriverName().equals(aitess.getDriverName())) {
@@ -150,6 +164,7 @@ public class TestManagerManagement {
 		        e.printStackTrace();
 		    }
 		}
+
 		 private void deleteCacheFile(String cacheFilePath) {
 		        try {
 		            Path path = Paths.get(cacheFilePath);

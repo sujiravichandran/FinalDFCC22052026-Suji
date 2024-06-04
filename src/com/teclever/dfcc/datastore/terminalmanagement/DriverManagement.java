@@ -38,12 +38,15 @@ public class DriverManagement {
             resultDriverCards.add(parsedCard);
         }
         DriverCardDetailsResponse driverCardResponse = new DriverCardDetailsResponse();
+
         Response response = new Response();
+
         if (!allPassed) {
             response.setResponseMessage("Validating Card Status FAILED");
         } else {
             response.setResponseMessage("Validating Card Status COMPLETED");
         }
+
         response.setResponseCode(1);
         driverCardResponse.setDriverCardDetails(resultDriverCards);
         return driverCardResponse;
@@ -70,6 +73,7 @@ public class DriverManagement {
         return cardIdentificationText;
     }
 	
+
 	 // Parsing output from blocking queue
     private List<DriverCard> parseOutputFromQueue(BlockingQueue<String> outputQueue, int aitessId) {
         List<DriverCard> driverCards = new ArrayList<>();
@@ -112,8 +116,10 @@ public class DriverManagement {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
+
         return driverCards;
     }
+
  // Helper method to count occurrences of a string in subsequent lines
     private int countStringOccurrences(BlockingQueue<String> outputQueue, String searchString) throws InterruptedException {
         int count = 0;
@@ -128,7 +134,7 @@ public class DriverManagement {
         }
         return count;
     }
-	
+
 	 private List<DriverCard> getDriverCardDetailsBasedOnAitess(int aitessId) {
 		    List<DriverCard> driverCardDetails = new ArrayList<>();
 		    try {

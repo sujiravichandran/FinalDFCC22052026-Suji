@@ -11,15 +11,18 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 
 public class LoadDriverProcessControl {
+
 	private ProcessControl loadDriverProcessControl;
 	private BlockingQueue<String> loadDriverQueue = new ArrayBlockingQueue<>(100);
 	private Thread outputProcessingThread;
 
 	public LoadDriverProcessControl() {
 
+
 		loadDriverProcessControl = new ProcessControl(loadDriverQueue);
 		System.out.println("LOAD DRIVER PC anuj:::" + loadDriverProcessControl);
 	}
+
 
 	void launchLoadDriver(String command, WebEngine webEngine) {
 		CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
@@ -37,11 +40,14 @@ public class LoadDriverProcessControl {
                         cleanText = cleanText.replaceAll("]104", "");
                         final String finalLine = cleanText;
                         System.out.println(finalLine);
+
                     }
-                } catch (InterruptedException e1) {
-                    // Thread interrupted, stopping gracefully
-                }
+                });
+                outputProcessingThread.start();
+                isTerminalLaunched = true; // Set the flag to true after launching terminal
+                isDriverLoaded = true; // Set the flag to true after launching driver
             });
+
             outputProcessingThread.start();
 		});
 	}

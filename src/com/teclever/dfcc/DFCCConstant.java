@@ -9,6 +9,7 @@ public class DFCCConstant {
     public static boolean isJarBuild = true;
     public static String JARSTRING = "";
     
+
     public static Map getUutIdNameMap() {
         return uutIdNameMap;
     }

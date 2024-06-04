@@ -87,6 +87,7 @@ public class TerminalPopupController {
 		webEngine.loadContent(
 				"<html><body style='background-color:black; color:white; font-family:monospace;'></body></html>");
 		webEngine.documentProperty().addListener((observable, oldDoc, newDoc) -> {
+
 			if (newDoc != null) {
 				webEngine.executeScript("window.scrollBy({ top: 1000, left: 0, behavior: 'smooth' });");
 				webEngine.executeScript("setInterval(function() { window.scrollBy(0, 20); }, 5);");
@@ -95,6 +96,7 @@ public class TerminalPopupController {
 		System.out.println("HANDLER 1 anuj");
 		handler1 = new ProcessControl(queue);
 		loadDriverProcessController = new ProcessControl(loadDriverBQueue);
+
 
 	}
 
@@ -110,6 +112,14 @@ public class TerminalPopupController {
 				// JUN-03
 				// handler1.ReadingProcess(null,true,webEngine);
 				handler1.ReadingProcess();
+
+
+//    	 String inputText = terminalTextField.getText().trim();
+//         if (!inputText.isEmpty()) {
+//             appendTextToWebView(inputText + "\n");
+//             terminalTextField.clear(); 
+//         }
+		
 				new Thread(() -> {
 					try {
 						while (true) {
@@ -126,6 +136,8 @@ public class TerminalPopupController {
 						e1.printStackTrace();
 					}
 				}).start();
+				//handler1.ReadingProcess(webEngine);
+
 			});
 
 //			new Thread(() -> {

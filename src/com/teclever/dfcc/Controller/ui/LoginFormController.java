@@ -502,7 +502,7 @@ public class LoginFormController {
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
-		 tableView.setPrefHeight(900); 
+		tableView.setPrefHeight(900); 
 
 		TableColumn<CheckSumList, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));

@@ -129,6 +129,7 @@ public class ProcessControlManagement {
         	loadDriverManagementThread.interrupt();
         }
     }
+
     private void waitForExpectedOutput(String expectedOutput) throws InterruptedException {
         while (true) {
             String output = loadDriverBQueue.take();
@@ -138,16 +139,19 @@ public class ProcessControlManagement {
             }
         }
     }
+
     private boolean isCurrentDriver(String driverCommand) {
         return driverCommand.equals(currentLoadedDriver);
     }
     private void setCurrentLoadedDriver(String driverCommand) {
         this.currentLoadedDriver = driverCommand;
     }
+
     public DriverCardDetailsResponse validateDriverCardsFromQueue(int aitessId) {
         DriverManagement driverManagement = new DriverManagement();
         return driverManagement.validateDriverCardFromQueue(loadDriverBQueue, aitessId);
     }
+
     //AITESS 1
     public void startAitess1ManagementThread() {
     	aitess1ManagementThread = new Thread(() -> {
@@ -162,6 +166,7 @@ public class ProcessControlManagement {
         });
     	aitess1ManagementThread.start();
     }
+
     public void stopAitess1ManagementThread() {
         if (aitess1ManagementThread != null) {
         	aitess1ManagementThread.interrupt();
@@ -174,6 +179,7 @@ public class ProcessControlManagement {
 //    private void setCurrentAitess1(String aitessCommand) {
 //        this.currentAitess1 = aitessCommand;
 //    }
+
     public void waitForAitessExpectedOutput(String expectedOutput) throws InterruptedException {
         while (true) {
             String aitessTerminalOutput = aitess1BQueue.take();
@@ -184,6 +190,7 @@ public class ProcessControlManagement {
         }
     }
     
+
     private String cleanOutput(String output) {
 		String regex1 = "\u001B\\[[;\\d]*[A-Za-z]|\\[\\??\\d*[A-Za-z]|\\u0007|\\u0008|"
 				+ "\\u0009|\\u000B|\\u000C|\\u000D|\\u000E|\\u000F | \\p{Cntrl}|\\u001B\\(B | \\p{Cntrl}";
@@ -193,3 +200,4 @@ public class ProcessControlManagement {
 	}
     
 }
+
