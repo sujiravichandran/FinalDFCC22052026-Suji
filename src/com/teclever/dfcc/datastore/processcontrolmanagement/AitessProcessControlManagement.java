@@ -43,6 +43,19 @@ public class AitessProcessControlManagement {
 	private Thread performTestThread;
 
 	private boolean testStarted = false;
+	
+	private static final String[][] ANSI_TO_HTML_COLOR_MAP = { { "30", "black" }, { "31", "red" }, { "32", "green" },
+			{ "33", "yellow" }, { "34", "blue" }, { "35", "magenta" }, { "36", "cyan" }, { "37", "white" },
+			{ "90", "gray" }, { "91", "lightred" }, { "92", "lightgreen" }, { "93", "lightyellow" },
+			{ "94", "lightblue" }, { "95", "lightmagenta" }, { "96", "lightcyan" }, { "97", "lightwhite" } };
+	private static final Pattern UNNECESSARY_ANSI_PATTERN = Pattern
+			.compile("\u001B\\[\\?1049[hl]|" + "\u001B\\[22;0;0t|" + "\u001B\\[1;24r|" + "\u001B\\[\\?12l|"
+					+ "\u001B\\[\\?25h|" + "\u001B\\]104|" + "\u001B\\(B|" + "\u001B\\[4l|" + "\u001B\\[H|"
+					+ "\u001B\\[2J|" + "\u001B\\[8;38H|" + "\u001B\\[11;28H|" + "\u001B\\[16d|" + "\u001B\\[15;41H|"
+					+ "\u001B\\[13;33H|" + "\u001B\\[24d|" + "\u001B\\[K|" + "\u001B\\[\\?1049l|" + "\u001B\\[23;0;0t|"
+					+ "\u001B\\[\\?1l|" + "\u001B>" + "\u001B\\[?7h|" + "\u001B\\[\\?25l|" + "\u001B\\[\\d+;\\d+[Hh]");
+
+	private static final Pattern ANSI_PATTERN = Pattern.compile("\u001B\\[([;\\d]*)m");
 
 	public AitessProcessControlManagement() {
 		aitess1ProcessControl = new ProcessControl(aitess1ReadQ);
@@ -99,7 +112,7 @@ public class AitessProcessControlManagement {
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
 						System.out.println("s1 :: " + s1);
-						final String htmlContent = ProcessControl.ansiToHtml(s1);
+						final String htmlContent = ansiToHtml(s1);
 						Platform.runLater(() -> {
 							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
 									.replace("\n", "\\n").replace("\r", "\\r");
@@ -276,6 +289,52 @@ public class AitessProcessControlManagement {
 			System.err.println("An error occurred while deleting the cache file: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	private String ansiToHtml(String text) {
+		text = text.replaceAll("\u001B\\[\\?7h", "");
+		text = UNNECESSARY_ANSI_PATTERN.matcher(text).replaceAll("");
+		StringBuilder htmlText = new StringBuilder();
+		int lastEnd = 0;
+		Matcher matcher = ANSI_PATTERN.matcher(text);
+		while (matcher.find()) {
+			String codes = matcher.group(1);
+			String[] codeArray = codes.split(";");
+
+			htmlText.append(text, lastEnd, matcher.start());
+
+			StringBuilder style = new StringBuilder();
+			for (String code : codeArray) {
+				for (String[] colorMap : ANSI_TO_HTML_COLOR_MAP) {
+					if (code.equals(colorMap[0])) {
+						style.append("color:").append(colorMap[1]).append(";");
+					}
+				}
+				if (code.equals("1")) {
+					style.append("font-weight:bold;");
+				} else if (code.equals("4")) {
+					style.append("text-decoration:none;");
+				} else if (code.equals("0")) {
+					style.append("</span>");
+				}
+			}
+
+			if (style.length() > 0 && !style.toString().equals("</span>")) {
+				htmlText.append("<span style=\"").append(style).append("\">");
+			} else if (style.toString().equals("</span>")) {
+				htmlText.append(style);
+			}
+
+			lastEnd = matcher.end();
+		}
+
+		htmlText.append(text.substring(lastEnd));
+		if (htmlText.indexOf("<span") != -1 && htmlText.lastIndexOf("</span>") < htmlText.lastIndexOf("<span")) {
+			htmlText.append("</span>");
+		}
+
+		String finalHtmlText = htmlText.toString().replaceAll("\n", "<br>");
+		return finalHtmlText;
 	}
 
 }

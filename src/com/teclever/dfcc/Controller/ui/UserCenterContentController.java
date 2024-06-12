@@ -59,7 +59,7 @@ public class UserCenterContentController {
 				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane());
 				centerStackPane.getChildren().add(sessionTestingStackPane);
 			} else {
-				lruTestStackPane.toFront();
+				sessionTestingStackPane.toFront();
 			}
 			
 			break;

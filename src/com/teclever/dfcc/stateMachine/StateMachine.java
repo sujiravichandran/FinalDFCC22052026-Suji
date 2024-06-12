@@ -5,11 +5,11 @@ import java.util.List;
 import com.teclever.dfcc.datastore.dto.StageObject;
 
 public class StateMachine {
-	enum TestState {
+	public enum TestState {
 		PENDING, RUNNING, PAUSED, STOPPED, COMPLETED
 	}
 
-	enum RunningTestName {
+	public enum RunningTestName {
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
 	}
 
