@@ -17,6 +17,7 @@ public class UserCenterContentController {
 
 	public UserCenterContentController() {
 		centerStackPane.getChildren().addAll(dashboardStackPane);
+		terminalController.launchTerminal();
 	}
 
 	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {

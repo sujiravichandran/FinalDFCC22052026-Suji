@@ -1,0 +1,281 @@
+package com.teclever.dfcc.datastore.processcontrolmanagement;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.teclever.datastore.dto.AitessConfigurationDetails;
+import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.datastore.dto.DriverCard;
+import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement.AitessAction;
+import com.teclever.utils.ProcessControl;
+
+import javafx.application.Platform;
+import javafx.scene.web.WebEngine;
+
+public class AitessProcessControlManagement {
+
+	private static String homeLocation = "home/bel/desktop/"; // user.home
+	private static String configHomeLocation = "home/bel/desktop/config.dat"; // user.home+/config.dat
+	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
+	private static String cacheFilePath = "home/bel/desktop/.cache"; // home location + .cache
+
+	private BlockingQueue<String> aitess1ReadQ = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> aitess1ResultQ = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> aitess2ReadQ = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> aitess2ResultQ = new ArrayBlockingQueue<>(10000);
+
+	private ProcessControl aitess1ProcessControl;
+	private ProcessControl aitess2ProcessControl;
+
+	CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
+	CompletableFuture<Void> launcherFuture2 = new CompletableFuture<>();
+
+	private Thread outputProcessingThread1;
+	private Thread outputProcessingThread2;
+	private Thread performTestThread;
+
+	private boolean testStarted = false;
+
+	public AitessProcessControlManagement() {
+		aitess1ProcessControl = new ProcessControl(aitess1ReadQ);
+		aitess2ProcessControl = new ProcessControl(aitess2ReadQ);
+	}
+
+	private void configureAitess(String configFileLocation) {
+		// COPY CONFIG FILE
+		copyFile(configFileLocation, configHomeLocation);
+
+		// COPY STARTUP.USER FILE
+		copyFile(startupUserFileLocation, homeLocation);
+
+		// DELETE .CACHE FILE
+		deleteCacheFile(cacheFilePath);
+
+	}
+
+	public void launchAitess(String testTypeId, WebEngine webEngine) {
+		// FIND RUN CONFIG FROM TEST TYPE ID AND UUT ID
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
+
+		// get uutId from STATE MACHINE
+		String uutId = "UUT1";
+
+		// get currentRunConfigId based on uutId and testTypeId
+		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+
+		// get current Aitess Details from DB in object
+		AitessConfigurationDetails currentAitess = runConfigurationService
+				.getAitessDetailsByRunConfigId(currentRunConfigId);
+
+		// calling configureAitess()
+		configureAitess(currentAitess.getConfigFile());
+
+		// launchAitess1
+		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", webEngine);
+
+		// launchAitess2
+		launchAitess2("sudo "+currentAitess.getAitessCommand()+"\n");
+
+	}
+
+	private void launchAitess1(String command, WebEngine webEngine) {
+		aitess1ProcessControl.LaunchingProcess(command, launcherFuture1);
+		launcherFuture1.thenRun(() -> {
+			aitess1ProcessControl.ReadingProcess();
+			outputProcessingThread1 = new Thread(() -> {
+				try {
+					String s1;
+					String s2;
+					String cleanText;
+					String result = null;
+					while (true) {
+						s2 = s1 = aitess1ReadQ.take();
+						System.out.println("s1 :: " + s1);
+						final String htmlContent = ProcessControl.ansiToHtml(s1);
+						Platform.runLater(() -> {
+							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
+									.replace("\n", "\\n").replace("\r", "\\r");
+							webEngine.executeScript("document.body.innerHTML += '" + safeOutput + "';");
+						});
+
+						// condition if test stared
+						if (testStarted) {
+							System.out.println("s2 :: " + s2);
+							cleanText = cleanOutput(s2);
+							cleanText = cleanText.replaceAll("\\(B", "");
+							cleanText = cleanText.replaceAll("]104", "");
+
+							final String finalLine = cleanText;
+
+							// getting rdf File Name
+							if (getRdfFileName(finalLine) != null) {
+								result = getRdfFileName(finalLine);
+							}
+
+							String endLine = getEndMatchingLine(finalLine);
+							if (endLine != null) {
+								if (result != null) {
+									aitess1ResultQ.put(result);
+								}
+							}
+
+						}
+					}
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			});
+			outputProcessingThread1.start();
+		});
+	}
+
+	private void launchAitess2(String command) {
+		aitess2ProcessControl.LaunchingProcess(command, launcherFuture2);
+		launcherFuture2.thenRun(() -> {
+			aitess2ProcessControl.ReadingProcess();
+			outputProcessingThread2 = new Thread(() -> {
+				try {
+					String cleanText;
+					while (true) {
+						String output = aitess2ReadQ.take();
+						System.out.println("aitess2 :: " + output);
+						cleanText = cleanOutput(output);
+						cleanText = cleanText.replaceAll("\\(B", "");
+						cleanText = cleanText.replaceAll("]104", "");
+						final String finalLine = cleanText;
+						aitess2ResultQ.put(finalLine);
+
+					}
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			});
+			outputProcessingThread2.start();
+		});
+
+	}
+
+	public String performTest(String tpfFileName) {
+		String rdfFileName = null;
+		try {
+			testStarted = true;
+			// se6 flag here test started
+			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + tpfFileName + "\n"));
+//		performTestThread = new Thread(() -> {
+			while (true) {
+				if (aitess1ResultQ != null) {
+
+					rdfFileName = aitess1ResultQ.take();
+
+					break;
+				}
+			}
+
+//		});		
+//		performTestThread.start();
+
+			testStarted = false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return rdfFileName;
+
+	}
+
+	private void WriteAitess2Command(String command) {
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command));
+		// pending
+
+	}
+
+	public void switchAitess(String testTypeId) {
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
+
+		// get uutId from STATE MACHINE
+		String uutId = "UUT1";
+
+		// get currentRunConfigId based on uutId and testTypeId
+		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+
+		// get current Aitess Details from DB in object
+		AitessConfigurationDetails currentAitess = runConfigurationService
+				.getAitessDetailsByRunConfigId(currentRunConfigId);
+
+		// calling configureAitess()
+		configureAitess(currentAitess.getConfigFile());
+
+		// switch Aitess1
+		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("exit" + "\n"));
+		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess(currentAitess.getAitessCommand() + "\n"));
+
+		// switch Aitess2
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("exit" + "\n"));
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(currentAitess.getAitessCommand() + "\n"));
+
+	}
+
+	private String getEndMatchingLine(String line) {
+		Pattern tpfLinePattern = Pattern.compile("Execution of TPF '([^']+)' completed\\.");
+		Matcher tpfLineMatcher = tpfLinePattern.matcher(line);
+
+		if (tpfLineMatcher.find()) {
+			System.out.println("END LINE:: " + line);
+			return line;
+		}
+		return null; 
+	}
+
+	private String getRdfFileName(String line) {
+		Pattern rdfFileNamePattern = Pattern.compile("Running TPF '.*?' and generating RDF '([^']+)'.");
+		Matcher rdfFileNameMatcher = rdfFileNamePattern.matcher(line);
+
+		if (rdfFileNameMatcher.find()) {
+			String rdfFileName = rdfFileNameMatcher.group(1);
+			System.out.println("RDF NAME FROM TERMINAL :: " + rdfFileName);
+			return rdfFileName;
+		}
+		return null;
+	}
+
+	private String cleanOutput(String output) {
+		String regex1 = "\u001B\\[[;\\d]*[A-Za-z]|\\[\\??\\d*[A-Za-z]|\\u0007|\\u0008|"
+				+ "\\u0009|\\u000B|\\u000C|\\u000D|\\u000E|\\u000F | \\p{Cntrl}|\\u001B\\(B | \\p{Cntrl}";
+		Pattern pattern1 = Pattern.compile(regex1);
+		Matcher matcher1 = pattern1.matcher(output);
+		return matcher1.replaceAll("");
+	}
+
+	private void copyFile(String sourcePath, String destinationPath) {
+		try {
+			Files.copy(Paths.get(sourcePath), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+			System.out.println("Config file copied from " + sourcePath + " to " + destinationPath);
+		} catch (IOException e) {
+			System.err.println("An error occurred while copying the config file: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private void deleteCacheFile(String cacheFilePath) {
+		try {
+			Path path = Paths.get(cacheFilePath);
+			if (Files.exists(path)) {
+				Files.delete(path);
+				System.out.println("Cache file deleted from " + cacheFilePath);
+			} else {
+				System.out.println("Cache file does not exist at " + cacheFilePath);
+			}
+		} catch (IOException e) {
+			System.err.println("An error occurred while deleting the cache file: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+}
