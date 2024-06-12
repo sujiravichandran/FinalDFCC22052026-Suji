@@ -90,7 +90,7 @@ public class TestProcessManagement {
 			}
 			SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId,
-					stageId);
+					stageId,"STARTED..");
 			if (res.getResponseCode() == 0) {
 				return res;
 			}
