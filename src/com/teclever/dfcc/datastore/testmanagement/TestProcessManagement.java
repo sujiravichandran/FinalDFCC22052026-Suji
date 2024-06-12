@@ -1,7 +1,10 @@
 package com.teclever.dfcc.datastore.testmanagement;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,47 +19,61 @@ import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.StagesTestFilesResultDTO;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 
 public class TestProcessManagement {
-
-	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
-			boolean continueWithError) {
+	
+	public TestProcessResponse testProcesControl(String sessionId, String stageId, int repeatCount,
+			List<String> listOfFileId, boolean continueWithError) {
+		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
 		try {
 			res = updateStatusAndRunCount(sessionId, stageId, repeatCount);
 			if (res.getResponseCode() == 0) {
-				return res;
+				testProcessResponse.setResponse(res);
+				return testProcessResponse;
 			}
 			res = addSelectedTestFile(listOfFileId, stageId);
 			if (res.getResponseCode() == 0) {
-				return res;
+				testProcessResponse.setResponse(res);
+				return testProcessResponse;
 			}
 			TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 			TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
-
 			Map<String, String> testFilesIdName = testFileResponse.getTestFilesIdName();
+			
+			
+			
+			// ADD IF CONDITION TO CHECK SELF TEST
+			testProcessResponse = selfTestFileTest("C:\\Users\\VIGNESH K\\Desktop\\05062024\\output\\apgio.rdf;00");
+//			testProcessResponse = selfTestFileTest(currentDirectory + File.separator + "apgio.rdf;00");
 			int i = 1;
 			for (String fileId : listOfFileId) {
 				i++;
 				if (testFilesIdName.get(fileId) != null) {
 					Thread.sleep(1000);
-					SelfTestResult selfTestFile = new SelfTestResult("Card 1", testFilesIdName.get(fileId),
-							(i % 2 == 0) ? "OK" : "NOT OK");
+					SelfTestResult selfTestFile = new SelfTestResult(null, testFilesIdName.get(fileId),
+							(testProcessResponse.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
 					SelfTestStateObject.addSelfTestResult(selfTestFile);
 				}
 			}
-			res.setResponseCode(1);
+			res.setResponseCode((testProcessResponse.getResponse().getResponseCode() != 111) ? 102 : 103);
 			res.setResponseMessage("Task Successful ");
+//			SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
+//			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId,
+//					stageId, "STOPED..");
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Task Unsuccessful ");
 		}
-		return res;
+		testProcessResponse.setResponse(res);
+		return testProcessResponse;
 	}
+
+
 
 	private Response updateStatusAndRunCount(String sessionId, String stageId, int repeatCount) {
 		Response res = new Response();
@@ -178,4 +195,50 @@ public class TestProcessManagement {
 		return res;
 	}
 
+	public TestProcessResponse selfTestFileTest(String filePath) {
+		TestProcessResponse testProcessResponse = new TestProcessResponse();
+		Response res = new Response();
+		Map<String, String> brdresult = new HashMap<>();
+		try {
+			String baseFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+			System.out.println("Reading file: " + baseFileName + "  " + filePath.lastIndexOf("/"));
+			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			String line;
+			String brdNumber = null;
+//			int j = 1;
+			res.setResponseCode(1);
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("S> brd")) {
+//					System.out.println(line.substring(line.indexOf(" "), line.indexOf("_")));
+					brdNumber = line.substring(line.indexOf(" "), line.indexOf("_"));
+					if (brdresult.get(brdNumber) != null) {
+						if (brdresult.get(brdNumber) != "NOT OK") {
+							brdresult.put(brdNumber, "OK");
+						}
+					} else {
+						brdresult.put(brdNumber, "OK");
+					}
+				} else if (line.startsWith("D*> ")) {
+					if (brdresult.get(brdNumber) != null) {
+						if (brdresult.get(brdNumber) != "NOT OK") {
+							brdresult.put(brdNumber, "NOT OK");
+							res.setResponseCode(111);
+						}
+					}
+				}
+			}
+			int i = 1;
+			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
+				System.out.println(" " + (i++) + entry.getKey() + "  " + entry.getValue());
+			}
+			res.setResponseMessage("Successful ");
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Unsuccessful ");
+//			throw e;
+		}
+		testProcessResponse.setResponse(res);
+		testProcessResponse.setTestProcessResult(brdresult);
+		return testProcessResponse;
+	}
 }

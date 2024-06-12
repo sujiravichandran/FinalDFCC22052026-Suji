@@ -1,11 +1,14 @@
 package com.teclever.dfcc.datastore.dto;
 
+import com.teclever.datastore.dto.Response;
+
 public class DriverCard {
 	
 	private String cardName;
-	private String totalNumberOfCards;
+	private String foundedNumberOfCards;
 	private String expectedCountOfCards;
 	private String msg;
+	private Response response;
 	public String getCardName() {
 		return cardName;
 	}
@@ -19,11 +22,12 @@ public class DriverCard {
 	public void setExpectedCountOfCards(String expectedCountOfCards) {
 		this.expectedCountOfCards = expectedCountOfCards;
 	}
-	public String getTotalNumberOfCards() {
-		return totalNumberOfCards;
+
+	public String getFoundedNumberOfCards() {
+		return foundedNumberOfCards;
 	}
-	public void setTotalNumberOfCards(String totalNumberOfCards) {
-		this.totalNumberOfCards = totalNumberOfCards;
+	public void setFoundedNumberOfCards(String foundedNumberOfCards) {
+		this.foundedNumberOfCards = foundedNumberOfCards;
 	}
 	public String getMsg() {
 		return msg;
@@ -31,17 +35,25 @@ public class DriverCard {
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-	public DriverCard(String cardName, String totalNumberOfCards, String expectedCountOfCards) {
-		this.cardName = cardName;
-		this.totalNumberOfCards = totalNumberOfCards;
-		this.expectedCountOfCards = expectedCountOfCards;
-	}
+
 	public DriverCard() {
 		super();
 	}
 	
 	public DriverCard(String cardName) {
 		this.cardName = cardName;
+	}
+	public DriverCard(String cardName, String foundedNumberOfCards,Response response) {
+		super();
+		this.cardName = cardName;
+		this.foundedNumberOfCards = foundedNumberOfCards;
+		this.response = response;
+	}
+	public Response getResponse() {
+		return response;
+	}
+	public void setResponse(Response response) {
+		this.response = response;
 	}
 
 
