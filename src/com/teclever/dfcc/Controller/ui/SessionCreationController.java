@@ -637,6 +637,7 @@ public class SessionCreationController {
 	private void saveNewSession() {
 		List<SessionToStagesMappingDTO> sessionStagesList = new ArrayList<>();
 		for (List<String> hierarchy : filteredHierarchies) {
+//			System.out.println();
 			SessionToStagesMappingDTO mappingDTO = new SessionToStagesMappingDTO();
 			if (hierarchy.size() > 0) {
 				if(hierarchy.get(0).equals("0")) {
@@ -646,23 +647,23 @@ public class SessionCreationController {
 			}
 			if (hierarchy.size() > 1) {
 				mappingDTO.setLevelOneStageId(hierarchy.get(1));
-//				System.out.println("H1: " + hierarchy.get(1));
+//				System.out.print("H1: " + hierarchy.get(1)+"   ");
 			}
 			if (hierarchy.size() > 2) {
 				mappingDTO.setLevelTwoStageId(hierarchy.get(2));
-//				System.out.println("H2: " + hierarchy.get(2));
+//				System.out.print("H2: " + hierarchy.get(2)+"   ");
 			}
 			if (hierarchy.size() > 3) {
 				mappingDTO.setLevelThreeStageId(hierarchy.get(3));
-//				System.out.println("H3: " + hierarchy.get(3));
+//				System.out.print("H3: " + hierarchy.get(3)+"   ");
 			}
 			if (hierarchy.size() > 4) {
 				mappingDTO.setLevelFourStageId(hierarchy.get(4));
-//				System.out.println("H4: " + hierarchy.get(4));
+//				System.out.print("H4: " + hierarchy.get(4)+"   ");
 			}
 			if (hierarchy.size() > 5) {
 				mappingDTO.setLevelFiveStageId(hierarchy.get(5));
-//				System.out.println("H5: " + hierarchy.get(5));
+//				System.out.print("H5: " + hierarchy.get(5)+"   ");
 			}
 			mappingDTO.setSessionId(SESSION_TYPE_ID);
 			sessionStagesList.add(mappingDTO);
@@ -836,7 +837,7 @@ public class SessionCreationController {
 		sessionTypeGridPane.add(sessionTypeField, 1, 0);
 
 		selectStageLabel.getStyleClass().add("field-label");
-		treeView = createTreeViewWithCheckBoxes(session_l1Data);
+//		treeView = createTreeViewWithCheckBoxes(session_l1Data);
 		treeView.prefHeightProperty().bind(middleContainer.heightProperty());
 
 		middleContainer.getStyleClass().add("session-creation-container");
@@ -845,20 +846,43 @@ public class SessionCreationController {
 	}
 
 	private TreeView<String> createTreeViewWithCheckBoxes(ObservableList<StageOne> stageList) {
-		CustomCheckBoxTreeItem<String> rootItem = new CustomCheckBoxTreeItem<>("Stages", null);
-		rootItem.setExpanded(true);
-		Map<String, SubStage> subStageMap = new HashMap<>();
-		for (StageOne stage : stageList) {
-			CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
-			rootItem.getChildren().add(item);
-			addSubStages(item, stage.getId(), subStageMap);
-		}
+	    CustomCheckBoxTreeItem<String> rootItem = new CustomCheckBoxTreeItem<>("Stages", null);
+	    rootItem.setExpanded(true);
+	    if(filteredHierarchies != null) {
+	        filteredHierarchies.clear();   
+	        selectedHierarchies.clear();
+        }
+	    Map<String, SubStage> subStageMap = new HashMap<>();
+	    for (StageOne stage : stageList) {
+	        CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
+	        rootItem.getChildren().add(item);
+	        addSubStages(item, stage.getId(), subStageMap);
+	       
+	        if ("Self Test".equalsIgnoreCase(stage.getL1_name().trim())) {
+	            item.setSelected(true);
+	            item.setDisabled(true);  
+	        } else if ("LRU Test".equalsIgnoreCase(stage.getL1_name().trim())) {
+	            item.setSelected(true);
+	            item.setDisabled(true);  
+	        }
 
-		TreeView<String> treeView = new TreeView<>(rootItem);
-		treeView.setCellFactory(CheckBoxTreeCell.forTreeView());
-		treeView.setShowRoot(false);
-		return treeView;
+	    }
+
+	    TreeView<String> treeView = new TreeView<>(rootItem);
+	    treeView.setCellFactory(tv -> {
+	        CheckBoxTreeCell<String> cell = new CheckBoxTreeCell<>();
+	        cell.treeItemProperty().addListener((obs, oldItem, newItem) -> {
+	            if (newItem instanceof CustomCheckBoxTreeItem) {
+	                CustomCheckBoxTreeItem<String> customItem = (CustomCheckBoxTreeItem<String>) newItem;
+	                cell.setDisable(customItem.isDisabled());  // Apply the disabled state to the cell
+	            }
+	        });
+	        return cell;
+	    });
+	    treeView.setShowRoot(false);
+	    return treeView;
 	}
+
 
 	private void addSubStages(CustomCheckBoxTreeItem<String> parentItem, String parentId,
 			Map<String, SubStage> subStageMap) {
@@ -1064,51 +1088,68 @@ public class SessionCreationController {
 	}
 }
 
+
+
+
+
+
+
+
 class CustomCheckBoxTreeItem<T> extends CheckBoxTreeItem<T> {
-	private String id;
-	private String parentId;
-	private String testType;
+    private String id;
+    private String parentId;
+    private String testType;
+    private boolean disabled;
 
-	public CustomCheckBoxTreeItem(T value, String id) {
-		super(value);
-		this.id = id;
-		this.parentId = null;
-		this.testType = null;
-	}
+    public CustomCheckBoxTreeItem(T value, String id) {
+        super(value);
+        this.id = id;
+        this.parentId = null;
+        this.testType = null;
+        this.disabled = false; // Default to not disabled
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getParentId() {
-		return parentId;
-	}
+    public String getParentId() {
+        return parentId;
+    }
 
-	public void setParentId(String parentId) {
-		this.parentId = parentId;
-	}
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
 
-	public String getTestType() {
-		return testType;
-	}
+    public String getTestType() {
+        return testType;
+    }
 
-	public void setTestType(String testType) {
-		this.testType = testType;
-	}
+    public void setTestType(String testType) {
+        this.testType = testType;
+    }
 
-	public List<String> getAllParentIdsIncludingSelf() {
-		List<String> parentIds = new ArrayList<>();
-		TreeItem<T> currentItem = this;
-		while (currentItem != null) {
-			if (currentItem instanceof CustomCheckBoxTreeItem) {
-				String currentItemId = ((CustomCheckBoxTreeItem<T>) currentItem).getId();
-				if (currentItemId != null) {
-					parentIds.add(currentItemId);
-				}
-			}
-			currentItem = currentItem.getParent();
-		}
-		Collections.reverse(parentIds);
-		return parentIds;
-	}
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public List<String> getAllParentIdsIncludingSelf() {
+        List<String> parentIds = new ArrayList<>();
+        TreeItem<T> currentItem = this;
+        while (currentItem != null) {
+            if (currentItem instanceof CustomCheckBoxTreeItem) {
+                String currentItemId = ((CustomCheckBoxTreeItem<T>) currentItem).getId();
+                if (currentItemId != null) {
+                    parentIds.add(currentItemId);
+                }
+            }
+            currentItem = currentItem.getParent();
+        }
+        Collections.reverse(parentIds);
+        return parentIds;
+    }
 }

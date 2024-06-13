@@ -298,8 +298,7 @@ public class SessionManagement {
 				}
 				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
 			}
-			LoginSessionService loginSessionService = new LoginSessionService();
-			loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionEntityId, null);
+			
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull");
 			sessionDtoResponse.setResponse(res);
@@ -310,5 +309,18 @@ public class SessionManagement {
 			e.printStackTrace();
 		}
 		return sessionDtoResponse;
+	}
+	
+	public Response updateLoginSession(String sessionId) {
+		Response res= new Response();
+		try {
+			LoginSessionService loginSessionService = new LoginSessionService();
+			res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionId, null);
+			
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Update Login Session Unsuccessful ");
+		}
+		return res;
 	}
 }

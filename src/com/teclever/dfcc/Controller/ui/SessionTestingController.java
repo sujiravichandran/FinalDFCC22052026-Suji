@@ -1,9 +1,16 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.model.TestSummary;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.StateMachine;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -66,6 +73,7 @@ public class SessionTestingController {
 
     
 	public GridPane createSessionTestingGridPane() {
+		getSessionTestData();
 		sessionTestingMainGridPane.getStylesheets()
 				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
 		sessionTestingMainGridPane.getStyleClass().add("session-testing-container");
@@ -92,10 +100,89 @@ public class SessionTestingController {
 		sessionTestingMainGridPane.add(createSessionTestingLeftSide(), 0, 1);
 		sessionTestingMainGridPane.add(createSessionTestingRightSide(), 1, 1);
 		sessionTestingMainGridPane.add(createSessionTestingResultsGridPane(), 0, 2, 2, 1);
-		
+				
 		return sessionTestingMainGridPane;
 	}
 	
+	private void getSessionTestData() {
+	    List<StageObject> stageList = StateMachine.getStageDatalist();
+	    ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+
+	    Map<String, StageObject> l1Stages = new HashMap<>();
+	    Map<String, StageIdName> l2Stages = new HashMap<>();
+	    Map<String, StageIdName> l3Stages = new HashMap<>();
+	    Map<String, StageIdName> l4Stages = new HashMap<>();
+	    Map<String, StageIdName> l5Stages = new HashMap<>();
+
+	    // Populate the maps with stage objects
+	    observableStageList.forEach(stage -> {
+	        String l1StageName = stage.getL1StageName().trim();
+	        if (!("Self Test".equalsIgnoreCase(l1StageName)) && !("LRU Test".equalsIgnoreCase(l1StageName))) {
+	            SessionTestStateObject.addL1StageMap(stage.getL1StageId(), l1StageName);
+	        }
+	    });
+
+	    observableStageList.forEach(stage -> {
+	        String l1StageId = stage.getL1StageId();
+	        String l2StageId = stage.getL2StageId();
+	        String l3StageId = stage.getL3StageId();
+	        String l4StageId = stage.getL4StageId();
+	        String l5StageId = stage.getL5StageId();
+
+	        if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
+	            StageIdName l2StageObject = new StageIdName();
+	            l2StageObject.setParentId(l1StageId);
+	            l2StageObject.setStageId(l2StageId);
+	            l2StageObject.setStageName(stage.getL2StageName());
+	            if (l3StageId == null && stage.getTestTypeId() != null) {
+	                l2StageObject.setTestTypeId(stage.getTestTypeId());
+	            }
+	            SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
+	        }
+
+	        if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
+	            StageIdName l3StageObject = new StageIdName();
+	            l3StageObject.setParentId(l2StageId);
+	            l3StageObject.setStageId(l3StageId);
+	            l3StageObject.setStageName(stage.getL3StageName());
+	            if (l4StageId == null && stage.getTestTypeId() != null) {
+	                l3StageObject.setTestTypeId(stage.getTestTypeId());
+	            }
+	            SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
+	        }
+
+	        if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
+	            StageIdName l4StageObject = new StageIdName();
+	            l4StageObject.setParentId(l3StageId);
+	            l4StageObject.setStageId(l4StageId);
+	            l4StageObject.setStageName(stage.getL4StageName());
+	            if (l5StageId == null && stage.getTestTypeId() != null) {
+	                l4StageObject.setTestTypeId(stage.getTestTypeId());
+	            }
+	            SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
+	        }
+
+	        if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
+	            StageIdName l5StageObject = new StageIdName();
+	            l5StageObject.setParentId(l4StageId);
+	            l5StageObject.setStageId(l5StageId);
+	            l5StageObject.setStageName(stage.getL5StageName());
+	            if (stage.getTestTypeId() != null) {
+	                l5StageObject.setTestTypeId(stage.getTestTypeId());
+	            }
+	            SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
+	        }
+	    });
+
+	    // Print statements (if needed, otherwise remove)
+//	    SessionTestStateObject.getL1StageMap().forEach((key, value) -> System.out.println(key + "       " + value));
+//	    SessionTestStateObject.getL2StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
+//	    SessionTestStateObject.getL3StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
+//	    SessionTestStateObject.getL4StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
+//	    SessionTestStateObject.getL5StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
+	}
+
+
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -282,12 +369,13 @@ public class SessionTestingController {
 		TreeItem<Label> rootItem = new TreeItem<>();
 		rootItem.setExpanded(true);
 		rootItem.setGraphic(null);
-		 
-		for( String l1_stage : l1_sessionList) {
-			Label newL1StageLabel = new Label(l1_stage);
+		 		
+		for(Map.Entry<String, String> l1_stage : SessionTestStateObject.getL1StageMap().entrySet()) {
+//			System.out.println(l1_stage.getKey()+"      "+l1_stage.getValue());
+			Label newL1StageLabel = new Label(l1_stage.getValue());
 			newL1StageLabel.getStyleClass().add("l1_stage-label");
 			TreeItem<Label> sessionItem = new TreeItem<Label>(newL1StageLabel);
-			createL2Stage(sessionItem);
+			createL2Stage(sessionItem,l1_stage);
             rootItem.getChildren().add(sessionItem);
 		}
 		
@@ -301,6 +389,7 @@ public class SessionTestingController {
 
 				if (newValue.getChildren().isEmpty()) {
 					System.out.println(selectedLabel.getText());
+					System.out.println(selectedLabel.getId());
 				}
 			}
 		});
@@ -308,43 +397,103 @@ public class SessionTestingController {
 		return sessionTreeView;
 	}
 
-	private void createL2Stage(TreeItem<Label> l1_root) {	
-		Label newLabel = l1_root.getValue();
-		if(newLabel.getText().equals("Session 1")) {
-			for (String l2_stage : l2_sessionList) {
-				Label newL2StageLabel = new Label(l2_stage);
+	private void createL2Stage(TreeItem<Label> l1_root, Entry<String, String> l1_stage) {		
+//		System.out.println();
+		for(Map.Entry<String, StageIdName> l2_stage : SessionTestStateObject.getL2StageMap().entrySet()) {    
+//			System.out.println(l1_stage.getKey() +"     "+l2_stage.getValue().getParentId()+"    "+l2_stage.getValue().getStageId()+"    "+l2_stage.getValue().getStageName());
+			if(l1_stage.getKey().equals(l2_stage.getValue().getParentId())) {
+				Label newL2StageLabel = new Label(l2_stage.getValue().getStageName());
+				newL2StageLabel.setId(l2_stage.getKey());
 				newL2StageLabel.getStyleClass().add("l1_stage-label");
 	            TreeItem<Label> childItem = new TreeItem<>(newL2StageLabel);
-	            createL3Stage(childItem);
-	            l1_root.getChildren().add(childItem);
-	        }
-		}
-	}
-
-	private void createL3Stage(TreeItem<Label> l2_root) {
-		Label newLabel = l2_root.getValue();
-		if(newLabel.getText().equals("Sub Session 11")) {
-			for (String l3_stage : l3_sessionList) {
-				Label newL3StageLabel = new Label(l3_stage);
-				newL3StageLabel.getStyleClass().add("l1_stage-label");
-	            TreeItem<Label> childItem = new TreeItem<>(newL3StageLabel);
-	            createL4Stage(childItem);
-	            l2_root.getChildren().add(childItem);
-	        }
+	            createL3Stage(childItem , l2_stage);
+	            l1_root.getChildren().add(childItem); 
+			} 
 		}
 	}
 	
-	private void createL4Stage(TreeItem<Label> l3_root) {
-		Label newLabel = l3_root.getValue();
-		if(newLabel.getText().equals("Sub Session 111")) {
-			for (String l4_stage : l4_sessionList) {
-				Label newL4StageLabel = new Label(l4_stage);
-				newL4StageLabel.getStyleClass().add("l1_stage-label");
-	            TreeItem<Label> childItem = new TreeItem<>(newL4StageLabel);
-	            l3_root.getChildren().add(childItem);
-	        }
+	private void createL3Stage(TreeItem<Label> l2_root, Entry<String, StageIdName> l2_stage) {
+//		System.out.println();
+		for(Map.Entry<String, StageIdName> l3_stage : SessionTestStateObject.getL3StageMap().entrySet()) {    
+//			System.out.println(l2_stage.getKey() +"     "+l3_stage.getValue().getParentId()+"    "+l3_stage.getValue().getStageId()+"    "+l3_stage.getValue().getStageName());
+			if(l2_stage.getKey().equals(l3_stage.getValue().getParentId())) {
+				Label newL3StageLabel = new Label(l3_stage.getValue().getStageName());
+				newL3StageLabel.setId(l3_stage.getKey());
+				newL3StageLabel.getStyleClass().add("l1_stage-label");
+	            TreeItem<Label> childItem = new TreeItem<>(newL3StageLabel);
+	            createL4Stage(childItem , l3_stage);
+	            l2_root.getChildren().add(childItem); 
+			} 
 		}
 	}
+	
+	private void createL4Stage(TreeItem<Label> l3_root, Entry<String, StageIdName> l3_stage) {
+//		System.out.println();
+		for(Map.Entry<String, StageIdName> l4_stage : SessionTestStateObject.getL4StageMap().entrySet()) {    
+//			System.out.println(l3_stage.getKey() +"     "+l4_stage.getValue().getParentId()+"    "+l4_stage.getValue().getStageId()+"    "+l4_stage.getValue().getStageName());
+			if(l3_stage.getKey().equals(l4_stage.getValue().getParentId())) {
+				Label newL4StageLabel = new Label(l4_stage.getValue().getStageName());
+				newL4StageLabel.setId(l4_stage.getKey());
+				newL4StageLabel.getStyleClass().add("l1_stage-label");
+	            TreeItem<Label> childItem = new TreeItem<>(newL4StageLabel);
+	            createL5Stage(childItem , l4_stage);
+	            l3_root.getChildren().add(childItem); 
+			} 
+		}
+	}
+	
+	private void createL5Stage(TreeItem<Label> l4_root, Entry<String, StageIdName> l4_stage) {
+//		System.out.println();
+		for(Map.Entry<String, StageIdName> l5_stage : SessionTestStateObject.getL5StageMap().entrySet()) {    
+//			System.out.println(l4_stage.getKey() +"     "+l5_stage.getValue().getParentId()+"    "+l5_stage.getValue().getStageId()+"    "+l5_stage.getValue().getStageName());
+			if(l4_stage.getKey().equals(l5_stage.getValue().getParentId())) {
+				Label newL5StageLabel = new Label(l5_stage.getValue().getStageName());
+				newL5StageLabel.setId(l5_stage.getKey());
+				newL5StageLabel.getStyleClass().add("l1_stage-label");
+	            TreeItem<Label> childItem = new TreeItem<>(newL5StageLabel);
+	            l4_root.getChildren().add(childItem); 
+			} 
+		}
+	}
+
+//	private void createL2Stage(TreeItem<Label> l1_root) {	
+//		Label newLabel = l1_root.getValue();
+//		if(newLabel.getText().equals("Session 1")) {
+//			for (String l2_stage : l2_sessionList) {
+//				Label newL2StageLabel = new Label(l2_stage);
+//				newL2StageLabel.getStyleClass().add("l1_stage-label");
+//	            TreeItem<Label> childItem = new TreeItem<>(newL2StageLabel);
+//	            createL3Stage(childItem);
+//	            l1_root.getChildren().add(childItem);
+//	        }
+//		}
+//	}
+
+//	private void createL3Stage(TreeItem<Label> l2_root) {
+//		Label newLabel = l2_root.getValue();
+//		if(newLabel.getText().equals("Sub Session 11")) {
+//			for (String l3_stage : l3_sessionList) {
+//				Label newL3StageLabel = new Label(l3_stage);
+//				newL3StageLabel.getStyleClass().add("l1_stage-label");
+//	            TreeItem<Label> childItem = new TreeItem<>(newL3StageLabel);
+//	            createL4Stage(childItem);
+//	            l2_root.getChildren().add(childItem);
+//	        }
+//		}
+//	}
+	
+
+//	private void createL4Stage(TreeItem<Label> l3_root) {
+//		Label newLabel = l3_root.getValue();
+//		if(newLabel.getText().equals("Sub Session 111")) {
+//			for (String l4_stage : l4_sessionList) {
+//				Label newL4StageLabel = new Label(l4_stage);
+//				newL4StageLabel.getStyleClass().add("l1_stage-label");
+//	            TreeItem<Label> childItem = new TreeItem<>(newL4StageLabel);
+//	            l3_root.getChildren().add(childItem);
+//	        }
+//		}
+//	}
 	
 
 	private TableView<TestSummary> createResultTableView() {

@@ -46,9 +46,13 @@ public class AitessProcessControlManagement {
 	private Thread performTestThread;
 
 	private boolean testStarted = false;
+
 	boolean flag;
 	
 	TerminalPopupController terminalPopupController = new TerminalPopupController();
+
+	
+	
 
 
 	private static final String[][] ANSI_TO_HTML_COLOR_MAP = { { "30", "black" }, { "31", "red" }, { "32", "green" },
@@ -128,6 +132,7 @@ public class AitessProcessControlManagement {
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
 						System.out.println("s1 :: " + s1);
+
 //						final String htmlContent = ansiToHtml(s1);
 						
 //						Platform.runLater(() -> {
@@ -138,6 +143,9 @@ public class AitessProcessControlManagement {
 ////							terminalPopupController.updateTerminal("abc");
 //						});
 						testArea.appendText(s1);
+
+						
+
 
 						String userActionLine = getUserActionLine(s1);
 						if(userActionLine!=null) {
