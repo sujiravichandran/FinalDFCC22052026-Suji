@@ -32,8 +32,7 @@ public class StateMachine {
 		runningTestName = newState;
 	}
 
-
-	public static class currentSessionDetails{
+	public static class currentSessionDetails {
 		private static String userId;
 		private static String uutId;
 		private static String uutType;
@@ -43,55 +42,71 @@ public class StateMachine {
 		private static String sessionTypeName;
 		private static String runConfigId;
 		private static int loginSessionId;
-			
+
 		public static String getUserId() {
 			return userId;
 		}
+
 		public static void setUserId(String userId) {
 			currentSessionDetails.userId = userId;
 		}
+
 		public static String getUutId() {
 			return uutId;
 		}
+
 		public static void setUutId(String uutId) {
 			currentSessionDetails.uutId = uutId;
 		}
+
 		public static String getUutType() {
 			return uutType;
 		}
+
 		public static void setUutType(String uutType) {
 			currentSessionDetails.uutType = uutType;
 		}
+
 		public static String getSessionId() {
 			return sessionId;
 		}
+
 		public static void setSessionId(String sessionId) {
 			currentSessionDetails.sessionId = sessionId;
 		}
+
 		public static String getSessionName() {
 			return sessionName;
 		}
+
 		public static void setSessionName(String sessionName) {
 			currentSessionDetails.sessionName = sessionName;
 		}
+
 		public static String getSessionTypeID() {
 			return sessionTypeID;
 		}
+
 		public static void setSessionTypeID(String sessionTypeID) {
 			currentSessionDetails.sessionTypeID = sessionTypeID;
 		}
+
 		public static String getSessionTypeName() {
 			return sessionTypeName;
 		}
+
 		public static void setSessionTypeName(String sessionTypeName) {
 			currentSessionDetails.sessionTypeName = sessionTypeName;
 		}
+
 		public static String getRunConfigId() {
 			return runConfigId;
 		}
+
 		public static void setRunConfigId(String runConfigId) {
 			currentSessionDetails.runConfigId = runConfigId;
 		}
+
 		public static int getLoginSessionId() {
 			return loginSessionId;
 		}
@@ -99,46 +114,55 @@ public class StateMachine {
 		public static void setLoginSessionId(int loginSessionId) {
 			currentSessionDetails.loginSessionId = loginSessionId;
 		}
-				
+
 	}
-	
-	public static class currentTestDetails{
+
+	public static class currentTestDetails {
 		private static String runningTestPageId;
 		private static String testType;
 		private static int testFileCount;
 		private static int repeatCount;
 		private static double completionPercentage;
+
 		public static String getRunningTestPageId() {
 			return runningTestPageId;
 		}
+
 		public static void setRunningTestPageId(String runningTestPageId) {
 			currentTestDetails.runningTestPageId = runningTestPageId;
 		}
+
 		public static String getTestType() {
 			return testType;
 		}
+
 		public static void setTestType(String testType) {
 			currentTestDetails.testType = testType;
 		}
+
 		public static int getTestFileCount() {
 			return testFileCount;
 		}
+
 		public static void setTestFileCount(int testFileCount) {
 			currentTestDetails.testFileCount = testFileCount;
 		}
+
 		public static int getRepeatCount() {
 			return repeatCount;
 		}
+
 		public static void setRepeatCount(int repeatCount) {
 			currentTestDetails.repeatCount = repeatCount;
 		}
+
 		public static double getCompletionPercentage() {
 			return completionPercentage;
 		}
+
 		public static void setCompletionPercentage(double completionPercentage) {
 			currentTestDetails.completionPercentage = completionPercentage;
 		}
-				
 
 	}
 
@@ -151,4 +175,47 @@ public class StateMachine {
 	public static void setStageDatalist(List<StageObject> stageDatalist) {
 		StateMachine.stageDatalist = stageDatalist;
 	}
+
+	// USER ACTION
+	private static String userAction;
+
+	public static String getUserAction() {
+		return userAction;
+	}
+
+	public static void setUserAction(String userAction) {
+		StateMachine.userAction = userAction;
+	}
+
+	// LAUNCH AITESS 1, 2
+	private static boolean aitess1Launched = false;
+	private static boolean aitess2Launched = false;
+
+	public static boolean isAitess1Launched() {
+		return aitess1Launched;
+	}
+
+	public static void setAitess1Launched(boolean aitess1Launched) {
+		StateMachine.aitess1Launched = aitess1Launched;
+	}
+
+	public static boolean isAitess2Launched() {
+		return aitess2Launched;
+	}
+
+	public static void setAitess2Launched(boolean aitess2Launched) {
+		StateMachine.aitess2Launched = aitess2Launched;
+	}
+
+	// DISABLING TEXT AREA FLAG
+	private static boolean textArea = true;
+
+	public static boolean isTextArea() {
+		return textArea;
+	}
+
+	public static void setTextArea(boolean textArea) {
+		StateMachine.textArea = textArea;
+	}
+
 }
