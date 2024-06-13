@@ -3,7 +3,6 @@ package com.teclever.dfcc.datastore.testmanagement;
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.LoadDriverProcessControlManagement;
 
 
@@ -13,8 +12,6 @@ public class TestManagerManagement {
 	private static String configHomeLocation = "home/bel/desktop/config.dat";  //user.home+/config.dat
 	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
 	private static String cacheFilePath = "home/bel/desktop/.cache";   //home location + .cache
-	LoadDriverProcessControlManagement pcm = new LoadDriverProcessControlManagement();
-	AitessProcessControlManagement acm = new AitessProcessControlManagement();
     AitessAction action;
 
 	public enum AitessAction {
@@ -25,49 +22,30 @@ public class TestManagerManagement {
 
 
 	
-    public DriverCardDetailsResponse preLoadDriver() {
-    	
-        // Get uutId from STATE MACHINE
-        String uutId = "UUT1";
-        
-        //testTypeId for SELF TEST
-        String testTypeId = "TT1";
+	public DriverCardDetailsResponse preLoadDriver() {
 
-        RunConfigurationService runConfigurationService = new RunConfigurationService();
+		// Get uutId from STATE MACHINE
+		String uutId = "UUT1";
 
-        // Get runConfigId based on uutId and testTypeId
-        String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+		// testTypeId for SELF TEST
+		String testTypeId = "TT1";
 
-        // Get runConfigId Details from DB in object
-        AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
-        // Load driver in STARTUP mode and returning Driver Card Details
-//        ProcessControlManagement.loadDriver(aitess.getLoadDriverCommand(),null,aitess.getAitessId(), ProcessControlManagement.LoadMode.STARTUP);
-        LoadDriverProcessControlManagement pc = new LoadDriverProcessControlManagement();
-        DriverCardDetailsResponse response= pc.loadDriver("sudo " +aitess.getLoadDriverCommand()+"\n",null,aitess.getAitessId(), LoadDriverProcessControlManagement.LoadMode.STARTUP);
+		// Get runConfigId based on uutId and testTypeId
+		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 
-        //load Aitess for SELF TEST
-        //acm.launchAitess("sudo "+aitess.getAitessCommand()+ "\n", );
-        
-        
-        
-        
-//        DriverCardDetailsResponse response = pc.loadDriver("cd /home/teclever/Documents/load_data"+"\n",null,1, ProcessControlManagement.LoadMode.STARTUP);
+		// Get runConfigId Details from DB in object
+		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
+
+		// Load driver in STARTUP mode and returning Driver Card Details
+		LoadDriverProcessControlManagement pc = new LoadDriverProcessControlManagement();
+		DriverCardDetailsResponse response = pc.loadDriver("sudo " + aitess.getLoadDriverCommand() + "\n", null,
+				aitess.getAitessId(), LoadDriverProcessControlManagement.LoadMode.STARTUP);
+
 		return response;
 
-        //wait for some time after loading driver ????
-        
-        
-//        copyConfigFile(aitess.getConfigFile(),configHomeLocation); //copy config file to home location
-//        copyConfigFile(startupUserFileLocation,homeLocation );     //copy startup.user file to home location
-//        deleteCacheFile(cacheFilePath);								//delete cache file
-        //Loading Aitess
-        //ProcessControlManagement.loadAitess(aitess.getAitessCommand());  
-    	//Aitess1ProcessControl aitess1ProcessControl = Aitess1ProcessControl.getInstance();	
-    	//pcm.startAitess1ManagementThread();
-    	//aitess1ProcessControl.write(aitess.getAitessCommand());
-        
-    }
+	}
 	
 	
 	

@@ -7,15 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.internal.build.AllowSysOut;
-import org.hibernate.query.Query;
-import com.teclever.datastore.configuration.DataStoreConfiguration;
-import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
@@ -73,7 +64,7 @@ public class LoadDriverProcessControlManagement {
 							flag = true;
 							while (flag) {
 								String output = loadDriverBQueue.take();
-
+								System.out.println("loadDriver:: " +output);
 								for (DbDriverCard d : dbDriverCards) {
 									String cardIdentificationText = d.getCardIdentificationText();
 									DriverCard parsedCards = dm.parseLine1(output, cardIdentificationText);
