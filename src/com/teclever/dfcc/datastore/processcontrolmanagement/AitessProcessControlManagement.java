@@ -13,14 +13,17 @@ import java.util.regex.Pattern;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.dfcc.datastore.dto.DriverCard;
-import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement.AitessAction;
+import com.teclever.dfcc.Controller.ui.TerminalPopupController;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 import javafx.scene.web.WebEngine;
 
 public class AitessProcessControlManagement {
+	
+	private static AitessProcessControlManagement instance;
 
 	private static String homeLocation = "home/bel/desktop/"; // user.home
 	private static String configHomeLocation = "home/bel/desktop/config.dat"; // user.home+/config.dat
@@ -43,12 +46,37 @@ public class AitessProcessControlManagement {
 	private Thread performTestThread;
 
 	private boolean testStarted = false;
+	boolean flag;
+	
+	TerminalPopupController terminalPopupController = new TerminalPopupController();
 
-	public AitessProcessControlManagement() {
+
+	private static final String[][] ANSI_TO_HTML_COLOR_MAP = { { "30", "black" }, { "31", "red" }, { "32", "green" },
+			{ "33", "yellow" }, { "34", "blue" }, { "35", "magenta" }, { "36", "cyan" }, { "37", "white" },
+			{ "90", "gray" }, { "91", "lightred" }, { "92", "lightgreen" }, { "93", "lightyellow" },
+			{ "94", "lightblue" }, { "95", "lightmagenta" }, { "96", "lightcyan" }, { "97", "lightwhite" } };
+	private static final Pattern UNNECESSARY_ANSI_PATTERN = Pattern
+			.compile("\u001B\\[\\?1049[hl]|" + "\u001B\\[22;0;0t|" + "\u001B\\[1;24r|" + "\u001B\\[\\?12l|"
+					+ "\u001B\\[\\?25h|" + "\u001B\\]104|" + "\u001B\\(B|" + "\u001B\\[4l|" + "\u001B\\[H|"
+					+ "\u001B\\[2J|" + "\u001B\\[8;38H|" + "\u001B\\[11;28H|" + "\u001B\\[16d|" + "\u001B\\[15;41H|"
+					+ "\u001B\\[13;33H|" + "\u001B\\[24d|" + "\u001B\\[K|" + "\u001B\\[\\?1049l|" + "\u001B\\[23;0;0t|"
+					+ "\u001B\\[\\?1l|" + "\u001B>" + "\u001B\\[?7h|" + "\u001B\\[\\?25l|" + "\u001B\\[\\d+;\\d+[Hh]");
+
+	private static final Pattern ANSI_PATTERN = Pattern.compile("\u001B\\[([;\\d]*)m");
+
+	private AitessProcessControlManagement() {
 		aitess1ProcessControl = new ProcessControl(aitess1ReadQ);
 		aitess2ProcessControl = new ProcessControl(aitess2ReadQ);
 	}
 
+	public static synchronized AitessProcessControlManagement getInstance() {
+		if (instance == null) {
+			instance = new AitessProcessControlManagement();
+		}
+		return instance;
+	}
+	
+	
 	private void configureAitess(String configFileLocation) {
 		// COPY CONFIG FILE
 		copyFile(configFileLocation, configHomeLocation);
@@ -61,7 +89,7 @@ public class AitessProcessControlManagement {
 
 	}
 
-	public void launchAitess(String testTypeId, WebEngine webEngine) {
+	public void launchAitess(String testTypeId, TextArea testArea) {
 		// FIND RUN CONFIG FROM TEST TYPE ID AND UUT ID
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
@@ -78,15 +106,16 @@ public class AitessProcessControlManagement {
 		// calling configureAitess()
 		configureAitess(currentAitess.getConfigFile());
 
-		// launchAitess1
-		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", webEngine);
+		if(!StateMachine.isAitess1Launched())
+		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", testArea);
 
-		// launchAitess2
+		if(!StateMachine.isAitess2Launched())
 		launchAitess2("sudo "+currentAitess.getAitessCommand()+"\n");
 
 	}
 
-	private void launchAitess1(String command, WebEngine webEngine) {
+	private void launchAitess1(String command, TextArea testArea) {
+		System.out.println("Entering Launch Aitess 1");
 		aitess1ProcessControl.LaunchingProcess(command, launcherFuture1);
 		launcherFuture1.thenRun(() -> {
 			aitess1ProcessControl.ReadingProcess();
@@ -99,13 +128,22 @@ public class AitessProcessControlManagement {
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
 						System.out.println("s1 :: " + s1);
-						final String htmlContent = ProcessControl.ansiToHtml(s1);
-						Platform.runLater(() -> {
-							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
-									.replace("\n", "\\n").replace("\r", "\\r");
-							webEngine.executeScript("document.body.innerHTML += '" + safeOutput + "';");
-						});
+//						final String htmlContent = ansiToHtml(s1);
+						
+//						Platform.runLater(() -> {
+//							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
+//									.replace("\n", "\\n").replace("\r", "\\r");
+//							System.out.println("-----***-----" + safeOutput);
+//							testArea.executeScript("document.body.innerHTML += '" + safeOutput + "';");
+////							terminalPopupController.updateTerminal("abc");
+//						});
+						testArea.appendText(s1);
 
+						String userActionLine = getUserActionLine(s1);
+						if(userActionLine!=null) {
+							StateMachine.setUserAction(userActionLine);
+						}
+						
 						// condition if test stared
 						if (testStarted) {
 							System.out.println("s2 :: " + s2);
@@ -135,9 +173,12 @@ public class AitessProcessControlManagement {
 			});
 			outputProcessingThread1.start();
 		});
+		StateMachine.setAitess1Launched(true);
+
 	}
 
 	private void launchAitess2(String command) {
+		System.out.println("Entering Launch Aitess 2");
 		aitess2ProcessControl.LaunchingProcess(command, launcherFuture2);
 		launcherFuture2.thenRun(() -> {
 			aitess2ProcessControl.ReadingProcess();
@@ -160,37 +201,63 @@ public class AitessProcessControlManagement {
 			});
 			outputProcessingThread2.start();
 		});
+		StateMachine.setAitess2Launched(true);
 
 	}
 
 	public String performTest(String tpfFileName) {
-		String rdfFileName = null;
+//		if(StateMachine.isTextArea()) {
+//			StateMachine.setTextArea(false);
+//		}
+		
+		final String a[] = new String[1];
+	
 		try {
 			testStarted = true;
-			// se6 flag here test started
 			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + tpfFileName + "\n"));
-//		performTestThread = new Thread(() -> {
-			while (true) {
+		performTestThread = new Thread(() -> {
+			String rdfFileName = null;
+			flag = true;
+			while (flag) {
 				if (aitess1ResultQ != null) {
 
-					rdfFileName = aitess1ResultQ.take();
-
-					break;
+					try {
+						rdfFileName = aitess1ResultQ.take();
+						flag = false;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
+			a[0]= rdfFileName;
+		});		
+		performTestThread.start();
 
-//		});		
-//		performTestThread.start();
-
+		launcherFuture1.join();
+	if (performTestThread != null) {
+		performTestThread.join();
+	}
+		
+		while(flag)
+		{
+			System.out.println(".");
+		}
+		
 			testStarted = false;
-		} catch (InterruptedException e) {
+//			StateMachine.setTextArea(true);
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return rdfFileName;
+		return a[0];
 
 	}
+	
+	public void WriteAitess1Command(String command) {
+		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess(command));
+	}
 
-	private void WriteAitess2Command(String command) {
+	public void WriteAitess2Command(String command) {
 		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command));
 		// pending
 
@@ -244,6 +311,18 @@ public class AitessProcessControlManagement {
 		}
 		return null;
 	}
+	
+	private String getUserActionLine(String line) {
+	    Pattern userActionPattern = Pattern.compile("User Action .* \\(Y/N\\):");
+	    Matcher userActionMatcher = userActionPattern.matcher(line);
+
+	    if (userActionMatcher.find()) {
+	    	System.out.println("USER ACTION LINE :: " + line);
+	        return line; 
+	    }
+	    return null; 
+	}
+
 
 	private String cleanOutput(String output) {
 		String regex1 = "\u001B\\[[;\\d]*[A-Za-z]|\\[\\??\\d*[A-Za-z]|\\u0007|\\u0008|"
@@ -276,6 +355,52 @@ public class AitessProcessControlManagement {
 			System.err.println("An error occurred while deleting the cache file: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	private String ansiToHtml(String text) {
+		text = text.replaceAll("\u001B\\[\\?7h", "");
+		text = UNNECESSARY_ANSI_PATTERN.matcher(text).replaceAll("");
+		StringBuilder htmlText = new StringBuilder();
+		int lastEnd = 0;
+		Matcher matcher = ANSI_PATTERN.matcher(text);
+		while (matcher.find()) {
+			String codes = matcher.group(1);
+			String[] codeArray = codes.split(";");
+
+			htmlText.append(text, lastEnd, matcher.start());
+
+			StringBuilder style = new StringBuilder();
+			for (String code : codeArray) {
+				for (String[] colorMap : ANSI_TO_HTML_COLOR_MAP) {
+					if (code.equals(colorMap[0])) {
+						style.append("color:").append(colorMap[1]).append(";");
+					}
+				}
+				if (code.equals("1")) {
+					style.append("font-weight:bold;");
+				} else if (code.equals("4")) {
+					style.append("text-decoration:none;");
+				} else if (code.equals("0")) {
+					style.append("</span>");
+				}
+			}
+
+			if (style.length() > 0 && !style.toString().equals("</span>")) {
+				htmlText.append("<span style=\"").append(style).append("\">");
+			} else if (style.toString().equals("</span>")) {
+				htmlText.append(style);
+			}
+
+			lastEnd = matcher.end();
+		}
+
+		htmlText.append(text.substring(lastEnd));
+		if (htmlText.indexOf("<span") != -1 && htmlText.lastIndexOf("</span>") < htmlText.lastIndexOf("<span")) {
+			htmlText.append("</span>");
+		}
+
+		String finalHtmlText = htmlText.toString().replaceAll("\n", "<br>");
+		return finalHtmlText;
 	}
 
 }
