@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.dfcc.Controller.ui.TerminalPopupController;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.utils.ProcessControl;
 
@@ -49,11 +48,6 @@ public class AitessProcessControlManagement {
 
 	boolean flag;
 	
-	TerminalPopupController terminalPopupController = new TerminalPopupController();
-
-	
-	
-
 
 	private static final String[][] ANSI_TO_HTML_COLOR_MAP = { { "30", "black" }, { "31", "red" }, { "32", "green" },
 			{ "33", "yellow" }, { "34", "blue" }, { "35", "magenta" }, { "36", "cyan" }, { "37", "white" },
@@ -93,7 +87,7 @@ public class AitessProcessControlManagement {
 
 	}
 
-	public void launchAitess(String testTypeId, TextArea testArea) {
+	public void launchAitess(String testTypeId, TextArea texttArea) {
 		// FIND RUN CONFIG FROM TEST TYPE ID AND UUT ID
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
@@ -111,14 +105,14 @@ public class AitessProcessControlManagement {
 		configureAitess(currentAitess.getConfigFile());
 
 		if(!StateMachine.isAitess1Launched())
-		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", testArea);
+		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", texttArea);
 
 		if(!StateMachine.isAitess2Launched())
 		launchAitess2("sudo "+currentAitess.getAitessCommand()+"\n");
 
 	}
 
-	private void launchAitess1(String command, TextArea testArea) {
+	private void launchAitess1(String command, TextArea textArea) {
 		System.out.println("Entering Launch Aitess 1");
 		aitess1ProcessControl.LaunchingProcess(command, launcherFuture1);
 		launcherFuture1.thenRun(() -> {
@@ -126,14 +120,16 @@ public class AitessProcessControlManagement {
 			outputProcessingThread1 = new Thread(() -> {
 				try {
 					String s1;
-					String s2;
+					String s2 = null;
 					String cleanText;
 					String result = null;
+					
 					while (true) {
-						s2 = s1 = aitess1ReadQ.take();
+//						s2 = s1 = aitess1ReadQ.take();
+						s1= aitess1ReadQ.take();
 						System.out.println("s1 :: " + s1);
 
-//						final String htmlContent = ansiToHtml(s1);
+						final String htmlContent = s1;
 						
 //						Platform.runLater(() -> {
 //							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
@@ -142,8 +138,12 @@ public class AitessProcessControlManagement {
 //							testArea.executeScript("document.body.innerHTML += '" + safeOutput + "';");
 ////							terminalPopupController.updateTerminal("abc");
 //						});
-						testArea.appendText(s1);
-
+//						testArea.appendText(s1);
+						Platform.runLater(() -> {
+							System.out.println(textArea.getText()+"----------before  run later--------------"+htmlContent);
+							textArea.appendText(htmlContent);
+							System.out.println("----------after  run later--------------"+textArea.getText());
+						});
 						
 
 
