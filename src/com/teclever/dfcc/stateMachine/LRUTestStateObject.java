@@ -21,7 +21,7 @@ public class LRUTestStateObject {
 	public static void addLruMandatoryCard(SelfTestCardData newCardData) {
 		lruMandatoryCardList.add(newCardData);
 	}
-	public static void updateLruMandatoryCardstatus(String cardId, String cardName, int status) {
+	public static void updateLruMandatoryCardstatus(String cardId, String cardName, String status) {
 		for (SelfTestCardData cardData : lruMandatoryCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -42,7 +42,7 @@ public class LRUTestStateObject {
 	public static void addLruSruCard(SelfTestCardData newCardData) {
 		lruSruCardList.add(newCardData);
 	}
-	public static void updateLruSruCardstatus(String cardId, String cardName, int status) {
+	public static void updateLruSruCardstatus(String cardId, String cardName, String status) {
 		for (SelfTestCardData cardData : lruSruCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -63,7 +63,7 @@ public class LRUTestStateObject {
 	public static void addLruGoAndNogoCard(SelfTestCardData newCardData) {
 		lruGoAndNogoCardList.add(newCardData);
 	}
-	public static void updateLruGoAndNogoCardstatus(String cardId, String cardName, int status) {
+	public static void updateLruGoAndNogoCardstatus(String cardId, String cardName, String status) {
 		for (SelfTestCardData cardData : lruGoAndNogoCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);

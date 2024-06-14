@@ -92,8 +92,7 @@ public class TestProcessManagement {
 							testProcessRes = selfTestFileTest(rdfFileLocaltion + rdfFileName);
 
 							// Update State Machine.
-							SelfTestResult selfTestFile = new SelfTestResult(null,
-									testFilesIdName.get(testFileId),
+							SelfTestResult selfTestFile = new SelfTestResult(testFilesIdName.get(testFileId),
 									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
 							SelfTestStateObject.addSelfTestResult(selfTestFile);
 							break;
@@ -296,7 +295,7 @@ public class TestProcessManagement {
 			int i = 1;
 			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
 //				System.out.println(" " + (i++) + entry.getKey() + "  " + entry.getValue());
-				SelfTestStateObject.updateSelfTestResultstatus(entry.getKey(), null, entry.getValue());
+				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(),  entry.getValue());
 			}
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);

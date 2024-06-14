@@ -109,7 +109,7 @@ public class SelfTestController {
 		 observableStageList.stream()
          .filter(stage -> "Self Test".equalsIgnoreCase(stage.getL1StageName()))
          .forEach(stage -> {
-             SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), 0);
+             SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), null);
 
              if ("RACK-1".equalsIgnoreCase(stage.getL2StageName())) {
             	 SelfTestStateObject.setRack1StageId(stage.getL2StageId());
@@ -121,25 +121,25 @@ public class SelfTestController {
          });
 		 
 		 if(SelfTestStateObject.getSelfTestRack1Card().size() < 1) {
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd1", "Board-1(RUD)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd2", "Board-2(LIE)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd3", "Board-3(LOE)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd4", "Board-4(RIE)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd5", "Board-5(ROE)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd6", "Board-6(LIS, LMS, LOS)", 0));			
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd7", "Board-7(RIS, RMS, ROS)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd8", "Board-8(PCS, RPS)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd9", "Board-9(AOSS-1, A0SS-2, RA, LA)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd10", "Board-10(CWP,SPDCM,REFPRB)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd11", "Board-11(ASA, DPSC)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd12", "Board-12(GSE,FTI)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd14", "Board-14(LG, FCP, FTU)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd15", "Board-15(RSA-1)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd16", "Board-16(RSA-2)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd17", "Board-17(APP, AOA EXC MON)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd18", "Board-18(OPEN/GND, AO, DIFF AI/AO)", 0));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd19", "Board-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", 0));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd1", "Board-1(RUD)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd2", "Board-2(LIE)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd3", "Board-3(LOE)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd4", "Board-4(RIE)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd5", "Board-5(ROE)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd6", "Board-6(LIS, LMS, LOS)", null));			
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd7", "Board-7(RIS, RMS, ROS)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd8", "Board-8(PCS, RPS)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd9", "Board-9(AOSS-1, AnullSS-2, RA, LA)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd1null", "Board-1null(CWP,SPDCM,REFPRB)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd11", "Board-11(ASA, DPSC)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd12", "Board-12(GSE,FTI)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd14", "Board-14(LG, FCP, FTU)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd15", "Board-15(RSA-1)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd16", "Board-16(RSA-2)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd17", "Board-17(APP, AOA EXC MON)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd18", "Board-18(OPEN/GND, AO, DIFF AI/AO)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd19", "Board-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", null));			 
 
 		 }
 		
@@ -216,14 +216,14 @@ public class SelfTestController {
 			                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
 			                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
 			                
-			                TestProcessResponse response = testProcessManagement.testProcesControl(
+			                Response response = testProcessManagement.testProcesControl(
 			                    currentSessionDetails.getSessionId(),
-			                    ID, 1, testFileList, true
+			                    ID, 1, testFileList, true,"RACK-1"
 			                );
 		                    
-			                for (Map.Entry<String, String> entry : response.getTestProcessResult().entrySet()) {
-			    				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), null, entry.getValue().equals("OK") ? 1 : 2);
-			    			}
+//			                for (Map.Entry<String, String> entry : response.getTestProcessResult().entrySet()) {
+//			    				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), null, entry.getValue().equals("OK") ? 1 : 2);
+//			    			}
 			                
 		        	}
 		           
@@ -240,11 +240,11 @@ public class SelfTestController {
 		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
 		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
 		                
-		                TestProcessResponse response = testProcessManagement.testProcesControl(
+		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    cardData.getCardId(), 1, testFileList, true
+		                    cardData.getCardId(), 1, testFileList, true,"RACK-1"
 		                );
-	                    SelfTestStateObject.updateSelfTestcPCICardstatus(cardData.getCardId(), cardData.getCardName(), response.getResponse().getResponseCode() == 102 ? 1 : 2 );
+//	                    SelfTestStateObject.updateSelfTestcPCICardstatus(cardData.getCardId(), cardData.getCardName(), response.getResponseCode() == 102 ? 1 : 2 );
 		            }
 		            return null;
 		        }
@@ -376,9 +376,10 @@ public class SelfTestController {
 		        label.setPadding(new Insets(5));
 		        
 		        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {  
-		        	if(newValue.intValue() == 1) {
+		        	System.out.println("---379---"+newValue);
+		        	if(newValue.equals("OK")) {
 		        		label.setStyle("-fx-background-color:green;");	
-		        	}else if(newValue.intValue() == 2) {
+		        	}else if(newValue.equals("NOT OK")) {
 		        		label.setStyle("-fx-background-color:red;");	
 		        	}
 		        });
@@ -409,9 +410,10 @@ public class SelfTestController {
 	        label.setPadding(new Insets(0 ,5, 0, 5));
 	        
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	if(newValue.intValue() == 1) {
+	        	System.out.println("---412---"+newValue);
+	        	if(newValue.equals("OK")) {
 	        		label.setStyle("-fx-background-color:green;");	
-	        	}else if(newValue.intValue() == 2) {
+	        	}else if(newValue.equals("NOT OK")) {
 	        		label.setStyle("-fx-background-color:red;");	
 	        	}
 	        });
@@ -440,9 +442,10 @@ public class SelfTestController {
 	        label.setPadding(new Insets(5));
 	        
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	if(newValue.intValue() == 1) {
+	        	System.out.println("---444---"+newValue);
+	        	if(newValue.equals("OK")) {
 	        		label.setStyle("-fx-background-color:green;");	
-	        	}else if(newValue.intValue() == 2) {
+	        	}else if(newValue.equals("NOT OK")) {
 	        		label.setStyle("-fx-background-color:red;");	
 	        	}
 	        });
