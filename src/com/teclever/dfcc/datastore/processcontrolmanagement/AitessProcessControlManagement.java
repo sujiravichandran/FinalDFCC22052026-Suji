@@ -231,50 +231,33 @@ public class AitessProcessControlManagement {
 	}
 
 	public String performTest(String tpfFileName) {
-//		if(StateMachine.isTextArea()) {
-//			StateMachine.setTextArea(false);
-//		}
-		
-		final String a[] = new String[1];
-	
+
+		String rdfFileName = null;
 		try {
 			testStarted = true;
+//			long startTime = System.currentTimeMillis();
+//	        long timeout = 10 * 60 * 1000; 
 			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + tpfFileName + "\n"));
-		performTestThread = new Thread(() -> {
-			String rdfFileName = null;
-			flag = true;
+			boolean flag = true;
 			while (flag) {
-				if (aitess1ResultQ != null) {
+				if (aitess1ResultQ != null&& aitess1ResultQ.peek() != null) {
 
-					try {
-						rdfFileName = aitess1ResultQ.take();
-						flag = false;
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					rdfFileName = aitess1ResultQ.take();
+					flag = false;
 				}
+//				 if (System.currentTimeMillis() - startTime > timeout) {
+//		                System.out.println("Timeout reached. Exiting the loop.");
+//		                flag = false;
+//		            }
+//				  Thread.sleep(1000);
 			}
-			a[0]= rdfFileName;
-		});		
-		performTestThread.start();
 
-		launcherFuture1.join();
-	if (performTestThread != null) {
-		performTestThread.join();
-	}
-		
-		while(flag)
-		{
-			System.out.println(".");
-		}
-		
 			testStarted = false;
-//			StateMachine.setTextArea(true);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return a[0];
+		return rdfFileName;
 
 	}
 	

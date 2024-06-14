@@ -1,7 +1,7 @@
 package com.teclever.dfcc.stateMachine;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -37,12 +37,12 @@ public class SelfTestStateObject {
 	public static class SelfTestCardData {
 		private String cardId;
 		private String cardName;
-		private IntegerProperty status;
+		private StringProperty status;
 
-		public SelfTestCardData(String cardId, String cardName, int status) {
+		public SelfTestCardData(String cardId, String cardName, String status) {
 			this.cardId = cardId;
 			this.cardName = cardName;
-			this.status = new SimpleIntegerProperty(status);
+			this.status = new SimpleStringProperty(status);
 		}
 		public String getCardId() {
 			return cardId;
@@ -56,14 +56,14 @@ public class SelfTestStateObject {
 		public void setCardName(String cardName) {
 			this.cardName = cardName;
 		}
-		public IntegerProperty statusProperty() {
+		public StringProperty statusProperty() {
 			return status;
 		}
-		public int getStatus() {
+		public String getStatus() {
 			return status.get(); 
 		}
-		public void setStatus(int status) {
-			this.status.set(status); 
+		public void setStatus(String string) {
+			this.status.set(string); 
 		}
 	}
 
@@ -79,10 +79,10 @@ public class SelfTestStateObject {
 	public static void addSelfTestRack1Card(SelfTestCardData newCardData) {
 		selfTestRack1CardList.add(newCardData);
 	}
-	public static void updateSelfTestRack1Cardstatus(String cardId, String cardName, int status) {
+	public static void updateSelfTestRack1Cardstatus(String cardId, String string) {
 		for (SelfTestCardData cardData : selfTestRack1CardList) {
 			if (cardData.getCardId().equals(cardId.trim())) {
-				cardData.setStatus(status);
+				cardData.setStatus(string);
 				break;
 			}
 		}
@@ -100,7 +100,7 @@ public class SelfTestStateObject {
 	public static void addSelfTestcPCICard(SelfTestCardData newCardData) {
 		selfTestcPCICardList.add(newCardData);
 	}
-	public static void updateSelfTestcPCICardstatus(String cardId, String cardName, int status) {
+	public static void updateSelfTestcPCICardstatus(String cardId, String status) {
 		for (SelfTestCardData cardData : selfTestcPCICardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -111,21 +111,13 @@ public class SelfTestStateObject {
 
 	// Self Test Files Results
 	public static class SelfTestResult {
-		private String cardName;
 		private String fileName;
 		private String result;
 
-		public SelfTestResult(String cardName, String fileName, String result) {
+		public SelfTestResult(String fileName, String result) {
 			super();
-			this.cardName = cardName;
 			this.fileName = fileName;
 			this.result = result;
-		}
-		public String getCardName() {
-			return cardName;
-		}
-		public void setCardName(String cardName) {
-			this.cardName = cardName;
 		}
 		public String getFileName() {
 			return fileName;
@@ -153,7 +145,7 @@ public class SelfTestStateObject {
 	public static void addSelfTestResult(SelfTestResult newTestResult) {
 		selfTestResults.add(newTestResult);
 	}
-	public static void updateSelfTestResultstatus(String cardName, String fileName, String result) {
+	public static void updateSelfTestResultstatus( String fileName, String result) {
 		for (SelfTestResult testFile : selfTestResults) {
 			if (testFile.getFileName().equals(fileName)) {
 				testFile.setResult(result);

@@ -109,7 +109,7 @@ public class LRUTestingController {
 
 		observableStageList.stream().filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
 				.forEach(stage -> {
-					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), 0);
+					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), null);
 
 					if ("Mandatory Test".equalsIgnoreCase(stage.getL2StageName())) {
 						if (LRUTestStateObject.getLruMandatoryCardList().stream()
