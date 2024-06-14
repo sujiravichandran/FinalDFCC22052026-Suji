@@ -2,7 +2,6 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -14,7 +13,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebEngine;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class TerminalPopupController {
@@ -57,8 +58,7 @@ public class TerminalPopupController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		textArea.setText("dsjgadfsg");
-		System.out.println("------------------------"+textArea.getText());
+		textArea.setFont(Font.font("verdana", FontWeight.SEMI_BOLD, FontPosture.REGULAR, 14)); 
 		
 		terminalOperationsGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		terminalOperationsGridPane.getRowConstraints().addAll(firstRow);
@@ -68,7 +68,6 @@ public class TerminalPopupController {
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
-//		updateTerminal("abc");
         String inputCommand = terminalTextField.getText() + "\n";
 		aitessProcessControlManagement.WriteAitess1Command(inputCommand);		
         terminalTextField.clear();
@@ -79,7 +78,6 @@ public class TerminalPopupController {
 	void onClickMinimize(ActionEvent event) {
 		Stage stage = (Stage) terminalPopupMainContainer.getScene().getWindow();
 		stage.hide();
-
 	}
 	
 	
