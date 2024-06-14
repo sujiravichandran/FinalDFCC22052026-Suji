@@ -18,7 +18,6 @@ import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
-import javafx.scene.web.WebEngine;
 
 public class AitessProcessControlManagement {
 	
@@ -87,7 +86,9 @@ public class AitessProcessControlManagement {
 
 	}
 
-	public void launchAitess(String testTypeId, TextArea texttArea) {
+	public void launchAitess(String testTypeId, TextArea textArea) {
+			
+		
 		// FIND RUN CONFIG FROM TEST TYPE ID AND UUT ID
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
@@ -105,7 +106,7 @@ public class AitessProcessControlManagement {
 		configureAitess(currentAitess.getConfigFile());
 
 		if(!StateMachine.isAitess1Launched())
-		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", texttArea);
+		launchAitess1("sudo "+currentAitess.getAitessCommand()+"\n", textArea);
 
 		if(!StateMachine.isAitess2Launched())
 		launchAitess2("sudo "+currentAitess.getAitessCommand()+"\n");
@@ -113,6 +114,7 @@ public class AitessProcessControlManagement {
 	}
 
 	private void launchAitess1(String command, TextArea textArea) {
+		final String oldString[] = new String[1];
 		System.out.println("Entering Launch Aitess 1");
 		aitess1ProcessControl.LaunchingProcess(command, launcherFuture1);
 		launcherFuture1.thenRun(() -> {
@@ -125,25 +127,40 @@ public class AitessProcessControlManagement {
 					String result = null;
 					
 					while (true) {
-//						s2 = s1 = aitess1ReadQ.take();
-						s1= aitess1ReadQ.take();
+						s2 = s1 = aitess1ReadQ.take();
+//						s1= aitess1ReadQ.take();
 						System.out.println("s1 :: " + s1);
-
-						final String htmlContent = s1;
 						
-//						Platform.runLater(() -> {
-//							String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
-//									.replace("\n", "\\n").replace("\r", "\\r");
-//							System.out.println("-----***-----" + safeOutput);
-//							testArea.executeScript("document.body.innerHTML += '" + safeOutput + "';");
-////							terminalPopupController.updateTerminal("abc");
-//						});
-//						testArea.appendText(s1);
+						cleanText = cleanOutput(s1);
+						cleanText = cleanText.replaceAll("\\(B", "");
+						cleanText = cleanText.replaceAll("]104", "");
+						
+						final String cleanContent = cleanText;
+						final String newString = cleanContent;
+
 						Platform.runLater(() -> {
-							System.out.println(textArea.getText()+"----------before  run later--------------"+htmlContent);
-							textArea.appendText(htmlContent);
-							System.out.println("----------after  run later--------------"+textArea.getText());
+						    if (oldString[0] != null) {
+						    	if (!newString.equals(oldString[0])) {
+						    		System.out.println("----new Text---"+cleanContent);
+									System.out.println("-------------------------------------------------");
+									System.out.println();
+									System.out.println("--Before Appending TextArea--"+textArea.getText());
+									textArea.appendText(cleanContent);
+									textArea.requestFocus();
+									textArea.setScrollTop(Double.MAX_VALUE);
+									System.out.println("--After Appending TextArea--"+textArea.getText());
+									System.out.println();
+									System.out.println("-------------------------------------------------");
+						        }
+						    } else if(oldString[0] == null) {
+						    	System.out.println("-----firstTime----");
+						        textArea.appendText(newString);
+						        textArea.requestFocus();
+						        textArea.setScrollTop(Double.MAX_VALUE);
+						    }
+							oldString[0] = newString;
 						});
+
 						
 
 
