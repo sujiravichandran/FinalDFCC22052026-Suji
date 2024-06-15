@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
@@ -14,9 +15,11 @@ import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -59,6 +62,8 @@ public class SelfTestController {
 	private VBox midTopVbox2 = new VBox(10);
 
 	private VBox midTopVbox3 = new VBox(10);
+	
+	private Button startTest = new Button("START TEST");
 
 
 	private Label pageHeading = new Label("SELF TEST");
@@ -69,6 +74,7 @@ public class SelfTestController {
 	
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
+	RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 	public GridPane createSelfTestMainContainerGridPane() {
 		selfTestMainContainerGridPane.getStylesheets()
@@ -130,7 +136,7 @@ public class SelfTestController {
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd7", "Board-7(RIS, RMS, ROS)", null));			 
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd8", "Board-8(PCS, RPS)", null));			 
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd9", "Board-9(AOSS-1, AnullSS-2, RA, LA)", null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd1null", "Board-1null(CWP,SPDCM,REFPRB)", null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd10", "Board-1null(CWP,SPDCM,REFPRB)", null));			 
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd11", "Board-11(ASA, DPSC)", null));			 
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd12", "Board-12(GSE,FTI)", null));			 
 			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", null));			 
@@ -176,14 +182,14 @@ public class SelfTestController {
 	}
 
 	private HBox topButton() {
-		Button startTest = new Button("START TEST");
 		topButton.setPadding(new Insets(0, 5, 0, 0));
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
 		
+	    
+	  
 		
 		startTest.setOnAction(e -> {
-		    
 		    TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
@@ -194,46 +200,154 @@ public class SelfTestController {
 		        return;
 		    }
 		    
+		    ObservableList<SelfTestCardData> cpciCardList =SelfTestStateObject.getSelfTestcPCICard();
+		    
+		    if(SelfTestStateObject.getRack1Status().get()) {
+		    	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
+		    	setRunConfigIdToStateMachine();
+		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1");
+		    }
+		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
+	            if (!newValue) {
+	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.B1553);
+	                callStartTesting(cpciCardList.get(0).getCardId(), "CPCI");
+	            }
+	        });
+		    SelfTestStateObject.b1553StatusProperty().addListener((observable, oldValue, newValue) -> {
+	            if (!newValue) {
+	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_1);
+	                callStartTesting(cpciCardList.get(1).getCardId(), "CPCI");
+	            }
+	        });	
+		    SelfTestStateObject.rs422_1StatusProperty().addListener((observable, oldValue, newValue) -> {
+	            if (!newValue) {
+	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_2);
+	                callStartTesting(cpciCardList.get(2).getCardId(), "CPCI");
+	            }
+	        });	    
+		    SelfTestStateObject.rs422_2StatusProperty().addListener((observable, oldValue, newValue) -> {
+	            if (!newValue) {
+			        StateMachine.setTestState(TestState.COMPLETED);  
+			        startTest.setDisable(false);
+	            }
+	        });
+		    
+		    
+		});
+		    		    
+		    		    
+		    
 
-		    Task<Void> task = new Task<Void>() {
-		        @Override
-		        protected Void call() throws Exception {
-		            
-//		        	if(SelfTestStateObject.getTestResults().size() >0 ) {
-//		        		
+		
+		
+		
+//		startTest.setOnAction(e -> {
+//		    
+//		    TestState currentState = StateMachine.getTestState();            
+//		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+//		    	startTest.setDisable(true);
+//		        StateMachine.setTestState(TestState.RUNNING);
+//		    } else if(currentState == TestState.RUNNING) {
+//		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//		        startTest.setDisable(false);
+//		        return;
+//		    }
+//		    
+//
+//		    Task<Void> task = new Task<Void>() {
+//		        @Override
+//		        protected Void call() throws Exception {
+//		            
+////		        	if(SelfTestStateObject.getTestResults().size() >0 ) {
+////		        		
+////		        	}
+//		            
+//		        	if(SelfTestStateObject.getRack1StageId() != null) {
+//		        		String ID = SelfTestStateObject.getRack1StageId();
+//		        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+//			                if (testFileResponse.getTestFilesIdName() == null) {
+//			                    Platform.runLater(() -> {
+//			                        Notifications.showWarningAlert("Please Add Test Files For This Stage: " + SelfTestStateObject.getRack1StageName());
+//			                        startTest.setDisable(false);
+//			                    });
+//			                    return null;
+//			                }
+//			                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+//			                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+//			                
+//			                Response response = testProcessManagement.testProcesControl(
+//			                    currentSessionDetails.getSessionId(),
+//			                    ID, 1, testFileList, true,"RACK-1"
+//			                );
+//		                    
+////			                for (Map.Entry<String, String> entry : response.getTestProcessResult().entrySet()) {
+////			    				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), null, entry.getValue().equals("OK") ? 1 : 2);
+////			    			}
+//			                
 //		        	}
-		            
-		        	if(SelfTestStateObject.getRack1StageId() != null) {
-		        		String ID = SelfTestStateObject.getRack1StageId();
-		        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
-			                if (testFileResponse.getTestFilesIdName() == null) {
-			                    Platform.runLater(() -> {
-			                        Notifications.showWarningAlert("Please Add Test Files For This Stage: " + SelfTestStateObject.getRack1StageName());
-			                        startTest.setDisable(false);
-			                    });
-			                    return null;
-			                }
-			                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
-			                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
-			                
-			                Response response = testProcessManagement.testProcesControl(
-			                    currentSessionDetails.getSessionId(),
-			                    ID, 1, testFileList, true,"RACK-1"
-			                );
-		                    
-//			                for (Map.Entry<String, String> entry : response.getTestProcessResult().entrySet()) {
-//			    				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), null, entry.getValue().equals("OK") ? 1 : 2);
-//			    			}
-			                
-		        	}
-		           
-		            
-		            for (SelfTestCardData cardData : SelfTestStateObject.getSelfTestcPCICard()) {
-		                TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(cardData.getCardId());
+//		           
+//		            
+//		            for (SelfTestCardData cardData : SelfTestStateObject.getSelfTestcPCICard()) {
+//		                TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(cardData.getCardId());
+//		                if (testFileResponse.getTestFilesIdName() == null) {
+//		                    Platform.runLater(() -> {
+//		                        Notifications.showWarningAlert("Please Add Test Files For This Card: " + cardData.getCardName());
+//		                        startTest.setDisable(false);
+//		                    });
+//		                    return null;
+//		                }
+//		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+//		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+//		                
+//		                Response response = testProcessManagement.testProcesControl(
+//		                    currentSessionDetails.getSessionId(),
+//		                    cardData.getCardId(), 1, testFileList, true,"RACK-1"
+//		                );
+////	                    SelfTestStateObject.updateSelfTestcPCICardstatus(cardData.getCardId(), cardData.getCardName(), response.getResponseCode() == 102 ? 1 : 2 );
+//		            }
+//		            return null;
+//		        }
+//		    };
+//		    
+//		    task.setOnSucceeded(event -> {
+//		        System.out.println("Task completed successfully");
+//		        StateMachine.setTestState(TestState.COMPLETED);  
+//		        startTest.setDisable(false);
+//		    });
+//
+////		    task.setOnFailed(event -> {
+////		        Throwable exception = task.getException();
+////		        exception.printStackTrace();
+////		        Notifications.showWarningAlert("An error occurred: " + exception.getMessage());
+////		        StateMachine.setTestState(TestState.PENDING);  // Reset state if needed
+////		        startTest.setDisable(false);
+////		    });
+//
+//		    new Thread(task).start();
+//		});
+
+
+		
+		return topButton;
+	}
+	
+	private void setRunConfigIdToStateMachine() {
+		String uutId = currentSessionDetails.getUutId();
+		String testTypeId = SelfTestStateObject.getRack1TestTypeId();
+		
+		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+		currentSessionDetails.setRunConfigId(runConfigId);
+	}
+
+	private void callStartTesting(String stageId, String stageName) {
+		Task<Void> task = new Task<Void>() {
+	        @Override
+	        protected Void call() throws Exception {
+	        		String ID = stageId;
+	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {
-		                        Notifications.showWarningAlert("Please Add Test Files For This Card: " + cardData.getCardName());
-		                        startTest.setDisable(false);
+		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
 		                    });
 		                    return null;
 		                }
@@ -242,64 +356,19 @@ public class SelfTestController {
 		                
 		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    cardData.getCardId(), 1, testFileList, true,"RACK-1"
+		                    ID, 1, testFileList, true,stageName
 		                );
-//	                    SelfTestStateObject.updateSelfTestcPCICardstatus(cardData.getCardId(), cardData.getCardName(), response.getResponseCode() == 102 ? 1 : 2 );
-		            }
-		            return null;
-		        }
-		    };
-		    
-		    task.setOnSucceeded(event -> {
-		        System.out.println("Task completed successfully");
-		        StateMachine.setTestState(TestState.COMPLETED);  
-		        startTest.setDisable(false);
-		    });
-
-//		    task.setOnFailed(event -> {
-//		        Throwable exception = task.getException();
-//		        exception.printStackTrace();
-//		        Notifications.showWarningAlert("An error occurred: " + exception.getMessage());
-//		        StateMachine.setTestState(TestState.PENDING);  // Reset state if needed
-//		        startTest.setDisable(false);
-//		    });
-
-		    new Thread(task).start();
-		});
-
-
-		
-//		startTest.setOnAction(e -> {
-//		    Task<Void> task = new Task<Void>() {
-//		        @Override
-//		        protected Void call() throws Exception {
-//		            for (SelfTestCardData cardData : SelfTestStateObject.getSelfTestRack1Card()) {
-//		                Random random = new Random();
-//		                int randomValue = random.nextInt(2) + 1;
-//		                
-//		                Platform.runLater(() -> {
-//		                    SelfTestStateObject.updateSelfTestRack1Cardstatus(cardData.getCardId(), cardData.getCardName(), randomValue);
-//		                    SelfTestStateObject.addSelfTestResult(new SelfTestStateObject.SelfTestResult(cardData.getCardId(), cardData.getCardName(), randomValue == 1 ? "ok":"not ok"));
-//		                });
-//
-//		                Thread.sleep(5000);
-//		            }
-//		            return null;
-//		        }
-//		    };
-//
-//		    task.setOnFailed(evt -> task.getException().printStackTrace());
-//
-//		    new Thread(task).start();
-//
-//		});
-
-
-		
-		return topButton;
+	                    			               
+	          
+	            return null;
+	        }
+	    };
+	    
+	    new Thread(task).start();
 	}
 
 	private GridPane selfTestMidContainer() {
+		
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(33.33);
 
@@ -375,8 +444,7 @@ public class SelfTestController {
 		        label.setPrefHeight(35);
 		        label.setPadding(new Insets(5));
 		        
-		        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {  
-		        	System.out.println("---379---"+newValue);
+		        cardData.statusProperty().addListener((observable, oldValue, newValue) -> { 
 		        	if(newValue.equals("OK")) {
 		        		label.setStyle("-fx-background-color:green;");	
 		        	}else if(newValue.equals("NOT OK")) {
@@ -410,7 +478,6 @@ public class SelfTestController {
 	        label.setPadding(new Insets(0 ,5, 0, 5));
 	        
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	System.out.println("---412---"+newValue);
 	        	if(newValue.equals("OK")) {
 	        		label.setStyle("-fx-background-color:green;");	
 	        	}else if(newValue.equals("NOT OK")) {
@@ -442,7 +509,6 @@ public class SelfTestController {
 	        label.setPadding(new Insets(5));
 	        
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	System.out.println("---444---"+newValue);
 	        	if(newValue.equals("OK")) {
 	        		label.setStyle("-fx-background-color:green;");	
 	        	}else if(newValue.equals("NOT OK")) {

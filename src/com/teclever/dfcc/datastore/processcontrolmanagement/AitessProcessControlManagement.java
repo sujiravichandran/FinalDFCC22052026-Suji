@@ -129,7 +129,7 @@ public class AitessProcessControlManagement {
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
 //						s1= aitess1ReadQ.take();
-						System.out.println("s1 :: " + s1);
+//						System.out.println("s1 :: " + s1);
 						
 						cleanText = cleanOutput(s1);
 						cleanText = cleanText.replaceAll("\\(B", "");
@@ -141,19 +141,19 @@ public class AitessProcessControlManagement {
 						Platform.runLater(() -> {
 						    if (oldString[0] != null) {
 						    	if (!newString.equals(oldString[0])) {
-						    		System.out.println("----new Text---"+cleanContent);
-									System.out.println("-------------------------------------------------");
-									System.out.println();
-									System.out.println("--Before Appending TextArea--"+textArea.getText());
+//						    		System.out.println("----new Text---"+cleanContent);
+//									System.out.println("-------------------------------------------------");
+//									System.out.println();
+//									System.out.println("--Before Appending TextArea--"+textArea.getText());
 									textArea.appendText(cleanContent);
 									textArea.requestFocus();
 									textArea.setScrollTop(Double.MAX_VALUE);
-									System.out.println("--After Appending TextArea--"+textArea.getText());
-									System.out.println();
-									System.out.println("-------------------------------------------------");
+//									System.out.println("--After Appending TextArea--"+textArea.getText());
+//									System.out.println();
+//									System.out.println("-------------------------------------------------");
 						        }
 						    } else if(oldString[0] == null) {
-						    	System.out.println("-----firstTime----");
+//						    	System.out.println("-----firstTime----");
 						        textArea.appendText(newString);
 						        textArea.requestFocus();
 						        textArea.setScrollTop(Double.MAX_VALUE);
@@ -171,7 +171,7 @@ public class AitessProcessControlManagement {
 						
 						// condition if test stared
 						if (testStarted) {
-							System.out.println("s2 :: " + s2);
+//							System.out.println("s2 :: " + s2);
 							cleanText = cleanOutput(s2);
 							cleanText = cleanText.replaceAll("\\(B", "");
 							cleanText = cleanText.replaceAll("]104", "");
