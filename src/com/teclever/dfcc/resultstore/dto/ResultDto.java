@@ -10,6 +10,8 @@ public class ResultDto {
     private String signalName;
     private String faultyChannel;
     private String fileName;
+    
+    
 	public String getTpgph() {
 		return tpgph;
 	}
