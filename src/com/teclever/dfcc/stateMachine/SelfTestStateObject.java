@@ -1,5 +1,7 @@
 package com.teclever.dfcc.stateMachine;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -154,6 +156,63 @@ public class SelfTestStateObject {
 		}
 	}
 	
-		
 	
+
+//	For Running Card Status
+	public enum SelfTestRunningCard {
+		RACK1, B1553, RS422_1, RS422_2
+	}
+	private static SelfTestRunningCard selfTestRunningCard = SelfTestRunningCard.RACK1;
+	
+	public static SelfTestRunningCard getSelfTestRunningCard() {
+		return selfTestRunningCard;
+	}
+	public static void setSelfTestRunningCard(SelfTestRunningCard selfTestRunningCard) {
+		SelfTestStateObject.selfTestRunningCard = selfTestRunningCard;
+	}
+
+	
+//	For Each Card Status
+	private static BooleanProperty rack1Status = new SimpleBooleanProperty(true);
+	private static BooleanProperty b1553Status = new SimpleBooleanProperty(true);
+	private static BooleanProperty rs422_1Status = new SimpleBooleanProperty(true);
+	private static BooleanProperty rs422_2Status = new SimpleBooleanProperty(true);
+
+	public static BooleanProperty rack1StatusProperty() {
+		return rack1Status;
+	}
+	public static BooleanProperty getRack1Status() {
+		return rack1Status;
+	}
+	public static void setRack1Status(BooleanProperty rack1Status) {
+		SelfTestStateObject.rack1Status = rack1Status;
+	}
+	public static BooleanProperty b1553StatusProperty() {
+		return b1553Status;
+	}
+	public static BooleanProperty getB1553Status() {
+		return b1553Status;
+	}
+	public static void setB1553Status(BooleanProperty b1553Status) {
+		SelfTestStateObject.b1553Status = b1553Status;
+	}
+	public static BooleanProperty rs422_1StatusProperty() {
+		return rs422_1Status;
+	}
+	public static BooleanProperty getRs422_1Status() {
+		return rs422_1Status;
+	}
+	public static void setRs422_1Status(BooleanProperty rs422_1Status) {
+		SelfTestStateObject.rs422_1Status = rs422_1Status;
+	}
+	public static BooleanProperty rs422_2StatusProperty() {
+		return rs422_2Status;
+	}
+	public static BooleanProperty getrS422_2Status() {
+		return rs422_2Status;
+	}
+	public static void setrS422_2Status(BooleanProperty rs422_2Status) {
+		SelfTestStateObject.rs422_2Status = rs422_2Status;
+	}
+			
 }

@@ -25,6 +25,7 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
 
 public class TestProcessManagement {
@@ -73,6 +74,8 @@ public class TestProcessManagement {
 				String rdfFileLocaltion = downloadFileService
 						.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
 				
+				
+				
 				// For Each Loop of List of File IDs
 				for (String testFileId : listOfFileId) {
 					//	Test Started Time
@@ -86,17 +89,24 @@ public class TestProcessManagement {
 
 						// Get TestTypeId From StateMachine;
 						switch (stageName/*StateMachine.currentTestDetails.getTestType()*/) {
-						case "RACK-1":
+						case "RACK1":
 							
 							// Parse SelfTest RDF file.
 							testProcessRes = selfTestFileTest(rdfFileLocaltion + rdfFileName);
 
 							// Update State Machine.
-							SelfTestResult selfTestFile = new SelfTestResult(testFilesIdName.get(testFileId),
+							SelfTestResult selfTestFile = new SelfTestResult(rdfFileLocaltion + rdfFileName,
 									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
 							SelfTestStateObject.addSelfTestResult(selfTestFile);
+							if(SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.RACK1) {
+								SelfTestStateObject.getRack1Status().set(false);;
+							}
 							break;
-						case "CPCI": System.out.println("CPCI Is Called");
+						case "CPCI": 
+							System.out.println("CPCI Is Called");
+							if(SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.B1553) {
+								SelfTestStateObject.getB1553Status().set(false);;
+							}
 							break;
 						default:
 							System.out.println("INVALID TEST TYPE ID ");
@@ -267,28 +277,32 @@ public class TestProcessManagement {
 		Response res = new Response();
 		Map<String, String> brdresult = new HashMap<>();
 		try {
-			String baseFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-			System.out.println("Reading file: " + baseFileName + "  " + filePath.lastIndexOf("/"));
+//			String baseFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+			System.out.println("Reading file:-  " + filePath );
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line;
 			String brdNumber = null;
-
+			System.out.println("selfTestFileTest");
 			res.setResponseCode(1);
 			int dStartCount = 0;
 			while ((line = reader.readLine()) != null) {
+				System.out.println("LINE  "+line);
 				if (line.startsWith("S> brd")) {
-
+//					System.out.println(line.substring(line.indexOf(" "), line.indexOf("_")));
 					brdNumber = line.substring(line.indexOf(" "), line.indexOf("_"));
-					if (brdresult.get(brdNumber) != null && (brdresult.get(brdNumber) != "NOT OK")) {
-						brdresult.put(brdNumber, "OK");
+					if (brdresult.get(brdNumber) != null) {
+						if (brdresult.get(brdNumber) != "NOT OK") {
+							brdresult.put(brdNumber, "OK");
+						}
 					} else {
 						brdresult.put(brdNumber, "OK");
 					}
 				} else if (line.startsWith("D*> ")) {
-					if (brdresult.get(brdNumber) != null && (brdresult.get(brdNumber) != "NOT OK")) {
-						brdresult.put(brdNumber, "NOT OK");
-						dStartCount++;
-						res.setResponseCode(111);
+					if (brdresult.get(brdNumber) != null) {
+						if (brdresult.get(brdNumber) != "NOT OK") {
+							brdresult.put(brdNumber, "NOT OK");
+							res.setResponseCode(111);
+						}
 					}
 				}
 			}
