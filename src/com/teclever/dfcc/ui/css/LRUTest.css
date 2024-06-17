@@ -67,7 +67,7 @@
 }
 
 .textarea-midcontainer{
-
+-fx-background-color: light-bg;
 -fx-border-width: 3px;
 -fx-background-radius: 5px;
 }
@@ -104,6 +104,10 @@
     -fx-font-weight: bold;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
+}
+
+.stage-list-box{
+	 -fx-background-color: light-bg;
 }
 
 .button {

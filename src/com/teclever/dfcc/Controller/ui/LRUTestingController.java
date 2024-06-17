@@ -13,6 +13,7 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
+import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -28,9 +29,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -62,22 +63,27 @@ public class LRUTestingController {
 	private GridPane goNOGOGridPane = new GridPane();
 
 	private GridPane subTestGridPane = new GridPane();
-	private CheckBox subTest = new CheckBox("Select All Sub-Test:");
-	private TextArea subTestTextArea = new TextArea();
 
 	private HBox goNoGoLabel = new HBox();
 	private HBox startTestHBox = new HBox();
 
-	private VBox subTestVBox = new VBox();
 	private VBox goNoGoVBox = new VBox(25);
-
-	private HBox textAreaHBox = new HBox();
-
 	private Label goNoGo = new Label("GO/NOGO");
 
+	private Button startTest = new Button("Start Test");
+	
+	private GridPane sruTestCheckBoxList = new GridPane();
+	private VBox selectAllVBox = new VBox();
+	private CheckBox selectAllCheckBox = new CheckBox("Select All");
+	private VBox selectedListVBox = new VBox(5);
+
 	private GridPane bottomGridPane = new GridPane();
+	
 	private ObservableList<LRUTest> lruTestTableData = FXCollections.observableArrayList();
 	
+	private String selectedSRUCard;
+	private int currentIndex = 0;
+
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
@@ -288,7 +294,30 @@ public class LRUTestingController {
 			firstButton =false;
 
 			newButton.setOnAction(e ->{
-				callStartTest(newButton.getId(),"LRU",newButton.getUserData().toString());
+				 TestState currentState = StateMachine.getTestState();            
+				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+				    	startTest.setDisable(true);
+				    	StateMachine.setTestState(TestState.RUNNING);
+				    } else if(currentState == TestState.RUNNING) {
+				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				        startTest.setDisable(false);
+				        return;
+				    }
+				    callStartTest(newButton.getId(),"LRU",newButton.getUserData().toString());
+				    
+				   
+				    if(newButton.getText().equalsIgnoreCase("SPIL LINK")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+				    }else if(newButton.getText().equalsIgnoreCase("POWER_SUPPLY")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
+				    }else if(newButton.getText().equalsIgnoreCase("PBIT")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+				    }else if(newButton.getText().equalsIgnoreCase("AD_DA_INTERFACE")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
+				    }else if(newButton.getText().equalsIgnoreCase("INITIALIZE_LRU")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+				    }
+				    
 			});
 					
 	
@@ -365,7 +394,8 @@ public class LRUTestingController {
 		sruSubTestGridPane.add(sruTest(), 0, 0, 2, 1);
 		sruSubTestGridPane.add(createSruTestVBox(), 0, 1, 1, 4);
 
-		sruSubTestGridPane.add(subTestVBox(), 1, 1, 1, 4);
+//		sruSubTestGridPane.add(subTestVBox(), 1, 1, 1, 4);
+		sruSubTestGridPane.add(subTestGridPane(), 1, 1, 1, 4);
 		sruSubTestGridPane.add(startTestHBox(), 0, 5, 2, 1);
 
 		return sruSubTestGridPane;
@@ -381,6 +411,7 @@ public class LRUTestingController {
 
 
 	private VBox createSruTestVBox() {
+		
 		ObservableList<SelfTestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
 
 		for (SelfTestCardData card : sruCardList) {
@@ -391,10 +422,11 @@ public class LRUTestingController {
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
-//			newButton.setDisable(true);
+			newButton.setDisable(true);
 			
 			newButton.setOnAction(e ->{
 				getSRUSubStage(newButton.getId(), newButton.getText());
+				selectedSRUCard = newButton.getText();
 			});
 			sruCardVBox.getChildren().add(newButton);
 		}
@@ -402,46 +434,103 @@ public class LRUTestingController {
 		return sruCardVBox;
 	}
 
+	
+	private GridPane subTestGridPane() {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
 
-	private VBox subTestVBox() {
-		subTestVBox.getChildren().addAll(subTest(), textAreaHBox());
-		return subTestVBox;
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(10);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(90);
+		
+		sruTestCheckBoxList.getColumnConstraints().addAll(firstColumn);
+		sruTestCheckBoxList.getRowConstraints().addAll(firstRow, secondRow);
+		
+		sruTestCheckBoxList.add(createSelectAllCheckbox(),0,0);
+		sruTestCheckBoxList.add(createListOfSubStage(),0,1);
+		return sruTestCheckBoxList;
+	}
+	
+
+
+	
+
+	private VBox createSelectAllCheckbox() {
+		selectAllVBox.getChildren().add(selectAllCheckBox);
+		return selectAllVBox;
+	}
+	
+	private VBox createListOfSubStage() {
+		  selectedListVBox.getStyleClass().add("stage-list-box");
+		    
+		    ScrollPane scrollPane = new ScrollPane();
+		    scrollPane.setContent(selectedListVBox);
+		    scrollPane.setFitToWidth(true); 
+		    scrollPane.setFitToHeight(true); 
+		    
+		    scrollPane.setPrefHeight(400);
+
+		    VBox wrapperVBox = new VBox(scrollPane);
+		    return wrapperVBox;
 	}
 
-	private CheckBox subTest() {
-		subTest.getStyleClass().add("checkBox-midcontainer");
-		subTest.setPadding(new Insets(5, 0, 0, 0));
-		subTest.setMaxWidth(Double.MAX_VALUE);
-		subTest.setPrefHeight(35);
-		subTest.setAlignment(Pos.CENTER_LEFT);
-		return subTest;
-
-	}
-
-	private HBox textAreaHBox() {
-		textAreaHBox.setAlignment(Pos.CENTER);
-		textAreaHBox.setPadding(new Insets(17, 0, 0, 0));
-		subTestTextArea.setMaxWidth(Double.MAX_VALUE);
-		textAreaHBox.getChildren().add(subTestTextArea());
-		return textAreaHBox;
-	}
-
-	private TextArea subTestTextArea() {
-		subTestTextArea.getStyleClass().add("textarea-midcontainer");
-		return subTestTextArea;
-	}
 
 	private HBox startTestHBox() {
-		Button startTest = new Button("Start Test");
-		TestState currentState = StateMachine.getTestState();
-		if (currentState == TestState.RUNNING) {
-			startTest.setDisable(true);
-		}
+		
 		startTest.setPrefWidth(200);
+		
+		startTest.setOnAction(e ->{
+			TestState currentState = StateMachine.getTestState();            
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+		    	startTest.setDisable(true);
+		    	StateMachine.setTestState(TestState.RUNNING);
+		    	System.out.println("TEST STARTING....");
+		    } else if(currentState == TestState.RUNNING) {
+		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+		        startTest.setDisable(false);
+		        return;
+		    }
+		    sendSelectedSubStageData();
+		    startTest();
+		});
 		startTestHBox.setAlignment(Pos.CENTER);
 		startTestHBox.getChildren().add(startTest);
 
 		return startTestHBox;
+	}
+
+
+
+	private void startTest() {
+		LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "COMPLETED");
+	}
+
+	private void sendSelectedSubStageData() {
+		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
+				if(newValue.equals("COMPLETED")) {
+					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
+					System.out.println(currentIndex);
+					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
+						try {
+							Thread.sleep(5000);
+							currentIndex++;
+							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
+							LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "COMPLETED");
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
+						System.out.println("COMPLETED");
+						StateMachine.setTestState(TestState.COMPLETED);
+						currentIndex = 0;
+						startTest.setDisable(false);
+					}
+				}
+			});
+			
+		}
 	}
 
 	private GridPane goNOGOGridPane() {
@@ -483,6 +572,29 @@ public class LRUTestingController {
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
 			newButton.setDisable(true);
+			
+			newButton.setOnAction(e ->{
+				 TestState currentState = StateMachine.getTestState();            
+				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+				    	startTest.setDisable(true);
+				    	StateMachine.setTestState(TestState.RUNNING);
+				    } else if(currentState == TestState.RUNNING) {
+				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				        startTest.setDisable(false);
+				        return;
+				    }
+				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
+				    
+				    
+				    if(newButton.getText().equalsIgnoreCase("COMPLETE_TEST")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
+				    }else if(newButton.getText().equalsIgnoreCase("OFP_LOADING")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
+				    }else if(newButton.getText().equalsIgnoreCase("PI_CHECK")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
+				    }
+				    
+			});
 			
 			goNoGoVBox.getChildren().add(newButton);
 		}
@@ -593,10 +705,82 @@ public class LRUTestingController {
 	}
 	
 	private void getSRUSubStage(String stageId, String stageName) {
+		if(stageId != null) {
+			LRUTestStateObject.clearSRUSubCardList();
+		}
+		
+		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(StateMachine.getStageDatalist());
+		
+		 
+		observableStageList.stream()
+		.filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
+		.filter(stage -> stage.getL3StageId() != null)
+        .sorted((stage1, stage2) -> {
+             int id1 = Integer.parseInt(stage1.getL3StageId().split("_")[1]);
+             int id2 = Integer.parseInt(stage2.getL3StageId().split("_")[1]);
+             return Integer.compare(id1, id2);
+         })
+		.forEach(stage -> {
+			SelfTestCardData newCard = new SelfTestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
+
+			if ("SRU Test".equalsIgnoreCase(stage.getL2StageName())) {
+				if (stageId.equalsIgnoreCase(stage.getL3StageId())) {
+					LRUTestStateObject.addSRUSubCardList(newCard);
+				}
+				
+			} 
+		});
+		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
+	}
+
+	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
+		selectedListVBox.getChildren().clear();
+		subStageList.stream()
+			.forEach(subStage ->{
+				CheckBox subStageCheckBox = new CheckBox(subStage.getCardName());
+				subStageCheckBox.setId(subStage.getCardId());
+				subStageCheckBox.setUserData(subStage);
+				
+				 subStageCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			            if (newValue) {
+			            	subStage.setStatus("PENDING");
+			            	LRUTestStateObject.addSelectedSubStagesList(subStage);
+			            } else {
+			            	LRUTestStateObject.removeSelectedSubStagesList(subStage);
+			            }
+			        });
+				 
+				
+				selectedListVBox.getChildren().add(subStageCheckBox);
+			});
+		
 
 	}
-	
+		
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //package com.teclever.dfcc.Controller.ui;
 //

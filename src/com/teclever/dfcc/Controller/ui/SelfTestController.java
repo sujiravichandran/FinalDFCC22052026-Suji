@@ -591,10 +591,10 @@ public class SelfTestController {
 				} else {
 					if ("OK".equalsIgnoreCase(item)) {
 						setText("Passed");
-						setStyle("-fx-background-color: lightgreen;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
-						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
 				}
 			}

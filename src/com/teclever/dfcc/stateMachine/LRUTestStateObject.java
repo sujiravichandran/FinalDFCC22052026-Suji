@@ -21,7 +21,7 @@ public class LRUTestStateObject {
 	public static void addLruMandatoryCard(SelfTestCardData newCardData) {
 		lruMandatoryCardList.add(newCardData);
 	}
-	public static void updateLruMandatoryCardstatus(String cardId, String cardName, String status) {
+	public static void updateLruMandatoryCardstatus(String cardId, String status) {
 		for (SelfTestCardData cardData : lruMandatoryCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -42,7 +42,7 @@ public class LRUTestStateObject {
 	public static void addLruSruCard(SelfTestCardData newCardData) {
 		lruSruCardList.add(newCardData);
 	}
-	public static void updateLruSruCardstatus(String cardId, String cardName, String status) {
+	public static void updateLruSruCardstatus(String cardId, String status) {
 		for (SelfTestCardData cardData : lruSruCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -63,7 +63,7 @@ public class LRUTestStateObject {
 	public static void addLruGoAndNogoCard(SelfTestCardData newCardData) {
 		lruGoAndNogoCardList.add(newCardData);
 	}
-	public static void updateLruGoAndNogoCardstatus(String cardId, String cardName, String status) {
+	public static void updateLruGoAndNogoCardstatus(String cardId, String status) {
 		for (SelfTestCardData cardData : lruGoAndNogoCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
@@ -116,7 +116,7 @@ public class LRUTestStateObject {
 	public static void addTestResult(LRUTestResult newTestResult) {
 		lruTestResultsList.add(newTestResult);
 	}
-	public static void updatelruTestResultsListtatus(String cardName, String fileName, String result) {
+	public static void updatelruTestResultsListStatus(String cardName, String fileName, String result) {
 		for (LRUTestResult testFile : lruTestResultsList) {
 			if (testFile.getFileName().equals(fileName)) {
 				testFile.setResult(result);
@@ -252,19 +252,43 @@ public class LRUTestStateObject {
 	
 	
 //	Selected SRU Test Sub Stage
-	private static ObservableList<SelfTestCardData> selectedSRUCradList = FXCollections.observableArrayList();
+	private static ObservableList<SelfTestCardData> sruSubCardList = FXCollections.observableArrayList();
 
-	public static ObservableList<SelfTestCardData> getSelectedSRUCradList() {
-		return selectedSRUCradList;
+	public static ObservableList<SelfTestCardData> getSRUSubCardList() {
+		return sruSubCardList;
 	}
-	public static void clearSelectedSRUCradList() {
-		selectedSRUCradList.clear();
+	public static void clearSRUSubCardList() {
+		sruSubCardList.clear();
 	}
-	public static void addSelectedSRUCradList(SelfTestCardData newCardData) {
-		selectedSRUCradList.add(newCardData);
+	public static void addSRUSubCardList(SelfTestCardData newCardData) {
+		sruSubCardList.add(newCardData);
 	}
-	public static void updateSelectedSRUCradList(String cardId, String cardName, String status) {
-		for (SelfTestCardData cardData : selectedSRUCradList) {
+	public static void updateSRUSubCardList(String cardId, String status) {
+		for (SelfTestCardData cardData : sruSubCardList) {
+			if (cardData.getCardId().equals(cardId)) {
+				cardData.setStatus(status);
+				break;
+			}
+		}
+	}
+	
+//	Selected SRU Sub Stages List
+	private static ObservableList<SelfTestCardData> selectedSubStagesList = FXCollections.observableArrayList();
+	
+	public static ObservableList<SelfTestCardData> getSelectedSubStagesList () {
+		return selectedSubStagesList;
+	}
+	public static void clearSelectedSubStagesList() {
+		selectedSubStagesList.clear();
+	}
+	public static void addSelectedSubStagesList(SelfTestCardData newCardData) {
+		selectedSubStagesList.add(newCardData);
+	}
+	public static void removeSelectedSubStagesList(SelfTestCardData newCardData) {
+		selectedSubStagesList.remove(newCardData);
+	}
+	public static void updateSelectedSubStagesList(String cardId, String status) {
+		for (SelfTestCardData cardData : selectedSubStagesList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
