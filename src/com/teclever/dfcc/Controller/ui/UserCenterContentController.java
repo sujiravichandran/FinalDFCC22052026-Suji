@@ -65,6 +65,7 @@ public class UserCenterContentController {
 			break;
 	
 		case "Show Terminal":
+			TerminalPopupController terminalPopupController = new TerminalPopupController();
 			terminalController.createTerminalPopup();
 			break;
 
