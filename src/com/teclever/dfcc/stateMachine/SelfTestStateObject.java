@@ -39,12 +39,15 @@ public class SelfTestStateObject {
 	public static class SelfTestCardData {
 		private String cardId;
 		private String cardName;
+		private String testTypeId;
 		private StringProperty status;
-
-		public SelfTestCardData(String cardId, String cardName, String status) {
+			
+		public SelfTestCardData(String cardId, String cardName, String testTypeId, String string) {
+			super();
 			this.cardId = cardId;
 			this.cardName = cardName;
-			this.status = new SimpleStringProperty(status);
+			this.testTypeId = testTypeId;
+			this.status = new SimpleStringProperty(string);
 		}
 		public String getCardId() {
 			return cardId;
@@ -58,6 +61,12 @@ public class SelfTestStateObject {
 		public void setCardName(String cardName) {
 			this.cardName = cardName;
 		}
+		public String getTestTypeId() {
+			return testTypeId;
+		}
+		public void setTestTypeId(String testTypeId) {
+			this.testTypeId = testTypeId;
+		}
 		public StringProperty statusProperty() {
 			return status;
 		}
@@ -66,8 +75,9 @@ public class SelfTestStateObject {
 		}
 		public void setStatus(String string) {
 			this.status.set(string); 
-		}
+		}	
 	}
+	
 
 //  Self Test Rack-1 Card List
 	private static ObservableList<SelfTestCardData> selfTestRack1CardList = FXCollections.observableArrayList();
@@ -214,5 +224,6 @@ public class SelfTestStateObject {
 	public static void setrS422_2Status(BooleanProperty rs422_2Status) {
 		SelfTestStateObject.rs422_2Status = rs422_2Status;
 	}
-			
+
+	
 }

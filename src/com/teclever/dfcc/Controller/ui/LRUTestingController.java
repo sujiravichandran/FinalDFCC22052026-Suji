@@ -1,21 +1,30 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject;
-import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -68,6 +77,10 @@ public class LRUTestingController {
 
 	private GridPane bottomGridPane = new GridPane();
 	private ObservableList<LRUTest> lruTestTableData = FXCollections.observableArrayList();
+	
+	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+	TestProcessManagement testProcessManagement = new TestProcessManagement();
+	RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 	public GridPane createlruTestMainContainerGridPane() {
 
@@ -107,9 +120,16 @@ public class LRUTestingController {
 		List<StageObject> stageList = StateMachine.getStageDatalist();
 		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
 
-		observableStageList.stream().filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
+		observableStageList.stream()
+				.filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
+				.filter(stage -> stage.getL3StageId() != null)
+		        .sorted((stage1, stage2) -> {
+		             int id1 = Integer.parseInt(stage1.getL3StageId().split("_")[1]);
+		             int id2 = Integer.parseInt(stage2.getL3StageId().split("_")[1]);
+		             return Integer.compare(id1, id2);
+		         })
 				.forEach(stage -> {
-					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), null);
+					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
 
 					if ("Mandatory Test".equalsIgnoreCase(stage.getL2StageName())) {
 						if (LRUTestStateObject.getLruMandatoryCardList().stream()
@@ -253,20 +273,68 @@ public class LRUTestingController {
 	
 	private VBox createLruTestCardButton() {
 		ObservableList<SelfTestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
-
+		boolean firstButton = true;
 		for (SelfTestCardData card : mandatoryCardList) {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
+			newButton.setUserData(card.getTestTypeId());
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
-			
+			if(!firstButton) {
+				newButton.setDisable(true);	
+			}
+			firstButton =false;
+
+			newButton.setOnAction(e ->{
+				callStartTest(newButton.getId(),"LRU",newButton.getUserData().toString());
+			});
+					
+	
 			mandatoryTestVBox.getChildren().add(newButton);
 		}
+		
+		LRUTestStateObject.spilLinkStatusProperty().addListener((observable, oldValue, newValue) -> {
+			Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
+			pbitButton.setDisable(false);
+		});
+		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
+			System.out.println(LRUTestStateObject.getIsMandatoryFifthCardStatus().get());
+			if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
+				Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+				initializeLRUButton.setDisable(false);
+			}else {
+				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+				powerSupplyButton.setDisable(false);
+			}
+		});
+		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
+				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(3).getCardId());
+				powerSupplyButton.setDisable(false);
+		});
+		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
+			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
+			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
+			ad_daInterfaceButton.setDisable(false);
+		});
+		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
+			boolean allCardsStatusOk = true;
+			
+	        for (SelfTestCardData card : mandatoryCardList) {
+	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
+	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
+	                    allCardsStatusOk = false;
+	                    break;
+	                }
+	            }
+	        }
+	        System.err.println("allCardsStatusOk-----"+allCardsStatusOk);
+		});
 
 		return mandatoryTestVBox;
 	}
+
 
 	private GridPane sruSubTestGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -319,14 +387,21 @@ public class LRUTestingController {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
+			newButton.setUserData(card.getTestTypeId());
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
+//			newButton.setDisable(true);
+			
+			newButton.setOnAction(e ->{
+				getSRUSubStage(newButton.getId(), newButton.getText());
+			});
 			sruCardVBox.getChildren().add(newButton);
 		}
 
 		return sruCardVBox;
 	}
+
 
 	private VBox subTestVBox() {
 		subTestVBox.getChildren().addAll(subTest(), textAreaHBox());
@@ -403,9 +478,12 @@ public class LRUTestingController {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
+			newButton.setUserData(card.getTestTypeId());
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
+			newButton.setDisable(true);
+			
 			goNoGoVBox.getChildren().add(newButton);
 		}
 		
@@ -482,6 +560,42 @@ public class LRUTestingController {
 
 		return tableView;
 	}
+	
+	private void callStartTest(String stageId, String stageName, String testTypeId) {
+		Task<Void> task = new Task<Void>() {
+	        @Override
+	        protected Void call() throws Exception {
+	        	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+	        		currentSessionDetails.setRunConfigId(runConfigId);
+	        		String ID = stageId;
+	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+		                if (testFileResponse.getTestFilesIdName() == null) {
+		                    Platform.runLater(() -> {
+		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
+		                    });
+		                    return null;
+		                }
+		                    		
+		        		
+		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+		                
+		                Response response = testProcessManagement.testProcesControl(
+		                    currentSessionDetails.getSessionId(),
+		                    ID, 1, testFileList, true,stageName
+		                );                   			               
+	          
+	            return null;
+	        }
+	    };
+	    
+	    new Thread(task).start();
+	}
+	
+	private void getSRUSubStage(String stageId, String stageName) {
+
+	}
+	
 }
 
 //package com.teclever.dfcc.Controller.ui;
