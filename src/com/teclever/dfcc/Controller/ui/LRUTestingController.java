@@ -26,9 +26,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -303,18 +305,18 @@ public class LRUTestingController {
 				        startTest.setDisable(false);
 				        return;
 				    }
-				    callStartTest(newButton.getId(),"LRU",newButton.getUserData().toString());
+				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 				    
 				   
-				    if(newButton.getText().equalsIgnoreCase("SPIL LINK")) {
+				    if(newButton.getText().equalsIgnoreCase("SPIL LINK TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-				    }else if(newButton.getText().equalsIgnoreCase("POWER_SUPPLY")) {
+				    }else if(newButton.getText().equalsIgnoreCase("POWER SUPPLY TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
-				    }else if(newButton.getText().equalsIgnoreCase("PBIT")) {
+				    }else if(newButton.getText().equalsIgnoreCase("PBIT TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-				    }else if(newButton.getText().equalsIgnoreCase("AD_DA_INTERFACE")) {
+				    }else if(newButton.getText().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
-				    }else if(newButton.getText().equalsIgnoreCase("INITIALIZE_LRU")) {
+				    }else if(newButton.getText().equalsIgnoreCase("INITIALIZE LRU")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
 				    }
 				    
@@ -448,33 +450,34 @@ public class LRUTestingController {
 		sruTestCheckBoxList.getRowConstraints().addAll(firstRow, secondRow);
 		
 		sruTestCheckBoxList.add(createSelectAllCheckbox(),0,0);
-		sruTestCheckBoxList.add(createListOfSubStage(),0,1);
+		sruTestCheckBoxList.add(createListOfSubStage1(),0,1);
 		return sruTestCheckBoxList;
 	}
 	
 
-
+    private List<CheckBox> checkBoxes = new ArrayList<>();
+    private ListView<CheckBox> testListView = new ListView<>();
 	
 
+	private Node createListOfSubStage1() {
+	   	testListView.getStyleClass().add("session-testing-list-view");
+	    selectedListVBox.getChildren().add(testListView);
+	    selectedListVBox.getStyleClass().add("session-testing-right-container");
+	    return selectedListVBox;
+	}
+
 	private VBox createSelectAllCheckbox() {
-		selectAllVBox.getChildren().add(selectAllCheckBox);
+		 selectAllCheckBox.getStyleClass().addAll("session-testing-checkbox","select-all-checkbox");
+		 	   
+		 selectAllCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+		   for (CheckBox checkBox : checkBoxes) {
+		        checkBox.setSelected(newValue);
+		     }
+		  });
+		selectAllVBox.getChildren().add(selectAllCheckBox);	
 		return selectAllVBox;
 	}
 	
-	private VBox createListOfSubStage() {
-		  selectedListVBox.getStyleClass().add("stage-list-box");
-		    
-		    ScrollPane scrollPane = new ScrollPane();
-		    scrollPane.setContent(selectedListVBox);
-		    scrollPane.setFitToWidth(true); 
-		    scrollPane.setFitToHeight(true); 
-		    
-		    scrollPane.setPrefHeight(400);
-
-		    VBox wrapperVBox = new VBox(scrollPane);
-		    return wrapperVBox;
-	}
-
 
 	private HBox startTestHBox() {
 		
@@ -492,7 +495,7 @@ public class LRUTestingController {
 		        return;
 		    }
 		    sendSelectedSubStageData();
-		    startTest();
+//		    startTest();
 		});
 		startTestHBox.setAlignment(Pos.CENTER);
 		startTestHBox.getChildren().add(startTest);
@@ -508,6 +511,7 @@ public class LRUTestingController {
 
 	private void sendSelectedSubStageData() {
 		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+//			System.err.println(subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if(newValue.equals("COMPLETED")) {
 					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
@@ -707,6 +711,8 @@ public class LRUTestingController {
 	private void getSRUSubStage(String stageId, String stageName) {
 		if(stageId != null) {
 			LRUTestStateObject.clearSRUSubCardList();
+			checkBoxes.clear();
+			testListView.getItems().clear();
 		}
 		
 		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(StateMachine.getStageDatalist());
@@ -727,34 +733,41 @@ public class LRUTestingController {
 				if (stageId.equalsIgnoreCase(stage.getL3StageId())) {
 					LRUTestStateObject.addSRUSubCardList(newCard);
 				}
-				
 			} 
 		});
+		selectAllCheckBox.setSelected(false);
 		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
 	}
 
 	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
-		selectedListVBox.getChildren().clear();
-		subStageList.stream()
-			.forEach(subStage ->{
-				CheckBox subStageCheckBox = new CheckBox(subStage.getCardName());
-				subStageCheckBox.setId(subStage.getCardId());
-				subStageCheckBox.setUserData(subStage);
-				
-				 subStageCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-			            if (newValue) {
-			            	subStage.setStatus("PENDING");
-			            	LRUTestStateObject.addSelectedSubStagesList(subStage);
-			            } else {
-			            	LRUTestStateObject.removeSelectedSubStagesList(subStage);
-			            }
-			        });
-				 
-				
-				selectedListVBox.getChildren().add(subStageCheckBox);
-			});
-		
-
+	    for (SelfTestCardData stage : LRUTestStateObject.getSRUSubCardList()) {
+	        CheckBox newCheckBox = new CheckBox(stage.getCardName());
+	        newCheckBox.setId(stage.getCardId());
+	        newCheckBox.setUserData(stage);
+	        
+	        newCheckBox.getStyleClass().add("session-testing-checkbox");
+	        newCheckBox.setWrapText(true);
+	        checkBoxes.add(newCheckBox);
+	        testListView.getItems().add(newCheckBox);
+	        
+	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+	        	if(newValue) {
+	        		LRUTestStateObject.addSelectedSubStagesList(stage);
+	        	}else {
+					LRUTestStateObject.removeSelectedSubStagesList(stage);
+				}
+	        });
+	        
+	        
+//	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//	        	boolean anySelected = false;
+//	        	for(CheckBox checkBox : checkBoxes) {
+//	        		if(checkBox.isSelected()) {
+//	        			anySelected = true;
+//	        		}
+//	        	}
+//	        });
+	    }
 	}
 		
 }
@@ -762,6 +775,794 @@ public class LRUTestingController {
 
 
 
+
+
+
+//package com.teclever.dfcc.Controller.ui;
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.Map;
+//
+//import com.teclever.datastore.dto.Response;
+//import com.teclever.datastore.service.RunConfigurationService;
+//import com.teclever.dfcc.DFCCConstant;
+//import com.teclever.dfcc.datastore.dto.StageObject;
+//import com.teclever.dfcc.datastore.dto.TestFileResponse;
+//import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+//import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
+//import com.teclever.dfcc.model.LRUTest;
+//import com.teclever.dfcc.stateMachine.LRUTestStateObject;
+//import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
+//import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
+//import com.teclever.dfcc.stateMachine.StateMachine;
+//import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+//import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+//import com.teclever.dfcc.utils.Notifications;
+//
+//import javafx.application.Platform;
+//import javafx.collections.FXCollections;
+//import javafx.collections.ObservableList;
+//import javafx.concurrent.Task;
+//import javafx.geometry.Insets;
+//import javafx.geometry.Pos;
+//import javafx.scene.control.Button;
+//import javafx.scene.control.CheckBox;
+//import javafx.scene.control.Label;
+//import javafx.scene.control.ScrollPane;
+//import javafx.scene.control.TableColumn;
+//import javafx.scene.control.TableView;
+//import javafx.scene.control.cell.PropertyValueFactory;
+//import javafx.scene.layout.ColumnConstraints;
+//import javafx.scene.layout.GridPane;
+//import javafx.scene.layout.HBox;
+//import javafx.scene.layout.RowConstraints;
+//import javafx.scene.layout.VBox;
+//
+//public class LRUTestingController {
+//
+//	private GridPane lruTestMainContainerGridPane = new GridPane();
+//
+//	private GridPane headingGridPane = new GridPane();
+//
+//	private HBox headingHbox = new HBox();
+//
+//	private GridPane lrumidContainerGridPane = new GridPane();
+//	private HBox midTopHbox1 = new HBox();
+//	private Label lruLeftLabel = new Label("SRU Identification and Isolation");
+//	private HBox midTopHbox2 = new HBox();
+//	private Label lruLeftLabe2 = new Label("GO and NOGO TEST");
+//
+//	private Label mandatoryTest = new Label("Mandatory Test");
+//
+//
+//	private GridPane sruSubTestGridPane = new GridPane();
+//	private Label sruTest = new Label("SRU Test");
+//	private VBox sruCardVBox = new VBox(10);
+//
+//	private GridPane goNOGOGridPane = new GridPane();
+//
+//	private GridPane subTestGridPane = new GridPane();
+//
+//	private HBox goNoGoLabel = new HBox();
+//	private HBox startTestHBox = new HBox();
+//
+//	private VBox goNoGoVBox = new VBox(25);
+//	private Label goNoGo = new Label("GO/NOGO");
+//
+//	private Button startTest = new Button("Start Test");
+//	
+//	private GridPane sruTestCheckBoxList = new GridPane();
+//	private VBox selectAllVBox = new VBox();
+//	private CheckBox selectAllCheckBox = new CheckBox("Select All");
+//	private VBox selectedListVBox = new VBox(5);
+//
+//	private GridPane bottomGridPane = new GridPane();
+//	
+//	private ObservableList<LRUTest> lruTestTableData = FXCollections.observableArrayList();
+//	
+//	private String selectedSRUCard;
+//	private int currentIndex = 0;
+//
+//	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+//	TestProcessManagement testProcessManagement = new TestProcessManagement();
+//	RunConfigurationService runConfigurationService = new RunConfigurationService();
+//
+//	public GridPane createlruTestMainContainerGridPane() {
+//
+//		lruTestMainContainerGridPane.getStylesheets().add(getClass()
+//				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
+//		lruTestMainContainerGridPane.getStyleClass().add("lruTest-main-container");
+//
+//		getLruCradData();
+//
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(7);
+//
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(50);
+//
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(43);
+//
+//		lruTestMainContainerGridPane.setVgap(5);
+//
+//		lruTestMainContainerGridPane.getColumnConstraints().addAll(firstColumn);
+//		lruTestMainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+//		lruTestMainContainerGridPane.setPadding(new Insets(5, 5, 5, 5));
+//
+//		lruTestMainContainerGridPane.add(lruheadingGridPane(), 0, 0);
+//		lruTestMainContainerGridPane.add(lruTestMidContainer(), 0, 1);
+//		lruTestMainContainerGridPane.add(lruTestBottomContainer(), 0, 2);
+//
+//		return lruTestMainContainerGridPane;
+//
+//	}
+//
+//	private void getLruCradData() {
+//		List<StageObject> stageList = StateMachine.getStageDatalist();
+//		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+//
+//		observableStageList.stream()
+//				.filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
+//				.filter(stage -> stage.getL3StageId() != null)
+//		        .sorted((stage1, stage2) -> {
+//		             int id1 = Integer.parseInt(stage1.getL3StageId().split("_")[1]);
+//		             int id2 = Integer.parseInt(stage2.getL3StageId().split("_")[1]);
+//		             return Integer.compare(id1, id2);
+//		         })
+//				.forEach(stage -> {
+//					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
+//
+//					if ("Mandatory Test".equalsIgnoreCase(stage.getL2StageName())) {
+//						if (LRUTestStateObject.getLruMandatoryCardList().stream()
+//								.noneMatch(card -> card.getCardId().equals(newCard.getCardId()))) {
+//							LRUTestStateObject.addLruMandatoryCard(newCard);
+//						}
+//					} else if ("SRU Test".equalsIgnoreCase(stage.getL2StageName())) {
+//						if (LRUTestStateObject.getLruSruCardList().stream()
+//								.noneMatch(card -> card.getCardId().equals(newCard.getCardId()))) {
+//							LRUTestStateObject.addLruSruCard(newCard);
+//						}
+//					} else if ("GO & NOGO Test".equalsIgnoreCase(stage.getL2StageName())) {
+//						if (LRUTestStateObject.getLruGoAndNogoCardList().stream()
+//								.noneMatch(card -> card.getCardId().equals(newCard.getCardId()))) {
+//							LRUTestStateObject.addLruGoAndNogoCard(newCard);
+//						}
+//					}
+//
+//				});
+//
+//	}
+//
+//	public GridPane lruheadingGridPane() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(100);
+//
+//		headingGridPane.getStyleClass().add("lruTest-top-container");
+//		headingGridPane.getColumnConstraints().addAll(firstColumn);
+//		headingGridPane.getRowConstraints().addAll(firstRow);
+//
+//		headingGridPane.add(headingHbox(), 0, 0);
+//
+//		return headingGridPane;
+//
+//	}
+//
+//	private HBox headingHbox() {
+//		Label pageHeading = new Label("LRU TEST");
+//		pageHeading.getStyleClass().add("lrutest-top-header");
+//		headingHbox.setAlignment(Pos.CENTER_LEFT);
+//		headingHbox.getChildren().add(pageHeading);
+//
+//		return headingHbox;
+//	}
+//
+//	private GridPane lruTestMidContainer() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(20);
+//
+//		ColumnConstraints secondColumn = new ColumnConstraints();
+//		secondColumn.setPercentWidth(20);
+//
+//		ColumnConstraints thirdColumn = new ColumnConstraints();
+//		thirdColumn.setPercentWidth(40);
+//
+//		ColumnConstraints fourthColumn = new ColumnConstraints();
+//		fourthColumn.setPercentWidth(20);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(10);
+//
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(90);
+//
+//		lrumidContainerGridPane.setHgap(5);
+//		lrumidContainerGridPane.setVgap(5);
+//
+//		lrumidContainerGridPane.getStyleClass().add("lruTest-mid-container");
+//		lrumidContainerGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
+//		lrumidContainerGridPane.getRowConstraints().addAll(firstRow, secondRow);
+//
+//		lrumidContainerGridPane.add(midTopHbox1(), 0, 0, 3, 1);
+//		lrumidContainerGridPane.add(midTopHbox2(), 3, 0);
+//		lrumidContainerGridPane.add(sruIsolationGridPane(), 0, 1);
+//		lrumidContainerGridPane.add(sruSubTestGridPane(), 1, 1, 2, 1);
+//		lrumidContainerGridPane.add(goNOGOGridPane(), 3, 1);
+//
+//		return lrumidContainerGridPane;
+//
+//	}
+//
+//	private HBox midTopHbox1() {
+//		lruLeftLabel.getStyleClass().add("midheader-label");
+//		midTopHbox1.getStyleClass().add("midheader-hbox");
+//		midTopHbox1.setAlignment(Pos.CENTER);
+//		midTopHbox1.getChildren().add(lruLeftLabel);
+//		return midTopHbox1;
+//	}
+//
+//	private HBox midTopHbox2() {
+//		lruLeftLabe2.getStyleClass().add("midheader-label");
+//		midTopHbox2.getStyleClass().add("midheader-hbox");
+//		midTopHbox2.setAlignment(Pos.CENTER);
+//		midTopHbox2.getChildren().add(lruLeftLabe2);
+//		return midTopHbox2;
+//	}
+//
+//	private GridPane sruIsolationGridPane() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(16);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(21);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(21);
+//		RowConstraints fourthRow = new RowConstraints();
+//		fourthRow.setPercentHeight(21);
+//		RowConstraints fivthRow = new RowConstraints();
+//		fivthRow.setPercentHeight(21);
+//
+//		subTestGridPane.setPadding(new Insets(5, 10, 10, 10));
+//
+//		subTestGridPane.getStyleClass().add("mid-Gridepane-content");
+//		subTestGridPane.getColumnConstraints().addAll(firstColumn);
+//		subTestGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow);
+//
+//		subTestGridPane.add(mandatoryTest(), 0, 0);
+//
+//		return subTestGridPane;
+//
+//	}
+//
+//	private Label mandatoryTest() {
+//		mandatoryTest.getStyleClass().add("midlabel-content");
+//		mandatoryTest.setMaxWidth(Double.MAX_VALUE);
+//		mandatoryTest.setAlignment(Pos.CENTER);
+//
+//		
+//		subTestGridPane.add(createLruTestCardButton(), 0, 1, 1, 5);
+//
+//		return mandatoryTest;
+//
+//	}
+//
+//	private VBox mandatoryTestVBox = new VBox(10);
+//	
+//	private VBox createLruTestCardButton() {
+//		ObservableList<SelfTestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
+//		boolean firstButton = true;
+//		for (SelfTestCardData card : mandatoryCardList) {
+//			Button newButton = new Button();
+//			newButton.setText(card.getCardName());
+//			newButton.setId(card.getCardId());
+//			newButton.setUserData(card.getTestTypeId());
+//			newButton.setMaxWidth(Double.MAX_VALUE);
+//			newButton.setAlignment(Pos.CENTER);
+//			newButton.setWrapText(true);
+//			if(!firstButton) {
+//				newButton.setDisable(true);	
+//			}
+//			firstButton =false;
+//
+//			newButton.setOnAction(e ->{
+//				 TestState currentState = StateMachine.getTestState();            
+//				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+//				    	startTest.setDisable(true);
+//				    	StateMachine.setTestState(TestState.RUNNING);
+//				    } else if(currentState == TestState.RUNNING) {
+//				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//				        startTest.setDisable(false);
+//				        return;
+//				    }
+//				    callStartTest(newButton.getId(),"LRU",newButton.getUserData().toString());
+//				    
+//				   
+//				    if(newButton.getText().equalsIgnoreCase("SPIL LINK")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+//				    }else if(newButton.getText().equalsIgnoreCase("POWER_SUPPLY")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
+//				    }else if(newButton.getText().equalsIgnoreCase("PBIT")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//				    }else if(newButton.getText().equalsIgnoreCase("AD_DA_INTERFACE")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
+//				    }else if(newButton.getText().equalsIgnoreCase("INITIALIZE_LRU")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+//				    }
+//				    
+//			});
+//					
+//	
+//			mandatoryTestVBox.getChildren().add(newButton);
+//		}
+//		
+//		LRUTestStateObject.spilLinkStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
+//			pbitButton.setDisable(false);
+//		});
+//		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			System.out.println(LRUTestStateObject.getIsMandatoryFifthCardStatus().get());
+//			if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
+//				Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+//				initializeLRUButton.setDisable(false);
+//			}else {
+//				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+//				powerSupplyButton.setDisable(false);
+//			}
+//		});
+//		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
+//				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(3).getCardId());
+//				powerSupplyButton.setDisable(false);
+//		});
+//		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
+//			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
+//			ad_daInterfaceButton.setDisable(false);
+//		});
+//		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			boolean allCardsStatusOk = true;
+//			
+//	        for (SelfTestCardData card : mandatoryCardList) {
+//	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
+//	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
+//	                    allCardsStatusOk = false;
+//	                    break;
+//	                }
+//	            }
+//	        }
+//	        System.err.println("allCardsStatusOk-----"+allCardsStatusOk);
+//		});
+//
+//		return mandatoryTestVBox;
+//	}
+//
+//
+//	private GridPane sruSubTestGridPane() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(50);
+//		ColumnConstraints secondColumn = new ColumnConstraints();
+//		secondColumn.setPercentWidth(50);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(10);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(18);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(18);
+//		RowConstraints fourthRow = new RowConstraints();
+//		fourthRow.setPercentHeight(18);
+//		RowConstraints fivthRow = new RowConstraints();
+//		fivthRow.setPercentHeight(18);
+//		RowConstraints SixthRow = new RowConstraints();
+//		SixthRow.setPercentHeight(18);
+//
+//		sruSubTestGridPane.setHgap(20);
+//		sruSubTestGridPane.setPadding(new Insets(5, 20, 10, 20));
+//
+//		sruSubTestGridPane.getStyleClass().add("mid-Gridepane-content");
+//		sruSubTestGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+//		sruSubTestGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow, SixthRow);
+//
+//		sruSubTestGridPane.add(sruTest(), 0, 0, 2, 1);
+//		sruSubTestGridPane.add(createSruTestVBox(), 0, 1, 1, 4);
+//
+////		sruSubTestGridPane.add(subTestVBox(), 1, 1, 1, 4);
+//		sruSubTestGridPane.add(subTestGridPane(), 1, 1, 1, 4);
+//		sruSubTestGridPane.add(startTestHBox(), 0, 5, 2, 1);
+//
+//		return sruSubTestGridPane;
+//
+//	}
+//
+//	private Label sruTest() {
+//		sruTest.getStyleClass().add("midlabel-content");
+//		sruTest.setMaxWidth(Double.MAX_VALUE);
+//		sruTest.setAlignment(Pos.CENTER);
+//		return sruTest;
+//	}
+//
+//
+//	private VBox createSruTestVBox() {
+//		
+//		ObservableList<SelfTestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
+//
+//		for (SelfTestCardData card : sruCardList) {
+//			Button newButton = new Button();
+//			newButton.setText(card.getCardName());
+//			newButton.setId(card.getCardId());
+//			newButton.setUserData(card.getTestTypeId());
+//			newButton.setMaxWidth(Double.MAX_VALUE);
+//			newButton.setAlignment(Pos.CENTER);
+//			newButton.setWrapText(true);
+////			newButton.setDisable(true);
+//			
+//			newButton.setOnAction(e ->{
+//				getSRUSubStage(newButton.getId(), newButton.getText());
+//				selectedSRUCard = newButton.getText();
+//			});
+//			sruCardVBox.getChildren().add(newButton);
+//		}
+//
+//		return sruCardVBox;
+//	}
+//
+//	
+//	private GridPane subTestGridPane() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(10);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(90);
+//		
+//		sruTestCheckBoxList.getColumnConstraints().addAll(firstColumn);
+//		sruTestCheckBoxList.getRowConstraints().addAll(firstRow, secondRow);
+//		
+//		sruTestCheckBoxList.add(createSelectAllCheckbox(),0,0);
+//		sruTestCheckBoxList.add(createListOfSubStage(),0,1);
+//		return sruTestCheckBoxList;
+//	}
+//	
+//
+//
+//	
+//
+//	private VBox createSelectAllCheckbox() {
+//		selectAllVBox.getChildren().add(selectAllCheckBox);
+//		
+//		selectAllCheckBox.selectedProperty().addListener((observable, oldValue, newValue) ->{
+//			if(newValue) {
+//				selectAllSubStageCheckBox();
+//			}else {
+//				removeAllSubStageCheckBox();
+//			}
+//		});
+//		
+//		return selectAllVBox;
+//	}
+//	
+//
+//	private VBox createListOfSubStage() {
+//		  selectedListVBox.getStyleClass().add("stage-list-box");
+//		    
+//		    ScrollPane scrollPane = new ScrollPane();
+//		    scrollPane.setContent(selectedListVBox);
+//		    scrollPane.setFitToWidth(true); 
+//		    scrollPane.setFitToHeight(true); 
+//		    
+//		    scrollPane.setPrefHeight(400);
+//
+//		    VBox wrapperVBox = new VBox(scrollPane);
+//		    return wrapperVBox;
+//	}
+//
+//
+//	private HBox startTestHBox() {
+//		
+//		startTest.setPrefWidth(200);
+//		
+//		startTest.setOnAction(e ->{
+//			TestState currentState = StateMachine.getTestState();            
+//		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+//		    	startTest.setDisable(true);
+//		    	StateMachine.setTestState(TestState.RUNNING);
+//		    	System.out.println("TEST STARTING....");
+//		    } else if(currentState == TestState.RUNNING) {
+//		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//		        startTest.setDisable(false);
+//		        return;
+//		    }
+//		    sendSelectedSubStageData();
+//		    startTest();
+//		});
+//		startTestHBox.setAlignment(Pos.CENTER);
+//		startTestHBox.getChildren().add(startTest);
+//
+//		return startTestHBox;
+//	}
+//
+//
+//
+//	private void startTest() {
+//		LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "COMPLETED");
+//	}
+//
+//	private void sendSelectedSubStageData() {
+//		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+//			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
+//				if(newValue.equals("COMPLETED")) {
+//					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
+//					System.out.println(currentIndex);
+//					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
+//						try {
+//							Thread.sleep(5000);
+//							currentIndex++;
+//							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
+//							LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "COMPLETED");
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
+//						System.out.println("COMPLETED");
+//						StateMachine.setTestState(TestState.COMPLETED);
+//						currentIndex = 0;
+//						startTest.setDisable(false);
+//					}
+//				}
+//			});
+//			
+//		}
+//	}
+//
+//	private GridPane goNOGOGridPane() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(10);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(18);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(18);
+//		RowConstraints fourthRow = new RowConstraints();
+//		fourthRow.setPercentHeight(18);
+//		RowConstraints fivthRow = new RowConstraints();
+//		fivthRow.setPercentHeight(18);
+//		RowConstraints SixthRow = new RowConstraints();
+//		SixthRow.setPercentHeight(18);
+//
+//		goNOGOGridPane.setPadding(new Insets(5, 10, 10, 10));
+//		goNOGOGridPane.getStyleClass().add("mid-Gridepane-content");
+//		goNOGOGridPane.getColumnConstraints().addAll(firstColumn);
+//		goNOGOGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow, SixthRow);
+//		goNOGOGridPane.add(goNoGoVBox(), 0, 1, 1, 4);
+//		goNOGOGridPane.add(goNoGoLabel(), 0, 5);
+//
+//		return goNOGOGridPane;
+//	}
+//
+//	private VBox goNoGoVBox() {		
+//		ObservableList<SelfTestCardData> goAndNoGoCardList = LRUTestStateObject.getLruGoAndNogoCardList();
+//
+//		for (SelfTestCardData card : goAndNoGoCardList) {
+//			Button newButton = new Button();
+//			newButton.setText(card.getCardName());
+//			newButton.setId(card.getCardId());
+//			newButton.setUserData(card.getTestTypeId());
+//			newButton.setMaxWidth(Double.MAX_VALUE);
+//			newButton.setAlignment(Pos.CENTER);
+//			newButton.setWrapText(true);
+//			newButton.setDisable(true);
+//			
+//			newButton.setOnAction(e ->{
+//				 TestState currentState = StateMachine.getTestState();            
+//				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+//				    	startTest.setDisable(true);
+//				    	StateMachine.setTestState(TestState.RUNNING);
+//				    } else if(currentState == TestState.RUNNING) {
+//				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//				        startTest.setDisable(false);
+//				        return;
+//				    }
+//				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
+//				    
+//				    
+//				    if(newButton.getText().equalsIgnoreCase("COMPLETE_TEST")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
+//				    }else if(newButton.getText().equalsIgnoreCase("OFP_LOADING")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
+//				    }else if(newButton.getText().equalsIgnoreCase("PI_CHECK")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
+//				    }
+//				    
+//			});
+//			
+//			goNoGoVBox.getChildren().add(newButton);
+//		}
+//		
+//		return goNoGoVBox;
+//	}
+//
+//	
+//	private HBox goNoGoLabel() {
+//		goNoGo.getStyleClass().add("label-gonogo");
+//		goNoGo.setPadding(new Insets(5, 0, 5, 0));
+//		goNoGo.setPrefWidth(200);
+//		goNoGo.setAlignment(Pos.CENTER);
+//		goNoGoLabel.setAlignment(Pos.CENTER);
+//		goNoGoLabel.getChildren().add(goNoGo);
+//		return goNoGoLabel;
+//	}
+//
+//	private GridPane lruTestBottomContainer() {
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(100);
+//
+//		bottomGridPane.getColumnConstraints().addAll(firstColumn);
+//		bottomGridPane.getRowConstraints().addAll(firstRow);
+//
+//		bottomGridPane.add(createTableView(), 0, 0);
+//
+//		return bottomGridPane;
+//
+//	}
+//
+//	private TableView<LRUTest> createTableView() {
+//		TableView<LRUTest> tableView = new TableView<>();
+//		tableView.getStylesheets().add(getClass()
+//				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+//		tableView.getStyleClass().add("check-sum-table");
+//		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+//
+//		TableColumn<LRUTest, String> fileNameColumn = new TableColumn<>("File Name");
+//		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+//		fileNameColumn.setReorderable(false);
+//		fileNameColumn.setSortable(false);
+//		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> resultColumn = new TableColumn<>("Result");
+//		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+//		resultColumn.setReorderable(false);
+//		resultColumn.setSortable(false);
+//		resultColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> faultPinSuggestionColumn = new TableColumn<>("Fault Pin Suggestion");
+//		faultPinSuggestionColumn.setCellValueFactory(new PropertyValueFactory<>("faultPinSuggestion"));
+//		faultPinSuggestionColumn.setReorderable(false);
+//		faultPinSuggestionColumn.setSortable(false);
+//		faultPinSuggestionColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> interfaceSignalColumn = new TableColumn<>("Interface Signal");
+//		interfaceSignalColumn.setCellValueFactory(new PropertyValueFactory<>("interfaceSignal"));
+//		interfaceSignalColumn.setReorderable(false);
+//		interfaceSignalColumn.setSortable(false);
+//		interfaceSignalColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> channelColumn = new TableColumn<>("Channel");
+//		channelColumn.setCellValueFactory(new PropertyValueFactory<>("channel"));
+//		channelColumn.setReorderable(false);
+//		channelColumn.setSortable(false);
+//		channelColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		tableView.getColumns().addAll(fileNameColumn, resultColumn, faultPinSuggestionColumn, interfaceSignalColumn,
+//				channelColumn);
+//
+//		tableView.setItems(lruTestTableData);
+//
+//		return tableView;
+//	}
+//	
+//	private void callStartTest(String stageId, String stageName, String testTypeId) {
+//		Task<Void> task = new Task<Void>() {
+//	        @Override
+//	        protected Void call() throws Exception {
+//	        	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+//	        		currentSessionDetails.setRunConfigId(runConfigId);
+//	        		String ID = stageId;
+//	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+//		                if (testFileResponse.getTestFilesIdName() == null) {
+//		                    Platform.runLater(() -> {
+//		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
+//		                    });
+//		                    return null;
+//		                }
+//		                    		
+//		        		
+//		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+//		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+//		                
+//		                Response response = testProcessManagement.testProcesControl(
+//		                    currentSessionDetails.getSessionId(),
+//		                    ID, 1, testFileList, true,stageName
+//		                );                   			               
+//	          
+//	            return null;
+//	        }
+//	    };
+//	    
+//	    new Thread(task).start();
+//	}
+//	
+//	private void getSRUSubStage(String stageId, String stageName) {
+//		if(stageId != null) {
+//			LRUTestStateObject.clearSRUSubCardList();
+//		}
+//		
+//		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(StateMachine.getStageDatalist());
+//		
+//		 
+//		observableStageList.stream()
+//		.filter(stage -> "LRU Test".equalsIgnoreCase(stage.getL1StageName()))
+//		.filter(stage -> stage.getL3StageId() != null)
+//        .sorted((stage1, stage2) -> {
+//             int id1 = Integer.parseInt(stage1.getL3StageId().split("_")[1]);
+//             int id2 = Integer.parseInt(stage2.getL3StageId().split("_")[1]);
+//             return Integer.compare(id1, id2);
+//         })
+//		.forEach(stage -> {
+//			SelfTestCardData newCard = new SelfTestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
+//
+//			if ("SRU Test".equalsIgnoreCase(stage.getL2StageName())) {
+//				if (stageId.equalsIgnoreCase(stage.getL3StageId())) {
+//					LRUTestStateObject.addSRUSubCardList(newCard);
+//				}
+//			} 
+//		});
+//		selectAllCheckBox.setSelected(false);
+//		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
+//	}
+//
+//	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
+//		selectedListVBox.getChildren().clear();
+//		subStageList.stream()
+//			.forEach(subStage ->{
+//				CheckBox subStageCheckBox = new CheckBox(subStage.getCardName());
+//				subStageCheckBox.setId(subStage.getCardId());
+//				subStageCheckBox.setUserData(subStage);
+//											
+//				 subStageCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//			            if (newValue) {
+//			            	subStage.setStatus("PENDING");
+//			            	LRUTestStateObject.addSelectedSubStagesList(subStage);
+//			            } else {
+//			            	LRUTestStateObject.removeSelectedSubStagesList(subStage);
+//			            }
+//			        });
+//				
+//				selectedListVBox.getChildren().add(subStageCheckBox);
+//			});
+//	}
+//
+//	private void selectAllSubStageCheckBox() {
+//		selectedListVBox.getChildren().forEach(node -> {
+//	        if (node instanceof CheckBox) {
+//	            CheckBox checkBox = (CheckBox) node;
+//	            checkBox.setSelected(true);
+//	        }
+//	    });
+//	}
+//	
+//	private void removeAllSubStageCheckBox() {
+//		LRUTestStateObject.clearSelectedSubStagesList();
+//		selectedListVBox.getChildren().forEach(node -> {
+//	        if (node instanceof CheckBox) {
+//	            CheckBox checkBox = (CheckBox) node;
+//	            checkBox.setSelected(false);
+//	        }
+//	    });
+//	}		
+//}
 
 
 
