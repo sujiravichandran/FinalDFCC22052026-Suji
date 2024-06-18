@@ -54,7 +54,7 @@ public class SessionTestingController {
 	private ObservableList<String> l3_sessionList = FXCollections.observableArrayList("Sub Session 111", "Sub Session 112");
 	private ObservableList<String> l4_sessionList = FXCollections.observableArrayList("Sub Session 1111", "Sub Session 1112");
 	
-	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4");
+	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4");
 	
 	private CheckBox selectAllCheckBox = new CheckBox("Select All");
     private List<CheckBox> checkBoxes = new ArrayList<>();

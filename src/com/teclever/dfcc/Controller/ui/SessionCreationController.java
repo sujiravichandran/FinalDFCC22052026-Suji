@@ -919,11 +919,13 @@ public class SessionCreationController {
 		StageMasterLevelOneResponse response = sessionManagement.getLevelOneStageMasterBySessionId(sessionTypeId);
 		if (response.getResponse().getResponseCode() == 1) {
 			for (LevelOneDto levelOneDto : response.getLevelOneResponse()) {
-//				System.out.println("CHECK::: " + levelOneDto.getStageName());
-				StageOne stage = new StageOne();
-				stage.setL1_name(levelOneDto.getStageName());
-				stage.setId(levelOneDto.getLevelOneId());
-				stageList.add(stage);
+//				System.out.println("CHECK::: " + levelOneDto.getUutId());
+				if(UUT_ID.equals(levelOneDto.getUutId())) {
+					StageOne stage = new StageOne();
+					stage.setL1_name(levelOneDto.getStageName());
+					stage.setId(levelOneDto.getLevelOneId());
+					stageList.add(stage);	
+				}
 			}
 		}
 		return stageList;
@@ -953,7 +955,10 @@ public class SessionCreationController {
 			uutTypeList.add(uut.getUutType());
 		}
 		uutTypeField.setItems(uutTypeList);
-		uutTypeField.setOnAction((event) -> UUT_ID = fetchUutId(uutTypeField.getValue()));
+		uutTypeField.setOnAction((event) ->{
+			UUT_ID = fetchUutId(uutTypeField.getValue());
+			refreshSessionTypeComboBox();
+		});
 	}
 
 	private void initializeSessionTypeComboBox() {
@@ -977,6 +982,15 @@ public class SessionCreationController {
 			}
 
 		});
+	}
+	
+	private void refreshSessionTypeComboBox() {
+	    sessionTypeList.clear();
+	    sessionDataList = FXCollections.observableArrayList(stageConfig.getSessionMasterList()); 
+	    for (SessionMasterDTO sessionType : sessionDataList) {
+	        sessionTypeList.add(sessionType.getSessionTypeName());
+	    }
+	    sessionTypeField.setItems(sessionTypeList);
 	}
 
 	private String fetchUutId(String uutType) {

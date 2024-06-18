@@ -165,11 +165,11 @@ public class LRUTestStateObject {
 	}
 
 //	Mandatory Each Card Status
-	private static BooleanProperty spilLinkStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty pbitStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty initializeLRUStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty powerSupplyStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty ad_daInterfaceStatus = new SimpleBooleanProperty(false);
+	private static BooleanProperty spilLinkStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty pbitStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty initializeLRUStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty powerSupplyStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty ad_daInterfaceStatus = new SimpleBooleanProperty(true);
 
 	public static BooleanProperty spilLinkStatusProperty() {
 		return spilLinkStatus;
@@ -218,9 +218,9 @@ public class LRUTestStateObject {
 	}
 	
 //	GO NOGO Each Card Status
-	private static BooleanProperty completeTestStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty ofpLoadingStatus = new SimpleBooleanProperty(false);
-	private static BooleanProperty piCheckStatus = new SimpleBooleanProperty(false);
+	private static BooleanProperty completeTestStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty ofpLoadingStatus = new SimpleBooleanProperty(true);
+	private static BooleanProperty piCheckStatus = new SimpleBooleanProperty(true);
 	
 	public static BooleanProperty completeTestStatusProperty() {
 		return completeTestStatus;
