@@ -329,25 +329,30 @@ public class LRUTestingController {
 		LRUTestStateObject.spilLinkStatusProperty().addListener((observable, oldValue, newValue) -> {
 			Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
 			pbitButton.setDisable(false);
+			StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
 			System.out.println(LRUTestStateObject.getIsMandatoryFifthCardStatus().get());
 			if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
 				Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
 				initializeLRUButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
 			}else {
 				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
 				powerSupplyButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
 			}
 		});
 		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
 				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(3).getCardId());
 				powerSupplyButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
 			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
 			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
 			ad_daInterfaceButton.setDisable(false);
+			StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 			boolean allCardsStatusOk = true;
