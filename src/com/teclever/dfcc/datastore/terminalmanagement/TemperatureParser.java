@@ -14,39 +14,35 @@ import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.TemperatureResponse;
 
 public class TemperatureParser {
-
 	
 	//MK1
 	public static TemperatureResponse parseFile1(String filePath) {
 		TemperatureResponse temperatureResponse = new TemperatureResponse();
+		List<ChannelTemperature> temperatureList = new ArrayList<>();
 
-		List<List<ChannelTemperature>> allTemperatureLists = new ArrayList<>();
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 			String line;
 			Pattern pattern = Pattern.compile("<\\s*\\d+>\\s*\\(([^,]+),([^,]+),([^,]+),([^\\)]+)\\)\\s*DEGC");
 
-			List<ChannelTemperature> currentTemperatureList = null;
 
 			while ((line = reader.readLine()) != null) {
 				Matcher matcher = pattern.matcher(line);
 				if (matcher.find()) {
-					currentTemperatureList = new ArrayList<>();
-					currentTemperatureList.add(new ChannelTemperature("Channel1", matcher.group(1).trim()));
-					currentTemperatureList.add(new ChannelTemperature("Channel2", matcher.group(2).trim()));
-					currentTemperatureList.add(new ChannelTemperature("Channel3", matcher.group(3).trim()));
-					currentTemperatureList.add(new ChannelTemperature("Channel4", matcher.group(4).trim()));
-					allTemperatureLists.add(currentTemperatureList);
+					temperatureList.add(new ChannelTemperature("Channel1", matcher.group(1).trim()));
+					temperatureList.add(new ChannelTemperature("Channel2", matcher.group(2).trim()));
+					temperatureList.add(new ChannelTemperature("Channel3", matcher.group(3).trim()));
+					temperatureList.add(new ChannelTemperature("Channel4", matcher.group(4).trim()));
 				}
 			}
 
-			if (allTemperatureLists.isEmpty()) {
+			if (temperatureList.isEmpty()) {
 				temperatureResponse.setResponseMsg("No temperature data found in the file.");
 				temperatureResponse.setResponseCode(0);
 			} else {
 				temperatureResponse.setResponseMsg("SUCCESS");
 				temperatureResponse.setResponseCode(1);
-				temperatureResponse.setTemperatures(allTemperatureLists);
+				temperatureResponse.setTemperatures(temperatureList);
 			}
 		} catch (IOException e) {
 			temperatureResponse.setResponseMsg("FAILED");
@@ -62,8 +58,9 @@ public class TemperatureParser {
 	public static TemperatureResponse parseFile(String filePath) {
         TemperatureResponse temperatureResponse = new TemperatureResponse();
         Map<String, List<ChannelTemperature>> boardTemperatureMap = new HashMap<>();
+        List<ChannelTemperature> allTemperatures = new ArrayList<>();
         List<String> boardNames = new ArrayList<>();
-        Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$"); 
+        Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$");
         Pattern temperaturePattern = Pattern.compile("R>\\s*\\(\\s*([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^\\)]+)\\)\\s*DEGC");
 
         BufferedReader reader = null;
@@ -93,10 +90,20 @@ public class TemperatureParser {
                     }
 
                     List<ChannelTemperature> currentTemperatureList = new ArrayList<>();
-                    currentTemperatureList.add(new ChannelTemperature("Channel1", matcher.group(1).trim()));
-                    currentTemperatureList.add(new ChannelTemperature("Channel2", matcher.group(2).trim()));
-                    currentTemperatureList.add(new ChannelTemperature("Channel3", matcher.group(3).trim()));
-                    currentTemperatureList.add(new ChannelTemperature("Channel4", matcher.group(4).trim()));
+                    ChannelTemperature channel1 = new ChannelTemperature("Channel1", matcher.group(1).trim());
+                    ChannelTemperature channel2 = new ChannelTemperature("Channel2", matcher.group(2).trim());
+                    ChannelTemperature channel3 = new ChannelTemperature("Channel3", matcher.group(3).trim());
+                    ChannelTemperature channel4 = new ChannelTemperature("Channel4", matcher.group(4).trim());
+                    
+                    currentTemperatureList.add(channel1);
+                    currentTemperatureList.add(channel2);
+                    currentTemperatureList.add(channel3);
+                    currentTemperatureList.add(channel4);
+
+                    allTemperatures.add(channel1);
+                    allTemperatures.add(channel2);
+                    allTemperatures.add(channel3);
+                    allTemperatures.add(channel4);
 
                     boardTemperatureMap.put(currentBoardName, currentTemperatureList);
 
@@ -111,17 +118,18 @@ public class TemperatureParser {
             } else {
                 temperatureResponse.setResponseMsg("SUCCESS");
                 temperatureResponse.setResponseCode(1);
+                temperatureResponse.setTemperatures(allTemperatures);
                 temperatureResponse.setBoardTemperatureMap(boardTemperatureMap);
             }
 
         } catch (IOException e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             temperatureResponse.setResponseMsg("File reading failed: " + e.getMessage());
             temperatureResponse.setResponseCode(0);
         } finally {
             try {
                 if (reader != null) {
-                    reader.close(); 
+                    reader.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -217,5 +217,53 @@ public class StateMachine {
 	public static void setTextArea(boolean textArea) {
 		StateMachine.textArea = textArea;
 	}
+	
+	
+	
+	
+	
+	//AITESS 2 
+	public static class dfccCheckStatus{
+		
+		private static String dfccPowerOnCommand;
+		private static String dfccPowerOffCommand;
+		private static String onlineStatusCommand;
+		private static String mk1ScTemperatureCommand;
+		private static String mk1AecTemperatureCommand;
+		public static String getDfccPowerOnCommand() {
+			return dfccPowerOnCommand;
+		}
+		public static void setDfccPowerOnCommand(String dfccPowerOnCommand) {
+			dfccCheckStatus.dfccPowerOnCommand = dfccPowerOnCommand;
+		}
+		public static String getDfccPowerOffCommand() {
+			return dfccPowerOffCommand;
+		}
+		public static void setDfccPowerOffCommand(String dfccPowerOffCommand) {
+			dfccCheckStatus.dfccPowerOffCommand = dfccPowerOffCommand;
+		}
+		public static String getOnlineStatusCommand() {
+			return onlineStatusCommand;
+		}
+		public static void setOnlineStatusCommand(String onlineStatusCommand) {
+			dfccCheckStatus.onlineStatusCommand = onlineStatusCommand;
+		}
+		public static String getMk1ScTemperatureCommand() {
+			return mk1ScTemperatureCommand;
+		}
+		public static void setMk1ScTemperatureCommand(String mk1ScTemperatureCommand) {
+			dfccCheckStatus.mk1ScTemperatureCommand = mk1ScTemperatureCommand;
+		}
+		public static String getMk1AecTemperatureCommand() {
+			return mk1AecTemperatureCommand;
+		}
+		public static void setMk1AecTemperatureCommand(String mk1AecTemperatureCommand) {
+			dfccCheckStatus.mk1AecTemperatureCommand = mk1AecTemperatureCommand;
+		}
+					
+	}
+	
+	
+	
 
 }
