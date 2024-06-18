@@ -7,7 +7,7 @@ public class TemperatureResponse {
 
     private String responseMsg;
     private int responseCode;
-    private List<List<ChannelTemperature>> temperatures;
+    private List<ChannelTemperature> temperatures;
     private Map<String, List<ChannelTemperature>> boardTemperatureMap;
 
 	public String getResponseMsg() {
@@ -22,10 +22,10 @@ public class TemperatureResponse {
 	public void setResponseCode(int responseCode) {
 		this.responseCode = responseCode;
 	}
-	public List<List<ChannelTemperature>> getTemperatures() {
+	public List<ChannelTemperature> getTemperatures() {
 		return temperatures;
 	}
-	public void setTemperatures(List<List<ChannelTemperature>> temperatures) {
+	public void setTemperatures(List<ChannelTemperature> temperatures) {
 		this.temperatures = temperatures;
 	}
 	
