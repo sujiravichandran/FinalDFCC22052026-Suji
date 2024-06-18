@@ -608,7 +608,7 @@ testFileResult.setSessionStagesTestFilesResultId(sessionStagesTestFilesResultId)
 			int i = 1;
 //			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
 //				System.out.println(" " + (i++) + entry.getKey() + "  " + entry.getValue());
-			SelfTestStateObject.updateSelfTestcPCICardstatus(stageId, (dStartCount > 0) ? "OK" : "NOT OK");
+			SelfTestStateObject.updateSelfTestcPCICardstatus(stageId, (dStartCount > 0) ? "NOT OK" : "OK");
 //			}
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);
