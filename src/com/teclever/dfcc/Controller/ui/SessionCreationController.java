@@ -130,7 +130,7 @@ public class SessionCreationController {
 	private TableColumn<FaultCodeList, String> descriptionColumn = new TableColumn<>("Description");
 	private List<String> selectedFaultCodeList = new ArrayList<>();
 
-	private UserDashboardController userDashboardController = new UserDashboardController();
+
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
 	private FaultCodeConfiguration faultCodeConfig = new FaultCodeConfiguration();
 	private SessionManagement sessionManagement = new SessionManagement();
