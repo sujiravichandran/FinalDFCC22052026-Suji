@@ -13,6 +13,7 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
+import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -22,6 +23,7 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -31,7 +33,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -637,47 +638,59 @@ public class LRUTestingController {
 
 	}
 
-	private TableView<LRUTest> createTableView() {
-		TableView<LRUTest> tableView = new TableView<>();
+	private TableView<LRUTestResult> createTableView() {
+		TableView<LRUTestResult> tableView = new TableView<>();
 		tableView.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-		TableColumn<LRUTest, String> fileNameColumn = new TableColumn<>("File Name");
+		TableColumn<LRUTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<LRUTest, String> resultColumn = new TableColumn<>("Result");
+		TableColumn<LRUTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
+		
+		LRUTestStateObject.getTestFilesResultList().addListener((ListChangeListener<? super LRUTestResult>) change -> {
+			while (change.next()) {
+				if (change.wasAdded()) {
+					int lastIndex = LRUTestStateObject.getTestFilesResultList().size() - 1;
+					Platform.runLater(() -> {
+						tableView.scrollTo(lastIndex);
+						tableView.getSelectionModel().select(lastIndex);
+						tableView.getFocusModel().focus(lastIndex);
+					});
+				}
+			}
+		});
 
-		TableColumn<LRUTest, String> faultPinSuggestionColumn = new TableColumn<>("Fault Pin Suggestion");
-		faultPinSuggestionColumn.setCellValueFactory(new PropertyValueFactory<>("faultPinSuggestion"));
-		faultPinSuggestionColumn.setReorderable(false);
-		faultPinSuggestionColumn.setSortable(false);
-		faultPinSuggestionColumn.setStyle("-fx-alignment: CENTER;");
+//		TableColumn<LRUTest, String> faultPinSuggestionColumn = new TableColumn<>("Fault Pin Suggestion");
+//		faultPinSuggestionColumn.setCellValueFactory(new PropertyValueFactory<>("faultPinSuggestion"));
+//		faultPinSuggestionColumn.setReorderable(false);
+//		faultPinSuggestionColumn.setSortable(false);
+//		faultPinSuggestionColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> interfaceSignalColumn = new TableColumn<>("Interface Signal");
+//		interfaceSignalColumn.setCellValueFactory(new PropertyValueFactory<>("interfaceSignal"));
+//		interfaceSignalColumn.setReorderable(false);
+//		interfaceSignalColumn.setSortable(false);
+//		interfaceSignalColumn.setStyle("-fx-alignment: CENTER;");
+//
+//		TableColumn<LRUTest, String> channelColumn = new TableColumn<>("Channel");
+//		channelColumn.setCellValueFactory(new PropertyValueFactory<>("channel"));
+//		channelColumn.setReorderable(false);
+//		channelColumn.setSortable(false);
+//		channelColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<LRUTest, String> interfaceSignalColumn = new TableColumn<>("Interface Signal");
-		interfaceSignalColumn.setCellValueFactory(new PropertyValueFactory<>("interfaceSignal"));
-		interfaceSignalColumn.setReorderable(false);
-		interfaceSignalColumn.setSortable(false);
-		interfaceSignalColumn.setStyle("-fx-alignment: CENTER;");
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
 
-		TableColumn<LRUTest, String> channelColumn = new TableColumn<>("Channel");
-		channelColumn.setCellValueFactory(new PropertyValueFactory<>("channel"));
-		channelColumn.setReorderable(false);
-		channelColumn.setSortable(false);
-		channelColumn.setStyle("-fx-alignment: CENTER;");
-
-		tableView.getColumns().addAll(fileNameColumn, resultColumn, faultPinSuggestionColumn, interfaceSignalColumn,
-				channelColumn);
-
-		tableView.setItems(lruTestTableData);
+		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
 
 		return tableView;
 	}
