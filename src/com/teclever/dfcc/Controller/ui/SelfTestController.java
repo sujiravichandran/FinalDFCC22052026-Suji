@@ -9,7 +9,6 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
-import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
@@ -19,7 +18,6 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
-import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -124,13 +122,20 @@ public class SelfTestController {
          .forEach(stage -> {
              SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
 
+              if ("cPCI".equalsIgnoreCase(stage.getL2StageName())) {
+            	 SelfTestStateObject.addSelfTestcPCICard(newCard);
+             }
+         });
+		 
+		 observableStageList.stream()
+         .filter(stage -> "Self Test".equalsIgnoreCase(stage.getL1StageName()))
+         .forEach(stage -> {
              if ("RACK-1".equalsIgnoreCase(stage.getL2StageName())) {
+            	 System.out.println("BEFORE SET  "+stage.getL2StageId());
             	 SelfTestStateObject.setRack1StageId(stage.getL2StageId());
             	 SelfTestStateObject.setRack1StageName(stage.getL2StageName());
             	 SelfTestStateObject.setRack1TestTypeId(stage.getTestTypeId());
-             } else if ("cPCI".equalsIgnoreCase(stage.getL2StageName())) {
-            	 SelfTestStateObject.addSelfTestcPCICard(newCard);
-             }
+             } 
          });
 		 
 
@@ -214,6 +219,7 @@ public class SelfTestController {
 		    if(SelfTestStateObject.getRack1Status().get()) {
 		    	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
 		    	setRunConfigIdToStateMachine();
+		    	System.out.println("Before Calling"+SelfTestStateObject.getRack1StageId());
 		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1");
 		    }
 		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
@@ -353,7 +359,13 @@ public class SelfTestController {
 	        @Override
 	        protected Void call() throws Exception {
 	        		String ID = stageId;
+	        		System.out.println("STAGE ID   "+stageId);
 	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+	        		 
+	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
+	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
+	        		 }
+	        		 
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {
 		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
