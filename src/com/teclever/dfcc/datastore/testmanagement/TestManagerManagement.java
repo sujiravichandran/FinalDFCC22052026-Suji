@@ -4,6 +4,7 @@ import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.processcontrolmanagement.LoadDriverProcessControlManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
 
 
 public class TestManagerManagement {
@@ -25,8 +26,8 @@ public class TestManagerManagement {
 	public DriverCardDetailsResponse preLoadDriver() {
 
 		// Get uutId from STATE MACHINE
-		String uutId = "UUT1";
-
+		String uutId =  StateMachine.currentSessionDetails.getUutId();
+		
 		// testTypeId for SELF TEST
 		String testTypeId = "TT1";
 
