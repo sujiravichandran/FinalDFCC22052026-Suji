@@ -311,7 +311,7 @@ public class LRUTestingController {
 				   
 				    if(newButton.getText().equalsIgnoreCase("SPIL LINK TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-				    }else if(newButton.getText().equalsIgnoreCase("POWER SUPPLY TEST")) {
+				    }else if(newButton.getText().equalsIgnoreCase("POWER SUPPLY")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
 				    }else if(newButton.getText().equalsIgnoreCase("PBIT TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
@@ -350,7 +350,9 @@ public class LRUTestingController {
 				StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
+			System.err.println("-----"+(LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3));
 			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
+			System.err.println("-------"+mandatoryCardList.get(index).getCardName());
 			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
 			ad_daInterfaceButton.setDisable(false);
 			StateMachine.setTestState(TestState.COMPLETED);
@@ -366,7 +368,7 @@ public class LRUTestingController {
 	                }
 	            }
 	        }
-	        System.err.println("allCardsStatusOk-----"+allCardsStatusOk);
+	        System.out.println("allCardsStatusOk-----"+allCardsStatusOk);
 		});
 
 		return mandatoryTestVBox;
@@ -716,7 +718,7 @@ public class LRUTestingController {
 		                
 		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    ID, 1, testFileList, true,stageName
+		                    ID, 1, testFileList, true,stageName , testTypeId
 		                );                   			               
 	          
 	            return null;
