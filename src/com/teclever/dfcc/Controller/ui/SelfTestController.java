@@ -220,24 +220,24 @@ public class SelfTestController {
 		    	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
 		    	setRunConfigIdToStateMachine();
 		    	System.out.println("Before Calling"+SelfTestStateObject.getRack1StageId());
-		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1");
+		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1" , SelfTestStateObject.getRack1TestTypeId());
 		    }
 		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.B1553);
-	                callStartTesting(cpciCardList.get(0).getCardId(), "CPCI");
+	                callStartTesting(cpciCardList.get(0).getCardId(), "CPCI" , cpciCardList.get(0).getTestTypeId());
 	            }
 	        });
 		    SelfTestStateObject.b1553StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_1);
-	                callStartTesting(cpciCardList.get(1).getCardId(), "CPCI");
+	                callStartTesting(cpciCardList.get(1).getCardId(), "CPCI", cpciCardList.get(1).getTestTypeId());
 	            }
 	        });	
 		    SelfTestStateObject.rs422_1StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_2);
-	                callStartTesting(cpciCardList.get(2).getCardId(), "CPCI");
+	                callStartTesting(cpciCardList.get(2).getCardId(), "CPCI", cpciCardList.get(2).getTestTypeId());
 	            }
 	        });	    
 		    SelfTestStateObject.rs422_2StatusProperty().addListener((observable, oldValue, newValue) -> {
@@ -354,7 +354,7 @@ public class SelfTestController {
 		currentSessionDetails.setRunConfigId(runConfigId);
 	}
 
-	private void callStartTesting(String stageId, String stageName) {
+	private void callStartTesting(String stageId, String stageName, String testTypeId) {
 		Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
@@ -377,7 +377,7 @@ public class SelfTestController {
 		                
 		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    ID, 1, testFileList, true,stageName
+		                    ID, 1, testFileList, true, stageName, testTypeId
 		                );
 	                    			               
 	          

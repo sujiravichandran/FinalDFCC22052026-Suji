@@ -31,6 +31,7 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 
 public class TestProcessManagement {
 
@@ -162,10 +163,11 @@ public class TestProcessManagement {
 	 */
 
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
-			boolean continueWithError, String stageName) {
+			boolean continueWithError, String stageName, String testTypeId) {
 		// Method Return
 //		TestProcessResponse testProcessResponse = new TestProcessResponse();
 
+		System.err.println("inside testProcesControl"+LRUTestStateObject.getLRUTestRunningCard());
 		Response res = new Response();
 		// => Check Aitess Running.
 
@@ -282,7 +284,7 @@ public class TestProcessManagement {
 									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
 							LRUTestStateObject.addTestResult(lRUTestResult);
 
-							switch (LRUTestStateObject.getSelfTestRunningCard()) {
+							switch (LRUTestStateObject.getLRUTestRunningCard()) {
 
 							case SPIL_LINK:
 								System.out.println("CASE : SPLIL LINK");
@@ -333,7 +335,7 @@ public class TestProcessManagement {
 									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
 							LRUTestStateObject.addTestResult(lRUTestResult1);
 
-							switch (LRUTestStateObject.getSelfTestRunningCard()) {
+							switch (LRUTestStateObject.getLRUTestRunningCard()) {
 
 							case COMPLETE_TEST:
 								System.out.println("CASE : COMPLETE_TEST ");
