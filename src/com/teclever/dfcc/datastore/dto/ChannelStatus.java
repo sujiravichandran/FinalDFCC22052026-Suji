@@ -1,33 +1,37 @@
 package com.teclever.dfcc.datastore.dto;
 
 public class ChannelStatus {
-	
-	private String channelName;
-	private String status;
-	
-	public String getChannelName() {
-		return channelName;
+
+	private String channel1;
+	private String channel2;
+	private String channel3;
+	private String channel4;
+
+	public ChannelStatus(String channel1, String channel2, String channel3, String channel4) {
+		this.channel1 = channel1;
+		this.channel2 = channel2;
+		this.channel3 = channel3;
+		this.channel4 = channel4;
 	}
-	public void setChannelName(String channelName) {
-		this.channelName = channelName;
+
+	public String getChannel1() {
+		return channel1;
 	}
-	public String getStatus() {
-		return status;
+
+	public String getChannel2() {
+		return channel2;
 	}
-	public void setStatus(String status) {
-		this.status = status;
+
+	public String getChannel3() {
+		return channel3;
 	}
-	public ChannelStatus(String channelName, String status) {
-		super();
-		this.channelName = channelName;
-		this.status = status;
+
+	public String getChannel4() {
+		return channel4;
 	}
-	
+
 	public ChannelStatus() {
 		super();
 	}
-
-	
-	
 
 }

@@ -87,7 +87,7 @@ public class LoadDriverProcessControlManagement {
 									}
 								}
 								System.out.println(output);
-								if (output.contains("Starting AETS RT Scheduler")) {
+								if (output.contains("Starting AETS RT Scheduler") || output.contains("Staring AETS RT Scheduler") ) {
 									System.out.println("LAST LINE :  "+ output.contains("Starting AETS RT Scheduler"));
 									flag = false;
 								}
