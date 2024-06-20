@@ -23,15 +23,12 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.resultstore.resultmanagement.RdfFileDetailsParser;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
-import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 
 public class TestProcessManagement {
 
@@ -424,16 +421,16 @@ public class TestProcessManagement {
 					}
 				}
 			}
-			int i = 1;
 			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
-//				System.out.println(" " + (i++) + entry.getKey() + "  " + entry.getValue());
 				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), entry.getValue());
 			}
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);
+			reader.close();
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Unsuccessful ");
+			e.printStackTrace();
 //			throw e;
 		}
 		testProcessResponse.setResponse(res);
@@ -467,7 +464,7 @@ public class TestProcessManagement {
 				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
 			}
 
-			else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
+			else if ( stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
 					|| stageName.equals("SRU")) {
 				
 				LRUTestResult lRUTestResult = new LRUTestResult(filePath, (dStartCount > 0) ? "NOT OK" : "OK");
@@ -477,9 +474,11 @@ public class TestProcessManagement {
 
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);
+			reader.close();
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Unsuccessful ");
+			e.printStackTrace();
 		}
 		testProcessResponse.setResponse(res);
 
