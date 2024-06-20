@@ -9,134 +9,99 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
-import com.teclever.dfcc.datastore.dto.TemperatureResponse;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
 
 public class TemperatureParser {
 	
+	
 	//MK1
-	public static TemperatureResponse parseFile1(String filePath) {
-		TemperatureResponse temperatureResponse = new TemperatureResponse();
-		List<ChannelTemperature> temperatureList = new ArrayList<>();
-
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-			String line;
-			Pattern pattern = Pattern.compile("<\\s*\\d+>\\s*\\(([^,]+),([^,]+),([^,]+),([^\\)]+)\\)\\s*DEGC");
-
-
-			while ((line = reader.readLine()) != null) {
-				Matcher matcher = pattern.matcher(line);
-				if (matcher.find()) {
-					temperatureList.add(new ChannelTemperature("Channel1", matcher.group(1).trim()));
-					temperatureList.add(new ChannelTemperature("Channel2", matcher.group(2).trim()));
-					temperatureList.add(new ChannelTemperature("Channel3", matcher.group(3).trim()));
-					temperatureList.add(new ChannelTemperature("Channel4", matcher.group(4).trim()));
-				}
-			}
-
-			if (temperatureList.isEmpty()) {
-				temperatureResponse.setResponseMsg("No temperature data found in the file.");
-				temperatureResponse.setResponseCode(0);
-			} else {
-				temperatureResponse.setResponseMsg("SUCCESS");
-				temperatureResponse.setResponseCode(1);
-				temperatureResponse.setTemperatures(temperatureList);
-			}
-		} catch (IOException e) {
-			temperatureResponse.setResponseMsg("FAILED");
-			temperatureResponse.setResponseCode(0);
-		}
-
-		return temperatureResponse;
+	public ChannelTemperature getChannelTemperature(String line){
+		 Pattern channelTempPattern = Pattern.compile("<\\s*\\d+>\\s*\\(([^,]+),([^,]+),([^,]+),([^\\)]+)\\)\\s*DEGC");
+	     Matcher channelTempMatcher = channelTempPattern.matcher(line);
+		
+	     if(channelTempMatcher.find()) {
+	    	 String channel1Temp = channelTempMatcher.group(1);
+	    	 String channel2Temp = channelTempMatcher.group(2);
+	    	 String channel3Temp = channelTempMatcher.group(3);
+	    	 String channel4Temp = channelTempMatcher.group(4);
+	    	 
+	    	 return new ChannelTemperature(channel1Temp,channel2Temp,channel3Temp,channel4Temp);
+	     } else {
+	    	 return null;
+	     }        
 	}
 	
-	
-	
-	//Mk1a Mk2
-	public static TemperatureResponse parseFile(String filePath) {
-        TemperatureResponse temperatureResponse = new TemperatureResponse();
-        Map<String, List<ChannelTemperature>> boardTemperatureMap = new HashMap<>();
-        List<ChannelTemperature> allTemperatures = new ArrayList<>();
-        List<String> boardNames = new ArrayList<>();
-        Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$");
-        Pattern temperaturePattern = Pattern.compile("R>\\s*\\(\\s*([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^\\)]+)\\)\\s*DEGC");
 
-        BufferedReader reader = null;
+	//MK1a MK2
+	public static Map<String, List<ChannelTemperature>> parseFile(String filePath) throws IOException {
+	    Map<String, List<ChannelTemperature>> boardTemperatureMap = new HashMap<>();
+	    List<String> boardNames = new ArrayList<>();
+	    Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$");
+	    Pattern temperaturePattern = Pattern.compile("R>\\s*\\(\\s*([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^\\)]+)\\)\\s*DEGC");
 
-        try {
-            reader = new BufferedReader(new FileReader(filePath));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Matcher matcher = boardNamePattern.matcher(line);
-                if (matcher.find()) {
-                    String boardName = matcher.group(1).trim();
-                    boardNames.add(boardName);
-                }
-            }
+	    BufferedReader reader = null;
 
-            reader.close();
-            reader = new BufferedReader(new FileReader(filePath));
+	    try {
+	        reader = new BufferedReader(new FileReader(filePath));
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            Matcher matcher = boardNamePattern.matcher(line);
+	            if (matcher.find()) {
+	                String boardName = matcher.group(1).trim();
+	                boardNames.add(boardName);
+	            }
+	        }
 
-            boolean foundBoardNames = !boardNames.isEmpty();
-            String currentBoardName = foundBoardNames ? boardNames.remove(0) : null;
+	        reader.close();
+	        reader = new BufferedReader(new FileReader(filePath));
 
-            while ((line = reader.readLine()) != null) {
-                Matcher matcher = temperaturePattern.matcher(line);
-                if (matcher.find()) {
-                    if (currentBoardName == null) {
-                        throw new IOException("No board names found before temperature data.");
-                    }
+	        boolean foundBoardNames = !boardNames.isEmpty();
+	        String currentBoardName = foundBoardNames ? boardNames.remove(0) : null;
 
-                    List<ChannelTemperature> currentTemperatureList = new ArrayList<>();
-                    ChannelTemperature channel1 = new ChannelTemperature("Channel1", matcher.group(1).trim());
-                    ChannelTemperature channel2 = new ChannelTemperature("Channel2", matcher.group(2).trim());
-                    ChannelTemperature channel3 = new ChannelTemperature("Channel3", matcher.group(3).trim());
-                    ChannelTemperature channel4 = new ChannelTemperature("Channel4", matcher.group(4).trim());
-                    
-                    currentTemperatureList.add(channel1);
-                    currentTemperatureList.add(channel2);
-                    currentTemperatureList.add(channel3);
-                    currentTemperatureList.add(channel4);
+	        while ((line = reader.readLine()) != null) {
+	            Matcher matcher = temperaturePattern.matcher(line);
+	            if (matcher.find()) {
+	                if (currentBoardName == null) {
+	                    throw new IOException("No board names found before temperature data.");
+	                }
 
-                    allTemperatures.add(channel1);
-                    allTemperatures.add(channel2);
-                    allTemperatures.add(channel3);
-                    allTemperatures.add(channel4);
+	                ChannelTemperature channelTemperature = new ChannelTemperature(
+	                    matcher.group(1).trim(),
+	                    matcher.group(2).trim(),
+	                    matcher.group(3).trim(),
+	                    matcher.group(4).trim()
+	                );
 
-                    boardTemperatureMap.put(currentBoardName, currentTemperatureList);
+	                boardTemperatureMap
+	                    .computeIfAbsent(currentBoardName, k -> new ArrayList<>())
+	                    .add(channelTemperature);
 
-                    // Move to the next board name
-                    currentBoardName = boardNames.isEmpty() ? null : boardNames.remove(0);
-                }
-            }
+	                // Move to the next board name
+	                currentBoardName = boardNames.isEmpty() ? null : boardNames.remove(0);
+	            }
+	        }
 
-            if (boardTemperatureMap.isEmpty()) {
-                temperatureResponse.setResponseMsg("No temperature data found in the file.");
-                temperatureResponse.setResponseCode(0);
-            } else {
-                temperatureResponse.setResponseMsg("SUCCESS");
-                temperatureResponse.setResponseCode(1);
-                temperatureResponse.setTemperatures(allTemperatures);
-                temperatureResponse.setBoardTemperatureMap(boardTemperatureMap);
-            }
+	        if (boardTemperatureMap.isEmpty()) {
+	            throw new IOException("No temperature data found in the file.");
+	        }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            temperatureResponse.setResponseMsg("File reading failed: " + e.getMessage());
-            temperatureResponse.setResponseCode(0);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        throw e;
+	    } finally {
+	        if (reader != null) {
+	            try {
+	                reader.close();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }
 
-        return temperatureResponse;
-    }
-	
+	    boardChannelTemp.setBoardTemperatureMap(boardTemperatureMap);
+	    System.out.println("---->>>>  "+ boardChannelTemp.getBoardTemperatureMap());
+	    return boardTemperatureMap;
+	}
+
 }

@@ -1,7 +1,11 @@
 package com.teclever.dfcc.stateMachine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
 
 public class StateMachine {
@@ -225,6 +229,7 @@ public class StateMachine {
 	//AITESS 2 
 	public static class dfccCheckStatus{
 		
+		private static boolean dfccPowerStatus;			//for checking status ON or OFF
 		private static String dfccPowerOnCommand;
 		private static String dfccPowerOffCommand;
 		private static String onlineStatusCommand;
@@ -260,10 +265,109 @@ public class StateMachine {
 		public static void setMk1AecTemperatureCommand(String mk1AecTemperatureCommand) {
 			dfccCheckStatus.mk1AecTemperatureCommand = mk1AecTemperatureCommand;
 		}
-					
+		public static Boolean getDfccPowerStatus() {
+			return dfccPowerStatus;
+		}
+		public static void setDfccPowerStatus(Boolean dfccPowerStatus) {
+			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
+		}
+				
+		
 	}
 	
 	
+	//STORING DATA FOR DFCC STATUS CHECK AITESS 2
 	
+	//ONLINE STATUS
+	public static class OnlineStatus{
+		
+		private static String channel1Status;
+		private static String channel2Status;
+		private static String channel3Status;
+		private static String channel4Status;
+		
+		public static String getChannel1Status() {
+			return channel1Status;
+		}
+		public static void setChannel1Status(String channel1Status) {
+			OnlineStatus.channel1Status = channel1Status;
+		}
+		public static String getChannel2Status() {
+			return channel2Status;
+		}
+		public static void setChannel2Status(String channel2Status) {
+			OnlineStatus.channel2Status = channel2Status;
+		}
+		public static String getChannel3Status() {
+			return channel3Status;
+		}
+		public static void setChannel3Status(String channel3Status) {
+			OnlineStatus.channel3Status = channel3Status;
+		}
+		public static String getChannel4Status() {
+			return channel4Status;
+		}
+		public static void setChannel4Status(String channel4Status) {
+			OnlineStatus.channel4Status = channel4Status;
+		}	
+
+	}
+	
+	
+	//MK1 SC AEC TEMPERATURE
+	public static class channelTemp
+	{
+		private static String channel1Temperature;
+		private static String channel2Temperature;
+		private static String channel3Temperature;
+		private static String channel4Temperature;
+		
+		
+		public static String getChannel1Temperature() {
+			return channel1Temperature;
+		}
+		public static void setChannel1Temperature(String channel1Temperature) {
+			channelTemp.channel1Temperature = channel1Temperature;
+		}
+		public static String getChannel2Temperature() {
+			return channel2Temperature;
+		}
+		public static void setChannel2Temperature(String channel2Temperature) {
+			channelTemp.channel2Temperature = channel2Temperature;
+		}
+		public static String getChannel3Temperature() {
+			return channel3Temperature;
+		}
+		public static void setChannel3Temperature(String channel3Temperature) {
+			channelTemp.channel3Temperature = channel3Temperature;
+		}
+		public static String getChannel4Temperature() {
+			return channel4Temperature;
+		}
+		public static void setChannel4Temperature(String channel4Temperature) {
+			channelTemp.channel4Temperature = channel4Temperature;
+		}	
+	}
+	
+	
+	//MK1a MK2 TEMPERATURE
+	public static class boardChannelTemp{
+		
+	    public static Map<String, List<ChannelTemperature>> boardTemperatureMap;
+
+		public static Map<String, List<ChannelTemperature>> getBoardTemperatureMap() {
+			return boardTemperatureMap;
+		}
+
+		public static void setBoardTemperatureMap(Map<String, List<ChannelTemperature>> boardTemperatureMap) {
+			boardChannelTemp.boardTemperatureMap = boardTemperatureMap;
+		}
+
+	    
+
+		
+		
+	
+	}
 
 }
