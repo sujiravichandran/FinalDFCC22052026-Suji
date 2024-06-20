@@ -133,7 +133,7 @@ public class LRUTestStateObject {
 	}
 	private static LRUTestRunningCard lruTestRunningCard = LRUTestRunningCard.SPIL_LINK;
 	
-	public static LRUTestRunningCard getSelfTestRunningCard() {
+	public static LRUTestRunningCard getLRUTestRunningCard() {
 		return lruTestRunningCard;
 	}
 	public static void setLRUTestRunningCard(LRUTestRunningCard lruTestRunningCard) {

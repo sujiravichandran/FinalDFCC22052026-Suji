@@ -93,7 +93,7 @@ public class AitessProcessControlManagement {
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 		// get uutId from STATE MACHINE
-		String uutId = "UUT1";
+		String uutId = StateMachine.currentSessionDetails.getUutId();
 
 		// get currentRunConfigId based on uutId and testTypeId
 		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
