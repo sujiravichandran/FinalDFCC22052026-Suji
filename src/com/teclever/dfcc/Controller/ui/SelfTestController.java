@@ -131,7 +131,6 @@ public class SelfTestController {
          .filter(stage -> "Self Test".equalsIgnoreCase(stage.getL1StageName()))
          .forEach(stage -> {
              if ("RACK-1".equalsIgnoreCase(stage.getL2StageName())) {
-            	 System.out.println("BEFORE SET  "+stage.getL2StageId());
             	 SelfTestStateObject.setRack1StageId(stage.getL2StageId());
             	 SelfTestStateObject.setRack1StageName(stage.getL2StageName());
             	 SelfTestStateObject.setRack1TestTypeId(stage.getTestTypeId());
@@ -218,8 +217,6 @@ public class SelfTestController {
 		    
 		    if(SelfTestStateObject.getRack1Status().get()) {
 		    	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
-		    	setRunConfigIdToStateMachine();
-		    	System.out.println("Before Calling"+SelfTestStateObject.getRack1StageId());
 		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1" , SelfTestStateObject.getRack1TestTypeId());
 		    }
 		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
@@ -346,25 +343,21 @@ public class SelfTestController {
 		return topButton;
 	}
 	
-	private void setRunConfigIdToStateMachine() {
-		String uutId = currentSessionDetails.getUutId();
-		String testTypeId = SelfTestStateObject.getRack1TestTypeId();
-		
-		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
-		currentSessionDetails.setRunConfigId(runConfigId);
-	}
+
 
 	private void callStartTesting(String stageId, String stageName, String testTypeId) {
 		Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
+	    		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+	    		currentSessionDetails.setRunConfigId(runConfigId);
+	    		
 	        		String ID = stageId;
-	        		System.out.println("STAGE ID   "+stageId);
 	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
 	        		 
-	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
-	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
-	        		 }
+//	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
+//	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
+//	        		 }
 	        		 
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {
