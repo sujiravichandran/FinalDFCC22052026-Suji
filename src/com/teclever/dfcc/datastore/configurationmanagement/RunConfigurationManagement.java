@@ -2,9 +2,11 @@ package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.RunConfiguration;
@@ -18,6 +20,7 @@ import com.teclever.datastore.service.RunPathMasterService;
 import com.teclever.datastore.service.SymbolService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestTypeMasterDetailsService;
+import com.teclever.datastore.utils.PathMasterDeleteResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
@@ -74,6 +77,18 @@ public class RunConfigurationManagement {
 				// updating run path master table
 				updatePathsInDatabase(runConfiguration);
 
+				// test file
+				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(runConfigId);
+				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
+				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation, runPathMasterId2);
+				System.out.println(testFileLocation);
+				
+				// download file
+				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(runConfigId);
+				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
+				List<String> downloadFilesPaths = DownloadFileManagement.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
+				System.out.println(downloadFileLocation);
+				
 				// macro
 				String runPathMasterId = fetchRunPathMasterIdForMacro(runConfigId);
 				List<String> macroLocation = fetchMacroFilePathsFromRunPathMaster(runPathMasterId);
@@ -87,18 +102,6 @@ public class RunConfigurationManagement {
 				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
 
-				// test file
-				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(runConfigId);
-				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
-				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation, runPathMasterId2);
-				System.out.println(testFileLocation);
-				
-				// download file
-				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(runConfigId);
-				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
-				List<String> downloadFilesPaths = DownloadFileManagement.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
-				System.out.println(downloadFileLocation);
-				
 
 			} else {
 				System.err.println("Failed to add Run Configuration: " + serviceResponse.getResponseMessage());
@@ -165,6 +168,74 @@ public class RunConfigurationManagement {
 
 			return dtoList;
 		}
+		
+	//API To Delete New
+	public Response deleteRunConfigById(String runConfigId)	
+	{
+		
+		Response res = new Response();
+		try {
+	    RunConfigurationService service = new RunConfigurationService();
+	    RunConfigurationResponse serviceResponse = service.removeRunConfiguration(runConfigId);
+	    RunPathMasterService pathMasterService = new RunPathMasterService();
+	    PathMasterDeleteResponse pathsResponse = pathMasterService.deletePathMasterByRunConfigId(runConfigId);
+	    Map<String,String>map = pathsResponse.getResponseMap();
+	    String testPathMasterId = map.get("tpf");
+	    String macroPathMasterId = map.get("macros");
+	    String symbolPathMasterId = map.get("symbols");
+	    String downloadPathMasterId = map.get("download");
+	    
+	    //Test File Delete From TestFiles List
+	    TestFileService testFileService = new TestFileService();
+        Response testFileResponse = testFileService.deleteTestFiles(testPathMasterId);
+        if (testFileResponse.getResponseCode() == 0) {
+            System.err.println("Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
+            res.setResponseMessage("Error on TestFile Deleting" +testFileResponse.getResponseMessage());
+            return res;
+        }
+        
+	    //Macro's Deleted From Macros
+	    MacroService macroService = new MacroService();
+        Response macroResponse = macroService.deleteMacro(macroPathMasterId);
+        if (macroResponse.getResponseCode() == 0) {
+            System.err.println("Failed to update delete status for macros: " + macroResponse.getResponseMessage());
+            res.setResponseMessage("Error on macros Deleting" +macroResponse.getResponseMessage());
+            return res;
+        }
+        
+        //Symbols Deleted From Symbols Entity
+        SymbolService symbolService = new SymbolService();
+        Response symbolResponse = symbolService.deleteSymbols(symbolPathMasterId);
+        if (symbolResponse.getResponseCode() == 0) {
+            System.err.println("Failed to  delete symbols: " + symbolResponse.getResponseMessage());
+            res.setResponseMessage("Error on symbol Deleting" +symbolResponse.getResponseMessage());
+            return res;
+        }
+        
+        //DOWNLOAD FILES DELETING
+        DownloadFileService downloadFileService = new DownloadFileService();
+        Response downloadFileResponse = downloadFileService.deleteDownloadFiles(downloadPathMasterId);
+        if (downloadFileResponse.getResponseCode() == 0) {
+            System.err.println("Failed delete download files: " + downloadFileResponse.getResponseMessage());
+            res.setResponseMessage("Error on Download File Deleting" +downloadFileResponse.getResponseMessage());
+            return res;
+        }
+       
+        res.setResponseCode(1);
+        res.setResponseMessage("Deleted Successful");
+		}
+		catch(Exception ex)
+		{
+			res.setResponseCode(0);
+			res.setResponseMessage("Error On deleting   :" +ex.getLocalizedMessage());
+		
+		}
+	    return res; 
+		
+	}
+	
+		
+		
 
 	//API : DELETE RUN CONFIG
 	public RunConfigurationDto[] deleteRunConfig(String runConfigId) {
