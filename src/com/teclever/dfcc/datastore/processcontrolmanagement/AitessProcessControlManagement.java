@@ -13,7 +13,14 @@ import java.util.regex.Pattern;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.datastore.dto.ChannelStatus;
+import com.teclever.dfcc.datastore.dto.ChannelTemperature;
+import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
+import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.channelTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
@@ -42,8 +49,10 @@ public class AitessProcessControlManagement {
 	private Thread outputProcessingThread1;
 	private Thread outputProcessingThread2;
 	private Thread performTestThread;
+	private Thread dfccCheckStatusThread;
 
 	private boolean testStarted = false;
+	private String currentCommand = "";
 
 	boolean flag;
 	
@@ -204,12 +213,18 @@ public class AitessProcessControlManagement {
 
 	private void launchAitess2(String command) {
 		System.out.println("Entering Launch Aitess 2");
+		ChannelStatusParser channelStatusParser = new ChannelStatusParser();
+		TemperatureParser temperatureParser = new TemperatureParser();
 		aitess2ProcessControl.LaunchingProcess(command, launcherFuture2);
 		launcherFuture2.thenRun(() -> {
 			aitess2ProcessControl.ReadingProcess();
 			outputProcessingThread2 = new Thread(() -> {
 				try {
+					ChannelStatus channelStatus = new ChannelStatus();
+					ChannelTemperature channelTemperature = new ChannelTemperature();
+
 					String cleanText;
+
 					while (true) {
 						String output = aitess2ReadQ.take();
 						System.out.println("aitess2 :: " + output);
@@ -217,7 +232,68 @@ public class AitessProcessControlManagement {
 						cleanText = cleanText.replaceAll("\\(B", "");
 						cleanText = cleanText.replaceAll("]104", "");
 						final String finalLine = cleanText;
-						aitess2ResultQ.put(finalLine);
+//						aitess2ResultQ.put(finalLine);
+						
+						switch (currentCommand) {
+						case "OnlineStatusCommand":
+							channelStatus = channelStatusParser.getChannelStatus(finalLine);
+
+							if (channelStatus != null) {
+								OnlineStatus.setChannel1Status(channelStatus.getChannel1());
+								OnlineStatus.setChannel2Status(channelStatus.getChannel2());
+								OnlineStatus.setChannel3Status(channelStatus.getChannel3());
+								OnlineStatus.setChannel4Status(channelStatus.getChannel4());
+							}
+							break;
+							
+						case "DfccPowerOnCommand":
+
+							break;
+						case "DfccPowerOffCommand":
+
+							break;
+						case "Mk1ScTemperatureCommand":
+							channelTemperature = temperatureParser.getChannelTemperature(finalLine);
+							
+							if(channelTemperature!=null)
+							{
+							channelTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
+							channelTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
+							channelTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
+							channelTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
+							}
+							break;
+							
+						case "Mk1AecTemperatureCommand":
+							channelTemperature = temperatureParser.getChannelTemperature(finalLine);
+							
+							if(channelTemperature!=null)
+							{
+							channelTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
+							channelTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
+							channelTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
+							channelTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
+							}
+							break;
+
+						default:
+							break;
+						}
+						
+						
+						
+						// directly here we can store into STATE MACHINE why need of Blocking Queue
+						// ..??????????
+						// any one needed
+//							aitess2ResultQ.put(channel1Status);
+//							aitess2ResultQ.put(channel2Status);
+//							aitess2ResultQ.put(channel3Status);
+//							aitess2ResultQ.put(channel4Status);
+
+//							OnlineStatus.setChannel1Status(channel1Status);
+//							OnlineStatus.setChannel2Status(channel2Status);
+//							OnlineStatus.setChannel3Status(channel3Status);
+//							OnlineStatus.setChannel4Status(channel4Status);
 
 					}
 				} catch (InterruptedException e1) {
@@ -266,8 +342,35 @@ public class AitessProcessControlManagement {
 	}
 
 	public void WriteAitess2Command(String command) {
-		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command));
+
 		// pending
+		dfccCheckStatusThread = new Thread(() -> {
+
+			//this should not be in thread
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand()+"\n"));
+			currentCommand = "DfccPowerOnCommand";
+			dfccCheckStatus.setDfccPowerStatus(true);
+			
+			//this also should be in thread
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand()+"\n"));
+			currentCommand = "DfccPowerOffCommand";
+			dfccCheckStatus.setDfccPowerStatus(false);
+
+
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand()+"\n"));
+			currentCommand = "OnlineStatusCommand";
+
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand()+"\n"));
+			currentCommand = "Mk1ScTemperatureCommand";
+
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand()+"\n"));
+			currentCommand = "Mk1AecTemperatureCommand";
+
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command +"\n"));
+
+
+		});
+		dfccCheckStatusThread.start();
 
 	}
 
