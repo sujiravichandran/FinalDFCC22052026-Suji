@@ -74,21 +74,13 @@ public class LRUTestStateObject {
 	
 //	LRU Test Result
 	public static class LRUTestResult {
-		private String cardName;
 		private String fileName;
 		private String result;
 				
-		public LRUTestResult(String cardName, String fileName, String result) {
+		public LRUTestResult( String fileName, String result) {
 			super();
-			this.cardName = cardName;
 			this.fileName = fileName;
 			this.result = result;
-		}
-		public String getCardName() {
-			return cardName;
-		}
-		public void setCardName(String cardName) {
-			this.cardName = cardName;
 		}
 		public String getFileName() {
 			return fileName;

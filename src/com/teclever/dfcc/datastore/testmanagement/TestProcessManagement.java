@@ -35,142 +35,12 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 
 public class TestProcessManagement {
 
-	/*
-	 * public Response testProcesControl(String sessionId, String stageId, int
-	 * repeatCount, List<String> listOfFileId, boolean continueWithError, String
-	 * stageName) { // Method Return // TestProcessResponse testProcessResponse =
-	 * new TestProcessResponse();
-	 * 
-	 * Response res = new Response(); // => Check Aitess Running.
-	 * 
-	 * try { // Update SESSION ENTITY and SESSION STAGE MAPPING res =
-	 * updateStatusAndRunCount(sessionId, stageId, repeatCount); if
-	 * (res.getResponseCode() == 0) { return res; } // ADD list of File IDs to
-	 * SESSION STAGE SELECTED TEST FILES res = addSelectedTestFile(listOfFileId,
-	 * stageId); if (res.getResponseCode() == 0) { //
-	 * testProcessResponse.setResponse(res); return res; } // Getting File ID and
-	 * FileName as Key Value. TestPlanFileManagement testPlanFileManagement = new
-	 * TestPlanFileManagement(); TestFileResponse testFileResponse =
-	 * testPlanFileManagement.getSelectedTestFilesFromStage(stageId); Map<String,
-	 * String> testFilesIdName = testFileResponse.getTestFilesIdName();
-	 * 
-	 * // Thread Function Runnable runTestThread = () -> {
-	 * 
-	 * TestProcessResponse testProcessRes = new TestProcessResponse();
-	 * 
-	 * Response response = new Response();
-	 * 
-	 * // Update State Machine : Set TextArea to FALSE. if
-	 * (StateMachine.isTextArea()) { StateMachine.setTextArea(false); } String
-	 * startTime; String endTime; String rdfFileName = null; int dStarCount = 0;
-	 * String rdfFileResult = null; SessionStagesTestFilesResultService
-	 * sessionStageTestFileResult = new SessionStagesTestFilesResultService();
-	 * 
-	 * 
-	 * // For Each Loop of List of File IDs for (String testFileId : listOfFileId) {
-	 * // Test Started Time startTime = String.valueOf(new Date());
-	 * 
-	 * if (testFilesIdName.get(testFileId) != null) {
-	 * 
-	 * 
-	 * SelfTestResult selfTestFile; switch (stageName) { case "RACK1":
-	 * 
-	 * 
-	 * // Update State Machine. selfTestFile = new SelfTestResult("RDF FILE", "OK"
-	 * );
-	 * 
-	 * SelfTestStateObject.addSelfTestResult(selfTestFile); if
-	 * (SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.RACK1) {
-	 * SelfTestStateObject.getRack1Status().set(false); ; } break; case "CPCI": //
-	 * testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId);
-	 * // RdfFileDetailsParser.saveProjectDetailsToMongoDB(testResultId,
-	 * rdfFileLocaltion + rdfFileName); System.out.println("CPCI Is Called");
-	 * 
-	 * selfTestFile = new SelfTestResult("RDF FILE", "OK");
-	 * 
-	 * SelfTestStateObject.addSelfTestResult(selfTestFile);
-	 * 
-	 * switch (SelfTestStateObject.getSelfTestRunningCard()) {
-	 * 
-	 * case B1553: SelfTestStateObject.getB1553Status().set(false); break; case
-	 * RS422_1: SelfTestStateObject.getRs422_1Status().set(false); break; case
-	 * RS422_2: SelfTestStateObject.getrS422_2Status().set(false); break;
-	 * 
-	 * default: break; } break;
-	 * 
-	 * case "MANDATORY":
-	 * 
-	 * 
-	 * LRUTestResult lRUTestResult = new LRUTestResult(stageId, "RDF FILE ", "OK");
-	 * LRUTestStateObject.addTestResult(lRUTestResult); switch
-	 * (LRUTestStateObject.getSelfTestRunningCard()) {
-	 * 
-	 * case SPIL_LINK: LRUTestStateObject.getSpilLinkStatus().set(true); break; case
-	 * POWER_SUPPLY: LRUTestStateObject.getPowerSupplyStatus().set(true); break;
-	 * case PBIT: LRUTestStateObject.getPbitStatus().set(true); break; case
-	 * AD_DA_INTERFACE: LRUTestStateObject.getAd_daInterfaceStatus().set(true);
-	 * break; case INITIALIZE_LRU:
-	 * LRUTestStateObject.getInitializeLRUStatus().set(true); break;
-	 * 
-	 * default: break; }
-	 * 
-	 * break; case "GO NOGO":
-	 * 
-	 * 
-	 * LRUTestResult lRUTestResult1 = new LRUTestResult(stageId, "RDF FILE ", "OK");
-	 * LRUTestStateObject.addTestResult(lRUTestResult1);
-	 * 
-	 * switch (LRUTestStateObject.getSelfTestRunningCard()) {
-	 * 
-	 * case COMPLETE_TEST: LRUTestStateObject.getCompleteTestStatus().set(false);
-	 * break; case OFP_LOADING: LRUTestStateObject.getOfpLoadingStatus().set(false);
-	 * break; case PI_CHECK: LRUTestStateObject.getPiCheckStatus().set(false);
-	 * break; default: break; }
-	 * 
-	 * break; case "SRU":
-	 * 
-	 * 
-	 * LRUTestResult lRUTestResult2 = new LRUTestResult(stageId, "RDF FILE ",
-	 * (testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-	 * LRUTestStateObject.addTestResult(lRUTestResult2);
-	 * 
-	 * break; default: System.out.println("INVALID TEST TYPE ID "+stageName); break;
-	 * }
-	 * 
-	 * } // Test Ended Time endTime = String.valueOf(new Date());
-	 * 
-	 * 
-	 * 
-	 * // Calling Test File saving method.
-	 * addTestFileResult(sessionStageTestFileResult.
-	 * generateUniqueTestFilesResultIdId(), sessionId, stageId, testFileId,
-	 * "SystemResultInfoId", "NO USE", rdfFileName, "SUCCESS" ,
-	 * String.valueOf(testProcessRes.getdStarCount()), startTime, endTime); } //
-	 * Update State Machine : Set TextArea to TRUE. StateMachine.setTextArea(true);
-	 * 
-	 * // Update SESSION STAGE MAPPING : Set Status to STOPED
-	 * SessionSelectedStagesService sessionStagesSelectedStagesService = new
-	 * SessionSelectedStagesService(); response =
-	 * sessionStagesSelectedStagesService.
-	 * updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId, stageId,
-	 * "STOPED.."); }; // Thread START Thread selfTestThread = new
-	 * Thread(runTestThread); selfTestThread.start();
-	 * 
-	 * res.setResponseCode(1); res.setResponseMessage("Test Started ");
-	 * 
-	 * } catch (Exception e) { res.setResponseCode(0);
-	 * res.setResponseMessage("Test Start Unsuccessfull.. "); } return res; }
-	 */
-
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
 			boolean continueWithError, String stageName, String testTypeId) {
-		// Method Return
-//		TestProcessResponse testProcessResponse = new TestProcessResponse();
 
-		System.err.println("inside testProcesControl"+LRUTestStateObject.getLRUTestRunningCard());
 		Response res = new Response();
-		// => Check Aitess Running.
-
+		// => Check and Update Aitess Running.
+//			AitessProcessControlManagement.getInstance().switchAitess(testTypeId);
 		try {
 			// Update SESSION ENTITY and SESSION STAGE MAPPING
 			res = updateStatusAndRunCount(sessionId, stageId, repeatCount);
@@ -180,7 +50,6 @@ public class TestProcessManagement {
 			// ADD list of File IDs to SESSION STAGE SELECTED TEST FILES
 			res = addSelectedTestFile(listOfFileId, stageId);
 			if (res.getResponseCode() == 0) {
-//				testProcessResponse.setResponse(res);
 				return res;
 			}
 			// Getting File ID and FileName as Key Value.
@@ -202,8 +71,8 @@ public class TestProcessManagement {
 				String startTime;
 				String endTime;
 				String rdfFileName = null;
-				int dStarCount = 0;
-				String rdfFileResult = null;
+//					int dStarCount = 0;
+				String rdfFileResult = "OK";
 				SessionStagesTestFilesResultService sessionStageTestFileResult = new SessionStagesTestFilesResultService();
 
 				// Getting RDF file path from RUN PATH MASTER
@@ -211,7 +80,7 @@ public class TestProcessManagement {
 				String rdfFileLocaltion = downloadFileService
 						.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
 
-//				String testResultId=sessionStageTestFileResult.generateUniqueTestFilesResultIdId();
+//					String testResultId=sessionStageTestFileResult.generateUniqueTestFilesResultIdId();
 
 				// For Each Loop of List of File IDs
 				for (String testFileId : listOfFileId) {
@@ -223,165 +92,52 @@ public class TestProcessManagement {
 						// Getting RDF file Name from PerformTest()
 						rdfFileName = AitessProcessControlManagement.getInstance()
 								.performTest(testFilesIdName.get(testFileId));
-						SelfTestResult selfTestFile;
-						// Get TestTypeId From StateMachine;
-						switch (stageName) {
-						case "RACK1":
 
-							// Parse SelfTest RDF file.
+						if (stageName.equals("RACK1")) {
 							testProcessRes = selfTestFileTest(rdfFileLocaltion + rdfFileName);
 
-							// Update State Machine.
-							selfTestFile = new SelfTestResult(rdfFileLocaltion + rdfFileName,
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-//							dStarCount = testProcessRes.getdStarCount();
-//							rdfFileResult = (testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS"
-//									: "FAILURE";
-							SelfTestStateObject.addSelfTestResult(selfTestFile);
-							if (SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.RACK1) {
-								SelfTestStateObject.getRack1Status().set(false);
-								;
-							}
-							break;
-						case "CPCI":
-							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId);
-//							RdfFileDetailsParser.saveProjectDetailsToMongoDB(testResultId, rdfFileLocaltion + rdfFileName);
-							System.out.println("CASE : CPCI ");
+//								dStarCount = dStarCount + testProcessRes.getdStarCount();
 
-							selfTestFile = new SelfTestResult(rdfFileLocaltion + rdfFileName,
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-//							dStarCount = testProcessRes.getdStarCount();
-//							rdfFileResult = (testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS"
-//									: "FAILURE";
-							SelfTestStateObject.addSelfTestResult(selfTestFile);
-
-//							if (SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.B1553) {
-//								SelfTestStateObject.getB1553Status().set(false);
-//								;
-//							}
-							switch (SelfTestStateObject.getSelfTestRunningCard()) {
-
-							case B1553:
-								SelfTestStateObject.getB1553Status().set(false);
-								break;
-							case RS422_1:
-								SelfTestStateObject.getRs422_1Status().set(false);
-								break;
-							case RS422_2:
-								SelfTestStateObject.getrS422_2Status().set(false);
-								break;
-
-							default:
-								break;
-							}
-							break;
-
-						case "MANDATORY":
-							System.out.println("CASE : MANDATORY ");
-							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId);
-
-							LRUTestResult lRUTestResult = new LRUTestResult(stageId, rdfFileLocaltion + rdfFileName,
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-							LRUTestStateObject.addTestResult(lRUTestResult);
-
-							switch (LRUTestStateObject.getLRUTestRunningCard()) {
-
-							case SPIL_LINK:
-								System.out.println("CASE : SPLIL LINK");
-								LRUTestStateObject.getSpilLinkStatus().set(false);
-								break;
-							case POWER_SUPPLY:
-								System.out.println("CASE : POWER_SUPPLY ");
-								LRUTestStateObject.getPowerSupplyStatus().set(false);
-								break;
-							case PBIT:
-								System.out.println("CASE :PBIT ");
-								LRUTestStateObject.getPbitStatus().set(false);
-								break;
-							case AD_DA_INTERFACE:
-								System.out.println("CASE : AD_DA_INTERFACE ");
-								LRUTestStateObject.getAd_daInterfaceStatus().set(false);
-								break;
-							case INITIALIZE_LRU:
-								System.out.println("CASE : INITIALIZE_LRU ");
-								LRUTestStateObject.getInitializeLRUStatus().set(false);
-								break;
-//							case DIGITAL:
-////								LRUTestStateObject.get().set(false);
-//								break;
-//							case ANALOG1_LEFT:
-////								LRUTestStateObject.get().set(false);
-//								break;
-//							case ANALOG1_RIGHT:
-//								LRUTestStateObject.get().set(false);
-//								break;
-//							case ANALOG2:
-////								LRUTestStateObject.getSpilLinkStatus().set(false);
-//								break;
-//							case ALL_SRUs:
-////								LRUTestStateObject.getSpilLinkStatus().set(false);
-//								break;
-
-							default:
-								break;
+							if (testProcessRes.getResponse().getResponseCode() == 111) {
+								if (rdfFileResult.equals("OK")) {
+									rdfFileResult = "NOT OK";
+								}
+							} else {
+								if (rdfFileResult.equals("OK")) {
+									rdfFileResult = "OK";
+								}
 							}
 
-							break;
-						case "GO NOGO":
-							System.out.println("CASE : GO NOGO ");
-							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId);
+						} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY")
+								|| stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 
-							LRUTestResult lRUTestResult1 = new LRUTestResult(stageId, rdfFileLocaltion + rdfFileName,
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-							LRUTestStateObject.addTestResult(lRUTestResult1);
+							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId, stageName);
 
-							switch (LRUTestStateObject.getLRUTestRunningCard()) {
-
-							case COMPLETE_TEST:
-								System.out.println("CASE : COMPLETE_TEST ");
-								LRUTestStateObject.getCompleteTestStatus().set(false);
-								break;
-							case OFP_LOADING:
-								System.out.println("CASE : OFP_LOADING ");
-								LRUTestStateObject.getOfpLoadingStatus().set(false);
-								break;
-							case PI_CHECK:
-								System.out.println("CASE : PI_CHECK ");
-								LRUTestStateObject.getPiCheckStatus().set(false);
-								break;
-							default:
-								break;
+							if (testProcessRes.getResponse().getResponseCode() == 111) {
+								if (rdfFileResult.equals("OK")) {
+									rdfFileResult = "NOT OK";
+								}
+							} else {
+								if (rdfFileResult.equals("OK")) {
+									rdfFileResult = "OK";
+								}
 							}
-
-							break;
-						case "SRU":
-
-							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId);
-
-							LRUTestResult lRUTestResult2 = new LRUTestResult(stageId, rdfFileLocaltion + rdfFileName,
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "OK" : "NOT OK");
-							LRUTestStateObject.addTestResult(lRUTestResult2);
-
-							break;
-						default:
-							System.out.println("INVALID TEST TYPE ID ");
-							break;
 						}
 
 					}
 					// Test Ended Time
 					endTime = String.valueOf(new Date());
 
-//					String testResultId=sessionStageTestFileResult.generateUniqueTestFilesResultIdId();
-//					// Update MONGO DB.
-//					RdfFileDetailsParser.saveProjectDetailsToMongoDB(testResultId, rdfFileLocaltion + rdfFileName);
+//						String testResultId=sessionStageTestFileResult.generateUniqueTestFilesResultIdId();
+//						// Update MONGO DB.
+//						RdfFileDetailsParser.saveProjectDetailsToMongoDB(testResultId, rdfFileLocaltion + rdfFileName);
 
 					// ADD Test File Result to MYSQL DB : " SystemResultInfoId " is MONGO DB Id.
-//					StagesTestFilesResultDTO stagesTestFilesResultDTO = new StagesTestFilesResultDTO(
-//							sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId, stageId,
-//							testFileId, "SystemResultInfoId", rdfFileLocaltion, rdfFileName,
-//							rdfFileResult,
-//							String.valueOf(dStarCount), startTime, endTime);
+//						StagesTestFilesResultDTO stagesTestFilesResultDTO = new StagesTestFilesResultDTO(
+//								sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId, stageId,
+//								testFileId, "SystemResultInfoId", rdfFileLocaltion, rdfFileName,
+//								rdfFileResult,
+//								String.valueOf(dStarCount), startTime, endTime);
 
 					// Calling Test File saving method.
 					addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
@@ -389,6 +145,104 @@ public class TestProcessManagement {
 							(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 							String.valueOf(testProcessRes.getdStarCount()), startTime, endTime);
 				}
+				switch (stageName) {
+				case "RACK1":
+					SelfTestResult selfTestFile;
+
+					selfTestFile = new SelfTestResult(rdfFileLocaltion + rdfFileName, rdfFileResult);
+
+					SelfTestStateObject.addSelfTestResult(selfTestFile);
+
+					if (SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.RACK1) {
+						SelfTestStateObject.getRack1Status().set(false);
+						;
+					}
+					break;
+				case "CPCI":
+
+					SelfTestStateObject.updateSelfTestcPCICardstatus(stageId, rdfFileResult);
+
+					switch (SelfTestStateObject.getSelfTestRunningCard()) {
+
+					case B1553:
+						SelfTestStateObject.getB1553Status().set(false);
+						break;
+					case RS422_1:
+						SelfTestStateObject.getRs422_1Status().set(false);
+						break;
+					case RS422_2:
+						SelfTestStateObject.getrS422_2Status().set(false);
+						break;
+
+					default:
+						break;
+					}
+					break;
+
+				case "MANDATORY":
+					System.out.println("CASE : MANDATORY ");
+					LRUTestStateObject.updateLruMandatoryCardstatus(stageId, rdfFileResult);
+
+					switch (LRUTestStateObject.getLRUTestRunningCard()) {
+
+					case SPIL_LINK:
+						System.out.println("CASE : SPIL_LINK");
+						LRUTestStateObject.getSpilLinkStatus().set(false);
+						break;
+					case POWER_SUPPLY:
+						System.out.println("CASE : POWER_SUPPLY ");
+						LRUTestStateObject.getPowerSupplyStatus().set(false);
+						break;
+					case PBIT:
+						System.out.println("CASE :PBIT ");
+						LRUTestStateObject.getPbitStatus().set(false);
+						break;
+					case AD_DA_INTERFACE:
+						System.out.println("CASE : AD_DA_INTERFACE ");
+						LRUTestStateObject.getAd_daInterfaceStatus().set(false);
+						break;
+					case INITIALIZE_LRU:
+						System.out.println("CASE : INITIALIZE_LRU ");
+						LRUTestStateObject.getInitializeLRUStatus().set(false);
+						break;
+
+					default:
+						break;
+					}
+
+					break;
+				case "GO NOGO":
+						System.out.println("CASE : GO NOGO ");
+					LRUTestStateObject.updateLruGoAndNogoCardstatus(stageId, rdfFileResult);
+
+					switch (LRUTestStateObject.getLRUTestRunningCard()) {
+
+					case COMPLETE_TEST:
+						System.out.println("CASE : COMPLETE_TEST ");
+						LRUTestStateObject.getCompleteTestStatus().set(false);
+						break;
+					case OFP_LOADING:
+						System.out.println("CASE : OFP_LOADING ");
+						LRUTestStateObject.getOfpLoadingStatus().set(false);
+						break;
+					case PI_CHECK:
+						System.out.println("CASE : PI_CHECK ");
+						LRUTestStateObject.getPiCheckStatus().set(false);
+						break;
+					default:
+						break;
+					}
+
+					break;
+				case "SRU":
+					
+					LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
+					break;
+				default:
+					System.out.println("INVALID TEST TYPE ID ");
+					break;
+				}
+
 				// Update State Machine : Set TextArea to TRUE.
 				StateMachine.setTextArea(true);
 
@@ -397,6 +251,7 @@ public class TestProcessManagement {
 				response = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount,
 						sessionId, stageId, "STOPED..");
 			};
+
 			// Thread START
 			Thread selfTestThread = new Thread(runTestThread);
 			selfTestThread.start();
@@ -461,7 +316,7 @@ public class TestProcessManagement {
 		try {
 			SessionStagesTestFilesResultService selectedTestFile = new SessionStagesTestFilesResultService();
 			SessionStagesTestFilesResult testFileResult = new SessionStagesTestFilesResult();
-testFileResult.setSessionStagesTestFilesResultId(sessionStagesTestFilesResultId);
+			testFileResult.setSessionStagesTestFilesResultId(sessionStagesTestFilesResultId);
 			testFileResult.setSessionId(sessionId);
 			testFileResult.setStageId(stageId);
 			testFileResult.setTestFileId(testFileId);
@@ -586,16 +441,13 @@ testFileResult.setSessionStagesTestFilesResultId(sessionStagesTestFilesResultId)
 		return testProcessResponse;
 	}
 
-	public TestProcessResponse parseTestFileTest(String filePath, String stageId) {
+	public TestProcessResponse parseTestFileTest(String filePath, String stageId, String stageName) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
-//		Map<String, String> brdresult = new HashMap<>();
 		int dStartCount = 0;
 		try {
-			System.out.println("CPCI file:-  " + filePath);
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line;
-			String brdNumber = null;
 
 			res.setResponseCode(1);
 
@@ -607,21 +459,30 @@ testFileResult.setSessionStagesTestFilesResultId(sessionStagesTestFilesResultId)
 					res.setResponseCode(111);
 				}
 			}
-			int i = 1;
-//			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
-//				System.out.println(" " + (i++) + entry.getKey() + "  " + entry.getValue());
-			SelfTestStateObject.updateSelfTestcPCICardstatus(stageId, (dStartCount > 0) ? "NOT OK" : "OK");
-//			}
+
+			if (stageName.equals("CPCI")) {
+
+				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, (dStartCount > 0) ? "NOT OK" : "OK");
+
+				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
+			}
+
+			else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
+					|| stageName.equals("SRU")) {
+				
+				LRUTestResult lRUTestResult = new LRUTestResult(filePath, (dStartCount > 0) ? "NOT OK" : "OK");
+
+				LRUTestStateObject.addTestResult(lRUTestResult);
+			}
+
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Unsuccessful ");
-//			throw e;
 		}
 		testProcessResponse.setResponse(res);
 
-//		testProcessResponse.setRdfResult((dStartCount > 0) ? "OK" : "NOT OK");
 		return testProcessResponse;
 	}
 }
