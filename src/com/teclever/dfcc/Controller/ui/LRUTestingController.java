@@ -309,15 +309,15 @@ public class LRUTestingController {
 				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 				    
 				   
-				    if(newButton.getText().equalsIgnoreCase("SPIL LINK TEST")) {
+				    if(newButton.getText().trim().equalsIgnoreCase("SPIL LINK TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-				    }else if(newButton.getText().equalsIgnoreCase("POWER SUPPLY")) {
+				    }else if(newButton.getText().trim().equalsIgnoreCase("POWER SUPPLY")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
-				    }else if(newButton.getText().equalsIgnoreCase("PBIT TEST")) {
+				    }else if(newButton.getText().trim().equalsIgnoreCase("PBIT TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-				    }else if(newButton.getText().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
+				    }else if(newButton.getText().trim().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
-				    }else if(newButton.getText().equalsIgnoreCase("INITIALIZE LRU")) {
+				    }else if(newButton.getText().trim().equalsIgnoreCase("INITIALIZE LRU")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
 				    }
 				    
