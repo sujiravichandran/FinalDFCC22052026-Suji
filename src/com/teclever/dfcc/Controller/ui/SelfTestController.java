@@ -12,12 +12,12 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -120,7 +120,7 @@ public class SelfTestController {
              return Integer.compare(id1, id2);
          })
          .forEach(stage -> {
-             SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
+             TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
 
               if ("cPCI".equalsIgnoreCase(stage.getL2StageName())) {
             	 SelfTestStateObject.addSelfTestcPCICard(newCard);
@@ -140,25 +140,25 @@ public class SelfTestController {
 
 		 
 		 if(SelfTestStateObject.getSelfTestRack1Card().size() < 1) {
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd1", "Board-1(RUD)",null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd2", "Board-2(LIE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd3", "Board-3(LOE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd4", "Board-4(RIE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd5", "Board-5(ROE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd6", "Board-6(LIS, LMS, LOS)", null, null));			
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd7", "Board-7(RIS, RMS, ROS)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd8", "Board-8(PCS, RPS)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd9", "Board-9(AOSS-1, A0SS-2, RA, LA)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd10", "Board-10(CWP,SPDCM,REFPRB))", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd11", "Board-11(ASA, DPSC)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd12", "Board-12(GSE,FTI)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd14", "Board-14(LG, FCP, FTU)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd15", "Board-15(RSA-1)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd16", "Board-16(RSA-2)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd17", "Board-17(APP, AOA EXC MON)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd18", "Board-18(OPEN/GND, AO, DIFF AI/AO)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new SelfTestCardData("brd19", "Board-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd1", "Board-1(RUD)",null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd2", "Board-2(LIE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd3", "Board-3(LOE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd4", "Board-4(RIE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd5", "Board-5(ROE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd6", "Board-6(LIS, LMS, LOS)", null, null));			
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd7", "Board-7(RIS, RMS, ROS)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd8", "Board-8(PCS, RPS)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd9", "Board-9(AOSS-1, A0SS-2, RA, LA)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd10", "Board-10(CWP,SPDCM,REFPRB))", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd11", "Board-11(ASA, DPSC)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd12", "Board-12(GSE,FTI)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd14", "Board-14(LG, FCP, FTU)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd15", "Board-15(RSA-1)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd16", "Board-16(RSA-2)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd17", "Board-17(APP, AOA EXC MON)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd18", "Board-18(OPEN/GND, AO, DIFF AI/AO)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd19", "Board-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", null, null));			 
 
 		 }
 		
@@ -213,7 +213,7 @@ public class SelfTestController {
 		        return;
 		    }
 		    
-		    ObservableList<SelfTestCardData> cpciCardList =SelfTestStateObject.getSelfTestcPCICard();
+		    ObservableList<TestCardData> cpciCardList =SelfTestStateObject.getSelfTestcPCICard();
 		    
 		    if(SelfTestStateObject.getRack1Status().get()) {
 		    	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
@@ -299,7 +299,7 @@ public class SelfTestController {
 //		        	}
 //		           
 //		            
-//		            for (SelfTestCardData cardData : SelfTestStateObject.getSelfTestcPCICard()) {
+//		            for (TestCardData cardData : SelfTestStateObject.getSelfTestcPCICard()) {
 //		                TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(cardData.getCardId());
 //		                if (testFileResponse.getTestFilesIdName() == null) {
 //		                    Platform.runLater(() -> {
@@ -442,7 +442,7 @@ public class SelfTestController {
 	}
 
 	private VBox midTopVbox1() {
-		ObservableList<SelfTestStateObject.SelfTestCardData> rack1LeftList= SelfTestStateObject.getSelfTestRack1Card();
+		ObservableList<TestCardData> rack1LeftList= SelfTestStateObject.getSelfTestRack1Card();
 	
 		    midTopVbox1.setPadding(new Insets(0, 5, 0, 5));
 		    midTopVbox1.getStyleClass().add("rackVbox");
@@ -450,7 +450,7 @@ public class SelfTestController {
 		    
 		    int count = 8;
 		    for (int i = 0; i <= count; i++) {
-		        SelfTestStateObject.SelfTestCardData cardData = rack1LeftList.get(i);
+		        TestCardData cardData = rack1LeftList.get(i);
 		        Label label = new Label(cardData.getCardName());
 		        label.setId(cardData.getCardId());
 		        label.getStyleClass().add("selTest-label-left");
@@ -475,7 +475,7 @@ public class SelfTestController {
 	}
 
 	private VBox midTopVbox2() {
-		ObservableList<SelfTestStateObject.SelfTestCardData> rack1RightList= SelfTestStateObject.getSelfTestRack1Card();
+		ObservableList<TestCardData> rack1RightList= SelfTestStateObject.getSelfTestRack1Card();
 				
 	    midTopVbox2.setPadding(new Insets(0, 5, 0, 5));
 	    midTopVbox2.getStyleClass().add("rackVbox");
@@ -483,7 +483,7 @@ public class SelfTestController {
 	    
 	    int count = 18;
 	    for (int i = 9; i <= count; i++) {
-	        SelfTestStateObject.SelfTestCardData cardData = rack1RightList.get(i);
+	        TestCardData cardData = rack1RightList.get(i);
 	        Label label = new Label(cardData.getCardName());
 	        label.setId(cardData.getCardId());
 	        label.getStyleClass().add("selTest-label-left");
@@ -505,7 +505,7 @@ public class SelfTestController {
 	}
 
 	private VBox midTopVbox3() {
-		ObservableList<SelfTestStateObject.SelfTestCardData> cPCIList= SelfTestStateObject.getSelfTestcPCICard();
+		ObservableList<TestCardData> cPCIList= SelfTestStateObject.getSelfTestcPCICard();
 		
 		
 	    midTopVbox3.setPadding(new Insets(0, 5, 0, 5));
@@ -514,7 +514,7 @@ public class SelfTestController {
 	    
 	    int count = 2;
 	    for (int i = 0; i <= count; i++) {
-	        SelfTestStateObject.SelfTestCardData cardData = cPCIList.get(i);
+	        TestCardData cardData = cPCIList.get(i);
 	        Label label = new Label(cardData.getCardName());
 	        label.setId(cardData.getCardId());
 	        label.getStyleClass().add("selTest-label-left");
