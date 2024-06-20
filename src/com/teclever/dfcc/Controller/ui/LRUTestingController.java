@@ -15,10 +15,10 @@ import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -138,7 +138,7 @@ public class LRUTestingController {
 		             return Integer.compare(id1, id2);
 		         })
 				.forEach(stage -> {
-					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
+					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
 
 					if ("Mandatory Test".equalsIgnoreCase(stage.getL2StageName())) {
 						if (LRUTestStateObject.getLruMandatoryCardList().stream()
@@ -281,9 +281,9 @@ public class LRUTestingController {
 	private VBox mandatoryTestVBox = new VBox(10);
 	
 	private VBox createLruTestCardButton() {
-		ObservableList<SelfTestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
+		ObservableList<TestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
 		boolean firstButton = true;
-		for (SelfTestCardData card : mandatoryCardList) {
+		for (TestCardData card : mandatoryCardList) {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
@@ -350,9 +350,9 @@ public class LRUTestingController {
 				StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
-			System.err.println("-----"+(LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3));
+//			System.err.println("-----"+(LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3));
 			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
-			System.err.println("-------"+mandatoryCardList.get(index).getCardName());
+//			System.err.println("-------"+mandatoryCardList.get(index).getCardName());
 			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
 			ad_daInterfaceButton.setDisable(false);
 			StateMachine.setTestState(TestState.COMPLETED);
@@ -360,15 +360,34 @@ public class LRUTestingController {
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 			boolean allCardsStatusOk = true;
 			
-	        for (SelfTestCardData card : mandatoryCardList) {
+	        for (TestCardData card : mandatoryCardList) {
+	        	System.err.println(card.getCardName()+"========="+card.getStatus());
 	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
-	                    allCardsStatusOk = false;
-	                    break;
+//	                    allCardsStatusOk = false;
+//	                    break;
 	                }
 	            }
 	        }
+	        
+
 	        System.out.println("allCardsStatusOk-----"+allCardsStatusOk);
+	        StateMachine.setTestState(TestState.COMPLETED);
+	        startTest.setDisable(false);
+	        
+	        if(allCardsStatusOk) {
+	        	for(TestCardData card : LRUTestStateObject.getLruSruCardList()) {
+		        	Button enableButton = (Button) sruCardVBox.lookup("#" + card.getCardId());
+		        	enableButton.setDisable(false);
+	        	}
+	        	for(TestCardData card : LRUTestStateObject.getLruGoAndNogoCardList()) {
+	        		if(card.getCardName().trim().equalsIgnoreCase("COMPLETE TEST")) {
+	        			Button enableButton = (Button) goNoGoVBox.lookup("#" + card.getCardId());
+			        	enableButton.setDisable(false);
+			        	break;
+	        		}
+	        	}
+	        }
 		});
 
 		return mandatoryTestVBox;
@@ -422,9 +441,9 @@ public class LRUTestingController {
 
 	private VBox createSruTestVBox() {
 		
-		ObservableList<SelfTestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
+		ObservableList<TestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
 
-		for (SelfTestCardData card : sruCardList) {
+		for (TestCardData card : sruCardList) {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
@@ -490,6 +509,7 @@ public class LRUTestingController {
 	private HBox startTestHBox() {
 		
 		startTest.setPrefWidth(200);
+		startTest.setDisable(true);
 		
 		startTest.setOnAction(e ->{
 			TestState currentState = StateMachine.getTestState();            
@@ -505,6 +525,7 @@ public class LRUTestingController {
 		    sendSelectedSubStageData();
 		    startTest();
 		});
+		
 		startTestHBox.setAlignment(Pos.CENTER);
 		startTestHBox.getChildren().add(startTest);
 
@@ -518,7 +539,7 @@ public class LRUTestingController {
 	}
 
 	private void sendSelectedSubStageData() {
-		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
 			System.err.println(subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if(newValue.equals("COMPLETED")) {
@@ -533,6 +554,33 @@ public class LRUTestingController {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
+					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
+						System.out.println("COMPLETED");
+						StateMachine.setTestState(TestState.COMPLETED);
+						currentIndex = 0;
+						startTest.setDisable(false);
+					}
+				}
+			});
+			
+		}
+	}
+	
+	private void sendSelectedSubStageData1() {
+		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+			System.err.println(subStage.getCardName());
+			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
+				if(newValue.equals("COMPLETED")) {
+					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
+//						try {
+//							Thread.sleep(5000);
+//							currentIndex++;
+//							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
+//							LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "COMPLETED");
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+						callStartTest(subStage.getCardId(), "SRU", subStage.getTestTypeId());
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
 						System.out.println("COMPLETED");
 						StateMachine.setTestState(TestState.COMPLETED);
@@ -573,9 +621,9 @@ public class LRUTestingController {
 	}
 
 	private VBox goNoGoVBox() {		
-		ObservableList<SelfTestCardData> goAndNoGoCardList = LRUTestStateObject.getLruGoAndNogoCardList();
+		ObservableList<TestCardData> goAndNoGoCardList = LRUTestStateObject.getLruGoAndNogoCardList();
 
-		for (SelfTestCardData card : goAndNoGoCardList) {
+		for (TestCardData card : goAndNoGoCardList) {
 			Button newButton = new Button();
 			newButton.setText(card.getCardName());
 			newButton.setId(card.getCardId());
@@ -598,13 +646,27 @@ public class LRUTestingController {
 				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
 				    
 				    
-				    if(newButton.getText().equalsIgnoreCase("COMPLETE_TEST")) {
+				    if(newButton.getText().equalsIgnoreCase("COMPLETE TEST")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
-				    }else if(newButton.getText().equalsIgnoreCase("OFP_LOADING")) {
+				    }else if(newButton.getText().equalsIgnoreCase("OFP LOADING")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
-				    }else if(newButton.getText().equalsIgnoreCase("PI_CHECK")) {
+				    }else if(newButton.getText().equalsIgnoreCase("PI CHECK")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
 				    }
+				    
+				    LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
+						Button ofpButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(1).getCardId());
+						ofpButton.setDisable(false);
+						StateMachine.setTestState(TestState.COMPLETED);
+					});
+				    LRUTestStateObject.ofpLoadingStatusProperty().addListener((observable, oldValue, newValue) -> {
+						Button piCheckButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(2).getCardId());
+						piCheckButton.setDisable(false);
+						StateMachine.setTestState(TestState.COMPLETED);
+					});
+				    LRUTestStateObject.piCheckStatusProperty().addListener((observable, oldValue, newValue) -> {
+				    	StateMachine.setTestState(TestState.COMPLETED);
+				    });
 				    
 			});
 			
@@ -748,7 +810,7 @@ public class LRUTestingController {
              return Integer.compare(id1, id2);
          })
 		.forEach(stage -> {
-			SelfTestCardData newCard = new SelfTestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
+			TestCardData newCard = new TestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
 
 			if ("SRU Test".equalsIgnoreCase(stage.getL2StageName())) {
 				if (stageId.equalsIgnoreCase(stage.getL3StageId())) {
@@ -760,8 +822,8 @@ public class LRUTestingController {
 		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
 	}
 
-	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
-	    for (SelfTestCardData stage : LRUTestStateObject.getSRUSubCardList()) {
+	private void setListOfSubStage(ObservableList<TestCardData> subStageList) {
+	    for (TestCardData stage : LRUTestStateObject.getSRUSubCardList()) {
 	        CheckBox newCheckBox = new CheckBox(stage.getCardName());
 	        newCheckBox.getStyleClass().add("lru-testing-checkbox-inside-box");
 	        newCheckBox.setId(stage.getCardId());
@@ -817,7 +879,7 @@ public class LRUTestingController {
 //import com.teclever.dfcc.model.LRUTest;
 //import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 //import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
-//import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
+//import com.teclever.dfcc.stateMachine.SelfTestStateObject.TestCardData;
 //import com.teclever.dfcc.stateMachine.StateMachine;
 //import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 //import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -938,7 +1000,7 @@ public class LRUTestingController {
 //		             return Integer.compare(id1, id2);
 //		         })
 //				.forEach(stage -> {
-//					SelfTestCardData newCard = new SelfTestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
+//					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(), stage.getTestTypeId(), null);
 //
 //					if ("Mandatory Test".equalsIgnoreCase(stage.getL2StageName())) {
 //						if (LRUTestStateObject.getLruMandatoryCardList().stream()
@@ -1081,9 +1143,9 @@ public class LRUTestingController {
 //	private VBox mandatoryTestVBox = new VBox(10);
 //	
 //	private VBox createLruTestCardButton() {
-//		ObservableList<SelfTestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
+//		ObservableList<TestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
 //		boolean firstButton = true;
-//		for (SelfTestCardData card : mandatoryCardList) {
+//		for (TestCardData card : mandatoryCardList) {
 //			Button newButton = new Button();
 //			newButton.setText(card.getCardName());
 //			newButton.setId(card.getCardId());
@@ -1153,7 +1215,7 @@ public class LRUTestingController {
 //		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 //			boolean allCardsStatusOk = true;
 //			
-//	        for (SelfTestCardData card : mandatoryCardList) {
+//	        for (TestCardData card : mandatoryCardList) {
 //	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 //	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
 //	                    allCardsStatusOk = false;
@@ -1215,9 +1277,9 @@ public class LRUTestingController {
 //
 //	private VBox createSruTestVBox() {
 //		
-//		ObservableList<SelfTestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
+//		ObservableList<TestCardData> sruCardList = LRUTestStateObject.getLruSruCardList();
 //
-//		for (SelfTestCardData card : sruCardList) {
+//		for (TestCardData card : sruCardList) {
 //			Button newButton = new Button();
 //			newButton.setText(card.getCardName());
 //			newButton.setId(card.getCardId());
@@ -1320,7 +1382,7 @@ public class LRUTestingController {
 //	}
 //
 //	private void sendSelectedSubStageData() {
-//		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+//		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
 //			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 //				if(newValue.equals("COMPLETED")) {
 //					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
@@ -1374,9 +1436,9 @@ public class LRUTestingController {
 //	}
 //
 //	private VBox goNoGoVBox() {		
-//		ObservableList<SelfTestCardData> goAndNoGoCardList = LRUTestStateObject.getLruGoAndNogoCardList();
+//		ObservableList<TestCardData> goAndNoGoCardList = LRUTestStateObject.getLruGoAndNogoCardList();
 //
-//		for (SelfTestCardData card : goAndNoGoCardList) {
+//		for (TestCardData card : goAndNoGoCardList) {
 //			Button newButton = new Button();
 //			newButton.setText(card.getCardName());
 //			newButton.setId(card.getCardId());
@@ -1534,7 +1596,7 @@ public class LRUTestingController {
 //             return Integer.compare(id1, id2);
 //         })
 //		.forEach(stage -> {
-//			SelfTestCardData newCard = new SelfTestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
+//			TestCardData newCard = new TestCardData(stage.getL4StageId(), stage.getL4StageName(), stage.getTestTypeId(), null);
 //
 //			if ("SRU Test".equalsIgnoreCase(stage.getL2StageName())) {
 //				if (stageId.equalsIgnoreCase(stage.getL3StageId())) {
@@ -1546,7 +1608,7 @@ public class LRUTestingController {
 //		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
 //	}
 //
-//	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
+//	private void setListOfSubStage(ObservableList<TestCardData> subStageList) {
 //		selectedListVBox.getChildren().clear();
 //		subStageList.stream()
 //			.forEach(subStage ->{

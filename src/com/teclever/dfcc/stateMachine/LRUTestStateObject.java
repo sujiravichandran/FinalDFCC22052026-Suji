@@ -1,6 +1,7 @@
 package com.teclever.dfcc.stateMachine;
 
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestCardData;
+
+import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -10,19 +11,19 @@ import javafx.collections.ObservableList;
 public class LRUTestStateObject {
 
 //  LRU Mandatory Test Card List
-	private static ObservableList<SelfTestCardData> lruMandatoryCardList = FXCollections.observableArrayList();
+	private static ObservableList<TestCardData> lruMandatoryCardList = FXCollections.observableArrayList();
 
-	public static ObservableList<SelfTestCardData> getLruMandatoryCardList() {
+	public static ObservableList<TestCardData> getLruMandatoryCardList() {
 		return lruMandatoryCardList;
 	}
 	public static void clearLruMandatoryCardList() {
 		lruMandatoryCardList.clear();
 	}
-	public static void addLruMandatoryCard(SelfTestCardData newCardData) {
+	public static void addLruMandatoryCard(TestCardData newCardData) {
 		lruMandatoryCardList.add(newCardData);
 	}
 	public static void updateLruMandatoryCardstatus(String cardId, String status) {
-		for (SelfTestCardData cardData : lruMandatoryCardList) {
+		for (TestCardData cardData : lruMandatoryCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
@@ -31,19 +32,19 @@ public class LRUTestStateObject {
 	}
 	
 //  LRU SRU Test Card List
-	private static ObservableList<SelfTestCardData> lruSruCardList = FXCollections.observableArrayList();
+	private static ObservableList<TestCardData> lruSruCardList = FXCollections.observableArrayList();
 
-	public static ObservableList<SelfTestCardData> getLruSruCardList() {
+	public static ObservableList<TestCardData> getLruSruCardList() {
 		return lruSruCardList;
 	}
 	public static void clearLruSruCardList() {
 		lruSruCardList.clear();
 	}
-	public static void addLruSruCard(SelfTestCardData newCardData) {
+	public static void addLruSruCard(TestCardData newCardData) {
 		lruSruCardList.add(newCardData);
 	}
 	public static void updateLruSruCardstatus(String cardId, String status) {
-		for (SelfTestCardData cardData : lruSruCardList) {
+		for (TestCardData cardData : lruSruCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
@@ -52,19 +53,19 @@ public class LRUTestStateObject {
 	}
 	
 //  LRU GO and NOGO Test Card List
-	private static ObservableList<SelfTestCardData> lruGoAndNogoCardList = FXCollections.observableArrayList();
+	private static ObservableList<TestCardData> lruGoAndNogoCardList = FXCollections.observableArrayList();
 
-	public static ObservableList<SelfTestCardData> getLruGoAndNogoCardList() {
+	public static ObservableList<TestCardData> getLruGoAndNogoCardList() {
 		return lruGoAndNogoCardList;
 	}
 	public static void clearLruGoAndNogoCardList() {
 		lruGoAndNogoCardList.clear();
 	}
-	public static void addLruGoAndNogoCard(SelfTestCardData newCardData) {
+	public static void addLruGoAndNogoCard(TestCardData newCardData) {
 		lruGoAndNogoCardList.add(newCardData);
 	}
 	public static void updateLruGoAndNogoCardstatus(String cardId, String status) {
-		for (SelfTestCardData cardData : lruGoAndNogoCardList) {
+		for (TestCardData cardData : lruGoAndNogoCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
@@ -244,19 +245,19 @@ public class LRUTestStateObject {
 	
 	
 //	Selected SRU Test Sub Stage
-	private static ObservableList<SelfTestCardData> sruSubCardList = FXCollections.observableArrayList();
+	private static ObservableList<TestCardData> sruSubCardList = FXCollections.observableArrayList();
 
-	public static ObservableList<SelfTestCardData> getSRUSubCardList() {
+	public static ObservableList<TestCardData> getSRUSubCardList() {
 		return sruSubCardList;
 	}
 	public static void clearSRUSubCardList() {
 		sruSubCardList.clear();
 	}
-	public static void addSRUSubCardList(SelfTestCardData newCardData) {
+	public static void addSRUSubCardList(TestCardData newCardData) {
 		sruSubCardList.add(newCardData);
 	}
 	public static void updateSRUSubCardList(String cardId, String status) {
-		for (SelfTestCardData cardData : sruSubCardList) {
+		for (TestCardData cardData : sruSubCardList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
@@ -265,22 +266,22 @@ public class LRUTestStateObject {
 	}
 	
 //	Selected SRU Sub Stages List
-	private static ObservableList<SelfTestCardData> selectedSubStagesList = FXCollections.observableArrayList();
+	private static ObservableList<TestCardData> selectedSubStagesList = FXCollections.observableArrayList();
 	
-	public static ObservableList<SelfTestCardData> getSelectedSubStagesList () {
+	public static ObservableList<TestCardData> getSelectedSubStagesList () {
 		return selectedSubStagesList;
 	}
 	public static void clearSelectedSubStagesList() {
 		selectedSubStagesList.clear();
 	}
-	public static void addSelectedSubStagesList(SelfTestCardData newCardData) {
+	public static void addSelectedSubStagesList(TestCardData newCardData) {
 		selectedSubStagesList.add(newCardData);
 	}
-	public static void removeSelectedSubStagesList(SelfTestCardData newCardData) {
+	public static void removeSelectedSubStagesList(TestCardData newCardData) {
 		selectedSubStagesList.remove(newCardData);
 	}
 	public static void updateSelectedSubStagesList(String cardId, String status) {
-		for (SelfTestCardData cardData : selectedSubStagesList) {
+		for (TestCardData cardData : selectedSubStagesList) {
 			if (cardData.getCardId().equals(cardId)) {
 				cardData.setStatus(status);
 				break;
