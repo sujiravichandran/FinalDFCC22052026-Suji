@@ -450,9 +450,9 @@ public class LRUTestingController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(10);
+		firstRow.setPercentHeight(12);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(90);
+		secondRow.setPercentHeight(88);
 		
 		sruTestCheckBoxList.getColumnConstraints().addAll(firstColumn);
 		sruTestCheckBoxList.getRowConstraints().addAll(firstRow, secondRow);
@@ -475,7 +475,7 @@ public class LRUTestingController {
 	}
 
 	private VBox createSelectAllCheckbox() {
-		 selectAllCheckBox.getStyleClass().addAll("session-testing-checkbox","select-all-checkbox");
+		 selectAllCheckBox.getStyleClass().addAll("lru-testing-checkbox","lru-select-all-checkbox");
 		 	   
 		 selectAllCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 		   for (CheckBox checkBox : checkBoxes) {
@@ -503,7 +503,7 @@ public class LRUTestingController {
 		        return;
 		    }
 		    sendSelectedSubStageData();
-//		    startTest();
+		    startTest();
 		});
 		startTestHBox.setAlignment(Pos.CENTER);
 		startTestHBox.getChildren().add(startTest);
@@ -519,7 +519,7 @@ public class LRUTestingController {
 
 	private void sendSelectedSubStageData() {
 		for(SelfTestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
-//			System.err.println(subStage.getCardName());
+			System.err.println(subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if(newValue.equals("COMPLETED")) {
 					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
@@ -730,6 +730,7 @@ public class LRUTestingController {
 	
 	private void getSRUSubStage(String stageId, String stageName) {
 		if(stageId != null) {
+			LRUTestStateObject.clearSelectedSubStagesList();
 			LRUTestStateObject.clearSRUSubCardList();
 			checkBoxes.clear();
 			testListView.getItems().clear();
@@ -762,6 +763,7 @@ public class LRUTestingController {
 	private void setListOfSubStage(ObservableList<SelfTestCardData> subStageList) {
 	    for (SelfTestCardData stage : LRUTestStateObject.getSRUSubCardList()) {
 	        CheckBox newCheckBox = new CheckBox(stage.getCardName());
+	        newCheckBox.getStyleClass().add("lru-testing-checkbox-inside-box");
 	        newCheckBox.setId(stage.getCardId());
 	        newCheckBox.setUserData(stage);
 	        
@@ -775,6 +777,7 @@ public class LRUTestingController {
 	        		LRUTestStateObject.addSelectedSubStagesList(stage);
 	        	}else {
 					LRUTestStateObject.removeSelectedSubStagesList(stage);
+					selectAllCheckBox.setIndeterminate(true);
 				}
 	        });
 	        
