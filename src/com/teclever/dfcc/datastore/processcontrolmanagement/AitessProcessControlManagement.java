@@ -20,6 +20,7 @@ import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.channelTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.utils.ProcessControl;
 
@@ -373,29 +374,80 @@ public class AitessProcessControlManagement {
 		dfccCheckStatusThread.start();
 
 	}
+	
+	public void check(String testTypeId)
+	{
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
+		LoadDriverProcessControlManagement pcm = new LoadDriverProcessControlManagement();
+
+
+		// get runConfig from STATE MACHINE
+		String smRunConfigId = currentSessionDetails.getRunConfigId();
+		
+		//get aitessDetails based on smRunConfigId
+		AitessConfigurationDetails smAitess = runConfigurationService.getAitessDetailsByRunConfigId(smRunConfigId);
+						
+		//get uutId from STATE MACHINE
+		String uutId = currentSessionDetails.getUutId();
+		
+		// get currentRunConfigId based on uutId and testTypeId
+		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+		
+		// get current Aitess Details based on currentRunConfigId
+		AitessConfigurationDetails currentAitess = runConfigurationService.getAitessDetailsByRunConfigId(currentRunConfigId);
+		
+		
+		//CHECKING DRIVER
+		if (!smAitess.getDriverName().equals(currentAitess.getDriverName())) {
+			// NOT MATCHED
+			System.out.println("Switching Load Driver:: "+ smAitess.getDriverName()+" to :: "+ currentAitess.getDriverName());
+			pcm.loadDriver(currentAitess.getLoadDriverCommand(),smAitess.getUnloadDriverCommand(), 0, LoadDriverProcessControlManagement.LoadMode.SWITCH);
+			switchAitess(testTypeId);
+		} else {
+			// MATCHED
+			System.out.println("Load Driver Matches:: " + smAitess.getDriverName() +" == " + currentAitess.getDriverName());
+		}
+			
+		//CHECKING AITESS
+		if(!smAitess.getAitessName().equals(currentAitess.getAitessName())) {
+		//NOT MATCHED
+			System.out.println("Aitess Not Matched:: OLD AITESS: "+smAitess.getAitessName() + " NEW AITESS: "+ currentAitess.getAitessName());
+			switchAitess(testTypeId);
+
+		}else {
+			System.out.println("Aitess Matches:: "+ smAitess.getAitessName()+ " == "+ currentAitess.getAitessName() );
+		}
+
+	}
 
 	public void switchAitess(String testTypeId) {
+		System.out.println("Entering into Switching AITESS");
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
-
+				
 		// get uutId from STATE MACHINE
-		String uutId = "UUT1";
+		String uutId = currentSessionDetails.getUutId();
 
 		// get currentRunConfigId based on uutId and testTypeId
 		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 
 		// get current Aitess Details from DB in object
-		AitessConfigurationDetails currentAitess = runConfigurationService
-				.getAitessDetailsByRunConfigId(currentRunConfigId);
-
-		// calling configureAitess()
+		AitessConfigurationDetails currentAitess = runConfigurationService.getAitessDetailsByRunConfigId(currentRunConfigId);
+		
+		//first it will exit 
+		System.out.println("exit command executed in aitess1");
+		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("exit" + "\n"));
+		System.out.println("exit command executed in aitess2");
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("exit" + "\n"));
+		
+		// then copy and deleting necessary files
 		configureAitess(currentAitess.getConfigFile());
 
-		// switch Aitess1
-		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("exit" + "\n"));
+		// now writing to Aitess1 for loading aitess1
+		System.out.println("--------->>>>>> writing aitess load command to aitess1");
 		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess(currentAitess.getAitessCommand() + "\n"));
 
-		// switch Aitess2
-		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("exit" + "\n"));
+		// now writing to Aitess1 for loading aitess2
+		System.out.println("--------->>>>>> writing aitess load command to aitess2");
 		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(currentAitess.getAitessCommand() + "\n"));
 
 	}
