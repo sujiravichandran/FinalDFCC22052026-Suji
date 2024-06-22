@@ -36,8 +36,9 @@ public class TestProcessManagement {
 			boolean continueWithError, String stageName, String testTypeId) {
 
 		Response res = new Response();
+		System.out.println("TEST TYPE ID --- "+testTypeId);
 		// => Check and Update Aitess Running.
-//			AitessProcessControlManagement.getInstance().switchAitess(testTypeId);
+			AitessProcessControlManagement.getInstance().check(testTypeId);
 		try {
 			// Update SESSION ENTITY and SESSION STAGE MAPPING
 			res = updateStatusAndRunCount(sessionId, stageId, repeatCount);
@@ -76,8 +77,9 @@ public class TestProcessManagement {
 				DownloadFileService downloadFileService = new DownloadFileService();
 				String rdfFileLocaltion = downloadFileService
 						.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
+				System.out.println("RUN CONFIG ID :: " + StateMachine.currentSessionDetails.getRunConfigId());
 
-//					String testResultId=sessionStageTestFileResult.generateUniqueTestFilesResultIdId();
+				String tpfFileName = null;
 
 				// For Each Loop of List of File IDs
 				for (String testFileId : listOfFileId) {
@@ -90,8 +92,11 @@ public class TestProcessManagement {
 						rdfFileName = AitessProcessControlManagement.getInstance()
 								.performTest(testFilesIdName.get(testFileId));
 
+						tpfFileName = testFilesIdName.get(testFileId);
+
 						if (stageName.equals("RACK1")) {
-							testProcessRes = selfTestFileTest(rdfFileLocaltion + rdfFileName);
+
+							testProcessRes = selfTestFileTest(rdfFileLocaltion, rdfFileName);
 
 //								dStarCount = dStarCount + testProcessRes.getdStarCount();
 
@@ -108,7 +113,9 @@ public class TestProcessManagement {
 						} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY")
 								|| stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 
-							testProcessRes = parseTestFileTest(rdfFileLocaltion + rdfFileName, stageId, stageName);
+							System.out.println("RDF FILE LOCATION :: " + rdfFileLocaltion + rdfFileName
+									+ "  STAGENAME :: " + stageName);
+							testProcessRes = parseTestFileTest(rdfFileLocaltion , rdfFileName, stageId, stageName,tpfFileName);
 
 							if (testProcessRes.getResponse().getResponseCode() == 111) {
 								if (rdfFileResult.equals("OK")) {
@@ -138,15 +145,22 @@ public class TestProcessManagement {
 
 					// Calling Test File saving method.
 					addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
-							stageId, testFileId, "SystemResultInfoId", rdfFileLocaltion, rdfFileName,
+							stageId, testFileId, "SystemResultInfoId", rdfFileLocaltion, (rdfFileName != null) ? rdfFileName:"RDF NOT GENERATED",
 							(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 							String.valueOf(testProcessRes.getdStarCount()), startTime, endTime);
 				}
 				switch (stageName) {
 				case "RACK1":
 					SelfTestResult selfTestFile;
-
-					selfTestFile = new SelfTestResult(rdfFileLocaltion + rdfFileName, rdfFileResult);
+					
+					String filePath = rdfFileLocaltion + rdfFileName;
+					String rdfFileStatus=rdfFileResult;
+					
+					if (rdfFileName == null) {
+						filePath = tpfFileName;
+						rdfFileStatus = "PARSE ERROR";
+					}
+					selfTestFile = new SelfTestResult(filePath, rdfFileStatus);
 
 					SelfTestStateObject.addSelfTestResult(selfTestFile);
 
@@ -209,7 +223,7 @@ public class TestProcessManagement {
 
 					break;
 				case "GO NOGO":
-						System.out.println("CASE : GO NOGO ");
+					System.out.println("CASE : GO NOGO ");
 					LRUTestStateObject.updateLruGoAndNogoCardstatus(stageId, rdfFileResult);
 
 					switch (LRUTestStateObject.getLRUTestRunningCard()) {
@@ -386,17 +400,28 @@ public class TestProcessManagement {
 	}
 
 	// Parse SelfTestFile
-	public TestProcessResponse selfTestFileTest(String filePath) {
+	public TestProcessResponse selfTestFileTest(String rdfFileLocaltion, String rdfFileName) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
 		Map<String, String> brdresult = new HashMap<>();
 		try {
-//			String baseFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-			System.out.println("Reading file:-  " + filePath);
-			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			if (rdfFileName == null) {
+				for (int i = 1; i <= 19; i++) {
+					SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
+				}
+
+				res.setResponseCode(111);
+				testProcessResponse.setResponse(res);
+				res.setResponseMessage("Unsuccessful ");
+				testProcessResponse.setTestProcessResult(brdresult);
+				return testProcessResponse;
+
+			}
+
+			System.out.println("Reading file:-  " + (rdfFileLocaltion + rdfFileName));
+			BufferedReader reader = new BufferedReader(new FileReader(rdfFileLocaltion + rdfFileName));
 			String line;
 			String brdNumber = null;
-			System.out.println("selfTestFileTest");
 			res.setResponseCode(1);
 			int dStartCount = 0;
 			while ((line = reader.readLine()) != null) {
@@ -438,11 +463,14 @@ public class TestProcessManagement {
 		return testProcessResponse;
 	}
 
-	public TestProcessResponse parseTestFileTest(String filePath, String stageId, String stageName) {
+	public TestProcessResponse parseTestFileTest(String rdfFileLocaltion ,String rdfFileName, String stageId, String stageName,String tpfFileName) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
 		int dStartCount = 0;
 		try {
+			String filePath=rdfFileLocaltion+rdfFileName;
+			String rdfFileStatus;
+			if(rdfFileName!=null) {
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line;
 
@@ -456,25 +484,31 @@ public class TestProcessManagement {
 					res.setResponseCode(111);
 				}
 			}
-
+			rdfFileStatus= (dStartCount > 0) ? "NOT OK" : "OK";
+			reader.close();
+			}else {
+				filePath=tpfFileName;
+				rdfFileStatus="PARSE ERROR";
+				dStartCount=(-1);
+				res.setResponseCode(111);
+			}
 			if (stageName.equals("CPCI")) {
 
-				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, (dStartCount > 0) ? "NOT OK" : "OK");
+				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, rdfFileStatus);
 
 				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
 			}
 
-			else if ( stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
-					|| stageName.equals("SRU")) {
-				
-				LRUTestResult lRUTestResult = new LRUTestResult(filePath, (dStartCount > 0) ? "NOT OK" : "OK");
+			else if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
+
+				LRUTestResult lRUTestResult = new LRUTestResult(filePath,rdfFileStatus);
 
 				LRUTestStateObject.addTestResult(lRUTestResult);
 			}
 
 			res.setResponseMessage("Successful ");
 			testProcessResponse.setdStarCount(dStartCount);
-			reader.close();
+			
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Unsuccessful ");
