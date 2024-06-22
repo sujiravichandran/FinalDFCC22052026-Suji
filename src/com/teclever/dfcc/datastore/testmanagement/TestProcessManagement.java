@@ -232,7 +232,7 @@ public class TestProcessManagement {
 
 					break;
 				case "SRU":
-					
+					LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 					LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
 					break;
 				default:
