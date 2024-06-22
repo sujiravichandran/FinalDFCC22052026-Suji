@@ -79,8 +79,8 @@
 
 .session-testing-list-view .list-cell {
 	-fx-border-color: transparent;
-    -fx-background-color: dark-bg;
-    -fx-padding: 10px;
+    -fx-background-color: light-bg;
+    -fx-padding: 4px;
     -fx-border-color: transparent; 
     -fx-border-width: 0px; 
 }
@@ -89,19 +89,16 @@
     -fx-text-fill: white;
 }
 
-.select-all-checkbox{
-	-fx-text-fill: primary-text-color; 
-    -fx-font-size:18px;
-    -fx-font-weight:bold;
-}
 .session-testing-checkbox {
-    -fx-text-fill: primary-text-color; 
+    -fx-text-fill: secondary-text-colorr; 
     -fx-font-size:18px;
     -fx-font-weight:bold;
 }
 
-.session-testing-checkbox .box {
-	
+.select-all-checkbox{
+	-fx-text-fill: primary-text-color; 
+    -fx-font-size:18px;
+    -fx-font-weight:bold;
 }
 
 .session-testing-checkbox:selected .box {

@@ -90,7 +90,7 @@ public class SessionTestingController {
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(33);
 		
-		sessionTestingMainGridPane.setPadding(new Insets(10));
+		sessionTestingMainGridPane.setPadding(new Insets(5));
 		sessionTestingMainGridPane.setVgap(5);
 		sessionTestingMainGridPane.setHgap(5);
 		sessionTestingMainGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
