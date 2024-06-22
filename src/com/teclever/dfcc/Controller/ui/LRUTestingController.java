@@ -518,7 +518,6 @@ public class LRUTestingController {
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
 		    	StateMachine.setTestState(TestState.RUNNING);
-		    	System.out.println("TEST STARTING....");
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);
@@ -571,19 +570,22 @@ public class LRUTestingController {
 	
 	private void sendSelectedSubStageData1() {
 		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
-			System.err.println("-----inside for---"+subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
-				System.out.println("statusProperty----------"+newValue+"    "+subStage.getCardName());
-				if(newValue.equals("COMPLETED")) {
+				if (newValue != null && newValue.equals("COMPLETED")) {
+					System.out.println("LRUTestStateObject.getSelectedSubStagesList().size()    "+LRUTestStateObject.getSelectedSubStagesList().size());
+					System.out.println("currentIndex    "+currentIndex);
 					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
 						currentIndex++;
 						callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
+						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex-1).getCardId(), null);
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
 						System.out.println("COMPLETED");
+						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
 						StateMachine.setTestState(TestState.COMPLETED);
 						currentIndex = 0;
 						startTest.setDisable(false);
 					}
+
 				}
 			});
 			
@@ -647,28 +649,36 @@ public class LRUTestingController {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
 				    }else if(newButton.getText().equalsIgnoreCase("OFP LOADING")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
-				    }else if(newButton.getText().equalsIgnoreCase("PI CHECK")) {
+				    }else if(newButton.getText().equalsIgnoreCase("PI-CHECK")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
 				    }
-				    
-				    LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
-						Button ofpButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(1).getCardId());
-						ofpButton.setDisable(false);
-						StateMachine.setTestState(TestState.COMPLETED);
-					});
-				    LRUTestStateObject.ofpLoadingStatusProperty().addListener((observable, oldValue, newValue) -> {
-						Button piCheckButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(2).getCardId());
-						piCheckButton.setDisable(false);
-						StateMachine.setTestState(TestState.COMPLETED);
-					});
-				    LRUTestStateObject.piCheckStatusProperty().addListener((observable, oldValue, newValue) -> {
-				    	StateMachine.setTestState(TestState.COMPLETED);
-				    });
-				    
+				    			    
 			});
-			
-			goNoGoVBox.getChildren().add(newButton);
+			goNoGoVBox.getChildren().add(newButton);		
 		}
+		
+		 LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
+				Button ofpButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(1).getCardId());
+				ofpButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
+			});
+		    LRUTestStateObject.ofpLoadingStatusProperty().addListener((observable, oldValue, newValue) -> {
+				Button piCheckButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(2).getCardId());
+				piCheckButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
+			});
+		    LRUTestStateObject.piCheckStatusProperty().addListener((observable, oldValue, newValue) -> {
+				boolean allCardsStatusOk = true;
+				
+		        for (TestCardData card : goAndNoGoCardList) {
+		            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
+//		                   allCardsStatusOk = false;
+//		                   break;
+		            }
+		        }
+		    	StateMachine.setTestState(TestState.COMPLETED);
+		        startTest.setDisable(false);
+		    });
 		
 		return goNoGoVBox;
 	}

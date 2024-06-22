@@ -206,6 +206,7 @@ public class SelfTestController {
 		    TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
+		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
@@ -220,27 +221,32 @@ public class SelfTestController {
 		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1" , SelfTestStateObject.getRack1TestTypeId());
 		    }
 		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
+		    	System.out.println("oldValue---"+oldValue+"    "+"newValue-----------"+newValue);
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.B1553);
 	                callStartTesting(cpciCardList.get(0).getCardId(), "CPCI" , cpciCardList.get(0).getTestTypeId());
+	                SelfTestStateObject.getRack1Status().set(true);
 	            }
 	        });
 		    SelfTestStateObject.b1553StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_1);
 	                callStartTesting(cpciCardList.get(1).getCardId(), "CPCI", cpciCardList.get(1).getTestTypeId());
+	                SelfTestStateObject.getB1553Status().set(true);
 	            }
 	        });	
 		    SelfTestStateObject.rs422_1StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RS422_2);
 	                callStartTesting(cpciCardList.get(2).getCardId(), "CPCI", cpciCardList.get(2).getTestTypeId());
+	                SelfTestStateObject.getRs422_1Status().set(true);
 	            }
 	        });	    
 		    SelfTestStateObject.rs422_2StatusProperty().addListener((observable, oldValue, newValue) -> {
 	            if (!newValue) {
 			        StateMachine.setTestState(TestState.COMPLETED);  
 			        startTest.setDisable(false);
+			        SelfTestStateObject.getrS422_2Status().set(true);
 	            }
 	        });
 		    
@@ -345,7 +351,19 @@ public class SelfTestController {
 	
 
 
+	private void resetSelftTestStateMachineStatus() {
+//		SelfTestStateObject.clearselfTestResults();
+		
+		for(TestCardData cardData : SelfTestStateObject.getSelfTestRack1Card()) {
+			SelfTestStateObject.updateSelfTestRack1Cardstatus(cardData.getCardId(), null);
+		}
+		for(TestCardData cardData : SelfTestStateObject.getSelfTestcPCICard()) {
+			SelfTestStateObject.updateSelfTestcPCICardstatus(cardData.getCardId(), null);
+		}
+	}
+
 	private void callStartTesting(String stageId, String stageName, String testTypeId) {
+		System.out.println(stageId +"-------"+stageName+"-----------"+testTypeId);
 		Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
@@ -354,10 +372,10 @@ public class SelfTestController {
 	    		
 	        		String ID = stageId;
 	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
-	        		 
-//	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
-//	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
-//	        		 }
+	        		 System.out.println("list size   ----"+testFileResponse.getTestFilesIdName().size());
+	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
+	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
+	        		 }
 	        		 
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {
@@ -458,12 +476,19 @@ public class SelfTestController {
 		        label.setPrefHeight(35);
 		        label.setPadding(new Insets(5));
 		        
-		        cardData.statusProperty().addListener((observable, oldValue, newValue) -> { 
-		        	if(newValue.equals("OK")) {
-		        		label.setStyle("-fx-background-color:green;");	
-		        	}else if(newValue.equals("NOT OK")) {
-		        		label.setStyle("-fx-background-color:red;");	
-		        	}
+		        label.getStyleClass().add("default-status");
+
+		        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
+		            label.getStyleClass().removeAll("ok-status", "not-ok-status", "default-status");
+		            if (newValue != null) {
+		                if (newValue.equals("OK")) {
+		                    label.getStyleClass().add("ok-status");
+		                } else if (newValue.equals("NOT OK")) {
+		                    label.getStyleClass().add("not-ok-status");
+		                }
+		            } else {
+		                label.getStyleClass().add("default-status");
+		            }
 		        });
 		        
 
@@ -491,12 +516,19 @@ public class SelfTestController {
 	        label.setPrefHeight(32);
 	        label.setPadding(new Insets(0 ,5, 0, 5));
 	        
+	        label.getStyleClass().add("default-status");
+
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	if(newValue.equals("OK")) {
-	        		label.setStyle("-fx-background-color:green;");	
-	        	}else if(newValue.equals("NOT OK")) {
-	        		label.setStyle("-fx-background-color:red;");	
-	        	}
+	            label.getStyleClass().removeAll("ok-status", "not-ok-status", "default-status");
+	            if (newValue != null) {
+	                if (newValue.equals("OK")) {
+	                    label.getStyleClass().add("ok-status");
+	                } else if (newValue.equals("NOT OK")) {
+	                    label.getStyleClass().add("not-ok-status");
+	                }
+	            } else {
+	                label.getStyleClass().add("default-status");
+	            }
 	        });
 	        
 	        midTopVbox2.getChildren().add(label);
@@ -522,12 +554,19 @@ public class SelfTestController {
 	        label.setPrefHeight(35);
 	        label.setPadding(new Insets(5));
 	        
+	        label.getStyleClass().add("default-status");
+
 	        cardData.statusProperty().addListener((observable, oldValue, newValue) -> {
-	        	if(newValue.equals("OK")) {
-	        		label.setStyle("-fx-background-color:green;");	
-	        	}else if(newValue.equals("NOT OK")) {
-	        		label.setStyle("-fx-background-color:red;");	
-	        	}
+	            label.getStyleClass().removeAll("ok-status", "not-ok-status", "default-status");
+	            if (newValue != null) {
+	                if (newValue.equals("OK")) {
+	                    label.getStyleClass().add("ok-status");
+	                } else if (newValue.equals("NOT OK")) {
+	                    label.getStyleClass().add("not-ok-status");
+	                }
+	            } else {
+	                label.getStyleClass().add("default-status");
+	            }
 	        });
 	        
 	        midTopVbox3.getChildren().add(label);
