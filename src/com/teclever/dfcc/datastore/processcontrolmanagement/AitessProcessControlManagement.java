@@ -31,11 +31,6 @@ public class AitessProcessControlManagement {
 
 	private static AitessProcessControlManagement instance;
 
-//	private static String homeLocation = "home/bel/desktop/"; // user.home
-//	private static String configHomeLocation = "home/bel/desktop/config.dat"; // user.home+/config.dat
-//	private static String startupUserFileLocation = "home/bel/downloads/startup.user";
-//	private static String cacheFilePath = "home/bel/desktop/.cache"; // home location + .cache
-
 	private Path homeLocation;
 	private Path aitessDir;
 	private Path aitess1Dir;
