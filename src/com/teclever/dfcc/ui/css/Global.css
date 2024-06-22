@@ -37,4 +37,8 @@
     table-header-bg: #0073a5;
     table-row-bg:#00a3d4;
     
+    success-bg: green;
+    failure-bg: red;
+    default-bg: #005C7A;
+    
 }

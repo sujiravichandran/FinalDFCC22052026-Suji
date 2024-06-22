@@ -106,3 +106,19 @@
     -fx-background-color:button-text; 
     -fx-border-color: button-bg; 
 }
+
+
+
+
+
+.ok-status {
+    -fx-background-color: success-bg;
+}
+
+.not-ok-status {
+    -fx-background-color: failure-bg;
+}
+
+.default-status {
+    -fx-background-color: default-bg;
+}
