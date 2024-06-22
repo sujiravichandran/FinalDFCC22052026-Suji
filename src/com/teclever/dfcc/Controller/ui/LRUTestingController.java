@@ -15,6 +15,7 @@ import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -33,6 +34,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -715,6 +717,7 @@ public class LRUTestingController {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
+		rewriteColumn(resultColumn);
 		
 		LRUTestStateObject.getTestFilesResultList().addListener((ListChangeListener<? super LRUTestResult>) change -> {
 			while (change.next()) {
@@ -752,6 +755,29 @@ public class LRUTestingController {
 		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
 
 		return tableView;
+	}
+	
+	private void rewriteColumn(TableColumn<LRUTestResult, String> resultColumn) {
+		resultColumn.setReorderable(false);
+		resultColumn.setSortable(false);
+		resultColumn.setCellFactory(column -> new TableCell<LRUTestResult, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setStyle("");
+				} else {
+					if ("OK".equalsIgnoreCase(item)) {
+						setText("Passed");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
+					} else if ("NOT OK".equalsIgnoreCase(item)) {
+						setText("Failed");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}
+				}
+			}
+		});
 	}
 	
 	private void callStartTest(String stageId, String stageName, String testTypeId) {

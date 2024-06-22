@@ -55,7 +55,7 @@
 }
 
 .headerLabel{
-	-fx-text-fill:dark-bg;
+	-fx-text-fill:heading-text-color;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
