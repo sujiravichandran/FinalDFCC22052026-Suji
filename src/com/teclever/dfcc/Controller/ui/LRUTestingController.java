@@ -522,7 +522,7 @@ public class LRUTestingController {
 		        startTest.setDisable(false);
 		        return;
 		    }
-		    sendSelectedSubStageData();
+		    sendSelectedSubStageData1();
 		    startTest();
 		});
 		
@@ -535,7 +535,8 @@ public class LRUTestingController {
 
 
 	private void startTest() {
-		LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "COMPLETED");
+//		LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "COMPLETED");
+		callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
 	}
 
 	private void sendSelectedSubStageData() {
@@ -568,19 +569,13 @@ public class LRUTestingController {
 	
 	private void sendSelectedSubStageData1() {
 		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
-			System.err.println(subStage.getCardName());
+			System.err.println("-----inside for---"+subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
+				System.out.println("statusProperty----------"+newValue+"    "+subStage.getCardName());
 				if(newValue.equals("COMPLETED")) {
 					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
-//						try {
-//							Thread.sleep(5000);
-//							currentIndex++;
-//							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
-//							LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "COMPLETED");
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
-						callStartTest(subStage.getCardId(), "SRU", subStage.getTestTypeId());
+						currentIndex++;
+						callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
 						System.out.println("COMPLETED");
 						StateMachine.setTestState(TestState.COMPLETED);
