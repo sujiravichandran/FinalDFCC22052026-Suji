@@ -365,9 +365,33 @@ public class StateMachine {
 
 	    
 
-		
-		
-	
+		// FOR RDF FILE PARSER
+		public static class rdfFileParser {
+			private static int dStarCount = 0;
+			private static boolean dStarFound = false;
+
+			public static void setDStarCount(int count) {
+				dStarCount = count;
+			}
+
+			public static int getDStarCount() {
+				return dStarCount;
+			}
+
+			public static void setDStarFound(boolean found) {
+				dStarFound = found;
+			}
+
+			public static boolean isDStarFound() {
+				return dStarFound;
+			}
+
+			public static void incrementDStarCount() {
+				dStarCount++;
+			}
+			
+		}
+
 	}
 
 }

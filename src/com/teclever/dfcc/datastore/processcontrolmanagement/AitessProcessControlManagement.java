@@ -198,6 +198,7 @@ public class AitessProcessControlManagement {
 						() -> aitess2ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
 			}
 
+			currentSessionDetails.setRunConfigId(currentRunConfigId);
 		} catch (IOException e) {
 			e.printStackTrace();
 			textArea.appendText("Failed to create directories or copy config.dat file.\n");
@@ -437,33 +438,33 @@ public class AitessProcessControlManagement {
 		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess(command));
 	}
 
+	public void WriteDfccPowerOnCommandToAitess2() {
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
+		currentCommand = "DfccPowerOnCommand";
+		dfccCheckStatus.setDfccPowerStatus(true);
+	}
+	
+	public void WriteDfccPowerOffCommandToAitess2() {
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
+		currentCommand = "DfccPowerOffCommand";
+		dfccCheckStatus.setDfccPowerStatus(false);
+	}
+	
+	
+	
 	public void WriteAitess2Command(String command) {
 
 		// pending
 		dfccCheckStatusThread = new Thread(() -> {
 
-			// this should not be in thread
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
-			currentCommand = "DfccPowerOnCommand";
-			dfccCheckStatus.setDfccPowerStatus(true);
-
-			// this also should be in thread
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
-			currentCommand = "DfccPowerOffCommand";
-			dfccCheckStatus.setDfccPowerStatus(false);
-
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+			//once or multiple ..????????
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
 			currentCommand = "OnlineStatusCommand";
 
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
 			currentCommand = "Mk1ScTemperatureCommand";
 
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
+			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
 			currentCommand = "Mk1AecTemperatureCommand";
 
 			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command + "\n"));
@@ -516,8 +517,7 @@ public class AitessProcessControlManagement {
 
 		} else {
 			System.out.println("Aitess Matches:: " + smAitess.getAitessName() + " == " + currentAitess.getAitessName());
-		}
-
+		}		
 	}
 
 	public void switchAitess(String testTypeId) {
@@ -551,6 +551,10 @@ public class AitessProcessControlManagement {
 		// now writing to Aitess1 for loading aitess2
 		System.out.println("--------->>>>>> writing aitess load command to aitess2");
 		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(currentAitess.getAitessCommand() + "\n"));
+		
+		currentSessionDetails.setRunConfigId(currentRunConfigId);
+		System.out.println("AFTER SWITCHING RUN CONFIG GETS UPDATED::   -->>> "+currentSessionDetails.getRunConfigId());
+
 
 	}
 
