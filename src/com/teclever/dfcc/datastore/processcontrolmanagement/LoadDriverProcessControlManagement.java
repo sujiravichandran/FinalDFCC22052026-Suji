@@ -138,10 +138,10 @@ public class LoadDriverProcessControlManagement {
 					launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
 					if (unloadCommand != null && !unloadCommand.isEmpty()) {
-						loadDriverProcessController.WritingProcess(unloadCommand);
+						loadDriverProcessController.WritingProcess(unloadCommand+"\n");
 					}
 
-					launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess(command));
+					launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess(command+"\n"));
 					pcm.setCurrentLoadedDriver(command);
 				}
 				break;

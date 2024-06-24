@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.teclever.dfcc.resultstore.dto.StepDto;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 
 
 public class StepParser {
@@ -97,6 +98,8 @@ public class StepParser {
                     dStarInfo = line.substring(3).trim();
                     unit = extractUnit(dStarInfo);
                     faultyChannel = extractFaultyChannels(dStarInfo);
+                    rdfFileParser.setDStarFound(true); //d star found update to state machine
+                    rdfFileParser.incrementDStarCount();
                 } else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
                     if (line.startsWith("R>") && line.contains("(")) {
                         readingInfo.add(line.substring(3).trim());
@@ -131,6 +134,8 @@ public class StepParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 
         return stepList;
     }
