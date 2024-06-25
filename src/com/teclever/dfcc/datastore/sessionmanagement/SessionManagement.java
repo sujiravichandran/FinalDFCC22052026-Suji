@@ -76,7 +76,7 @@ public class SessionManagement {
 				sessionStagesMapping.setRunCount(0);
 				sessionStagesMapping.setSessionId(sessionId);
 				sessionStagesMapping.setStagelLevelId(sessionToStagesMappingDTO.getStagelLevelId());
-				sessionStagesMapping.setStatus("pending");
+				sessionStagesMapping.setStatus("PENDING");
 				sessionStagesMapping.setRunDate(null);
 				sessionStagesMapping.setTestTypeId(sessionToStagesMappingDTO.getTestTypeId());
 				sessionStagesMapping.setLevelOneStageId(sessionToStagesMappingDTO.getLevelOneStageId());
@@ -203,6 +203,8 @@ public class SessionManagement {
 
 				stageObject.setTestTypeId(sessionStage.getTestTypeId());
 
+				stageObject.setStatus(sessionStage.getStatus());
+				
 				listOfStageObject.add(stageObject);
 			}
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
