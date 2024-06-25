@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -15,6 +16,7 @@ import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
@@ -85,7 +87,7 @@ public class SessionTestingController {
 	public GridPane createSessionTestingGridPane() {
 		getSessionTestData();
 		sessionTestingMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
 		sessionTestingMainGridPane.getStyleClass().add("session-testing-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -202,9 +204,9 @@ public class SessionTestingController {
 	
 	private HBox createButtonBox() {
 		buttonHBox.getStyleClass().add("session-testing-right-container");
-	    Image playImage = new Image(getClass().getResourceAsStream("/Resources/Images/play.png"));
-	    Image stopImage = new Image(getClass().getResourceAsStream("/Resources/Images/stop.png"));
-	    Image pauseImage = new Image(getClass().getResourceAsStream("/Resources/Images/pause.png"));
+	    Image playImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/play.png"));
+	    Image stopImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/stop.png"));
+	    Image pauseImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/pause.png"));
 
 	    ImageView playImageView = new ImageView(playImage);
 	    playImageView.getStyleClass().add("button-image");
@@ -243,7 +245,6 @@ public class SessionTestingController {
 			List<String> testFileIds = new ArrayList<>();
 			for(CheckBox checkbox : checkBoxes) {
 				if(checkbox.isSelected()) {
-					System.out.println(checkbox.getId());
 					testFileIds.add(checkbox.getId());
 				}
 			}
@@ -394,34 +395,34 @@ public class SessionTestingController {
 	}
 	
 
-	private TableView<TestSummary> createResultTableView() {
-		TableView<TestSummary> tableView = new TableView<>();
+	private TableView<SessionTestResult> createResultTableView() {
+		TableView<SessionTestResult> tableView = new TableView<>();
 		tableView.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 		 tableView.setPrefHeight(900); 
 
-		TableColumn<TestSummary, String> fileNameColumn = new TableColumn<>("File Name");
+		TableColumn<SessionTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<TestSummary, String> resultColumn = new TableColumn<>("Result");
+		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<TestSummary, String> channelColumn = new TableColumn<>("Channel");
+		TableColumn<SessionTestResult, String> channelColumn = new TableColumn<>("Channel");
 		channelColumn.setCellValueFactory(new PropertyValueFactory<>("channel"));
 		setupchannelColumn(channelColumn);
-		testSummaryList.addListener((ListChangeListener<? super TestSummary>) change -> {
+		SessionTestStateObject.getSessionTestResults().addListener((ListChangeListener<? super SessionTestResult>) change -> {
 			while (change.next()) {
 			  if (change.wasAdded()) {
-			      int lastIndex = testSummaryList.size()-1;
+			      int lastIndex = SessionTestStateObject.getSessionTestResults().size()-1;
 			  	Platform.runLater(() -> {
 			          tableView.scrollTo(lastIndex);
 			          tableView.getSelectionModel().select(lastIndex);
@@ -432,15 +433,15 @@ public class SessionTestingController {
 			});
 
 		tableView.getColumns().addAll(fileNameColumn, resultColumn, channelColumn);
-		tableView.setItems(testSummaryList); 
+		tableView.setItems(SessionTestStateObject.getSessionTestResults()); 
 		
 		return tableView;
 	}
 
-	private void setupchannelColumn(TableColumn<TestSummary, String> resultColumn) {
+	private void setupchannelColumn(TableColumn<SessionTestResult, String> resultColumn) {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
-		resultColumn.setCellFactory(column -> new TableCell<TestSummary, String>() {
+		resultColumn.setCellFactory(column -> new TableCell<SessionTestResult, String>() {
 			@Override
 			protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
@@ -455,7 +456,7 @@ public class SessionTestingController {
 						setText("Failed");
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}else {
-						setText(item.toUpperCase());
+						setText(item);
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
 				}
@@ -468,7 +469,6 @@ public class SessionTestingController {
 	    List<StageObject> stageList = StateMachine.getStageDatalist();
 	    ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
 
-	    // First part: populate the maps with L1 stages, filtering out "Self Test" and "LRU Test"
 	    observableStageList.stream()
 	        .filter(stage -> {
 	            String l1StageName = stage.getL1StageName().trim();
@@ -482,10 +482,9 @@ public class SessionTestingController {
 	            String l1StageId = stage.getL1StageId();
 	            String l1StageName = stage.getL1StageName().trim();
 	            SessionTestStateObject.addL1StageMap(l1StageId, l1StageName);
-//	            System.out.println("l1-ID--- "+l1StageId);
 	        });
 
-	    // Combined sorting for all levels
+
 	    Comparator<StageObject> combinedComparator = Comparator
 	        .comparing((StageObject stage) -> stage.getL1StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
 	        .thenComparing((StageObject stage) -> stage.getL2StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
@@ -493,7 +492,7 @@ public class SessionTestingController {
 	        .thenComparing((StageObject stage) -> stage.getL4StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
 	        .thenComparing((StageObject stage) -> stage.getL5StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))));
 
-	    // Second part: populate the maps for L2 to L5 stages
+	   
 	    observableStageList.stream()
 	        .sorted(combinedComparator)
 	        .forEach(stage -> {
@@ -563,7 +562,6 @@ public class SessionTestingController {
 
 
 	private void setStateMachineCurrentL1StageId() {
-		System.out.println("--calling setStateMachineCurrentL1StageId-----");
 		boolean founded = false ;
 	    for (Entry<String, ObservableList<String>> l1Stage : SessionTestStateObject.getL1StagesWithEndLeadId().entrySet()) {
 	        ObservableList<String> l1StageList = l1Stage.getValue();
@@ -572,8 +570,7 @@ public class SessionTestingController {
 	        }
 	        for (Entry<StageIdName, String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
 	            if(l1StageList.contains(endLeaf.getKey().getStageId())) {
-	            	if(endLeaf.getValue().equalsIgnoreCase("PENDING")) {
-//	            		System.out.println("--set state machine id---"+l1Stage.getKey());
+	            	if(endLeaf.getValue().equalsIgnoreCase("PENDING") || endLeaf.getValue().equalsIgnoreCase("Started")) {
 	            		SessionTestStateObject.setCurrentRunningStageId(l1Stage.getKey());
 	            		founded = true;
 	            		break;
@@ -585,16 +582,21 @@ public class SessionTestingController {
 	
 	private void getTestListByStageId(String stageId, String testTypeId) {
 		boolean checkboxDisable = false;
-		for(Entry<String, ObservableList<String>> l1_Stage : SessionTestStateObject.getL1StagesWithEndLeadId().entrySet()) {
-			if(l1_Stage.getKey().equals(SessionTestStateObject.getCurrentRunningStageId())) {
-				if(l1_Stage.getValue().contains(stageId)) {
-//					System.out.println("------------true-----");
-				}else {
-//					System.out.println("------false-----");
+		for(Entry<StageIdName , String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
+			if(endLeaf.getKey().getStageId().equals(stageId)) {
+				if(!endLeaf.getValue().equalsIgnoreCase("PENDING") && !endLeaf.getValue().equalsIgnoreCase("STARTED")) {
 					checkboxDisable = true;
 				}
 			}
 		}
+		for(Entry<String, ObservableList<String>> l1_Stage : SessionTestStateObject.getL1StagesWithEndLeadId().entrySet()) {
+			if(l1_Stage.getKey().equals(SessionTestStateObject.getCurrentRunningStageId())) {
+				if(!l1_Stage.getValue().contains(stageId)) {
+					checkboxDisable = true;
+				}
+			}
+		}
+		
 	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 		currentSessionDetails.setRunConfigId(runConfigId);
 		String ID = stageId;
@@ -607,7 +609,6 @@ public class SessionTestingController {
             }
 
             ObservableMap<String, String> testFileMap =  FXCollections.observableMap(testFileResponse.getTestFilesIdName());
-//          System.out.println("testFileMap.keySet()-----"+testFileMap.keySet().size());
             setTestListViewData(testFileMap,checkboxDisable);
 	         
 	}
@@ -648,7 +649,6 @@ public class SessionTestingController {
 	        		String ID = stageId;
 		                
 	        		int repeatCount = Integer.parseInt(repeatCountTextField.getText()) ;
-	        		System.out.println(repeatCount);
 		            Response response = testProcessManagement.testProcesControl(
 		                 currentSessionDetails.getSessionId(),ID, repeatCount, testFileIds, true,stageName , testTypeId
 		            );                   			               

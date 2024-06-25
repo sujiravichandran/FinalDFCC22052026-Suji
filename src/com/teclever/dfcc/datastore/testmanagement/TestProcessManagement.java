@@ -91,7 +91,7 @@ public class TestProcessManagement {
 					
 					listOfFileIds.addAll(listOfFileId);
 				}
-				System.out.println("STAGE NAME "+stageName+" :: LIST OF FILE IDs - "+listOfFileId+"  REPEAT COUNT - "+repeatCount+" = "+listOfFileIds);
+				System.out.println("STAGE NAME "+stageName+" :: LIST OF FILE IDs - "+listOfFileId+"  REPEAT COUNT - "+repeatCount+" = "+listOfFileIds.size());
 				// For Each Loop of List of File IDs
 				for (String testFileId : listOfFileIds) {
 					// Test Started Time
@@ -544,6 +544,8 @@ public class TestProcessManagement {
 				SessionTestResult sessionTestResult = new SessionTestResult(filePath, rdfFileStatus);
 
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
+				System.out.println("SESSION TEST---------"+filePath+"  "+rdfFileStatus);
+
 
 			}
 

@@ -785,7 +785,7 @@ public class LRUTestingController {
 						setText("Failed");
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}else {
-						setText(item.toUpperCase());
+						setText(item);
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
 				}
