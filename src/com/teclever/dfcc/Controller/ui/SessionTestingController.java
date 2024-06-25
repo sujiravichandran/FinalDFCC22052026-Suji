@@ -1,21 +1,30 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -49,12 +58,7 @@ public class SessionTestingController {
 	
 	private TreeView<Label> sessionTreeView = new TreeView<>();
 	
-	private ObservableList<String> l1_sessionList = FXCollections.observableArrayList("Session 1", "Session 2","Session 1", "Session 2","Session 1", "Session 2","Session 1", "Session 2","Session 1", "Session 2","Session 1", "Session 2","Session 1", "Session 2");
-	private ObservableList<String> l2_sessionList = FXCollections.observableArrayList("Sub Session 11", "Sub Session 12");
-	private ObservableList<String> l3_sessionList = FXCollections.observableArrayList("Sub Session 111", "Sub Session 112");
-	private ObservableList<String> l4_sessionList = FXCollections.observableArrayList("Sub Session 1111", "Sub Session 1112");
-	
-	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4");
+//	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4");
 	
 	private CheckBox selectAllCheckBox = new CheckBox("Select All");
     private List<CheckBox> checkBoxes = new ArrayList<>();
@@ -70,8 +74,14 @@ public class SessionTestingController {
     private TextField repeatCountTextField = new TextField();
     
     private ObservableList<TestSummary> testSummaryList = FXCollections.observableArrayList();
-
     
+    private RunConfigurationService runConfigurationService = new RunConfigurationService();
+    private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+    private TestProcessManagement testProcessManagement = new TestProcessManagement();
+
+    private String selectedStageId = null;
+    private String selectedTestTypeId = null;
+       
 	public GridPane createSessionTestingGridPane() {
 		getSessionTestData();
 		sessionTestingMainGridPane.getStylesheets()
@@ -104,83 +114,7 @@ public class SessionTestingController {
 		return sessionTestingMainGridPane;
 	}
 	
-	private void getSessionTestData() {
-	    List<StageObject> stageList = StateMachine.getStageDatalist();
-	    ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
 
-	    Map<String, StageObject> l1Stages = new HashMap<>();
-	    Map<String, StageIdName> l2Stages = new HashMap<>();
-	    Map<String, StageIdName> l3Stages = new HashMap<>();
-	    Map<String, StageIdName> l4Stages = new HashMap<>();
-	    Map<String, StageIdName> l5Stages = new HashMap<>();
-
-	    // Populate the maps with stage objects
-	    observableStageList.forEach(stage -> {
-	        String l1StageName = stage.getL1StageName().trim();
-	        if (!("Self Test".equalsIgnoreCase(l1StageName)) && !("LRU Test".equalsIgnoreCase(l1StageName))) {
-	            SessionTestStateObject.addL1StageMap(stage.getL1StageId(), l1StageName);
-	        }
-	    });
-
-	    observableStageList.forEach(stage -> {
-	        String l1StageId = stage.getL1StageId();
-	        String l2StageId = stage.getL2StageId();
-	        String l3StageId = stage.getL3StageId();
-	        String l4StageId = stage.getL4StageId();
-	        String l5StageId = stage.getL5StageId();
-
-	        if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
-	            StageIdName l2StageObject = new StageIdName();
-	            l2StageObject.setParentId(l1StageId);
-	            l2StageObject.setStageId(l2StageId);
-	            l2StageObject.setStageName(stage.getL2StageName());
-	            if (l3StageId == null && stage.getTestTypeId() != null) {
-	                l2StageObject.setTestTypeId(stage.getTestTypeId());
-	            }
-	            SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
-	        }
-
-	        if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
-	            StageIdName l3StageObject = new StageIdName();
-	            l3StageObject.setParentId(l2StageId);
-	            l3StageObject.setStageId(l3StageId);
-	            l3StageObject.setStageName(stage.getL3StageName());
-	            if (l4StageId == null && stage.getTestTypeId() != null) {
-	                l3StageObject.setTestTypeId(stage.getTestTypeId());
-	            }
-	            SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
-	        }
-
-	        if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
-	            StageIdName l4StageObject = new StageIdName();
-	            l4StageObject.setParentId(l3StageId);
-	            l4StageObject.setStageId(l4StageId);
-	            l4StageObject.setStageName(stage.getL4StageName());
-	            if (l5StageId == null && stage.getTestTypeId() != null) {
-	                l4StageObject.setTestTypeId(stage.getTestTypeId());
-	            }
-	            SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
-	        }
-
-	        if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
-	            StageIdName l5StageObject = new StageIdName();
-	            l5StageObject.setParentId(l4StageId);
-	            l5StageObject.setStageId(l5StageId);
-	            l5StageObject.setStageName(stage.getL5StageName());
-	            if (stage.getTestTypeId() != null) {
-	                l5StageObject.setTestTypeId(stage.getTestTypeId());
-	            }
-	            SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
-	        }
-	    });
-
-	    // Print statements (if needed, otherwise remove)
-//	    SessionTestStateObject.getL1StageMap().forEach((key, value) -> System.out.println(key + "       " + value));
-//	    SessionTestStateObject.getL2StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
-//	    SessionTestStateObject.getL3StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
-//	    SessionTestStateObject.getL4StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
-//	    SessionTestStateObject.getL5StageMap().forEach((key, value) -> System.out.println(key + "       " + value.getParentId() + "         " + value.getStageName()));
-	}
 
 
 	private GridPane createHeadingBox() {
@@ -246,28 +180,6 @@ public class SessionTestingController {
 	    selectAllCheckBox.getStyleClass().addAll("session-testing-checkbox","select-all-checkbox");
 	    testListView.getStyleClass().add("session-testing-list-view");
 	   
-	    for (String test : testList) {
-	        CheckBox newCheckBox = new CheckBox(test);
-	        newCheckBox.getStyleClass().add("session-testing-checkbox");
-	        newCheckBox.setWrapText(true);
-	        checkBoxes.add(newCheckBox);
-	        testListView.getItems().add(newCheckBox);
-	        
-	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-	        	boolean anySelected = false;
-	        	for(CheckBox checkBox : checkBoxes) {
-	        		if(checkBox.isSelected()) {
-	        			anySelected = true;
-	        		}
-	        	}
-	        	if(anySelected) {
-	        		startButton.setDisable(false);
-	        	}else {
-	        		startButton.setDisable(true);
-	        	}
-	        });
-	    }
-
 	    selectAllCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 	        for (CheckBox checkBox : checkBoxes) {
 	            checkBox.setSelected(newValue);
@@ -284,6 +196,9 @@ public class SessionTestingController {
 	    testListVBox.getStyleClass().add("session-testing-right-container");
 	    return testListVBox;
 	}
+	
+
+
 	
 	private HBox createButtonBox() {
 		buttonHBox.getStyleClass().add("session-testing-right-container");
@@ -325,7 +240,20 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 		
 		startButton.setOnAction(e ->{
-			fetchDataFromBackend();
+			List<String> testFileIds = new ArrayList<>();
+			for(CheckBox checkbox : checkBoxes) {
+				if(checkbox.isSelected()) {
+					System.out.println(checkbox.getId());
+					testFileIds.add(checkbox.getId());
+				}
+			}
+			SessionTestStateObject.getRunningTestLeafStatus().set(false);
+			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
+			SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) ->{
+				if(SessionTestStateObject.getRunningTestLeafStatus().get()) {
+					setStateMachineCurrentL1StageId();
+				}
+			});
 		});
 		
 		repeatCountLabel.setText("Repeat Count");
@@ -370,9 +298,9 @@ public class SessionTestingController {
 		rootItem.setExpanded(true);
 		rootItem.setGraphic(null);
 		 		
-		for(Map.Entry<String, String> l1_stage : SessionTestStateObject.getL1StageMap().entrySet()) {
-//			System.out.println(l1_stage.getKey()+"      "+l1_stage.getValue());
+		for(Entry<String, String> l1_stage : SessionTestStateObject.getL1StageMap().entrySet()) {
 			Label newL1StageLabel = new Label(l1_stage.getValue());
+			newL1StageLabel.setUserData(l1_stage);
 			newL1StageLabel.getStyleClass().add("l1_stage-label");
 			TreeItem<Label> sessionItem = new TreeItem<Label>(newL1StageLabel);
 			createL2Stage(sessionItem,l1_stage);
@@ -388,22 +316,28 @@ public class SessionTestingController {
 				Label selectedLabel = newValue.getValue();
 
 				if (newValue.getChildren().isEmpty()) {
-					System.out.println(selectedLabel.getText());
-					System.out.println(selectedLabel.getId());
+					Entry<String, StageIdName> userData = (Entry<String, StageIdName>) selectedLabel.getUserData();
+//		            System.out.println(userData.getValue().getTestTypeId() + "  ------   " + userData.getValue().getStageId());
+		            getTestListByStageId(userData.getValue().getStageId(),userData.getValue().getTestTypeId());
+		            selectedStageId = userData.getValue().getStageId();
+		            selectedTestTypeId = userData.getValue().getTestTypeId();
 				}
 			}
 		});
 		
+		
 		return sessionTreeView;
 	}
 
+
 	private void createL2Stage(TreeItem<Label> l1_root, Entry<String, String> l1_stage) {		
 //		System.out.println();
-		for(Map.Entry<String, StageIdName> l2_stage : SessionTestStateObject.getL2StageMap().entrySet()) {    
+		for(Entry<String, StageIdName> l2_stage : SessionTestStateObject.getL2StageMap().entrySet()) {    
 //			System.out.println(l1_stage.getKey() +"     "+l2_stage.getValue().getParentId()+"    "+l2_stage.getValue().getStageId()+"    "+l2_stage.getValue().getStageName());
 			if(l1_stage.getKey().equals(l2_stage.getValue().getParentId())) {
 				Label newL2StageLabel = new Label(l2_stage.getValue().getStageName());
 				newL2StageLabel.setId(l2_stage.getKey());
+				newL2StageLabel.setUserData(l2_stage);
 				newL2StageLabel.getStyleClass().add("l1_stage-label");
 	            TreeItem<Label> childItem = new TreeItem<>(newL2StageLabel);
 	            createL3Stage(childItem , l2_stage);
@@ -414,11 +348,12 @@ public class SessionTestingController {
 	
 	private void createL3Stage(TreeItem<Label> l2_root, Entry<String, StageIdName> l2_stage) {
 //		System.out.println();
-		for(Map.Entry<String, StageIdName> l3_stage : SessionTestStateObject.getL3StageMap().entrySet()) {    
+		for(Entry<String, StageIdName> l3_stage : SessionTestStateObject.getL3StageMap().entrySet()) {    
 //			System.out.println(l2_stage.getKey() +"     "+l3_stage.getValue().getParentId()+"    "+l3_stage.getValue().getStageId()+"    "+l3_stage.getValue().getStageName());
 			if(l2_stage.getKey().equals(l3_stage.getValue().getParentId())) {
 				Label newL3StageLabel = new Label(l3_stage.getValue().getStageName());
 				newL3StageLabel.setId(l3_stage.getKey());
+				newL3StageLabel.setUserData(l3_stage);
 				newL3StageLabel.getStyleClass().add("l1_stage-label");
 	            TreeItem<Label> childItem = new TreeItem<>(newL3StageLabel);
 	            createL4Stage(childItem , l3_stage);
@@ -429,11 +364,12 @@ public class SessionTestingController {
 	
 	private void createL4Stage(TreeItem<Label> l3_root, Entry<String, StageIdName> l3_stage) {
 //		System.out.println();
-		for(Map.Entry<String, StageIdName> l4_stage : SessionTestStateObject.getL4StageMap().entrySet()) {    
+		for(Entry<String, StageIdName> l4_stage : SessionTestStateObject.getL4StageMap().entrySet()) {    
 //			System.out.println(l3_stage.getKey() +"     "+l4_stage.getValue().getParentId()+"    "+l4_stage.getValue().getStageId()+"    "+l4_stage.getValue().getStageName());
 			if(l3_stage.getKey().equals(l4_stage.getValue().getParentId())) {
 				Label newL4StageLabel = new Label(l4_stage.getValue().getStageName());
 				newL4StageLabel.setId(l4_stage.getKey());
+				newL4StageLabel.setUserData(l4_stage);
 				newL4StageLabel.getStyleClass().add("l1_stage-label");
 	            TreeItem<Label> childItem = new TreeItem<>(newL4StageLabel);
 	            createL5Stage(childItem , l4_stage);
@@ -444,10 +380,11 @@ public class SessionTestingController {
 	
 	private void createL5Stage(TreeItem<Label> l4_root, Entry<String, StageIdName> l4_stage) {
 //		System.out.println();
-		for(Map.Entry<String, StageIdName> l5_stage : SessionTestStateObject.getL5StageMap().entrySet()) {    
+		for(Entry<String, StageIdName> l5_stage : SessionTestStateObject.getL5StageMap().entrySet()) {    
 //			System.out.println(l4_stage.getKey() +"     "+l5_stage.getValue().getParentId()+"    "+l5_stage.getValue().getStageId()+"    "+l5_stage.getValue().getStageName());
 			if(l4_stage.getKey().equals(l5_stage.getValue().getParentId())) {
 				Label newL5StageLabel = new Label(l5_stage.getValue().getStageName());
+				newL5StageLabel.setUserData(l5_stage);
 				newL5StageLabel.setId(l5_stage.getKey());
 				newL5StageLabel.getStyleClass().add("l1_stage-label");
 	            TreeItem<Label> childItem = new TreeItem<>(newL5StageLabel);
@@ -455,45 +392,6 @@ public class SessionTestingController {
 			} 
 		}
 	}
-
-//	private void createL2Stage(TreeItem<Label> l1_root) {	
-//		Label newLabel = l1_root.getValue();
-//		if(newLabel.getText().equals("Session 1")) {
-//			for (String l2_stage : l2_sessionList) {
-//				Label newL2StageLabel = new Label(l2_stage);
-//				newL2StageLabel.getStyleClass().add("l1_stage-label");
-//	            TreeItem<Label> childItem = new TreeItem<>(newL2StageLabel);
-//	            createL3Stage(childItem);
-//	            l1_root.getChildren().add(childItem);
-//	        }
-//		}
-//	}
-
-//	private void createL3Stage(TreeItem<Label> l2_root) {
-//		Label newLabel = l2_root.getValue();
-//		if(newLabel.getText().equals("Sub Session 11")) {
-//			for (String l3_stage : l3_sessionList) {
-//				Label newL3StageLabel = new Label(l3_stage);
-//				newL3StageLabel.getStyleClass().add("l1_stage-label");
-//	            TreeItem<Label> childItem = new TreeItem<>(newL3StageLabel);
-//	            createL4Stage(childItem);
-//	            l2_root.getChildren().add(childItem);
-//	        }
-//		}
-//	}
-	
-
-//	private void createL4Stage(TreeItem<Label> l3_root) {
-//		Label newLabel = l3_root.getValue();
-//		if(newLabel.getText().equals("Sub Session 111")) {
-//			for (String l4_stage : l4_sessionList) {
-//				Label newL4StageLabel = new Label(l4_stage);
-//				newL4StageLabel.getStyleClass().add("l1_stage-label");
-//	            TreeItem<Label> childItem = new TreeItem<>(newL4StageLabel);
-//	            l3_root.getChildren().add(childItem);
-//	        }
-//		}
-//	}
 	
 
 	private TableView<TestSummary> createResultTableView() {
@@ -552,40 +450,215 @@ public class SessionTestingController {
 				} else {
 					if ("OK".equalsIgnoreCase(item)) {
 						setText("Passed");
-						setStyle("-fx-background-color: lightgreen;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
-						setStyle("-fx-background-color: #fa9898;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}else {
+						setText(item.toUpperCase());
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
 				}
 			}
 		});
-	}
+	}	
 	
-	private void fetchDataFromBackend() {
+		
+	private void getSessionTestData() {
+	    List<StageObject> stageList = StateMachine.getStageDatalist();
+	    ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
 
-	    new Thread(() -> {
-			int i =0;
-	        while (true) {
-	            TestSummary newSummary = new TestSummary("file-"+i, "OK", "Channel");
-	            
-	            addTestSummary(newSummary);
-	            
-	            try {
-	                Thread.sleep(9000);
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
+	    // First part: populate the maps with L1 stages, filtering out "Self Test" and "LRU Test"
+	    observableStageList.stream()
+	        .filter(stage -> {
+	            String l1StageName = stage.getL1StageName().trim();
+	            return !("Self Test".equalsIgnoreCase(l1StageName) || "LRU Test".equalsIgnoreCase(l1StageName));
+	        })
+	        .sorted(Comparator.comparing((StageObject stage) -> {
+	            String l1StageId = stage.getL1StageId();
+	            return l1StageId != null ? Integer.parseInt(l1StageId.split("_")[1]) : Integer.MAX_VALUE;
+	        }))
+	        .forEach(stage -> {
+	            String l1StageId = stage.getL1StageId();
+	            String l1StageName = stage.getL1StageName().trim();
+	            SessionTestStateObject.addL1StageMap(l1StageId, l1StageName);
+//	            System.out.println("l1-ID--- "+l1StageId);
+	        });
+
+	    // Combined sorting for all levels
+	    Comparator<StageObject> combinedComparator = Comparator
+	        .comparing((StageObject stage) -> stage.getL1StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
+	        .thenComparing((StageObject stage) -> stage.getL2StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
+	        .thenComparing((StageObject stage) -> stage.getL3StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
+	        .thenComparing((StageObject stage) -> stage.getL4StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))))
+	        .thenComparing((StageObject stage) -> stage.getL5StageId(), Comparator.nullsLast(Comparator.comparingInt(id -> Integer.parseInt(id.split("_")[1]))));
+
+	    // Second part: populate the maps for L2 to L5 stages
+	    observableStageList.stream()
+	        .sorted(combinedComparator)
+	        .forEach(stage -> {
+	            String l1StageId = stage.getL1StageId();
+	            String l2StageId = stage.getL2StageId();
+	            String l3StageId = stage.getL3StageId();
+	            String l4StageId = stage.getL4StageId();
+	            String l5StageId = stage.getL5StageId();
+	            if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
+	                StageIdName l2StageObject = new StageIdName();
+	                l2StageObject.setParentId(l1StageId);
+	                l2StageObject.setStageId(l2StageId);
+	                l2StageObject.setStageName(stage.getL2StageName());
+	                if (l3StageId == null && stage.getTestTypeId() != null) {
+	                    l2StageObject.setTestTypeId(stage.getTestTypeId());
+	                    SessionTestStateObject.getEndLeafMap().put(l2StageObject, stage.getStatus());
+	                    SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l2StageId);
+	                }
+	                SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
 	            }
-	            i++;
+
+	            if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
+	                StageIdName l3StageObject = new StageIdName();
+	                l3StageObject.setParentId(l2StageId);
+	                l3StageObject.setStageId(l3StageId);
+	                l3StageObject.setStageName(stage.getL3StageName());
+	                if (l4StageId == null && stage.getTestTypeId() != null) {
+	                    l3StageObject.setTestTypeId(stage.getTestTypeId());
+	                    SessionTestStateObject.getEndLeafMap().put(l3StageObject, stage.getStatus());
+	                    SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l3StageId);
+	                }
+	                SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
+	            }
+
+	            if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
+	                StageIdName l4StageObject = new StageIdName();
+	                l4StageObject.setParentId(l3StageId);
+	                l4StageObject.setStageId(l4StageId);
+	                l4StageObject.setStageName(stage.getL4StageName());
+	                if (l5StageId == null && stage.getTestTypeId() != null) {
+	                    l4StageObject.setTestTypeId(stage.getTestTypeId());
+	                    SessionTestStateObject.getEndLeafMap().put(l4StageObject, stage.getStatus());
+	                    SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l4StageId);
+	                }
+	                SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
+	            }
+
+	            if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
+	                StageIdName l5StageObject = new StageIdName();
+	                l5StageObject.setParentId(l4StageId);
+	                l5StageObject.setStageId(l5StageId);
+	                l5StageObject.setStageName(stage.getL5StageName());
+	                if (stage.getTestTypeId() != null) {
+	                    l5StageObject.setTestTypeId(stage.getTestTypeId());
+	                    SessionTestStateObject.getEndLeafMap().put(l5StageObject, stage.getStatus());
+	                    SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l5StageId);
+	                }
+	                SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
+	            }
+	        });
+	    
+	    
+	    setStateMachineCurrentL1StageId();
+
+	}
+
+
+
+	private void setStateMachineCurrentL1StageId() {
+		System.out.println("--calling setStateMachineCurrentL1StageId-----");
+		boolean founded = false ;
+	    for (Entry<String, ObservableList<String>> l1Stage : SessionTestStateObject.getL1StagesWithEndLeadId().entrySet()) {
+	        ObservableList<String> l1StageList = l1Stage.getValue();
+	        if(founded) {
+	        	break;
 	        }
-	    }).start();
+	        for (Entry<StageIdName, String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
+	            if(l1StageList.contains(endLeaf.getKey().getStageId())) {
+	            	if(endLeaf.getValue().equalsIgnoreCase("PENDING")) {
+//	            		System.out.println("--set state machine id---"+l1Stage.getKey());
+	            		SessionTestStateObject.setCurrentRunningStageId(l1Stage.getKey());
+	            		founded = true;
+	            		break;
+	            	}
+	            }
+	        }
+	    }
 	}
 	
-	public void addTestSummary(TestSummary testSummary) {
-	    Platform.runLater(() -> testSummaryList.add(testSummary));
+	private void getTestListByStageId(String stageId, String testTypeId) {
+		boolean checkboxDisable = false;
+		for(Entry<String, ObservableList<String>> l1_Stage : SessionTestStateObject.getL1StagesWithEndLeadId().entrySet()) {
+			if(l1_Stage.getKey().equals(SessionTestStateObject.getCurrentRunningStageId())) {
+				if(l1_Stage.getValue().contains(stageId)) {
+//					System.out.println("------------true-----");
+				}else {
+//					System.out.println("------false-----");
+					checkboxDisable = true;
+				}
+			}
+		}
+	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+		currentSessionDetails.setRunConfigId(runConfigId);
+		String ID = stageId;
+		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+            if (testFileResponse.getTestFilesIdName() == null) {
+                Platform.runLater(() -> {
+                    Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
+                });
+                return ;
+            }
+
+            ObservableMap<String, String> testFileMap =  FXCollections.observableMap(testFileResponse.getTestFilesIdName());
+//          System.out.println("testFileMap.keySet()-----"+testFileMap.keySet().size());
+            setTestListViewData(testFileMap,checkboxDisable);
+	         
 	}
 
 	
+	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable) {
+		testListView.getItems().clear();
+		checkBoxes.clear();
+		selectAllCheckBox.setDisable(checkboxDisable);
+		selectAllCheckBox.setSelected(false);
+		
+	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+	        String test = entry.getValue();
+	        CheckBox newCheckBox = new CheckBox(test);
+	        newCheckBox.setId(entry.getKey());
+	        newCheckBox.getStyleClass().add("session-testing-checkbox");
+	        newCheckBox.setWrapText(true);
+	        newCheckBox.setDisable(checkboxDisable);
+	        checkBoxes.add(newCheckBox);
+	        testListView.getItems().add(newCheckBox);
+
+	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+	            boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
+	            startButton.setDisable(!anySelected);
+	        });
+	    }
+	}
+	
+	
+	
+	
+	private void callStartTest(String stageId, String stageName, String testTypeId, List<String> testFileIds) {
+		Task<Void> task = new Task<Void>() {
+	        @Override
+	        protected Void call() throws Exception {
+	        	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+	        		currentSessionDetails.setRunConfigId(runConfigId);
+	        		String ID = stageId;
+		                
+	        		int repeatCount = Integer.parseInt(repeatCountTextField.getText()) ;
+	        		System.out.println(repeatCount);
+		            Response response = testProcessManagement.testProcesControl(
+		                 currentSessionDetails.getSessionId(),ID, repeatCount, testFileIds, true,stageName , testTypeId
+		            );                   			               
+	          
+	            return null;
+	        }
+	    };
+	    
+	    new Thread(task).start();
+	}
 }
 
 
