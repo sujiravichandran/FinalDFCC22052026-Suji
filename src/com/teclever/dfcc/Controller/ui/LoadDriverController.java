@@ -97,7 +97,7 @@ public class LoadDriverController {
 	    });
 
 	    task.setOnRunning(evt -> {
-	    	showProgressIndicator();
+//	    	showProgressIndicator();
 	    });
 
 	    new Thread(task).start();
