@@ -784,6 +784,9 @@ public class LRUTestingController {
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}else {
+						setText(item.toUpperCase());
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
 				}
 			}

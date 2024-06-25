@@ -38,7 +38,7 @@ public class CustomTableView<T> extends TableView<T> {
 			"COLUMN_BUTTON_CLICKED");
 	String classname;
 	String digitalSignature;
-	@SuppressWarnings("deprecation")
+
 	public CustomTableView(ObservableList<T> items, Class<T> clazz, boolean addUserColumn, boolean addCheckColumn) {
 		super(items);
 		classname = clazz.getSimpleName();
