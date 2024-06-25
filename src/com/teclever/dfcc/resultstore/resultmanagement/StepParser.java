@@ -106,7 +106,11 @@ public class StepParser {
                     } else if (line.startsWith("D>")) {
                         readingInfo.add(line.substring(3).trim());
                     }
+                    
+                }else if(line.contains("Parse Error")) {
+                	rdfFileParser.setParseFileError(true);
                 }
+                	
                 
                 // Append other S> lines to input except the specific line
                 if (line.startsWith("S>") && !isAfterStep && !line.contains("STEP")) {

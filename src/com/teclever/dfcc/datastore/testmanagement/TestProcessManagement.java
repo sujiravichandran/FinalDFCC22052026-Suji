@@ -23,12 +23,14 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 
 public class TestProcessManagement {
 
@@ -81,6 +83,11 @@ public class TestProcessManagement {
 
 				String tpfFileName = null;
 
+//				List<String> listOfFileIds = listOfFileId;
+//				for (int i = 1; i <repeatCount; i++) {
+//					
+//					listOfFileIds.addAll(listOfFileId);
+//				}
 				// For Each Loop of List of File IDs
 				for (String testFileId : listOfFileId) {
 					// Test Started Time
@@ -111,7 +118,7 @@ public class TestProcessManagement {
 							}
 
 						} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY")
-								|| stageName.equals("GO NOGO") || stageName.equals("SRU")) {
+								|| stageName.equals("GO NOGO") || stageName.equals("SRU")||stageName.equals("SESSION TEST")) {
 
 							System.out.println("RDF FILE LOCATION :: " + rdfFileLocaltion + rdfFileName
 									+ "  STAGENAME :: " + stageName);
@@ -257,10 +264,12 @@ public class TestProcessManagement {
 				// Update State Machine : Set TextArea to TRUE.
 				StateMachine.setTextArea(true);
 
-				// Update SESSION STAGE MAPPING : Set Status to STOPED
+				String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success" : rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
+
+				// Update SESSION STAGE MAPPING : Set Status to COMPLETED
 				SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 				response = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount,
-						sessionId, stageId, "STOPED..");
+						sessionId, stageId, stageResult);
 			};
 
 			// Thread START
@@ -294,7 +303,7 @@ public class TestProcessManagement {
 			}
 			SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId,
-					stageId, "STARTED..");
+					stageId, "STARTED");
 			if (res.getResponseCode() == 0) {
 				return res;
 			}
@@ -471,21 +480,24 @@ public class TestProcessManagement {
 			String filePath=rdfFileLocaltion+rdfFileName;
 			String rdfFileStatus;
 			if(rdfFileName!=null) {
-			BufferedReader reader = new BufferedReader(new FileReader(filePath));
-			String line;
 
-			res.setResponseCode(1);
-
-			while ((line = reader.readLine()) != null) {
-				System.out.println("LINE  " + line);
-
-				if (line.startsWith("D*> ")) {
-					dStartCount++;
+				res.setResponseCode(1);
+				// Calling Parsing Method
+				StepParser.parseStepContext(filePath);
+				
+				dStartCount=rdfFileParser.getDStarCount();
+				
+				rdfFileStatus = (rdfFileParser.isDStarFound()) ? "NOT OK" : "OK";
+				if(rdfFileParser.isParseFileError()) {
+					rdfFileStatus="PARSE ERROR";
+				}
+				System.out.println("RDF FILE STATUS "+rdfFileStatus);
+				rdfFileParser.setDStarCount(0);
+				rdfFileParser.setDStarFound(false);
+				rdfFileParser.setParseFileError(false);
+				if(rdfFileParser.isDStarFound() == true) {
 					res.setResponseCode(111);
 				}
-			}
-			rdfFileStatus= (dStartCount > 0) ? "NOT OK" : "OK";
-			reader.close();
 			}else {
 				filePath=tpfFileName;
 				rdfFileStatus="PARSE ERROR";
@@ -504,6 +516,11 @@ public class TestProcessManagement {
 				LRUTestResult lRUTestResult = new LRUTestResult(filePath,rdfFileStatus);
 
 				LRUTestStateObject.addTestResult(lRUTestResult);
+			}
+			else if (stageName.equals("SESSION TEST")) {
+
+				// NEED TO UPDATE TO SESSION TEST STATE MACHINE 
+				
 			}
 
 			res.setResponseMessage("Successful ");
