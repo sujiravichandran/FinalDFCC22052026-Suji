@@ -369,6 +369,17 @@ public class StateMachine {
 		public static class rdfFileParser {
 			private static int dStarCount = 0;
 			private static boolean dStarFound = false;
+			private static boolean parseFileError = false;
+			
+			
+
+			public static boolean isParseFileError() {
+				return parseFileError;
+			}
+
+			public static void setParseFileError(boolean parseFileError) {
+				rdfFileParser.parseFileError = parseFileError;
+			}
 
 			public static void setDStarCount(int count) {
 				dStarCount = count;
@@ -392,6 +403,32 @@ public class StateMachine {
 			
 		}
 
+		
+		
+		public static class aitessRunning{
+			private static boolean aitess1Exited = true;
+			private static boolean aitess2Exited = true;
+			
+			
+			public static boolean isAitess1Exited() {
+				return aitess1Exited;
+			}
+			public static void setAitess1Exited(boolean aitess1Exited) {
+				aitessRunning.aitess1Exited = aitess1Exited;
+			}
+			public static boolean isAitess2Exited() {
+				return aitess2Exited;
+			}
+			public static void setAitess2Exited(boolean aitess2Exited) {
+				aitessRunning.aitess2Exited = aitess2Exited;
+			}
+			
+			
+
+			
+			
+		}
+		
 	}
 
 }

@@ -40,7 +40,7 @@ public class TestManagerManagement {
 		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
 
 		// Load driver in STARTUP mode and returning Driver Card Details
-		LoadDriverProcessControlManagement pc = new LoadDriverProcessControlManagement();
+		LoadDriverProcessControlManagement pc = LoadDriverProcessControlManagement.getInstance();
 		DriverCardDetailsResponse response = pc.loadDriver("sudo " + aitess.getLoadDriverCommand() + "\n", null,
 				aitess.getAitessId(), LoadDriverProcessControlManagement.LoadMode.STARTUP);
 
