@@ -1,10 +1,12 @@
 package com.teclever.dfcc.Controller.ui;
 import java.util.List;
+
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.testmanagement.TestManagerManagement;
 import com.teclever.dfcc.model.LoadDriver;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 public class LoadDriverController {
 	private GridPane loadDriverMainGridPane = new GridPane();
 	private GridPane loadDriverSubGridPane = new GridPane();
@@ -33,10 +36,9 @@ public class LoadDriverController {
 	private List<DriverCard> loadDriverDataList ;
 	private ObservableList<LoadDriver> loadDriverTableData = FXCollections.observableArrayList();
 	private Boolean loadDriverStatusResult = true;
-	
-	private Button refreshBtn = new Button();
+
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
-	
+	private VBox box = new VBox();
 	
 	TestManagerManagement testManagerManagement = new TestManagerManagement();
 	
@@ -73,11 +75,9 @@ public class LoadDriverController {
 		return loadDriverMainGridPane;
 	}
 	public void getLoadDriverData() {
-	
 	    Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
-//	        	showProgressIndicator();
 	            DriverCardDetailsResponse loadDriverResponseList = testManagerManagement.preLoadDriver();
 	            loadDriverDataList = loadDriverResponseList.getDriverCardDetails();
 	            if (loadDriverDataList.size() > 0) {
@@ -86,17 +86,42 @@ public class LoadDriverController {
 	            return null;
 	        }
 	    };
+
 	    task.setOnFailed(evt -> {
+	         hideProgressIndicator();
 	        task.getException().printStackTrace();
 	    });
-	    task.setOnSucceeded(evt ->{
-	    	
+
+	    task.setOnSucceeded(evt -> {
+	    	 hideProgressIndicator();
 	    });
+
+	    task.setOnRunning(evt -> {
+//	    	showProgressIndicator();
+	    });
+
 	    new Thread(task).start();
 	}
-	protected void showProgressIndicator() {
-		System.out.println(loadDriverMainGridPane.getParent());
+
+	private void showProgressIndicator() {
+		StackPane parentStackPane= (StackPane) loadDriverSubGridPane.getParent().getParent();
+		System.out.println(loadDriverSubGridPane.getParent());
+		System.out.println(loadDriverSubGridPane.getParent().getParent());
+		box.getChildren().add(progressIndicator);
+		box.setAlignment(Pos.CENTER);
+		parentStackPane.getChildren().add(box);
 	}
+	
+
+	private void hideProgressIndicator() {
+		StackPane parentStackPane= (StackPane) loadDriverSubGridPane.getParent().getParent();
+		if(parentStackPane.getChildren().contains(box)) {
+			parentStackPane.getChildren().remove(box);
+		}
+	}
+
+	
+	
 	private GridPane createLoadDriverPageContent() {
 		loadDriverSubGridPane.getStyleClass().add("load-driver-sub-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -202,7 +227,6 @@ public class LoadDriverController {
 	}
 	private HBox createLoadDriverButton() {
 		okButton.setText("OK");
-		refreshBtn.setText("Refresh");
 		
 		okButton.setOnAction(e -> {
 			if (loadDriverStatusResult) {
@@ -214,13 +238,7 @@ public class LoadDriverController {
 				Platform.exit();
 			}
 		});
-		refreshBtn.setOnAction(e ->{
-			DriverCardDetailsResponse loadDriverResponseList = testManagerManagement.preLoadDriver();
-			loadDriverDataList = loadDriverResponseList.getDriverCardDetails();
-			if(loadDriverDataList.size() > 0) {
-				setTableData();
-			}
-		});
+
 		
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.getChildren().addAll(okButton);

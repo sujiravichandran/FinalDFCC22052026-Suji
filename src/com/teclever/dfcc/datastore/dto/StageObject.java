@@ -24,7 +24,7 @@ public class StageObject {
 
 	private String testTypeId;
 
-//	private String testTypeName;
+	private String status;
 
 	public String getL1StageId() {
 		return l1StageId;
@@ -114,12 +114,12 @@ public class StageObject {
 		this.testTypeId = testTypeId;
 	}
 
-//	public String getTestTypeName() {
-//		return testTypeName;
-//	}
-//
-//	public void setTestTypeName(String testTypeName) {
-//		this.testTypeName = testTypeName;
-//	}
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 }

@@ -370,16 +370,6 @@ public class StateMachine {
 			private static int dStarCount = 0;
 			private static boolean dStarFound = false;
 			private static boolean parseFileError = false;
-			
-			
-
-			public static boolean isParseFileError() {
-				return parseFileError;
-			}
-
-			public static void setParseFileError(boolean parseFileError) {
-				rdfFileParser.parseFileError = parseFileError;
-			}
 
 			public static void setDStarCount(int count) {
 				dStarCount = count;
@@ -400,6 +390,16 @@ public class StateMachine {
 			public static void incrementDStarCount() {
 				dStarCount++;
 			}
+
+			public static boolean isParseFileError() {
+				return parseFileError;
+			}
+
+			public static void setParseFileError(boolean parseFileError) {
+				rdfFileParser.parseFileError = parseFileError;
+			}
+
+		
 			
 		}
 
