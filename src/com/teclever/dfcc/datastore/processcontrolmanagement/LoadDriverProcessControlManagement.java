@@ -7,13 +7,19 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.terminalmanagement.DriverManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
 import com.teclever.utils.ProcessControl;
 
 public class LoadDriverProcessControlManagement {
+
+	private static LoadDriverProcessControlManagement instance;
 
 	public enum LoadMode {
 		STARTUP, SWITCH
@@ -24,23 +30,30 @@ public class LoadDriverProcessControlManagement {
 	private Thread outputProcessingThread;
 	boolean flag = true;
 	private String currentLoadedDriver = null;
+	private boolean closeCommandExecuted = false;
+	private boolean endOfLoadDriverCommand = false;
 
 	private ProcessControl loadDriverProcessController;
 
 	CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
 
-	public LoadDriverProcessControlManagement() {
+	private LoadDriverProcessControlManagement() {
 		loadDriverProcessController = new ProcessControl(loadDriverBQueue);
 	}
 
-	public DriverCardDetailsResponse loadDriver(String command, String unloadCommand, int aitessId, LoadMode mode) {
-		LoadDriverProcessControlManagement pcm = new LoadDriverProcessControlManagement();
+	public static synchronized LoadDriverProcessControlManagement getInstance() {
+		if (instance == null) {
+			instance = new LoadDriverProcessControlManagement();
+		}
+		return instance;
+	}
 
-		// DB obj
+	public DriverCardDetailsResponse loadDriver(String command, String unloadCommand, int aitessId, LoadMode mode) {
+
+		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 		DriverManagement dm = new DriverManagement();
 		List<DbDriverCard> dbDriverCards = dm.getDriverCardDetailsBasedOnAitess(aitessId);
 
-		// Response obj
 		List<DriverCard> responseDriverCards = new ArrayList<DriverCard>();
 
 		Map<String, String> dbMap = new HashMap<>();
@@ -49,7 +62,6 @@ public class LoadDriverProcessControlManagement {
 			dbMap.put(d.getCardName(), d.getTotalNumberOfCards());
 			System.out.println(" DB CardName :: " + d.getCardName());
 			System.out.println(" DB Count :: " + d.getTotalNumberOfCards());
-			System.out.println("CARD IDENTIFICATION TEXT" + d.getCardIdentificationText());
 		}
 
 		try {
@@ -64,7 +76,7 @@ public class LoadDriverProcessControlManagement {
 							flag = true;
 							while (flag) {
 								String output = loadDriverBQueue.take();
-								System.out.println("loadDriver:: " +output);
+								System.out.println("loadDriver:: " + output);
 								for (DbDriverCard d : dbDriverCards) {
 									String cardIdentificationText = d.getCardIdentificationText();
 									DriverCard parsedCards = dm.parseLine1(output, cardIdentificationText);
@@ -72,7 +84,8 @@ public class LoadDriverProcessControlManagement {
 									if (parsedCards.getResponse().getResponseCode() == 1) {
 
 										if (dbMap.get(parsedCards.getCardName()) != null) {
-											System.out.println("DB CARD COUNT : " + dbMap.get(parsedCards.getCardName()) + " PARSED CARD COUNT  " + parsedCards.getFoundedNumberOfCards());
+											System.out.println("DB CARD COUNT : " + dbMap.get(parsedCards.getCardName())
+													+ " PARSED CARD COUNT  " + parsedCards.getFoundedNumberOfCards());
 											if (dbMap.get(parsedCards.getCardName())
 													.equals(parsedCards.getFoundedNumberOfCards())) {
 												parsedCards.setExpectedCountOfCards(d.getTotalNumberOfCards());
@@ -87,70 +100,111 @@ public class LoadDriverProcessControlManagement {
 									}
 								}
 								System.out.println(output);
-								if (output.contains("Starting AETS RT Scheduler") || output.contains("Staring AETS RT Scheduler") ) {
-									System.out.println("LAST LINE :  "+ output.contains("Starting AETS RT Scheduler"));
+								if (output.contains("Starting AETS RT Scheduler")
+										|| output.contains("Staring AETS RT Scheduler")) {
+									System.out.println("LAST LINE :  " + output.contains("Starting AETS RT Scheduler"));
 									flag = false;
 								}
-//	                                System.out.println("after    IF CONTIDION ");
 							}
-//	                            System.out.println("WHILE LOOP COMPLETED ---- ");
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
 							Thread.currentThread().interrupt();
 						}
 						outputProcessingThread.interrupt();
 					});
-//	                    System.out.println("----------STOP--------");
 					outputProcessingThread.start();
 
 				});
 
-				// Wait for launcherFuture to complete and ensure the processing thread has
-				// finished
 				launcherFuture.join();
-//	                System.out.println("LAUNCHER JOINED");
 				if (outputProcessingThread != null) {
 					outputProcessingThread.join();
 				}
-//	                outputProcessingThread.wait();
 				DriverCardDetailsResponse response = new DriverCardDetailsResponse();
 
-//				while (true) {
-//					if (!flag)
-//						break;
-//				}
+				while (flag) {
+					System.out.print("- ");
+				}
 
-	                while(flag) {
-	                	System.out.print("- ");
-	                }
-//	                	System.out.println("-------- COMPLETED -----------");
-//	                while(responseDriverCards.size()!=4) {
-////	                	System.out.println("Waiting to complete Thread  ");
-//	                }
 				response.setDriverCardDetails(responseDriverCards);
-				pcm.setCurrentLoadedDriver(command);
-				System.out.println(
-						"----response.getDriverCardDetails().size()----" + response.getDriverCardDetails().size());
+				System.out.println("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
 				return response;
 
 			case SWITCH:
-				if (!pcm.isCurrentDriver(command)) {
-					launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
+				launcherFuture.thenRun(() -> {
+					loadDriverProcessController.ReadingProcess();
+					outputProcessingThread = new Thread(() -> {
+						try {
+							flag = true;
+							while (flag) {
+								String output = loadDriverBQueue.take();
+								System.out.println("loadDriver:: " + output);
 
+								if (getCloseLoadDriverEndMatchingLine(output) != null) {
+									closeCommandExecuted = true;
+								}
+
+								if (output.contains("Starting AETS RT Scheduler")
+										|| output.contains("Staring AETS RT Scheduler")) {
+									System.out.println("LAST LINE :  " + output.contains("Starting AETS RT Scheduler")
+											+ output.contains("Staring AETS RT Scheduler"));
+									endOfLoadDriverCommand = true;
+								}
+
+								if (endOfLoadDriverCommand) {
+									flag = false;
+								}
+							}
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+							Thread.currentThread().interrupt();
+						}
+						outputProcessingThread.interrupt();
+					});
+					outputProcessingThread.start();
+				});
+
+				aitessRunning.setAitess1Exited(false);
+				aitessProcessControlManagement.exitAitess1Command();
+				aitessRunning.setAitess2Exited(false);
+				aitessProcessControlManagement.exitAitess2Command();
+
+				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
+
+				if (closeCommandExecuted == true) {
 					if (unloadCommand != null && !unloadCommand.isEmpty()) {
-						loadDriverProcessController.WritingProcess(unloadCommand+"\n");
+						launcherFuture.thenRun(
+								() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
 					}
-
-					launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess(command+"\n"));
-					pcm.setCurrentLoadedDriver(command);
+					closeCommandExecuted = false;
 				}
-				break;
+
+				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
+
+				launcherFuture.join();
+				if (outputProcessingThread != null) {
+					outputProcessingThread.join();
+				}
+				if (endOfLoadDriverCommand == true) {
+					endOfLoadDriverCommand = false;
+					break;
+				}
 			}
 		} catch (Exception e) {
 			System.err.println("An error occurred while loading the driver: " + e.getMessage());
 			e.printStackTrace();
 		}
+		return null;
+	}
 
+	private String getCloseLoadDriverEndMatchingLine(String line) {
+		Pattern exitLinePattern = Pattern.compile("\\*{71}");
+		Matcher exitLineMatcher = exitLinePattern.matcher(line);
+
+		if (exitLineMatcher.find()) {
+			System.out.println("END LINE:: " + line);
+			return line;
+		}
 		return null;
 	}
 

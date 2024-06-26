@@ -403,6 +403,32 @@ public class StateMachine {
 			
 		}
 
+		
+		
+		public static class aitessRunning{
+			private static boolean aitess1Exited = true;
+			private static boolean aitess2Exited = true;
+			
+			
+			public static boolean isAitess1Exited() {
+				return aitess1Exited;
+			}
+			public static void setAitess1Exited(boolean aitess1Exited) {
+				aitessRunning.aitess1Exited = aitess1Exited;
+			}
+			public static boolean isAitess2Exited() {
+				return aitess2Exited;
+			}
+			public static void setAitess2Exited(boolean aitess2Exited) {
+				aitessRunning.aitess2Exited = aitess2Exited;
+			}
+			
+			
+
+			
+			
+		}
+		
 	}
 
 }

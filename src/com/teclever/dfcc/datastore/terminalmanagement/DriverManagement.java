@@ -102,11 +102,8 @@ public class DriverManagement {
 				if (cardIdentificationText.contains("##NUM##")) {
 					// Replace ##NUM## with a capturing group for the number
 					String dynamicPatternString = cardIdentificationText.replace("##NUM##", "(\\d+)");
-					System.out.println("dynamicPatternString ::  "+ dynamicPatternString);
 					Pattern dynamicPattern = Pattern.compile(dynamicPatternString);
-					System.out.println("dynamicPattern :: " + dynamicPattern);
 					Matcher dynamicMatcher = dynamicPattern.matcher(outputLine);
-					System.out.println("dynamicMatcher :: "+ dynamicMatcher);
 
 					if (dynamicMatcher.find()) {
 						String numOfCards = dynamicMatcher.group(1);
