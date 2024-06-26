@@ -15,6 +15,8 @@ import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -304,6 +306,165 @@ public class LoginFormController {
 
 	private GridPane createPasswordChangePage() {
 	    GridPane passwordChangePage = new GridPane();
+
+	    ColumnConstraints firstColumn = new ColumnConstraints();
+	    firstColumn.setPercentWidth(35);
+	    ColumnConstraints secondColumn = new ColumnConstraints();
+	    secondColumn.setPercentWidth(30);
+	    ColumnConstraints thirdColumn = new ColumnConstraints();
+	    thirdColumn.setPercentWidth(35);
+
+	    RowConstraints firstRow = new RowConstraints();
+	    firstRow.setPercentHeight(28);
+	    RowConstraints secondRow = new RowConstraints();
+	    secondRow.setPercentHeight(44);
+	    RowConstraints thirdRow = new RowConstraints();
+	    thirdRow.setPercentHeight(28);
+
+	    passwordChangePage.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+	    passwordChangePage.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+
+	    VBox changeAdminPasswordBVBox = new VBox(10);
+	    changeAdminPasswordBVBox.getStyleClass().add("admin-password-change-popup");
+	    changeAdminPasswordBVBox.getStylesheets()
+	            .add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+
+	    HBox titleHBox = new HBox(5);
+	    titleHBox.setAlignment(Pos.CENTER);
+	    Label titleLabel = new Label("Change Password");
+	    titleLabel.getStyleClass().add("popup-title");
+	    titleHBox.getChildren().add(titleLabel);
+
+	    VBox newPasswordVBox = new VBox(10);
+	    newPasswordVBox.setAlignment(Pos.CENTER_LEFT);
+	    Label newPasswordLabel = new Label("New Password");
+	    newPasswordLabel.getStyleClass().add("popup-label");
+	    PasswordField newPasswordField = new PasswordField();
+	    newPasswordField.getStyleClass().add("popup-input");
+	    newPasswordVBox.getChildren().addAll(newPasswordLabel, newPasswordField);
+
+	    VBox confirmPasswordVBox = new VBox(10);
+	    confirmPasswordVBox.setAlignment(Pos.CENTER_LEFT);
+	    Label confirmPasswordLabel = new Label("Confirm Password");
+	    confirmPasswordLabel.getStyleClass().add("popup-label");
+	    PasswordField confirmPasswordField = new PasswordField();
+	    confirmPasswordField.getStyleClass().add("popup-input");
+	    confirmPasswordVBox.getChildren().addAll(confirmPasswordLabel, confirmPasswordField);
+
+	    CheckBox showPasswordCheckBox = new CheckBox("Show Password");
+	    showPasswordCheckBox.getStyleClass().add("show-password-checkbox");
+	    
+	    SimpleBooleanProperty showPassword = new SimpleBooleanProperty();
+	    SimpleStringProperty newPasswordText = new SimpleStringProperty();
+	    SimpleStringProperty confirmPasswordText = new SimpleStringProperty();
+
+	    newPasswordField.textProperty().bindBidirectional(newPasswordText);
+	    confirmPasswordField.textProperty().bindBidirectional(confirmPasswordText);
+
+	    showPasswordCheckBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+	        if (isSelected) {
+	            TextField newPasswordTextField = new TextField();
+	            newPasswordTextField.getStyleClass().add("popup-input");
+	            newPasswordTextField.setText(newPasswordField.getText());
+	            newPasswordTextField.textProperty().bindBidirectional(newPasswordText);
+	            newPasswordVBox.getChildren().set(1, newPasswordTextField);
+
+	            TextField confirmPasswordTextField = new TextField();
+	            confirmPasswordTextField.getStyleClass().add("popup-input");
+	            confirmPasswordTextField.setText(confirmPasswordField.getText());
+	            confirmPasswordTextField.textProperty().bindBidirectional(confirmPasswordText);
+	            confirmPasswordVBox.getChildren().set(1, confirmPasswordTextField);
+	        } else {
+	            PasswordField newPasswordPasswordField = new PasswordField();
+	            newPasswordPasswordField.getStyleClass().add("popup-input");
+	            newPasswordPasswordField.setText(newPasswordText.get());
+	            newPasswordPasswordField.textProperty().bindBidirectional(newPasswordText);
+	            newPasswordVBox.getChildren().set(1, newPasswordPasswordField);
+
+	            PasswordField confirmPasswordPasswordField = new PasswordField();
+	            confirmPasswordPasswordField.getStyleClass().add("popup-input");
+	            confirmPasswordPasswordField.setText(confirmPasswordText.get());
+	            confirmPasswordPasswordField.textProperty().bindBidirectional(confirmPasswordText);
+	            confirmPasswordVBox.getChildren().set(1, confirmPasswordPasswordField);
+	        }
+	    });
+
+	    HBox buttomBox = new HBox(20);
+	    buttomBox.setAlignment(Pos.CENTER);
+	    Button exitButton = new Button("Exit");
+	    Button updateButton = new Button("Update Password");
+	    exitButton.getStyleClass().add("popup-btn");
+	    updateButton.getStyleClass().add("popup-btn");
+	    buttomBox.getChildren().addAll(exitButton, updateButton);
+
+	    changeAdminPasswordBVBox.getChildren().addAll(titleHBox, newPasswordVBox, confirmPasswordVBox, showPasswordCheckBox, buttomBox);
+
+	    exitButton.setOnAction(e -> Platform.exit());
+	    updateButton.setOnAction(e -> {
+	        String newPassword = newPasswordText.get();
+	        String confirmPassword = confirmPasswordText.get();
+
+	        if (newPassword.isEmpty()) {
+	            Notifications.showWarningAlert("Please Enter New Password...");
+	            return;
+	        } else if (confirmPassword.isEmpty()) {
+	            Notifications.showWarningAlert("Please Enter Confirm Password...");
+	            return;
+	        } else if (!newPassword.equals(confirmPassword)) {
+	            Notifications.showErrorAlert("Password and Confirm Password Mismatched...");
+	            return;
+	        } else if (confirmPassword.length() < 8) {
+	            Notifications.showErrorAlert("Password must be at least 8 characters long...");
+	            return;
+	        } else if (!confirmPassword.matches(".*[a-z].*")) {
+	            Notifications.showErrorAlert("Password must contain at least one lowercase letter...");
+	            return;
+	        } else if (!confirmPassword.matches(".*[A-Z].*")) {
+	            Notifications.showErrorAlert("Password must contain at least one uppercase letter...");
+	            return;
+	        } else if (!confirmPassword.matches(".*\\d.*")) {
+	            Notifications.showErrorAlert("Password must contain at least one digit...");
+	            return;
+	        } else if (!confirmPassword.matches(".*[!@#$%^&*()].*")) {
+	            Notifications.showErrorAlert("Password must contain at least one special character...");
+	            return;
+	        } else {
+	            Response response = userManagementModule.changePasswordForBellAdmin(confirmPassword);
+	            if (response.getResponseCode() == 1) {
+					GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();
+					mainContainerGridPane.getRowConstraints().get(0).setPercentHeight(10);
+					mainContainerGridPane.getRowConstraints().get(1).setPercentHeight(90);
+					
+					ObservableList<Node> childrenToRemove = FXCollections.observableArrayList();
+					for (Node child : mainContainerGridPane.getChildren()) {
+					    Integer rowIndex = GridPane.getRowIndex(child);
+					    if (rowIndex != null && rowIndex == 0) {
+					        childrenToRemove.add(child);
+					    }
+					}
+					
+					mainContainerGridPane.getChildren().removeAll(childrenToRemove);
+					mainContainerGridPane.add(topContainerAfterLoginController.createTopGridPane(), 0, 0);	
+					
+	                Parent parent = loginGridPane.getParent();
+	                if (parent instanceof GridPane) {
+	                    StackPane parent1 = (StackPane) parent.getParent();
+	                    parent1.getChildren().clear();
+	                    UserData.setRoleId("RL_ID_1");
+	                    AdminDashboardController adminDashboardController = new AdminDashboardController();
+	                    parent1.getChildren().add(adminDashboardController.createAdminDashboard());
+	                }
+	            }
+	        }
+	    });
+
+	    passwordChangePage.add(changeAdminPasswordBVBox, 1, 1);
+
+	    return passwordChangePage;
+	}
+	
+	private GridPane createPasswordChangePage1() {
+	    GridPane passwordChangePage = new GridPane();
 	    
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(35);
@@ -394,6 +555,21 @@ public class LoginFormController {
 			} else {
 				Response response = userManagementModule.changePasswordForBellAdmin(confirmPassword);
 				if (response.getResponseCode() == 1) {
+					
+					GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();
+					mainContainerGridPane.getRowConstraints().get(0).setPercentHeight(10);
+					mainContainerGridPane.getRowConstraints().get(1).setPercentHeight(90);
+					
+					ObservableList<Node> childrenToRemove = FXCollections.observableArrayList();
+					for (Node child : mainContainerGridPane.getChildren()) {
+					    Integer rowIndex = GridPane.getRowIndex(child);
+					    if (rowIndex != null && rowIndex == 0) {
+					        childrenToRemove.add(child);
+					    }
+					}
+					
+					mainContainerGridPane.getChildren().removeAll(childrenToRemove);
+					mainContainerGridPane.add(topContainerAfterLoginController.createTopGridPane(), 0, 0);	
 					Parent parent = loginGridPane.getParent();
 					if (parent instanceof GridPane) {
 						StackPane parent1 = (StackPane) parent.getParent();

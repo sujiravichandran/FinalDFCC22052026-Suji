@@ -140,22 +140,18 @@ public class SessionTestStateObject {
 	}
 	
 	public static void updateEndLeafMapStatus(String stageId, String status) {
-//		System.out.println("---143-calling update method------");
 		for (Entry<StageIdName, String> endLeaf : endLeafMap.entrySet()) {
 			if (endLeaf.getKey().getStageId().equals(stageId)) {
 				endLeafMap.put(endLeaf.getKey(), status);
 				break;
 			}
 		}
-//		for (Entry<StageIdName, String> endLeaf : endLeafMap.entrySet()) {
-//			System.out.println("--151--"+ endLeaf.getKey().getStageId()+"    "+endLeaf.getValue());
-//		}
 	}
 	
 
 //	Running Test Leaf Id
 	private static String currentRunningStageId;
-//	private static String runningTestLeafId;
+	private static String runningTestLeafId;
 	private static BooleanProperty runningTestLeafStatus = new SimpleBooleanProperty(false);
 		
 	public static String getCurrentRunningStageId() {
@@ -164,13 +160,12 @@ public class SessionTestStateObject {
 	public static void setCurrentRunningStageId(String currentRunningStageId) {
 		SessionTestStateObject.currentRunningStageId = currentRunningStageId;
 	}
-//	public static String getRunningTestLeafId() {
-//		return runningTestLeafId;
-//	}
-//	public static void setRunningTestLeafId(String runningTestLeafId) {
-//		SessionTestStateObject.runningTestLeafId = runningTestLeafId;
-//	}
-	
+	public static String getRunningTestLeafId() {
+		return runningTestLeafId;
+	}
+	public static void setRunningTestLeafId(String runningTestLeafId) {
+		SessionTestStateObject.runningTestLeafId = runningTestLeafId;
+	}
 	public static BooleanProperty runningTestLeafStatusProperty() {
 		return runningTestLeafStatus;
 	}

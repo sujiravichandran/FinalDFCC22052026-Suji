@@ -15,6 +15,7 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
@@ -208,6 +209,7 @@ public class SelfTestController {
 		    	startTest.setDisable(true);
 		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);
+		        StateMachine.setRunningTestName(RunningTestName.SELF_TEST);
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);
