@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.and;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import com.mongodb.client.MongoCollection;
@@ -14,12 +15,12 @@ import com.teclever.dfcc.resultstore.dto.ResultDto;
 public class ResultManagement {
 
 	//GET API
-	public static List<ResultDto> getResult(String testRunId) {
+    public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId) {
 	    List<ResultDto> resultList = new ArrayList<>();
 	    MongoDatabase database = ResultStoreConnection.getDatabase();
 
-	    MongoCollection<Document> rdfFileInfoCollection = database.getCollection(testRunId);
-	    Document rdfFileInfoDoc = rdfFileInfoCollection.find(eq("testRunId", testRunId)).first();
+	    MongoCollection<Document> rdfFileInfoCollection = database.getCollection(sessionId);
+        Document rdfFileInfoDoc = rdfFileInfoCollection.find(and(eq("sessionId", sessionId), eq("_id", specificObjectId))).first();
 
 	    if (rdfFileInfoDoc != null) {
 	        ObjectId refObjectId = rdfFileInfoDoc.getObjectId("RefObjectId");
@@ -77,7 +78,7 @@ public class ResultManagement {
 	            System.out.println("Document not found in collection: " + collectionName);
 	        }
 	    } else {
-	        System.out.println("No documents found in rdf_file_info collection for testRunId: " + testRunId);
+	        System.out.println("No documents found in rdf_file_info collection for testRunId: " + sessionId);
 	    }
 
 	    return resultList;

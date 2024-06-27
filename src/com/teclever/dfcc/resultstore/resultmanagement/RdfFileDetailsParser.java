@@ -20,112 +20,230 @@ import com.teclever.dfcc.resultstore.dto.StepDto;
 
 
 public class RdfFileDetailsParser {
+	static ObjectId o;
 
 	//SAVE API
-    public static void saveProjectDetailsToMongoDB(String testRunId, String filePath) {
-        List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
-        String collectionName = testRunId + "_" + getCollectionNameFromFilePath(filePath);
-        MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
-        List<StepDto> stepDtoList = StepParser.parseStepContext(filePath);
+	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) {
+	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
+	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
+	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
+	    List<StepDto> stepDtoList = StepParser.parseStepContext(filePath);
 
-        MongoCollection<Document> collection1 = ResultStoreConnection.getDatabase().getCollection(testRunId);
+	    MongoCollection<Document> collection1 = ResultStoreConnection.getDatabase().getCollection(sessionId);
+	    ObjectId rdfFileInfoObjectId = null; // Variable to store the ObjectId
 
-        for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
-            Document existingDoc = collection.find(eq("resultDataFile", rdfFileDetails.getResultDataFile())).first();
-            if (existingDoc == null) {
-                Document doc = new Document("project", rdfFileDetails.getProject())
-                        .append("systemDatabaseFile", rdfFileDetails.getSystemDatabaseFile())
-                        .append("userDatabaseFile", rdfFileDetails.getUserDatabaseFile())
-                        .append("systemMacroFile", rdfFileDetails.getSystemMacroFile())
-                        .append("userMacroFile", rdfFileDetails.getUserMacroFile())
-                        .append("testPlanFile", rdfFileDetails.getTestPlanFile())
-                        .append("resultDataFile", rdfFileDetails.getResultDataFile())
-                        .append("dateOfExecution", rdfFileDetails.getDateOfExecution())
-                        .append("timeOfExecution", rdfFileDetails.getTimeOfExecution())
-                        .append("step", rdfFileDetails.getStep())
-                        .append("failedStep", rdfFileDetails.getFailedStep());
 
-                collection.insertOne(doc);
+	    for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
+	        Document doc = new Document("project", rdfFileDetails.getProject())
+	                .append("systemDatabaseFile", rdfFileDetails.getSystemDatabaseFile())
+	                .append("userDatabaseFile", rdfFileDetails.getUserDatabaseFile())
+	                .append("systemMacroFile", rdfFileDetails.getSystemMacroFile())
+	                .append("userMacroFile", rdfFileDetails.getUserMacroFile())
+	                .append("testPlanFile", rdfFileDetails.getTestPlanFile())
+	                .append("resultDataFile", rdfFileDetails.getResultDataFile())
+	                .append("dateOfExecution", rdfFileDetails.getDateOfExecution())
+	                .append("timeOfExecution", rdfFileDetails.getTimeOfExecution())
+	                .append("step", rdfFileDetails.getStep())
+	                .append("failedStep", rdfFileDetails.getFailedStep());
 
-                Document rdfFileInfoDoc = new Document("testPlanFile", rdfFileDetails.getTestPlanFile())
-                        .append("testRunId", testRunId)
-                        .append("time", rdfFileDetails.getDateOfExecution() + " " + rdfFileDetails.getTimeOfExecution())
-                        .append("rdfFile", getCollectionName(rdfFileDetails.getResultDataFile()))
-                        .append("RefObjectId", doc.getObjectId("_id"))
-                        .append("RefCollectionName", testRunId + "_" + getCollectionName(rdfFileDetails.getResultDataFile()));
+	        collection.insertOne(doc);
 
-                collection1.insertOne(rdfFileInfoDoc);
-            }
-        }
+	        Document rdfFileInfoDoc = new Document("testPlanFile", rdfFileDetails.getTestPlanFile())
+	                .append("sessionId", sessionId)
+	                .append("time", rdfFileDetails.getDateOfExecution() + " " + rdfFileDetails.getTimeOfExecution())
+	                .append("rdfFile", getCollectionName(rdfFileDetails.getResultDataFile()))
+	                .append("RefObjectId", doc.getObjectId("_id"))
+	                .append("RefCollectionName", sessionId + "_" + getCollectionName(rdfFileDetails.getResultDataFile()));
 
-        Map<String, ObjectId> stepObjectIdMap = new LinkedHashMap<>();
-        for (StepDto stepDto : stepDtoList) {
-            Document doc = new Document("tpgph", stepDto.getTpgph());
+	        collection1.insertOne(rdfFileInfoDoc);
+            rdfFileInfoObjectId = rdfFileInfoDoc.getObjectId("_id"); // Capture the ObjectId
+	        o=doc.getObjectId("_id");
+	    }
 
-            if (stepDto.getStep() != null) {
-                doc.append("step", stepDto.getStep());
-            }
-            if (stepDto.getInput() != null) {
-                doc.append("input", stepDto.getInput());
-            }
-            if (stepDto.getdStarInfo() != null) {
-                doc.append("dStarInfo", stepDto.getdStarInfo());
-            }
-            if (stepDto.getReadingInfo() != null && !stepDto.getReadingInfo().isEmpty()) {
-                doc.append("readingInfo", stepDto.getReadingInfo());
-            }
-            if (stepDto.getUnit() != null) {
-                doc.append("unit", stepDto.getUnit());
-            }
-            if (stepDto.getFaultyChannel() != null) {
-                doc.append("faultyChannel", stepDto.getFaultyChannel());
-                if (stepDto.getSignalName() != null) {
-                    doc.append("signalName", stepDto.getSignalName());
-                }
-                if (stepDto.getExpectedValue() != null) {
-                    doc.append("expectedValue", stepDto.getExpectedValue());
-                }
-            }
-            collection.insertOne(doc);
+	    Map<String, ObjectId> stepObjectIdMap = new LinkedHashMap<>();
+	    for (StepDto stepDto : stepDtoList) {
+	        Document doc = new Document("tpgph", stepDto.getTpgph());
 
-            ObjectId objectId = doc.getObjectId("_id");
-            if (objectId != null && stepDto.getStep() != null) {
-                stepObjectIdMap.put(stepDto.getStep(), objectId);
-            }
-        }
+	        if (stepDto.getStep() != null) {
+	            doc.append("step", stepDto.getStep());
+	        }
+	        if (stepDto.getInput() != null) {
+	            doc.append("input", stepDto.getInput());
+	        }
+	        if (stepDto.getdStarInfo() != null) {
+	            doc.append("dStarInfo", stepDto.getdStarInfo());
+	        }
+	        if (stepDto.getReadingInfo() != null && !stepDto.getReadingInfo().isEmpty()) {
+	            doc.append("readingInfo", stepDto.getReadingInfo());
+	        }
+	        if (stepDto.getUnit() != null) {
+	            doc.append("unit", stepDto.getUnit());
+	        }
+	        if (stepDto.getFaultyChannel() != null) {
+	            doc.append("faultyChannel", stepDto.getFaultyChannel());
+	            if (stepDto.getSignalName() != null) {
+	                doc.append("signalName", stepDto.getSignalName());
+	            }
+	            if (stepDto.getExpectedValue() != null) {
+	                doc.append("expectedValue", stepDto.getExpectedValue());
+	            }
+	        }
+	        collection.insertOne(doc);
 
-        for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
-            Document existingDoc = collection.find(Filters.eq("resultDataFile", rdfFileDetails.getResultDataFile())).first();
-            if (existingDoc != null) {
-                ObjectId objectId = existingDoc.getObjectId("_id");
+	        ObjectId objectId = doc.getObjectId("_id");
+	        if (objectId != null && stepDto.getStep() != null) {
+	            stepObjectIdMap.put(stepDto.getStep(), objectId);
+	        }
+	    }
 
-                Map<String, ObjectId> stepObjectIdMap1 = new HashMap<>();
-                Map<String, ObjectId> failedStepObjectIdMap = new HashMap<>();
-                for (StepDto stepDto : stepDtoList) {
-                    if (stepDto.getResultDataFile().equals(rdfFileDetails.getResultDataFile())) {
-                        if (stepDto.getStep() != null) {
-                            ObjectId stepObjectId = stepObjectIdMap.get(stepDto.getStep());
-                            if (stepObjectId != null) {
-                                stepObjectIdMap.put(stepDto.getStep(), stepObjectId);
-                            }
-                        }
-                        if (stepDto.getdStarInfo() != null) {
-                            ObjectId failedStepObjectId = stepObjectIdMap.get(stepDto.getStep());
-                            if (failedStepObjectId != null) {
-                                failedStepObjectIdMap.put(stepDto.getStep(), failedStepObjectId);
-                            }
-                        }
-                    }
-                }
+	    for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
+	        //Document existingDoc = collection.find(Filters.eq("resultDataFile", rdfFileDetails.getResultDataFile())).first();
+	        //if (existingDoc != null) {
+	            ObjectId objectId = o;
 
-                collection.updateOne(
-                        Filters.eq("_id", objectId),
-                        new Document("$set", new Document("step", stepObjectIdMap).append("failedStep", failedStepObjectIdMap))
-                );
-            }
-        }
-    }
+	            Map<String, ObjectId> stepObjectIdMap1 = new HashMap<>();
+	            Map<String, ObjectId> failedStepObjectIdMap = new HashMap<>();
+	            for (StepDto stepDto : stepDtoList) {
+	                if (stepDto.getResultDataFile().equals(rdfFileDetails.getResultDataFile())) {
+	                    if (stepDto.getStep() != null) {
+	                        ObjectId stepObjectId = stepObjectIdMap.get(stepDto.getStep());
+	                        if (stepObjectId != null) {
+	                            stepObjectIdMap.put(stepDto.getStep(), stepObjectId);
+	                        }
+	                    }
+	                    if (stepDto.getdStarInfo() != null) {
+	                        ObjectId failedStepObjectId = stepObjectIdMap.get(stepDto.getStep());
+	                        if (failedStepObjectId != null) {
+	                            failedStepObjectIdMap.put(stepDto.getStep(), failedStepObjectId);
+	                        }
+	                    }
+	                }
+	            }
 
+	            collection.updateOne(
+	                    Filters.eq("_id", objectId),
+	                    new Document("$set", new Document("step", stepObjectIdMap).append("failedStep", failedStepObjectIdMap))
+	            );
+	        }
+	    System.out.println("Returned Object Id------>>>>>    " + rdfFileInfoObjectId );
+	    return rdfFileInfoObjectId; // Return the ObjectId
+
+	    }
+	//}
+
+
+    
+//  //SAVE API
+//  	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) {
+//  	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
+//  	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
+//  	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
+//  	    List<StepDto> stepDtoList = StepParser.parseStepContext(filePath);
+//
+//  	    MongoCollection<Document> collection1 = ResultStoreConnection.getDatabase().getCollection(sessionId);
+//  	    ObjectId rdfFileInfoObjectId = null; // Variable to store the ObjectId
+//
+//  	    for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
+//  	        Document existingDoc = collection.find(eq("resultDataFile", rdfFileDetails.getResultDataFile())).first();
+//  	        if (existingDoc == null) {
+//  	            Document doc = new Document("project", rdfFileDetails.getProject())
+//  	                    .append("systemDatabaseFile", rdfFileDetails.getSystemDatabaseFile())
+//  	                    .append("userDatabaseFile", rdfFileDetails.getUserDatabaseFile())
+//  	                    .append("systemMacroFile", rdfFileDetails.getSystemMacroFile())
+//  	                    .append("userMacroFile", rdfFileDetails.getUserMacroFile())
+//  	                    .append("testPlanFile", rdfFileDetails.getTestPlanFile())
+//  	                    .append("resultDataFile", rdfFileDetails.getResultDataFile())
+//  	                    .append("dateOfExecution", rdfFileDetails.getDateOfExecution())
+//  	                    .append("timeOfExecution", rdfFileDetails.getTimeOfExecution())
+//  	                    .append("step", rdfFileDetails.getStep())
+//  	                    .append("failedStep", rdfFileDetails.getFailedStep());
+//
+//  	            collection.insertOne(doc);
+//
+//  	            Document rdfFileInfoDoc = new Document("testPlanFile", rdfFileDetails.getTestPlanFile())
+//  	                    .append("sessionId", sessionId)
+//  	                    .append("time", rdfFileDetails.getDateOfExecution() + " " + rdfFileDetails.getTimeOfExecution())
+//  	                    .append("rdfFile", getCollectionName(rdfFileDetails.getResultDataFile()))
+//  	                    .append("RefObjectId", doc.getObjectId("_id"))
+//  	                    .append("RefCollectionName", sessionId + "_" + getCollectionName(rdfFileDetails.getResultDataFile()));
+//
+//  	            collection1.insertOne(rdfFileInfoDoc);
+//  	            rdfFileInfoObjectId = rdfFileInfoDoc.getObjectId("_id"); // Capture the ObjectId
+//  	        }
+//  	    }
+//
+//  	    Map<String, ObjectId> stepObjectIdMap = new LinkedHashMap<>();
+//  	    for (StepDto stepDto : stepDtoList) {
+//  	        Document doc = new Document("tpgph", stepDto.getTpgph());
+//
+//  	        if (stepDto.getStep() != null) {
+//  	            doc.append("step", stepDto.getStep());
+//  	        }
+//  	        if (stepDto.getInput() != null) {
+//  	            doc.append("input", stepDto.getInput());
+//  	        }
+//  	        if (stepDto.getdStarInfo() != null) {
+//  	            doc.append("dStarInfo", stepDto.getdStarInfo());
+//  	        }
+//  	        if (stepDto.getReadingInfo() != null && !stepDto.getReadingInfo().isEmpty()) {
+//  	            doc.append("readingInfo", stepDto.getReadingInfo());
+//  	        }
+//  	        if (stepDto.getUnit() != null) {
+//  	            doc.append("unit", stepDto.getUnit());
+//  	        }
+//  	        if (stepDto.getFaultyChannel() != null) {
+//  	            doc.append("faultyChannel", stepDto.getFaultyChannel());
+//  	            if (stepDto.getSignalName() != null) {
+//  	                doc.append("signalName", stepDto.getSignalName());
+//  	            }
+//  	            if (stepDto.getExpectedValue() != null) {
+//  	                doc.append("expectedValue", stepDto.getExpectedValue());
+//  	            }
+//  	        }
+//  	        collection.insertOne(doc);
+//
+//  	        ObjectId objectId = doc.getObjectId("_id");
+//  	        if (objectId != null && stepDto.getStep() != null) {
+//  	            stepObjectIdMap.put(stepDto.getStep(), objectId);
+//  	        }
+//  	    }
+//
+//  	    for (RdfFileDetailsDto rdfFileDetails : rdfFileDetailsList) {
+//  	        Document existingDoc = collection.find(Filters.eq("resultDataFile", rdfFileDetails.getResultDataFile())).first();
+//  	        if (existingDoc != null) {
+//  	            ObjectId objectId = existingDoc.getObjectId("_id");
+//
+//  	            Map<String, ObjectId> stepObjectIdMap1 = new HashMap<>();
+//  	            Map<String, ObjectId> failedStepObjectIdMap = new HashMap<>();
+//  	            for (StepDto stepDto : stepDtoList) {
+//  	                if (stepDto.getResultDataFile().equals(rdfFileDetails.getResultDataFile())) {
+//  	                    if (stepDto.getStep() != null) {
+//  	                        ObjectId stepObjectId = stepObjectIdMap.get(stepDto.getStep());
+//  	                        if (stepObjectId != null) {
+//  	                            stepObjectIdMap.put(stepDto.getStep(), stepObjectId);
+//  	                        }
+//  	                    }
+//  	                    if (stepDto.getdStarInfo() != null) {
+//  	                        ObjectId failedStepObjectId = stepObjectIdMap.get(stepDto.getStep());
+//  	                        if (failedStepObjectId != null) {
+//  	                            failedStepObjectIdMap.put(stepDto.getStep(), failedStepObjectId);
+//  	                        }
+//  	                    }
+//  	                }
+//  	            }
+//
+//  	            collection.updateOne(
+//  	                    Filters.eq("_id", objectId),
+//  	                    new Document("$set", new Document("step", stepObjectIdMap).append("failedStep", failedStepObjectIdMap))
+//  	            );
+//  	        }
+//  	    }
+//  	    
+//  	    return rdfFileInfoObjectId; // Return the ObjectId
+//  	}
+    
+    
+    
     private static List<RdfFileDetailsDto> parseProjectDetails(String filePath) {
         List<RdfFileDetailsDto> projectDetailsList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
