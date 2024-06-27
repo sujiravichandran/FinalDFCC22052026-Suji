@@ -256,6 +256,7 @@ public class AitessProcessControlManagement {
 						String userActionLine = getUserActionLine(s1);
 						if (userActionLine != null) {
 							StateMachine.setUserAction(userActionLine);
+							StateMachine.getUserActionFlag().set(true);
 						}
 
 						// condition if test stared

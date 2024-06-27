@@ -1,5 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.stateMachine.StateMachine;
+
+import javafx.application.Platform;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
@@ -17,6 +20,7 @@ public class UserCenterContentController {
 	private TerminalController terminalController = new TerminalController();
 
 	public UserCenterContentController() {
+		TerminalPopupController terminalPopupController = new TerminalPopupController();
 		centerStackPane.getChildren().addAll(dashboardStackPane);
 		terminalController.launchTerminal();
 	}
@@ -77,7 +81,6 @@ public class UserCenterContentController {
 			break;
 	
 		case "Show Terminal":
-			TerminalPopupController terminalPopupController = new TerminalPopupController();
 			terminalController.createTerminalPopup();
 			break;
 
@@ -86,6 +89,13 @@ public class UserCenterContentController {
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
 		}
+		
+//        StateMachine.userActionFlagProperty().addListener((observable, oldValue, newValue) ->{
+//        	if(newValue) {
+//        		Platform.runLater(() -> terminalController.createTerminalPopup());
+//        		StateMachine.getUserActionFlag().set(false);
+//        	}
+//        });
 	}
 
 }

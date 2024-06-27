@@ -1,15 +1,15 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
+
 import com.teclever.dfcc.DFCCConstant;
-import javafx.animation.TranslateTransition;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
 
 public class TerminalController {
 
@@ -24,10 +24,6 @@ public class TerminalController {
                 terminalStage.initModality(Modality.APPLICATION_MODAL);
                 terminalStage.initStyle(StageStyle.UNDECORATED);
                 terminalStage.setScene(new Scene(root));
-
-                terminalStage.setX(200);
-                terminalStage.setY(200); 
-
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -48,10 +44,6 @@ public class TerminalController {
                 terminalStage.initModality(Modality.APPLICATION_MODAL);
                 terminalStage.initStyle(StageStyle.UNDECORATED);
                 terminalStage.setScene(new Scene(root));
-
-                terminalStage.setX(200);
-                terminalStage.setY(200); 
-
 
             } catch (IOException e) {
                 e.printStackTrace();

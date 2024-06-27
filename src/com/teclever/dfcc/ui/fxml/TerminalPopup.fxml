@@ -10,9 +10,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.web.WebView?>
 
-<AnchorPane fx:id="terminalPopupMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" stylesheets="@../css/Terminal.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.TerminalPopupController">
+<AnchorPane fx:id="terminalPopupMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" stylesheets="@../css/Terminal.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.TerminalPopupController">
    <children>
       <VBox fx:id="terminalVBox" alignment="CENTER" prefHeight="500.0" prefWidth="900.0" spacing="10.0">
          <padding>
@@ -25,8 +24,8 @@
             <GridPane fx:id="terminalOperationsGridPane" alignment="CENTER" hgap="10.0">
              
                <children>
-                  <Button fx:id="enterButton" mnemonicParsing="false" onAction="#onClickEnter" text="ENTER" GridPane.columnIndex="1" />
-                  <Button fx:id="minimizeButton" layoutX="643.0" layoutY="8.0" mnemonicParsing="false" onAction="#onClickMinimize" text="CLOSE" GridPane.columnIndex="2" />
+                  <Button fx:id="enterButton" mnemonicParsing="false" onAction="#onClickEnter" prefHeight="36.0" prefWidth="95.0" text="ENTER" GridPane.columnIndex="1" />
+                  <Button fx:id="minimizeButton" layoutX="643.0" layoutY="8.0" mnemonicParsing="false" onAction="#onClickMinimize" prefHeight="36.0" prefWidth="95.0" text="CLOSE" GridPane.columnIndex="2" />
                   <TextField fx:id="terminalTextField" />
                </children>
               
