@@ -105,8 +105,6 @@ public class LoadDriverController {
 
 	private void showProgressIndicator() {
 		StackPane parentStackPane= (StackPane) loadDriverSubGridPane.getParent().getParent();
-		System.out.println(loadDriverSubGridPane.getParent());
-		System.out.println(loadDriverSubGridPane.getParent().getParent());
 		box.getChildren().add(progressIndicator);
 		box.setAlignment(Pos.CENTER);
 		parentStackPane.getChildren().add(box);

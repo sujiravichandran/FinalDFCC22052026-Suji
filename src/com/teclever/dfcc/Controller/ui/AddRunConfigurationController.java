@@ -113,7 +113,6 @@ public class AddRunConfigurationController {
 	@FXML
 	public void initialize() {
 
-		System.out.println("Initialize method called");
 		loadTestTypes(runuutTypeId);
 		loadAitessTypes(runuutTypeId);
 		setupDriverLabel();
@@ -256,10 +255,9 @@ public class AddRunConfigurationController {
 
 			++n2;
 		}
-		System.out.println("uutType" + uutType);
-		System.out.println("RUNtest size: " + testLst.size());
+
 		ObservableList<String> types = FXCollections.observableArrayList(testLst);
-		System.out.println("TEST TYPE" + types);
+
 		testType.setItems(types);
 	}
 
@@ -267,7 +265,6 @@ public class AddRunConfigurationController {
 	void testTypeAction(ActionEvent event) {
 
 		testTypeValue = (String) testType.getValue();
-		System.out.println("Test Type ADD RUNCONfig: " + testType.getId());
 
 	}
 
@@ -339,10 +336,8 @@ public class AddRunConfigurationController {
 				}
 			}
 
-			System.out.println("Size aitessTypeList------- " + aitessTypeList.size());
-			System.out.println("RUNAitesTypeList-------" + aitessTypeList);
 			ObservableList<String> types = FXCollections.observableArrayList(aitessTypeList);
-			System.out.println("AIteeesTypess----- " + types);
+	
 
 			aitessType.setItems(types);
 		} catch (Exception e) {

@@ -123,7 +123,6 @@ public class AddUserController {
 	}
 
 	public void setuserData(String userId) {
-		System.out.println("Session userData: " + userId);
 		createAddUserPopup(userId);
 	}
 

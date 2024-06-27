@@ -164,20 +164,17 @@ public class AitessMasterController {
 		try {
 			ArrayList<String> uutTypeList = new ArrayList<String>();
 			UUTMasterDetailsDto[] uutDataList = this.configManager.getAllUUT();
-			System.out.println("loadUUTTypes method -------   " + uutDataList.length);
 			UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
 			int n = uutDataList.length;
 			int n2 = 0;
 			while (n2 < n) {
 				UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-				System.out.println("UUT Type--------   " + uutType.getUutType());
 				uutTypeList.add(uutType.getUutType());
 				++n2;
 			}
 			ObservableList types = FXCollections.observableArrayList(uutTypeList);
 			this.uutTypeField.setItems(types);
 		} catch (Exception e) {
-			System.out.println("loadUUTTypes exception  " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 	}
@@ -253,7 +250,6 @@ public class AitessMasterController {
 	}
 
 	private void setupDisplayTable(String uutId) {
-		System.out.println("Entered Display");
 		String css = this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm();
 		this.bottomHbox.getStylesheets().add(css);
 		AitessConfigurationManagement aitessConfiguration = new AitessConfigurationManagement();
@@ -304,9 +300,7 @@ public class AitessMasterController {
 
 		AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
 		UUTdropdownValue = (String) this.uutTypeField.getValue();
-		System.out.println("UUT TYPESSS " + UUTdropdownValue);
 		List<AitessConfigurationDto> lst = configurationManagement.getAitessConfig(UUTdropdownValue);
-		System.out.println("lst Size" + lst.size());
 		this.setupDisplayTable(UUTdropdownValue);
 
 	}

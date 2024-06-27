@@ -10,7 +10,7 @@
 	-fx-font-weight: bold;
 }
 .ofpMacroFiles-container{
-	-fx-background-color: primary-color;
+	-fx-background-color: dark-bg;
 	-fx-background-radius: 10px;
 }
 

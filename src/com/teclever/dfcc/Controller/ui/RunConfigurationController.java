@@ -96,7 +96,7 @@ public class RunConfigurationController {
 		uutTypeField = new ComboBox<>();
 //		testTypeField = new ComboBox<>();
 		loadUUTTypes();
-		setupDisplayTable(runuutTypeId);
+//		setupDisplayTable(runuutTypeId);
 		setupDriverLabel();
 
 ////		uutTypeField.setDisable(false);
@@ -373,11 +373,9 @@ public class RunConfigurationController {
 
 	private void setupDisplayTable(String uutId) {
 
-		System.out.println("Entered Diaplay");
 		Map uutIdNameMap = DFCCConstant.getUutIdNameMap();
 		RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
 		List<RunConfigurationDto> lst = runConfiguration.getRunConfig(uutId);
-		System.out.println("lst Size" + lst.size() + "     uutId" + uutId);
 		ObservableList<RunAitessConfiguration> driverData = FXCollections.observableArrayList();
 		for (RunConfigurationDto RunAitessConfiguration2 : lst) {
 
@@ -412,16 +410,13 @@ public class RunConfigurationController {
 	}
 
 	void runuutTypeAction() {
-		System.out.println("Entered Into runuutTypeAction ");
 		runuutTypeValue = (String) uutTypeField.getValue();
-		System.out.println("runuutTypeValue" + runuutTypeValue);
 		Map nameIdMap = DFCCConstant.getUutNameIdMap();
 		runuutTypeId = (String) nameIdMap.get(runuutTypeValue);
 		AddRunConfigurationController addRunConfigurationController = new AddRunConfigurationController();
 		AddRunConfigurationController.runuutTypeId = runuutTypeId;
 		AddRunConfigurationController.runuutTypeValue = runuutTypeValue;
 		setupDisplayTable(runuutTypeId);
-		System.out.println("id" + runuutTypeId);
 		RunConfigurationManagement rcm = new RunConfigurationManagement();
 		TestTypeMasterDetailsDto[] array = rcm.getTestTypeByUUTId(runuutTypeId);
 		TestTypeMasterDetailsDto[] testTypeMasterDetailsDtoArray = array;

@@ -78,7 +78,7 @@ public class CPCICardController {
 		uut_type_field = new ComboBox<>();
 		driver_type_field = new ComboBox<>();
 		initializeUUTTypeComboBox();
-		initializeCpciCardTable();
+//		initializeCpciCardTable();
 	}
 	
 	public void refreshCpciCardList() {
@@ -206,6 +206,7 @@ public class CPCICardController {
 		}
 		
 		private GridPane createCpciCardTable() {
+			cpciCardTableGridPane.getStyleClass().add("cpci-card-table-container");
 			ColumnConstraints firstColumn = new ColumnConstraints();
 			firstColumn.setPercentWidth(100);
 
@@ -275,7 +276,7 @@ public class CPCICardController {
 	    private void initializeCpciCardTable() {
 	        ObservableList<CPCICard> tableData = FXCollections.observableArrayList();
 	        customTableView_cpciCard = cpciCardFactory.createTableView(tableData, true, false);
-	        cpciCardTableGridPane.add(customTableView_cpciCard, 0, 0);
+//	        cpciCardTableGridPane.add(customTableView_cpciCard, 0, 0);
 	    }
 
 		private void getCpciCardTableData() {

@@ -97,8 +97,6 @@ public class AddAitessController {
                     AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
                     AitessConfigurationResponse response = configurationManagement.addAitessConfig(
                             aitessConfigurationDTO, nameId.get(AitessMasterController.UUTdropdownValue));
-                    System.out.println("Response Code: " + response.getResponseCode());
-                    System.out.println("Response Message: " + response.getResponseMessage());
                     mainPageController.refresh();
                     Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
                     stage.close();

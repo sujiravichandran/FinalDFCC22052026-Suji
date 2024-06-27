@@ -119,7 +119,6 @@ public class FaultCodeConfigurationController {
 	private void setTableData() {
 		FaultCodeResponse faultCodeList =faultCodeConfiguration.getFaultCodeList();
 		ObservableList<FaultCodeConfig> tableData = FXCollections.observableArrayList();
-		System.out.println(faultCodeList.getFaultCodeList());
 		if (faultCodeList.getResponse().getResponseCode() != 0) {
 			for (FaultCodeDTO faultCode : faultCodeList.getFaultCodeList()) {	
 				

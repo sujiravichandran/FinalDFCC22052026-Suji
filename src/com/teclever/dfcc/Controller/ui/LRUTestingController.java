@@ -336,7 +336,6 @@ public class LRUTestingController {
 			StateMachine.setTestState(TestState.COMPLETED);
 		});
 		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println(LRUTestStateObject.getIsMandatoryFifthCardStatus().get());
 			if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
 				Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
 				initializeLRUButton.setDisable(false);
@@ -364,7 +363,6 @@ public class LRUTestingController {
 			boolean allCardsStatusOk = true;
 			
 	        for (TestCardData card : mandatoryCardList) {
-	        	System.err.println(card.getCardName()+"========="+card.getStatus());
 	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
 //	                    allCardsStatusOk = false;
@@ -374,7 +372,7 @@ public class LRUTestingController {
 	        }
 	        
 
-	        System.out.println("allCardsStatusOk-----"+allCardsStatusOk);
+//	        System.out.println("allCardsStatusOk-----"+allCardsStatusOk);
 	        StateMachine.setTestState(TestState.COMPLETED);
 	        startTest.setDisable(false);
 	        
@@ -544,22 +542,22 @@ public class LRUTestingController {
 
 	private void sendSelectedSubStageData() {
 		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
-			System.err.println(subStage.getCardName());
+//			System.err.println(subStage.getCardName());
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if(newValue.equals("COMPLETED")) {
-					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
-					System.out.println(currentIndex);
+//					System.out.println(LRUTestStateObject.getSelectedSubStagesList().size());
+//					System.out.println(currentIndex);
 					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
 						try {
 							Thread.sleep(5000);
 							currentIndex++;
-							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
+//							System.out.println(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardName());
 							LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "COMPLETED");
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
-						System.out.println("COMPLETED");
+//						System.out.println("COMPLETED");
 						StateMachine.setTestState(TestState.COMPLETED);
 						currentIndex = 0;
 						startTest.setDisable(false);
@@ -574,14 +572,14 @@ public class LRUTestingController {
 		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if (newValue != null && newValue.equals("COMPLETED")) {
-					System.out.println("LRUTestStateObject.getSelectedSubStagesList().size()    "+LRUTestStateObject.getSelectedSubStagesList().size());
-					System.out.println("currentIndex    "+currentIndex);
+//					System.out.println("LRUTestStateObject.getSelectedSubStagesList().size()    "+LRUTestStateObject.getSelectedSubStagesList().size());
+//					System.out.println("currentIndex    "+currentIndex);
 					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
 						currentIndex++;
 						callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
 						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex-1).getCardId(), null);
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
-						System.out.println("COMPLETED");
+//						System.out.println("COMPLETED");
 						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
 						StateMachine.setTestState(TestState.COMPLETED);
 						currentIndex = 0;

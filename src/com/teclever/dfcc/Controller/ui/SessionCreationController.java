@@ -692,7 +692,7 @@ public class SessionCreationController {
 			StateMachine.currentSessionDetails.setSessionName(sessionNameField.getText());
 			
 			
-			System.out.println("Session Created Successfully..!");
+//			System.out.println("Session Created Successfully..!");
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
 //			parent1.getChildren().add(userDashboardController.createUserDashboard());

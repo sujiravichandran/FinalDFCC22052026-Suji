@@ -475,7 +475,6 @@ public class StageConfigurationController {
 
 		HBox stageHBox = createStageHBox(stageLabel, stageField);
 		stageHBox.setId(stage.getTestType());
-		System.out.println("iiiiiiiiii" + gridPane.getId());
 		gridPane.getChildren()
 				.removeIf(node -> node instanceof HBox && ((HBox) node).getChildren().contains(stageField));
 		gridPane.add(stageHBox, 0, 0);

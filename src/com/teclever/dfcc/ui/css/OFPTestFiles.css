@@ -10,7 +10,7 @@
 	-fx-font-weight: bold;
 }
 .ofpTestFiles-container{
-	-fx-background-color: primary-color;
+	-fx-background-color: dark-bg;
 	-fx-background-radius: 10px;
 }
 .button {

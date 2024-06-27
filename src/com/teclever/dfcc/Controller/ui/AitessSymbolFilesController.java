@@ -205,7 +205,6 @@ public class AitessSymbolFilesController {
 					List<AitessSymbolDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
-					System.out.println("216----"+fileDetails.size());
 					if(fileDetails.size() <2) {
 						Notifications.showWarningAlert("No data in selected file");
 					}else {
