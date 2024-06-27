@@ -49,11 +49,11 @@ public class TerminalPopupController {
 	@FXML
 	void initialize() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(82);
+		firstColumn.setPercentWidth(70);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(9);
+		secondColumn.setPercentWidth(15);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(9);
+		thirdColumn.setPercentWidth(15);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
