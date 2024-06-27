@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 public class StateMachine {
 	public enum TestState {
@@ -193,14 +195,25 @@ public class StateMachine {
 	}
 	
 
+	private static BooleanProperty userActionFlag = new SimpleBooleanProperty(false);
+	
 	public static String getUserAction() {
 		return userAction;
 	}
-
 	public static void setUserAction(String userAction) {
 		StateMachine.userAction = userAction;
 	}
+	public static BooleanProperty userActionFlagProperty() {
+		return userActionFlag;
+	}
+	public static BooleanProperty getUserActionFlag() {
+		return userActionFlag;
+	}
+	public static void setUserActionFlag(BooleanProperty userActionFlag) {
+		StateMachine.userActionFlag = userActionFlag;
+	}
 
+	
 	// LAUNCH AITESS 1, 2
 	private static boolean aitess1Launched = false;
 	private static boolean aitess2Launched = false;

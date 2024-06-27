@@ -18,6 +18,8 @@ import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -66,16 +68,15 @@ public class SessionTestingController {
     private List<CheckBox> checkBoxes = new ArrayList<>();
     private ListView<CheckBox> testListView = new ListView<>();
     private VBox testListVBox = new VBox();
-    private HBox buttonHBox = new HBox(20);
+    private HBox buttonHBox = new HBox(10);
     private Button startButton = new Button("Start");
     private Button stopButton = new Button("Stop");
     private Button pauseButton = new Button("Pause");
     
-    private HBox repeatCountVBox = new HBox(5);
+    private VBox repeatCountVBox = new VBox();
     private Label repeatCountLabel = new Label();
     private TextField repeatCountTextField = new TextField();
     
-    private ObservableList<TestSummary> testSummaryList = FXCollections.observableArrayList();
     
     private RunConfigurationService runConfigurationService = new RunConfigurationService();
     private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
@@ -242,19 +243,73 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 		
 		startButton.setOnAction(e ->{
+			if(startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setTestState(TestState.RUNNING);
+				startButton.setText("Start");
+				startButton.setDisable(true);
+				pauseButton.setDisable(false);
+				stopButton.setDisable(false);
+				return;
+			}
 			List<String> testFileIds = new ArrayList<>();
 			for(CheckBox checkbox : checkBoxes) {
 				if(checkbox.isSelected()) {
 					testFileIds.add(checkbox.getId());
 				}
 			}
+			if(testFileIds.size() == 0) {
+				Notifications.showWarningAlert("Please Select Test File...");
+				return;
+			}
+			
+			
+			TestState currentState = StateMachine.getTestState();            
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+		    	startButton.setDisable(true);
+		    	StateMachine.setTestState(TestState.RUNNING);
+		    	StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
+		    	stopButton.setDisable(false);
+				pauseButton.setDisable(false);
+		    } else if(currentState == TestState.RUNNING) {
+		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+		        startButton.setDisable(false);
+		    	stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+		        return;
+		    } else if(currentState == TestState.PAUSED) {
+		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+		        startButton.setDisable(false);
+		    	stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+		        return;
+		    } 
+			
 			SessionTestStateObject.getRunningTestLeafStatus().set(false);
+			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
+			
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
 			SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) ->{
 				if(SessionTestStateObject.getRunningTestLeafStatus().get()) {
+					StateMachine.setTestState(TestState.COMPLETED);
 					setStateMachineCurrentL1StageId();
 				}
 			});
+		});
+		
+		pauseButton.setOnAction(e ->{
+			StateMachine.setTestState(TestState.PAUSED);
+			startButton.setText("Resume");
+			pauseButton.setDisable(true);
+			startButton.setDisable(false);
+			stopButton.setDisable(false);
+		});
+		
+		stopButton.setOnAction(e ->{
+			StateMachine.setTestState(TestState.STOPPED);
+			startButton.setText("Start");
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			startButton.setDisable(false);
 		});
 		
 		repeatCountLabel.setText("Repeat Count");
@@ -571,7 +626,8 @@ public class SessionTestingController {
 	        for (Entry<StageIdName, String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
 	            if(l1StageList.contains(endLeaf.getKey().getStageId())) {
 	            	if(endLeaf.getValue().equalsIgnoreCase("PENDING") || endLeaf.getValue().equalsIgnoreCase("Started")) {
-	            		SessionTestStateObject.setCurrentRunningStageId(l1Stage.getKey());
+//	            	if(endLeaf.getValue().equalsIgnoreCase("PENDING")) {
+	            	SessionTestStateObject.setCurrentRunningStageId(l1Stage.getKey());
 	            		founded = true;
 	            		break;
 	            	}
@@ -585,6 +641,7 @@ public class SessionTestingController {
 		for(Entry<StageIdName , String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
 			if(endLeaf.getKey().getStageId().equals(stageId)) {
 				if(!endLeaf.getValue().equalsIgnoreCase("PENDING") && !endLeaf.getValue().equalsIgnoreCase("STARTED")) {
+//				if(!endLeaf.getValue().equalsIgnoreCase("PENDING")) {
 					checkboxDisable = true;
 				}
 			}

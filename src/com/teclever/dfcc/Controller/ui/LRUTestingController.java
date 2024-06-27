@@ -15,8 +15,8 @@ import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
@@ -303,6 +303,7 @@ public class LRUTestingController {
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 				    	startTest.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
+				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 				        startTest.setDisable(false);
@@ -518,6 +519,7 @@ public class LRUTestingController {
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
 		    	StateMachine.setTestState(TestState.RUNNING);
+		    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);
@@ -637,6 +639,7 @@ public class LRUTestingController {
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 				    	startTest.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
+				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 				        startTest.setDisable(false);
