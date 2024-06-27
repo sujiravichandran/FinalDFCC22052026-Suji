@@ -182,6 +182,16 @@ public class StateMachine {
 
 	// USER ACTION
 	private static String userAction;
+	private static String userExitError;
+	
+	public static String getUserExitError() {
+		return userExitError;
+	}
+
+	public static void setUserExitError(String userExitError) {
+		StateMachine.userExitError = userExitError;
+	}
+	
 
 	public static String getUserAction() {
 		return userAction;
@@ -235,6 +245,11 @@ public class StateMachine {
 		private static String onlineStatusCommand;
 		private static String mk1ScTemperatureCommand;
 		private static String mk1AecTemperatureCommand;
+		
+		private static String mk1aTemperatureCommand;
+		private static String mk2TemperatureCommand;
+		
+		
 		public static String getDfccPowerOnCommand() {
 			return dfccPowerOnCommand;
 		}
@@ -270,6 +285,18 @@ public class StateMachine {
 		}
 		public static void setDfccPowerStatus(Boolean dfccPowerStatus) {
 			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
+		}
+		public static String getMk1aTemperatureCommand() {
+			return mk1aTemperatureCommand;
+		}
+		public static void setMk1aTemperatureCommand(String mk1aTemperatureCommand) {
+			dfccCheckStatus.mk1aTemperatureCommand = mk1aTemperatureCommand;
+		}
+		public static String getMk2TemperatureCommand() {
+			return mk2TemperatureCommand;
+		}
+		public static void setMk2TemperatureCommand(String mk2TemperatureCommand) {
+			dfccCheckStatus.mk2TemperatureCommand = mk2TemperatureCommand;
 		}
 				
 		
@@ -422,12 +449,12 @@ public class StateMachine {
 			public static void setAitess2Exited(boolean aitess2Exited) {
 				aitessRunning.aitess2Exited = aitess2Exited;
 			}
-			
-			
-
-			
-			
+				
 		}
+		
+		
+		
+		
 		
 	}
 

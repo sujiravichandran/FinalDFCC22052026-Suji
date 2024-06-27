@@ -86,7 +86,7 @@ public class Aitess2ConfigManagement {
 
 	}
 
-	public  void parseConfigFile(String configFilePath) {
+	public  static void parseConfigFile(String configFilePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(configFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -106,6 +106,12 @@ public class Aitess2ConfigManagement {
                 } else if (line.startsWith("#mk1 AEC temperature:")) {
                     dfccCheckStatus.setMk1AecTemperatureCommand(line.split(":", 2)[1].trim());
                     System.out.println(dfccCheckStatus.getMk1AecTemperatureCommand());
+                }else if (line.startsWith("#mk1a temperature:")) {
+                    dfccCheckStatus.setMk1aTemperatureCommand(line.split(":", 2)[1].trim());
+                    System.out.println(dfccCheckStatus.getMk1aTemperatureCommand());
+                }else if (line.startsWith("#mk2 temperature:")) {
+                    dfccCheckStatus.setMk2TemperatureCommand(line.split(":", 2)[1].trim());
+                    System.out.println(dfccCheckStatus.getMk2TemperatureCommand());
                 }
             }
             br.close();
