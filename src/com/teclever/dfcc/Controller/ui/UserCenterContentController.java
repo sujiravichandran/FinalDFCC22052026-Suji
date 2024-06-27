@@ -16,6 +16,7 @@ public class UserCenterContentController {
 	private StackPane lruTestStackPane = new StackPane();
 	private StackPane sessionTestingStackPane = new StackPane();
 	private StackPane advancedTestingStackPane = new StackPane();
+	private StackPane currentExecutionResultStackPane = new StackPane();
 
 	private TerminalController terminalController = new TerminalController();
 
@@ -76,6 +77,17 @@ public class UserCenterContentController {
 				centerStackPane.getChildren().add(advancedTestingStackPane);
 			} else {
 				advancedTestingStackPane.toFront();
+			}
+			
+			break;
+		
+		case "Current Execution Results" :
+			if (!centerStackPane.getChildren().contains(currentExecutionResultStackPane)) {
+				CurrentExecutionResultController currentExcecutionResultController = new CurrentExecutionResultController();
+				currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane());
+				centerStackPane.getChildren().add(currentExecutionResultStackPane);
+			} else {
+				currentExecutionResultStackPane.toFront();
 			}
 			
 			break;

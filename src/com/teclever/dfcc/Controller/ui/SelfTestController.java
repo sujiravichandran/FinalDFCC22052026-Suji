@@ -223,7 +223,7 @@ public class SelfTestController {
 		    	callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1" , SelfTestStateObject.getRack1TestTypeId());
 		    }
 		    SelfTestStateObject.rack1StatusProperty().addListener((observable, oldValue, newValue) -> {
-		    	System.out.println("oldValue---"+oldValue+"    "+"newValue-----------"+newValue);
+//		    	System.out.println("oldValue---"+oldValue+"    "+"newValue-----------"+newValue);
 	            if (!newValue) {
 	            	SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.B1553);
 	                callStartTesting(cpciCardList.get(0).getCardId(), "CPCI" , cpciCardList.get(0).getTestTypeId());
@@ -365,7 +365,7 @@ public class SelfTestController {
 	}
 
 	private void callStartTesting(String stageId, String stageName, String testTypeId) {
-		System.out.println(stageId +"-------"+stageName+"-----------"+testTypeId);
+//		System.out.println(stageId +"-------"+stageName+"-----------"+testTypeId);
 		Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
@@ -374,10 +374,10 @@ public class SelfTestController {
 	    		
 	        		String ID = stageId;
 	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
-	        		 System.out.println("list size   ----"+testFileResponse.getTestFilesIdName().size());
-	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
-	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
-	        		 }
+//	        		 System.out.println("list size   ----"+testFileResponse.getTestFilesIdName().size());
+//	        		 for(Map.Entry<String, String> abc : testFileResponse.getTestFilesIdName().entrySet()) {
+//	        			 System.out.println(abc.getKey()+"       "+abc.getKey());
+//	        		 }
 	        		 
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {

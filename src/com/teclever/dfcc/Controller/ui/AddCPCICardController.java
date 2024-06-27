@@ -127,7 +127,6 @@ public class AddCPCICardController {
 		cardData.setCardIdentificationText(cardIdentification);
 		cardData.setTotalNumberOfCards(totalCard);
 
-		System.out.println(AITESS_ID + "---" + cardName + "---" + cardIdentification + "---" + totalCard);
 
 		Response response = aitessConfigurationManagement.saveCardConfigDetail(cardData);
 		if (response.getResponseCode() == 1) {
@@ -149,14 +148,12 @@ public class AddCPCICardController {
 
 			saveButton.setText("Update");
 			saveButton.setOnAction(e -> {
-				System.out.println("in");
 				updateCPCICardData();
 			});
 		}
 	}
 
 	private void updateCPCICardData() {
-		System.err.println("update");
 		String cardName = cardNameTextField.getText();
 		String cardIdentification = cardIdentificationtField.getText();
 		String totalCardText = totalCardTextField.getText();

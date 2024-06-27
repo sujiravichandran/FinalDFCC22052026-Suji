@@ -45,8 +45,8 @@ public class CustomTableView<T> extends TableView<T> {
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		getStylesheets().add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm());
 		setTableMenuButtonVisible(false);
-		setPadding(new Insets(10));
-		setStyle("-fx-background-color:#222831;");
+//		setPadding(new Insets(10));
+//		setStyle("-fx-background-color:#222831;");
 		if (addCheckColumn) {
 			addCheckboxColumn();
 		}

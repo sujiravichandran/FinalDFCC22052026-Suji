@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.model.TestSummary;
 
 import javafx.application.Platform;
@@ -39,7 +40,7 @@ public class AdvancedTestingController {
 	
 	public GridPane createAdvancedTestingGridPane() {
 		advancedTestingMainGridPane.getStylesheets()
-				.add(getClass().getResource("/com/teclever/dfcc/ui/css/AdvancedTesting.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AdvancedTesting.css").toExternalForm());
 		advancedTestingMainGridPane.getStyleClass().add("advanced-testing-container");
 	
 		ColumnConstraints firstColumn = new ColumnConstraints();
