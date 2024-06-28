@@ -1,22 +1,50 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.model.Aitess;
+import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
+import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
+import com.teclever.dfcc.model.BriefData;
+import com.teclever.dfcc.model.DetailedData;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
+
+
+class BriefDataTableViewFactory implements TableViewFactory<BriefData> {
+	@Override
+	public CustomTableView<BriefData> createTableView(ObservableList<BriefData> items, boolean addUserColumn,
+			boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, BriefData.class, addUserColumn, addCheckboxColumn);
+	}
+}
+
+class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
+	@Override
+	public CustomTableView<DetailedData> createTableView(ObservableList<DetailedData> items, boolean addUserColumn,
+			boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, DetailedData.class, addUserColumn, addCheckboxColumn);
+	}
+}
 
 
 
@@ -36,8 +64,17 @@ public class CurrentExecutionResultController {
 	private StackPane briefDataStackPane = new StackPane();
 	private StackPane detailedDataStackPane = new StackPane();
 	
-    AitessTableViewFactory driverFactory = new AitessTableViewFactory();
-
+    
+	private TableViewFactory<BriefData> briefDataFactory = new BriefDataTableViewFactory();
+	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
+	
+	private ObservableList<BriefData> briefDataList = FXCollections.observableArrayList();
+	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
+	
+	private CustomTableView<BriefData> briefDataTableView ;
+	private CustomTableView<DetailedData> detailedDataTableView ;
+	
+	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	
     public GridPane createCurrentExecutionResultGridPane() {
         currentExecutionResultGridPane.getStylesheets()
@@ -140,29 +177,230 @@ public class CurrentExecutionResultController {
 
 	private StackPane createTab1Content() {
 	    briefDataStackPane.getStyleClass().add("tab-content-container");
-	    briefDataStackPane.getChildren().add(createBriefTable());
+	    briefDataStackPane.getChildren().add(createBriefDataTable());
 	    return briefDataStackPane;
 	}
 
 	private StackPane createTab2Content() {
-	    detailedDataStackPane.setStyle("-fx-background-color: green;");
+		detailedDataStackPane.getStyleClass().add("tab-content-container");
+		detailedDataStackPane.getChildren().add(createDetailedDataTable());
 	    return detailedDataStackPane;
 	}
 
-	private ScrollPane createBriefTable() {
-		ObservableList<Aitess> driverData = FXCollections.observableArrayList();
-		CustomTableView<Aitess> customTableView = driverFactory.createTableView(driverData, false, false);
+	private ScrollPane createBriefDataTable() {
+		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages();
+		
+		if(response.getCode() == 1 && response.getResultDTOList().size() >0) {
+			int i = 1;
+			for(ResultExecutionDTO data :response.getResultDTOList()) {
+				BriefData newBriefData = new BriefData();
+				
+				newBriefData.setsNo(String.valueOf(i));
+				newBriefData.setRdfName(data.getRdfFile());
+				newBriefData.setdStarCount(data.getDStarCount());
+				newBriefData.setStatus(data.getStatus());
+				newBriefData.setCompletedTime(data.getEndTime());
+				
+				briefDataList.add(newBriefData);
+				i++;
+			}
+		}
+	
+		
+		
+		briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
 
-        customTableView.getColumns().forEach(column -> {     	
-        	double minWidth = column.getText().length()*13;
-        	column.setMinWidth(minWidth);
+		briefDataTableView.getColumns().forEach(column -> {   
+        	column.setMinWidth(column.getText().length()*13);
+        	updateBriefData((TableColumn<BriefData, String>) column);
         });
+		
         
-        ScrollPane tableScrollPane = new ScrollPane(customTableView);
+        ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
+        
+        if(briefDataList.size() == 0) {
+        	tableScrollPane.setFitToWidth(true);
+        }
+//        tableScrollPane.setFitToWidth(true);
         tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
 	}
+	
+	
+	private void updateBriefData(TableColumn<BriefData, String> column) {
+	    column.setCellFactory(col -> new TableCell<BriefData, String>() {
+	        private Label label;
+
+	        @Override
+	        protected void updateItem(String item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (item == null || empty) {
+	                setText(null);
+	                setGraphic(null);
+	            } else {
+	                if (label == null) {
+	                    label = new Label();
+	                    label.setWrapText(false);
+	                    label.setAlignment(Pos.CENTER); 
+	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+	                    setStyle("-fx-alignment: CENTER;"); 
+	                }
+	                label.setText(item);
+	                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+	                label.setMinWidth(label.getText().length() * 12);
+	                setGraphic(label);
+	                this.setMinWidth(label.getText().length() * 12);
+	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+	            }
+	        }
+	    });
+	}
+	
+	
+	
+	public ScrollPane createDetailedDataTable() {
+		
+		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages();
+		
+		if(response.getCode() == 1 && response.getResultDetailedList().size() >0) {
+			int i = 1;
+			for(ResultDetailedDTO data :response.getResultDetailedList()) {
+				
+				DetailedData newDetailedData = new DetailedData();
+				
+				newDetailedData.setSNo(String.valueOf(i));
+				newDetailedData.setTestName(data.getTestName());
+				newDetailedData.setRdfName(data.getRdfName());
+				newDetailedData.setTpgphNo(data.getTpgph());
+				newDetailedData.setStepNo(data.getStepName());
+				newDetailedData.setExpectedValue(data.getExpectedValue());
+				newDetailedData.setMoniterdOutput(data.getMeasuredValue());
+				newDetailedData.setUnit(data.getUnit());
+				newDetailedData.setSignalName(data.getSignalName());
+				newDetailedData.setFaultyChannel(data.getFaultyChannel());
+
+		        detailedDataList.add(newDetailedData);
+
+				i++;
+			}
+		}
+
+        detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
+
+
+        detailedDataTableView.getColumns().forEach(column -> {
+            column.setMinWidth(column.getText().length() * 13);
+            updateDetailedData((TableColumn<DetailedData, String>) column);
+        });
+
+        ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
+        tableScrollPane.setFitToHeight(true);
+        return tableScrollPane;
+    }
+
+	private void updateDetailedData(TableColumn<DetailedData, String> column) {
+	    column.setCellFactory(col -> new TableCell<DetailedData, String>() {
+	        private Label label;
+
+	        @Override
+	        protected void updateItem(String item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (item == null || empty) {
+	                setText(null);
+	                setGraphic(null);
+	            } else {
+	                if (label == null) {
+	                    label = new Label();
+	                    label.setWrapText(false);
+	                    label.setAlignment(Pos.CENTER); 
+	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+	                    setStyle("-fx-alignment: CENTER;"); 
+	                }
+	                label.setText(item);
+	                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+	                label.setMinWidth(label.getText().length() * 12);
+	                setGraphic(label);
+	                this.setMinWidth(label.getText().length() * 12);
+	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+	            }
+	        }
+	    });
+	}
 }
+
+// change column width
+
+//private ScrollPane createBriefDataTable() {
+//	briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
+//
+//	briefDataTableView.getColumns().forEach(column -> {     	
+//    	double minWidth = column.getText().length()*13;
+//    	column.setMinWidth(minWidth);
+//    });
+//	
+//    
+//    ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
+//    tableScrollPane.setFitToWidth(true);
+//    tableScrollPane.setFitToHeight(true);
+//	return tableScrollPane;
+//}
+	
+	
+// wrapping table data text
+	
+//	public ScrollPane createDetailedDataTable() {
+//        DetailedData newData = new DetailedData();
+//
+//        newData.setExpectedValue("setExpectedValuesetExpectedValue");
+//        newData.setFaultyChannel("setFaultyChannelsetFaultyChannel");
+//        newData.setMoniterdOutput("setMoniterdOutputsetMoniterdOutput");
+//        newData.setRdfName("afvdsbhfsanasdbfvdsafdsanmfdsafbdsafjabfdsa");
+//        newData.setSignalName("fcvghjlkmajkfdslafsda");
+//        newData.setStepNo("asdf");
+//        newData.setTestName("asdfdsafdsafdsafsadfdsafdsafdsaF");
+//        newData.setTpgphNo("avsdhgjdbv");
+//        newData.setUnit("safdsafds");
+//
+//        detailedDataList.add(newData);
+//
+//        detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
+//
+//        // Custom cell factory to wrap text
+//        detailedDataTableView.getColumns().forEach(column -> {
+//            // Cast the column to TableColumn<DetailedData, String> and update it
+//            update((TableColumn<DetailedData, String>) column);
+//
+//            // Calculate minimum width based on content
+//            column.setMinWidth(column.getText().length() * 13);
+//        });
+//
+//        ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
+//        tableScrollPane.setFitToHeight(true);
+//        return tableScrollPane;
+//    }
+//
+//    private void update(TableColumn<DetailedData, String> column) {
+//        column.setCellFactory(col -> new TableCell<DetailedData, String>() {
+//            private Text text;
+//
+//            @Override
+//            protected void updateItem(String item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (item == null || empty) {
+//                    setText(null);
+//                    setGraphic(null);
+//                } else {
+//                    if (text == null) {
+//                        text = new Text();
+//                        text.wrappingWidthProperty().bind(col.widthProperty().subtract(10));
+//                    }
+//                    text.setText(item);
+//                    setGraphic(text);
+//                }
+//            }
+//        });
+//    }
+
 
 
 
