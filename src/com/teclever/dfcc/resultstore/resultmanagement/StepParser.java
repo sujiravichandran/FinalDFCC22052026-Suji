@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,170 +17,156 @@ import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParse
 
 public class StepParser {
 
-    public static List<StepDto> parseStepContext(String filePath) {
-    	
-        List<StepDto> stepList = new ArrayList<>();
-        List<StepDto> failedStepList = new ArrayList<>(); 
-        String tpgph = null;
-        String step = null;
-        String input = null;
-        List<String> readingInfo = null;
-        String dStarInfo = null;
-        String testPlanFile = null;
-        String resultDataFile = null;
-        String unit = null;
-        Map<String,String> faultyChannel = null;
-        String expectedValue = null;
-        String signalName = null;
-        boolean isAfterStep = false; // Flag to indicate whether the line is after "S> STEP"
-        String specificLine = null; // To store the specific line for signalName and expectedValue
+	public static List<StepDto> parseStepContext(String filePath) {
+	    List<StepDto> stepList = new ArrayList<>();
+	    List<StepDto> failedStepList = new ArrayList<>();
+	    String tpgph = null;
+	    String step = null;
+	    String input = "";
+	    List<String> readingInfo = new ArrayList<>();
+	    String dStarInfo = null;
+	    String testPlanFile = null;
+	    String resultDataFile = null;
+	    String unit = null;
+	    Map<String, String> faultyChannel = new HashMap<>();
+	    String expectedValue = null;
+	    String signalName = null;
+	    boolean isAfterStep = false; // Flag to indicate whether the line is after "S> STEP"
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
+	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+	        String line;
 
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("S>") && line.contains("TPGPH")) {
-                    // Store the previous step if exists
-                    if (step != null) {
-                        StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile,unit,faultyChannel,expectedValue,signalName);
-                        stepList.add(stepDto); // Add step to stepList
+	        while ((line = reader.readLine()) != null) {
+	            if (line.startsWith("S>") && line.contains("TPGPH")) {
+	                // Store the previous step if exists
+	                if (step != null || dStarInfo != null) {
+	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile, unit, faultyChannel, expectedValue, signalName);
+	                    stepList.add(stepDto); // Add step to stepList
 
-                        if (dStarInfo != null) {
-                            failedStepList.add(stepDto); // Add failed step to failedStepList
-                        }
-                    }
+	                    if (dStarInfo != null) {
+	                        failedStepList.add(stepDto); // Add failed step to failedStepList
+	                    }
+	                }
 
-                    // Reset step-related variables when encountering a new TPGPH
-                    tpgph = extractTPGPH(line);
-                    step = null;
-                    input = null;
-                    readingInfo = new ArrayList<>();
-                    dStarInfo = null;
-                    unit = null;
-                    faultyChannel = null;
-                    expectedValue = null;
-                    signalName = null;
-                    isAfterStep = false;
+	                // Reset step-related variables when encountering a new TPGPH
+	                tpgph = extractTPGPH(line);
+	                step = null;
+	                input = "";
+	                readingInfo = new ArrayList<>();
+	                dStarInfo = null;
+	                unit = null;
+	                faultyChannel = new HashMap<>();
+	                expectedValue = null;
+	                signalName = null;
+	                isAfterStep = false;
 
-                } else if (line.startsWith("S>") && line.contains("STEP")) {
-                    if (step != null) {
-                        StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile,unit,faultyChannel,expectedValue,signalName);
-                        stepList.add(stepDto); // Add step to stepList
+	            } else if (line.startsWith("S>") && line.contains("STEP")) {
+	                if (step != null || dStarInfo != null) {
+	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile, unit, faultyChannel, expectedValue, signalName);
+	                    stepList.add(stepDto); // Add step to stepList
 
-                        if (dStarInfo != null) {
-                            failedStepList.add(stepDto); // Add failed step to failedStepList
-                        }
-                    }
-                    step = extractStepNumber(line);
-                    input = "";
-                    readingInfo = new ArrayList<>();
-                    dStarInfo = null;
-                    unit=null;
-                    faultyChannel = null;
-                    expectedValue = null;
-                    signalName = null;
-                    isAfterStep = true; // Set flag to true after encountering "S> STEP"
-                } else if (line.startsWith("Z>") && line.contains("Test plan file")) {
-                    testPlanFile = extractTestPlanFileName(line);
-                } else if (line.startsWith("Z>") && line.contains("Result data file")) {
-                    resultDataFile = extractResultDataFileName(line);
-                }  else if (line.startsWith("S>") && isAfterStep) {
-                    // Ignore S> opwait lines and continue searching for signalName and expectedValue
-                    if (line.contains("opwait")) {
-                        continue; // Skip this line and proceed to the next
-                    }
-                    // Extract signalName and expectedValue from this line
-                    signalName = extractSignalName(line);
-                    expectedValue = extractExpectedValue(line);
-                    specificLine = line.substring(3).trim(); // Store the specific line
-                    isAfterStep = false; // Reset flag after extracting values
-                }
-                else if (line.startsWith("D*>")) {
-                    dStarInfo = line.substring(3).trim();
-                    unit = extractUnit(dStarInfo);
-                    faultyChannel = extractFaultyChannels(dStarInfo);
-                    rdfFileParser.setDStarFound(true); //d star found update to state machine
-                    rdfFileParser.incrementDStarCount();
-                } else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
-                    if (line.startsWith("R>") && line.contains("(")) {
-                        readingInfo.add(line.substring(3).trim());
-                    } else if (line.startsWith("D>")) {
-                        readingInfo.add(line.substring(3).trim());
-                    }
-                    
-                }else if(line.contains("Parse Error")) {
-                	rdfFileParser.setParseFileError(true);
-                }
-                	
-                
-                // Append other S> lines to input except the specific line
-                if (line.startsWith("S>") && !isAfterStep && !line.contains("STEP")) {
-                    input += line.substring(3).trim() + "\n";
-                }
-            }
+	                    if (dStarInfo != null) {
+	                        failedStepList.add(stepDto); // Add failed step to failedStepList
+	                    }
+	                }
+	                step = extractStepNumber(line);
+	                input = "";
+	                readingInfo = new ArrayList<>();
+	                dStarInfo = null;
+	                unit = null;
+	                faultyChannel = new HashMap<>();
+	                expectedValue = null;
+	                signalName = null;
+	                isAfterStep = true; // Set flag to true after encountering "S> STEP"
 
-            // Store the last step if exists
-            if (step != null) {
-                StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile,unit,faultyChannel,expectedValue,signalName);
-                stepList.add(stepDto); // Add step to stepList
+	            } else if (line.startsWith("Z>") && line.contains("Test plan file")) {
+	                testPlanFile = extractTestPlanFileName(line);
+	            } else if (line.startsWith("Z>") && line.contains("Result data file")) {
+	                resultDataFile = extractResultDataFileName(line);
+	            } else if (line.startsWith("S>") && isAfterStep) {
+	                // Ignore S> opwait lines and continue searching for signalName and expectedValue
+	                if (line.contains("opwait")) {
+	                    continue; // Skip this line and proceed to the next
+	                }
+	                // Extract signalName and expectedValue from this line
+	                signalName = extractSignalName(line);
+	                expectedValue = extractExpectedValue(line);
+	                isAfterStep = false; // Reset flag after extracting values
+	            } else if (line.startsWith("D*>")) {
+	                dStarInfo = line.substring(3).trim();
+	                unit = extractUnit(dStarInfo);
+	                faultyChannel = extractFaultyChannels(dStarInfo);
+	                rdfFileParser.setDStarFound(true); // d star found update to state machine
+	                rdfFileParser.incrementDStarCount();
 
-                if (dStarInfo != null) {
-                    failedStepList.add(stepDto); // Add failed step to failedStepList
-                }
-            }
+	                // Create a stepDto for D*> line if no STEP or TPGPH is present
+	                if (step == null && tpgph == null) {
+	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile, unit, faultyChannel, expectedValue, signalName);
+	                    stepList.add(stepDto);
 
-            // Print steps and failed steps with counts
-//            int totalSteps = stepList.size();
-//            int failedSteps = failedStepList.size();
-//            System.out.println("Total Steps: " + totalSteps);
-//            System.out.println("Total Failed Steps: " + failedSteps);
-            
-      
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	                    if (dStarInfo != null) {
+	                        failedStepList.add(stepDto); // Add failed step to failedStepList
+	                    }
 
-        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+	                    // Reset variables for next potential D*> line
+	                    dStarInfo = null;
+	                    unit = null;
+	                    faultyChannel = new HashMap<>();
+	                    expectedValue = null;
+	                    signalName = null;
+	                }
+	            } else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
+	                if (line.startsWith("R>") && line.contains("(")) {
+	                    readingInfo.add(line.substring(3).trim());
+	                } else if (line.startsWith("D>")) {
+	                    readingInfo.add(line.substring(3).trim());
+	                }
+	            } else if (line.contains("Parse Error")) {
+	                rdfFileParser.setParseFileError(true);
+	            }
 
-        return stepList;
-    }
+	            // Append other S> lines to input except the specific line
+	            if (line.startsWith("S>") && !isAfterStep && !line.contains("STEP")) {
+	                input += line.substring(3).trim() + "\n";
+	            }
+	        }
 
-    private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo,
-                                         String dStarInfo, String testPlanFile, String resultDataFile,
-                                         String unit,Map<String,String> faultyChannel,String expectedValue,
-                                         String signalName) {
-        StepDto stepDto = new StepDto();
-        stepDto.setTestPlanFile(testPlanFile);
-        stepDto.setResultDataFile(resultDataFile);
-        stepDto.setTpgph(tpgph);
-        stepDto.setStep(step);
-        stepDto.setInput(input.trim());
-        stepDto.setReadingInfo(new ArrayList<>(readingInfo));
-        stepDto.setdStarInfo(dStarInfo);
-        stepDto.setUnit(unit);
-        stepDto.setFaultyChannel(faultyChannel);
-        stepDto.setExpectedValue(expectedValue);
-        stepDto.setSignalName(signalName);
-        
-//        System.out.println("Test Plan File: " + stepDto.getTestPlanFile());
-//        System.out.println("Result Data File: " + stepDto.getResultDataFile());
-//        System.out.println("TPGPH: " + stepDto.getTpgph());
-//        System.out.println("Step: " + stepDto.getStep());
-//        System.out.println("Input:");
-//        String[] inputs = stepDto.getInput().split("\n");
-//        for (int i = 0; i < inputs.length; i++) {
-//            System.out.println("  " + inputs[i]);
-//        }
-//        System.out.println("DStarInfo: " + stepDto.getdStarInfo());
-//        System.out.println("ReadingInfo: " + stepDto.getReadingInfo());
-//        System.out.println("unit: " + stepDto.getUnit());
-//        System.out.println("faultyChannel: " + stepDto.getFaultyChannel());
-//        System.out.println("expectedValue: " + stepDto.getExpectedValue());
-//        System.out.println("signalName: " + stepDto.getSignalName());        
-//        System.out.println("---------------------------------------");
+	        // Store the last step if exists
+	        if (step != null || dStarInfo != null) {
+	            StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile, resultDataFile, unit, faultyChannel, expectedValue, signalName);
+	            stepList.add(stepDto); // Add step to stepList
 
-        return stepDto;
-    }
+	            if (dStarInfo != null) {
+	                failedStepList.add(stepDto); // Add failed step to failedStepList
+	            }
+	        }
+
+	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+
+	        return stepList;
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    return stepList;
+	}
+
+	private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo, String dStarInfo, String testPlanFile, String resultDataFile, String unit, Map<String, String> faultyChannel, String expectedValue, String signalName) {
+	    StepDto stepDto = new StepDto();
+	    stepDto.setTpgph(tpgph);
+	    stepDto.setStep(step);
+	    stepDto.setInput(input);
+	    stepDto.setReadingInfo(readingInfo != null ? readingInfo : new ArrayList<>()); // Initialize if null
+	    stepDto.setdStarInfo(dStarInfo);
+	    stepDto.setTestPlanFile(testPlanFile);
+	    stepDto.setResultDataFile(resultDataFile);
+	    stepDto.setUnit(unit);
+	    stepDto.setFaultyChannel(faultyChannel != null ? faultyChannel : new HashMap<>()); // Initialize if null
+	    stepDto.setExpectedValue(expectedValue);
+	    stepDto.setSignalName(signalName);
+	    return stepDto;
+	}
 
     private static String extractTestPlanFileName(String line) {
         String[] parts = line.split(":");
