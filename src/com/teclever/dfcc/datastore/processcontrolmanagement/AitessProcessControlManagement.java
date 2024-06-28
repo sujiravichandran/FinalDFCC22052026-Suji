@@ -212,12 +212,12 @@ public class AitessProcessControlManagement {
 					String s1;
 					String s2 = null;
 					String cleanText;
-					String result = null;
-					String parserErrorResult = null;
+					String result = "";
+					String userExitErrorResult =null;
 
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
-//						System.out.println("s1 :: " + s1);
+						System.out.println("aitess1 output:: " + s1);
 
 						if (!aitessRunning.isAitess1Exited()) {
 							aitessRunning.setAitess1Exited(true);
@@ -256,7 +256,6 @@ public class AitessProcessControlManagement {
 						String userActionLine = getUserActionLine(s1);
 						if (userActionLine != null) {
 							StateMachine.setUserAction(userActionLine);
-							StateMachine.getUserActionFlag().set(true);
 						}
 
 						// condition if test stared
@@ -268,15 +267,37 @@ public class AitessProcessControlManagement {
 
 							final String finalLine = cleanText;
 							
+							//user exit line
+//							if(getUserExitErrorLine(finalLine) != null) {
+//								userExitErrorResult = getUserExitErrorLine(finalLine);
+//							}
+//							if(userExitErrorResult !=null) {
+//								aitess1ResultQ.put(userExitErrorResult);
+//							}
 							
-							if (getParseErrorLine(finalLine) != null) {
-								parserErrorResult = getParseErrorLine(finalLine);
-							}
-							
-							if (parserErrorResult != null) {
-								aitess1ResultQ.put(parserErrorResult);
-							}
+							if(finalLine.contains("User Exit Error")) {
+								aitess1ResultQ.put("USER EXIT");
+								testStarted = false;
+								result = "";
 
+							}
+							
+							
+
+							System.out.println("aitess1 finalLine:: " + finalLine);
+							
+							if(finalLine.contains("Parse Error")) {
+
+								System.out.println("aitess1 result1:: " + result);
+								if (result.equals(""))
+								{
+
+									System.out.println("aitess1 result2:: " + result);
+									aitess1ResultQ.put("PARSE ERROR");
+									testStarted = false;
+								}
+							}
+							//rdf file name
 							if (getRdfFileName(finalLine) != null) {
 								result = getRdfFileName(finalLine);
 							}
@@ -285,6 +306,7 @@ public class AitessProcessControlManagement {
 							if (endLine != null) {
 								if (result != null) {
 									aitess1ResultQ.put(result);
+									result = "";
 								}
 							}
 
@@ -411,6 +433,9 @@ public class AitessProcessControlManagement {
 					rdfFileName = aitess1ResultQ.take();
 					if (rdfFileName.equals("PARSE ERROR")) {
 						rdfFileName = null;
+					}
+					else if (rdfFileName.equals("USER EXIT")) {
+						rdfFileName = "USER EXIT";
 					}
 					flag = false;
 				}
@@ -608,6 +633,18 @@ public class AitessProcessControlManagement {
 		if (userActionMatcher.find()) {
 			System.out.println("USER ACTION LINE :: " + line);
 			return line;
+		}
+		return null;
+	}
+	
+	
+	private String getUserExitErrorLine(String line) {
+	    Pattern userExitErrorPattern = Pattern.compile("User Exit Error .* Script terminated\\.");
+		Matcher userExitErrorMatcher = userExitErrorPattern.matcher(line);
+
+		if (userExitErrorMatcher.find()) {
+			System.out.println("USER EXIT ERROR LINE :: " + line);
+			return "USER EXIT";
 		}
 		return null;
 	}
