@@ -8,10 +8,18 @@ public class ResultDetailedDTO {
     private String expectedValue;
     private String measuredValue;
     private String unit;
+    private String tpfFileName;
     private String signalName;
     private String faultyChannel;
     private String rdfName;
     
+    
+	public String getTpfFileName() {
+		return tpfFileName;
+	}
+	public void setTpfFileName(String tpfFileName) {
+		this.tpfFileName = tpfFileName;
+	}
 	public String getTestName() {
 		return testName;
 	}
