@@ -7,6 +7,8 @@ public class ResultExecutionResponse {
 	private int code;
 	private String msg;
 	private String eMsg;
+	private String sessionName;
+	private String stageName;
 
 	public List<ResultExecutionDTO> getResultDTOList() {
 		return resultDTOList;
@@ -38,6 +40,21 @@ public class ResultExecutionResponse {
 
 	public void seteMsg(String eMsg) {
 		this.eMsg = eMsg;
+	}
+	public String getSessionName() {
+		return sessionName;
+	}
+
+	public void setSessionName(String sessionName) {
+		this.sessionName = sessionName;
+	}
+
+	public String getStageName() {
+		return stageName;
+	}
+
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
 	}
 
 }

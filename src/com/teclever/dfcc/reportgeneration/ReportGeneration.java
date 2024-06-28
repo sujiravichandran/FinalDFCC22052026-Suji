@@ -4,16 +4,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
-import com.itextpdf.text.ExceptionConverter;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
@@ -26,151 +26,245 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 
 public class ReportGeneration {
 
-	public void generateBriefReport(Map<String, String> data1, Map<String, Map<String, String>> data2)
-			throws DocumentException, MalformedURLException, IOException {
+    public Response generateDetailedReport(Map<String, String> data1, Map<String, Map<String, String>> data2)
+            throws DocumentException, MalformedURLException, IOException {
+    	//yyyyMMdd_HHmmss
+    	//dd-MM-yyyy
+        Response res = new Response();
+        Document document = new Document(PageSize.A4);
+        String fileName = "BriefReport_" 
+                + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+        String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 
-		Document document = new Document(PageSize.A4);
-		String fileName = "BriefReport_"
-				+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-		String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
 
-		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
-		document.open();
+        ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
+        writer.setPageEvent(event);
+        document.open();
 
-		ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
-		writer.setPageEvent(event);
-		document.open();
-		
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		
-		//To Create Header 
-		
-		//Add The BEL Logo
-		String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-		Image img = Image.getInstance(imagePath);
-		img.scaleAbsolute(2, 1);
-		img.scalePercent(100);
-		img.setAlignment(Element.ALIGN_CENTER);
-		document.add(img);
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		
-		Font lineFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
-		Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN,24, Font.BOLD, BaseColor.BLACK);
-		
-		
-		String line = "____________________________________________________________";;
-		Paragraph linePara = new Paragraph(line, lineFont);
-		linePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
-		document.add(linePara);
-	
-		
-		String title = "Detailed Report"  + "\n" + "of" +"\n"+"DFCC High Level"+"\n"+"Testing";;
-		Paragraph titlePara = new Paragraph(title, titleFont);
-		titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
-		document.add(titlePara);
-		
-		document.add(new Paragraph("\n"));
-		document.add(new Paragraph("\n"));
-		
-		document.newPage();
-		
-		    PdfContentByte canvas = writer.getDirectContent();
-	        float x = document.leftMargin();
-	        float y = document.bottomMargin()+120;
-	        float width = document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin();
-	        float height = 60f; // height of the oval box
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
 
-	        // Draw the oval rectangle
-	        canvas.setColorStroke(BaseColor.BLACK);
-	        canvas.setColorFill(BaseColor.WHITE);
-	        canvas.roundRectangle(x+5, y, width-10f, height, 30);
-	        canvas.fill();
-	        canvas.stroke();
+        // To Create Header
 
-	        // Add images side by side
-	        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-	        String imagePath2 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-	        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+        // Add The BEL Logo
+        String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+        Image img = Image.getInstance(imagePath);
+        img.scaleAbsolute(2, 1);
+        img.scalePercent(100);
+        img.setAlignment(Element.ALIGN_CENTER);
+        document.add(img);
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
 
-	        Image img1 = Image.getInstance(imagePath1);
-	        Image img2 = Image.getInstance(imagePath2);
-	        Image img3 = Image.getInstance(imagePath3);
+        Font lineFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+        Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 24, Font.BOLD, BaseColor.BLACK);
 
-	        float imgWidth = (width - 20) / 3; // calculate the width for each image
-	        float imgHeight = height - 20; // calculate the height for each image
+        String line = "____________________________________________________________";
+        ;
+        Paragraph linePara = new Paragraph(line, lineFont);
+        linePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+        document.add(linePara);
 
-	        img1.scaleToFit(imgWidth, imgHeight);
-	        img2.scaleToFit(imgWidth, imgHeight);
-	        img3.scaleToFit(imgWidth, imgHeight);
+        String title = "Detailed Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
+        ;
+        Paragraph titlePara = new Paragraph(title, titleFont);
+        titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+        document.add(titlePara);
 
-	        float imgY = y + 10;
-	        float imgX1 = x + 10;
-	        float imgX2 = imgX1 + imgWidth + 5;
-	        float imgX3 = imgX2 + imgWidth + 5;
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
 
-	        img1.setAbsolutePosition(imgX1, imgY);
-	        img2.setAbsolutePosition(imgX2, imgY);
-	        img3.setAbsolutePosition(imgX3, imgY);
+        document.newPage();
 
-	        canvas.addImage(img1);
-	        canvas.addImage(img2);
-	        canvas.addImage(img3);
-	        
-	       
-		// Close the document
-		document.close();
 
-		System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+        // Correct One
 
-	}
+        PdfContentByte canvas = writer.getDirectContent();
+        float x = document.leftMargin();
+        float y = document.getPageSize().getHeight() - document.topMargin() - 100; // Adjust this value to position at
+        // the top
+        float width = document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin();
+        float height = 100f; // Height of the rectangular box
 
-	static class HeaderFooter extends PdfPageEventHelper {
+        // Draw the rectangular box
+        canvas.setColorStroke(BaseColor.BLACK);
+        canvas.rectangle(x, y, width, height);
+        canvas.stroke();
 
-		@Override
-		public void onStartPage(PdfWriter writer, Document document) {
-			addborder(writer); // adding Margins
-		}
+        // Add images and text inside the rectangular box
+        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+        // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 
-		public static void addborder(PdfWriter writer) {
-			PdfContentByte cb = writer.getDirectContent();
+        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
 
-			// Create a PdfTemplate for the entire page
-			PdfTemplate template = cb.createTemplate(PageSize.A4.getWidth(), PageSize.A4.getHeight());
+        Image img1 = Image.getInstance(imagePath1);
+        Image img3 = Image.getInstance(imagePath3);
 
-			// Draw a rectangle around the entire page
-			template.rectangle(36, 36, PageSize.A4.getWidth() - 72, PageSize.A4.getHeight() - 72);
-			template.stroke();
+        float imgWidth = (width - 20) / 3; // Calculate the width for each image
+        float imgHeight = height - 20; // Calculate the height for each image
 
-			cb.addTemplate(template, 0, 0);
-		}
+        img1.scaleToFit(imgWidth, imgHeight + 10);
+        img3.scaleToFit(imgWidth, imgHeight);
 
-		private static final String COPYRIGHT_TEXT = "Powered By Teclever Solutions Pvt Ltd, Bangalore.";
+        float imgY = y + 10;
+        float imgX1 = x + 10;
+        float imgX3 = x + 2 * (imgWidth + 10); // Adjusted to skip the middle section
 
-		@Override
-		public void onEndPage(PdfWriter writer, Document document) {
-			PdfContentByte cb = writer.getDirectContent();
-			Phrase footer = new Phrase(COPYRIGHT_TEXT, new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC));
+        img1.setAbsolutePosition(imgX1, imgY + 30);
+        img3.setAbsolutePosition(imgX3, imgY + 10);
 
-			// Get the current page number
-			int pageNumber = writer.getPageNumber();
-			Rectangle pageSize = document.getPageSize();
-			float x = (pageSize.getLeft() + pageSize.getRight()) / 2.2f;
-			float y = pageSize.getBottom() + 15; // Adjust position
+        document.add(img1);
+        document.add(img3);
 
-			ColumnText.showTextAligned(cb, Element.ALIGN_RIGHT, footer, x, y, 0);
-		}
+        // Add text in place of the second image
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+        Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
 
-	}
+        String text = "DFCC High Level Testing";
+        ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, new Phrase(text, font),
+                x + imgWidth + 10 + imgWidth / 2, imgY + imgHeight / 2, 0);
+
+        Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+        document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+        Paragraph SessionDetails = new Paragraph("Stage Details", headerFont1);
+        SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+        document.add(SessionDetails);
+
+        Paragraph SessionNameDetails = new Paragraph(" Session Name      :" + "     Session Name", headerFont);
+        SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
+        document.add(SessionNameDetails);
+
+        Paragraph StageNameDetails = new Paragraph(" Stage Name         :" + "     Stage Name", headerFont);
+        SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
+        document.add(StageNameDetails);
+
+        Paragraph userNameDetails = new Paragraph(" User Name          :" + "      User Name", headerFont);
+        userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+        document.add(userNameDetails);
+
+        ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+        resultExecutionResponse = resultExecutionManagement.geResulttExecutionListBriefListForStages();
+
+
+        List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
+        for (int i = 0; i < 100; i++) {
+            ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+
+            resultDetailedDTO.setExpectedValue(i + ".00");
+            resultDetailedDTO.setFaultyChannel("CH" + i);
+            resultDetailedDTO.setMeasuredValue(i + "80");
+            resultDetailedDTO.setRdfName("rdf" + i);
+            resultDetailedDTO.setStepName("" + i);
+            resultDetailedDTO.setSignalName("SN_" + i);
+            resultDetailedDTO.setTpfFileName("TPF_" + i);
+            resultDetailedDTO.setTpgph("TPGH" + i);
+            resultDetailedDTO.setUnit("UN-" + i);
+            resultDetailedDTO.setTestName("TN-" + i);
+            resultDetailedDTOList.add(resultDetailedDTO);
+        }
+
+        // Create table
+        PdfPTable table = new PdfPTable(10); // 10 columns
+        table.setWidthPercentage(100); // Width 100%
+        table.setSpacingBefore(10f); // Space before table
+        table.setSpacingAfter(10f); // Space after table
+
+
+        // Set Column widths
+        float[] columnWidths = {1f, 1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f, 1f};
+        table.setWidths(columnWidths);
+
+
+        // Add table header
+        Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+        String[] headers = {"Test Name", "TPGPH", "Step Name", "Expected Value", "Measured Value", "Unit", "TPF File Name", "Signal Name", "Faulty Channel", "RDF Name"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+            cell.setBackgroundColor(BaseColor.GRAY);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+        }
+
+        // Set the number of header rows
+        table.setHeaderRows(1);
+
+        // Add rows from list
+        for (ResultDetailedDTO dto : resultDetailedDTOList) {
+            table.addCell(new Phrase(dto.getTestName()));
+            table.addCell(new Phrase(dto.getTpgph()));
+            table.addCell(new Phrase(dto.getStepName()));
+            table.addCell(new Phrase(dto.getExpectedValue()));
+            table.addCell(new Phrase(dto.getMeasuredValue()));
+            table.addCell(new Phrase(dto.getUnit()));
+            table.addCell(new Phrase(dto.getTpfFileName()));
+            table.addCell(new Phrase(dto.getSignalName()));
+            table.addCell(new Phrase(dto.getFaultyChannel()));
+            table.addCell(new Phrase(dto.getRdfName()));
+        }
+
+        // Add table to document
+        document.add(table);
+
+
+        // Close the document
+        document.close();
+
+        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+        return res;
+    }
+
+    static class HeaderFooter extends PdfPageEventHelper {
+
+        @Override
+        public void onStartPage(PdfWriter writer, Document document) {
+            addborder(writer); // adding Margins
+        }
+
+        public static void addborder(PdfWriter writer) {
+            PdfContentByte cb = writer.getDirectContent();
+
+            // Create a PdfTemplate for the entire page
+            PdfTemplate template = cb.createTemplate(PageSize.A4.getWidth(), PageSize.A4.getHeight());
+
+            // Draw a rectangle around the entire page
+            template.rectangle(36, 36, PageSize.A4.getWidth() - 72, PageSize.A4.getHeight() - 72);
+            template.stroke();
+
+            cb.addTemplate(template, 0, 0);
+        }
+
+        private static final String COPYRIGHT_TEXT = "Powered By Teclever Solutions Pvt Ltd, Bangalore.";
+
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            PdfContentByte cb = writer.getDirectContent();
+            Phrase footer = new Phrase(COPYRIGHT_TEXT, new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC));
+
+            // Get the current page number
+            int pageNumber = writer.getPageNumber();
+            Rectangle pageSize = document.getPageSize();
+            float x = (pageSize.getLeft() + pageSize.getRight()) / 2.2f;
+            float y = pageSize.getBottom() + 15; // Adjust position
+
+            ColumnText.showTextAligned(cb, Element.ALIGN_RIGHT, footer, x, y, 0);
+        }
+
+    }
 
 }
