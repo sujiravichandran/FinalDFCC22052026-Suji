@@ -39,7 +39,7 @@ import com.teclever.dfcc.resultstore.resultmanagement.ResultManagement;
 public class ResultExecutionManagement {
 
 	// For Getting the List Of ExecutionFiles...
-	public ResultExecutionResponse getResulttExecutionListBriefListForStages() {
+	public ResultExecutionResponse getResultExecutionListBriefListForStages() {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 
 		try {
@@ -123,7 +123,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
-	public ResultDetailedResponse geResulttExecutionListDetailedListForStages() {
+	public ResultDetailedResponse getResultExecutionDetailedListForStages() {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {
 			SessionService sessionService = new SessionService();
@@ -211,7 +211,7 @@ public class ResultExecutionManagement {
 	}
 
 	// For Getting the List Of ExecutionFiles...
-	public ResultExecutionResponse geResulttExecutionListBriefListForSession(String sessionId) {
+	public ResultExecutionResponse getResultExecutionListBriefListForSession(String sessionId) {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 		try {
 			// Session Details
@@ -262,7 +262,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
-	public ResultDetailedResponse geResulttExecutionListDetailedListForSession(String sessionId) {
+	public ResultDetailedResponse getResultExecutionListDetailedListForSession(String sessionId) {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {
 			List<ResultDto> lst = getResultForSessionTpfExecution(sessionId);

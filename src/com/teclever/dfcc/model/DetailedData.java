@@ -1,0 +1,86 @@
+package com.teclever.dfcc.model;
+
+public class DetailedData {
+	
+	private int id;
+	private String sNo;
+	private String testName;
+	private String rdfName;
+	private String tpgphNo;
+	private String stepNo;
+	private String expectedValue;
+	private String moniterdOutput;
+	private String unit;
+	private String signalName;
+	private String faultyChannel;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getSNo() {
+		return sNo;
+	}
+	public void setSNo(String sNo) {
+		this.sNo = sNo;
+	}
+	public String getTestName() {
+		return testName;
+	}
+	public void setTestName(String testName) {
+		this.testName = testName;
+	}
+	public String getRdfName() {
+		return rdfName;
+	}
+	public void setRdfName(String rdfName) {
+		this.rdfName = rdfName;
+	}
+	public String getTpgphNo() {
+		return tpgphNo;
+	}
+	public void setTpgphNo(String tpgphNo) {
+		this.tpgphNo = tpgphNo;
+	}
+	public String getStepNo() {
+		return stepNo;
+	}
+	public void setStepNo(String stepNo) {
+		this.stepNo = stepNo;
+	}
+	public String getExpectedValue() {
+		return expectedValue;
+	}
+	public void setExpectedValue(String expectedValue) {
+		this.expectedValue = expectedValue;
+	}
+	public String getMoniterdOutput() {
+		return moniterdOutput;
+	}
+	public void setMoniterdOutput(String moniterdOutput) {
+		this.moniterdOutput = moniterdOutput;
+	}
+	public String getUnit() {
+		return unit;
+	}
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+	public String getSignalName() {
+		return signalName;
+	}
+	public void setSignalName(String signalName) {
+		this.signalName = signalName;
+	}
+	public String getFaultyChannel() {
+		return faultyChannel;
+	}
+	public void setFaultyChannel(String faultyChannel) {
+		this.faultyChannel = faultyChannel;
+	}
+	
+	
+	
+}

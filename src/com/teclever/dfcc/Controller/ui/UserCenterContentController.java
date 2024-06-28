@@ -102,12 +102,12 @@ public class UserCenterContentController {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
 		}
 		
-//        StateMachine.userActionFlagProperty().addListener((observable, oldValue, newValue) ->{
-//        	if(newValue) {
-//        		Platform.runLater(() -> terminalController.createTerminalPopup());
-//        		StateMachine.getUserActionFlag().set(false);
-//        	}
-//        });
+        StateMachine.userActionFlagProperty().addListener((observable, oldValue, newValue) ->{
+        	if(newValue) {
+        		Platform.runLater(() -> terminalController.createTerminalPopup());
+        		StateMachine.getUserActionFlag().set(false);
+        	}
+        });
 	}
 
 }
