@@ -448,7 +448,11 @@ public class StateMachine {
 		public static class aitessRunning{
 			private static boolean aitess1Exited = true;
 			private static boolean aitess2Exited = true;
-			
+			private static boolean aitess1Switched = false;
+			private static boolean aitess1SwitchedFailed = false;
+			private static boolean aitess2Switched = false;
+			private static boolean aitess2SwitchedFailed = false;
+
 			
 			public static boolean isAitess1Exited() {
 				return aitess1Exited;
@@ -462,6 +466,32 @@ public class StateMachine {
 			public static void setAitess2Exited(boolean aitess2Exited) {
 				aitessRunning.aitess2Exited = aitess2Exited;
 			}
+			public static boolean isAitess1Switched() {
+				return aitess1Switched;
+			}
+			public static void setAitess1Switched(boolean aitess1Switched) {
+				aitessRunning.aitess1Switched = aitess1Switched;
+			}
+			public static boolean isAitess2Switched() {
+				return aitess2Switched;
+			}
+			public static void setAitess2Switched(boolean aitess2Switched) {
+				aitessRunning.aitess2Switched = aitess2Switched;
+			}
+			public static boolean isAitess1SwitchedFailed() {
+				return aitess1SwitchedFailed;
+			}
+			public static void setAitess1SwitchedFailed(boolean aitess1SwitchedFailed) {
+				aitessRunning.aitess1SwitchedFailed = aitess1SwitchedFailed;
+			}
+			public static boolean isAitess2SwitchedFailed() {
+				return aitess2SwitchedFailed;
+			}
+			public static void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
+				aitessRunning.aitess2SwitchedFailed = aitess2SwitchedFailed;
+			}
+			
+			
 				
 		}
 		
