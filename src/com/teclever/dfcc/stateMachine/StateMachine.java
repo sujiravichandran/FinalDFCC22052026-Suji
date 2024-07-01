@@ -110,6 +110,7 @@ public class StateMachine {
 		}
 
 		public static void setRunConfigId(String runConfigId) {
+			System.out.println(runConfigId);
 			currentSessionDetails.runConfigId = runConfigId;
 		}
 
@@ -446,59 +447,71 @@ public class StateMachine {
 		
 		
 		public static class aitessRunning{
-			private static boolean aitess1Exited = true;
-			private static boolean aitess2Exited = true;
-			private static boolean aitess1Switched = false;
-			private static boolean aitess1SwitchedFailed = false;
-			private static boolean aitess2Switched = false;
-			private static boolean aitess2SwitchedFailed = false;
+			private static volatile boolean aitess1Exited = true;
+			private static volatile boolean aitess2Exited = true;
+			private static volatile boolean aitess1Switched = false;
+			private static volatile boolean aitess1SwitchedFailed = false;
+			private static volatile boolean aitess2Switched = false;
+			private static volatile boolean aitess2SwitchedFailed = false;
 
 			
-			public static boolean isAitess1Exited() {
+			public static synchronized boolean isAitess1Exited() {
 				return aitess1Exited;
 			}
-			public static void setAitess1Exited(boolean aitess1Exited) {
+			public static synchronized void setAitess1Exited(boolean aitess1Exited) {
 				aitessRunning.aitess1Exited = aitess1Exited;
 			}
-			public static boolean isAitess2Exited() {
+			public static synchronized boolean isAitess2Exited() {
 				return aitess2Exited;
 			}
-			public static void setAitess2Exited(boolean aitess2Exited) {
+			public static synchronized void setAitess2Exited(boolean aitess2Exited) {
 				aitessRunning.aitess2Exited = aitess2Exited;
 			}
-			public static boolean isAitess1Switched() {
+			public static synchronized boolean isAitess1Switched() {
 				return aitess1Switched;
 			}
-			public static void setAitess1Switched(boolean aitess1Switched) {
+			public static synchronized void setAitess1Switched(boolean aitess1Switched) {
+				System.out.println("aitess1 flag:: "+ aitess1Switched);
 				aitessRunning.aitess1Switched = aitess1Switched;
 			}
-			public static boolean isAitess2Switched() {
+			public static synchronized boolean isAitess2Switched() {
 				return aitess2Switched;
 			}
-			public static void setAitess2Switched(boolean aitess2Switched) {
+			public static synchronized void setAitess2Switched(boolean aitess2Switched) {
+				System.out.println("aitess2 flag:: "+ aitess2Switched);
 				aitessRunning.aitess2Switched = aitess2Switched;
 			}
-			public static boolean isAitess1SwitchedFailed() {
+			public static synchronized boolean isAitess1SwitchedFailed() {
 				return aitess1SwitchedFailed;
 			}
-			public static void setAitess1SwitchedFailed(boolean aitess1SwitchedFailed) {
+			public static synchronized void setAitess1SwitchedFailed(boolean aitess1SwitchedFailed) {
 				aitessRunning.aitess1SwitchedFailed = aitess1SwitchedFailed;
 			}
-			public static boolean isAitess2SwitchedFailed() {
+			public static synchronized boolean isAitess2SwitchedFailed() {
 				return aitess2SwitchedFailed;
 			}
-			public static void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
+			public static synchronized void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
 				aitessRunning.aitess2SwitchedFailed = aitess2SwitchedFailed;
 			}
 			
 			
 				
 		}
-		
-		
-		
-		
+			
 		
 	}
+	
+	
+	private static String previousRunConfigId;
+
+	public static String getPreviousRunConfigId() {
+		return previousRunConfigId;
+	}
+
+	public static void setPreviousRunConfigId(String previousRunConfigId) {
+		StateMachine.previousRunConfigId = previousRunConfigId;
+	}
+	
+	
 
 }
