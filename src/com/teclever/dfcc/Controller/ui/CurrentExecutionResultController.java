@@ -188,9 +188,12 @@ public class CurrentExecutionResultController {
 	}
 
 	private ScrollPane createBriefDataTable() {
-		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages();
-		
-		if(response.getCode() == 1 && response.getResultDTOList().size() >0) {
+		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages(StateMachine.currentSessionDetails.getSessionId());
+		System.out.println(response.getCode());
+		System.out.println(response.geteMsg());
+		System.out.println("Session Id On UI"+StateMachine.currentSessionDetails.getSessionId());
+		System.out.println("Result On the UI"+response.getResultDTOList().size());
+		if(response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for(ResultExecutionDTO data :response.getResultDTOList()) {
 				BriefData newBriefData = new BriefData();
@@ -260,9 +263,12 @@ public class CurrentExecutionResultController {
 	
 	public ScrollPane createDetailedDataTable() {
 		
-		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages();
+		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages(StateMachine.currentSessionDetails.getSessionId());
 		
-		if(response.getCode() == 1 && response.getResultDetailedList().size() >0) {
+		System.out.println(response.getCode());
+		System.out.println(response.geteMsg());
+		
+		if(response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
 			for(ResultDetailedDTO data :response.getResultDetailedList()) {
 				

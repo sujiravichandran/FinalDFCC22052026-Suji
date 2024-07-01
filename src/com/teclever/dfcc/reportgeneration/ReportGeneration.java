@@ -159,7 +159,7 @@ public class ReportGeneration {
 
         ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages();
+        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages("");
 
 
         List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();

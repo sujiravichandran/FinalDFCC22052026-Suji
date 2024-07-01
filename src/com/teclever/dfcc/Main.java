@@ -2,25 +2,20 @@ package com.teclever.dfcc;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.HashMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
+import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
-import com.teclever.datastore.service.CardDetailsService;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
-import com.teclever.dfcc.datastore.dto.DriverCard;
-import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.datastore.terminalmanagement.DriverManagement;
+import com.teclever.dfcc.reportgeneration.ReportGeneration;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -44,7 +39,7 @@ extends Application {
         lockAcquired = true;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException, DocumentException, IOException {
         System.out.println("Hello World!");
         String driverClass = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/dfcc";
@@ -54,11 +49,15 @@ extends Application {
         String hbm2ddlAuto = "update";
         String showSql = "false";
         DataStoreConfiguration dataStore = new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
-        
-      if(DFCCConstant.isJarBuild)
-      {
-    	  DFCCConstant.JARSTRING = "/src";
-      }
+      //  ReportGeneration reportGeneration = new ReportGeneration();
+      //  reportGeneration.generateDetailedReport(null, null);
+        System.out.println("Before the Result Management Execution--");
+        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+        resultExecutionManagement.getResultExecutionDetailedListForStages("SASN00003");
+        resultExecutionManagement.getResultExecutionListBriefListForStages("SASN00003");
+		if (DFCCConstant.isJarBuild) {
+			DFCCConstant.JARSTRING = "/src";
+		}
 //      // Define the file path
 //      String filePath = "C:\\Users\\anujk\\Downloads\\load";
 //
