@@ -218,7 +218,7 @@ public class StepParser {
                 String[] channelValues = channels.split(",\\s*");
                 for (int i = 0; i < channelValues.length; i++) {
                     String trimmedValue = channelValues[i].trim();
-                    if (trimmedValue.startsWith("*") || trimmedValue.contains("down")) {
+                    if (trimmedValue.startsWith("*") || trimmedValue.contains("down") || trimmedValue.contains("offline")) {
                         String valueWithoutAsterisk = trimmedValue.replace("*", "").trim();
                         failedChannels.put("Channel" + (i + 1), valueWithoutAsterisk);
                     }

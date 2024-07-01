@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.itextpdf.text.log.SysoCounter;
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.Controller.ui.LoadDriverController;
@@ -61,6 +62,9 @@ public class AitessProcessControlManagement {
 
 	private boolean testStarted = false;
 	private String currentCommand = "";
+	private boolean switchAitessMethod = false;
+	private boolean switchAitess1Method = false;
+
 
 	boolean flag;
 
@@ -91,9 +95,11 @@ public class AitessProcessControlManagement {
 
 	private void configureAitess(String configFileLocation) {
 		try {
+			WriteAitess1Command("sudo rm -r config.cache"+"\n");
 			Files.copy(Paths.get(configFileLocation), aitessConfigFile, StandardCopyOption.REPLACE_EXISTING);
 			Files.copy(startupUserFile, aitessStartupUserFile, StandardCopyOption.REPLACE_EXISTING);
-			Files.deleteIfExists(aitessDir.resolve("config.cache"));
+			//Files.deleteIfExists(aitessDir.resolve("config.cache"));
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -101,9 +107,13 @@ public class AitessProcessControlManagement {
 
 	private void configureAitess1(String configFileLocation) {
 		try {
+			WriteAitess2Command("sudo rm -r config.cache"+"\n");
 			Files.copy(Paths.get(configFileLocation), aitess1ConfigFile, StandardCopyOption.REPLACE_EXISTING);
 			Files.copy(startupUserFile, aitess1StartupUserFile, StandardCopyOption.REPLACE_EXISTING);
-			Files.deleteIfExists(aitess1Dir.resolve("config.cache"));
+			//Files.deleteIfExists(aitess1Dir.resolve("config.cache"));
+		
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -114,10 +124,12 @@ public class AitessProcessControlManagement {
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 		
 		String uutId = StateMachine.currentSessionDetails.getUutId();
+		System.out.println("UUT ID inside launch() --------" + uutId);
 		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
-
+		System.out.println("WHILE CALLING launchAitess() runconfigId-------------" + currentRunConfigId);
 		AitessConfigurationDetails currentAitess = runConfigurationService
 				.getAitessDetailsByRunConfigId(currentRunConfigId);
+		System.out.println("WHILE CALLING launchAitess() AITESS-------------" + currentAitess.getAitessName());
 
 		try {
 			// Get the username from the system property or environment variable
@@ -148,6 +160,7 @@ public class AitessProcessControlManagement {
 			// Set aitessConfigFile and aitess1ConfigFile globally
 			aitessConfigFile = aitessDir.resolve("config.dat");
 			aitess1ConfigFile = aitess1Dir.resolve("config.dat");
+			
 
 			// Copy config.dat to the respective folders
 			Path configFile = Paths.get(currentAitess.getConfigFile());
@@ -179,17 +192,22 @@ public class AitessProcessControlManagement {
 				launchAitess1("cd " + aitessDir.toString() + "\n", textArea);
 				launcherFuture1.thenRun(
 						() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
+				System.out.println("AITESS 1 LAUNCHED COMMAND executed");
 			}
-
+			
+			System.out.println("moving to aitess 2........................" + !StateMachine.isAitess2Launched());
 			// launch aitess2 inside aitess1 folder
 			if (!StateMachine.isAitess2Launched()) {
 				launchAitess2("cd " + aitess1Dir.toString() + "\n");
 				launcherFuture2.thenRun(
 						() -> aitess2ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
+				System.out.println("AITESS 2 LAUNCHED COMMAND executed");
+
 			}
 
-			System.out.println("currentRunConfig-->>" + currentRunConfigId);
-			currentSessionDetails.setRunConfigId(currentRunConfigId);
+			StateMachine.setPreviousRunConfigId(currentRunConfigId);
+			System.out.println("BOTH AITESS LAUNCHED launch() after that currentRunConfig set to SM-->>" + currentRunConfigId);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			textArea.appendText("Failed to create directories or copy config.dat file.\n");
@@ -217,11 +235,25 @@ public class AitessProcessControlManagement {
 
 					while (true) {
 						s2 = s1 = aitess1ReadQ.take();
-						System.out.println("aitess1 output:: " + s1);
+//						System.out.println("aitess1 output:: " + s1);
 
 						if (!aitessRunning.isAitess1Exited()) {
 							aitessRunning.setAitess1Exited(true);
 						}
+						
+						if (switchAitessMethod == true) {
+							if (s1.contains(">>>")) {
+								System.out.println("END FOR AITESS FOUNDED ---------**********-----------");
+								aitessRunning.setAitess1Switched(true);
+								switchAitessMethod=false;
+							} else if (s1.contains("ValueError")) {
+								System.out.println("END FOR AITESS FAILED  FOUNDED --XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-");
+								aitessRunning.setAitess1SwitchedFailed(true);
+								switchAitessMethod=false;
+							}
+							
+						}
+						
 						
 						cleanText = cleanOutput(s1);
 						cleanText = cleanText.replaceAll("\\(B", "");
@@ -276,6 +308,13 @@ public class AitessProcessControlManagement {
 //								aitess1ResultQ.put(userExitErrorResult);
 //							}
 							
+							if(finalLine.contains("Runtime Error")) {
+								aitess1ResultQ.put("RUN TIME ERROR");
+								testStarted = false;
+								result = "";
+				
+			}
+							
 							if(finalLine.contains("User Exit Error")) {
 								aitess1ResultQ.put("USER EXIT");
 								testStarted = false;
@@ -285,15 +324,15 @@ public class AitessProcessControlManagement {
 							
 							
 
-							System.out.println("aitess1 finalLine:: " + finalLine);
+//							System.out.println("aitess1 finalLine:: " + finalLine);
 							
 							if(finalLine.contains("Parse Error")) {
 
-								System.out.println("aitess1 result1:: " + result);
+//								System.out.println("aitess1 result1:: " + result);
 								if (result.equals(""))
 								{
 
-									System.out.println("aitess1 result2:: " + result);
+//									System.out.println("aitess1 result2:: " + result);
 									aitess1ResultQ.put("PARSE ERROR");
 									testStarted = false;
 								}
@@ -340,6 +379,22 @@ public class AitessProcessControlManagement {
 					while (true) {
 						String output = aitess2ReadQ.take();
 						System.out.println("aitess2 :: " + output);
+						
+						if (switchAitess1Method == true) {
+							if (output.contains(">>>")) {
+								System.out.println("END FOR AITESS 2 FOUNDED ---------**********-----------");
+
+								aitessRunning.setAitess2Switched(true);
+								switchAitess1Method=false;							
+							} else if (output.contains("ValueError")) {
+								System.out.println("END FOR AITESS 2  FAILED  FOUNDED --XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-");
+
+								aitessRunning.setAitess2SwitchedFailed(true);
+								switchAitess1Method=false;							
+								}
+						}
+
+						
 						cleanText = cleanOutput(output);
 						cleanText = cleanText.replaceAll("\\(B", "");
 						cleanText = cleanText.replaceAll("]104", "");
@@ -437,19 +492,13 @@ public class AitessProcessControlManagement {
 					}
 					else if (rdfFileName.equals("USER EXIT")) {
 						rdfFileName = "USER EXIT";
+					}else if (rdfFileName.equals("RUN TIME ERROR")) {
+						rdfFileName = "RUN TIME ERROR";
 					}
 					flag = false;
 				}
 
-//				if(aitess1ErrorQ !=null && aitess1ErrorQ.peek() != null) {
-//					parseErrorResponse = aitess1ErrorQ.take();
-//					flag = false;
-//				}
-//				 if (System.currentTimeMillis() - startTime > timeout) {
-//		                System.out.println("Timeout reached. Exiting the loop.");
-//		                flag = false;
-//		            }
-//				  Thread.sleep(1000);
+
 			}
 
 			testStarted = false;
@@ -464,6 +513,9 @@ public class AitessProcessControlManagement {
 
 	public void WriteAitess1Command(String command) {
 		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess(command));
+	}
+	public void WriteAitess2Command(String command) {
+		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command));
 	}
 
 	public void WriteDfccPowerOnCommandToAitess2() {
@@ -480,7 +532,7 @@ public class AitessProcessControlManagement {
 	
 	
 	
-	public void WriteAitess2Command(String command) {
+	public void WriteAitess2Command1(String command) {
 
 		// pending
 		dfccCheckStatusThread = new Thread(() -> {
@@ -503,17 +555,27 @@ public class AitessProcessControlManagement {
 	}
 
 	public void check(String testTypeId) {
+		System.out.println("---ENTERING check() passed testTypeIdl---------------"+ testTypeId);
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
 
-		String smRunConfigId = currentSessionDetails.getRunConfigId();
+		String smRunConfigId = StateMachine.getPreviousRunConfigId();
+		System.out.println("PREVIOUS RUN CONFIG check() ::--------"+ smRunConfigId);
 		AitessConfigurationDetails smAitess = runConfigurationService.getAitessDetailsByRunConfigId(smRunConfigId);
-
+		System.out.println("PREVIOUS  AITESS check() ::" + smAitess.getAitessName());
+		
 		String uutId = currentSessionDetails.getUutId();
 		String currentRunConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 
+		System.out.println("CURRENT RUN CONFIG based on testType check()::----------" + currentRunConfigId);
+		
+		
 		AitessConfigurationDetails currentAitess = runConfigurationService
 				.getAitessDetailsByRunConfigId(currentRunConfigId);
+		System.out.println("CURRENT AITESS check() :: "+ currentAitess.getAitessName());
+
+		System.out.println("STATE MACHINE AITESS driverName:: -----" + smAitess.getDriverName());
+		System.out.println("CURRENT AITESS driverName:: -----" + currentAitess.getDriverName());
 
 		// CHECKING DRIVER
 		if (!smAitess.getDriverName().equals(currentAitess.getDriverName())) {
@@ -556,14 +618,26 @@ public class AitessProcessControlManagement {
 					}
 				}
 				
-			}	
+			}
+			
+
+					
 		}
 
-		
+		aitessRunning.setAitess1Switched(false);
+//		aitessRunning.setAitess1SwitchedFailed(false);
+		aitessRunning.setAitess2Switched(false);
+//		aitessRunning.setAitess2SwitchedFailed(false);
+		StateMachine.setPreviousRunConfigId(currentRunConfigId);
+		System.out.println("UPDATED previous runConfig Id ::------" + StateMachine.getPreviousRunConfigId());
 		System.out.println("FUNCTION ENDED----------------------->>>>>>>>>>>>>>>>>>");
 	}
 
 	public void switchAitess(String testTypeId) {
+		switchAitessMethod=true;
+		switchAitess1Method=true;
+		boolean aets1SwitchFlag=true;
+		boolean aets2SwitchFlag=true;
 		System.out.println("Entering into Switching AITESS");
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
@@ -576,13 +650,40 @@ public class AitessProcessControlManagement {
 		configureAitess(currentAitess.getConfigFile());
 		configureAitess1(currentAitess.getConfigFile());
 
+		
 		launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo "+currentAitess.getAitessCommand() + "\n"));
 		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("sudo "+currentAitess.getAitessCommand() + "\n"));
 		
-		currentSessionDetails.setRunConfigId(currentRunConfigId);
-		System.out.println("AFTER SWITCHING RUN CONFIG GETS UPDATED:: ------>>> "+currentSessionDetails.getRunConfigId());
+		while (aets1SwitchFlag) {
+			//System.out.print(" 1 ");
+			if (aitessRunning.isAitess1Switched()) {
+				aets1SwitchFlag = false;
+				//currentSessionDetails.setRunConfigId(currentRunConfigId);
+				System.out.println("AFTER 1 SWITCHING RUN CONFIG GETS UPDATED:: ------>>> "+currentSessionDetails.getRunConfigId());
+
+			}else if(aitessRunning.isAitess1SwitchedFailed()){
+				System.out.println("AFTER 1 SWITCHING RUN FAILED :: ------>>> "+currentSessionDetails.getRunConfigId());
+
+				aets1SwitchFlag = false;
+			}
+			}
+			while (aets2SwitchFlag) {
+				//System.out.print(" * ");
+			if (aitessRunning.isAitess2Switched()) {
+							
+				aets2SwitchFlag = false;
+				//currentSessionDetails.setRunConfigId(currentRunConfigId);
+				System.out.println("AFTER  2 SWITCHING RUN CONFIG GETS UPDATED:: ------>>> "+currentSessionDetails.getRunConfigId());
+			}else if(aitessRunning.isAitess2SwitchedFailed()) {
+				System.out.println("AFTER  2 SWITCHING Failed:: ------>>> "+currentSessionDetails.getRunConfigId());
+
+				aets2SwitchFlag = false;
+			}
 
 
+		}
+//			currentSessionDetails.setRunConfigId(currentRunConfigId);
+System.out.println("< ======   BOTH AETS SWITCH DONE  ===== >");
 	}
 
 	public void exitAitess1Command() {
@@ -616,17 +717,7 @@ public class AitessProcessControlManagement {
 		return null;
 	}
 
-	private String getParseErrorLine(String line) {
-		Pattern parseErrorPattern = Pattern.compile("Parse Error \\(file '([^']+)', line (\\d+)\\): (.*)");
-		Matcher parseErrorMatcher = parseErrorPattern.matcher(line);
-
-		if (parseErrorMatcher.find()) {
-			System.out.println("<<-----PARSE ERROR print statement----->>");
-			return "PARSE ERROR";
-		}
-		return null;
-	}
-
+	
 	private String getUserActionLine(String line) {
 		Pattern userActionPattern = Pattern.compile("User Action .* \\(Y/N\\):");
 		Matcher userActionMatcher = userActionPattern.matcher(line);
@@ -639,16 +730,6 @@ public class AitessProcessControlManagement {
 	}
 	
 	
-	private String getUserExitErrorLine(String line) {
-	    Pattern userExitErrorPattern = Pattern.compile("User Exit Error .* Script terminated\\.");
-		Matcher userExitErrorMatcher = userExitErrorPattern.matcher(line);
-
-		if (userExitErrorMatcher.find()) {
-			System.out.println("USER EXIT ERROR LINE :: " + line);
-			return "USER EXIT";
-		}
-		return null;
-	}
 	
 	private String cleanOutput(String output) {
 		String regex1 = "\u001B\\[[;\\d]*[A-Za-z]|\\[\\??\\d*[A-Za-z]|\\u0007|\\u0008|"

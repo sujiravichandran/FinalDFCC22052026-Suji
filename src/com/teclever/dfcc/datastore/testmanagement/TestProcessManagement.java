@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
+
 import com.itextpdf.text.log.SysoCounter;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
@@ -25,6 +27,7 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.resultstore.resultmanagement.RdfFileDetailsParser;
 import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
@@ -36,9 +39,12 @@ import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 //import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestStatus;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 
 public class TestProcessManagement {
+	
+	ObjectId ob;
 
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
 			boolean continueWithError, String stageName, String testTypeId) {
@@ -48,7 +54,18 @@ public class TestProcessManagement {
 		
 		// => Check and Update Aitess Running.
 		
-//		AitessProcessControlManagement.getInstance().check(testTypeId);
+		AitessProcessControlManagement.getInstance().check(testTypeId);
+		System.out.println(" Test processControl  : SWITCH ");
+if(aitessRunning.isAitess1SwitchedFailed()||aitessRunning.isAitess2SwitchedFailed()) {
+	res.setResponseCode(0);
+	res.setResponseMessage("XXXXXXXXXXX    AETS Failed to launch   XXXXXXXXXXXX");
+	aitessRunning.setAitess1SwitchedFailed(false);
+	aitessRunning.setAitess2SwitchedFailed(false);
+	return res;
+}
+aitessRunning.setAitess1SwitchedFailed(false);
+aitessRunning.setAitess2SwitchedFailed(false);
+		
 		try {
 			// Update SESSION ENTITY and SESSION STAGE MAPPING
 			res = updateStatusAndRunCount(sessionId, stageId, repeatCount);
@@ -155,7 +172,7 @@ public class TestProcessManagement {
 //							System.out.println("RDF FILE LOCATION :: " + rdfFileLocaltion + rdfFileName
 //									+ "  STAGENAME :: " + stageName);
 							testProcessRes = parseTestFileTest(rdfFileLocaltion, rdfFileName, stageId, stageName,
-									tpfFileName);
+									tpfFileName,sessionId);
 							if (testProcessRes.getResponse().getResponseCode() == 111) {
 								if (rdfFileResult.equals("OK")) {
 									rdfFileResult = "NOT OK";
@@ -179,7 +196,7 @@ public class TestProcessManagement {
 
 					// Calling Test File saving method.
 					addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
-							stageId, testFileId, "SystemResultInfoId", rdfFileLocaltion,
+							stageId, testFileId, String.valueOf(ob), rdfFileLocaltion,
 							(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED" : "RDF NOT GENERATED",
 							(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 							String.valueOf(testProcessRes.getdStarCount()), startTime, endTime);
@@ -203,6 +220,9 @@ public class TestProcessManagement {
 					else if (rdfFileName.equals("USER EXIT")) {
 						filePath = tpfFileName;
 						rdfFileStatus = "Failed";
+					}else if (rdfFileName.equals("RUN TIME ERROR")) {
+						filePath = tpfFileName;
+						rdfFileStatus = "Run Time Error";
 					}
 					selfTestFile = new SelfTestResult(filePath, rdfFileStatus);
 					System.out.println("   ->  8 ----  Update Result into State Machine ");
@@ -241,23 +261,29 @@ public class TestProcessManagement {
 					break;
 
 				case "MANDATORY":
+					System.out.println("----- Mandatory ----");
 					LRUTestStateObject.updateLruMandatoryCardstatus(stageId, rdfFileResult);
 
 					switch (LRUTestStateObject.getLRUTestRunningCard()) {
 
 					case SPIL_LINK:
+						System.out.println("----- SPIL_LINK ----");
 						LRUTestStateObject.getSpilLinkStatus().set(false);
 						break;
 					case POWER_SUPPLY:
+						System.out.println("----- POWER_SUPPLY ----");
 						LRUTestStateObject.getPowerSupplyStatus().set(false);
 						break;
 					case PBIT:
+						System.out.println("----- PBIT ----");
 						LRUTestStateObject.getPbitStatus().set(false);
 						break;
 					case AD_DA_INTERFACE:
+						System.out.println("----- AD_DA_INTERFACE ----");
 						LRUTestStateObject.getAd_daInterfaceStatus().set(false);
 						break;
 					case INITIALIZE_LRU:
+						System.out.println("----- INITIALIZE_LRU ----");
 						LRUTestStateObject.getInitializeLRUStatus().set(false);
 						break;
 
@@ -459,7 +485,7 @@ public class TestProcessManagement {
 		Response res = new Response();
 		Map<String, String> brdresult = new HashMap<>();
 		try {
-			if (rdfFileName == null||rdfFileName.equals("USER EXIT")) {
+			if (rdfFileName == null||rdfFileName.equals("USER EXIT")||rdfFileName.equals("RUN TIME ERROR")) {
 				for (int i = 1; i <= 19; i++) {
 					SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
 				}
@@ -566,7 +592,7 @@ public class TestProcessManagement {
 	}
 
 	public TestProcessResponse parseTestFileTest(String rdfFileLocaltion, String rdfFileName, String stageId,
-			String stageName, String tpfFileName) {
+			String stageName, String tpfFileName,String sessionId) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
 		int dStartCount = 0;
@@ -577,12 +603,12 @@ public class TestProcessManagement {
 //			System.out.println("  CPCI 2 ---  - "+rdfFileName != null);
 //			System.out.println(" CPCI 2 ---  - "+(!rdfFileName.equals("USER EXIT")));
 //			System.out.println(" out "+rdfFileName != null&&(!rdfFileName.equals("USER EXIT")));
-			if (rdfFileName != null&&(!rdfFileName.equals("USER EXIT"))) {
+			if (rdfFileName != null&&(!rdfFileName.equals("USER EXIT"))&&(!rdfFileName.equals("RUN TIME ERROR"))) {
 //				System.out.println(" in "+rdfFileName != null&&(!rdfFileName.equals("USER EXIT")));
 				res.setResponseCode(1);
 				// Calling Parsing Method
-				StepParser.parseStepContext(filePath);
-
+//				StepParser.parseStepContext(filePath);
+				ob=RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId,filePath);
 				dStartCount = rdfFileParser.getDStarCount();
 //				System.out.println("  CPCI 3 ---  dStartCount - "+dStartCount);
 				rdfFileStatus = (rdfFileParser.isDStarFound()) ? "NOT OK" : "OK";
@@ -592,7 +618,9 @@ public class TestProcessManagement {
 
 				if (rdfFileParser.isParseFileError()) {
 					rdfFileStatus = "Parse Error";
+					res.setResponseCode(111);
 				}
+				
 //				System.out.println("  CPCI 6 ---  rdfFileStatus "+rdfFileStatus);
 //				System.out.println("RDF FILE STATUS " + rdfFileStatus);
 				if (rdfFileParser.isDStarFound()) {
@@ -610,6 +638,10 @@ public class TestProcessManagement {
 			else if (rdfFileName != null&&(rdfFileName.equals("USER EXIT"))) {
 				filePath = tpfFileName;
 				rdfFileStatus = "Failed";
+				res.setResponseCode(111);
+			}else if (rdfFileName != null&&(rdfFileName.equals("RUN TIME ERROR"))) {
+				filePath = tpfFileName;
+				rdfFileStatus = "Run Time Error";
 				res.setResponseCode(111);
 			}
 			else {
