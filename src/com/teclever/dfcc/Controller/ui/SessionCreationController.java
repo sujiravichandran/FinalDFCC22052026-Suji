@@ -205,7 +205,7 @@ public class SessionCreationController {
 		createButton.setOnAction(e -> {
 			if (createButton.getText().equals("Create Session")) {
 				saveNewSession();
-			}else if (createButton.getText().equals("Open Session")) {
+			}else if (createButton.getText().equals("OPEN SESSION")) {
 				openExistingSession();
 			}
 		});
@@ -332,12 +332,12 @@ public class SessionCreationController {
 			if (filteredList.isEmpty()) {
 				enablingSessionTable(false);
 				addButton.setDisable(false);
-				createButton.setText("Create Session");
+				createButton.setText("CREATE SESSION");
 				enablingFunction(true);
 			} else {
 				enablingSessionTable(true);
 				addButton.setDisable(true);
-				createButton.setText("Open Session");
+				createButton.setText("OPEN SESSION");
 			}
 		});
 	}
