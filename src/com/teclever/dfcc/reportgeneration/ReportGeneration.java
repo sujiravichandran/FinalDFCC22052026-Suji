@@ -311,7 +311,7 @@ public class ReportGeneration {
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 
         String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-        String imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+     //   String imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
         
         Image img1 = Image.getInstance(imagePath1);
         Image img3 = Image.getInstance(imagePath3);
