@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -27,9 +28,12 @@ public class AdvancedTestingHWATPTesting {
 	private VBox leftSideVBox = new VBox(20);
 	private GridPane rightSideGridPane = new GridPane();
 	
-	private ObservableList<String> stageList = FXCollections.observableArrayList("Group-1", "Group-2", "Group-3", "Group-4");
+	private ObservableList<String> stageList = FXCollections.observableArrayList("Group-1", "Group-2", "Group-3", "Group-4","Group-1", "Group-2", "Group-3", "Group-4","Group-1", "Group-2", "Group-3", "Group-4");
 	
-	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4");
+	private ObservableList<String> testList = FXCollections.observableArrayList("test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4","test-1", "test-2", "test-3", "test-4");
+	
+    private List<RadioButton> stageListRadioButtons = new ArrayList<>();
+    private ListView<RadioButton> stageListView = new ListView<>();
 	
 	private CheckBox selectAllCheckBox = new CheckBox("Select All");
     private List<CheckBox> checkBoxes = new ArrayList<>();
@@ -64,18 +68,48 @@ public class AdvancedTestingHWATPTesting {
 		return tab1MainGridPane;
 	}
 
+//	private VBox createLeftSide() {
+//	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");
+//	    
+//	    for (String label : stageList) {
+//            RadioButton radioButton = new RadioButton(label);
+//            radioButton.getStyleClass().add("radio-button-style");
+//            leftSideVBox.getChildren().add(radioButton);
+//        }
+//	    leftSideVBox.setAlignment(Pos.CENTER);
+//
+//		return leftSideVBox;
+//	}
+	
+	
 	private VBox createLeftSide() {
 	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");
-	    
-	    for (String label : stageList) {
-            RadioButton radioButton = new RadioButton(label);
-            radioButton.getStyleClass().add("radio-button-style");
-            leftSideVBox.getChildren().add(radioButton);
-        }
-	    leftSideVBox.setAlignment(Pos.CENTER);
+	    stageListView.getStyleClass().add("advanced-testing-radio-list-view"); 
 
-		return leftSideVBox;
+	    ToggleGroup toggleGroup = new ToggleGroup(); 
+
+	    for (String test : stageList) {
+	        RadioButton newRadioButton = new RadioButton(test);
+	        newRadioButton.getStyleClass().add("advanced-testing-radio-button");
+	        newRadioButton.setWrapText(true);
+	        newRadioButton.setToggleGroup(toggleGroup); 
+	        stageListRadioButtons.add(newRadioButton);
+	        stageListView.getItems().add(newRadioButton);
+	    }
+
+	    toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+	        if (newValue != null) {
+	            RadioButton selectedRadioButton = (RadioButton) newValue;
+	            System.out.println("Selected RadioButton: " + selectedRadioButton.getText());
+	        }
+	    });
+
+	    leftSideVBox.setAlignment(Pos.CENTER);
+	    leftSideVBox.getChildren().addAll(stageListView);
+	    return leftSideVBox;
 	}
+
+
 	
 	private GridPane createRightSide() {
 		ColumnConstraints firstColumn = new ColumnConstraints();

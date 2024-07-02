@@ -70,13 +70,26 @@
 
 
 
+
+
 .advanced-testing-left-container{
 	-fx-background-color: dark-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
+	-fx-padding:5px;
 }
 
-.radio-button-style {
+.advanced-testing-radio-list-view {
+	-fx-padding : 5px;
+	-fx-background-color: dark-bg;
+}
+
+.advanced-testing-radio-list-view .list-cell{
+	-fx-background-color: dark-bg;
+    -fx-text-fill: white;
+}
+
+.advanced-testing-radio-button {
     -fx-text-fill: white;
     -fx-font-size: 18px;
     -fx-font-weight: bold;
@@ -89,6 +102,7 @@
 	-fx-border-radius: 10px;
 	-fx-padding : 10px;
 }
+
 
 .advanced-testing-list-view{
 	-fx-border-color: transparent;
