@@ -59,3 +59,21 @@
 	-fx-background-color: white;
 	-fx-padding:5px;
 }
+
+
+
+
+.button {
+	-fx-min-width: 150px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}

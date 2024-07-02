@@ -191,7 +191,7 @@ public class AdvancedTestingController {
 	private TableView<TestSummary> createResultTableView() {
 		TableView<TestSummary> tableView = new TableView<>();
 		tableView.getStylesheets()
-		.add(getClass().getResource("/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
