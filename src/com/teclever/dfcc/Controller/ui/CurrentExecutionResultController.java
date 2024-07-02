@@ -1,21 +1,26 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.model.BriefData;
 import com.teclever.dfcc.model.DetailedData;
+import com.teclever.dfcc.reportgeneration.ReportGeneration;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -57,6 +62,8 @@ public class CurrentExecutionResultController {
     
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
+	private HBox buttonBox = new HBox();
+	private Button downloadButton = new Button("Download");
 	
     
 	private TabPane currentExecutionResultTabPane = new TabPane();
@@ -74,7 +81,10 @@ public class CurrentExecutionResultController {
 	private CustomTableView<BriefData> briefDataTableView ;
 	private CustomTableView<DetailedData> detailedDataTableView ;
 	
+	private String currentTab = "tab1";;
+	
 	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+	ReportGeneration reportGeneration = new ReportGeneration();
 	
     public GridPane createCurrentExecutionResultGridPane() {
         currentExecutionResultGridPane.getStylesheets()
@@ -101,12 +111,15 @@ public class CurrentExecutionResultController {
     
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(50);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 		
-		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn);
+		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
@@ -115,10 +128,56 @@ public class CurrentExecutionResultController {
 		titleBox.getChildren().add(title);
 		
 		currentExecutionResultHeadingGridPane.add(titleBox, 0, 0);
+		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
 		
 		return currentExecutionResultHeadingGridPane;
 	}
 	
+	private HBox createDownloadButton() {
+		buttonBox.setAlignment(Pos.CENTER_RIGHT);
+		buttonBox.getChildren().add(downloadButton);
+		
+		downloadButton.setOnAction(e ->{
+			if(currentTab.equals("tab1")) {
+				downloadReport(StateMachine.currentSessionDetails.getSessionId(), true);
+			}else {
+				downloadReport(StateMachine.currentSessionDetails.getSessionId(), false);
+			}
+		});
+		
+		return buttonBox;
+	}
+
+
+	private void downloadReport(String sessionId, boolean isBrief) {
+	    Task<Void> task = new Task<Void>() {
+	        @Override
+	        protected Void call() throws Exception {
+	            Response response;
+	            if (isBrief) {
+	                response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
+	            } else {
+	                response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
+	            }
+	           
+	            if (response.getResponseCode() == 1) {
+	                Notifications.showSuccessAlert("Download Completed Successfully...");
+	            } else {
+	                Notifications.showErrorAlert(response.getResponseMessage());
+	            }
+	            return null;
+	        }
+	    };
+
+
+	    Thread thread = new Thread(task);
+	    thread.setDaemon(true);
+	    thread.start();
+	}
+
+
+
+
 	private GridPane createCurrentExecutionResultTabsGridPane() {
 		currentExecutionResultTabsGridPane.getStyleClass().add("current-execution-result-tabs-container");
 		
@@ -157,8 +216,10 @@ public class CurrentExecutionResultController {
 	    currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
 	        if (newTab == tab2) {
 	            showTab2Content();
+	            currentTab = "tab2";
 	        } else {
 	            showTab1Content();
+	            currentTab = "tab1";
 	        }
 	    });
 
@@ -189,10 +250,6 @@ public class CurrentExecutionResultController {
 
 	private ScrollPane createBriefDataTable() {
 		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages(StateMachine.currentSessionDetails.getSessionId());
-		System.out.println(response.getCode());
-		System.out.println(response.geteMsg());
-		System.out.println("Session Id On UI"+StateMachine.currentSessionDetails.getSessionId());
-		System.out.println("Result On the UI"+response.getResultDTOList().size());
 		if(response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for(ResultExecutionDTO data :response.getResultDTOList()) {
@@ -214,17 +271,15 @@ public class CurrentExecutionResultController {
 		briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
 
 		briefDataTableView.getColumns().forEach(column -> {   
-        	column.setMinWidth(column.getText().length()*13);
+        	column.setMinWidth(column.getText().length()*16);
         	updateBriefData((TableColumn<BriefData, String>) column);
         });
 		
         
         ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
         
-        if(briefDataList.size() == 0) {
-        	tableScrollPane.setFitToWidth(true);
-        }
-//        tableScrollPane.setFitToWidth(true);
+
+        tableScrollPane.setFitToWidth(true);
         tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
 	}
@@ -249,10 +304,10 @@ public class CurrentExecutionResultController {
 	                    setStyle("-fx-alignment: CENTER;"); 
 	                }
 	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-	                label.setMinWidth(label.getText().length() * 12);
+	                label.setStyle("-fx-text-fill: white; ");
+	                label.setMinWidth(label.getText().length() * 16);
 	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 12);
+	                this.setMinWidth(label.getText().length() * 16);
 	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 	            }
 	        }
@@ -264,9 +319,7 @@ public class CurrentExecutionResultController {
 	public ScrollPane createDetailedDataTable() {
 		
 		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages(StateMachine.currentSessionDetails.getSessionId());
-		
-		System.out.println(response.getCode());
-		System.out.println(response.geteMsg());
+
 		
 		if(response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
@@ -295,7 +348,7 @@ public class CurrentExecutionResultController {
 
 
         detailedDataTableView.getColumns().forEach(column -> {
-            column.setMinWidth(column.getText().length() * 13);
+            column.setMinWidth(column.getText().length() * 16);
             updateDetailedData((TableColumn<DetailedData, String>) column);
         });
 
@@ -323,10 +376,10 @@ public class CurrentExecutionResultController {
 	                    setStyle("-fx-alignment: CENTER;"); 
 	                }
 	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-	                label.setMinWidth(label.getText().length() * 12);
+	                label.setStyle("-fx-text-fill: white;");
+	                label.setMinWidth(label.getText().length() * 16);
 	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 12);
+	                this.setMinWidth(label.getText().length() * 16);
 	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 	            }
 	        }
