@@ -313,11 +313,15 @@ public class SessionManagement {
 		return sessionDtoResponse;
 	}
 	
-	public Response updateLoginSession(String sessionId) {
+	public Response updateLoginSession(String input) {
 		Response res= new Response();
 		try {
 			LoginSessionService loginSessionService = new LoginSessionService();
-			res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionId, null);
+			if(input !=null && input.equals("LOGOUT")) {
+				res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), null, new Date());
+			}else {
+				res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), currentSessionDetails.getSessionId(), null);
+			}
 			
 		} catch (Exception e) {
 			res.setResponseCode(0);
