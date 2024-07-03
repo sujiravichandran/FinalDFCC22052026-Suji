@@ -331,37 +331,51 @@ public class LRUTestingController {
 		}
 		
 		LRUTestStateObject.spilLinkStatusProperty().addListener((observable, oldValue, newValue) -> {
-			Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
-			pbitButton.setDisable(false);
-			StateMachine.setTestState(TestState.COMPLETED);
+			if(!newValue) {
+				Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
+				pbitButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
+				LRUTestStateObject.getSpilLinkStatus().set(true);
+			}
+		
 		});
 		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
-				Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
-				initializeLRUButton.setDisable(false);
-				StateMachine.setTestState(TestState.COMPLETED);
-			}else {
-				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
-				powerSupplyButton.setDisable(false);
-				StateMachine.setTestState(TestState.COMPLETED);
+			if(!newValue) {
+				if(LRUTestStateObject.getIsMandatoryFifthCardStatus().get()) {
+					Button initializeLRUButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+					initializeLRUButton.setDisable(false);
+					StateMachine.setTestState(TestState.COMPLETED);
+				}else {
+					Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(2).getCardId());
+					powerSupplyButton.setDisable(false);
+					StateMachine.setTestState(TestState.COMPLETED);
+				}
+				LRUTestStateObject.getPbitStatus().set(true);
 			}
 		});
 		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if(!newValue) {
 				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(3).getCardId());
 				powerSupplyButton.setDisable(false);
 				StateMachine.setTestState(TestState.COMPLETED);
+				LRUTestStateObject.getInitializeLRUStatus().set(true);
+			}
 		});
 		LRUTestStateObject.powerSupplyStatusProperty().addListener((observable, oldValue, newValue) -> {
-//			System.err.println("-----"+(LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3));
-			int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
-//			System.err.println("-------"+mandatoryCardList.get(index).getCardName());
-			Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
-			ad_daInterfaceButton.setDisable(false);
-			StateMachine.setTestState(TestState.COMPLETED);
+			if(!newValue) {
+				int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
+				Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
+				ad_daInterfaceButton.setDisable(false);
+				StateMachine.setTestState(TestState.COMPLETED);
+				LRUTestStateObject.getPowerSupplyStatus().set(true);
+			}
 		});
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if(!newValue) {
+				LRUTestStateObject.getAd_daInterfaceStatus().set(true);
+			}
 			boolean allCardsStatusOk = true;
-			
+		
 	        for (TestCardData card : mandatoryCardList) {
 	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {

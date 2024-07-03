@@ -1,6 +1,7 @@
 package com.teclever.dfcc.datastore.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class ResultExecutionResponse {
 	private List<ResultExecutionDTO> resultDTOList;
@@ -9,6 +10,9 @@ public class ResultExecutionResponse {
 	private String eMsg;
 	private String sessionName;
 	private String stageName;
+	private Map<String,String>stageIdName;
+	private Map<String,String>testFileIdName;
+	private Map<String,String>sessionIdName;
 
 	public List<ResultExecutionDTO> getResultDTOList() {
 		return resultDTOList;
@@ -56,5 +60,30 @@ public class ResultExecutionResponse {
 	public void setStageName(String stageName) {
 		this.stageName = stageName;
 	}
+
+	public Map<String, String> getStageIdName() {
+		return stageIdName;
+	}
+
+	public void setStageIdName(Map<String, String> stageIdName) {
+		this.stageIdName = stageIdName;
+	}
+
+	public Map<String, String> getTestFileIdName() {
+		return testFileIdName;
+	}
+
+	public void setTestFileIdName(Map<String, String> testFileIdName) {
+		this.testFileIdName = testFileIdName;
+	}
+
+	public Map<String, String> getSessionIdName() {
+		return sessionIdName;
+	}
+
+	public void setSessionIdName(Map<String, String> sessionIdName) {
+		this.sessionIdName = sessionIdName;
+	}
+	
 
 }
