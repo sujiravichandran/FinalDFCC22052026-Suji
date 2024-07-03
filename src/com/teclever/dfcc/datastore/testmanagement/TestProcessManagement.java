@@ -43,7 +43,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunnin
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 
 public class TestProcessManagement {
-	
+
 	ObjectId ob;
 
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
@@ -51,21 +51,21 @@ public class TestProcessManagement {
 
 		Response res = new Response();
 		System.out.println("--------START---------");
-		
+
 		// => Check and Update Aitess Running.
-		
+
 		AitessProcessControlManagement.getInstance().check(testTypeId);
 		System.out.println(" Test processControl  : SWITCH ");
-if(aitessRunning.isAitess1SwitchedFailed()||aitessRunning.isAitess2SwitchedFailed()) {
-	res.setResponseCode(0);
-	res.setResponseMessage("XXXXXXXXXXX    AETS Failed to launch   XXXXXXXXXXXX");
-	aitessRunning.setAitess1SwitchedFailed(false);
-	aitessRunning.setAitess2SwitchedFailed(false);
-	return res;
-}
-aitessRunning.setAitess1SwitchedFailed(false);
-aitessRunning.setAitess2SwitchedFailed(false);
-		
+		if (aitessRunning.isAitess1SwitchedFailed() || aitessRunning.isAitess2SwitchedFailed()) {
+			res.setResponseCode(0);
+			res.setResponseMessage("XXXXXXXXXXX    AETS Failed to launch   XXXXXXXXXXXX");
+			aitessRunning.setAitess1SwitchedFailed(false);
+			aitessRunning.setAitess2SwitchedFailed(false);
+			return res;
+		}
+		aitessRunning.setAitess1SwitchedFailed(false);
+		aitessRunning.setAitess2SwitchedFailed(false);
+
 		try {
 			// Update SESSION ENTITY and SESSION STAGE MAPPING
 			res = updateStatusAndRunCount(sessionId, stageId, repeatCount);
@@ -90,7 +90,20 @@ aitessRunning.setAitess2SwitchedFailed(false);
 				Response response = new Response();
 
 				// Update State Machine : Set TextArea to FALSE.
-				if (StateMachine.isTextArea()) {
+				if (!StateMachine.isTextArea()) {
+					boolean flag = true;
+					while (flag) {
+						try {
+							Thread.sleep(1000);
+							if (!StateMachine.isTextArea()) {
+								break;
+							}
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} else {
 					StateMachine.setTextArea(false);
 				}
 				String startTime;
@@ -107,41 +120,42 @@ aitessRunning.setAitess2SwitchedFailed(false);
 
 				String tpfFileName = null;
 				List<String> listOfFileIds = new ArrayList<>();
-				for (int i = 1; i <=repeatCount; i++) {
-					
+				for (int i = 1; i <= repeatCount; i++) {
+
 					listOfFileIds.addAll(listOfFileId);
 
 				}
-				System.out.println(" 2 ----  "+"Stage Name : "+stageName+" :: LIST OF FILE ID From PARAMETER - "+listOfFileId.size()+"  REPEAT COUNT - "+repeatCount+" Loop Run "+listOfFileIds.size());
+				System.out.println(" 2 ----  " + "Stage Name : " + stageName + " :: LIST OF FILE ID From PARAMETER - "
+						+ listOfFileId.size() + "  REPEAT COUNT - " + repeatCount + " Loop Run "
+						+ listOfFileIds.size());
 //				System.out.println("\033[0;1m"+"Stage Name : "+stageName+" :: LIST OF FILE ID From PARAMETER - "+listOfFileId.size()+"  REPEAT COUNT - "+repeatCount+" = "+listOfFileIds.size());
 				// For Each Loop of List of File IDs
-				outerLoop:
-				for (String testFileId : listOfFileIds) {
+				outerLoop: for (String testFileId : listOfFileIds) {
 					// Test Started Time
 					startTime = String.valueOf(new Date());
 					System.out.println("   ->  1 ----  Loop Start ");
 					if (testFilesIdName.get(testFileId) != null) {
 
 //						if(StateMachine.getTestState() == TestState.PAUSED||StateMachine.getTestState() == TestState.STOPPED) {
-							if(StateMachine.getTestState() == TestState.PAUSED) {
-								boolean loopFlag=true;
-								while(loopFlag) {
-									System.out.println(StateMachine.getTestState());
-									if(StateMachine.getTestState() == TestState.RUNNING) {
-										
-										loopFlag=false;
-									}else if(StateMachine.getTestState() == TestState.STOPPED) {
-										
-										loopFlag=false;
+						if (StateMachine.getTestState() == TestState.PAUSED) {
+							boolean loopFlag = true;
+							while (loopFlag) {
+								System.out.println(StateMachine.getTestState());
+								if (StateMachine.getTestState() == TestState.RUNNING) {
+
+									loopFlag = false;
+								} else if (StateMachine.getTestState() == TestState.STOPPED) {
+
+									loopFlag = false;
 									break outerLoop;
-										
-									}
+
 								}
-//								System.out.println("----Exit From while loop----");
-								
-							}else if(StateMachine.getTestState() == TestState.STOPPED) {
-								break;
 							}
+//								System.out.println("----Exit From while loop----");
+
+						} else if (StateMachine.getTestState() == TestState.STOPPED) {
+							break;
+						}
 //						}
 						// Getting RDF file Name from PerformTest()
 						rdfFileName = AitessProcessControlManagement.getInstance()
@@ -172,7 +186,7 @@ aitessRunning.setAitess2SwitchedFailed(false);
 //							System.out.println("RDF FILE LOCATION :: " + rdfFileLocaltion + rdfFileName
 //									+ "  STAGENAME :: " + stageName);
 							testProcessRes = parseTestFileTest(rdfFileLocaltion, rdfFileName, stageId, stageName,
-									tpfFileName,sessionId);
+									tpfFileName, sessionId);
 							if (testProcessRes.getResponse().getResponseCode() == 111) {
 								if (rdfFileResult.equals("OK")) {
 									rdfFileResult = "NOT OK";
@@ -197,15 +211,18 @@ aitessRunning.setAitess2SwitchedFailed(false);
 					// Calling Test File saving method.
 					addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
 							stageId, testFileId, String.valueOf(ob), rdfFileLocaltion,
-							(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED" : "RDF NOT GENERATED",
+							(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
+									: "RDF NOT GENERATED",
 							(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 							String.valueOf(testProcessRes.getdStarCount()), startTime, endTime);
+
+					// Update State Machine : Set TextArea to TRUE.
+					StateMachine.setTextArea(true);
+
 				}
 //				String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
 //						: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
 
-				
-				
 				switch (stageName) {
 				case "RACK1":
 					SelfTestResult selfTestFile;
@@ -216,11 +233,10 @@ aitessRunning.setAitess2SwitchedFailed(false);
 					if (rdfFileName == null) {
 						filePath = tpfFileName;
 						rdfFileStatus = "Parse Error";
-					}
-					else if (rdfFileName.equals("USER EXIT")) {
+					} else if (rdfFileName.equals("USER EXIT")) {
 						filePath = tpfFileName;
 						rdfFileStatus = "Failed";
-					}else if (rdfFileName.equals("RUN TIME ERROR")) {
+					} else if (rdfFileName.equals("RUN TIME ERROR")) {
 						filePath = tpfFileName;
 						rdfFileStatus = "Run Time Error";
 					}
@@ -314,14 +330,15 @@ aitessRunning.setAitess2SwitchedFailed(false);
 				case "SRU":
 					LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 					LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
-					System.out.println("------Stage Id----- "+stageId+"  ------- RDF FILE Result----- "+rdfFileResult);
+					System.out.println(
+							"------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
 					break;
 				case "SESSION TEST":
 //					System.out.println("CASE : SESSION TEST");
 					SessionTestStateObject.updateEndLeafMapStatus(stageId, "COMPLETED");
 					SessionTestStateObject.getRunningTestLeafStatus().set(true);
 					StateMachine.setTestState(TestState.COMPLETED);
-					
+
 					break;
 				default:
 					System.out.println("INVALID TEST TYPE ID ");
@@ -329,7 +346,7 @@ aitessRunning.setAitess2SwitchedFailed(false);
 				}
 
 				// Update State Machine : Set TextArea to TRUE.
-				StateMachine.setTextArea(true);
+//				StateMachine.setTextArea(true);
 
 				String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
 						: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
@@ -485,7 +502,7 @@ aitessRunning.setAitess2SwitchedFailed(false);
 		Response res = new Response();
 		Map<String, String> brdresult = new HashMap<>();
 		try {
-			if (rdfFileName == null||rdfFileName.equals("USER EXIT")||rdfFileName.equals("RUN TIME ERROR")) {
+			if (rdfFileName == null || rdfFileName.equals("USER EXIT") || rdfFileName.equals("RUN TIME ERROR")) {
 				for (int i = 1; i <= 19; i++) {
 					SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
 				}
@@ -502,82 +519,83 @@ aitessRunning.setAitess2SwitchedFailed(false);
 //			BufferedReader reader = new BufferedReader(new FileReader(rdfFileLocaltion + rdfFileName));
 //			Thread.sleep(1000);
 			File file = new File(rdfFileLocation + rdfFileName);
-			System.out.println("FILE LENGTH  "+file.length());
-			
-			  while (true) { // Infinite loop
-		            System.out.println("FILE LENGTH " + file.length()); // Print the file length
-		            if (file.length() == 0) { // Check if the file length is 0
-		                try {
-		                    System.out.println("File is empty, waiting for 1 second...");
-		                    Thread.sleep(1000); // Wait for 1 second
-		                } catch (InterruptedException e) {
-		                    e.printStackTrace();
-		                }
-		            } else { // If the file is not empty, exit the loop
-		                System.out.println("File is not empty.");
-		                break;
-		            }
-		        }
-		
-		    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-		    	
-			String line;
-			String brdNumber = null;
-			String brdResult = null;
-			res.setResponseCode(1);
-			int dStartCount = 0;
-			System.out.println(rdfFileLocation + rdfFileName);
-			while ((line = reader.readLine()) != null) {
-				System.out.println("LINE  " + line);
-				if (line.startsWith("S> brd")) {
+			System.out.println("FILE LENGTH  " + file.length());
+
+			while (true) { // Infinite loop
+				System.out.println("FILE LENGTH " + file.length()); // Print the file length
+				if (file.length() == 0) { // Check if the file length is 0
+					try {
+						System.out.println("File is empty, waiting for 1 second...");
+						Thread.sleep(1000); // Wait for 1 second
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else { // If the file is not empty, exit the loop
+					System.out.println("File is not empty.");
+					break;
+				}
+			}
+
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+				String line;
+				String brdNumber = null;
+				String brdResult = null;
+				res.setResponseCode(1);
+				int dStartCount = 0;
+				System.out.println(rdfFileLocation + rdfFileName);
+				while ((line = reader.readLine()) != null) {
+					System.out.println("LINE  " + line);
+					if (line.startsWith("S> brd")) {
 //					System.out.println(line.substring(line.indexOf(" "), line.indexOf("_")));
-					brdNumber = line.substring(line.indexOf(" "), line.indexOf("_"));
-					if (brdresult.get(brdNumber) != null) {
-						if (brdresult.get(brdNumber) != "NOT OK") {
+						brdNumber = line.substring(line.indexOf(" "), line.indexOf("_"));
+						if (brdresult.get(brdNumber) != null) {
+							if (brdresult.get(brdNumber) != "NOT OK") {
+								brdresult.put(brdNumber, "OK");
+							}
+						} else {
 							brdresult.put(brdNumber, "OK");
 						}
-					} else {
-						brdresult.put(brdNumber, "OK");
-					}
-				} else if (line.startsWith("D*> ")) {
-					if (brdresult.get(brdNumber) != null) {
-						if (brdresult.get(brdNumber) != "NOT OK") {
+					} else if (line.startsWith("D*> ")) {
+						if (brdresult.get(brdNumber) != null) {
+							if (brdresult.get(brdNumber) != "NOT OK") {
+								dStartCount++;
+								brdresult.put(brdNumber, "NOT OK");
+								res.setResponseCode(111);
+								brdResult = null;
+							}
+						} else {
 							dStartCount++;
-							brdresult.put(brdNumber, "NOT OK");
 							res.setResponseCode(111);
-							brdResult=null;
+							brdResult = "BRD";
 						}
-					}else {
-						dStartCount++;
-						res.setResponseCode(111);
-						brdResult="BRD";
 					}
-				}
-				System.out.println("  RACK 1 -------- dStartCount: "+dStartCount+" res.get "+res.getResponseCode());
-			}
-		
-			System.out.println("  RACK 1 -------- brdResult "+brdResult);
-			if (brdResult!=null&& brdResult.equals("BRD")) {
-				for (int i = 1; i <= 19; i++) {
-					SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
+					System.out.println(
+							"  RACK 1 -------- dStartCount: " + dStartCount + " res.get " + res.getResponseCode());
 				}
 
-				res.setResponseCode(111);
-				testProcessResponse.setResponse(res);
-				res.setResponseMessage("Unsuccessful ");
-				testProcessResponse.setTestProcessResult(brdresult);
+				System.out.println("  RACK 1 -------- brdResult " + brdResult);
+				if (brdResult != null && brdResult.equals("BRD")) {
+					for (int i = 1; i <= 19; i++) {
+						SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
+					}
+
+					res.setResponseCode(111);
+					testProcessResponse.setResponse(res);
+					res.setResponseMessage("Unsuccessful ");
+					testProcessResponse.setTestProcessResult(brdresult);
+					reader.close();
+					return testProcessResponse;
+
+				}
+
+				for (Map.Entry<String, String> entry : brdresult.entrySet()) {
+					SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), entry.getValue());
+				}
+				res.setResponseMessage("Successful ");
+				testProcessResponse.setdStarCount(dStartCount);
 				reader.close();
-				return testProcessResponse;
-
-			}
-			
-			for (Map.Entry<String, String> entry : brdresult.entrySet()) {
-				SelfTestStateObject.updateSelfTestRack1Cardstatus(entry.getKey(), entry.getValue());
-			}
-			res.setResponseMessage("Successful ");
-			testProcessResponse.setdStarCount(dStartCount);
-			reader.close();
-		    }catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
@@ -592,7 +610,7 @@ aitessRunning.setAitess2SwitchedFailed(false);
 	}
 
 	public TestProcessResponse parseTestFileTest(String rdfFileLocaltion, String rdfFileName, String stageId,
-			String stageName, String tpfFileName,String sessionId) {
+			String stageName, String tpfFileName, String sessionId) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
 		Response res = new Response();
 		int dStartCount = 0;
@@ -603,12 +621,12 @@ aitessRunning.setAitess2SwitchedFailed(false);
 //			System.out.println("  CPCI 2 ---  - "+rdfFileName != null);
 //			System.out.println(" CPCI 2 ---  - "+(!rdfFileName.equals("USER EXIT")));
 //			System.out.println(" out "+rdfFileName != null&&(!rdfFileName.equals("USER EXIT")));
-			if (rdfFileName != null&&(!rdfFileName.equals("USER EXIT"))&&(!rdfFileName.equals("RUN TIME ERROR"))) {
+			if (rdfFileName != null && (!rdfFileName.equals("USER EXIT")) && (!rdfFileName.equals("RUN TIME ERROR"))) {
 //				System.out.println(" in "+rdfFileName != null&&(!rdfFileName.equals("USER EXIT")));
 				res.setResponseCode(1);
 				// Calling Parsing Method
 //				StepParser.parseStepContext(filePath);
-				ob=RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId,filePath);
+				ob = RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId, filePath);
 				dStartCount = rdfFileParser.getDStarCount();
 //				System.out.println("  CPCI 3 ---  dStartCount - "+dStartCount);
 				rdfFileStatus = (rdfFileParser.isDStarFound()) ? "NOT OK" : "OK";
@@ -620,7 +638,7 @@ aitessRunning.setAitess2SwitchedFailed(false);
 					rdfFileStatus = "Parse Error";
 					res.setResponseCode(111);
 				}
-				
+
 //				System.out.println("  CPCI 6 ---  rdfFileStatus "+rdfFileStatus);
 //				System.out.println("RDF FILE STATUS " + rdfFileStatus);
 				if (rdfFileParser.isDStarFound()) {
@@ -634,29 +652,27 @@ aitessRunning.setAitess2SwitchedFailed(false);
 //				System.out.println("----DStarFound----- "+rdfFileParser.isDStarFound());
 //				System.out.println("----ParseFileError----- "+rdfFileParser.isParseFileError());
 //				System.out.println("----END-----");
-			}
-			else if (rdfFileName != null&&(rdfFileName.equals("USER EXIT"))) {
+			} else if (rdfFileName != null && (rdfFileName.equals("USER EXIT"))) {
 				filePath = tpfFileName;
 				rdfFileStatus = "Failed";
 				res.setResponseCode(111);
-			}else if (rdfFileName != null&&(rdfFileName.equals("RUN TIME ERROR"))) {
+			} else if (rdfFileName != null && (rdfFileName.equals("RUN TIME ERROR"))) {
 				filePath = tpfFileName;
 				rdfFileStatus = "Run Time Error";
 				res.setResponseCode(111);
-			}
-			else {
+			} else {
 				filePath = tpfFileName;
 				rdfFileStatus = "Parse Error";
 				dStartCount = (-1);
 				res.setResponseCode(111);
 			}
-			
+
 			if (stageName.equals("CPCI")) {
 
 				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, rdfFileStatus);
 
 				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
-				System.out.println("--------------CPCI UPDATE --------  "+filePath+"   "+ rdfFileStatus);
+				System.out.println("--------------CPCI UPDATE --------  " + filePath + "   " + rdfFileStatus);
 			}
 
 			else if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
@@ -672,7 +688,6 @@ aitessRunning.setAitess2SwitchedFailed(false);
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
 //				System.out.println("SESSION TEST---------"+filePath+"  "+rdfFileStatus);
 
-
 			}
 
 			res.setResponseMessage("Successful ");
@@ -687,4 +702,32 @@ aitessRunning.setAitess2SwitchedFailed(false);
 
 		return testProcessResponse;
 	}
+
+//	private void example() {
+//
+//		try {
+//			boolean flag = true;
+//			while (true) {
+//				// Sleep for 2 minutes (120000 milliseconds)
+//				Thread.sleep(2 * 60 * 1000);
+//				if (!StateMachine.isTextArea()) {
+//
+//					while (flag) {
+//						try {
+//							Thread.sleep(1000);
+//							if (!StateMachine.isTextArea()) {
+//								flag = false;
+//							}
+//						} catch (InterruptedException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//			}
+//		} catch (InterruptedException e) {
+//			// Handle the exception if the thread is interrupted
+//			System.err.println("Thread was interrupted: " + e.getMessage());
+//		}
+//	}
 }
