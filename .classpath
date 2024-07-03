@@ -17,7 +17,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="Jars/Databaseconnection.jar"/>
 	<classpathentry kind="lib" path="Jars/javafx.base.jar"/>
 	<classpathentry kind="lib" path="Jars/javafx.controls.jar"/>
 	<classpathentry kind="lib" path="Jars/javafx.fxml.jar"/>
