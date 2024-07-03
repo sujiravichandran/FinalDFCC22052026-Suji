@@ -36,7 +36,8 @@ public class AdvancedTestingController {
 	private StackPane interfaceTestStackPane = new StackPane();
 	private StackPane customTestStackPane = new StackPane();
 	
-	private AdvancedTestingHWATPTesting advancedTestingHWATPTesting = new AdvancedTestingHWATPTesting();
+	AdvancedTestingHWATPTesting advancedTestingHWATPTesting = new AdvancedTestingHWATPTesting();
+	AdvancedTestingInterfaceTesting advancedTestingInterfaceTesting = new AdvancedTestingInterfaceTesting();
 	
 	public GridPane createAdvancedTestingGridPane() {
 		advancedTestingMainGridPane.getStylesheets()
@@ -162,7 +163,8 @@ public class AdvancedTestingController {
 	}
 
 	private StackPane createTab2Content() {
-	    interfaceTestStackPane.setStyle("-fx-background-color: green;");
+	    interfaceTestStackPane.getStyleClass().add("tab-content-container");
+	    interfaceTestStackPane.getChildren().add(advancedTestingInterfaceTesting.createAdvancedTestingTab2GridPane());
 	    return interfaceTestStackPane;
 	}
 

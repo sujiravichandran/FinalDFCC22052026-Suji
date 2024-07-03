@@ -6,7 +6,6 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -68,19 +67,7 @@ public class AdvancedTestingHWATPTesting {
 		return tab1MainGridPane;
 	}
 
-//	private VBox createLeftSide() {
-//	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");
-//	    
-//	    for (String label : stageList) {
-//            RadioButton radioButton = new RadioButton(label);
-//            radioButton.getStyleClass().add("radio-button-style");
-//            leftSideVBox.getChildren().add(radioButton);
-//        }
-//	    leftSideVBox.setAlignment(Pos.CENTER);
-//
-//		return leftSideVBox;
-//	}
-	
+
 	
 	private VBox createLeftSide() {
 	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");

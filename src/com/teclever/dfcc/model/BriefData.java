@@ -15,11 +15,11 @@ public class BriefData {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getsNo() {
+	public String getSNo() {
 		return sNo;
 	}
-	public void setsNo(String string) {
-		this.sNo = string;
+	public void setSNo(String sNo) {
+		this.sNo = sNo;
 	}
 	public String getRdfName() {
 		return rdfName;
@@ -27,10 +27,10 @@ public class BriefData {
 	public void setRdfName(String rdfName) {
 		this.rdfName = rdfName;
 	}
-	public String getdStarCount() {
+	public String getDStarCount() {
 		return dStarCount;
 	}
-	public void setdStarCount(String dStarCount) {
+	public void setDStarCount(String dStarCount) {
 		this.dStarCount = dStarCount;
 	}
 	public String getStatus() {

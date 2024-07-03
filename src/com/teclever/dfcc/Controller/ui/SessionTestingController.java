@@ -659,6 +659,7 @@ public class SessionTestingController {
 		String ID = stageId;
 		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
             if (testFileResponse.getTestFilesIdName() == null) {
+            	testListView.getItems().clear();
                 Platform.runLater(() -> {
                     Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
                 });
