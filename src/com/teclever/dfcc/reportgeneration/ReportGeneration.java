@@ -86,7 +86,7 @@ public class ReportGeneration {
         linePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
         document.add(linePara);
 
-        String title = "Detailed Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
+        String title = "Brief Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
         ;
         Paragraph titlePara = new Paragraph(title, titleFont);
         titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
@@ -243,7 +243,7 @@ public class ReportGeneration {
     	//dd-MM-yyyy
         Response res = new Response();
         Document document = new Document(PageSize.A4);
-        String fileName = "BriefReport_" 
+        String fileName = "DetailedReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
      //   String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
           String filePath = "home/teclever_java_app/aitessreport/"+fileName;
@@ -440,7 +440,7 @@ public class ReportGeneration {
         return res;
     }
     
-    //For Session Id.............
+    //For Session Id
     public Response generateBreifReportForCurrentSession(String sessionId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
@@ -492,7 +492,7 @@ public class ReportGeneration {
         linePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
         document.add(linePara);
 
-        String title = "Detailed Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
+        String title = "Breif Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
         ;
         Paragraph titlePara = new Paragraph(title, titleFont);
         titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
@@ -572,9 +572,9 @@ public class ReportGeneration {
         SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
         document.add(SessionNameDetails);
 
-        Paragraph StageNameDetails = new Paragraph(" Stage Name         :" + "     "+resultExecutionResponse.getStageName(), headerFont);
+      /*  Paragraph StageNameDetails = new Paragraph(" Stage Name         :" + "     "+resultExecutionResponse.getStageName(), headerFont);
         SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
-        document.add(StageNameDetails);
+        document.add(StageNameDetails);*/
 
         Paragraph userNameDetails = new Paragraph(" User Name           :" + "      "+sessionDetailsMap.get("userName"), headerFont);
         userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
@@ -594,13 +594,13 @@ public class ReportGeneration {
 
 
         // Set Column widths
-        float[] columnWidths = {1.5f, 2.5f, 0.5f, 2f ,1f};
+        float[] columnWidths = {1.5f, 2.5f, 1f, 2f,1f,1f};
         table.setWidths(columnWidths);
 
 
         // Add table header
         Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-        String[] headers = {"Test Name", "Rdf File Detials", "D*Count", "End At", "Status"};
+        String[] headers = {"Test Name", "Rdf File Detials", "D*Count", "End At", "Stage Name" ,"Status"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
             cell.setBackgroundColor(BaseColor.GRAY);
@@ -620,6 +620,7 @@ public class ReportGeneration {
             table.addCell(new Phrase(dto.getRdfFilePath()+dto.getRdfFile()));
             table.addCell(new Phrase(dto.getDStarCount()));
             table.addCell(new Phrase(dto.getEndTime()));
+            table.addCell(new Phrase(dto.getStageId()));
             table.addCell(new Phrase(dto.getStatus()));
         }
 
@@ -634,13 +635,13 @@ public class ReportGeneration {
         return res;
     }
     
-    public Response generateDetailedReportForCurrentSession(String sessionId)
+    public Response generateDetailedReportForCurrentSession(String uutTypeId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
     	//dd-MM-yyyy
         Response res = new Response();
         Document document = new Document(PageSize.A4);
-        String fileName = "BriefReport_" 
+        String fileName = "DetailedReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
      //   String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
           String filePath = "home/teclever_java_app/aitessreport/"+fileName;
@@ -838,7 +839,7 @@ public class ReportGeneration {
     }
     
     //For UutType
-    public Response generateBreifReportForCurrentUutType(String sessionId)
+    public Response generateBreifReportForCurrentUutType(String uutTypeId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
     	//dd-MM-yyyy
@@ -889,7 +890,7 @@ public class ReportGeneration {
         linePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
         document.add(linePara);
 
-        String title = "Detailed Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
+        String title = "Brief Report" + "\n" + "of" + "\n" + "DFCC High Level" + "\n" + "Testing";
         ;
         Paragraph titlePara = new Paragraph(title, titleFont);
         titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
@@ -946,11 +947,11 @@ public class ReportGeneration {
         //To Fetch....
         ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);    
+        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForUnit(uutTypeId);    
         List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
         resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
         
-        Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+       // Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
         Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
@@ -965,39 +966,29 @@ public class ReportGeneration {
         SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
         document.add(SessionDetails);
 
-        Paragraph SessionNameDetails = new Paragraph(" Session Name      :" + "     "+sessionDetailsMap.get("sessionName"), headerFont);
+       
+        Paragraph uutTypeDetails = new Paragraph(" UUT Name         :" + "     "+resultExecutionResponse.getStageName(), headerFont);
         SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
-        document.add(SessionNameDetails);
+        document.add(uutTypeDetails);
 
-        Paragraph StageNameDetails = new Paragraph(" Stage Name         :" + "     "+resultExecutionResponse.getStageName(), headerFont);
-        SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
-        document.add(StageNameDetails);
-
-        Paragraph userNameDetails = new Paragraph(" User Name           :" + "      "+sessionDetailsMap.get("userName"), headerFont);
-        userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-        document.add(userNameDetails);
-
-        Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No     :" + "     "+sessionDetailsMap.get("dfccPartNo"), headerFont);
-        SessionDetails.setAlignment(Element.ALIGN_RIGHT); // Center align the heading
-        document.add(dfccPartNoDetails);
-
+ 
        
        
         // Create table
-        PdfPTable table = new PdfPTable(5); // 10 columns
+        PdfPTable table = new PdfPTable(7); // 10 columns
         table.setWidthPercentage(100); // Width 100%
         table.setSpacingBefore(10f); // Space before table
         table.setSpacingAfter(10f); // Space after table
 
 
         // Set Column widths
-        float[] columnWidths = {1.5f, 2.5f, 0.5f, 2f ,1f};
+        float[] columnWidths = {1.5f, 2.5f, 0.5f, 2f ,1f,1f,1f};
         table.setWidths(columnWidths);
 
 
         // Add table header
         Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-        String[] headers = {"Test Name", "Rdf File Detials", "D*Count", "End At", "Status"};
+        String[] headers = {"Test Name", "Rdf File Detials", "D*Count", "End At","Stage Name","Session Name", "Status"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
             cell.setBackgroundColor(BaseColor.GRAY);
@@ -1017,6 +1008,8 @@ public class ReportGeneration {
             table.addCell(new Phrase(dto.getRdfFilePath()+dto.getRdfFile()));
             table.addCell(new Phrase(dto.getDStarCount()));
             table.addCell(new Phrase(dto.getEndTime()));
+            table.addCell(new Phrase(dto.getStageName()));
+            table.addCell(new Phrase(dto.getSessionName()));
             table.addCell(new Phrase(dto.getStatus()));
         }
 
@@ -1037,7 +1030,7 @@ public class ReportGeneration {
     	//dd-MM-yyyy
         Response res = new Response();
         Document document = new Document(PageSize.A4);
-        String fileName = "BriefReport_" 
+        String fileName = "DetailedReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
      //   String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
           String filePath = "home/teclever_java_app/aitessreport/"+fileName;
