@@ -53,7 +53,7 @@ public class AdvancedTestingInterfaceTesting {
     private Button stopButton = new Button("Stop");
     private Button pauseButton = new Button("Pause");
     
-    private HBox repeatCountVBox = new HBox(5);
+    private VBox repeatCountVBox = new VBox();
     private Label repeatCountLabel = new Label();
     private TextField repeatCountTextField = new TextField();
     
@@ -66,9 +66,9 @@ public class AdvancedTestingInterfaceTesting {
 	public GridPane createAdvancedTestingTab2GridPane() {
 		getInterfaceTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(40);
+		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(60);
+		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);

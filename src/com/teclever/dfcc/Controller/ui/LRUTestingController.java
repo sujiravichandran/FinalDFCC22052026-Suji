@@ -191,10 +191,10 @@ public class LRUTestingController {
 
 	private GridPane lruTestMidContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(20);
+		firstColumn.setPercentWidth(25);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(20);
+		secondColumn.setPercentWidth(15);
 
 		ColumnConstraints thirdColumn = new ColumnConstraints();
 		thirdColumn.setPercentWidth(40);
@@ -411,9 +411,9 @@ public class LRUTestingController {
 
 	private GridPane sruSubTestGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(40);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(60);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(10);
@@ -429,7 +429,7 @@ public class LRUTestingController {
 		SixthRow.setPercentHeight(18);
 
 		sruSubTestGridPane.setHgap(20);
-		sruSubTestGridPane.setPadding(new Insets(5, 20, 10, 20));
+		sruSubTestGridPane.setPadding(new Insets(5, 10, 10, 10));
 
 		sruSubTestGridPane.getStyleClass().add("mid-Gridepane-content");
 		sruSubTestGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);

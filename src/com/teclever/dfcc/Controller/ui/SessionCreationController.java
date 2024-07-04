@@ -203,7 +203,7 @@ public class SessionCreationController {
 
 	private HBox createSessionButtonBox() {
 		createButton.setOnAction(e -> {
-			if (createButton.getText().equals("Create Session")) {
+			if (createButton.getText().equals("CREATE SESSION")) {
 				saveNewSession();
 			}else if (createButton.getText().equals("OPEN SESSION")) {
 				openExistingSession();
