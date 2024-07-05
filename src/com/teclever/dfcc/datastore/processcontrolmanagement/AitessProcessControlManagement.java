@@ -63,7 +63,8 @@ public class AitessProcessControlManagement {
 	private Thread dfccCheckStatusThread;
 
 	private boolean testStarted = false;
-	private String currentCommand = "";
+	private boolean dfccCheckStstusStarted = false;
+	private String currentCommand = "Empty";
 	private boolean switchAitessMethod = false;
 	private boolean switchAitess1Method = false;
 	private boolean checkMethod =false;
@@ -409,17 +410,23 @@ public class AitessProcessControlManagement {
 						if (!aitessRunning.isAitess2Exited()) {
 							aitessRunning.setAitess2Exited(true);
 						}
+if (dfccCheckStstusStarted) {
+	channelStatusParser.getChannelStatus(finalLine);
+	channelStatusParser.getOFPversionStatus(finalLine);
+
+
 
 						switch (currentCommand) {
 						case "OnlineStatusCommand":
-							channelStatus = channelStatusParser.getChannelStatus(finalLine);
-
-							if (channelStatus != null) {
-								OnlineStatus.setChannel1Status(channelStatus.getChannel1());
-								OnlineStatus.setChannel2Status(channelStatus.getChannel2());
-								OnlineStatus.setChannel3Status(channelStatus.getChannel3());
-								OnlineStatus.setChannel4Status(channelStatus.getChannel4());
-							}
+							System.out.println("OnlineStatusCommand-----------------" + finalLine);
+//							channelStatus = channelStatusParser.getChannelStatus(finalLine);
+//
+//							if (channelStatus != null) {
+//								OnlineStatus.setChannel1Status(channelStatus.getChannel1());
+//								OnlineStatus.setChannel2Status(channelStatus.getChannel2());
+//								OnlineStatus.setChannel3Status(channelStatus.getChannel3());
+//								OnlineStatus.setChannel4Status(channelStatus.getChannel4());
+//							}
 							break;
 
 						case "DfccPowerOnCommand":
@@ -478,9 +485,11 @@ public class AitessProcessControlManagement {
 							}
 							break;
 
-						default:
+						default: 	System.out.println(" --> AETS 2 SWITCH   -"+currentCommand);
+
 							break;
 						}
+}
 
 						// directly here we can store into STATE MACHINE why need of Blocking Queue
 						// ..??????????
@@ -508,23 +517,22 @@ public class AitessProcessControlManagement {
 
 	public String performTest(String tpfFileName) {
 
-		String rdfFileName = null;
-		String parseErrorResponse = null;
+		String aets1QResponse = null;
 		try {
 			testStarted = true;
-//			long startTime = System.currentTimeMillis();
-//	        long timeout = 10 * 60 * 1000; 
+
 			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + tpfFileName + "\n"));
 			boolean flag = true;
 			while (flag) {
 				if (aitess1ResultQ != null && aitess1ResultQ.peek() != null) {
-					rdfFileName = aitess1ResultQ.take();
-					if (rdfFileName.equals("PARSE ERROR")) {
-						rdfFileName = null;
-					} else if (rdfFileName.equals("USER EXIT")) {
-						rdfFileName = "USER EXIT";
-					} else if (rdfFileName.equals("RUN TIME ERROR")) {
-						rdfFileName = "RUN TIME ERROR";
+					aets1QResponse = aitess1ResultQ.take();
+					System.out.println(" --> AETS 1 Q Data : "+aets1QResponse);
+					if (aets1QResponse.equals("PARSE ERROR")) {
+						aets1QResponse = null;
+					} else if (aets1QResponse.equals("USER EXIT")) {
+						aets1QResponse = "USER EXIT";
+					} else if (aets1QResponse.equals("RUN TIME ERROR")) {
+						aets1QResponse = "RUN TIME ERROR";
 					}
 					flag = false;
 				}
@@ -532,12 +540,12 @@ public class AitessProcessControlManagement {
 			}
 
 			testStarted = false;
-			System.out.println("Perform Test() Return : " + rdfFileName);
+			System.out.println("Perform Test() Return : " + aets1QResponse);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return rdfFileName;
+		return aets1QResponse;
 
 	}
 
@@ -569,34 +577,38 @@ public class AitessProcessControlManagement {
 		dfccCheckStatusThread = new Thread(() -> {
 			try {
 				StateMachine.setTextArea(false);
+				dfccCheckStstusStarted=true;
+				
 				// once or multiple ..????????
+				System.out.println("CURRENT Command ==== before "+currentCommand);
 				launcherFuture2.thenRun(
 						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
 				currentCommand = "OnlineStatusCommand";
-				Thread.sleep(1000);
-
-				launcherFuture2.thenRun(() -> aitess2ProcessControl
-						.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
-				currentCommand = "Mk1ScTemperatureCommand";
-				Thread.sleep(1000);
-
-				launcherFuture2.thenRun(() -> aitess2ProcessControl
-						.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
-				currentCommand = "Mk1AecTemperatureCommand";
-				Thread.sleep(1000);
-
+				System.out.println("CURRENT Command ==== After "+currentCommand);
+				Thread.sleep(10000);
+			
+//				launcherFuture2.thenRun(() -> aitess2ProcessControl
+//						.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
+//				currentCommand = "Mk1ScTemperatureCommand";
+//				Thread.sleep(1000);
+//
+//				launcherFuture2.thenRun(() -> aitess2ProcessControl
+//						.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
+//				currentCommand = "Mk1AecTemperatureCommand";
+//				Thread.sleep(10000);
+//
 				launcherFuture2.thenRun(() -> aitess2ProcessControl
 						.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
 				currentCommand = "OFPversion";
-				Thread.sleep(1000);
-
-				launcherFuture2.thenRun(
-						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
-				currentCommand = "WDMversion";
-				Thread.sleep(1000);
+				Thread.sleep(10000);
+//
+//				launcherFuture2.thenRun(
+//						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
+//				currentCommand = "WDMversion";
+//				Thread.sleep(10000);
 
 //				launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command + "\n"));
-
+				dfccCheckStstusStarted=false;
 				StateMachine.setTextArea(true);
 			} catch (Exception e) {
 				// TODO: handle exception
