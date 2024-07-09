@@ -1,12 +1,12 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.stateMachine.StateMachine;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -60,8 +60,13 @@ public class AdvancedTestingCustomTesting1 {
 	
 	private GridPane userTestGridPane = new GridPane();
 	private TextArea userTestTextArea = new TextArea();
-	private HBox userTestHBox = new HBox();
+	private HBox userTestHBox = new HBox(15	);
 	private Button userTestRunButton = new Button("Run");
+	
+	private Label testNameLabel = new Label("Test Name");
+	private TextField testNameTextField = new TextField();
+	
+	RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 
 	public GridPane createAdvancedTestingTab3GridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -221,8 +226,10 @@ public class AdvancedTestingCustomTesting1 {
 	}
 	
 	private void initializeTestTypeComboBox() {
-		testTypeList.add("Test1");
-		testTypeList.add("Test2");
+		testTypeDataList = FXCollections.observableArrayList(runConfigurationManagement.getTestTypeByUUTId(StateMachine.currentSessionDetails.getUutId()));
+		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
+			testTypeList.add(testType.getTestName());
+		}
 		testTypeComboBox.setItems(testTypeList);
 	}
 	
@@ -248,7 +255,9 @@ public class AdvancedTestingCustomTesting1 {
 
 	private HBox createUserTestButtonBox() {
 		userTestHBox.setAlignment(Pos.CENTER);
-		userTestHBox.getChildren().add(userTestRunButton);
+		testNameLabel.getStyleClass().add("form-label");
+		testNameTextField.getStyleClass().add("form-textfield");
+		userTestHBox.getChildren().addAll(testNameLabel, testNameTextField, userTestRunButton);
 		return userTestHBox;
 	}
 

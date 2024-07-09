@@ -161,6 +161,7 @@
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
     -fx-border-color: transparent; 
+	-fx-cursor:hand;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
@@ -217,4 +218,31 @@
 	-fx-font-size: 16px;
 	-fx-font-weight: bold;
     -fx-text-fill: secondary-text-color;
+}
+
+
+.form-label-add-button {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-text-fill: button-text;
+    -fx-background-color: button-bg;
+    -fx-border-color: transparent; 
+    -fx-padding:0px 10px;
+    -fx-cursor:hand;
+}
+.form-label-add-button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
+.form-label-selected-text{
+	-fx-background-color: light-bg;
+	-fx-text-fill: secondary-text-color;
+	-fx-padding:0px 10px;
+	-fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
