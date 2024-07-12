@@ -253,11 +253,12 @@ public class CurrentExecutionResultController {
 		if(response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for(ResultExecutionDTO data :response.getResultDTOList()) {
-				BriefData newBriefData = new BriefData();
 				
-				newBriefData.setsNo(String.valueOf(i));
+				BriefData newBriefData = new BriefData();
+
+				newBriefData.setSNo(String.valueOf(i));;
 				newBriefData.setRdfName(data.getRdfFile());
-				newBriefData.setdStarCount(data.getDStarCount());
+				newBriefData.setDStarCount(data.getDStarCount());
 				newBriefData.setStatus(data.getStatus());
 				newBriefData.setCompletedTime(data.getEndTime());
 				

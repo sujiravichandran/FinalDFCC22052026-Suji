@@ -8,12 +8,14 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import com.teclever.datastore.configuration.DataStoreConfiguration;
+import com.teclever.datastore.dto.ButtonInfo;
 import com.teclever.datastore.entities.MacroButtonMap;
 import com.teclever.datastore.response.ButtonNamesResponse;
 import com.teclever.datastore.response.MacroButtonMapResponse;
 import com.teclever.datastore.service.MacroButtonMapService;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -64,33 +66,39 @@ public class MacroConfigurationManagement {
 
     // GET BUTTON NAMES BY UUTID
     public ButtonNamesResponse getButtonNamesByUutId(String uutId) {
-        ButtonNamesResponse response = new ButtonNamesResponse();
-        List<String> buttonNames = new ArrayList<>();
-        try {
-            SessionFactory sessionFactory = DataStoreConfiguration.getSessionFactory();
-            try (Session session = sessionFactory.openSession()) {
-                CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-                CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
-                Root<MacroButtonMap> root = criteriaQuery.from(MacroButtonMap.class);
+	    ButtonNamesResponse response = new ButtonNamesResponse();
+	    List<ButtonInfo> buttonInfos = new ArrayList<>();
+	    try {
+	        SessionFactory sessionFactory = DataStoreConfiguration.getSessionFactory();
+	        try (Session session = sessionFactory.openSession()) {
+	            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+	            CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();
+	            Root<MacroButtonMap> root = criteriaQuery.from(MacroButtonMap.class);
 
-                criteriaQuery.select(root.get("buttonName"));
-                criteriaQuery.where(criteriaBuilder.equal(root.get("uutId"), uutId),
-                        criteriaBuilder.notEqual(root.get("buttonName"), "<NOT SET>"));
+	            criteriaQuery.multiselect(root.get("buttonName"), root.get("command"));
+	            criteriaQuery.where(criteriaBuilder.equal(root.get("uutId"), uutId),
+	                    criteriaBuilder.notEqual(root.get("buttonName"), "<NOT SET>"));
 
-                Query<String> query = session.createQuery(criteriaQuery);
-                buttonNames = query.getResultList();
-            }
-          //  response.setButtonNames(buttonNames);
-            response.setResponseCode(1);
-            response.setResponseMessage("Button names retrieved successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setResponseCode(0);
-            response.setResponseMessage("Failed to retrieve button names: " + e.getMessage());
-        }
 
-        return response;
-    }
+	            Query<Tuple> query = session.createQuery(criteriaQuery);
+	            List<Tuple> results = query.getResultList();
+	            for (Tuple tuple : results) {
+	                String buttonName = tuple.get(0, String.class);
+	                String buttonCommand = tuple.get(1, String.class);
+	                buttonInfos.add(new ButtonInfo(buttonName, buttonCommand));
+	            }
+	        }
+	        response.setButtonInfos(buttonInfos);
+	        response.setResponseCode(1);
+	        response.setResponseMessage("Button names and commands retrieved successfully");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.setResponseCode(0);
+	        response.setResponseMessage("Failed to retrieve button names and commands: " + e.getMessage());
+	    }
+
+	    return response;
+	}
 
 }
 

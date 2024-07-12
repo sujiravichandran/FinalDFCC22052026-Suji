@@ -6,7 +6,6 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -44,15 +43,15 @@ public class AdvancedTestingHWATPTesting {
     private Button stopButton = new Button("Stop");
     private Button pauseButton = new Button("Pause");
     
-    private HBox repeatCountVBox = new HBox(5);
+    private VBox repeatCountVBox = new VBox();
     private Label repeatCountLabel = new Label();
     private TextField repeatCountTextField = new TextField();
 
 	public GridPane createAdvancedTestingTab1GridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(40);
+		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(60);
+		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
@@ -68,19 +67,7 @@ public class AdvancedTestingHWATPTesting {
 		return tab1MainGridPane;
 	}
 
-//	private VBox createLeftSide() {
-//	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");
-//	    
-//	    for (String label : stageList) {
-//            RadioButton radioButton = new RadioButton(label);
-//            radioButton.getStyleClass().add("radio-button-style");
-//            leftSideVBox.getChildren().add(radioButton);
-//        }
-//	    leftSideVBox.setAlignment(Pos.CENTER);
-//
-//		return leftSideVBox;
-//	}
-	
+
 	
 	private VBox createLeftSide() {
 	    leftSideVBox.getStyleClass().add("advanced-testing-left-container");

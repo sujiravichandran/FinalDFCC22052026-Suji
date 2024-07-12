@@ -263,6 +263,9 @@ public class StateMachine {
 		private static String mk1aTemperatureCommand;
 		private static String mk2TemperatureCommand;
 		
+		private static String ofpVersionStatusCommand;
+		private static String wdmStatusCommand;
+		
 		
 		public static String getDfccPowerOnCommand() {
 			return dfccPowerOnCommand;
@@ -312,7 +315,23 @@ public class StateMachine {
 		public static void setMk2TemperatureCommand(String mk2TemperatureCommand) {
 			dfccCheckStatus.mk2TemperatureCommand = mk2TemperatureCommand;
 		}
-				
+		public static String getOfpVersionStatusCommand() {
+			return ofpVersionStatusCommand;
+		}
+		public static void setOfpVersionStatusCommand(String ofpVersionStatusCommand) {
+			dfccCheckStatus.ofpVersionStatusCommand = ofpVersionStatusCommand;
+		}
+		public static String getWdmStatusCommand() {
+			return wdmStatusCommand;
+		}
+		public static void setWdmStatusCommand(String wdmStatusCommand) {
+			dfccCheckStatus.wdmStatusCommand = wdmStatusCommand;
+		}
+		public static void setDfccPowerStatus(boolean dfccPowerStatus) {
+			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
+		}
+			
+		
 		
 	}
 	
@@ -353,6 +372,81 @@ public class StateMachine {
 		}	
 
 	}
+	
+	//WDM STATUS
+	public static class WDMStatus{
+		
+		private static String channel1Status;
+		private static String channel2Status;
+		private static String channel3Status;
+		private static String channel4Status;
+		
+		public static String getChannel1Status() {
+			return channel1Status;
+		}
+		public static void setChannel1Status(String channel1Status) {
+			OnlineStatus.channel1Status = channel1Status;
+		}
+		public static String getChannel2Status() {
+			return channel2Status;
+		}
+		public static void setChannel2Status(String channel2Status) {
+			OnlineStatus.channel2Status = channel2Status;
+		}
+		public static String getChannel3Status() {
+			return channel3Status;
+		}
+		public static void setChannel3Status(String channel3Status) {
+			OnlineStatus.channel3Status = channel3Status;
+		}
+		public static String getChannel4Status() {
+			return channel4Status;
+		}
+		public static void setChannel4Status(String channel4Status) {
+			OnlineStatus.channel4Status = channel4Status;
+		}	
+
+	}
+	
+	
+	
+	
+	//OFP VERSION STATUS
+	public static class OFPversionStatus{
+		
+		private static String channel1Status;
+		private static String channel2Status;
+		private static String channel3Status;
+		private static String channel4Status;
+		
+		public static String getChannel1Status() {
+			return channel1Status;
+		}
+		public static void setChannel1Status(String channel1Status) {
+			OnlineStatus.channel1Status = channel1Status;
+		}
+		public static String getChannel2Status() {
+			return channel2Status;
+		}
+		public static void setChannel2Status(String channel2Status) {
+			OnlineStatus.channel2Status = channel2Status;
+		}
+		public static String getChannel3Status() {
+			return channel3Status;
+		}
+		public static void setChannel3Status(String channel3Status) {
+			OnlineStatus.channel3Status = channel3Status;
+		}
+		public static String getChannel4Status() {
+			return channel4Status;
+		}
+		public static void setChannel4Status(String channel4Status) {
+			OnlineStatus.channel4Status = channel4Status;
+		}	
+
+	}
+	
+	
 	
 	
 	//MK1 SC AEC TEMPERATURE
@@ -453,6 +547,8 @@ public class StateMachine {
 			private static volatile boolean aitess1SwitchedFailed = false;
 			private static volatile boolean aitess2Switched = false;
 			private static volatile boolean aitess2SwitchedFailed = false;
+			private static volatile boolean aitess1ReloadConfigured = false;
+
 
 			
 			public static synchronized boolean isAitess1Exited() {
@@ -492,6 +588,12 @@ public class StateMachine {
 			}
 			public static synchronized void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
 				aitessRunning.aitess2SwitchedFailed = aitess2SwitchedFailed;
+			}
+			public static synchronized boolean isAitess1ReloadConfigured() {
+				return aitess1ReloadConfigured;
+			}
+			public static synchronized void setAitess1ReloadConfigured(boolean aitess1ReloadConfigured) {
+				aitessRunning.aitess1ReloadConfigured = aitess1ReloadConfigured;
 			}
 			
 			
