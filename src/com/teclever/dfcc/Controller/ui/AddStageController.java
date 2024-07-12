@@ -14,6 +14,7 @@ import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -115,6 +116,16 @@ public class AddStageController implements Initializable {
 	private void initializeSessionTypeCheckBox() {
 		List<SessionMasterDTO> sessionTypeList = stageConfig.getSessionMasterList();
 		initializeSessionTypeCheckBoxes(sessionTypeList);
+		
+		// Set fixed size for the stage after the scene is fully initialized
+        Platform.runLater(() -> {
+            Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
+            stage.setMinWidth(400); // Set your desired width
+            stage.setMaxWidth(400);
+            stage.setMinHeight(430); // Set your desired height
+            stage.setMaxHeight(430);
+            stage.setResizable(false);
+        });
 	}
 
 	private void initializeNewStage1(String stage1Name) {

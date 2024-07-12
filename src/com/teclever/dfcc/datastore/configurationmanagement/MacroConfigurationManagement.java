@@ -80,7 +80,7 @@ public class MacroConfigurationManagement {
                 Query<String> query = session.createQuery(criteriaQuery);
                 buttonNames = query.getResultList();
             }
-            response.setButtonNames(buttonNames);
+          //  response.setButtonNames(buttonNames);
             response.setResponseCode(1);
             response.setResponseMessage("Button names retrieved successfully");
         } catch (Exception e) {

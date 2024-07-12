@@ -3,14 +3,12 @@ package com.teclever.dfcc.datastore.dto;
 public class AitessConfigurationDto {
 
 	private int aitessId;
-	private String uutId;
 	private String aitessName;
 	private String aitessCommand;
 	private String aitessVersion;
 	private String driverName;
 	private String loadDriverCommand;
 	private String unloadDriverCommand;
-	private String driverVersion;
 	private boolean deleteStatus;
 	
 	
@@ -20,12 +18,7 @@ public class AitessConfigurationDto {
 	public void setAitessId(int aitessId) {
 		this.aitessId = aitessId;
 	}
-	public String getUutId() {
-		return uutId;
-	}
-	public void setUutId(String uutId) {
-		this.uutId = uutId;
-	}
+	
 	public String getAitessName() {
 		return aitessName;
 	}
@@ -62,12 +55,7 @@ public class AitessConfigurationDto {
 	public void setUnloadDriverCommand(String unloadDriverCommand) {
 		this.unloadDriverCommand = unloadDriverCommand;
 	}
-	public String getDriverVersion() {
-		return driverVersion;
-	}
-	public void setDriverVersion(String driverVersion) {
-		this.driverVersion = driverVersion;
-	}
+	
 	public boolean isDeleteStatus() {
 		return deleteStatus;
 	}

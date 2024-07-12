@@ -57,6 +57,7 @@ public class AddRunConfigurationController {
 	public static String aitessTypeValue;
 	public static String fileConfigName;
 	public static String driverName;
+	
 	Map<String, String> aitessNameDriverNameMap = new HashMap<String, String>();
 	Map<String, Integer> aitessNameAitessId = new HashMap<String, Integer>();
 	static Map<Integer, String> aitessIdAitessName = new HashMap<Integer, String>();
@@ -84,6 +85,7 @@ public class AddRunConfigurationController {
 
 	@FXML
 	private Label labelDriverName;
+	
 	@FXML
 	private Button selectConfigfile;
 
@@ -117,6 +119,16 @@ public class AddRunConfigurationController {
 		loadAitessTypes(runuutTypeId);
 		setupDriverLabel();
 		setupAddButton();
+		
+		// Set fixed size for the stage after the scene is fully initialized
+        Platform.runLater(() -> {
+            Stage stage = (Stage) addrun.getScene().getWindow();
+            stage.setMinWidth(400); // Set your desired width
+            stage.setMaxWidth(400);
+            stage.setMinHeight(400); // Set your desired height
+            stage.setMaxHeight(400);
+            stage.setResizable(false);
+        });
 	}
 
 	private void setupAddButton() {
@@ -325,7 +337,7 @@ public class AddRunConfigurationController {
 	public void loadAitessTypes(String runuutTypeValue) {
 		try {
 			Map<String, String> nameIdMap = DFCCConstant.getUutNameIdMap();
-			List<AitessConfigurationDto> uutDataList = this.configManager.getAitessConfig(runuutTypeValue);
+			List<AitessConfigurationDto> uutDataList = this.configManager.getAitessConfig();
 			ArrayList<String> aitessTypeList = new ArrayList<String>();
 			if (uutDataList.size() > 0) {
 				for (AitessConfigurationDto uutType : uutDataList) {

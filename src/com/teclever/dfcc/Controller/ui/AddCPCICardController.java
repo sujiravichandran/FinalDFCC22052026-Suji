@@ -10,6 +10,7 @@ import com.teclever.dfcc.datastore.dto.CardDetailsDTO;
 import com.teclever.dfcc.model.CPCICard;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -90,6 +91,16 @@ public class AddCPCICardController {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addCpciCardContainer.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddCPCICard.css").toExternalForm());
+		
+		// Set fixed size for the stage after the scene is fully initialized
+        Platform.runLater(() -> {
+            Stage stage = (Stage) addCpciCardContainer.getScene().getWindow();
+            stage.setMinWidth(400); // Set your desired width
+            stage.setMaxWidth(400);
+            stage.setMinHeight(369); // Set your desired height
+            stage.setMaxHeight(369);
+            stage.setResizable(false);
+        });
 	}
 
 

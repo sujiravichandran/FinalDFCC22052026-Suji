@@ -251,7 +251,7 @@ public class CPCICardController {
 		
 
 		private void initializeDriverTypeComboBox() {
-			driverDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAitessConfig(UUT_ID));
+//			driverDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAitessConfig(UUT_ID));
 			
 			for(AitessConfigurationDto driver : driverDataList) {
 				driverNameList.add(driver.getDriverName());
@@ -265,7 +265,7 @@ public class CPCICardController {
 		private void fetchAitessIdAndDriverVersion() {
 			for(AitessConfigurationDto driver : driverDataList) {
 				if (driver.getDriverName().equals(driver_type_field.getValue())) {
-					driverVersionLabel.setText(driver.getDriverVersion());
+//					driverVersionLabel.setText(driver.getDriverVersion());
 					this.AITESS_ID = driver.getAitessId();
 					addUserBtn.setDisable(false);
 					getCpciCardTableData();

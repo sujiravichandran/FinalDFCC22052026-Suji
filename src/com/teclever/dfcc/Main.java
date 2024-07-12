@@ -132,7 +132,7 @@ extends Application {
             alert.setContentText(message);
             alert.setOnCloseRequest(evt -> Platform.exit());
             alert.show();
-        });
+        });											
     }
 
     @Override

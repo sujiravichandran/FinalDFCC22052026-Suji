@@ -7,6 +7,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManag
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -54,6 +55,16 @@ public class AddOFPController {
 	        Tooltip ofpTooltip = new Tooltip();
 	        ofpTooltip.textProperty().bind(select_config_button.textProperty());
 	        select_config_button.setTooltip(ofpTooltip);
+	        
+	     // Set fixed size for the stage after the scene is fully initialized
+	        Platform.runLater(() -> {
+	            Stage stage = (Stage) addOfpMainContainer.getScene().getWindow();
+	            stage.setMinWidth(400); // Set your desired width
+	            stage.setMaxWidth(400);
+	            stage.setMinHeight(345); // Set your desired height
+	            stage.setMaxHeight(345);
+	            stage.setResizable(false);
+	        });
 	    }
     @FXML
     private TextField stage_parent_name_field1;
