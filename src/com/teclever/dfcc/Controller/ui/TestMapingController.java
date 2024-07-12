@@ -205,9 +205,10 @@ public class TestMapingController {
 		testListView.getItems().clear();
 		checkBoxes.clear();
 		for(TestFileDto file : fileList) {
-			String test = file.getTestFileName();
-	        CheckBox newCheckBox = new CheckBox(test);
-	        newCheckBox.setId(file.getTestFileId());
+			String test = file.getTestFileName().replace("_", "__");	        
+		    CheckBox newCheckBox = new CheckBox(test);
+
+		    newCheckBox.setId(file.getTestFileId());
 	        newCheckBox.setUserData(file);
 	        newCheckBox.setWrapText(true);
 	        if(selectedTestFileList.contains(file)) {
