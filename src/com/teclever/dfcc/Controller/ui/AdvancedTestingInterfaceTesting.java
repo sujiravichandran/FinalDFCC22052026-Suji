@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -227,9 +228,9 @@ public class AdvancedTestingInterfaceTesting {
 
 		private HBox createButtonBox() {
 			buttonHBox.getStyleClass().add("advanced-testing-right-container");
-		    Image playImage = new Image(getClass().getResourceAsStream("/Resources/Images/play.png"));
-		    Image stopImage = new Image(getClass().getResourceAsStream("/Resources/Images/stop.png"));
-		    Image pauseImage = new Image(getClass().getResourceAsStream("/Resources/Images/pause.png"));
+		    Image playImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/play.png"));
+		    Image stopImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/stop.png"));
+		    Image pauseImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/pause.png"));
 
 		    ImageView playImageView = new ImageView(playImage);
 		    playImageView.getStyleClass().add("button-image");

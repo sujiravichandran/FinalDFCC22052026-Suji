@@ -3,6 +3,8 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -162,9 +164,9 @@ public class AdvancedTestingHWATPTesting {
 
 		private HBox createButtonBox() {
 			buttonHBox.getStyleClass().add("advanced-testing-right-container");
-		    Image playImage = new Image(getClass().getResourceAsStream("/Resources/Images/play.png"));
-		    Image stopImage = new Image(getClass().getResourceAsStream("/Resources/Images/stop.png"));
-		    Image pauseImage = new Image(getClass().getResourceAsStream("/Resources/Images/pause.png"));
+		    Image playImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/play.png"));
+		    Image stopImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/stop.png"));
+		    Image pauseImage = new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/pause.png"));
 
 		    ImageView playImageView = new ImageView(playImage);
 		    playImageView.getStyleClass().add("button-image");
