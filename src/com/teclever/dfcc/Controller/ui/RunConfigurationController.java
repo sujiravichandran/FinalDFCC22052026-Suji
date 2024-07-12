@@ -372,65 +372,65 @@ public class RunConfigurationController {
 	}
 
 	private void setupDisplayTable(String uutId) {
+	    Map<String, String> uutIdNameMap = DFCCConstant.getUutIdNameMap();
+	    RunConfigurationManagement runConfigurationManager = new RunConfigurationManagement();
+	    List<RunConfigurationDto> runConfigList = runConfigurationManager.getRunConfig(uutId);
+	    
+	    // Update the observable list
+	    ObservableList<RunAitessConfiguration> driverData = FXCollections.observableArrayList();
+	    for (RunConfigurationDto runConfig : runConfigList) {
+	        RunAitessConfiguration runAitessData = new RunAitessConfiguration();
+	        runAitessData.setUuttype(uutIdNameMap.get(runConfig.getUutId()));
+	        runAitessData.setTestType(testTypeNameId.get(runConfig.getTestTypeId()));
+	        runAitessData.setAitess(runConfig.getAitess());
+	        runAitessData.setDriver(runConfig.getDriver());
+	        runAitessData.setConfigFile(runConfig.getConfigFile());
+	        runAitessData.setRunConfigId(runConfig.getRunConfigId());
+	        driverData.add(runAitessData);
+	    }
 
-		Map uutIdNameMap = DFCCConstant.getUutIdNameMap();
-		RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
-		List<RunConfigurationDto> lst = runConfiguration.getRunConfig(uutId);
-		ObservableList<RunAitessConfiguration> driverData = FXCollections.observableArrayList();
-		for (RunConfigurationDto RunAitessConfiguration2 : lst) {
+	    Platform.runLater(() -> {
+	        RunAitessTableViewFactory driverFactory = new RunAitessTableViewFactory();
+	        CustomTableView<RunAitessConfiguration> customTableView = driverFactory.createTableView(driverData, true, false);
 
-			// public RunAitessConfiguration(String uuttype, String testType, String
-			// configFile, String aitess, String driver) {
-			RunAitessConfiguration runAitessData = new RunAitessConfiguration();
-			runAitessData.setUuttype((String) uutIdNameMap.get(RunAitessConfiguration2.getUutId()));
-			runAitessData.setTestType(testTypeNameId.get(RunAitessConfiguration2.getTestTypeId()));
-			runAitessData.setAitess(RunAitessConfiguration2.getAitess());
-			runAitessData.setDriver(RunAitessConfiguration2.getDriver());
-			runAitessData.setConfigFile(RunAitessConfiguration2.getConfigFile());
-			runAitessData.setRunConfigId(RunAitessConfiguration2.getRunConfigId());
-			driverData.add(runAitessData);
+	        customTableView.hideColumn("RUN CONFIG ID");
+	        customTableView.setPrefWidth(1613.0);
+	        customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
+	            ObservableList<RunAitessConfiguration> selectedItems = customTableView.getSelectedItems();
+	            for (RunAitessConfiguration runAitess : selectedItems) {
+	                handleDeleteButtonClicked(runAitess);
+	            }
+	        });
 
-		}
-		RunAitessTableViewFactory driverFactory = new RunAitessTableViewFactory();
-		CustomTableView customTableView = driverFactory.createTableView(driverData, true, false);
-
-		customTableView.hideColumn("RUN CONFIG ID");
-
-//		customTableView.setPrefWidth(1321.0);
-		customTableView.setPrefWidth(1613.0);
-		customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
-			ObservableList<RunAitessConfiguration> selectedItems = customTableView.getSelectedItems();
-			for (RunAitessConfiguration runAitess : selectedItems) {
-				handleDeleteButtonClicked(runAitess);
-			}
-		});
-
-		this.bottomHbox.getChildren().clear();
-		this.bottomHbox.getChildren().add(customTableView);
+	        bottomHbox.getChildren().clear();
+	        bottomHbox.getChildren().add(customTableView);
+	    });
 	}
 
 	void runuutTypeAction() {
-		runuutTypeValue = (String) uutTypeField.getValue();
-		Map nameIdMap = DFCCConstant.getUutNameIdMap();
-		runuutTypeId = (String) nameIdMap.get(runuutTypeValue);
-		AddRunConfigurationController addRunConfigurationController = new AddRunConfigurationController();
-		AddRunConfigurationController.runuutTypeId = runuutTypeId;
-		AddRunConfigurationController.runuutTypeValue = runuutTypeValue;
-		setupDisplayTable(runuutTypeId);
-		RunConfigurationManagement rcm = new RunConfigurationManagement();
-		TestTypeMasterDetailsDto[] array = rcm.getTestTypeByUUTId(runuutTypeId);
-		TestTypeMasterDetailsDto[] testTypeMasterDetailsDtoArray = array;
-		int n = array.length;
-		int n2 = 0;
-		while (n2 < n) {
-			TestTypeMasterDetailsDto t = testTypeMasterDetailsDtoArray[n2];
-			testTypeNameId.put(t.getTestTypeId(), t.getTestName());
-			++n2;
-		}
-		addRunConfigurationController.loadAitessTypes(runuutTypeId);
-		addRunConfigurationController.loadTestTypes(runuutTypeId);
-//		System.out.println("DropDown     " + (String) uutTypeField.getValue());
+	    runuutTypeValue = uutTypeField.getValue();
+	    Map<String, String> nameIdMap = DFCCConstant.getUutNameIdMap();
+	    runuutTypeId = nameIdMap.get(runuutTypeValue);
+	    AddRunConfigurationController runConfigController = new AddRunConfigurationController();
+	    AddRunConfigurationController.runuutTypeId = runuutTypeId;
+	    AddRunConfigurationController.runuutTypeValue = runuutTypeValue;
 
+	    // Clear previous test type name IDs
+	    testTypeNameId.clear();
+	    
+	    // Fetch test types based on the selected UUT ID
+	    RunConfigurationManagement runConfigManager = new RunConfigurationManagement();
+	    TestTypeMasterDetailsDto[] testTypeArray = runConfigManager.getTestTypeByUUTId(runuutTypeId);
+	    for (TestTypeMasterDetailsDto testType : testTypeArray) {
+	        testTypeNameId.put(testType.getTestTypeId(), testType.getTestName());
+	    }
+
+	    // Load AITESS and Test Types
+	    runConfigController.loadAitessTypes(runuutTypeId);
+	    runConfigController.loadTestTypes(runuutTypeId);
+
+	    // Update the table with the new data
+	    setupDisplayTable(runuutTypeId);
 	}
 
 	private void handleDeleteButtonClicked(RunAitessConfiguration runConfigDto) {

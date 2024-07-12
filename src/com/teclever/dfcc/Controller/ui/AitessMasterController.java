@@ -48,29 +48,30 @@ class AitessTableViewFactory implements TableViewFactory<Aitess> {
 }
 
 public class AitessMasterController {
-	public static String UUTdropdownValue;
-	Map<String, String> uutNameIdMap = DFCCConstant.getUutNameIdMap();
-	Map<String, String> uutIdNameMap = DFCCConstant.getUutIdNameMap();
+//	public static String UUTdropdownValue;
+//	Map<String, String> uutNameIdMap = DFCCConstant.getUutNameIdMap();
+//	Map<String, String> uutIdNameMap = DFCCConstant.getUutIdNameMap();
 
 	GridPane aitessMasterGridPane = new GridPane();
 	HBox headingHbox = new HBox(10);
 	GridPane headingGridPane = new GridPane();
 	HBox midHbox = new HBox(30);
-	private ComboBox<String> uutTypeField;
+//	private ComboBox<String> uutTypeField;
 
 	HBox bottomHbox = new HBox(30);
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 
 	public AitessMasterController() {
-		uutTypeField = new ComboBox<>();
-		loadUUTTypes();
-//		setupDisplayTable(UUTdropdownValue);
-
+//		uutTypeField = new ComboBox<>();
+//		loadUUTTypes();
+		setupDisplayTable();
+		
+//		aitessMasterBottomContainer();
 	}
 
 	public void refresh() {
-		uUTdropdownAction();
+		setupDisplayTable();
 	}
 
 	public GridPane aitessMasterGridPane() {
@@ -126,58 +127,72 @@ public class AitessMasterController {
 	}
 
 	private HBox aitessMasterMidContainer() {
-		Label uutLabel = new Label("Select UUT Type:");
-		uutLabel.getStyleClass().add("aitessMaster-combobox-Label");
+//		Label uutLabel = new Label("Select UUT Type:");
+//		uutLabel.getStyleClass().add("aitessMaster-combobox-Label");
 
 		Button addButton = new Button("+ADD");
 		addButton.setOnAction(e -> onClickGETButton());
 
-		uutTypeField.setOnAction((event) -> uUTdropdownAction());
+//		uutTypeField.setOnAction((event) -> uUTdropdownAction());
 
-		midHbox.getChildren().addAll(uutLabel, uutTypeField, addButton);
+		midHbox.getChildren().addAll( addButton);
 		midHbox.getStyleClass().add("aitessMaster-Container");
 		midHbox.setAlignment(Pos.CENTER);
 		return midHbox;
 	}
 
 	private void onClickGETButton() {
-		try {
-			FXMLLoader loader = new FXMLLoader(
-					this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddAitess.fxml"));
-			Parent root = loader.load();
+//	    String selectedUUTType = uutTypeField.getValue();
+	    
+//	    if (selectedUUTType == null || selectedUUTType.isEmpty()) {
+//	        // Show alert because UUT type is not selected
+//	        Alert alert = new Alert(AlertType.WARNING);
+//	        alert.setTitle("Warning");
+//	        alert.setHeaderText(null);
+//	        alert.setContentText("Please select a UUT Type.");
+//
+//	        alert.showAndWait();
+//	    } else {
+	        try {
+	            FXMLLoader loader = new FXMLLoader(
+	                    this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddAitess.fxml"));
+	            Parent root = loader.load();
 
-			Stage popupStage = new Stage();
-			AddAitessController controller = loader.getController();
-			controller.setMainPageController(this);
-			popupStage.initModality(Modality.APPLICATION_MODAL);
-			popupStage.initStyle(StageStyle.UNDECORATED);
-			Scene scene = new Scene(root);
-			popupStage.setScene(scene);
-			popupStage.showAndWait();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	            Stage popupStage = new Stage();
+	            AddAitessController controller = loader.getController();
+	            controller.setMainPageController(this);
+	            popupStage.initModality(Modality.APPLICATION_MODAL);
+	            popupStage.initStyle(StageStyle.UNDECORATED);
+	            Scene scene = new Scene(root);
+	            popupStage.setScene(scene);
+	            popupStage.showAndWait();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	
 
-	}
+	
+	
 
-	private void loadUUTTypes() {
-		try {
-			ArrayList<String> uutTypeList = new ArrayList<String>();
-			UUTMasterDetailsDto[] uutDataList = this.configManager.getAllUUT();
-			UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
-			int n = uutDataList.length;
-			int n2 = 0;
-			while (n2 < n) {
-				UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-				uutTypeList.add(uutType.getUutType());
-				++n2;
-			}
-			ObservableList types = FXCollections.observableArrayList(uutTypeList);
-			this.uutTypeField.setItems(types);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	private void loadUUTTypes() {
+//		try {
+//			ArrayList<String> uutTypeList = new ArrayList<String>();
+//			UUTMasterDetailsDto[] uutDataList = this.configManager.getAllUUT();
+//			UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
+//			int n = uutDataList.length;
+//			int n2 = 0;
+//			while (n2 < n) {
+//				UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
+//				uutTypeList.add(uutType.getUutType());
+//				++n2;
+//			}
+//			ObservableList types = FXCollections.observableArrayList(uutTypeList);
+//			this.uutTypeField.setItems(types);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 //
 //	private void deleteAitess(int aitessId) {
 //	    try {
@@ -245,15 +260,15 @@ public class AitessMasterController {
 	private void deleteAitess(int AitessId) {
 		AitessConfigurationManagement aitessConfManagement = new AitessConfigurationManagement();
 		aitessConfManagement.deleteAitessConfig(AitessId);
-		uUTdropdownAction();
-
+		
+		setupDisplayTable();
 	}
 
-	private void setupDisplayTable(String uutId) {
+	private void setupDisplayTable() {
 		String css = this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CustomTableView.css").toExternalForm();
 		this.bottomHbox.getStylesheets().add(css);
 		AitessConfigurationManagement aitessConfiguration = new AitessConfigurationManagement();
-		List<AitessConfigurationDto> lst = aitessConfiguration.getAitessConfig(this.uutNameIdMap.get(UUTdropdownValue));
+		List<AitessConfigurationDto> lst = aitessConfiguration.getAitessConfig();
 		ObservableList<Aitess> driverData = FXCollections.observableArrayList();
 
 		for (AitessConfigurationDto aitess : lst) {
@@ -262,7 +277,6 @@ public class AitessMasterController {
 			aitessData.setAitessName(aitess.getAitessName());
 			aitessData.setAitessVersion(aitess.getAitessVersion());
 			aitessData.setDriverName(aitess.getDriverName());
-			aitessData.setDriverVersion(aitess.getDriverVersion());
 			aitessData.setLoadDriverCommand(aitess.getLoadDriverCommand());
 			aitessData.setUnloadDriverCommand(aitess.getUnloadDriverCommand());
 			aitessData.setAitessId(aitess.getAitessId());
@@ -288,21 +302,21 @@ public class AitessMasterController {
 	private HBox aitessMasterBottomContainer() {
 //		 AitessTableViewFactory driverFactory = new AitessTableViewFactory();
 //		CustomTableView customTableView = driverFactory.createTableView(driverData, true, false);
-//        customTableView.setPrefWidth(1613.0);
-//        customTableView.setPrefHeight(744.0);
+//       customTableView.setPrefWidth(1613.0);
+//       customTableView.setPrefHeight(744.0);
 		bottomHbox.getStyleClass().add("aitessMaster-Container");
 
 		return bottomHbox;
 
 	}
 
-	void uUTdropdownAction() {
-
-		AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
-		UUTdropdownValue = (String) this.uutTypeField.getValue();
-		List<AitessConfigurationDto> lst = configurationManagement.getAitessConfig(UUTdropdownValue);
-		this.setupDisplayTable(UUTdropdownValue);
-
-	}
+//	void uUTdropdownAction() {
+//
+//		AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
+////		UUTdropdownValue = (String) this.uutTypeField.getValue();
+//		List<AitessConfigurationDto> lst = configurationManagement.getAitessConfig();
+////		this.setupDisplayTable(UUTdropdownValue);
+//
+//	}
 
 }

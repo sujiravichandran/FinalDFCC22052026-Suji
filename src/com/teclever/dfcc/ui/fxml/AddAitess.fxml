@@ -8,12 +8,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="adduser" prefHeight="634.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
+<Pane fx:id="adduser" prefHeight="564.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
    <children>
-      <VBox alignment="TOP_CENTER" prefHeight="634.0" prefWidth="450.0" spacing="10.0">
+      <VBox alignment="TOP_CENTER" prefHeight="564.0" prefWidth="450.0" spacing="10.0">
          <children>
             <Label fx:id="headinglbl" prefHeight="25.0" prefWidth="122.0" text="ADD AITESS" textFill="WHITE">
                <font>
@@ -122,23 +122,6 @@
                      </VBox.margin>
                   </Label>
                   <TextField fx:id="textUnLoadDriver" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </TextField>
-               </children>
-            </VBox>
-            <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
-               <children>
-                  <Label fx:id="labelDriverVersion" text="Driver Version" textFill="WHITE">
-                     <font>
-                        <Font name="Arial" size="16.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </Label>
-                  <TextField fx:id="textDriverVersion" prefWidth="283.0" stylesheets="@../css/AddAitess.css">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>

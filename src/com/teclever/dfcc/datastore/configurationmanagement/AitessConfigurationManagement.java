@@ -48,30 +48,28 @@ public class AitessConfigurationManagement {
 		return dtoArray;
 	}
 
-	// API : ADD AITESS CONFIG BASED ON UUT
-	public AitessConfigurationResponse addAitessConfig(AitessConfigurationDto aitessConfigurationDto, String uutId) {
+	// API : ADD AITESS CONFIG
+	public AitessConfigurationResponse addAitessConfig(AitessConfigurationDto aitessConfigurationDto) {
 		AitessConfigurationService service = new AitessConfigurationService();
 
 		AitessConfiguration aitessConfiguration = new AitessConfiguration();
 		aitessConfiguration.setAitessId(aitessConfigurationDto.getAitessId());
-		aitessConfiguration.setUutId(aitessConfigurationDto.getUutId());
 		aitessConfiguration.setAitessName(aitessConfigurationDto.getAitessName());
 		aitessConfiguration.setAitessCommand(aitessConfigurationDto.getAitessCommand());
 		aitessConfiguration.setAitessVersion(aitessConfigurationDto.getAitessVersion());
 		aitessConfiguration.setDriverName(aitessConfigurationDto.getDriverName());
 		aitessConfiguration.setLoadDriverCommand(aitessConfigurationDto.getLoadDriverCommand());
 		aitessConfiguration.setUnloadDriverCommand(aitessConfigurationDto.getUnloadDriverCommand());
-		aitessConfiguration.setDriverVersion(aitessConfigurationDto.getDriverVersion());
 		aitessConfiguration.setDeleteStatus(aitessConfigurationDto.isDeleteStatus());
 
-		AitessConfigurationResponse serviceResponse = service.addAitessConfiguration(aitessConfiguration, uutId);
+		AitessConfigurationResponse serviceResponse = service.addAitessConfiguration(aitessConfiguration);
 		return serviceResponse;
 	}
 
-	// API : GET AITESS CONFIG LIST BASED ON UUT
-	public List<AitessConfigurationDto> getAitessConfig(String uutId) {
+	// API : GET AITESS CONFIG LIST
+	public List<AitessConfigurationDto> getAitessConfig() {
 		AitessConfigurationService service = new AitessConfigurationService();
-		AitessConfigurationResponse serviceResponse = service.getAllAitessConfigurationByUutId(uutId);
+		AitessConfigurationResponse serviceResponse = service.getAllAitessConfiguration();
 
 		List<AitessConfigurationDto> dtoList = new ArrayList<>();
 
@@ -81,7 +79,6 @@ public class AitessConfigurationManagement {
 			for (AitessConfiguration configuration : configurationList) {
 				AitessConfigurationDto dto = new AitessConfigurationDto();
 				dto.setAitessId(configuration.getAitessId());
-				dto.setUutId(configuration.getUutId());
 				dto.setAitessName(configuration.getAitessName());
 				dto.setAitessCommand(configuration.getAitessCommand());
 				dto.setAitessVersion(configuration.getAitessVersion());
@@ -89,8 +86,6 @@ public class AitessConfigurationManagement {
 				dto.setLoadDriverCommand(configuration.getLoadDriverCommand());
 				dto.setUnloadDriverCommand(configuration.getUnloadDriverCommand());
 
-				
-				dto.setDriverVersion(configuration.getDriverVersion());
 				dtoList.add(dto);
 			}
 		} else {
@@ -116,7 +111,6 @@ public class AitessConfigurationManagement {
 				for (AitessConfiguration configuration : configurationList) {
 					AitessConfigurationDto dto = new AitessConfigurationDto();
 					dto.setAitessId(configuration.getAitessId());
-					dto.setUutId(configuration.getUutId());
 					dto.setAitessName(configuration.getAitessName());
 					dto.setAitessCommand(configuration.getAitessCommand());
 					dto.setAitessVersion(configuration.getAitessVersion());
@@ -124,7 +118,6 @@ public class AitessConfigurationManagement {
 					dto.setLoadDriverCommand(configuration.getLoadDriverCommand());
 					dto.setUnloadDriverCommand(configuration.getUnloadDriverCommand());
 
-					dto.setDriverVersion(configuration.getDriverVersion());
 					dto.setDeleteStatus(configuration.isDeleteStatus());
 					dtoList.add(dto);
 				}
@@ -139,9 +132,9 @@ public class AitessConfigurationManagement {
 	}
 
 	// API : GET AITESS NAME AND DRIVER NAME BASED ON UUT ID IN RUN CONFIGURATION
-	public List<AitessDriverDto> getAitessAndDriverName(String uutId) {
+	public List<AitessDriverDto> getAitessAndDriverName(String aitessName1) {
 		AitessConfigurationService service = new AitessConfigurationService();
-		AitessDriverResponse serviceResponse = service.extractAitessAndDriverNamesByUutId(uutId);
+		AitessDriverResponse serviceResponse = service.extractAitessAndDriverNamesByAitessName(aitessName1);
 
 		List<AitessDriverDto> resultList = new ArrayList<>();
 
@@ -161,23 +154,31 @@ public class AitessConfigurationManagement {
 		return resultList;
 	}
 
+	
+	
+	
+	
 	// Card Details API's
 	// To Get The Driver Name For The Selected UUTID
-	public Map<Integer, Map<String, String>> getAitessIdDriverName(String uutId) {
-		Map<Integer, Map<String, String>> aitessIdDriverDetails = new HashMap<Integer, Map<String, String>>();
-		AitessConfigurationService service = new AitessConfigurationService();
-
-		AitessConfigurationResponse res = service.getAllAitessConfigurationByUutId(uutId);
-		List<AitessConfiguration> aitessList = new ArrayList();
-		aitessList = res.getConfigurations();
-		for (AitessConfiguration aitessConfiguration : aitessList) {
-			Map<String, String> driverDetails = new HashMap<String, String>();
-			driverDetails.put("driverName", aitessConfiguration.getDriverName());
-			driverDetails.put("driverVersion", aitessConfiguration.getDriverVersion());
-			aitessIdDriverDetails.put(aitessConfiguration.getAitessId(), driverDetails);
-		}
-		return aitessIdDriverDetails;
-	}
+//	public Map<Integer, Map<String, String>> getAitessIdDriverName(String uutId) {
+//		Map<Integer, Map<String, String>> aitessIdDriverDetails = new HashMap<Integer, Map<String, String>>();
+//		AitessConfigurationService service = new AitessConfigurationService();
+//
+//		AitessConfigurationResponse res = service.getAllAitessConfigurationByUutId(uutId);
+//		List<AitessConfiguration> aitessList = new ArrayList();
+//		aitessList = res.getConfigurations();
+//		for (AitessConfiguration aitessConfiguration : aitessList) {
+//			Map<String, String> driverDetails = new HashMap<String, String>();
+//			driverDetails.put("driverName", aitessConfiguration.getDriverName());
+//			driverDetails.put("driverVersion", aitessConfiguration.getDriverVersion());
+//			aitessIdDriverDetails.put(aitessConfiguration.getAitessId(), driverDetails);
+//		}
+//		return aitessIdDriverDetails;
+//	}
+	
+	
+	
+	
 
 	// Card Details For Selected Driver Alis aitessId
 	public CardDetailsResponseDTO getCardDetailsByAitessId(int aitessId) {

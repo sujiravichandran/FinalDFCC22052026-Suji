@@ -14,8 +14,6 @@ public class Aitess {
 
 	private String driverName;
 
-	private String driverVersion;
-
 	public String getAitessCommand() {
 		return aitessCommand;
 	}
@@ -72,12 +70,5 @@ public class Aitess {
 		this.driverName = driverName;
 	}
 
-	public String getDriverVersion() {
-		return driverVersion;
-	}
-
-	public void setDriverVersion(String driverVersion) {
-		this.driverVersion = driverVersion;
-	}
 
 }

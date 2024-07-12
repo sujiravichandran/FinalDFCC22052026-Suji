@@ -6,10 +6,9 @@ import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.utils.CustomButton;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -38,7 +37,6 @@ public class AddAitessController {
     private Label labelAitessname;
     @FXML
     private Label labelLoadDriver;
-
     @FXML
     private Label labelUnLoadDriver;
     @FXML
@@ -53,22 +51,18 @@ public class AddAitessController {
     private TextField textAitessVersion;
     @FXML
     private TextField textLoadDriver;
-
     @FXML
     private TextField textUnLoadDriver;
     @FXML
     private TextField textDriverName;
-    @FXML
-    private TextField textDriverVersion;
+
     
     AitessMasterController mainPageController;
     
-    
     public void setMainPageController(AitessMasterController mainPageController) {
-    	this.mainPageController=mainPageController;
+        this.mainPageController = mainPageController;
     }
-    
-    
+
     public void initialize() {
         CustomButton saveButton = new CustomButton("SAVE", new EventHandler<ActionEvent>() {
             @Override
@@ -92,11 +86,10 @@ public class AddAitessController {
                     aitessConfigurationDTO.setDriverName(AddAitessController.this.textDriverName.getText());
                     aitessConfigurationDTO.setLoadDriverCommand(AddAitessController.this.textLoadDriver.getText());
                     aitessConfigurationDTO.setUnloadDriverCommand(AddAitessController.this.textUnLoadDriver.getText());
-                    aitessConfigurationDTO.setDriverVersion(AddAitessController.this.textDriverVersion.getText());
-                    aitessConfigurationDTO.setUutId(nameId.get(AitessMasterController.UUTdropdownValue));
+                    
                     AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
                     AitessConfigurationResponse response = configurationManagement.addAitessConfig(
-                            aitessConfigurationDTO, nameId.get(AitessMasterController.UUTdropdownValue));
+                            aitessConfigurationDTO);
                     mainPageController.refresh();
                     Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
                     stage.close();
@@ -117,7 +110,18 @@ public class AddAitessController {
         cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
         this.hboxCancel.getChildren().add(cancelButton);
         this.hboxCancel.setAlignment(Pos.CENTER);
+
+        // Set fixed size for the stage after the scene is fully initialized
+        Platform.runLater(() -> {
+            Stage stage = (Stage) adduser.getScene().getWindow();
+            stage.setMinWidth(450); // Set your desired width
+            stage.setMaxWidth(450);
+            stage.setMinHeight(564); // Set your desired height
+            stage.setMaxHeight(564);
+            stage.setResizable(false);
+        });
     }
+
     
     private boolean validateFields() {
         if (textAitessName.getText().isEmpty()) {
@@ -144,10 +148,7 @@ public class AddAitessController {
             showAlert("UnLoad Driver is required");
             return false;
         }
-        if (textDriverVersion.getText().isEmpty()) {
-            showAlert("Driver Version is required");
-            return false;
-        }
+
         return true;
     }
     

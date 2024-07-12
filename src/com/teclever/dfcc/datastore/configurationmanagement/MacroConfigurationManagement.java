@@ -79,6 +79,7 @@ public class MacroConfigurationManagement {
 	            criteriaQuery.where(criteriaBuilder.equal(root.get("uutId"), uutId),
 	                    criteriaBuilder.notEqual(root.get("buttonName"), "<NOT SET>"));
 
+
 	            Query<Tuple> query = session.createQuery(criteriaQuery);
 	            List<Tuple> results = query.getResultList();
 	            for (Tuple tuple : results) {
