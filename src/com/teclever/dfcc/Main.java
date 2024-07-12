@@ -49,12 +49,7 @@ extends Application {
         String hbm2ddlAuto = "update";
         String showSql = "false";
         DataStoreConfiguration dataStore = new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
-      //  ReportGeneration reportGeneration = new ReportGeneration();
-      //  reportGeneration.generateDetailedReport(null, null);
-        System.out.println("Before the Result Management Execution--");
-        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionManagement.getResultExecutionDetailedListForStages("SASN00003");
-        resultExecutionManagement.getResultExecutionListBriefListForStages("SASN00003");
+   
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}

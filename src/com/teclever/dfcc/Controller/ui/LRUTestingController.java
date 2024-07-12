@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
@@ -69,11 +70,12 @@ public class LRUTestingController {
 
 	private GridPane subTestGridPane = new GridPane();
 
-	private HBox goNoGoLabel = new HBox();
+	private HBox goNoGoLabel = new HBox(10);
 	private HBox startTestHBox = new HBox();
 
 	private VBox goNoGoVBox = new VBox(25);
-	private Label goNoGo = new Label("GO/NOGO");
+	private Label goLabel= new Label("GO");
+	private Label noGoLabel = new Label("NOGO");
 
 	private Button startTest = new Button("Start Test");
 	
@@ -287,12 +289,13 @@ public class LRUTestingController {
 		boolean firstButton = true;
 		for (TestCardData card : mandatoryCardList) {
 			Button newButton = new Button();
-			newButton.setText(card.getCardName());
+			newButton.setText(card.getCardName().trim());
 			newButton.setId(card.getCardId());
 			newButton.setUserData(card.getTestTypeId());
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
+			System.out.println();
 			if(!firstButton) {
 				newButton.setDisable(true);	
 			}
@@ -309,19 +312,34 @@ public class LRUTestingController {
 				        startTest.setDisable(false);
 				        return;
 				    }
+//				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
+				    
+
+//				    if(newButton.getText().trim().equalsIgnoreCase("SPIL LINK")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+//				    }else if(newButton.getText().trim().equalsIgnoreCase("POWER SUPPLY")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
+//				    }else if(newButton.getText().trim().equalsIgnoreCase("PBIT TEST")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//				    }else if(newButton.getText().trim().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
+//				    }else if(newButton.getText().trim().equalsIgnoreCase("INITIALIZE LRU")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+//				    }
+				    
+				    
 				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 				    
-				   
-				    if(newButton.getText().trim().equalsIgnoreCase("SPIL LINK TEST")) {
+				    if(newButton.getText().toLowerCase().contains("spil")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-				    }else if(newButton.getText().trim().equalsIgnoreCase("POWER SUPPLY")) {
-				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
-				    }else if(newButton.getText().trim().equalsIgnoreCase("PBIT TEST")) {
+				    }else if(newButton.getText().toLowerCase().contains("pbit")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-				    }else if(newButton.getText().trim().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
-				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
-				    }else if(newButton.getText().trim().equalsIgnoreCase("INITIALIZE LRU")) {
+				    }else if(newButton.getText().toLowerCase().contains("initialize")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+				    }else if(newButton.getText().toLowerCase().contains("power")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
+				    }else if(newButton.getText().toLowerCase().contains("interface")) {
+				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
 				    }
 				    
 			});
@@ -333,7 +351,9 @@ public class LRUTestingController {
 		LRUTestStateObject.spilLinkStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if(!newValue) {
 				Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
-				pbitButton.setDisable(false);
+				if(checkMandatoryStatus("spil")) {
+					pbitButton.setDisable(false);
+				}
 				StateMachine.setTestState(TestState.COMPLETED);
 				LRUTestStateObject.getSpilLinkStatus().set(true);
 			}
@@ -356,7 +376,9 @@ public class LRUTestingController {
 		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if(!newValue) {
 				Button powerSupplyButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(3).getCardId());
-				powerSupplyButton.setDisable(false);
+				if(checkMandatoryStatus("initialize")) {
+					powerSupplyButton.setDisable(false);
+				}
 				StateMachine.setTestState(TestState.COMPLETED);
 				LRUTestStateObject.getInitializeLRUStatus().set(true);
 			}
@@ -365,28 +387,31 @@ public class LRUTestingController {
 			if(!newValue) {
 				int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
 				Button ad_daInterfaceButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(index).getCardId());
-				ad_daInterfaceButton.setDisable(false);
+				if(checkMandatoryStatus("power")) {
+					ad_daInterfaceButton.setDisable(false);
+				}
 				StateMachine.setTestState(TestState.COMPLETED);
 				LRUTestStateObject.getPowerSupplyStatus().set(true);
 			}
 		});
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if(!newValue) {
+				System.out.println("insid-----");
 				LRUTestStateObject.getAd_daInterfaceStatus().set(true);
 			}
 			boolean allCardsStatusOk = true;
 		
 	        for (TestCardData card : mandatoryCardList) {
 	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
-	                if (!card.getCardName().equalsIgnoreCase("PBIT TEST")) {
-//	                    allCardsStatusOk = false;
-//	                    break;
+	                if (!card.getCardName().trim().toLowerCase().contains("pbit")) {
+	                    allCardsStatusOk = false;
+	                    break;
 	                }
 	            }
 	        }
 	        
+	        System.out.println("allCardsStatusOk--------"+allCardsStatusOk);
 
-//	        System.out.println("allCardsStatusOk-----"+allCardsStatusOk);
 	        StateMachine.setTestState(TestState.COMPLETED);
 	        startTest.setDisable(false);
 	        
@@ -395,8 +420,15 @@ public class LRUTestingController {
 		        	Button enableButton = (Button) sruCardVBox.lookup("#" + card.getCardId());
 		        	enableButton.setDisable(false);
 	        	}
+//	        	for(TestCardData card : LRUTestStateObject.getLruGoAndNogoCardList()) {
+//	        		if(card.getCardName().trim().equalsIgnoreCase("COMPLETE TEST")) {
+//	        			Button enableButton = (Button) goNoGoVBox.lookup("#" + card.getCardId());
+//			        	enableButton.setDisable(false);
+//			        	break;
+//	        		}
+//	        	}
 	        	for(TestCardData card : LRUTestStateObject.getLruGoAndNogoCardList()) {
-	        		if(card.getCardName().trim().equalsIgnoreCase("COMPLETE TEST")) {
+	        		if(card.getCardName().toLowerCase().contains("complete")) {
 	        			Button enableButton = (Button) goNoGoVBox.lookup("#" + card.getCardId());
 			        	enableButton.setDisable(false);
 			        	break;
@@ -407,6 +439,23 @@ public class LRUTestingController {
 
 		return mandatoryTestVBox;
 	}
+	
+	private boolean checkMandatoryStatus(String cardName) {
+	    List<TestCardData> matchingCards = LRUTestStateObject.getLruMandatoryCardList().stream()
+//	            .filter(card -> cardName.equalsIgnoreCase(card.getCardName().trim()))
+	            .filter(card -> card.getCardName().trim().toLowerCase().contains(cardName))
+	            .collect(Collectors.toList());
+
+	    for (TestCardData card : matchingCards) {
+	        if (card.getStatus().equalsIgnoreCase("OK")) {
+	            return true;
+	        }
+	    }
+
+	    return false;
+	}
+
+
 
 
 	private GridPane sruSubTestGridPane() {
@@ -638,14 +687,13 @@ public class LRUTestingController {
 
 		for (TestCardData card : goAndNoGoCardList) {
 			Button newButton = new Button();
-			newButton.setText(card.getCardName());
+			newButton.setText(card.getCardName().trim());
 			newButton.setId(card.getCardId());
 			newButton.setUserData(card.getTestTypeId());
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
 			newButton.setDisable(true);
-			
 			newButton.setOnAction(e ->{
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
@@ -657,14 +705,24 @@ public class LRUTestingController {
 				        startTest.setDisable(false);
 				        return;
 				    }
+//				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
+				    
+				    
+//				    if(newButton.getText().equalsIgnoreCase("COMPLETE TEST")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
+//				    }else if(newButton.getText().equalsIgnoreCase("OFP LOADING")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
+//				    }else if(newButton.getText().equalsIgnoreCase("PI-CHECK")) {
+//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
+//				    }
+				    
 				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
 				    
-				    
-				    if(newButton.getText().equalsIgnoreCase("COMPLETE TEST")) {
+				    if(newButton.getText().toLowerCase().contains("complete")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
-				    }else if(newButton.getText().equalsIgnoreCase("OFP LOADING")) {
+				    }else if(newButton.getText().toLowerCase().contains("ofp")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
-				    }else if(newButton.getText().equalsIgnoreCase("PI-CHECK")) {
+				    }else if(newButton.getText().toLowerCase().contains("pi")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
 				    }
 				    			    
@@ -672,40 +730,85 @@ public class LRUTestingController {
 			goNoGoVBox.getChildren().add(newButton);		
 		}
 		
-		 LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
-				Button ofpButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(1).getCardId());
-				ofpButton.setDisable(false);
-				StateMachine.setTestState(TestState.COMPLETED);
+			LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
+				 if(!newValue) {
+						Button ofpButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(1).getCardId());
+						if(checkGOandNOGOStatus("complete")) {
+							ofpButton.setDisable(false);
+						}
+						startTest.setDisable(false);
+						StateMachine.setTestState(TestState.COMPLETED);
+						LRUTestStateObject.getCompleteTestStatus().set(true);
+				 }
 			});
 		    LRUTestStateObject.ofpLoadingStatusProperty().addListener((observable, oldValue, newValue) -> {
-				Button piCheckButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(2).getCardId());
-				piCheckButton.setDisable(false);
-				StateMachine.setTestState(TestState.COMPLETED);
+				if(!newValue) {
+			    	Button piCheckButton = (Button) goNoGoVBox.lookup("#" + goAndNoGoCardList.get(2).getCardId());
+					if(checkGOandNOGOStatus("ofp")) {
+						piCheckButton.setDisable(false);					
+					}
+					startTest.setDisable(false);
+					StateMachine.setTestState(TestState.COMPLETED);	
+					LRUTestStateObject.getOfpLoadingStatus().set(true);
+				}
 			});
 		    LRUTestStateObject.piCheckStatusProperty().addListener((observable, oldValue, newValue) -> {
+		    	if(!newValue) {
+					StateMachine.setTestState(TestState.COMPLETED);
+					LRUTestStateObject.getPiCheckStatus().set(true);
+			        startTest.setDisable(false);
+				}
 				boolean allCardsStatusOk = true;
 				
 		        for (TestCardData card : goAndNoGoCardList) {
 		            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
-//		                   allCardsStatusOk = false;
-//		                   break;
+		                if (!card.getCardName().trim().toLowerCase().contains("pbit")) {
+		                    allCardsStatusOk = false;
+		                    break;
+		                }
 		            }
 		        }
-		    	StateMachine.setTestState(TestState.COMPLETED);
-		        startTest.setDisable(false);
+		        
+		        if(allCardsStatusOk) {
+			        goLabel.setStyle("-fx-background-color:green;");	
+		        }else {
+		        	noGoLabel.setStyle("-fx-background-color:red;");
+		        }
+
 		    });
 		
 		return goNoGoVBox;
 	}
+	
+	private boolean checkGOandNOGOStatus(String cardName) {
+	    List<TestCardData> matchingCards = LRUTestStateObject.getLruGoAndNogoCardList().stream()
+//	            .filter(card -> cardName.equalsIgnoreCase(card.getCardName().trim()))
+	    		 .filter(card -> card.getCardName().trim().toLowerCase().contains(cardName))
+	            .collect(Collectors.toList());
+
+	    for (TestCardData card : matchingCards) {
+	        if (card.getStatus().equalsIgnoreCase("OK")) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	
 
 	
 	private HBox goNoGoLabel() {
-		goNoGo.getStyleClass().add("label-gonogo");
-		goNoGo.setPadding(new Insets(5, 0, 5, 0));
-		goNoGo.setPrefWidth(200);
-		goNoGo.setAlignment(Pos.CENTER);
+		goLabel.getStyleClass().add("label-gonogo");
+		goLabel.setPadding(new Insets(5, 0, 5, 0));
+		goLabel.setPrefWidth(100);
+		goLabel.setAlignment(Pos.CENTER);
+		
+		noGoLabel.getStyleClass().add("label-gonogo");
+		noGoLabel.setPadding(new Insets(5, 0, 5, 0));
+		noGoLabel.setPrefWidth(100);
+		noGoLabel.setAlignment(Pos.CENTER);
+		
 		goNoGoLabel.setAlignment(Pos.CENTER);
-		goNoGoLabel.getChildren().add(goNoGo);
+		goNoGoLabel.getChildren().addAll(goLabel,noGoLabel);
 		return goNoGoLabel;
 	}
 
@@ -816,10 +919,12 @@ public class LRUTestingController {
 	        		currentSessionDetails.setRunConfigId(runConfigId);
 	        		String ID = stageId;
 	        		 TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
-		                if (testFileResponse.getTestFilesIdName() == null) {
+	        		 	if (testFileResponse.getTestFilesIdName() == null || testFileResponse.getTestFilesIdName().isEmpty() || testFileResponse.getTestFilesIdName().size() == 0) {
 		                    Platform.runLater(() -> {
 		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
 		                    });
+		                    startTest.setDisable(false);
+		                    StateMachine.setTestState(TestState.COMPLETED);
 		                    return null;
 		                }
 		                    		
