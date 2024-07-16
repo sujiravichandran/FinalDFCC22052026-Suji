@@ -89,6 +89,7 @@ public class TestProcessManagement {
 				String endTime;
 				String rdfFileName = null;
 				String rdfFileResult = "OK";
+				String testState = null;
 				List<String> listOfFileIds = new ArrayList<>();
 
 				// Service Class Object Creation For getting unique key(primary key)
@@ -114,7 +115,7 @@ public class TestProcessManagement {
 					System.out.println("   ->  OUTER LOOP  ");
 
 					if (testFilesIdName.get(testFileId) != null) {
-					    listOfTestFileNames.clear();
+						listOfTestFileNames.clear();
 						testFileName = testFilesIdName.get(testFileId);
 						System.out.println("   ->  Test File Name ::" + testFileName);
 						if (testFileName.endsWith(".com")) {
@@ -150,7 +151,7 @@ public class TestProcessManagement {
 
 										loopFlag = false;
 									} else if (StateMachine.getTestState() == TestState.STOPPED) {
-
+										testState = "STOPED";
 										loopFlag = false;
 										break outerLoop;
 
@@ -204,11 +205,14 @@ public class TestProcessManagement {
 
 				String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
 						: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
-
+				
+				if (testState.equals("STOPED")) {
+					stageResult = "STOPED";
+				}
 				// Update SESSION STAGE MAPPING : Set Status to COMPLETED
 				SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 				Response response = sessionStagesSelectedStagesService
-						.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId, stageId, stageResult);
+						.updateSessionStagesBySessionIdAndStageId(repeatCount, sessionId, stageId, stageResult);
 				System.out.println("Stage Result is Updated to DB  " + response.getResponseMessage());
 				System.out.println("--------END---------");
 				System.out.println();
@@ -267,7 +271,7 @@ public class TestProcessManagement {
 				return res;
 			}
 			SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
-			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndTestTypeId(repeatCount, sessionId,
+			res = sessionStagesSelectedStagesService.updateSessionStagesBySessionIdAndStageId(repeatCount, sessionId,
 					stageId, "STARTED");
 			if (res.getResponseCode() == 0) {
 				return res;
@@ -706,7 +710,7 @@ public class TestProcessManagement {
 						line = line.substring(1);
 						listOfFileNames.add(line);
 					}
-					
+
 				}
 			}
 			for (String line1 : listOfFileNames) {
