@@ -19,6 +19,7 @@ import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.SessionMasterService;
+import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
@@ -221,7 +222,11 @@ public class StageConfiguration {
 			levelsDto.setParentId(levelThreeEntity.getNextLevel());
 
 			levelsResponseDto.setLevelsResponse(levelsDto);
-
+			System.out.println("Calling Add Method with parameters "+levelThreeEntity.getLevelId()+" "+parentId+"  "+testTypeId);
+			// SESSION SELECTED STAGES SERVICE
+			SessionSelectedStagesService sessionSelectedStagesService= new SessionSelectedStagesService();
+			sessionSelectedStagesService.addUpdatedStagesToSessionStage(levelThreeEntity.getLevelId(), parentId, testTypeId);
+			
 			return levelsResponseDto;
 		} catch (Exception e) {
 			Response res = new Response();
@@ -229,6 +234,7 @@ public class StageConfiguration {
 			res.setResponseMessage("Add Stage Unsuccessfull : " + e.getLocalizedMessage());
 			levelsResponseDto.setResponse(res);
 			levelsResponseDto.setLevelsResponse(null);
+			e.printStackTrace();
 			return levelsResponseDto;
 		}
 	}
@@ -273,8 +279,12 @@ public class StageConfiguration {
 				res.setResponseMessage("Invalid Input ");
 				return res;
 			}
+			// SESSION SELECTED STAGES SERVICE
+			SessionSelectedStagesService sessionSelectedStagesService= new SessionSelectedStagesService();
+			sessionSelectedStagesService.deleteStagesToSessionStage(levelId);
+			
 		} catch (Exception e) {
-
+e.printStackTrace();
 		}
 		return response;
 	}
@@ -320,6 +330,11 @@ public class StageConfiguration {
 				levelsResponseDto.setLevelsResponse(null);
 				return levelsResponseDto;
 			}
+			
+			// SESSION SELECTED STAGES SERVICE
+			SessionSelectedStagesService sessionSelectedStagesService= new SessionSelectedStagesService();
+			sessionSelectedStagesService.updateTestTypeIdFromSessionStages(levelId, parentId, testTypeId);
+			
 			SubLevelResponseDto levelsEntity = (SubLevelResponseDto) subLevelserviceResponse.getStageLevelMaster();
 
 			levelsDto.setLevelId(levelsEntity.getLevelId());
@@ -337,6 +352,7 @@ public class StageConfiguration {
 			res.setResponseMessage("Add Stage Unsuccessfull : " + e.getLocalizedMessage());
 			levelsResponseDto.setResponse(res);
 			levelsResponseDto.setLevelsResponse(null);
+			e.printStackTrace();
 			return levelsResponseDto;
 		}
 	}
