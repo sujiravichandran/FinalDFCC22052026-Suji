@@ -14,8 +14,6 @@ import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.reportgeneration.ReportGeneration;
-import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -48,57 +46,12 @@ extends Application {
         String dialect = "org.hibernate.dialect.MySQLDialect";
         String hbm2ddlAuto = "update";
         String showSql = "false";
-        DataStoreConfiguration dataStore = new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
+        new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
    
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-//      // Define the file path
-//      String filePath = "C:\\Users\\anujk\\Downloads\\load";
-//
-//      // Create a BlockingQueue and load data from the file
-//      BlockingQueue<String> queue = new ArrayBlockingQueue<>(10000);
-//
-//      try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-//          String line;
-//          while ((line = br.readLine()) != null) {
-//              queue.add(line);
-//          }
-//          // Adding a termination condition for the while loop in parseQueue method
-//          queue.add("END");
-//      } catch (IOException e) {
-//          e.printStackTrace();
-//      }
-//
-//      // Create an instance of DriverManagement
-//      DriverManagement driverManagement = new DriverManagement();
-//
-//      // Call the validateDriverCard method with the data from the queue and a sample aitessId
-//      int aitessId = 1; // Replace with a valid aitessId
-//      DriverCardDetailsResponse response = driverManagement.validateDriverCard(queue, aitessId);
-//
-//      // Print the results
-//      for (DriverCard driverCard : response.getDriverCardDetails()) {
-//          System.out.println("***********************");
-//          System.out.println("Card Name: " + driverCard.getCardName());
-//          System.out.println("Expected Count of Cards: " + driverCard.getExpectedCountOfCards());
-//          System.out.println("Found Number of Cards: " + driverCard.getFoundedNumberOfCards());
-//          System.out.println("Message: " + driverCard.getMsg());
-//      }
-//
-//      // Print the overall response message
-//      System.out.println("Response Message: " + response.getResponse().getResponseMessage());
-  
-      
-      
-//      DriverManagement dm = new DriverManagement();
-//      DriverCardDetailsResponse d = dm.validateDriverCard( "C:\\Users\\anujk\\Downloads\\load", 1);
-      
-//		CardDetailsService cd = new CardDetailsService();
-//		String t = " ##NUM## CCDL Cards found";
-// String c = cd.getCardNameByIdentificationText(t);
-// System.out.println(c+"---");
-      
+
         Main.launch(args);
     }
 

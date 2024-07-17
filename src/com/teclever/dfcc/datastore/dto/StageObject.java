@@ -25,6 +25,14 @@ public class StageObject {
 	private String testTypeId;
 
 	private String status;
+	
+	private boolean mandatoryStatus;
+	
+	private boolean defaultStatus;
+	
+	private boolean continueWithErrorStatus;
+	
+	private boolean advanceStatus;
 
 	public String getL1StageId() {
 		return l1StageId;
@@ -122,4 +130,39 @@ public class StageObject {
 		this.status = status;
 	}
 
+	public boolean isMandatoryStatus() {
+		return mandatoryStatus;
+	}
+
+	public void setMandatoryStatus(boolean mandatoryStatus) {
+		this.mandatoryStatus = mandatoryStatus;
+	}
+
+	public boolean isDefaultStatus() {
+		return defaultStatus;
+	}
+
+	public void setDefaultStatus(boolean defaultStatus) {
+		this.defaultStatus = defaultStatus;
+	}
+
+	public boolean isContinueWithErrorStatus() {
+		return continueWithErrorStatus;
+	}
+
+	public void setContinueWithErrorStatus(boolean continueWithErrorStatus) {
+		this.continueWithErrorStatus = continueWithErrorStatus;
+	}
+
+	public boolean isAdvanceStatus() {
+		return advanceStatus;
+	}
+
+	public void setAdvanceStatus(boolean advanceStatus) {
+		this.advanceStatus = advanceStatus;
+	}
+
+
+
+	
 }
