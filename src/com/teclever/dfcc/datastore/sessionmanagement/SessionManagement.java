@@ -11,6 +11,7 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.StageLevelResponse;
+import com.teclever.datastore.entities.LevelOneStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
@@ -173,6 +174,8 @@ public class SessionManagement {
 			LevelOneMasterService levelOneService = new LevelOneMasterService();
 			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
 
+			Map<String, LevelOneStageMaster> levelOneStageWithObject = levelOneService.getAllLevelOneWithId();
+			
 			LevelTwoMasterService levelTwoService = new LevelTwoMasterService();
 			Map<String, String> levelTwoStage = levelTwoService.getAllLevelIdAndLevelName();
 
@@ -186,6 +189,7 @@ public class SessionManagement {
 			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
 
 			List<StageObject> listOfStageObject = new ArrayList<>();
+			
 			for (Object object : getResponse.getResponseList()) {
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
 				StageObject stageObject = new StageObject();
@@ -207,6 +211,11 @@ public class SessionManagement {
 				stageObject.setTestTypeId(sessionStage.getTestTypeId());
 
 				stageObject.setStatus(sessionStage.getStatus());
+				
+				stageObject.setMandatoryStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isMandatory());
+				stageObject.setContinueWithErrorStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isContinuewitheror());
+				stageObject.setAdvanceStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isAdvancestatus());
+				stageObject.setDefaultStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
 				
 				listOfStageObject.add(stageObject);
 			}
