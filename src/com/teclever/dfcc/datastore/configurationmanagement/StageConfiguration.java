@@ -58,6 +58,9 @@ public class StageConfiguration {
 				levelOneDto.setUutId(levelOneEntity.getUutId());
 				levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
 				levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
+				levelOneDto.setMandatoryStatus(levelOneEntity.isMandatoryStatus());
+				levelOneDto.setContinueWithErrorStatus(levelOneEntity.isContinueWithErrorStatus());
+				levelOneDto.setAdvanceTestStatus(levelOneEntity.isAdvanceTestStatus());
 				listOfLevelOnDto.add(levelOneDto);
 
 			}
@@ -138,13 +141,13 @@ public class StageConfiguration {
 	}
 
 	public LevelOneAddResponse addLevelOneStageMaster(String stageName, String sessions, String uutIds,
-			boolean defaultStatus) {
+			boolean mandatory,boolean continueWithError) {
 		LevelOneAddResponse levelOneResponseDto = new LevelOneAddResponse();
 
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
 			StageMasterLevelResponse serviceResponse = levelOne.addLevelOneStage(stageName, sessions, uutIds,
-					defaultStatus);
+					mandatory,continueWithError);
 			levelOneResponseDto.setResponse(serviceResponse.getResponse());
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
@@ -158,6 +161,10 @@ public class StageConfiguration {
 			levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
 			levelOneDto.setSessionIds(levelOneEntity.getSessionIds());
 			levelOneDto.setUutId(levelOneEntity.getUutId());
+			levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
+			levelOneDto.setMandatoryStatus(levelOneEntity.isMandatoryStatus());
+			levelOneDto.setContinueWithErrorStatus(levelOneEntity.isContinueWithErrorStatus());
+			levelOneDto.setAdvanceTestStatus(levelOneEntity.isAdvanceTestStatus());
 
 			levelOneResponseDto.setLevelOneResponse(levelOneDto);
 
@@ -222,10 +229,10 @@ public class StageConfiguration {
 			levelsDto.setParentId(levelThreeEntity.getNextLevel());
 
 			levelsResponseDto.setLevelsResponse(levelsDto);
-			System.out.println("Calling Add Method with parameters "+levelThreeEntity.getLevelId()+" "+parentId+"  "+testTypeId);
+
 			// SESSION SELECTED STAGES SERVICE
-			SessionSelectedStagesService sessionSelectedStagesService= new SessionSelectedStagesService();
-			sessionSelectedStagesService.addUpdatedStagesToSessionStage(levelThreeEntity.getLevelId(), parentId, testTypeId);
+			//SessionSelectedStagesService sessionSelectedStagesService= new SessionSelectedStagesService();
+			//sessionSelectedStagesService.addUpdatedStagesToSessionStage(levelThreeEntity.getLevelId(), parentId, testTypeId);
 			
 			return levelsResponseDto;
 		} catch (Exception e) {
@@ -358,13 +365,13 @@ e.printStackTrace();
 	}
 
 	public LevelOneAddResponse updateLevelOneStageMaster(String levelOneId, String stageName, String sessions,
-			String uutIds, boolean defaultStatus) {
+			String uutIds, boolean mandatory,boolean continueWithError) {
 		LevelOneAddResponse levelOneResponseDto = new LevelOneAddResponse();
 
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
 			StageMasterLevelResponse serviceResponse = levelOne.updateLevelOneStageMaster(levelOneId, stageName,
-					sessions, uutIds, defaultStatus);
+					sessions, uutIds, mandatory,continueWithError);
 			levelOneResponseDto.setResponse(serviceResponse.getResponse());
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
@@ -378,6 +385,10 @@ e.printStackTrace();
 			levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
 			levelOneDto.setSessionIds(levelOneEntity.getSessionIds());
 			levelOneDto.setUutId(levelOneEntity.getUutId());
+			levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
+			levelOneDto.setMandatoryStatus(levelOneEntity.isMandatoryStatus());
+			levelOneDto.setContinueWithErrorStatus(levelOneEntity.isContinueWithErrorStatus());
+			levelOneDto.setAdvanceTestStatus(levelOneEntity.isAdvanceTestStatus());
 
 			levelOneResponseDto.setLevelOneResponse(levelOneDto);
 

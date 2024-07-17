@@ -14,6 +14,12 @@ public class LevelOneDto {
 
 	private boolean defaultStatus;
 
+	private boolean mandatoryStatus;
+
+	private boolean continueWithErrorStatus;
+
+	private boolean advanceTestStatus;
+
 	public String getLevelOneId() {
 		return levelOneId;
 	}
@@ -60,6 +66,30 @@ public class LevelOneDto {
 
 	public void setDefaultStatus(boolean defaultStatus) {
 		this.defaultStatus = defaultStatus;
+	}
+
+	public boolean isMandatoryStatus() {
+		return mandatoryStatus;
+	}
+
+	public void setMandatoryStatus(boolean mandatoryStatus) {
+		this.mandatoryStatus = mandatoryStatus;
+	}
+
+	public boolean isContinueWithErrorStatus() {
+		return continueWithErrorStatus;
+	}
+
+	public void setContinueWithErrorStatus(boolean continueWithErrorStatus) {
+		this.continueWithErrorStatus = continueWithErrorStatus;
+	}
+
+	public boolean isAdvanceTestStatus() {
+		return advanceTestStatus;
+	}
+
+	public void setAdvanceTestStatus(boolean advanceTestStatus) {
+		this.advanceTestStatus = advanceTestStatus;
 	}
 
 }

@@ -143,6 +143,9 @@ public class SessionManagement {
 				levelOneDto.setUutId(levelOneEntity.getUutId());
 				levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
 				levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
+				levelOneDto.setMandatoryStatus(levelOneEntity.isMandatoryStatus());
+				levelOneDto.setContinueWithErrorStatus(levelOneEntity.isContinueWithErrorStatus());
+				levelOneDto.setAdvanceTestStatus(levelOneEntity.isAdvanceTestStatus());
 				listOfLevelOnDto.add(levelOneDto);
 
 			}
