@@ -85,7 +85,9 @@ public class AddStageController implements Initializable {
 	@FXML
 	private Button update_button;
 	@FXML
-	private CheckBox makeDefaultCheckBox;
+	private CheckBox mandatoryCheckBox;
+	@FXML
+	private CheckBox continueWithErrorCheckBox;
 
 	private String stage1Name;
 	private String UUT_ID;
@@ -144,8 +146,9 @@ public class AddStageController implements Initializable {
 		headerLabel.setText("Edit Stage1");
 		add_new_stage_button.setText("Update Stage");
 		stage_name_field.setText(stage1Data.getL1_name());
-		makeDefaultCheckBox.setSelected(stage1Data.isDefault());
-
+		mandatoryCheckBox.setSelected(stage1Data.isDefault());
+		continueWithErrorCheckBox.setSelected(stage1Data.isDefault());
+		
 		List<String> sessionTypeIds = stage1Data.getSessionType();
 		session_type_box.getChildren().clear();
 
@@ -204,7 +207,7 @@ public class AddStageController implements Initializable {
 
 		if (add_new_stage_button.getText().equals("Add New Stage")) {
 			LevelOneAddResponse response = stageConfig.addLevelOneStageMaster(stage_name_field.getText(),
-					selectedSessionTypeIds.toString(), UUT_ID,  makeDefaultCheckBox.isSelected());
+					selectedSessionTypeIds.toString(), UUT_ID,  mandatoryCheckBox.isSelected(), continueWithErrorCheckBox.isSelected());
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
 			} else {
@@ -212,7 +215,7 @@ public class AddStageController implements Initializable {
 			}
 		} else if (add_new_stage_button.getText().equals("Update Stage")) {
 			LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),
-					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID,  makeDefaultCheckBox.isSelected());
+					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID,   mandatoryCheckBox.isSelected(), continueWithErrorCheckBox.isSelected());
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
 			} else {
@@ -283,8 +286,10 @@ public class AddStageController implements Initializable {
 	}
 
 	private void fetchUIForSubStage() {
-		makeDefaultCheckBox.setVisible(false);
-		makeDefaultCheckBox.setManaged(false);
+		mandatoryCheckBox.setVisible(false);
+		mandatoryCheckBox.setManaged(false);
+		continueWithErrorCheckBox.setVisible(false);
+		continueWithErrorCheckBox.setManaged(false);
 		session_type_box.setVisible(false);
 		session_type_box.setManaged(false);
 		add_new_stage_button.setVisible(false);

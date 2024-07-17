@@ -11,16 +11,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="addStageMainContainer"
-	maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-	minWidth="-Infinity" prefWidth="400.0"
-	stylesheets="@../css/AddStage.css"
-	xmlns="http://javafx.com/javafx/20.0.1"
-	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="com.teclever.dfcc.Controller.ui.AddStageController">
+<AnchorPane fx:id="addStageMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" stylesheets="@../css/AddStage.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddStageController">
 	<children>
-		<HBox fx:id="addStageFormHeading" alignment="CENTER"
-			prefHeight="50.0" prefWidth="400.0">
+		<HBox fx:id="addStageFormHeading" alignment="CENTER" prefHeight="50.0" prefWidth="400.0">
 			<children>
 				<Label fx:id="headerLabel" text="Add Sub-Stage">
 					<font>
@@ -32,32 +25,27 @@
 				<Insets top="10.0" />
 			</padding>
 		</HBox>
-		<VBox fx:id="addstageForm" alignment="CENTER_LEFT" layoutY="50.0"
-			prefWidth="400.0" spacing="10.0">
+		<VBox fx:id="addstageForm" alignment="CENTER_LEFT" layoutY="50.0" prefWidth="400.0" spacing="10.0">
 			<padding>
 				<Insets bottom="20.0" left="30.0" right="30.0" top="10.0" />
 			</padding>
 			<children>
-				<VBox fx:id="session_type_box" alignment="CENTER_LEFT"
-					prefHeight="85.0" prefWidth="100.0">
+				<VBox fx:id="session_type_box" alignment="CENTER_LEFT" prefHeight="85.0" prefWidth="100.0">
 					<VBox.margin>
 						<Insets left="10.0" />
 					</VBox.margin>
 				</VBox>
-				<VBox fx:id="parent_stage_name_box" alignment="CENTER_LEFT"
-					prefWidth="100.0">
+				<VBox fx:id="parent_stage_name_box" alignment="CENTER_LEFT" prefWidth="100.0">
 					<children>
 						<Label text="Parent Stage Name">
 							<font>
 								<Font size="16.0" />
 							</font>
 						</Label>
-						<TextField fx:id="stage_parent_name_field"
-							editable="false" />
+						<TextField fx:id="stage_parent_name_field" editable="false" />
 					</children>
 				</VBox>
-				<VBox fx:id="stage_name_box" alignment="CENTER_LEFT"
-					prefWidth="100.0">
+				<VBox fx:id="stage_name_box" alignment="CENTER_LEFT" prefWidth="100.0">
 					<children>
 						<Label text="Stage Name">
 							<font>
@@ -67,8 +55,7 @@
 						<TextField fx:id="stage_name_field" />
 					</children>
 				</VBox>
-				<VBox fx:id="sub_stage_name_box" alignment="CENTER_LEFT"
-					prefWidth="100.0">
+				<VBox fx:id="sub_stage_name_box" alignment="CENTER_LEFT" prefWidth="100.0">
 					<children>
 						<Label text="Sub Stage Name">
 							<font>
@@ -78,49 +65,40 @@
 						<TextField fx:id="stage_child_name_field" />
 					</children>
 				</VBox>
-				<VBox fx:id="test_type_box" alignment="CENTER_LEFT"
-					layoutX="40.0" layoutY="10.0" prefWidth="100.0">
+				<VBox fx:id="test_type_box" alignment="CENTER_LEFT" layoutX="40.0" layoutY="10.0" prefWidth="100.0">
 					<children>
 						<Label text="Test Type">
 							<font>
 								<Font size="16.0" />
 							</font>
 						</Label>
-						<ComboBox fx:id="stage_testType_field" prefHeight="25.0"
-							prefWidth="343.0"
-							style="-fx-background-color: white; -fx-border-color: #D3D3D3;"
-							visibleRowCount="6" />
+						<ComboBox fx:id="stage_testType_field" prefHeight="25.0" prefWidth="343.0" style="-fx-background-color: white; -fx-border-color: #D3D3D3;" visibleRowCount="6" />
 					</children>
 				</VBox>
-				<CheckBox fx:id="makeDefaultCheckBox"
-					mnemonicParsing="false" prefHeight="17.0" prefWidth="271.0"
-					text="Make Default" />
+            <HBox alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="400.0" spacing="20.0">
+               <children>
+      				<CheckBox fx:id="mandatoryCheckBox" mnemonicParsing="false" prefHeight="17.0" text="Mandatory" />
+                  <CheckBox fx:id="continueWithErrorCheckBox" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="17.0" text="Continue With Error" />
+               </children>
+            </HBox>
 				<HBox alignment="CENTER" prefWidth="200.0" spacing="10.0">
 					<children>
-						<Button fx:id="add_new_stage_button"
-							mnemonicParsing="false" onAction="#onClickAddOrEditStage1"
-							text="Add New Stage">
+						<Button fx:id="add_new_stage_button" mnemonicParsing="false" onAction="#onClickAddOrEditStage1" text="Add New Stage">
 							<font>
 								<Font size="16.0" />
 							</font>
 						</Button>
-						<Button fx:id="add_subStage_button" layoutX="94.0"
-							layoutY="10.0" mnemonicParsing="false"
-							onAction="#onClickAddSubStage" text="Add Sub-Stage">
+						<Button fx:id="add_subStage_button" layoutX="94.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickAddSubStage" text="Add Sub-Stage">
 							<font>
 								<Font size="16.0" />
 							</font>
 						</Button>
-						<Button fx:id="update_button" layoutX="55.0" layoutY="10.0"
-							mnemonicParsing="false" onAction="#onClickUpdateSubStage"
-							text="Update">
+						<Button fx:id="update_button" layoutX="55.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickUpdateSubStage" text="Update">
 							<font>
 								<Font size="16.0" />
 							</font>
 						</Button>
-						<Button fx:id="stage_cancel_btn" layoutX="10.0"
-							layoutY="10.0" mnemonicParsing="false"
-							onAction="#onClickCancelStage" text="Cancel">
+						<Button fx:id="stage_cancel_btn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickCancelStage" text="Cancel">
 							<font>
 								<Font size="16.0" />
 							</font>
