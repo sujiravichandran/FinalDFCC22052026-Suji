@@ -287,7 +287,7 @@ public class LoginFormController {
 			}
 		});
 		
-		userNameTextField.setText("BelAdmin");
+		userNameTextField.setText("BelUser");
 		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;
