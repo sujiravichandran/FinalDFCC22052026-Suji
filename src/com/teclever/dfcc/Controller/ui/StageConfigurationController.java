@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.apache.poi.hssf.record.PageBreakRecord.Break;
+
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
@@ -203,6 +205,13 @@ public class StageConfigurationController {
 	}
 
 	private VBox stageConfigTreeView() {
+		
+	    addNewStageButton.setDisable(true);
+
+	    stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+	        addNewStageButton.setDisable(newValue.trim().isEmpty());
+	    });
+	    
 		addNewStageButton.setOnAction(e -> addNewStage());
 
 		HBox stage1HBox = new HBox(10, stageNameField, addNewStageButton);
@@ -273,7 +282,7 @@ public class StageConfigurationController {
 			TreeItem<Node> sessionItem = new TreeItem<>(level1_container);
 			root.getChildren().add(sessionItem);
 			if (stageL1.isHasNext()) {
-				session_l2Data = getSubStagesFromDb(stageL1.getId(), stageL1.isDefault());
+				session_l2Data = getSubStagesFromDb(stageL1.getId(), stageL1.isDefault(), stageL1.isAdvancedTest());
 				createTreeItemsForL2(stageL1, sessionItem, session_l2Data);
 			}
 		}
@@ -400,9 +409,13 @@ public class StageConfigurationController {
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
 		buttonsContainer.setVisible(false);
-		if(stage1.isDefault()) {
-			buttonsContainer.getChildren().addAll(addBtn);
-		}else {
+//		if(stage1.isDefault()) {
+//			buttonsContainer.getChildren().addAll(addBtn);
+//		}else {
+//			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
+//		}
+		
+		if(!stage1.isDefault() && !stage1.isAdvancedTest()){
 			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
 		}
 
@@ -439,12 +452,28 @@ public class StageConfigurationController {
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
 		buttonsContainer.setPadding(new Insets(0, 10, 0, 0));
 		buttonsContainer.setVisible(false);
-		if (stage.isParentDefault()) {
-			buttonsContainer.getChildren().add(addBtn);
-		} else if (stage.getId().startsWith("L5")) {
+//		if (stage.isParentDefault()) {
+//			buttonsContainer.getChildren().add(addBtn);
+//		} else if (stage.getId().startsWith("L5")) {
+//			buttonsContainer.getChildren().addAll(editBtn, delBtn);
+//		} else {
+//			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
+//		}
+		
+		
+	
+		if (stage.getId().startsWith("L5")) {
 			buttonsContainer.getChildren().addAll(editBtn, delBtn);
-		} else {
+		} else if (!stage.isParentDefault() && !stage.isParentAdvancedTest()) {
 			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
+		} else if(stage.isParentAdvancedTest()){
+			if (stage.getId().startsWith("L2")) {
+				if(stage.getL_name().trim().toLowerCase().contains("hwatp") || stage.getL_name().trim().toLowerCase().contains("interface")) {
+					buttonsContainer.getChildren().addAll(addBtn);
+				}else if(stage.getL_name().trim().toLowerCase().contains("custom test")) {
+					return null;
+				}
+			} 
 		}
 
 		ColumnConstraints column1 = new ColumnConstraints();
@@ -484,11 +513,13 @@ public class StageConfigurationController {
 		for (SubStage stageL2 : s2) {
 			if (stageL2.getpId().equals(stageL1.getId())) {
 				GridPane gridPaneL2 = createSubStagesUI(stageL2, parentItem);
-
+				if (gridPaneL2 == null) {
+	                continue; 
+		        }
 				TreeItem<Node> stageItemL2 = new TreeItem<>(gridPaneL2);
 				parentItem.getChildren().add(stageItemL2);
 				if (stageL2.isHasNext()) {
-					session_l3Data = getSubStagesFromDb(stageL2.getId(), stageL2.isParentDefault());
+					session_l3Data = getSubStagesFromDb(stageL2.getId(), stageL2.isParentDefault(), stageL2.isParentAdvancedTest());
 					createTreeItemsForL3(stageL2, stageItemL2, session_l3Data);
 				} else {
 					createStageFieldUI(stageL2, gridPaneL2);
@@ -502,11 +533,14 @@ public class StageConfigurationController {
 		for (SubStage stageL3 : s3) {
 			if (stageL3.getpId().equals(stageL2.getId())) {
 				GridPane gridPaneL3 = createSubStagesUI(stageL3, parentItem);
+				if (gridPaneL3 == null) {
+	                continue; 
+		        }
 				TreeItem<Node> stageItemL3 = new TreeItem<>(gridPaneL3);
 				parentItem.getChildren().add(stageItemL3);
 
 				if (stageL3.isHasNext()) {
-					session_l4Data = getSubStagesFromDb(stageL3.getId(), stageL3.isParentDefault());
+					session_l4Data = getSubStagesFromDb(stageL3.getId(), stageL3.isParentDefault(), stageL3.isParentAdvancedTest());
 					createTreeItemsForL4(stageL3, stageItemL3, session_l4Data);
 				} else {
 					createStageFieldUI(stageL3, gridPaneL3);
@@ -519,12 +553,16 @@ public class StageConfigurationController {
 		for (SubStage stageL4 : s4) {
 			if (stageL4.getpId().equals(stageL3.getId())) {
 
-				GridPane gridPaneL4 = createSubStagesUI(stageL4, parentItem);
+				GridPane gridPaneL4 = createSubStagesUI(stageL4, parentItem); 
+				if (gridPaneL4 == null) {
+	                continue; 
+		        }
+				
 				TreeItem<Node> stageItemL4 = new TreeItem<>(gridPaneL4);
 				parentItem.getChildren().add(stageItemL4);
 
 				if (stageL4.isHasNext()) {
-					session_l5Data = getSubStagesFromDb(stageL4.getId(), stageL4.isParentDefault());
+					session_l5Data = getSubStagesFromDb(stageL4.getId(), stageL4.isParentDefault(), stageL4.isParentAdvancedTest());
 					createTreeItemsForL5(stageL4, stageItemL4, session_l5Data);
 				} else {
 					createStageFieldUI(stageL4, gridPaneL4);
@@ -537,6 +575,9 @@ public class StageConfigurationController {
 		for (SubStage stageL5 : s5) {
 			if (stageL5.getpId().equals(stageL4.getId())) {
 				GridPane gridPaneL5 = createSubStagesUI(stageL5, parentItem);
+				if (gridPaneL5 == null) {
+	                continue; 
+		        }
 				TreeItem<Node> stageItemL5 = new TreeItem<>(gridPaneL5);
 				parentItem.getChildren().add(stageItemL5);
 				createStageFieldUI(stageL5, gridPaneL5);
@@ -566,7 +607,7 @@ public class StageConfigurationController {
 
 	private void addNewStage() {
 		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
-				controller -> controller.setNewStageData(stageNameField.getText(), UUT_ID));
+				controller -> controller.setNewStageData(stageNameField.getText().trim(), UUT_ID));
 	}
 
 	private void addSubStage(String id, String stageName) {
@@ -605,6 +646,9 @@ public class StageConfigurationController {
 				stage.setL1_name(levelOneDto.getStageName());
 				stage.setId(levelOneDto.getLevelOneId());
 				stage.setDefault(levelOneDto.isDefaultStatus());
+				stage.setMandatory(levelOneDto.isMandatoryStatus());
+				stage.setContinueWithError(levelOneDto.isContinueWithErrorStatus());
+				stage.setAdvancedTest(levelOneDto.isAdvanceTestStatus());
 				stage.setHasNext("Y".equals(levelOneDto.getNextLevel()));
 				List<String> sessionIdsList = Arrays.asList(levelOneDto.getSessionIds().split(","));
 				stage.setSessionType(new ArrayList<>(sessionIdsList));
@@ -615,7 +659,7 @@ public class StageConfigurationController {
 		return stageList;
 	}
 
-	private ObservableList<SubStage> getSubStagesFromDb(String parentId, boolean isDefault) {
+	private ObservableList<SubStage> getSubStagesFromDb(String parentId, boolean isDefault, boolean isAdvancedTest ){
 		ObservableList<SubStage> subStageList = FXCollections.observableArrayList();
 		StageMasterLevelsResponse response = stageConfig.getStageLevelMaster(parentId);
 
@@ -628,6 +672,7 @@ public class StageConfigurationController {
 				stage.setTestType(levelDto.getTestType());
 				stage.setHasNext("Y".equals(levelDto.getNextLevel()));
 				stage.setParentDefault(isDefault);
+				stage.setParentAdvancedTest(isAdvancedTest);
 				subStageList.add(stage);
 			}
 		}

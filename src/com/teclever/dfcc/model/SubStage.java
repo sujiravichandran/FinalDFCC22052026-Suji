@@ -7,6 +7,7 @@ public class SubStage {
 	private String testType;
 	private boolean hasNext;
 	private boolean parentDefault;
+	private boolean parentAdvancedTest;
 	
 	public String getId() {
 		return id;
@@ -52,11 +53,21 @@ public class SubStage {
 		this.parentDefault = parentDefault;
 	}
 
+	public boolean isParentAdvancedTest() {
+		return parentAdvancedTest;
+	}
+
+	public void setParentAdvancedTest(boolean parentAdvancedTest) {
+		this.parentAdvancedTest = parentAdvancedTest;
+	}
+
 	@Override
 	public String toString() {
-		return "SessionSubStage [id=" + id + ", pId=" + pId + ", l_name=" + l_name + ", testType=" + testType
-				+ ", hasNext=" + hasNext + "]";
+		return "SubStage [id=" + id + ", pId=" + pId + ", l_name=" + l_name + ", testType=" + testType + ", hasNext="
+				+ hasNext + ", parentDefault=" + parentDefault + ", parentAdvancedTest=" + parentAdvancedTest + "]";
 	}
+
+	
 	
 
 }

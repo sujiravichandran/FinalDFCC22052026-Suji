@@ -10,7 +10,9 @@ public class StageOne {
 	private ArrayList<String> sessionType;
 	private boolean hasNext;
 	private boolean isDefault;
-	
+	private boolean isMandatory;
+	private boolean isContinueWithError;
+	private boolean isAdvancedTest;
 	
 	public String getId() {
 		return id;
@@ -49,11 +51,34 @@ public class StageOne {
 	public void setDefault(boolean isDefault) {
 		this.isDefault = isDefault;
 	}
+		
+	public boolean isMandatory() {
+		return isMandatory;
+	}
+	public void setMandatory(boolean isMandatory) {
+		this.isMandatory = isMandatory;
+	}
+	public boolean isContinueWithError() {
+		return isContinueWithError;
+	}
+	public void setContinueWithError(boolean isContinueWithError) {
+		this.isContinueWithError = isContinueWithError;
+	}
+	public boolean isAdvancedTest() {
+		return isAdvancedTest;
+	}
+	public void setAdvancedTest(boolean isAdvancedTest) {
+		this.isAdvancedTest = isAdvancedTest;
+	}
+	
+	
 	@Override
 	public String toString() {
-		return "SessionStage [id=" + id + ", l1_name=" + l1_name + ", uutType=" + uutType + ", sessionType="
-				+ sessionType + ", hasNext=" + hasNext + ", isDefault=" + isDefault + "]";
+		return "StageOne [id=" + id + ", l1_name=" + l1_name + ", uutType=" + uutType + ", sessionType=" + sessionType
+				+ ", hasNext=" + hasNext + ", isDefault=" + isDefault + ", isMandatory=" + isMandatory
+				+ ", isContinueWithError=" + isContinueWithError + ", isAdvancedTest=" + isAdvancedTest + "]";
 	}
+	
 	
 	
 }
