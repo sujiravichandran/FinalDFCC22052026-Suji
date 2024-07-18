@@ -191,7 +191,7 @@ public class AddRunConfigurationController {
 			}
 		});
 
-		saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+		saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#005C7A", "#ffffff", "0", "10");
 		saveButton.setAlignment(Pos.CENTER);
 		this.hboxSave.getChildren().add(saveButton);
 		this.hboxSave.setAlignment(Pos.CENTER);
@@ -203,7 +203,7 @@ public class AddRunConfigurationController {
 				stage.close();
 			}
 		});
-		cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+		cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#005C7A", "#ffffff", "0", "10");
 		cancelButton.setAlignment(Pos.CENTER);
 
 		this.hboxCancel.getChildren().add(cancelButton);

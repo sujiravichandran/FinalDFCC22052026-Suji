@@ -1,12 +1,10 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
-
 import com.teclever.datastore.response.OfpConfigurationResponse;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.utils.Notifications;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,43 +17,33 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 public class AddOFPController {
-
 	 @FXML
 	    private VBox addOfpForm;
-
 	    @FXML
 	    private HBox addOfpHeading;
-
 	    @FXML
 	    private AnchorPane addOfpMainContainer;
-
 	    @FXML
 	    private Button add_ofp_button;
-
 	    @FXML
 	    private Button cancel_button;
-
 	    @FXML
 	    private Label headerLabel;
-
 	    @FXML
 	    private TextField ofp_name_field;
-
 	    @FXML
 	    private TextField ofp_version_field;
-
 	    @FXML
 	    private Button select_config_button;
-	    
 	   
+	  
 	    @FXML
 	    private void initialize() {
 	        Tooltip ofpTooltip = new Tooltip();
 	        ofpTooltip.textProperty().bind(select_config_button.textProperty());
 	        select_config_button.setTooltip(ofpTooltip);
-	        
+	       
 	     // Set fixed size for the stage after the scene is fully initialized
 	        Platform.runLater(() -> {
 	            Stage stage = (Stage) addOfpMainContainer.getScene().getWindow();
@@ -71,18 +59,18 @@ public class AddOFPController {
     private OFPMasterController mainPageController;
     private String selectedConfigFile;
     private String UUT_ID;
-    
     public void setMainPageController(OFPMasterController mainPageController) {
 		this.mainPageController = mainPageController;
 	}
-    
     private OfpConfigurationManagement ofpConfig=new OfpConfigurationManagement();
     public void setUutID(String uutId) {
     	this.UUT_ID=uutId;
     }
-
     @FXML
     void onClickAddOfp(ActionEvent event) {
+    	if(validatefields()) {
+    		
+    	
     	OfpConfigurationDto ofpConfigurationDto=new OfpConfigurationDto();
     	ofpConfigurationDto.setUutId(UUT_ID);
     	ofpConfigurationDto.setOfpName(ofp_name_field.getText());
@@ -90,19 +78,30 @@ public class AddOFPController {
     	ofpConfigurationDto.setConfigFile(selectedConfigFile);
     	
     	
- 	    
+ 	   
     	OfpConfigurationResponse response= ofpConfig.addOfpConfig(ofpConfigurationDto, UUT_ID);
+    	
     	if(response.getResponseCode() == 1) {
     		Stage stage = (Stage) addOfpMainContainer.getScene().getWindow();
     		stage.close();
     		mainPageController.refresh();
     	}else {
-    		Notifications.showErrorAlert(response.getResponseMessage());
+    		Notifications.showErrorAlert("please select Config File");
     	}
+    	}
+    }
+    private boolean validatefields() {
+    	if(ofp_name_field.getText().isEmpty()) {
+    		Notifications.showErrorAlert("please Enter the OFP Name");
+    		return false;
+    	}
+    	if(ofp_version_field.getText().isEmpty()) {
+    		Notifications.showErrorAlert("please Enter the OFP Version");
+    		return false;
+    	}
+		return true;
     	
     }
-   
-
     @FXML
     void onClickSelectConfigFile(ActionEvent event) {
 		
@@ -113,14 +112,12 @@ public class AddOFPController {
 		 if (selectedFile != null) {
 			 selectedConfigFile = selectedFile.getAbsolutePath();
 			 select_config_button.setText(selectedConfigFile);
-			 
+			
 	      }	
-
     }
     @FXML
     void onClickCancel(ActionEvent event) {
     	Stage stage = (Stage) addOfpMainContainer.getScene().getWindow();
 		stage.close();
     }
-
-}
+} 

@@ -96,7 +96,7 @@ public class AddAitessController {
                 }
             }
         });
-        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+        saveButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#005C7A", "#ffffff", "0", "10");
         this.hboxSave.getChildren().add(saveButton);
         this.hboxSave.setAlignment(Pos.CENTER);
 
@@ -107,7 +107,7 @@ public class AddAitessController {
                 stage.close();
             }
         });
-        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#77ABAE", "#ffffff", "0", "10");
+        cancelButton.setButtonStyle("170", "30", "17", "Arial", "bold", "#ffffff", "#005C7A", "#ffffff", "0", "10");
         this.hboxCancel.getChildren().add(cancelButton);
         this.hboxCancel.setAlignment(Pos.CENTER);
 
