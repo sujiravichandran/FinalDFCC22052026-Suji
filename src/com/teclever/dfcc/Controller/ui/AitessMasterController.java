@@ -86,33 +86,39 @@ public class AitessMasterController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(7);
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(88);
+		secondRow.setPercentHeight(95);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(95);
 
 		aitessMasterGridPane.setPadding(new Insets(10));
 		aitessMasterGridPane.setVgap(5);
 
 		aitessMasterGridPane.getColumnConstraints().addAll(firstColumn);
-		aitessMasterGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		aitessMasterGridPane.getRowConstraints().addAll(firstRow, secondRow);
 
 		aitessMasterGridPane.add(headingGridPane(), 0, 0);
-		aitessMasterGridPane.add(aitessMasterMidContainer(), 0, 1);
-		aitessMasterGridPane.add(aitessMasterBottomContainer(), 0, 2);
+		aitessMasterGridPane.add(aitessMasterBottomContainer(), 0, 1);
+//		aitessMasterGridPane.add(aitessMasterBottomContainer(), 0, 2);
 		return aitessMasterGridPane;
 	}
+	
+	
 
 	public GridPane headingGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(50);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		headingGridPane.getColumnConstraints().addAll(firstColumn);
+		headingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		headingGridPane.getRowConstraints().addAll(firstRow);
 
 		headingGridPane.add(headingHbox(), 0, 0);
+		headingGridPane.add(createButtonHbox(), 1, 0);
 
 		return headingGridPane;
 
@@ -125,8 +131,17 @@ public class AitessMasterController {
 		headingHbox.getChildren().add(pageHeading);
 		return headingHbox;
 	}
+	
+	private HBox createButtonHbox() {
 
-	private HBox aitessMasterMidContainer() {
+		Button addButton = new Button("+ADD");
+		addButton.setOnAction(e -> onClickGETButton());
+		midHbox.getChildren().addAll( addButton);
+		midHbox.setAlignment(Pos.CENTER_RIGHT);
+		return midHbox;
+	}
+
+/*	private HBox aitessMasterMidContainer() {
 //		Label uutLabel = new Label("Select UUT Type:");
 //		uutLabel.getStyleClass().add("aitessMaster-combobox-Label");
 
@@ -141,6 +156,8 @@ public class AitessMasterController {
 		return midHbox;
 	}
 
+	*/
+	
 	private void onClickGETButton() {
 //	    String selectedUUTType = uutTypeField.getValue();
 	    
