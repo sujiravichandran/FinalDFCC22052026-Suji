@@ -61,6 +61,7 @@ public class OFPSymbolFilesController {
 				tableData.clear();
 				setAitessSymbolFilesTableData(newRunConfigId);
 			} else {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 			}
 		});
@@ -155,7 +156,7 @@ public class OFPSymbolFilesController {
 				}
 			}
 		}else {
-			Notifications.showWarningAlert("Please select UUT Type");
+			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
 		
 	}

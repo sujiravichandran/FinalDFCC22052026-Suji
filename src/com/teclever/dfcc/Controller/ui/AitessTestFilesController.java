@@ -50,6 +50,7 @@ public class AitessTestFilesController {
 				tableData.clear();
 				setAitessTestFilesTableData(newRunConfigId);
 			} else {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 			}
 		});

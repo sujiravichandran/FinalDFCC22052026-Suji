@@ -50,6 +50,7 @@ public class OFPTestFilesController {
 				tableData.clear();
 				setAitessTestFilesTableData(newRunConfigId);
 			} else {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 			}
 		});
@@ -148,7 +149,7 @@ public class OFPTestFilesController {
 		            }
 			 }
 		}else {
-			Notifications.showWarningAlert("Please select UUT Type");
+			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
 		
 		 

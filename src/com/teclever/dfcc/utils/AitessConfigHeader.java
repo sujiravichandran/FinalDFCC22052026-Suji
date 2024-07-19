@@ -36,13 +36,17 @@ public class AitessConfigHeader {
     private ComboBox<String> test_type_field = new ComboBox<>();
     private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
     private ObservableList<String> testTypeList = FXCollections.observableArrayList();
+    
+    
+    private ComboBox<String> ofpNameComboBox = new ComboBox<>();
+    private ObservableList<OfpConfigurationDto> ofpNameDataList;
+    private ObservableList<String> ofpNameList = FXCollections.observableArrayList();
 
     private GridPane aitessMiddleGridPane = new GridPane();
     private Label aitessTypeLabel = new Label("AITESS TYPE");
     private Label driverLabel = new Label("DRIVER");
     private Label configFileLabel = new Label("CONFIG FILE");
 
-    private ComboBox<String> ofpNameComboBox = new ComboBox<>();
     private Label ofpVersionLabel = new Label("OFP VERSION");
 
     private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
@@ -80,7 +84,7 @@ public class AitessConfigHeader {
 
     public AitessConfigHeader(String boxType) {
         this.boxType = boxType;
-        System.out.println("BOXTYPE: " + boxType);
+//        System.out.println("BOXTYPE: " + boxType);
         initializeUUTTypeComboBox();
         initializeTestTypeComboBox();
         
@@ -117,6 +121,7 @@ public class AitessConfigHeader {
         aitessMiddleGridPane.setPadding(new Insets(10));
 
         aitessMiddleGridPane.add(createUutTypeField(), 0, 0);
+        
         if (!boxType.equals("OFPMASTER")) {
             aitessMiddleGridPane.add(createConfigLabel(), 4, 0);
 
@@ -248,28 +253,23 @@ public class AitessConfigHeader {
         }
         uut_type_field.setItems(uutTypeList);
         uut_type_field.setOnAction((event) -> {
+        	this.RUN_CONFIG_ID.set(null);
             setUUT_ID(fetchUutId(uut_type_field.getValue()));
             UUT_id = fetchUutId(uut_type_field.getValue());
             if (boxType.equals("OFP")) {
-                List<OfpConfigurationDto> ofpConfigData = ofpConfig.getOfpConfig(UUT_id);
-                ofpNameComboBox.getItems().clear();
-                for (OfpConfigurationDto ofpConfigDto : ofpConfigData) {
-                    ofpNameComboBox.getItems().add(ofpConfigDto.getOfpName());
-                }
-                if (!ofpConfigData.isEmpty()) {
-                    ofpNameComboBox.setValue(ofpConfigData.get(0).getOfpName());
-                    fetchRunConfigIDForOFP(UUT_id);
-                } else {
-                    ofpNameComboBox.setValue("No OFP found");
-                }
+            	ofpNameList.clear();
+            	resetOfpLabel();
+            	initializeOfpNameComboBox();
             } else {
                 testTypeList.clear();
+                resetAitessLabel();
                 initializeTestTypeComboBox();
             }
         });
     }
 
-    private String fetchUutId(String uutType) {
+
+	private String fetchUutId(String uutType) {
         for (UUTMasterDetailsDto uut : uutDataList) {
             if (uut.getUutType().equals(uutType)) {
                 return uut.getUutId();
@@ -278,7 +278,29 @@ public class AitessConfigHeader {
         return null;
     }
 
-    private void initializeTestTypeComboBox() {
+    private void initializeOfpNameComboBox() {
+        ofpNameDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_id));
+        for (OfpConfigurationDto ofpName : ofpNameDataList) {
+            ofpNameList.add(ofpName.getOfpName());
+        }
+        ofpNameComboBox.setItems(ofpNameList);
+        ofpNameComboBox.setOnAction((event) -> fetchingOfpData());
+	}
+	
+    private String fetchOfpNameId(String ofpName) {
+        for (OfpConfigurationDto ofp : ofpNameDataList) {
+            if (ofp.getOfpName().equals(ofpName)) {
+            	ofpVersionLabel.setText(ofp.getOfpVersion());
+            	configFileLabel.setText(ofp.getConfigFile());
+                return ofp.getOfpConfigId();
+            }else {
+            	resetOfpLabel();
+            }
+        }
+        return null;
+    }
+
+	private void initializeTestTypeComboBox() {
         testTypeDataList = FXCollections.observableArrayList(runConfig.getTestTypeByUUTId(UUT_id));
         for (TestTypeMasterDetailsDto testType : testTypeDataList) {
             testTypeList.add(testType.getTestName());
@@ -296,34 +318,20 @@ public class AitessConfigHeader {
         return null;
     }
 
+    private void fetchingOfpData() {
+    	 String ofpConfigId = fetchOfpNameId(ofpNameComboBox.getValue());
+         this.RUN_CONFIG_ID.set(ofpConfigId);
+	}
+    
     private void fetchingTableData() {
+    	if (test_type_field.getValue() == null) {
+            return;
+        }
         String testTypeId = fetchTestTypeId(test_type_field.getValue());
         String runConfigId = fetchRunConfigID(testTypeId);
         this.RUN_CONFIG_ID.set(runConfigId);
     }
-
-    private String fetchRunConfigIDForOFP(String uutId) {
-        List<OfpConfigurationDto> allOfpConfigData = ofpConfig.getAllOfpConfig();
-        String runConfigId = null;
-        for (OfpConfigurationDto ofpConfigDto : allOfpConfigData) {
-            if (ofpConfigDto.getUutId().equals(UUT_id)) {
-                runConfigId = ofpConfigDto.getOfpConfigId();
-                ofpNameComboBox.setValue(ofpConfigDto.getOfpName());
-                ofpVersionLabel.setText(ofpConfigDto.getOfpVersion());
-                configFileLabel.setText(ofpConfigDto.getConfigFile());
-                break;
-            
-            } else {
-                ofpNameComboBox.setValue("OFP NAME");
-                ofpVersionLabel.setText("OFP VERSION");
-                configFileLabel.setText("CONFIG FILE");
-            }
-        }
-        return runConfigId;
-    }
-
-
-        
+      
     
     
     private String fetchRunConfigID(String testTypeID) {
@@ -337,13 +345,25 @@ public class AitessConfigHeader {
                 configFileLabel.setText(runConfigDto.getConfigFile());
                 break;
             } else {
-                aitessTypeLabel.setText("AITESS TYPE");
-                driverLabel.setText("DRIVER");
-                configFileLabel.setText("CONFIG FILE");
+                resetAitessLabel();
             }
+        }
+        if(runConfigId == null) {
+        	test_type_field.setValue(null);
+        	Notifications.showErrorAlert("Run configuration not done for this UUT and Test Type..");
         }
         return runConfigId;
     }
     
+    private void resetAitessLabel() {
+    	 aitessTypeLabel.setText("AITESS TYPE");
+         driverLabel.setText("DRIVER");
+         configFileLabel.setText("CONFIG FILE");
+    }
+    
+    private void resetOfpLabel() {
+    	ofpVersionLabel.setText("OFP VERSION");
+    	configFileLabel.setText("CONFIG FILE");
+    }
    
 }
