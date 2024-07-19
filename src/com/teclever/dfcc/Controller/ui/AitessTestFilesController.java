@@ -165,7 +165,9 @@ public class AitessTestFilesController {
 	}
 
 	private void setAitessTestFilesTableData(String runConfigId) {
+		System.out.println("Aitess Run Config Id");
 		List<TestFileDto> testFileList = testPlanFileManagement.getAllTestFiles(runConfigId);
+		
 
 		for (TestFileDto testFileDto : testFileList) {
 			AitessTestFiles testFileData = new AitessTestFiles();

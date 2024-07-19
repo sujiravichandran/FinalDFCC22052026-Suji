@@ -442,7 +442,7 @@ e.printStackTrace();
 				listStagesFiles.add(stagesFilesDTO);
 			}
 			response.setResponseList(listStagesFiles);
-			response.setCode(11);
+			response.setCode(1);
 			response.setMsg("Fetched");
 		} catch (Exception ex) {
 			response.setCode(0);

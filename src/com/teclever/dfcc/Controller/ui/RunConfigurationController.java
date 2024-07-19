@@ -465,7 +465,7 @@ public class RunConfigurationController {
 
 	private void deleteRunConfig(String runConfigId) {
 		RunConfigurationManagement runConfManagement = new RunConfigurationManagement();
-	//runConfManagement.deleteRunConfig(runConfigId);
+	    //runConfManagement.deleteRunConfig(runConfigId);
 		runConfManagement.deleteRunConfigById(runConfigId);
 		runuutTypeAction();
 

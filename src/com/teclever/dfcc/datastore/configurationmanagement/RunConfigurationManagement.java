@@ -73,6 +73,7 @@ public class RunConfigurationManagement {
 			if (serviceResponse.getResponseCode() == 1) {
 				String runConfigId = runConfiguration.getRunConfigId();
 				System.out.println(runConfigId);
+				System.out.println("Run Config Id With TestType Id"+runConfigurationDto.getTestTypeId());
 
 				// updating run path master table
 				updatePathsInDatabase(runConfiguration);
@@ -172,7 +173,7 @@ public class RunConfigurationManagement {
 	//API To Delete New
 	public Response deleteRunConfigById(String runConfigId)	
 	{
-		
+		System.out.println("Run Config Id"+runConfigId);
 		Response res = new Response();
 		try {
 	    RunConfigurationService service = new RunConfigurationService();
@@ -184,7 +185,11 @@ public class RunConfigurationManagement {
 	    String macroPathMasterId = map.get("macros");
 	    String symbolPathMasterId = map.get("symbols");
 	    String downloadPathMasterId = map.get("download");
-	    
+	    System.out.println("RunPathIds Below");
+	    System.out.println("testPathMasterId"+testPathMasterId);
+	    System.out.println("macroPathMasterId"+macroPathMasterId);
+	    System.out.println("symbolPathMasterId"+symbolPathMasterId);
+	    System.out.println("downloadPathMasterId"+downloadPathMasterId);
 	    //Test File Delete From TestFiles List
 	    TestFileService testFileService = new TestFileService();
         Response testFileResponse = testFileService.deleteTestFiles(testPathMasterId);

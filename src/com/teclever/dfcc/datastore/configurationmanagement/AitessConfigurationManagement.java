@@ -199,7 +199,7 @@ public class AitessConfigurationManagement {
 				cardDTOList.add(cardDetailsDTO);
 			}
 			response.setCardLst(cardDTOList);
-			response.setCode(11);
+			response.setCode(1);
 			response.setMsg("Fetched" + res.getMsg());
 			if (cardList.size() > 0) {
 				response.seteMsg(res.geteMsg());
