@@ -11,7 +11,11 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.StageLevelResponse;
+import com.teclever.datastore.entities.LevelFiveStageMaster;
+import com.teclever.datastore.entities.LevelFourStageMaster;
 import com.teclever.datastore.entities.LevelOneStageMaster;
+import com.teclever.datastore.entities.LevelThreeStageMaster;
+import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
@@ -40,6 +44,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionManagement {
+	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
 
 	// SESSION ENTITY : SAVE SESSION
 	public Response saveSession(SessionDTO sessionDTO) {
@@ -70,6 +75,9 @@ public class SessionManagement {
 			StateMachine.currentSessionDetails.setSessionId(sessionId);
 
 			List<SessionToStagesMappingDTO> sessionStages = sessionDTO.getSessionStagesList();
+
+			sessionStages.addAll(getAdvanceTestSubLevelData(sessionDTO.getUutId()));
+
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
 				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
@@ -136,7 +144,6 @@ public class SessionManagement {
 			List<LevelOneDto> listOfLevelOnDto = new ArrayList<>();
 			for (Object levelOneStageMaster : listOfLevelOneStage) {
 				LevelOneResponseDto levelOneEntity = (LevelOneResponseDto) levelOneStageMaster;
-//System.out.println("levelOneEntity.getLevelOneId()------"+levelOneEntity.getLevelOneId());
 				LevelOneDto levelOneDto = new LevelOneDto();
 				levelOneDto.setLevelOneId(levelOneEntity.getLevelOneId());
 				levelOneDto.setStageName(levelOneEntity.getStageName());
@@ -175,7 +182,7 @@ public class SessionManagement {
 			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
 
 			Map<String, LevelOneStageMaster> levelOneStageWithObject = levelOneService.getAllLevelOneWithId();
-			
+
 			LevelTwoMasterService levelTwoService = new LevelTwoMasterService();
 			Map<String, String> levelTwoStage = levelTwoService.getAllLevelIdAndLevelName();
 
@@ -189,7 +196,7 @@ public class SessionManagement {
 			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
 
 			List<StageObject> listOfStageObject = new ArrayList<>();
-			
+
 			for (Object object : getResponse.getResponseList()) {
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
 				StageObject stageObject = new StageObject();
@@ -211,12 +218,16 @@ public class SessionManagement {
 				stageObject.setTestTypeId(sessionStage.getTestTypeId());
 
 				stageObject.setStatus(sessionStage.getStatus());
-				
-				stageObject.setMandatoryStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isMandatory());
-				stageObject.setContinueWithErrorStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isContinuewitheror());
-				stageObject.setAdvanceStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isAdvancestatus());
-				stageObject.setDefaultStatus(levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
-				
+
+				stageObject.setMandatoryStatus(
+						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isMandatory());
+				stageObject.setContinueWithErrorStatus(
+						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isContinuewitheror());
+				stageObject.setAdvanceStatus(
+						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isAdvancestatus());
+				stageObject.setDefaultStatus(
+						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
+
 				listOfStageObject.add(stageObject);
 			}
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
@@ -312,7 +323,7 @@ public class SessionManagement {
 				}
 				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
 			}
-			
+
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull");
 			sessionDtoResponse.setResponse(res);
@@ -324,21 +335,171 @@ public class SessionManagement {
 		}
 		return sessionDtoResponse;
 	}
-	
+
 	public Response updateLoginSession(String input) {
-		Response res= new Response();
+		Response res = new Response();
 		try {
 			LoginSessionService loginSessionService = new LoginSessionService();
-			if(input !=null && input.equals("LOGOUT")) {
-				res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), null, new Date());
-			}else {
-				res=loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), currentSessionDetails.getSessionId(), null);
+			if (input != null && input.equals("LOGOUT")) {
+				res = loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), null,
+						new Date());
+			} else {
+				res = loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(),
+						currentSessionDetails.getSessionId(), null);
 			}
-			
+
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Update Login Session Unsuccessful ");
 		}
 		return res;
+	}
+
+	private List<SessionToStagesMappingDTO> getAdvanceTestSubLevelData(String uutId) {
+
+		List<SessionToStagesMappingDTO> listOfSessionToStagesMappingDTO = new ArrayList<>();
+		try {
+			String advanceLevelOne = null;
+			String advanceLevelTwo = null;
+			String lruLevelOneId = null;
+			String lruLevelTwoId = null;
+			List<String> advaceLevelList = new ArrayList<>();
+
+			LevelOneMasterService levelOneMasterService = new LevelOneMasterService();
+			List<LevelOneResponseDto> levelOneList = levelOneMasterService.getLevelOneByUUTId(uutId);
+
+			for (LevelOneResponseDto levelOneId : levelOneList) {
+				if (levelOneId.isAdvanceTestStatus()) {
+					advanceLevelOne = levelOneId.getLevelOneId();
+				}
+				if (levelOneId.getStageName().startsWith("LRU")) {
+					lruLevelOneId = levelOneId.getLevelOneId();
+				}
+			}
+
+			LevelTwoMasterService levelTwoService = new LevelTwoMasterService();
+			Map<String, List<LevelTwoStageMaster>> levelTwoMap = levelTwoService.getListOfEntityWithParentId();
+
+			List<LevelTwoStageMaster> advanceLevelList = levelTwoMap.get(advanceLevelOne);
+			for (LevelTwoStageMaster l2 : advanceLevelList) {
+				if (l2.getStageName().equalsIgnoreCase("Interface")) {
+					advanceLevelTwo = l2.getLevelTwoStageId();
+
+				} else {
+
+					if (l2.getNextLevel().equals("N")) {
+						listOfSessionToStagesMappingDTO.add(
+								objCreation(advanceLevelOne, advanceLevelTwo, null, null, null, l2.getTestTypeId()));
+					} else if (l2.getNextLevel().equals("Y")) {
+
+						advaceLevelList.add(l2.getLevelTwoStageId());
+					}
+				}
+
+			}
+			List<LevelTwoStageMaster> lruLevellist = levelTwoMap.get(lruLevelOneId);
+			for (LevelTwoStageMaster l2 : lruLevellist) {
+				if (l2.getStageName().startsWith("SRU")) {
+					lruLevelTwoId = l2.getLevelTwoStageId();
+				}
+			}
+
+//			System.out.println("advanceLevelOne  " + advanceLevelOne + "   lruLevelOneId " + lruLevelOneId);
+//			System.out.println("advanceLevelTwo  " + advanceLevelTwo + "   lruLevelTwoId " + lruLevelTwoId);
+
+			LevelThreeService levelThreeService = new LevelThreeService();
+			Map<String, List<LevelThreeStageMaster>> levelThreeMap = levelThreeService.getListOfEntityWithParentId();
+
+			LevelFourMasterSevice levelFourService = new LevelFourMasterSevice();
+			Map<String, List<LevelFourStageMaster>> levelFourMap = levelFourService.getListOfEntityWithParentId();
+
+			LevelFiveMasterService levelFiveService = new LevelFiveMasterService();
+			Map<String, List<LevelFiveStageMaster>> levelFiveMap = levelFiveService.getListOfEntityWithParentId();
+
+			listOfSessionToStagesMappingDTO.addAll(getSubStagesIdsWithTestType(lruLevelTwoId, advanceLevelOne,
+					advanceLevelTwo, levelThreeMap, levelFourMap, levelFiveMap));
+
+			for (String levelTwoIds : advaceLevelList) {
+				listOfSessionToStagesMappingDTO.addAll(getSubStagesIdsWithTestType(levelTwoIds, advanceLevelOne,
+						advanceLevelTwo, levelThreeMap, levelFourMap, levelFiveMap));
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listOfSessionToStagesMappingDTO;
+	}
+
+	private SessionToStagesMappingDTO objCreation(String l1, String l2, String l3, String l4, String l5,
+			String testTypeId) {
+
+		SessionToStagesMappingDTO sessionToStagesMappingDTO = new SessionToStagesMappingDTO();
+		sessionToStagesMappingDTO.setLevelOneStageId(l1);
+		sessionToStagesMappingDTO.setLevelTwoStageId(l2);
+		sessionToStagesMappingDTO.setLevelThreeStageId(l3);
+		sessionToStagesMappingDTO.setLevelFourStageId(l4);
+		sessionToStagesMappingDTO.setLevelFiveStageId(l5);
+		sessionToStagesMappingDTO.setTestTypeId(testTypeId);
+
+		return sessionToStagesMappingDTO;
+
+	}
+
+	private List<SessionToStagesMappingDTO> getSubStagesIdsWithTestType(String lruLevelTwoId, String advanceLevelOne,
+			String advanceLevelTwo, Map<String, List<LevelThreeStageMaster>> levelThreeMap,
+			Map<String, List<LevelFourStageMaster>> levelFourMap,
+			Map<String, List<LevelFiveStageMaster>> levelFiveMap) {
+		List<SessionToStagesMappingDTO> listOfSessionToStagesMappingDTO = new ArrayList<>();
+		try {
+			// IF (1)- Checking LevelThree Have LevekTwo Id as parent Id
+			if (levelThreeMap.get(lruLevelTwoId) != null) {
+
+				List<LevelThreeStageMaster> levelThreelist = levelThreeMap.get(lruLevelTwoId);
+				// FOR (1)
+				for (LevelThreeStageMaster l3 : levelThreelist) {
+
+					if (l3.getNextLevel().equals("N")) {
+						listOfSessionToStagesMappingDTO.add(objCreation(advanceLevelOne, advanceLevelTwo,
+								l3.getLevelThreeStageId(), null, null, l3.getTestTypeId()));
+					} else if (l3.getNextLevel().equals("Y")) {
+						// IF (2)
+						if (levelFourMap.get(l3.getLevelThreeStageId()) != null) {
+							List<LevelFourStageMaster> l4stage = levelFourMap.get(l3.getLevelThreeStageId());
+							// FOR (2)
+							for (LevelFourStageMaster l4 : l4stage) {
+								if (l4.getNextLevel().equals("N")) {
+									listOfSessionToStagesMappingDTO.add(
+											objCreation(advanceLevelOne, advanceLevelTwo, l3.getLevelThreeStageId(),
+													l4.getLevelFourStageId(), null, l4.getTestTypeId()));
+
+								} else if (l4.getNextLevel().equals("Y")) {
+									// IF (3)
+									if (levelFiveMap.get(l4.getLevelFourStageId()) != null) {
+										List<LevelFiveStageMaster> l5stage = levelFiveMap.get(l4.getLevelFourStageId());
+										// FOR (3)
+										for (LevelFiveStageMaster l5 : l5stage) {
+											if (l4.getNextLevel().equals("N")) {
+												listOfSessionToStagesMappingDTO
+														.add(objCreation(advanceLevelOne, advanceLevelTwo,
+																l3.getLevelThreeStageId(), l4.getLevelFourStageId(),
+																l5.getLevelFiveStageId(), l5.getTestTypeId()));
+
+											}
+										} // For (3)
+
+									} // IF (3)
+								}
+							} // FOR (2)
+						} // IF (2)
+					}
+				} // For (1)
+			} // IF (1)
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+
+		return listOfSessionToStagesMappingDTO;
 	}
 }
