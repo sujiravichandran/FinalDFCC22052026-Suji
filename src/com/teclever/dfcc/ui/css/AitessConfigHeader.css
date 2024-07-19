@@ -13,13 +13,15 @@
 
 .label_field{
 	-fx-background-color: transparent;
-	-fx-background-radius: 5px;
-	-fx-border-radius: 5px;
 	-fx-text-fill:primary-text-color;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
-	-fx-border-color:primary-text-color;
-	-fx-border-width:2px;
+
+}
+
+.hbox_field{
+	 -fx-border-radius: 5.0px;
+	 -fx-border-color: light-bg;
 }
 
 .list-cell {

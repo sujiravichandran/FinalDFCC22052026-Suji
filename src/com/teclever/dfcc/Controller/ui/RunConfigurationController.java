@@ -211,10 +211,10 @@ public class RunConfigurationController {
 		midGridPane.getRowConstraints().addAll(firstRow);
 
 		midGridPane.add(createUUTypeComboBox(), 0, 0);
-		midGridPane.add(createTestTypeComboBox(), 1, 0);
-		midGridPane.add(createAitessType(), 2, 0);
-		midGridPane.add(createDriverNameLabel(), 3, 0);
-		midGridPane.add(createConfigLabel(), 4, 0);
+//		midGridPane.add(createTestTypeComboBox(), 1, 0);
+//		midGridPane.add(createAitessType(), 2, 0);
+//		midGridPane.add(createDriverNameLabel(), 3, 0);
+//		midGridPane.add(createConfigLabel(), 4, 0);
 
 		midGridPane.getStyleClass().add("runConfiguration-Container");
 //	midGridPane.getChildren().addAll(midHBoxUUTType);
@@ -340,6 +340,17 @@ public class RunConfigurationController {
 	}
 
 	private void onClickGETButton() {
+		 String selectedUUTType = uutTypeField.getValue();
+		    
+		    if (selectedUUTType == null || selectedUUTType.isEmpty()) {
+		        // Show alert because UUT type is not selected
+		        Alert alert = new Alert(AlertType.WARNING);
+		        alert.setTitle("Warning");
+		        alert.setHeaderText(null);
+		        alert.setContentText("Please select a UUT Type.");
+
+		        alert.showAndWait();
+		    } else {
 		try {
 			FXMLLoader loader = new FXMLLoader(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddRun.fxml"));
 			Parent root = loader.load();
@@ -363,7 +374,7 @@ public class RunConfigurationController {
 			e.printStackTrace();
 		}
 	}
-
+	}
 	private HBox runConfigurationBottomContainer() {
 		bottomHbox.getStyleClass().add("runConfiguration-Container");
 

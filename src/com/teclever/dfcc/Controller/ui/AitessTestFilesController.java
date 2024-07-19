@@ -115,6 +115,7 @@ public class AitessTestFilesController {
 
 		Button addFileButton = new Button("ADD FILE");
 		addFileButton.setOnAction(e -> onClickAddFileButton());
+		
 		HBox headerButtonHbox = new HBox(10);
 
 		headerButtonHbox.setAlignment(Pos.CENTER_RIGHT);

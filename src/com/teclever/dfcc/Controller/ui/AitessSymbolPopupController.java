@@ -57,7 +57,7 @@ public class AitessSymbolPopupController {
 		maxColumn.setCellValueFactory(new PropertyValueFactory<>("max"));
 		maxColumn.setReorderable(false);
 		maxColumn.setSortable(false);
-		maxColumn.setStyle("-fx-alignment: CENTER;");
+		maxColumn.setStyle("-fx-alignment: CENTER;");					
 	}
 
 

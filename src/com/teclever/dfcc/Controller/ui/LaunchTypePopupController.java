@@ -7,6 +7,7 @@ import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -76,7 +77,7 @@ public class LaunchTypePopupController {
 		option2Label.setText("Bel-Admin , Squadron-Admin , Squadron-User");
 		
 	
-		closeButton.setOnAction(e -> closeLaunchTypePopup());
+//		closeButton.setOnAction(e -> closeLaunchTypePopup());
 		
 		saveButton.setOnAction(e -> saveLaunchType());
 		
@@ -100,18 +101,12 @@ public class LaunchTypePopupController {
 		}
 		
 	}
-
-	private void closeLaunchTypePopup() {
+	 @FXML
+	 void closeLaunchTypePopup(ActionEvent event) {
 		Stage stage = (Stage) launchTypeMainContainer.getScene().getWindow();
 		stage.close();
 	}
 }
-
-
-
-
-
-
 
 
 
