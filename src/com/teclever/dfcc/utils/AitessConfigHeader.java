@@ -347,6 +347,7 @@ public class AitessConfigHeader {
 		for (RunConfigurationDto runConfigDto : allRunConfigData) {
 			if (runConfigDto.getUutId().equals(UUT_id) && runConfigDto.getTestTypeId().equals(testTypeID)) {
 				runConfigId = runConfigDto.getRunConfigId();
+				System.out.println("Test Type Id"+ runConfigId );
 				aitessTypeLabel.setText(runConfigDto.getAitess());
 				driverLabel.setText(runConfigDto.getDriver());
 				configFileLabel.setText(runConfigDto.getConfigFile());

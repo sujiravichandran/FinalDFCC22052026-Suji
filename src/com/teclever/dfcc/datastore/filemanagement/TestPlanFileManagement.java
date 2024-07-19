@@ -30,6 +30,7 @@ public class TestPlanFileManagement {
 		try {
 			TestFileService testFileService = new TestFileService();
 			List<String> runPathMasterIds = testFileService.getRunPathMasterIdsByRunConfigId(runConfigId);
+			System.out.println("List of Run PathMastet Id:"+runPathMasterIds.toString());
 
 			// Fetch test files based on runPathMasterIds and deleteStatus
 			for (String runPathMasterId : runPathMasterIds) {
