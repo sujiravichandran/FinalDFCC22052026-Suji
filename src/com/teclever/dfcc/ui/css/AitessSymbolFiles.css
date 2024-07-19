@@ -22,8 +22,6 @@
 	-fx-text-fill: primary-text-color;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
-	-fx-border-color: primary-text-color;
-	-fx-border-width:2px;
 }
 
 .list-cell {

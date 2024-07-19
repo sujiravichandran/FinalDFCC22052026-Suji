@@ -26,8 +26,8 @@
     -fx-border-width: 0px;
 }
 .table-row-cell {
-	-fx-border-color: secondary-text-color;
-	-fx-border-width: 5px;
+	-fx-border-color: primary-text-color;
+	-fx-border-width: 2px;
 	-fx-border-style: solid;
 	-fx-border-radius: 10.0px;
 	-fx-background-color: table-row-bg;

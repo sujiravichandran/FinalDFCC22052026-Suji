@@ -58,6 +58,7 @@ public class OFPMacroFilesController {
 				tableData.clear();
 				setAitessMacroFilesTableData(newRunConfigId);
 			} else {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 			}
 		});
@@ -169,7 +170,7 @@ public class OFPMacroFilesController {
 			}
 		}
 		}else {
-			Notifications.showWarningAlert("Please select UUT Type");
+			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
 	}
 	private void setAitessMacroFilesTableData(String runConfigId) {

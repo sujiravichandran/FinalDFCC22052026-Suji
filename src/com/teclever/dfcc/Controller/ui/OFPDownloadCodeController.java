@@ -50,6 +50,7 @@ public class OFPDownloadCodeController {
 				tableData.clear();
 				setAitessDownloadCodeTableData(newRunConfigId);
 			} else {
+				this.RUN_CONFIG_ID = newRunConfigId;
 				tableData.clear();
 			}
 		});
@@ -161,7 +162,7 @@ public class OFPDownloadCodeController {
 				}
 			}
 		}else {
-			Notifications.showWarningAlert("Please select UUT Type and Test Type");
+			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
 
 }

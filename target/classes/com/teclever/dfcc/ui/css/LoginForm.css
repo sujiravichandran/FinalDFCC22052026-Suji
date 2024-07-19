@@ -45,7 +45,7 @@
 
 
 .admin-password-change-popup{
-	-fx-background-color: primary-color;
+	-fx-background-color: form-bg;
 	-fx-padding: 15px;
 	-fx-border-radius: 10px;
 	-fx-background-radius: 10px;
@@ -67,6 +67,11 @@
 	-fx-border-radius: 5px;
 	-fx-background-radius: 5px;
 	-fx-padding: 10px;
+}
+.admin-password-change-popup .show-password-checkbox{
+	-fx-font-size: 16px;
+	-fx-font-weight: bold;
+	-fx-text-fill: form-label;
 }
 
 .admin-password-change-popup .popup-btn{
