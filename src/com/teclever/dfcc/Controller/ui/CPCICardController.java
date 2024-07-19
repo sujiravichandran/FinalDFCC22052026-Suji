@@ -54,10 +54,10 @@ public class CPCICardController {
 	
 	private Button addUserBtn = new Button();
 	
-	private ComboBox<String> uut_type_field;
-	private ObservableList<UUTMasterDetailsDto> uutDataList;
+//	private ComboBox<String> uut_type_field;
+//	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
-	private String UUT_ID;
+//	private String UUT_ID;
 	private int AITESS_ID;
 
 	private ComboBox<String> driver_type_field ;
@@ -75,9 +75,10 @@ public class CPCICardController {
 	
 	
 	public CPCICardController() {
-		uut_type_field = new ComboBox<>();
+//		uut_type_field = new ComboBox<>();
 		driver_type_field = new ComboBox<>();
-		initializeUUTTypeComboBox();
+		initializeDriverTypeComboBox();
+//		initializeUUTTypeComboBox();
 //		initializeCpciCardTable();
 	}
 	
@@ -161,23 +162,23 @@ public class CPCICardController {
 			cpciCardOptionGridPane.setAlignment(Pos.CENTER);
 			cpciCardOptionGridPane.setPadding(new Insets(10));
 
-			cpciCardOptionGridPane.add(createUutTypeField(), 0, 0);
-			cpciCardOptionGridPane.add(createDriverTypeField(), 1, 0);
-			cpciCardOptionGridPane.add(createDriverVersion(), 2, 0);
+//			cpciCardOptionGridPane.add(createUutTypeField(), 0, 0);
+			cpciCardOptionGridPane.add(createDriverTypeField(), 0, 0);
+//			cpciCardOptionGridPane.add(createDriverVersion(), 2, 0);
 
 
 			cpciCardOptionGridPane.getStyleClass().add("cpci-card-option-container");
 			return cpciCardOptionGridPane;
 		}
-		private HBox createUutTypeField() {
-			uut_type_field.setPromptText("UUT TYPE");
+	/*	private HBox createUutTypeField() {
+//			uut_type_field.setPromptText("UUT TYPE");
 
 			HBox uutTypeHBox = new HBox(10);
 			uutTypeHBox.setAlignment(Pos.CENTER);
-			uutTypeHBox.getChildren().add(uut_type_field);
+//			uutTypeHBox.getChildren().add(uut_type_field);
 
 			return uutTypeHBox;
-		}
+		}*/
 		
 		private HBox createDriverTypeField() {
 			driver_type_field.setPromptText("DRIVER TYPE");
@@ -220,7 +221,7 @@ public class CPCICardController {
 		}
 		
 		
-		private void initializeUUTTypeComboBox() {
+	/*	private void initializeUUTTypeComboBox() {
 			uutDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAllUUT());
 			for (UUTMasterDetailsDto uut : uutDataList) {
 				uutTypeList.add(uut.getUutType());
@@ -238,16 +239,16 @@ public class CPCICardController {
 				initializeDriverTypeComboBox();
 			});
 			
-		}
+		}*/
 
-		private String fetchUutId(String uutType) {
+		/*private String fetchUutId(String uutType) {
 			for (UUTMasterDetailsDto uut : uutDataList) {
 				if (uut.getUutType().equals(uutType)) {
 					return uut.getUutId();
 				}
 			}
 			return null;
-		}
+		}*/
 		
 
 		private void initializeDriverTypeComboBox() {

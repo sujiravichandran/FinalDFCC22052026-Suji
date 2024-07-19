@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -128,18 +129,10 @@
                   </TextField>
                </children>
             </VBox>
-            <HBox prefHeight="73.0" prefWidth="300.0">
+            <HBox alignment="CENTER" prefHeight="73.0" prefWidth="300.0" spacing="10.0">
                <children>
-                  <HBox fx:id="hboxSave" prefHeight="100.0" prefWidth="150.0">
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin>
-                  </HBox>
-                  <HBox fx:id="hboxCancel" prefHeight="100.0" prefWidth="150.0">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </HBox>
+                  <Button fx:id="saveButton" mnemonicParsing="false" text="SAVE" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" text="CANCEL" />
                </children>
             </HBox>
          </children>
