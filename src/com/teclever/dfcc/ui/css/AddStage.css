@@ -52,6 +52,8 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px; 
+    -fx-border-color: transparent; 
+    -fx-cursor:hand;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 

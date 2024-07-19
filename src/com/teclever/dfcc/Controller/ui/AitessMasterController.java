@@ -134,7 +134,7 @@ public class AitessMasterController {
 	
 	private HBox createButtonHbox() {
 
-		Button addButton = new Button("+ADD");
+		Button addButton = new Button("ADD AITESS");
 		addButton.setOnAction(e -> onClickGETButton());
 		midHbox.getChildren().addAll( addButton);
 		midHbox.setAlignment(Pos.CENTER_RIGHT);

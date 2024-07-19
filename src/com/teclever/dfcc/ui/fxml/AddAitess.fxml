@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="adduser" prefHeight="564.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
+<Pane fx:id="adduser" prefHeight="564.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
@@ -129,15 +129,15 @@
                   </TextField>
                </children>
             </VBox>
-            <HBox alignment="CENTER" prefHeight="73.0" prefWidth="300.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="73.0" prefWidth="300.0" spacing="110.0">
                <children>
-                  <Button fx:id="saveButton" mnemonicParsing="false" text="SAVE" />
-                  <Button fx:id="cancelButton" mnemonicParsing="false" text="CANCEL" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" text="Close" />
+                  <Button fx:id="saveButton" mnemonicParsing="false" text="Save" />
                </children>
             </HBox>
          </children>
          <padding>
-            <Insets bottom="10.0" left="50.0" right="50.0" top="20.0" />
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </padding>
       </VBox>
    </children>
