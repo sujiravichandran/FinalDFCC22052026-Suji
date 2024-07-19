@@ -607,10 +607,13 @@ public class SessionCreationController {
 		Map<String, SubStage> subStageMap = new HashMap<>();
 
 		for (StageOne stage : stageList) {
+			if(stage.isAdvancedTest()) {
+				continue ;
+			}
 			CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
 			rootItem.getChildren().add(item);
 			addSubStages(item, stage.getId(), subStageMap);
-			if (stage.isAdvancedTest() || stage.isDefault()) {
+			if (stage.isDefault()) {
 				item.setDisabled(true);
 				item.setSelected(true);
 			}
