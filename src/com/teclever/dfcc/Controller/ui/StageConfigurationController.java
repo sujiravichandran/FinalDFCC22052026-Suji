@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.apache.poi.hssf.record.PageBreakRecord.Break;
-
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
@@ -27,6 +25,7 @@ import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -106,7 +105,7 @@ public class StageConfigurationController {
 
 	public GridPane stageConfigParentGrid() {
 		stageParentGrid.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/StageConfiguration.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/StageConfiguration.css").toExternalForm());
 
 		stageParentGrid.getStyleClass().add("stageConfig-main-container");
 		ColumnConstraints column1 = new ColumnConstraints();
@@ -205,13 +204,13 @@ public class StageConfigurationController {
 	}
 
 	private VBox stageConfigTreeView() {
-		
-	    addNewStageButton.setDisable(true);
 
-	    stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-	        addNewStageButton.setDisable(newValue.trim().isEmpty());
-	    });
-	    
+		addNewStageButton.setDisable(true);
+
+		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+			addNewStageButton.setDisable(newValue.trim().isEmpty());
+		});
+
 		addNewStageButton.setOnAction(e -> addNewStage());
 
 		HBox stage1HBox = new HBox(10, stageNameField, addNewStageButton);
@@ -290,35 +289,10 @@ public class StageConfigurationController {
 		sessionTreeView.setRoot(root);
 		sessionTreeView.getStyleClass().add("tree-view");
 		sessionTreeView.setShowRoot(false);
-		sessionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null) {
-				String stageId = newValue.getValue().getId();
-				Node selectedNode = newValue.getValue();
-				Map<String, String> testInfoMap = extractTestTypeInfoFromNode(selectedNode);
-				if (testInfoMap != null) {
-					String testTypeID = testInfoMap.get("testTypeName");
-					RUN_CONFIG_ID = fetchRunConfigID(testTypeID);
 
-					if (RUN_CONFIG_ID != null) {
-						ObservableList<Node> children = stageConfigBottomGridPane.getChildren();
-						children.removeIf(
-								node -> GridPane.getRowIndex(node) == 0 && GridPane.getColumnIndex(node) == 1);
-						stageConfigBottomGridPane.add(testMapingController.TestMappingView(RUN_CONFIG_ID, stageId), 1,
-								0);
-					} else {
-						stageConfigBottomGridPane.getChildren().removeIf(
-								node -> GridPane.getColumnIndex(node) == 1 && GridPane.getRowIndex(node) == 0);
+		sessionTreeView.getSelectionModel().selectedItemProperty().removeListener(selectionListener);
+		sessionTreeView.getSelectionModel().selectedItemProperty().addListener(selectionListener);
 
-						Label warningLabel = createLabel("Please add test files for selected test type",
-								"warning-label");
-						HBox warningBox = new HBox(10, warningLabel);
-						warningBox.setAlignment(Pos.CENTER);
-						stageConfigBottomGridPane.add(warningBox, 1, 0);
-					}
-
-				}
-			}
-		});
 		sessionTreeView.setCellFactory(tv -> new TreeCell<Node>() {
 			@Override
 			protected void updateItem(Node item, boolean empty) {
@@ -339,6 +313,40 @@ public class StageConfigurationController {
 			}
 		});
 	}
+
+	private final ChangeListener<TreeItem<Node>> selectionListener = (observable, oldValue, newValue) -> {
+		if (newValue != null) {
+			Node selectedNode = newValue.getValue();
+
+			Boolean isInterfaceTest = extractStageName(selectedNode);
+			if (isInterfaceTest) {
+				String message = "This configuration is similar to the SRU Test configuration.\n"
+						+ "Move LRU/SRU/... path to view the configuration.";
+				Notifications.showWarningAlert(message);
+			}
+
+			Map<String, String> testInfoMap = extractTestTypeInfoFromNode(selectedNode);
+			if (testInfoMap != null) {
+				String testTypeID = testInfoMap.get("testTypeName");
+				RUN_CONFIG_ID = fetchRunConfigID(testTypeID);
+
+				if (RUN_CONFIG_ID != null) {
+					stageConfigBottomGridPane.getChildren()
+							.removeIf(node -> GridPane.getRowIndex(node) == 0 && GridPane.getColumnIndex(node) == 1);
+					stageConfigBottomGridPane
+							.add(testMapingController.TestMappingView(RUN_CONFIG_ID, selectedNode.getId()), 1, 0);
+				} else {
+					stageConfigBottomGridPane.getChildren()
+							.removeIf(node -> GridPane.getColumnIndex(node) == 1 && GridPane.getRowIndex(node) == 0);
+
+					Label warningLabel = createLabel("Please add test files for selected test type", "warning-label");
+					HBox warningBox = new HBox(10, warningLabel);
+					warningBox.setAlignment(Pos.CENTER);
+					stageConfigBottomGridPane.add(warningBox, 1, 0);
+				}
+			}
+		}
+	};
 
 	private String fetchRunConfigID(String testTypeID) {
 		List<RunConfigurationDto> allRunConfigData = runConfig.getAllRunConfig();
@@ -371,6 +379,22 @@ public class StageConfigurationController {
 		return null;
 	}
 
+	private boolean extractStageName(Node node) {
+
+		if (node instanceof GridPane) {
+			GridPane gridPane = (GridPane) node;
+			for (Node child : gridPane.getChildren()) {
+				if (child instanceof Label) {
+					Label newLabel = (Label) child;
+					if (newLabel.getText().trim().toLowerCase().equals("interface")) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	private String fetchTestTypeNameById(String testTypeId) {
 		testTypeDataList = FXCollections.observableArrayList(runConfig.getTestTypeByUUTId(UUT_ID));
 		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
@@ -401,21 +425,18 @@ public class StageConfigurationController {
 			labelContainer.getChildren().add(sessionTypeHbox);
 		}
 
-		Button addBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/AddIcon.png", "ADD",
+		Button addBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage1.getId(), stage1.getL1_name()));
-		Button editBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/Edit.png", "Edit", event -> editStage1(stage1));
-		Button delBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/delete.png", "DEL", event -> deleteStage(stage1.getId()));
+		Button editBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/Edit.png", "Edit",
+				event -> editStage1(stage1));
+		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
+				event -> deleteStage(stage1.getId()));
 
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
 		buttonsContainer.setVisible(false);
-//		if(stage1.isDefault()) {
-//			buttonsContainer.getChildren().addAll(addBtn);
-//		}else {
-//			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
-//		}
-		
-		if(!stage1.isDefault() && !stage1.isAdvancedTest()){
+
+		if (!stage1.isDefault() && !stage1.isAdvancedTest()) {
 			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
 		}
 
@@ -440,10 +461,11 @@ public class StageConfigurationController {
 
 		Label stageLabel = createLabel(stage.getL_name(), "stage-label");
 
-		Button addBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/AddIcon.png", "ADD",
+		Button addBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage.getId(), stage.getL_name()));
-		Button delBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/delete.png", "DEL", event -> deleteStage(stage.getId()));
-		Button editBtn = createImageButton(DFCCConstant.JARSTRING+"/Resources/Images/Edit.png", "Edit", event -> {
+		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
+				event -> deleteStage(stage.getId()));
+		Button editBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/Edit.png", "Edit", event -> {
 			String testTypeName = fetchTestTypeNameById(stage.getTestType());
 			editStage(stage.getId(), stage.getpId(), stage.getL_name(), testTypeName);
 		});
@@ -452,28 +474,19 @@ public class StageConfigurationController {
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
 		buttonsContainer.setPadding(new Insets(0, 10, 0, 0));
 		buttonsContainer.setVisible(false);
-//		if (stage.isParentDefault()) {
-//			buttonsContainer.getChildren().add(addBtn);
-//		} else if (stage.getId().startsWith("L5")) {
-//			buttonsContainer.getChildren().addAll(editBtn, delBtn);
-//		} else {
-//			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
-//		}
-		
-		
-	
+
 		if (stage.getId().startsWith("L5")) {
 			buttonsContainer.getChildren().addAll(editBtn, delBtn);
 		} else if (!stage.isParentDefault() && !stage.isParentAdvancedTest()) {
 			buttonsContainer.getChildren().addAll(addBtn, editBtn, delBtn);
-		} else if(stage.isParentAdvancedTest()){
+		} else if (stage.isParentAdvancedTest()) {
 			if (stage.getId().startsWith("L2")) {
-				if(stage.getL_name().trim().toLowerCase().contains("hwatp") || stage.getL_name().trim().toLowerCase().contains("interface")) {
+				if (stage.getL_name().trim().toLowerCase().contains("hwatp")) {
 					buttonsContainer.getChildren().addAll(addBtn);
-				}else if(stage.getL_name().trim().toLowerCase().contains("custom test")) {
+				} else if (stage.getL_name().trim().toLowerCase().contains("custom test")) {
 					return null;
 				}
-			} 
+			}
 		}
 
 		ColumnConstraints column1 = new ColumnConstraints();
@@ -514,13 +527,18 @@ public class StageConfigurationController {
 			if (stageL2.getpId().equals(stageL1.getId())) {
 				GridPane gridPaneL2 = createSubStagesUI(stageL2, parentItem);
 				if (gridPaneL2 == null) {
-	                continue; 
-		        }
+					continue;
+				}
 				TreeItem<Node> stageItemL2 = new TreeItem<>(gridPaneL2);
 				parentItem.getChildren().add(stageItemL2);
 				if (stageL2.isHasNext()) {
-					session_l3Data = getSubStagesFromDb(stageL2.getId(), stageL2.isParentDefault(), stageL2.isParentAdvancedTest());
-					createTreeItemsForL3(stageL2, stageItemL2, session_l3Data);
+					session_l3Data = getSubStagesFromDb(stageL2.getId(), stageL2.isParentDefault(),
+							stageL2.isParentAdvancedTest());
+					if (!stageL2.isParentAdvancedTest() || (stageL2.isParentAdvancedTest()
+							&& !stageL2.getL_name().trim().toLowerCase().contains("interface"))) {
+						createTreeItemsForL3(stageL2, stageItemL2, session_l3Data);
+					}
+
 				} else {
 					createStageFieldUI(stageL2, gridPaneL2);
 				}
@@ -534,13 +552,14 @@ public class StageConfigurationController {
 			if (stageL3.getpId().equals(stageL2.getId())) {
 				GridPane gridPaneL3 = createSubStagesUI(stageL3, parentItem);
 				if (gridPaneL3 == null) {
-	                continue; 
-		        }
+					continue;
+				}
 				TreeItem<Node> stageItemL3 = new TreeItem<>(gridPaneL3);
 				parentItem.getChildren().add(stageItemL3);
 
 				if (stageL3.isHasNext()) {
-					session_l4Data = getSubStagesFromDb(stageL3.getId(), stageL3.isParentDefault(), stageL3.isParentAdvancedTest());
+					session_l4Data = getSubStagesFromDb(stageL3.getId(), stageL3.isParentDefault(),
+							stageL3.isParentAdvancedTest());
 					createTreeItemsForL4(stageL3, stageItemL3, session_l4Data);
 				} else {
 					createStageFieldUI(stageL3, gridPaneL3);
@@ -553,16 +572,17 @@ public class StageConfigurationController {
 		for (SubStage stageL4 : s4) {
 			if (stageL4.getpId().equals(stageL3.getId())) {
 
-				GridPane gridPaneL4 = createSubStagesUI(stageL4, parentItem); 
+				GridPane gridPaneL4 = createSubStagesUI(stageL4, parentItem);
 				if (gridPaneL4 == null) {
-	                continue; 
-		        }
-				
+					continue;
+				}
+
 				TreeItem<Node> stageItemL4 = new TreeItem<>(gridPaneL4);
 				parentItem.getChildren().add(stageItemL4);
 
 				if (stageL4.isHasNext()) {
-					session_l5Data = getSubStagesFromDb(stageL4.getId(), stageL4.isParentDefault(), stageL4.isParentAdvancedTest());
+					session_l5Data = getSubStagesFromDb(stageL4.getId(), stageL4.isParentDefault(),
+							stageL4.isParentAdvancedTest());
 					createTreeItemsForL5(stageL4, stageItemL4, session_l5Data);
 				} else {
 					createStageFieldUI(stageL4, gridPaneL4);
@@ -576,8 +596,8 @@ public class StageConfigurationController {
 			if (stageL5.getpId().equals(stageL4.getId())) {
 				GridPane gridPaneL5 = createSubStagesUI(stageL5, parentItem);
 				if (gridPaneL5 == null) {
-	                continue; 
-		        }
+					continue;
+				}
 				TreeItem<Node> stageItemL5 = new TreeItem<>(gridPaneL5);
 				parentItem.getChildren().add(stageItemL5);
 				createStageFieldUI(stageL5, gridPaneL5);
@@ -606,23 +626,23 @@ public class StageConfigurationController {
 	}
 
 	private void addNewStage() {
-		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setNewStageData(stageNameField.getText().trim(), UUT_ID));
 	}
 
 	private void addSubStage(String id, String stageName) {
-		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setAddSubStageData(UUT_ID, id, stageName));
 //		sessionTreeView.getSelectionModel().getSelectedItem().setExpanded(true);
 	}
 
 	private void editStage1(StageOne stage1) {
-		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setEditStage1Data(stage1, UUT_ID));
 	}
 
 	private void editStage(String id, String pId, String stageName, String testtype) {
-		openStagePopup(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddStage.fxml",
+		openStagePopup(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/AddStage.fxml",
 				controller -> controller.setEditSubStageData(UUT_ID, id, pId, stageName, testtype));
 	}
 
@@ -659,7 +679,7 @@ public class StageConfigurationController {
 		return stageList;
 	}
 
-	private ObservableList<SubStage> getSubStagesFromDb(String parentId, boolean isDefault, boolean isAdvancedTest ){
+	private ObservableList<SubStage> getSubStagesFromDb(String parentId, boolean isDefault, boolean isAdvancedTest) {
 		ObservableList<SubStage> subStageList = FXCollections.observableArrayList();
 		StageMasterLevelsResponse response = stageConfig.getStageLevelMaster(parentId);
 

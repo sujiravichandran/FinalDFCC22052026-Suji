@@ -14,7 +14,6 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
-import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -526,8 +525,9 @@ public class SessionTestingController {
 
 	    observableStageList.stream()
 	        .filter(stage -> {
-	            String l1StageName = stage.getL1StageName().trim();
-	            return !("Self Test".equalsIgnoreCase(l1StageName) || "LRU Test".equalsIgnoreCase(l1StageName));
+//	            String l1StageName = stage.getL1StageName().trim();
+//	            return !("Self Test".equalsIgnoreCase(l1StageName) || "LRU Test".equalsIgnoreCase(l1StageName));
+	            return !(stage.isDefaultStatus() || stage.isAdvanceStatus());
 	        })
 	        .sorted(Comparator.comparing((StageObject stage) -> {
 	            String l1StageId = stage.getL1StageId();
