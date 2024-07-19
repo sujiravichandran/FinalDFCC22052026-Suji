@@ -85,7 +85,8 @@ public class OfpConfigurationManagement {
 	// API : DELETE OFP CONFIG
 	public OfpConfigurationDto[] deleteOfpConfig(String ofpConfigId) {
 		OfpConfigurationService service = new OfpConfigurationService();
-		OfpConfigurationResponse serviceResponse = service.removeOfpConfiguration(ofpConfigId);
+	//	OfpConfigurationResponse serviceResponse = service.removeOfpConfiguration(ofpConfigId);
+		OfpConfigurationResponse serviceResponse = service.deleteOfpConfiguration(ofpConfigId);
 		OfpConfigurationDto[] dtoArray = new OfpConfigurationDto[0];
 
 		// Delete entries in RunPathMaster table and retrieve associated
