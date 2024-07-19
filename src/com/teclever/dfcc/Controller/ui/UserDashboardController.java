@@ -236,14 +236,12 @@ public class UserDashboardController {
 		bottomButtonGridPane.setVgap(10);
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		bottomButtonGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		bottomButtonGridPane.getColumnConstraints().addAll(firstColumn);
 		bottomButtonGridPane.getRowConstraints().addAll(firstRow);
 
 		VBox logoutBox = new VBox();
@@ -252,20 +250,10 @@ public class UserDashboardController {
 		logoutBox.getChildren().add(logoutLabel);
 		logoutBox.getStyleClass().add("logout-button");
 		logoutLabel.getStyleClass().add("logout-text");
-
-		VBox exitBox = new VBox();
-		exitBox.setAlignment(Pos.CENTER);
-		Label exitLabel = new Label("Exit");
-		exitBox.getChildren().add(exitLabel);
-		exitBox.getStyleClass().add("exit-button");
-		exitLabel.getStyleClass().add("exit-text");
 		
-		logoutBox.setOnMouseClicked(e -> Platform.exit());
-		exitBox.setOnMouseClicked(e -> Platform.exit());
-		
+		logoutBox.setOnMouseClicked(e -> Platform.exit());		
 		
 		bottomButtonGridPane.add(logoutBox, 0, 0);
-		bottomButtonGridPane.add(exitBox, 1, 0);
 
 		return bottomButtonGridPane;
 
