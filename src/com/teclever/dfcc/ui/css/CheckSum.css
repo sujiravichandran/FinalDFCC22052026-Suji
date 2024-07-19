@@ -22,13 +22,15 @@
 }
 
 .button {
-	-fx-min-width:150px;
+	-fx-min-width:90px;
     -fx-background-color: button-bg ; 
     -fx-text-fill:button-text; 
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
-    -fx-background-radius: 10px; 
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent; 
+	-fx-cursor:hand;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 

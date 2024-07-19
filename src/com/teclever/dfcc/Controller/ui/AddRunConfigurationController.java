@@ -298,13 +298,15 @@ public class AddRunConfigurationController {
 
 	private void setupDriverLabel() {
 		TextField driverLabel = new TextField("Driver");
-		driverLabel.setPrefWidth(310);
-		driverLabel.setPrefHeight(53.0);
+
 
 		driverLabel.setEditable(false);
 		driverLabel.setStyle(
 				"-fx-background-color: white; -fx-border-radius:10px; -fx-border-color: #b9bcbd; -fx-background-radius:10px; -fx-border-width: 1px;-fx-font-size: 16px;-fx-alignment: center;-fx-text-fill: black;");
 
+	    driverLabel.prefWidthProperty().bind(vBoxDriver.widthProperty());
+
+		
 		aitessType.setOnAction(event -> {
 			aitessTypeValue = (String) this.aitessType.getValue();
 			CompletableFuture.supplyAsync(() -> {

@@ -181,9 +181,8 @@ public class RunConfigurationController {
 
 	private HBox createButtonHbox() {
 
-		Button addButton = new Button("ADD AITESS");
+		Button addButton = new Button("ADD RUN CONFIG");
 		addButton.setOnAction(e -> onClickGETButton());
-		buttonHbox.setPadding(new Insets(0, 20, 0, 0));
 
 		buttonHbox.setAlignment(Pos.CENTER_RIGHT);
 		buttonHbox.getChildren().add(addButton);
