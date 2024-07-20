@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="launchTypeMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="750.0" stylesheets="@../css/LaunchType.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.LaunchTypePopupController">
+<AnchorPane fx:id="launchTypeMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="750.0" stylesheets="@../css/LaunchType.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.LaunchTypePopupController">
    <children>
       <HBox fx:id="launchTypeFormHeading" alignment="CENTER" prefHeight="50.0" prefWidth="750.0">
          <children>
@@ -41,12 +41,12 @@
             </HBox>
             <HBox fx:id="buttonBox" alignment="CENTER" layoutX="40.0" layoutY="443.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="closeButton" layoutX="135.0" layoutY="20.0" mnemonicParsing="false" onAction="#closeLaunchTypePopup" text="Close">
+                  <Button fx:id="saveButton" layoutX="94.0" layoutY="10.0" mnemonicParsing="false" text="Update">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Button>
-                  <Button fx:id="saveButton" layoutX="94.0" layoutY="10.0" mnemonicParsing="false" text="Update">
+                  <Button fx:id="closeButton" layoutX="135.0" layoutY="20.0" mnemonicParsing="false" onAction="#closeLaunchTypePopup" text="Close">
                      <font>
                         <Font size="16.0" />
                      </font>

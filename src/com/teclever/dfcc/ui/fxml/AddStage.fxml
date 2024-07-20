@@ -75,12 +75,12 @@
 						<ComboBox fx:id="stage_testType_field" prefHeight="25.0" prefWidth="343.0" style="-fx-background-color: white; -fx-border-color: #D3D3D3;" visibleRowCount="6" />
 					</children>
 				</VBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="400.0" spacing="20.0">
+            <VBox>
                <children>
       				<CheckBox fx:id="mandatoryCheckBox" mnemonicParsing="false" prefHeight="17.0" text="Mandatory" />
-                  <CheckBox fx:id="continueWithErrorCheckBox" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="17.0" text="Continue With Error" />
+                  <CheckBox fx:id="continueWithErrorCheckBox" mnemonicParsing="false" prefHeight="17.0" text="Continue With Error" />
                </children>
-            </HBox>
+            </VBox>
 				<HBox alignment="CENTER" prefWidth="200.0" spacing="10.0">
 					<children>
 						<Button fx:id="add_new_stage_button" mnemonicParsing="false" onAction="#onClickAddOrEditStage1" text="Add New Stage">

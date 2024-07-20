@@ -75,7 +75,7 @@ public class SymbolFileManagement {
 			Response response = symbolService.saveSymbolToDatabase(symbolName, symbolType, minValue, maxValue, fileName,
 					runPathMasterId);
 			if (response.getResponseCode() == 1) {
-				System.out.println("Symbol saved successfully: " + symbolName);
+//				System.out.println("Symbol saved successfully: " + symbolName);
 			} else {
 				System.err.println("Failed to save symbol: " + symbolName + " Error: " + response.getResponseMessage());
 			}
@@ -106,7 +106,7 @@ public class SymbolFileManagement {
 			Response response = symbolService.saveSymbolToDatabase(symbolName, symbolType, minValue, maxValue, fileName,
 					runPathMasterId);
 			if (response.getResponseCode() == 1) {
-				System.out.println("Symbol saved successfully: " + symbolName);
+//				System.out.println("Symbol saved successfully: " + symbolName);
 			} else {
 				System.err.println("Failed to save symbol: " + symbolName + " Error: " + response.getResponseMessage());
 			}

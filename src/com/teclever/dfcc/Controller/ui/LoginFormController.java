@@ -395,7 +395,7 @@ public class LoginFormController {
 	    Button updateButton = new Button("Update Password");
 	    exitButton.getStyleClass().add("popup-btn");
 	    updateButton.getStyleClass().add("popup-btn");
-	    buttomBox.getChildren().addAll(exitButton, updateButton);
+	    buttomBox.getChildren().addAll(updateButton, exitButton);
 
 	    changeAdminPasswordBVBox.getChildren().addAll(titleHBox, newPasswordVBox, confirmPasswordVBox, showPasswordCheckBox, buttomBox);
 

@@ -109,6 +109,7 @@ public class ValidateChecksum {
 
 			for (VDDDto vddDto : listOfVdd) {
 				// putting into vddMap key:fileName with path, value: file checksum
+				System.out.println(vddDto.getFilePath()+"   "+ vddDto.getFileName()+"   "+ vddDto.getFileCheckSum());
 				vddMap.put(vddDto.getFilePath() + vddDto.getFileName(), vddDto.getFileCheckSum());
 				// Checking All VDD File present in Tables(SYMBOLS,TEST FILE, MICROS ,DOWNLOAD)
 				if (!(fileNamewithPath.contains(vddDto.getFileName()))) {

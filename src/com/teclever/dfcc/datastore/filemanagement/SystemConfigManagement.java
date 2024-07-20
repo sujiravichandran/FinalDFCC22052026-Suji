@@ -38,18 +38,32 @@ public class SystemConfigManagement {
 	static String parentJarFile = new File(
 			SystemConfigManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
 
+	static String configFileName;
+	static {
+		if (DFCCConstant.isJarBuild) {
+			configFileName = currentDirectory + File.separator + "SystemConfig.dat";
+		} else {
+			configFileName = "C:\\config\\systemconfig.dat";
+			try {
+				configuration = loadSystemConfig(configFileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 //	static String configFileName = currentDirectory + File.separator + "SystemConfig.dat";
 
-	//Windows
-		static String configFileName = "C:\\config\\systemconfig.dat";
-		static {
-	        try {
-	            configuration = loadSystemConfig(configFileName);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-	
+	// Windows
+//		static String configFileName = "C:\\config\\systemconfig.dat";
+//		static {
+//	        try {
+//	            configuration = loadSystemConfig(configFileName);
+//	        } catch (IOException e) {
+//	            e.printStackTrace();
+//	        }
+//	    }
+
 	private static SystemConfig configuration;
 
 	public static SystemConfig getConfiguration() {
@@ -65,22 +79,28 @@ public class SystemConfigManagement {
 		Response response = new Response();
 		ValidateResponse validateResponse = new ValidateResponse();
 		List<CheckSum> checkSumList = new ArrayList<>();
-		
-		//Sending dummy data for eclipse build
+
+		// Sending dummy data for eclipse build
 		if (!DFCCConstant.isJarBuild) {
 			response.setResponseCode(1);
 			response.setResponseMessage("Checksum result");
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
-			checkSumList.add(new CheckSum(1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			checkSumList.add(new CheckSum(1,
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 					"11111111111111111111111111111111111111111111111111", "OK"));
 			validateResponse.setResponse(response);
 			validateResponse.setCheckSumList(checkSumList);
@@ -88,7 +108,6 @@ public class SystemConfigManagement {
 		}
 		System.out.println("Current Directory: " + currentDirectory);
 		System.out.println("Jar File Name: " + parentJarFile);
-
 
 		try {
 			File dir = new File(configFileName);
@@ -121,16 +140,17 @@ public class SystemConfigManagement {
 				response.setResponseCode(1);
 				response.setResponseMessage("Checksum result");
 				validateResponse.setResponse(response);
-				checkSumList.add(validateCheckum(currentDirectory +File.separator+ parentJarFile, configuration.getpChecksum()));
-				//For loop to iterate Checksum List from Dat file
-				
-				for (String fileChecksum : configuration.getChecksums()) {	
+				checkSumList.add(validateCheckum(currentDirectory + File.separator + parentJarFile,
+						configuration.getpChecksum()));
+				// For loop to iterate Checksum List from Dat file
+
+				for (String fileChecksum : configuration.getChecksums()) {
 					String[] parts = fileChecksum.split(" : ");
-					checkSumList.add(validateCheckum(currentDirectory +File.separator+ parts[0], parts[1]));
-		        }
+					checkSumList.add(validateCheckum(currentDirectory + File.separator + parts[0], parts[1]));
+				}
 				validateResponse.setCheckSumList(checkSumList);
-				
-				//validate AllChecksums
+
+				// validate AllChecksums
 				return validateResponse;
 			} else {
 				response.setResponseCode(0);
@@ -147,8 +167,6 @@ public class SystemConfigManagement {
 		}
 	}
 
-	
-	
 	// DECRYPT SYSTEM CONFIG FILE AND STORE IT TO OBJECT
 	public static SystemConfig loadSystemConfig(String configFile) throws IOException {
 		try {
@@ -240,8 +258,6 @@ public class SystemConfigManagement {
 		return validateResponse;
 	}
 
-
-	
 // 	public static ValidateResponse validateChecksum(SystemConfig config, String directory,String parentJarFilePath) throws IOException {
 // 	    Response response = new Response();
 // 	    List<CheckSum> checkSumList = new ArrayList<>();
@@ -252,13 +268,13 @@ public class SystemConfigManagement {
 // 	    response.setResponseCode(jarFileValidationResponse.getResponse().getResponseCode());
 // 	    response.setResponseMessage(jarFileValidationResponse.getResponse().getResponseMessage());
 // 	    checkSumList.addAll(jarFileValidationResponse.getCheckSumList());
-	  
+
 // //	    CheckSum jarCheckSum = new CheckSum();
 // //	    jarCheckSum.setFile(parentJarFilePath);
 // //	    jarCheckSum.setChecksumValue("");
 // //	    jarCheckSum.setMsg("OK");
 // //	    checkSumList.add(jarCheckSum);
-	  
+
 // 	    // Check if all files in the system config exist in the calculated checksums
 // 	    for (String fileChecksum : filesAndChecksums) {
 // 	        String[] parts = fileChecksum.split(" : ");
@@ -279,30 +295,29 @@ public class SystemConfigManagement {
 // 	    }
 // 	    response.setResponseCode(1);
 // 	    response.setResponseMessage("SystemConfig file read Successful");
-	  
+
 // 	    ValidateResponse validateResponse = new ValidateResponse();
 // 	    validateResponse.setResponse(response);
 // 	    validateResponse.setCheckSumList(checkSumList);
 // 	    return validateResponse;
 // 	}
- 	public static Map<String, String> calculateChecksums(String directory) throws IOException {
- 	    Map<String, String> checksums = new HashMap<>();
- 	    try {
- 	        Files.walk(Paths.get(directory))
- 	                .filter(Files::isRegularFile)
- 	                .forEach(file -> {
- 	                    try {
- 	                        String checksum = getFileChecksum(file.toFile());
- 	                        checksums.put(file.toString(), checksum);
- 	                    } catch (IOException e) {
- 	                        e.printStackTrace();
- 	                    }
- 	                });
- 	    } catch (IOException e) {
- 	        throw new IOException("Error reading files from directory: " + e.getMessage());
- 	    }
- 	    return checksums;
- 	}
+	public static Map<String, String> calculateChecksums(String directory) throws IOException {
+		Map<String, String> checksums = new HashMap<>();
+		try {
+			Files.walk(Paths.get(directory)).filter(Files::isRegularFile).forEach(file -> {
+				try {
+					String checksum = getFileChecksum(file.toFile());
+					checksums.put(file.toString(), checksum);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (IOException e) {
+			throw new IOException("Error reading files from directory: " + e.getMessage());
+		}
+		return checksums;
+	}
+
 	private static String getFileChecksum(File file) throws IOException {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -331,25 +346,24 @@ public class SystemConfigManagement {
 			if (!file.exists()) {
 				responseCheckSum.setChecksumValue("");
 				responseCheckSum.setMsg("NOT OK");
-				System.out.println("FileName NOT OK "+fullFileName + "::::::" );
+				System.out.println("FileName NOT OK " + fullFileName + "::::::");
 
-			} else if(fileCheckSum.equals(fileCalcCheckSum)) {
+			} else if (fileCheckSum.equals(fileCalcCheckSum)) {
 				responseCheckSum.setChecksumValue(fileCalcCheckSum);
 				responseCheckSum.setMsg("OK");
-				System.out.println("FileName "+fullFileName + "::::::" +fileCalcCheckSum);
+				System.out.println("FileName " + fullFileName + "::::::" + fileCalcCheckSum);
 			} else {
 				responseCheckSum.setChecksumValue(fileCalcCheckSum);
 				responseCheckSum.setMsg("NOT OK");
-				System.out.println("FileName NOT OK "+fullFileName + "::::::" +fileCalcCheckSum);
+				System.out.println("FileName NOT OK " + fullFileName + "::::::" + fileCalcCheckSum);
 
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return responseCheckSum;
 	}
-	
 
 }

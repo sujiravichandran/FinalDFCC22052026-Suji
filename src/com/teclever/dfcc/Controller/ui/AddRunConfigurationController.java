@@ -17,28 +17,28 @@ import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.model.RunAitessConfiguration;
-import com.teclever.dfcc.utils.CustomButton;
+import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -47,8 +47,6 @@ public class AddRunConfigurationController {
 	public AddRunConfigurationController() {
 		testType = new ComboBox<String>();
 		aitessType = new ComboBox<String>();
-
-//		super();
 	}
 
 	public static String runuutTypeValue;
@@ -105,6 +103,8 @@ public class AddRunConfigurationController {
 	private HBox vBoxDriver;
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+	private RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
+	
 	RunConfigurationController mainPageController;
 
 //    
@@ -157,7 +157,7 @@ public class AddRunConfigurationController {
 	private void handleSave() {
 		List<String> validationErrors = validateFields();
 		if (validationErrors.isEmpty()) {
-			// Check if data already exists
+			
 			boolean dataExists = false;
 			HashMap<String, String> nameId = new HashMap<>();
 			AitessConfigurationManagement configManager = new AitessConfigurationManagement();
@@ -208,32 +208,62 @@ public class AddRunConfigurationController {
 			alert.setContentText(String.join("\n", validationErrors));
 			alert.showAndWait();
 		}
-
 	}
 
 	private void saveRunConfiguration(String uutId) {
+	     Stage stage = (Stage) addrun.getScene().getWindow();
+	     
+		 Platform.runLater(() -> {
+	            stage.getScene().setCursor(Cursor.WAIT);
+	            setControlsDisabled(stage.getScene().getRoot(), true);
+		 });
 		RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
 		runaitessConfigurationDTO.setAitess(aitessTypeValue);
 		runaitessConfigurationDTO.setConfigFile(fileConfigName);
 		runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
 		runaitessConfigurationDTO.setDriver(driverName);
 		runaitessConfigurationDTO.setUutId(uutId);
+	
+		 Task<RunConfigurationResponse> saveTask = new Task<RunConfigurationResponse>() {
+		        @Override
+		        protected RunConfigurationResponse call() throws Exception {
+		        	RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
+		        	return res;
+		        }
+		    };
 
-		RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
-		RunConfigurationResponse res = runConfiguration.addRunConfig(runaitessConfigurationDTO, runuutTypeId);
+		    saveTask.setOnSucceeded(event -> {
+		        Platform.runLater(() -> {
+		        	stage.getScene().setCursor(Cursor.DEFAULT);
+			        setControlsDisabled(stage.getScene().getRoot(), false);
+		            stage.close();
+		            mainPageController.refresh();
+		        });
+		        Notifications.showSuccessAlert(saveTask.getValue().getResponseMessage());
+		    });
 
-//		mainPageController.testTypeField.setText(testTypeValue);
-//		mainPageController.aitessType.setText(aitessTypeValue);
-//		mainPageController.driverLabel.setText(driverName);
-//		mainPageController.configFile.setText(fileConfigName);
+		    saveTask.setOnFailed(event -> {
+		        Platform.runLater(() -> {
+		        	stage.getScene().setCursor(Cursor.DEFAULT);
+			        setControlsDisabled(stage.getScene().getRoot(), false);
+		        });
+		        Notifications.showErrorAlert(saveTask.getValue().getResponseMessage());
+		    });
 
-		// Close the popup stage
-		Stage stage = (Stage) addrun.getScene().getWindow();
-		stage.close();
+		    // Start the task on a background thread
+		    new Thread(saveTask).start();
 
-		// Refresh the main page
-		mainPageController.refresh();
+
 	}
+	
+	private void setControlsDisabled(Node root, boolean disabled) {
+	    for (Node node : root.lookupAll("*")) {
+	        if (node instanceof Control) {
+	            ((Control) node).setDisable(disabled);
+	        }
+	    }
+	}
+
 
 	private List<String> validateFields() {
 		List<String> errors = new ArrayList<>();

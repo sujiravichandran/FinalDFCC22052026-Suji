@@ -11,6 +11,7 @@ import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.model.AitessDownloadCode;
+import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -37,13 +38,12 @@ public class AitessDownloadCodeController {
 	private DownloadFileManagement downloadFileManagement = new DownloadFileManagement();
 	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
 
-
 	private TableViewFactory<AitessDownloadCode> userFactory = new DownloadCodeTableViewFactory();
 	private CustomTableView<AitessDownloadCode> customTableView_downloadCode;
 	private ObservableList<AitessDownloadCode> tableData = FXCollections.observableArrayList();
-	
+
 	private String RUN_CONFIG_ID;
-	
+
 	public AitessDownloadCodeController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
@@ -58,7 +58,8 @@ public class AitessDownloadCodeController {
 
 	public GridPane downloadCodeConfigParentGrid() {
 		downloadCodeParentGridPane.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessDownloadCode.css").toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/AitessDownloadCode.css")
+						.toExternalForm());
 		downloadCodeParentGridPane.getStyleClass().add("downloadCode-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -123,8 +124,6 @@ public class AitessDownloadCodeController {
 		return headerButtonHbox;
 	}
 
-	
-
 	private GridPane createAitessDownloadCodeTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -137,31 +136,34 @@ public class AitessDownloadCodeController {
 		downloadCodeTableGridPane.getStyleClass().add("downloadCode-Container");
 		return downloadCodeTableGridPane;
 	}
-	
-		private void onClickAddFileButton() {
-			if(RUN_CONFIG_ID!=null) {
-				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Select File");
-//				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-				List<File> selectedFiles = fileChooser.showOpenMultipleDialog(downloadCodeParentGridPane.getScene().getWindow());
-				List<String> filePaths = new ArrayList<>();
-				if (selectedFiles != null) {
-					for (File file : selectedFiles) {
-						filePaths.add(file.getAbsolutePath());
-					}
 
-					AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "download");
-					if (res.getResponseCode() == 1) {
-						tableData.clear();
-						setAitessDownloadCodeTableData(RUN_CONFIG_ID);
-					} else {
-						Notifications.showErrorAlert("Files not added");
-					}
+	private void onClickAddFileButton() {
+		if (RUN_CONFIG_ID != null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select File");
+//				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			List<File> selectedFiles = fileChooser
+					.showOpenMultipleDialog(downloadCodeParentGridPane.getScene().getWindow());
+			List<String> filePaths = new ArrayList<>();
+			if (selectedFiles != null) {
+				for (File file : selectedFiles) {
+					filePaths.add(file.getAbsolutePath());
 				}
-			}else {
-				Notifications.showWarningAlert("Please select UUT Type and Test Type");
+
+				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths,
+						"download");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					Notifications.showSuccessAlert(res.getResponseMsg());
+					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
+				} else if (res.getResponseCode() == 0) {
+					Notifications.showErrorAlert(res.getResponseMsg());
+				}
 			}
-	
+		} else {
+			Notifications.showWarningAlert("Please select UUT Type and Test Type");
+		}
+
 	}
 
 	private void setAitessDownloadCodeTableData(String runConfigId) {
@@ -177,24 +179,37 @@ public class AitessDownloadCodeController {
 		customTableView_downloadCode.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessDownloadCode> selectedItems = customTableView_downloadCode.getSelectedItems();
 			for (AitessDownloadCode rowData : selectedItems) {
-				
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "download");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		downloadCodeTableGridPane.add(customTableView_downloadCode, 0, 0);
+	}
+
+	private void handleDeleteButtonClicked(AitessDownloadCode rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete Download File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteAitessDownloadCode(rowData.getFileName()));
+	}
+
+	private void deleteAitessDownloadCode(String fileName) {
+
+		Response response = customFileAddManagement.deleteFile(fileName, "download");
+
+		if (response.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessDownloadCodeTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		} else if (response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 	}
 }
 
 class DownloadCodeTableViewFactory implements TableViewFactory<AitessDownloadCode> {
 	@Override
-	public CustomTableView<AitessDownloadCode> createTableView(ObservableList<AitessDownloadCode> items, boolean addUserColumn,
-			boolean addCheckboxColumn) {
+	public CustomTableView<AitessDownloadCode> createTableView(ObservableList<AitessDownloadCode> items,
+			boolean addUserColumn, boolean addCheckboxColumn) {
 		return new CustomTableView<>(items, AitessDownloadCode.class, addUserColumn, addCheckboxColumn);
 	}
 

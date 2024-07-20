@@ -3,6 +3,8 @@ package com.teclever.dfcc.Controller.ui;
 import java.io.IOException;
 import java.util.List;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.response.OfpConfigurationResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
@@ -40,7 +42,7 @@ public class OFPMasterController {
 
 	private String UUT_ID;
 
-	private OfpConfigurationManagement ofpConfig=new OfpConfigurationManagement();
+	private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFPMASTER");
 
@@ -173,30 +175,22 @@ public class OFPMasterController {
 	}
 	
 	private void handleDeleteButtonClicked(OFP ofpDto) {
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Confirmation Dialog");
-		alert.setHeaderText(null);
-		alert.setContentText(
-				"Are you sure you want to delete OFP Configuration: " + ofpDto.getOfpName() + "?");
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete OFP Configuration: " + ofpDto.getOfpName() + "?";
 
-		ButtonType buttonTypeYes = new ButtonType("Yes");
-		ButtonType buttonTypeNo = new ButtonType("No");
-
-		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-
-		alert.showAndWait().ifPresent(buttonType -> {
-			if (buttonType == buttonTypeYes) {
-				deleteOfp(ofpDto.getOfpConfigId());
-			}
-		});
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteOfp(ofpDto.getOfpConfigId()));
+	}
+	
+	private void deleteOfp(String ofpConfigId) {		
+		OfpConfigurationResponse response = ofpConfig.deleteOfpConfig(ofpConfigId);
+		if(response.getResponseCode() == 1) {
+			Notifications.showSuccessAlert(response.getResponseMessage());
+			refresh();
+		}else if(response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 	}
 
-	private void deleteOfp(String ofpConfigId) {
-		OfpConfigurationManagement ofpConfManagement = new OfpConfigurationManagement();
-		
-		ofpConfManagement.deleteOfpConfig(ofpConfigId);
-		refresh();
-	}
 	
 	private void setOfpMasterTableData(String uutId) {
 		List<OfpConfigurationDto> getOfpConfigList=ofpConfig.getOfpConfig(uutId);

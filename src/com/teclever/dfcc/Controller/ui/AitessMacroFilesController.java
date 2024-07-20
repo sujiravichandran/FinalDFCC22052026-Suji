@@ -13,6 +13,7 @@ import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
+import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -159,10 +160,11 @@ public class AitessMacroFilesController {
 
 			AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "macros");
 			if (res.getResponseCode() == 1) {
-	            	 tableData.clear();
+				tableData.clear();
+	            Notifications.showSuccessAlert(res.getResponseMsg());	 
 				setAitessMacroFilesTableData(RUN_CONFIG_ID);
-			} else {
-				Notifications.showErrorAlert("Files not added");
+			} else if(res.getResponseCode() == 0){
+				Notifications.showErrorAlert(res.getResponseMsg());
 			}
 		}
 		}else {
@@ -184,7 +186,6 @@ public class AitessMacroFilesController {
 			}
 
 			AitessMacroFiles.AitessMacroDetails macroDetails = new AitessMacroFiles.AitessMacroDetails();
-//			System.out.println(macroDetails.getMacroName());
 			macroDetails.setFileName(macroDto.getFileName());
 			macroDetails.setMacroName(macroDto.getMacroName());
 			detailsList.add(macroDetails);
@@ -199,9 +200,6 @@ public class AitessMacroFilesController {
 							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessMacroPopup.fxml"));
 					Parent root = addStagePopup.load();
 
-//					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()
-//						    .filter(detail -> detail.getFileName().equals(rowData.getFileName()) && !detail.getMacroName().equals("--"))
-//						    .collect(Collectors.toList());
 					List<AitessMacroFiles.AitessMacroDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
@@ -229,18 +227,31 @@ public class AitessMacroFilesController {
 		customTableView_macroFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessMacroFiles> selectedItems = customTableView_macroFiles.getSelectedItems();
 			for (AitessMacroFiles rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "macros");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessMacroFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 
 		macroFileTableGridPane.getChildren().clear();
 		macroFileTableGridPane.add(customTableView_macroFiles, 0, 0);
+	}
+	
+	private void handleDeleteButtonClicked(AitessMacroFiles rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete Macro File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteAitessMacro(rowData.getFileName()));
+	}
+	
+	private void deleteAitessMacro(String fileName) {
+		
+		Response response = customFileAddManagement.deleteFile(fileName, "macros");		
+		if(response.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessMacroFilesTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		}else if(response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 	}
 }
 

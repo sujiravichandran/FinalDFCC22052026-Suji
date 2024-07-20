@@ -1,6 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,21 +38,21 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class OFPSymbolFilesController {
-	
+
 	private GridPane ofpSymbolFilesParentGridPane = new GridPane();
 	private GridPane ofpSymbolFilesTitleGridPane = new GridPane();
 	private GridPane ofpSymbolFilesTableGridPane = new GridPane();
-	
+
 	private SymbolFileManagement symbolFileManagement = new SymbolFileManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
-	private CustomFileAddManagement customFileAddManagement=new CustomFileAddManagement();
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
 
-	
 	private TableViewFactory<AitessSymbolFiles> userFactory = new OFPSymbolFilesTableViewFactory();
 	private CustomTableView<AitessSymbolFiles> customTableView_symbolFiles;
 	private ObservableList<AitessSymbolFiles> tableData = FXCollections.observableArrayList();
-	
+
 	private String RUN_CONFIG_ID;
+
 	public OFPSymbolFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
@@ -66,10 +65,10 @@ public class OFPSymbolFilesController {
 			}
 		});
 	}
-	
+
 	public GridPane ofpSymbolFileParentGrid() {
-		ofpSymbolFilesParentGridPane.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPSymbolFiles.css").toExternalForm());
+		ofpSymbolFilesParentGridPane.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/OFPSymbolFiles.css").toExternalForm());
 		ofpSymbolFilesParentGridPane.getStyleClass().add("ofpSymbolFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -93,8 +92,6 @@ public class OFPSymbolFilesController {
 
 		return ofpSymbolFilesParentGridPane;
 	}
-
-
 
 	private GridPane ofpSymbolFilesTopContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -135,12 +132,14 @@ public class OFPSymbolFilesController {
 		headerButtonHbox.getChildren().add(addFileButton);
 		return headerButtonHbox;
 	}
+
 	private void onClickAddFileButton() {
-		if(RUN_CONFIG_ID!=null) {
+		if (RUN_CONFIG_ID != null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
 //			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.sym"));
-			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpSymbolFilesParentGridPane.getScene().getWindow());
+			List<File> selectedFiles = fileChooser
+					.showOpenMultipleDialog(ofpSymbolFilesParentGridPane.getScene().getWindow());
 			List<String> filePaths = new ArrayList<>();
 			if (selectedFiles != null) {
 				for (File file : selectedFiles) {
@@ -149,19 +148,18 @@ public class OFPSymbolFilesController {
 
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "symbols");
 				if (res.getResponseCode() == 1) {
-//		            	 tableData.clear();
+					tableData.clear();
+					Notifications.showSuccessAlert(res.getResponseMsg());
 					setAitessSymbolFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("Files not added");
+				} else if (res.getResponseCode() == 0) {
+					Notifications.showErrorAlert(res.getResponseMsg());
 				}
 			}
-		}else {
+		} else {
 			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
-		
-	}
-	
 
+	}
 
 	private GridPane createOFPSymbolFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -174,8 +172,9 @@ public class OFPSymbolFilesController {
 		ofpSymbolFilesTableGridPane.getRowConstraints().addAll(firstRow);
 		ofpSymbolFilesTableGridPane.getStyleClass().add("ofpSymbolFiles-container");
 		return ofpSymbolFilesTableGridPane;
-	
+
 	}
+
 	private void setAitessSymbolFilesTableData(String runConfigId) {
 		List<SymbolDto> symbolDtoList = symbolFileManagement.getAllSymbols(runConfigId);
 		List<AitessSymbolDetails> detailsList = new ArrayList<>();
@@ -203,18 +202,17 @@ public class OFPSymbolFilesController {
 			ObservableList<AitessSymbolFiles> selectedItems = customTableView_symbolFiles.getSelectedItems();
 			for (AitessSymbolFiles rowData : selectedItems) {
 				try {
-					FXMLLoader addStagePopup = new FXMLLoader(
-							getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
+					FXMLLoader addStagePopup = new FXMLLoader(getClass()
+							.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/AitessSymbolPopup.fxml"));
 					Parent root = addStagePopup.load();
 
-					
 					List<AitessSymbolDetails> fileDetails = detailsList.stream()
 							.filter(detail -> detail.getFileName().equals(rowData.getFileName()))
 							.collect(Collectors.toList());
-					if(fileDetails.size() <2) {
+					if (fileDetails.size() < 2) {
 						Notifications.showWarningAlert("No data in selected file");
-					}else {
-						AitessSymbolPopupController controller =  addStagePopup.getController();
+					} else {
+						AitessSymbolPopupController controller = addStagePopup.getController();
 						controller.setSymbolDetails(fileDetails);
 						Stage stage = new Stage();
 						stage.initModality(Modality.APPLICATION_MODAL);
@@ -223,7 +221,7 @@ public class OFPSymbolFilesController {
 						stage.setScene(new Scene(root));
 						stage.showAndWait();
 					}
-					
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -233,20 +231,35 @@ public class OFPSymbolFilesController {
 		customTableView_symbolFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessSymbolFiles> selectedItems = customTableView_symbolFiles.getSelectedItems();
 			for (AitessSymbolFiles rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "symbols");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessSymbolFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		ofpSymbolFilesTableGridPane.getChildren().clear();
 		ofpSymbolFilesTableGridPane.add(customTableView_symbolFiles, 0, 0);
 	}
 
+	private void handleDeleteButtonClicked(AitessSymbolFiles rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete OFP Symbol File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteAitessSymbol(rowData.getFileName()));
+	}
+
+	private void deleteAitessSymbol(String fileName) {
+
+		Response response = customFileAddManagement.deleteFile(fileName, "symbols");
+
+		if (response.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessSymbolFilesTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		} else if (response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
+	}
+
 }
+
 class OFPSymbolFilesTableViewFactory implements TableViewFactory<AitessSymbolFiles> {
 	@Override
 	public CustomTableView<AitessSymbolFiles> createTableView(ObservableList<AitessSymbolFiles> items,

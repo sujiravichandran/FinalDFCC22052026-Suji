@@ -11,6 +11,7 @@ import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.model.AitessTestFiles;
+import com.teclever.dfcc.model.RunAitessConfiguration;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -153,9 +154,10 @@ public class AitessTestFilesController {
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
 				if (res.getResponseCode() == 1) {
 					tableData.clear();
+					Notifications.showSuccessAlert(res.getResponseMsg());
 					setAitessTestFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("Files not added");
+				} else if(res.getResponseCode() == 0) {
+					Notifications.showErrorAlert(res.getResponseMsg());
 				}
 			}
 		}else {
@@ -180,16 +182,27 @@ public class AitessTestFilesController {
 		customTableView_testFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessTestFiles> selectedItems = customTableView_testFiles.getSelectedItems();
 			for (AitessTestFiles rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "tpf");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessTestFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		testFileTableGridPane.add(customTableView_testFiles, 0, 0);
+	}
+	
+	private void handleDeleteButtonClicked(AitessTestFiles rowData) {	
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete Test File: " + rowData.getFileName() + "?";
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteTestFileConfig(rowData.getFileName()));
+	}
+
+	private void deleteTestFileConfig(String fileName) {
+		Response res = customFileAddManagement.deleteFile(fileName, "tpf");
+		if (res.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessTestFilesTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(res.getResponseMessage());
+		} else if (res.getResponseCode() == 0) {
+			Notifications.showErrorAlert(res.getResponseMessage());
+		}
 	}
 }
 

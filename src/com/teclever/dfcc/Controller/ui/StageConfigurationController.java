@@ -242,7 +242,7 @@ public class StageConfigurationController {
 		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredData.setPredicate(sessionStage -> {
 				boolean isEmpty = (newValue == null || newValue.isEmpty());
-				boolean containsText = sessionStage.getL1_name().toLowerCase().contains(newValue.toLowerCase());
+				boolean containsText = sessionStage.getL1_name().trim().toLowerCase().contains(newValue.toLowerCase().trim());
 
 				addNewStageButton.setDisable(!filteredData.isEmpty());
 				enablingStage1ListView(!filteredData.isEmpty());
@@ -267,6 +267,8 @@ public class StageConfigurationController {
 		stage1_listView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
 			if (newValue != null) {
 				stageNameField.setText(newValue);
+				stageNameField.requestFocus();
+				stageNameField.end();
 				enablingStage1ListView(false);
 			}
 		});
@@ -430,7 +432,7 @@ public class StageConfigurationController {
 		Button editBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/Edit.png", "Edit",
 				event -> editStage1(stage1));
 		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
-				event -> deleteStage(stage1.getId()));
+				event -> deleteStage(stage1.getId(), stage1.getL1_name()));
 
 		HBox buttonsContainer = new HBox(10);
 		buttonsContainer.setAlignment(Pos.CENTER_RIGHT);
@@ -464,7 +466,7 @@ public class StageConfigurationController {
 		Button addBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage.getId(), stage.getL_name()));
 		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
-				event -> deleteStage(stage.getId()));
+				event -> deleteStage(stage.getId(), stage.getL_name()));
 		Button editBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/Edit.png", "Edit", event -> {
 			String testTypeName = fetchTestTypeNameById(stage.getTestType());
 			editStage(stage.getId(), stage.getpId(), stage.getL_name(), testTypeName);
@@ -646,7 +648,14 @@ public class StageConfigurationController {
 				controller -> controller.setEditSubStageData(UUT_ID, id, pId, stageName, testtype));
 	}
 
-	private void deleteStage(String id) {
+	private void deleteStage(String id, String name) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete this Stage: " + name + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteStageData(id));
+	}
+
+	private void deleteStageData(String id) {
 		Response response = stageConfig.deleteStageLevelById(id);
 		if (response.getResponseCode() == 1) {
 			Notifications.showSuccessAlert(response.getResponseMessage());

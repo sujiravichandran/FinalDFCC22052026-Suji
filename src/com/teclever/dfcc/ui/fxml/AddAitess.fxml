@@ -131,8 +131,8 @@
             </VBox>
             <HBox alignment="CENTER" prefHeight="73.0" prefWidth="300.0" spacing="110.0">
                <children>
-                  <Button fx:id="cancelButton" mnemonicParsing="false" text="Close" />
                   <Button fx:id="saveButton" mnemonicParsing="false" text="Save" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" text="Close" />
                </children>
             </HBox>
          </children>
