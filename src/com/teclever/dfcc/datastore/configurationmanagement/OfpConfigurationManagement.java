@@ -83,69 +83,41 @@ public class OfpConfigurationManagement {
 	}
 
 	// API : DELETE OFP CONFIG
-	public OfpConfigurationDto[] deleteOfpConfig(String ofpConfigId) {
-		OfpConfigurationService service = new OfpConfigurationService();
-	//	OfpConfigurationResponse serviceResponse = service.removeOfpConfiguration(ofpConfigId);
-		OfpConfigurationResponse serviceResponse = service.deleteOfpConfiguration(ofpConfigId);
-		OfpConfigurationDto[] dtoArray = new OfpConfigurationDto[0];
-
-		// Delete entries in RunPathMaster table and retrieve associated
-		// runPathMasterIds
-		RunPathMasterService pathMasterService = new RunPathMasterService();
-		Response pathsResponse = pathMasterService.deletePathMaster(ofpConfigId);
-
-		List<String> runPathMasterIdForMacros = pathMasterService.getRunPathMasterIdsForMacros(ofpConfigId);
-		if (serviceResponse.getResponseCode() == 1) {
-			MacroService macroService = new MacroService();
-			Response macroResponse = macroService.updateMacroDeleteStatus(runPathMasterIdForMacros, true);
-			if (macroResponse.getResponseCode() == 0) {
-				System.err.println("Failed to update delete status for macros: " + macroResponse.getResponseMessage());
-			}
-
-			List<String> runPathMasterIdForSymbols = pathMasterService.getRunPathMasterIdsForSymbols(ofpConfigId);
-			SymbolService symbolService = new SymbolService();
-			Response symbolResponse = symbolService.updateSymbolDeleteStatus(runPathMasterIdForSymbols, true);
-			if (symbolResponse.getResponseCode() == 0) {
-				System.err
-						.println("Failed to update delete status for symbols: " + symbolResponse.getResponseMessage());
-			}
-
-			List<String> runPathMasterIdForTestFiles = pathMasterService.getRunPathMasterIdsForTestFiles(ofpConfigId);
-			TestFileService testFileService = new TestFileService();
-			Response testFileResponse = testFileService.updateTestFilesDeleteStatus(runPathMasterIdForTestFiles, true);
-			if (testFileResponse.getResponseCode() == 0) {
-				System.err.println(
-						"Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
-			}
-			
-			List<String> runPathMasterIdForDownloadFiles = pathMasterService.getRunPathMasterIdsForDownloadFiles(ofpConfigId);
-			DownloadFileService downloadFileService = new DownloadFileService();
-			Response downloadFileResponse = downloadFileService.updateDownloadFilesDeleteStatus(runPathMasterIdForDownloadFiles, true);
-			if (downloadFileResponse.getResponseCode() == 0) {
-				System.err.println(
-						"Failed to update delete status for download files: " + downloadFileResponse.getResponseMessage());
-			}
-
-			// Retrieve and return updated RunConfigurationDto array
-			List<OfpConfiguration> ofpConfigurations = serviceResponse.getOfpConfiguration();
-			if (ofpConfigurations != null) {
-				List<OfpConfigurationDto> dtoList = new ArrayList<>();
-				for (OfpConfiguration ofpConfigItem : ofpConfigurations) {
-					OfpConfigurationDto dto = new OfpConfigurationDto();
-					dto.setOfpConfigId(ofpConfigItem.getOfpConfigId());
-					dto.setUutId(ofpConfigItem.getUutId());
-					dto.setConfigFile(ofpConfigItem.getConfigFile());
-					dto.setOfpName(ofpConfigItem.getOfpName());
-					dto.setOfpVersion(ofpConfigItem.getOfpVersion());
-					dtoList.add(dto);
-				}
-				dtoArray = dtoList.toArray(new OfpConfigurationDto[0]);
-			}
-		} else {
-			System.err.println("Failed to remove Ofp Configuration: " + serviceResponse.getResponseMessage());
-		}
-
-		return dtoArray;
+	public OfpConfigurationResponse deleteOfpConfig(String ofpConfigId) {
+	    OfpConfigurationService service = new OfpConfigurationService();
+	    OfpConfigurationResponse serviceResponse = service.deleteOfpConfiguration(ofpConfigId);
+	    // Delete entries in RunPathMaster table and retrieve associated runPathMasterIds
+	    RunPathMasterService pathMasterService = new RunPathMasterService();
+	    Response pathsResponse = pathMasterService.deletePathMaster(ofpConfigId);
+	    if (serviceResponse.getResponseCode() == 1) {
+	        List<String> runPathMasterIdForMacros = pathMasterService.getRunPathMasterIdsForMacros(ofpConfigId);
+	        MacroService macroService = new MacroService();
+	        Response macroResponse = macroService.updateMacroDeleteStatus(runPathMasterIdForMacros, true);
+	        if (macroResponse.getResponseCode() == 0) {
+	            System.err.println("Failed to update delete status for macros: " + macroResponse.getResponseMessage());
+	        }
+	        List<String> runPathMasterIdForSymbols = pathMasterService.getRunPathMasterIdsForSymbols(ofpConfigId);
+	        SymbolService symbolService = new SymbolService();
+	        Response symbolResponse = symbolService.updateSymbolDeleteStatus(runPathMasterIdForSymbols, true);
+	        if (symbolResponse.getResponseCode() == 0) {
+	            System.err.println("Failed to update delete status for symbols: " + symbolResponse.getResponseMessage());
+	        }
+	        List<String> runPathMasterIdForTestFiles = pathMasterService.getRunPathMasterIdsForTestFiles(ofpConfigId);
+	        TestFileService testFileService = new TestFileService();
+	        Response testFileResponse = testFileService.updateTestFilesDeleteStatus(runPathMasterIdForTestFiles, true);
+	        if (testFileResponse.getResponseCode() == 0) {
+	            System.err.println("Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
+	        }
+	        List<String> runPathMasterIdForDownloadFiles = pathMasterService.getRunPathMasterIdsForDownloadFiles(ofpConfigId);
+	        DownloadFileService downloadFileService = new DownloadFileService();
+	        Response downloadFileResponse = downloadFileService.updateDownloadFilesDeleteStatus(runPathMasterIdForDownloadFiles, true);
+	        if (downloadFileResponse.getResponseCode() == 0) {
+	            System.err.println("Failed to update delete status for download files: " + downloadFileResponse.getResponseMessage());
+	        }
+	    } else {
+	        System.err.println("Failed to remove Ofp Configuration: " + serviceResponse.getResponseMessage());
+	    }
+	    return serviceResponse;
 	}
 
 	// API : GET OFP CONFIG BASED ON UUT

@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.response.AitessConfigurationResponse;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
+import com.teclever.dfcc.model.Aitess;
 import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessSymbolFiles.AitessSymbolDetails;
 import com.teclever.dfcc.utils.AitessConfigHeader;
@@ -158,10 +161,11 @@ public class AitessSymbolFilesController {
 
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "symbols");
 				if (res.getResponseCode() == 1) {
-//		            	 tableData.clear();
+					tableData.clear();
+		            Notifications.showSuccessAlert(res.getResponseMsg());	 
 					setSymbolFileTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("Files not added");
+				} else if(res.getResponseCode() == 0){
+					Notifications.showErrorAlert(res.getResponseMsg());
 				}
 			}
 		}else {
@@ -227,16 +231,30 @@ public class AitessSymbolFilesController {
 		customTableView_symbolFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessSymbolFiles> selectedItems = customTableView_symbolFiles.getSelectedItems();
 			for (AitessSymbolFiles rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "symbols");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setSymbolFileTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		symbolFileTableGridPane.add(customTableView_symbolFiles, 0, 0);
+	}
+	
+	private void handleDeleteButtonClicked(AitessSymbolFiles rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete Symbol File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteAitessSymbol(rowData.getFileName()));
+	}
+	
+	private void deleteAitessSymbol(String fileName) {
+		
+		Response response = customFileAddManagement.deleteFile(fileName, "symbols");
+		
+		if(response.getResponseCode() == 1) {
+			tableData.clear();
+			setSymbolFileTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		}else if(response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 	}
 }
 

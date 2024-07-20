@@ -11,6 +11,7 @@ import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.model.AitessDownloadCode;
+import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -156,9 +157,10 @@ public class OFPDownloadCodeController {
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "download");
 				if (res.getResponseCode() == 1) {
 					tableData.clear();
+		            Notifications.showSuccessAlert(res.getResponseMsg());
 					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("Files not added");
+				} else if (res.getResponseCode() == 0) {
+		            Notifications.showErrorAlert(res.getResponseMsg());
 				}
 			}
 		}else {
@@ -179,16 +181,30 @@ public class OFPDownloadCodeController {
 		customTableView_downloadCode.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessDownloadCode> selectedItems = customTableView_downloadCode.getSelectedItems();
 			for (AitessDownloadCode rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "download");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessDownloadCodeTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		ofpDownloadCodeTableGridPane.add(customTableView_downloadCode, 0, 0);
+	}
+	
+	private void handleDeleteButtonClicked(AitessDownloadCode rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete OFP Download File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPDownloadFile(rowData.getFileName()));
+	}
+	
+	private void deleteOFPDownloadFile(String fileName) {
+		
+		Response response = customFileAddManagement.deleteFile(fileName, "download");
+		
+		if(response.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessDownloadCodeTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		}else if(response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 	}
 
 }

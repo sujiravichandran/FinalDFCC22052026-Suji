@@ -122,10 +122,10 @@ public class AddStageController implements Initializable {
 		// Set fixed size for the stage after the scene is fully initialized
         Platform.runLater(() -> {
             Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-            stage.setMinWidth(400); // Set your desired width
-            stage.setMaxWidth(400);
-            stage.setMinHeight(430); // Set your desired height
-            stage.setMaxHeight(430);
+//            stage.setMinWidth(400); // Set your desired width
+//            stage.setMaxWidth(400);
+//            stage.setMinHeight(430); // Set your desired height
+//            stage.setMaxHeight(430);
             stage.setResizable(false);
         });
 	}
@@ -215,7 +215,7 @@ public class AddStageController implements Initializable {
 			}
 		} else if (add_new_stage_button.getText().equals("Update Stage")) {
 			LevelOneAddResponse response = stageConfig.updateLevelOneStageMaster(sessionStage.getId(),
-					stage_name_field.getText(), selectedSessionTypeIds.toString(), UUT_ID,   mandatoryCheckBox.isSelected(), continueWithErrorCheckBox.isSelected());
+					stage_name_field.getText().trim(), selectedSessionTypeIds.toString(), UUT_ID,   mandatoryCheckBox.isSelected(), continueWithErrorCheckBox.isSelected());
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
 			} else {
@@ -250,10 +250,10 @@ public class AddStageController implements Initializable {
 
 	@FXML
 	void onClickAddSubStage(ActionEvent event) {
-		if (stage_child_name_field.getText().isEmpty()) {
+		if (stage_child_name_field.getText().trim().isEmpty()) {
 			Notifications.showWarningAlert("Please provide Sub stage Name");
 		} else {
-			LevelsAddResponse response = stageConfig.addStageMasterLevel(PARENT_ID, stage_child_name_field.getText(),
+			LevelsAddResponse response = stageConfig.addStageMasterLevel(PARENT_ID, stage_child_name_field.getText().trim(),
 					TEST_TYPE_ID);
 			if (response.getResponse().getResponseCode() == 1) {
 				closeAndRefresh();
@@ -299,7 +299,7 @@ public class AddStageController implements Initializable {
 
 	@FXML
 	void onClickUpdateSubStage(ActionEvent event) {
-		LevelsAddResponse response = stageConfig.updateStageMasterLevel(CHILD_ID, PARENT_ID, stage_name_field.getText(),
+		LevelsAddResponse response = stageConfig.updateStageMasterLevel(CHILD_ID, PARENT_ID, stage_name_field.getText().trim(),
 				TEST_TYPE_ID);
 		if (response.getResponse().getResponseCode() == 1) {
 			closeAndRefresh();

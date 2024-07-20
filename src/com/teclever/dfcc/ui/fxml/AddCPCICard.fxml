@@ -59,12 +59,12 @@
             </VBox>
             <HBox fx:id="buttonBox" alignment="CENTER" layoutX="40.0" layoutY="443.0" prefWidth="200.0" spacing="40.0">
                <children>
-                  <Button fx:id="closeButton" layoutX="135.0" layoutY="20.0" mnemonicParsing="false" text="Close">
+                  <Button fx:id="saveButton" layoutX="94.0" layoutY="10.0" mnemonicParsing="false" text="Save">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Button>
-                  <Button fx:id="saveButton" layoutX="94.0" layoutY="10.0" mnemonicParsing="false" text="Save">
+                  <Button fx:id="closeButton" layoutX="135.0" layoutY="20.0" mnemonicParsing="false" text="Close">
                      <font>
                         <Font size="16.0" />
                      </font>

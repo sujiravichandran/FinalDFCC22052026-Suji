@@ -10,6 +10,7 @@ import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -29,20 +30,20 @@ import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
 
 public class OFPTestFilesController {
-	
+
 	private GridPane ofpTestFilesParentGridPane = new GridPane();
 	private GridPane ofpTestFilesTitleGridPane = new GridPane();
 	private GridPane ofpTestFilesTableGridPane = new GridPane();
-	
+
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private AitessConfigHeader configHeader = new AitessConfigHeader("OFP");
-	private CustomFileAddManagement customFileAddManagement=new CustomFileAddManagement();
-	
+	private CustomFileAddManagement customFileAddManagement = new CustomFileAddManagement();
+
 	private TableViewFactory<AitessTestFiles> userFactory = new OFPTestFilesTableViewFactory();
 	private CustomTableView<AitessTestFiles> customTableView_testFiles;
 	private ObservableList<AitessTestFiles> tableData = FXCollections.observableArrayList();
 	private String RUN_CONFIG_ID;
-	
+
 	public OFPTestFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
@@ -55,10 +56,10 @@ public class OFPTestFilesController {
 			}
 		});
 	}
-	
+
 	public GridPane ofpTestFileParentGrid() {
-		ofpTestFilesParentGridPane.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/OFPTestFiles.css").toExternalForm());
+		ofpTestFilesParentGridPane.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/OFPTestFiles.css").toExternalForm());
 		ofpTestFilesParentGridPane.getStyleClass().add("ofpTestFiles-parent-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -82,8 +83,6 @@ public class OFPTestFilesController {
 
 		return ofpTestFilesParentGridPane;
 	}
-
-
 
 	private GridPane ofpTestFilesTopContainer() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -124,36 +123,36 @@ public class OFPTestFilesController {
 		headerButtonHbox.getChildren().add(addFileButton);
 		return headerButtonHbox;
 	}
-	
-	
 
 	private void onClickAddFileButton() {
 
-		if(RUN_CONFIG_ID!=null) {
+		if (RUN_CONFIG_ID != null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
 //			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
-			 List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpTestFilesParentGridPane.getScene().getWindow());
-			 List<String> filePaths = new ArrayList<>();
-			 if (selectedFiles != null) {
-		            for (File file : selectedFiles) {
-		                filePaths.add(file.getAbsolutePath());
-		            }
-		           
-		            AddCustomFileResponse res=customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
-		            if(res.getResponseCode()==1) {
-		            	 tableData.clear();
-		 	            setAitessTestFilesTableData(RUN_CONFIG_ID);
-		            }else {
-		            	Notifications.showErrorAlert("Files not added");
-		            }
-			 }
-		}else {
+			List<File> selectedFiles = fileChooser
+					.showOpenMultipleDialog(ofpTestFilesParentGridPane.getScene().getWindow());
+			List<String> filePaths = new ArrayList<>();
+			if (selectedFiles != null) {
+				for (File file : selectedFiles) {
+					filePaths.add(file.getAbsolutePath());
+				}
+
+				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
+				if (res.getResponseCode() == 1) {
+					tableData.clear();
+					setAitessTestFilesTableData(RUN_CONFIG_ID);
+		            Notifications.showSuccessAlert(res.getResponseMsg());	 
+				} else if (res.getResponseCode() == 0) {
+					Notifications.showErrorAlert(res.getResponseMsg());
+				}
+			}
+		} else {
 			Notifications.showWarningAlert("Please select UUT Type and OFP Name");
 		}
-		
-		 
+
 	}
+
 	private GridPane createOFPTestFilesTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -165,8 +164,9 @@ public class OFPTestFilesController {
 		ofpTestFilesTableGridPane.getRowConstraints().addAll(firstRow);
 		ofpTestFilesTableGridPane.getStyleClass().add("ofpTestFiles-container");
 		return ofpTestFilesTableGridPane;
-	
+
 	}
+
 	private void setAitessTestFilesTableData(String runConfigId) {
 		List<TestFileDto> testFileList = testPlanFileManagement.getAllTestFiles(runConfigId);
 
@@ -180,19 +180,34 @@ public class OFPTestFilesController {
 		customTableView_testFiles.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<AitessTestFiles> selectedItems = customTableView_testFiles.getSelectedItems();
 			for (AitessTestFiles rowData : selectedItems) {
-				Response res = customFileAddManagement.deleteFile(rowData.getFileName(), "tpf");
-				if (res.getResponseCode() == 1) {
-					tableData.clear();
-					setAitessTestFilesTableData(RUN_CONFIG_ID);
-				} else {
-					Notifications.showErrorAlert("File not deleted");
-				}
+				handleDeleteButtonClicked(rowData);
 			}
 		});
 		ofpTestFilesTableGridPane.add(customTableView_testFiles, 0, 0);
 	}
 
+	private void handleDeleteButtonClicked(AitessTestFiles rowData) {
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete OFP Test File: " + rowData.getFileName() + "?";
+
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPTestFile(rowData.getFileName()));
+	}
+
+	private void deleteOFPTestFile(String fileName) {
+
+		Response response = customFileAddManagement.deleteFile(fileName, "tpf");
+
+		if (response.getResponseCode() == 1) {
+			tableData.clear();
+			setAitessTestFilesTableData(RUN_CONFIG_ID);
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		} else if (response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
+	}
+
 }
+
 class OFPTestFilesTableViewFactory implements TableViewFactory<AitessTestFiles> {
 	@Override
 	public CustomTableView<AitessTestFiles> createTableView(ObservableList<AitessTestFiles> items,

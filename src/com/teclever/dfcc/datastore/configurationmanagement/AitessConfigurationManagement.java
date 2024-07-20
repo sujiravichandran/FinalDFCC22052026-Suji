@@ -96,39 +96,15 @@ public class AitessConfigurationManagement {
 	}
 
 	// API : DELETE AITESS CONFIG
-	public AitessConfigurationDto[] deleteAitessConfig(int aitessId) {
-		AitessConfigurationService service = new AitessConfigurationService();
-		AitessConfigurationResponse serviceResponse = service.removeAitessConfiguration(aitessId);
-
-		AitessConfigurationDto[] dtoArray = new AitessConfigurationDto[0];
-
-		if (serviceResponse.getResponseCode() == 1) {
-			List<AitessConfiguration> configurationList = serviceResponse.getConfigurations();
-
-			if (configurationList != null) {
-				List<AitessConfigurationDto> dtoList = new ArrayList<>();
-
-				for (AitessConfiguration configuration : configurationList) {
-					AitessConfigurationDto dto = new AitessConfigurationDto();
-					dto.setAitessId(configuration.getAitessId());
-					dto.setAitessName(configuration.getAitessName());
-					dto.setAitessCommand(configuration.getAitessCommand());
-					dto.setAitessVersion(configuration.getAitessVersion());
-					dto.setDriverName(configuration.getDriverName());
-					dto.setLoadDriverCommand(configuration.getLoadDriverCommand());
-					dto.setUnloadDriverCommand(configuration.getUnloadDriverCommand());
-
-					dto.setDeleteStatus(configuration.isDeleteStatus());
-					dtoList.add(dto);
-				}
-
-				dtoArray = dtoList.toArray(new AitessConfigurationDto[0]);
-			}
-		} else {
-			System.err.println("Failed to remove Aitess configuration: " + serviceResponse.getResponseMessage());
-		}
-
-		return dtoArray;
+	public AitessConfigurationResponse deleteAitessConfig(int aitessId) {
+	    AitessConfigurationService service = new AitessConfigurationService();
+	    AitessConfigurationResponse serviceResponse = service.removeAitessConfiguration(aitessId);
+	    if (serviceResponse.getResponseCode() == 1) {
+	        System.out.println("Aitess configuration deleted successfully.");
+	    } else {
+	        System.err.println("Failed to remove Aitess configuration: " + serviceResponse.getResponseMessage());
+	    }
+	    return serviceResponse;
 	}
 
 	// API : GET AITESS NAME AND DRIVER NAME BASED ON UUT ID IN RUN CONFIGURATION

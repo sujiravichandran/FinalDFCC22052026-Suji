@@ -152,7 +152,7 @@ public class AddUserController {
 			userTypeBox.setManaged(false);
 			passwordLabel.setText("Enter New Password");
 			confirmPasswordLabel.setText("Confirm New Password");
-			saveButton.setText("Update User");
+			saveButton.setText("Update");
 			saveButton.setOnAction(e -> handleValidateData(userId));
 			setEditUserData(userId);
 		}

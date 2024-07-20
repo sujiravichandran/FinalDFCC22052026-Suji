@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="addOfpMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" stylesheets="@../css/AddOFP.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddOFPController">
+<AnchorPane fx:id="addOfpMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" stylesheets="@../css/AddOFP.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddOFPController">
    <children>
       <HBox fx:id="addOfpHeading" alignment="CENTER" prefHeight="50.0" prefWidth="400.0">
          <children>
@@ -56,7 +56,7 @@
                </padding>
             </HBox>
             
-            <HBox alignment="CENTER" prefWidth="200.0" spacing="10.0">
+            <HBox alignment="CENTER" prefWidth="200.0" spacing="40.0">
                <children>
                   <Button fx:id="add_ofp_button" mnemonicParsing="false" onAction="#onClickAddOfp" text="ADD OFP">
                      <font>

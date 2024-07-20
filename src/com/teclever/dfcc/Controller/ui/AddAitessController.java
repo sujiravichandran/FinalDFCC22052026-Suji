@@ -5,6 +5,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.utils.CustomButton;
+import com.teclever.dfcc.utils.Notifications;
 
 import java.util.HashMap;
 
@@ -114,9 +115,15 @@ public class AddAitessController {
               AitessConfigurationManagement configurationManagement = new AitessConfigurationManagement();
               AitessConfigurationResponse response = configurationManagement.addAitessConfig(
                       aitessConfigurationDTO);
-              mainPageController.refresh();
-              Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
-              stage.close();
+              if(response.getResponseCode() == 1) {
+                  mainPageController.refresh();
+                  Stage stage = (Stage) AddAitessController.this.adduser.getScene().getWindow();
+                  stage.close();
+            	  Notifications.showSuccessAlert(response.getResponseMessage());
+              }else if(response.getResponseCode() == 0){
+            	  Notifications.showErrorAlert(response.getResponseMessage());
+              }
+
           }
       }
 

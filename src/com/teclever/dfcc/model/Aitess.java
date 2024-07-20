@@ -2,7 +2,7 @@ package com.teclever.dfcc.model;
 
 public class Aitess {
 
-	private int aitessId;
+	private int id;
 
 	private String aitessName;
 	private String aitessCommand;
@@ -38,12 +38,12 @@ public class Aitess {
 		this.unloadDriverCommand = unloadDriverCommand;
 	}
 
-	public int getAitessId() {
-		return aitessId;
+	public int getId() {
+		return id;
 	}
 
-	public void setAitessId(int aitessId) {
-		this.aitessId = aitessId;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getAitessName() {

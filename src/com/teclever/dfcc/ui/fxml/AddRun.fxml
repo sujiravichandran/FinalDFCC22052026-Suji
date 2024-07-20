@@ -67,12 +67,12 @@
                   <Insets />
                </VBox.margin>
                <children>
+                  <Button fx:id="saveButton" mnemonicParsing="false" text="Save" />
                   <Button fx:id="cancelButton" minWidth="125.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="125.0" text="Close">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="saveButton" mnemonicParsing="false" text="Save" />
                </children>
             </HBox>
          </children>

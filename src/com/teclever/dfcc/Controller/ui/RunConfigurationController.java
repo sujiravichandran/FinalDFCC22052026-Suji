@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import javax.swing.table.DefaultTableModel;
-
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
@@ -17,6 +16,7 @@ import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.RunAitessConfiguration;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.application.Platform;
@@ -31,7 +31,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -72,50 +71,27 @@ public class RunConfigurationController {
 	private GridPane titleGridPane = new GridPane();
 	private GridPane midGridPane = new GridPane();
 	private HBox midHBoxUUTType = new HBox(10);
-	private HBox midHBoxTestType = new HBox(10);
-	private HBox midHBoxAitessType = new HBox(10);
-	private HBox midHBoxDriverName = new HBox(10);
-	private HBox midHBoxConfigFile = new HBox(10);
 
 	public ComboBox<String> uutTypeField;
-//	public ComboBox<String> testTypeField;
 	Label testTypeField;
 	Label aitessType = new Label("AITESS TYPE");
 	Label driverLabel = new Label("Driver");
 	Label configFile = new Label("SELECT CONFIG FILE");
 
-	private DefaultTableModel tableModel;
-	private static final int ID_COLUMN_INDEX = 0;
-
 	private HBox bottomHbox = new HBox(30);
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-	private RunConfigurationManagement runconfigManager = new RunConfigurationManagement();
+	private RunConfigurationManagement runConfigurationManager = new RunConfigurationManagement();
 
 	public RunConfigurationController() {
 		uutTypeField = new ComboBox<>();
-//		testTypeField = new ComboBox<>();
 		loadUUTTypes();
-//		setupDisplayTable(runuutTypeId);
 		setupDriverLabel();
-
-////		uutTypeField.setDisable(false);
-//        testTypeField.setVisible(false);
-//        aitessType.setVisible(false);	
-//        driverLabel.setVisible(false);
-//        configFile.setVisible(false);
 	}
 
 	public void refresh() {
 		runuutTypeAction();
-
 	}
-//	void DataSet() {
-//		runConfigurationController.aitessType.setVisible(true);
-//		runConfigurationController.configFile.setVisible(true);
-//		runConfigurationController.driverLabel.setVisible(true);
-//		runConfigurationController.testTypeField.setVisible(true);
-//		}
 
 	public GridPane runconfigurationGridPane() {
 
@@ -210,13 +186,8 @@ public class RunConfigurationController {
 		midGridPane.getRowConstraints().addAll(firstRow);
 
 		midGridPane.add(createUUTypeComboBox(), 0, 0);
-//		midGridPane.add(createTestTypeComboBox(), 1, 0);
-//		midGridPane.add(createAitessType(), 2, 0);
-//		midGridPane.add(createDriverNameLabel(), 3, 0);
-//		midGridPane.add(createConfigLabel(), 4, 0);
 
 		midGridPane.getStyleClass().add("runConfiguration-Container");
-//	midGridPane.getChildren().addAll(midHBoxUUTType);
 		return midGridPane;
 	}
 
@@ -249,50 +220,6 @@ public class RunConfigurationController {
 		return midHBoxUUTType;
 	}
 
-	private HBox createTestTypeComboBox() {
-		testTypeField = new Label("TEST TYPE");
-		testTypeField.setPadding(new Insets(10));
-		testTypeField.setPrefWidth(200);
-		testTypeField.setAlignment(Pos.CENTER);
-		testTypeField.setPadding(new Insets(0, 0, 0, 0));
-		midHBoxTestType.setAlignment(Pos.CENTER);
-		midHBoxTestType.setPrefWidth(200);
-		testTypeField.getStyleClass().add("runConfiguration-AiteesType");
-		midHBoxTestType.setAlignment(Pos.CENTER);
-		midHBoxTestType.getChildren().add(testTypeField);
-
-		return midHBoxTestType;
-	}
-
-	private HBox createAitessType() {
-
-		aitessType.setPadding(new Insets(10));
-		aitessType.setPrefWidth(200);
-		aitessType.setAlignment(Pos.CENTER);
-		aitessType.setPadding(new Insets(0, 0, 0, 0));
-		midHBoxAitessType.setAlignment(Pos.CENTER);
-		midHBoxAitessType.getChildren().add(aitessType);
-		midHBoxAitessType.setPrefWidth(200);
-		aitessType.getStyleClass().add("runConfiguration-AiteesType");
-
-		return midHBoxAitessType;
-	}
-
-	private HBox createDriverNameLabel() {
-
-//		Label driverName = new Label("DRIVER NAME");
-		driverLabel.setPadding(new Insets(10));
-		driverLabel.setPrefWidth(200);
-
-		driverLabel.setAlignment(Pos.CENTER);
-		driverLabel.setPadding(new Insets(0, 0, 0, 0));
-		midHBoxDriverName.setAlignment(Pos.CENTER);
-		midHBoxDriverName.getChildren().add(driverLabel);
-		midHBoxDriverName.setPrefWidth(200);
-		driverLabel.getStyleClass().add("runConfiguration-DriveName");
-
-		return midHBoxDriverName;
-	}
 
 	private void setupDriverLabel() {
 		aitessTypeValue = (String) this.uutTypeField.getValue();
@@ -321,28 +248,11 @@ public class RunConfigurationController {
 		}
 	}
 
-	private HBox createConfigLabel() {
-
-//		Label configFile = new Label("SELECT CONFIG FILE");
-//	    configFile.setPadding(new Insets(10));
-		configFile.setPrefWidth(600);
-		configFile.setAlignment(Pos.CENTER);
-		midHBoxConfigFile.setPadding(new Insets(0, 20, 0, 0));
-		midHBoxConfigFile.setAlignment(Pos.CENTER);
-		midHBoxConfigFile.getChildren().add(configFile);
-		configFile.getStyleClass().add("runConfiguration-ConfigFile");
-		midHBoxConfigFile.setPrefWidth(650);
-		// Set the HBox to span multiple columns
-		GridPane.setColumnSpan(midHBoxConfigFile, 10);
-
-		return midHBoxConfigFile;
-	}
 
 	private void onClickGETButton() {
 		 String selectedUUTType = uutTypeField.getValue();
 		    
 		    if (selectedUUTType == null || selectedUUTType.isEmpty()) {
-		        // Show alert because UUT type is not selected
 		        Alert alert = new Alert(AlertType.WARNING);
 		        alert.setTitle("Warning");
 		        alert.setHeaderText(null);
@@ -383,7 +293,6 @@ public class RunConfigurationController {
 
 	private void setupDisplayTable(String uutId) {
 	    Map<String, String> uutIdNameMap = DFCCConstant.getUutIdNameMap();
-	    RunConfigurationManagement runConfigurationManager = new RunConfigurationManagement();
 	    List<RunConfigurationDto> runConfigList = runConfigurationManager.getRunConfig(uutId);
 	    
 	    // Update the observable list
@@ -395,7 +304,7 @@ public class RunConfigurationController {
 	        runAitessData.setAitess(runConfig.getAitess());
 	        runAitessData.setDriver(runConfig.getDriver());
 	        runAitessData.setConfigFile(runConfig.getConfigFile());
-	        runAitessData.setRunConfigId(runConfig.getRunConfigId());
+	        runAitessData.setId(runConfig.getRunConfigId());
 	        driverData.add(runAitessData);
 	    }
 
@@ -403,7 +312,6 @@ public class RunConfigurationController {
 	        RunAitessTableViewFactory driverFactory = new RunAitessTableViewFactory();
 	        CustomTableView<RunAitessConfiguration> customTableView = driverFactory.createTableView(driverData, true, false);
 
-	        customTableView.hideColumn("RUN CONFIG ID");
 	        customTableView.setPrefWidth(1613.0);
 	        customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 	            ObservableList<RunAitessConfiguration> selectedItems = customTableView.getSelectedItems();
@@ -443,40 +351,21 @@ public class RunConfigurationController {
 	    setupDisplayTable(runuutTypeId);
 	}
 
-	private void handleDeleteButtonClicked(RunAitessConfiguration runConfigDto) {
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Confirmation Dialog");
-		alert.setHeaderText(null);
-		alert.setContentText(
-				"Are you sure you want to delete Aitess Run Configuration: " + runConfigDto.getAitess() + "?");
-
-		ButtonType buttonTypeYes = new ButtonType("Yes");
-		ButtonType buttonTypeNo = new ButtonType("No");
-
-		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-
-		alert.showAndWait().ifPresent(buttonType -> {
-			if (buttonType == buttonTypeYes) {
-				deleteRunConfig(runConfigDto.getRunConfigId());
-			}
-		});
+	private void handleDeleteButtonClicked(RunAitessConfiguration runConfigDto) {	
+		String title = "Confirmation Dialog";
+		String contentText = "Are you sure you want to delete Aitess Run Configuration: " + runConfigDto.getAitess() + "?";
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteRunConfig(runConfigDto.getId()));
 	}
 
 	private void deleteRunConfig(String runConfigId) {
-		RunConfigurationManagement runConfManagement = new RunConfigurationManagement();
-	    //runConfManagement.deleteRunConfig(runConfigId);
-		runConfManagement.deleteRunConfigById(runConfigId);
+		Response response = runConfigurationManager.deleteRunConfigById(runConfigId);
+		if(response.getResponseCode() == 1) {
+			Notifications.showSuccessAlert(response.getResponseMessage());
+		}else if(response.getResponseCode() == 0) {
+			Notifications.showErrorAlert(response.getResponseMessage());
+		}
 		runuutTypeAction();
 
 	}
-
-	public void alertBox(String text) {
-		Alert alert = new Alert(Alert.AlertType.INFORMATION);
-		alert.setTitle("INFORMATION");
-		alert.setContentText(text);
-		alert.showAndWait();
-	}
-
-	//
 
 }
