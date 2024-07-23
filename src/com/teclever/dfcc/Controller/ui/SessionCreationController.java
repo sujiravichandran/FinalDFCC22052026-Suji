@@ -324,8 +324,8 @@ public class SessionCreationController {
 		SortedList<SessionDetails> sortedList = new SortedList<>(filteredList);
 		sessionNameField.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredList.setPredicate(sessionDetail -> {
-				String lowerCaseFilter = newValue.toLowerCase();
-				return sessionDetail.getSessionName().toLowerCase().contains(lowerCaseFilter);
+				String lowerCaseFilter = newValue.toLowerCase().trim();
+				return sessionDetail.getSessionName().toLowerCase().trim().contains(lowerCaseFilter);
 			});
 			sortedList.comparatorProperty().bind(sessionDetailsTableView.comparatorProperty());
 			sessionDetailsTableView.setItems(sortedList);
@@ -427,7 +427,7 @@ public class SessionCreationController {
 
 		SessionDTO sessionDTO = new SessionDTO();
 		sessionDTO.setUutId(UUT_ID);
-		sessionDTO.setSessionName(sessionNameField.getText());
+		sessionDTO.setSessionName(sessionNameField.getText().trim());
 		sessionDTO.setSessionTypeMasterId(SESSION_TYPE_ID);
 		sessionDTO.setUserId(USER_ID);
 		sessionDTO.setDfccSNo(dfccSNoField.getText());

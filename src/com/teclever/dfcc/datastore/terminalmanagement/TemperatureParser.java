@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
 
+import javafx.collections.ObservableMap;
+
 public class TemperatureParser {
 	
 	
@@ -34,8 +36,8 @@ public class TemperatureParser {
 	
 
 	//MK1a MK2
-	public static Map<String, List<ChannelTemperature>> parseFile(String filePath) throws IOException {
-	    Map<String, List<ChannelTemperature>> boardTemperatureMap = new HashMap<>();
+	public static Map<String, ChannelTemperature> parseFile(String filePath) throws IOException {
+	    Map<String, ChannelTemperature> boardTemperatureMap = new HashMap<>();
 	    List<String> boardNames = new ArrayList<>();
 	    Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$");
 	    Pattern temperaturePattern = Pattern.compile("R>\\s*\\(\\s*([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^\\)]+)\\)\\s*DEGC");
@@ -73,9 +75,10 @@ public class TemperatureParser {
 	                    matcher.group(4).trim()
 	                );
 
-	                boardTemperatureMap
-	                    .computeIfAbsent(currentBoardName, k -> new ArrayList<>())
-	                    .add(channelTemperature);
+//	                boardTemperatureMap
+//	                    .computeIfAbsent(currentBoardName, k -> new ArrayList<>())
+//	                    .add(channelTemperature);
+	                boardTemperatureMap.put(currentBoardName, channelTemperature);
 
 	                // Move to the next board name
 	                currentBoardName = boardNames.isEmpty() ? null : boardNames.remove(0);
@@ -99,7 +102,7 @@ public class TemperatureParser {
 	        }
 	    }
 
-	    boardChannelTemp.setBoardTemperatureMap(boardTemperatureMap);
+	    boardChannelTemp.setBoardTemperatureMap((ObservableMap<String, ChannelTemperature>) boardTemperatureMap);
 	    System.out.println("---->>>>  "+ boardChannelTemp.getBoardTemperatureMap());
 	    return boardTemperatureMap;
 	}

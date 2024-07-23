@@ -14,7 +14,7 @@ import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.terminalmanagement.DriverManagement;
-import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
+import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 import com.teclever.utils.ProcessControl;
 
 public class LoadDriverProcessControlManagement {
