@@ -1,18 +1,32 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.List;
+import java.util.Random;
+
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
+import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.ChannelTemperature;
+import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
-import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
+import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -20,7 +34,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
@@ -30,14 +46,19 @@ public class UserDashboardController {
 	private GridPane bottomGridPane = new GridPane();
 	private GridPane bottomMidTopGridPane = new GridPane();
 
-		UserCenterContentController centerContentController = new UserCenterContentController();
-		SessionManagement sessionManagement = new SessionManagement();
+	private ObservableMap<String, ChannelTemperature> boardTemperatureMap;
+	private List<MacroButtonMapDto> macroButtonList;
 	
 	
+	UserCenterContentController centerContentController = new UserCenterContentController();
+	SessionManagement sessionManagement = new SessionManagement();
+	MacroConfigurationManagement macroConfigurationManagement = new MacroConfigurationManagement();
+
+
 	public GridPane createUserDashboard() {
 		getAllStagesData();
-		bottomMainGridPane.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
+		bottomMainGridPane.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
 
 		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
@@ -57,18 +78,20 @@ public class UserDashboardController {
 		bottomMainGridPane.add(createBottomMidGridPane(), 1, 0);
 		bottomMainGridPane.add(createBottomRightGridPane(), 2, 0);
 
-
 		return bottomMainGridPane;
 
 	}
+
 	private void getAllStagesData() {
-		SessionStageMapResponse data = sessionManagement.getAllSessionStageMapping(currentSessionDetails.getSessionId());
+		SessionStageMapResponse data = sessionManagement
+				.getAllSessionStageMapping(currentSessionDetails.getSessionId());
 		if (data.getResponse().getResponseCode() == 1) {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
-		}else {
-			System.out.println("Error in getAllStagesData : "+data.getResponse().getResponseMessage());
+		} else {
+			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
+
 	private GridPane createBottomleftGridPane() {
 		GridPane bottomLeftGridPane = new GridPane();
 		bottomLeftGridPane.setVgap(10);
@@ -115,47 +138,54 @@ public class UserDashboardController {
 //				}
 //			}
 //		});
-		
+
 		menuTreeView.setOnMouseClicked(event -> {
-		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
-		    if (selectedItem != null) {
-		        Label selectedLabel = selectedItem.getValue();		        
+			TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
+			if (selectedItem != null) {
+				Label selectedLabel = selectedItem.getValue();
 //		        System.out.println("Selected Label: " + selectedLabel.getText());
 
-		        if (selectedItem.getChildren().isEmpty()) {
-		        	centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());
-		        }
+				if (selectedItem.getChildren().isEmpty()) {
+					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());
+				}
 
-		        if (!selectedItem.getChildren().isEmpty()) {
-		            selectedItem.getChildren().forEach(subMenuItem -> {
-		            });
-		        }
-		    }
+				if (!selectedItem.getChildren().isEmpty()) {
+					selectedItem.getChildren().forEach(subMenuItem -> {
+					});
+				}
+			}
 		});
 
-		if(UserData.getRoleId().equals("RL_ID_3")) {
-			addTreeItemWithChildren(rootItem, "Dashboard", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
-			addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
+		if (UserData.getRoleId().equals("RL_ID_3")) {
+			addTreeItemWithChildren(rootItem, "Dashboard",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/dashboard.png", null);
+			addTreeItemWithChildren(rootItem, "Testing",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
 					new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
-			addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
+			addTreeItemWithChildren(rootItem, "Results",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
 					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
-			addTreeItemWithChildren(rootItem, "Advanced Data Analysis", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
-					null);
-			addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
+			addTreeItemWithChildren(rootItem, "Advanced Data Analysis",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
+			addTreeItemWithChildren(rootItem, "Reports",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png",
 					new String[] { "Session Report", "Advanced Report", "UUT Report/Datapack" });
-		}else if(UserData.getRoleId().equals("RL_ID_4")) {
-			addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
+
+		} else if (UserData.getRoleId().equals("RL_ID_4")) {
+
+			addTreeItemWithChildren(rootItem, "Testing",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
 					new String[] { "Self Test", "SRU/LRU Test" });
-			addTreeItemWithChildren(rootItem, "Results", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png",
-					null);
-			addTreeItemWithChildren(rootItem, "Test Summary", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
-					null);
-			addTreeItemWithChildren(rootItem, "Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
-					null);
-			addTreeItemWithChildren(rootItem, "History Reports", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
-					null);
+			addTreeItemWithChildren(rootItem, "Results",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "Test Summary",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
+			addTreeItemWithChildren(rootItem, "Reports",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png", null);
+			addTreeItemWithChildren(rootItem, "History Reports",
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png", null);
 		}
-		
+
 //		addTreeItemWithChildren(rootItem, "Dashboard", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
 //		addTreeItemWithChildren(rootItem, "Testing", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png",
 //				new String[] { "SubMenu1", "SubMenu2" });
@@ -250,9 +280,9 @@ public class UserDashboardController {
 		logoutBox.getChildren().add(logoutLabel);
 		logoutBox.getStyleClass().add("logout-button");
 		logoutLabel.getStyleClass().add("logout-text");
-		
-		logoutBox.setOnMouseClicked(e -> Platform.exit());		
-		
+
+		logoutBox.setOnMouseClicked(e -> Platform.exit());
+
 		bottomButtonGridPane.add(logoutBox, 0, 0);
 
 		return bottomButtonGridPane;
@@ -277,27 +307,6 @@ public class UserDashboardController {
 
 		RowConstraints bottomRightBottomLastRow = new RowConstraints();
 		bottomRightBottomLastRow.setPercentHeight(7);
-
-		Pane newPane = new Pane();
-		newPane.prefWidthProperty().bind(bottomRightColumn.prefWidthProperty());
-		newPane.prefHeightProperty().bind(bottomRightTopRow.prefHeightProperty());
-
-		Pane newPane1 = new Pane();
-		newPane1.prefWidthProperty().bind(bottomRightColumn.prefWidthProperty());
-		newPane1.prefHeightProperty().bind(bottomRightMidRow.prefHeightProperty());
-
-		Pane newPane2 = new Pane();
-		newPane2.prefWidthProperty().bind(bottomRightColumn.prefWidthProperty());
-		newPane2.prefHeightProperty().bind(bottomRightBottomRow.prefHeightProperty());
-
-		Pane newPane3 = new Pane();
-		newPane3.prefWidthProperty().bind(bottomRightColumn.prefWidthProperty());
-		newPane3.prefHeightProperty().bind(bottomRightBottomLastRow.prefHeightProperty());
-
-		newPane.setStyle("-fx-background-color: black;");
-		newPane1.setStyle("-fx-background-color: white;");
-		newPane2.setStyle("-fx-background-color: green;");
-		newPane3.setStyle("-fx-background-color: pink;");
 
 		bottomRightGridPane.getColumnConstraints().add(bottomRightColumn);
 		bottomRightGridPane.getRowConstraints().addAll(bottomRightTopRow, bottomRightMidRow, bottomRightBottomRow,
@@ -396,10 +405,10 @@ public class UserDashboardController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(22);
+		firstRow.setPercentHeight(20);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(26);
+		secondRow.setPercentHeight(28);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(26);
@@ -446,8 +455,38 @@ public class UserDashboardController {
 		secondRowBox.setAlignment(Pos.CENTER_LEFT);
 		secondRowBox.prefWidthProperty().bind(firstColumn.prefWidthProperty());
 		secondRowBox.prefHeightProperty().bind(secondRow.prefHeightProperty());
-		Label statusLabel = new Label("DFCC Power ON");
-		secondRowBox.getStyleClass().add("dfcc-status-box");
+		Label statusLabel = new Label("DFCC Power OFF");
+
+		secondRowBox.setOnMouseClicked(e -> {
+			if (statusLabel.getText().toLowerCase().contains("on")) {
+				statusLabel.setText("DFCC Power OFF");
+				dfccCheckStatus.getDfccPowerStatus().set(false);
+			} else {
+				statusLabel.setText("DFCC Power ON");
+				dfccCheckStatus.getDfccPowerStatus().set(true);
+			}
+
+		});
+
+		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				secondRowBox.getStyleClass().remove("dfcc-status-box-off");
+				secondRowBox.getStyleClass().add("dfcc-status-box-on");
+				OnlineStatus.setChannel1Status("online");
+				OnlineStatus.setChannel2Status("offline");
+				OnlineStatus.setChannel3Status("online");
+				OnlineStatus.setChannel4Status("online");
+			} else {
+				secondRowBox.getStyleClass().remove("dfcc-status-box-on");
+				secondRowBox.getStyleClass().add("dfcc-status-box-off");
+				OnlineStatus.setChannel1Status("offline");
+				OnlineStatus.setChannel2Status("offline");
+				OnlineStatus.setChannel3Status("offline");
+				OnlineStatus.setChannel4Status("offline");
+			}
+		});
+
+		secondRowBox.getStyleClass().addAll("dfcc-status-box", "dfcc-status-box-off");
 		statusLabel.getStyleClass().add("dfcc-status");
 		secondRowBox.getChildren().add(statusLabel);
 
@@ -458,11 +497,26 @@ public class UserDashboardController {
 	}
 
 	private VBox createBottomRightMidSecond() {
-		VBox bottomRightMidSecondBox = new VBox();
+		boardTemperatureMap = boardChannelTemp.getBoardTemperatureMap();
+
+		VBox bottomRightMidSecondBox = new VBox(10);
 		bottomRightMidSecondBox.setAlignment(Pos.CENTER_LEFT);
 
 		Label titleLabel = new Label("Temperature");
 		titleLabel.getStyleClass().add("right-common-title");
+
+		ComboBox<String> temperatureComboBox = new ComboBox<String>();
+		if (currentSessionDetails.getUutId().equals("UUT1")) {
+			temperatureComboBox.getItems().addAll("SC", "AEC");
+
+		} else {
+			temperatureComboBox.getItems().addAll("Board-1", "Board-2", "Board-3", "Board-4");
+		}
+
+		HBox temperatureTitleHBox = new HBox(5);
+		HBox.setHgrow(temperatureComboBox, Priority.ALWAYS);
+		temperatureComboBox.setMaxWidth(Double.MAX_VALUE);
+		temperatureTitleHBox.getChildren().addAll(titleLabel, temperatureComboBox);
 
 		GridPane bottomRightMidSecondGridPane = new GridPane();
 		bottomRightMidSecondGridPane.setVgap(5);
@@ -484,25 +538,25 @@ public class UserDashboardController {
 
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER);
-		Label label1 = new Label("36.5");
+		Label label1 = new Label("N/A");
 		box1.getChildren().add(label1);
 		box1.getStyleClass().add("temp-box");
 
 		VBox box2 = new VBox();
 		box2.setAlignment(Pos.CENTER);
-		Label label2 = new Label("36.5");
+		Label label2 = new Label("N/A");
 		box2.getChildren().add(label2);
 		box2.getStyleClass().add("temp-box");
 
 		VBox box3 = new VBox();
 		box3.setAlignment(Pos.CENTER);
-		Label label3 = new Label("36.5");
+		Label label3 = new Label("N/A");
 		box3.getChildren().add(label3);
 		box3.getStyleClass().add("temp-box");
 
 		VBox box4 = new VBox();
 		box4.setAlignment(Pos.CENTER);
-		Label label4 = new Label("36.5");
+		Label label4 = new Label("N/A");
 		box4.getChildren().add(label4);
 		box4.getStyleClass().add("temp-box");
 
@@ -511,10 +565,128 @@ public class UserDashboardController {
 		bottomRightMidSecondGridPane.add(box3, 0, 1);
 		bottomRightMidSecondGridPane.add(box4, 1, 1);
 
-		bottomRightMidSecondBox.getChildren().addAll(titleLabel, bottomRightMidSecondGridPane);
+		updateMK1Temp();
+		updateMK1AandMK2Temp();
+
+		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
+				Platform.runLater(() -> {
+					setMK1Temp(newValue, box1, box2, box3, box4);
+				});
+			}
+		});
+
+		boardTemperatureMap.addListener((MapChangeListener<String, ChannelTemperature>) change -> {
+			if (temperatureComboBox.getValue() != null) {
+				if (temperatureComboBox.getValue().equals(change.getKey())) {
+					Platform.runLater(() -> {
+						setMk1AandMk2Temp(change.getValueAdded(), box1, box2, box3, box4);
+					});
+				}
+			}
+		});
+
+		bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, bottomRightMidSecondGridPane);
 
 		return bottomRightMidSecondBox;
 
+	}
+
+	private void setMk1AandMk2Temp(ChannelTemperature valueAdded, VBox box1, VBox box2, VBox box3, VBox box4) {
+		Label label1 = (Label) box1.getChildren().get(0);
+		Label label2 = (Label) box2.getChildren().get(0);
+		Label label3 = (Label) box3.getChildren().get(0);
+		Label label4 = (Label) box4.getChildren().get(0);
+
+		label1.textProperty().bind(valueAdded.channel1TempProperty());
+		label2.textProperty().bind(valueAdded.channel2TempProperty());
+		label3.textProperty().bind(valueAdded.channel3TempProperty());
+		label4.textProperty().bind(valueAdded.channel4TempProperty());
+	}
+
+	private void updateMK1Temp() {
+		new Thread(() -> {
+			for (int i = 0; i < 10000; i++) {
+				try {
+					Random random = new Random();
+					Platform.runLater(() -> {
+						channelAECTemp.setChannel1Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+						channelAECTemp.setChannel2Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+						channelAECTemp.setChannel3Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+						channelAECTemp.setChannel4Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+						channelSCTemp.setChannel1Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+						channelSCTemp.setChannel2Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+						channelSCTemp.setChannel3Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+						channelSCTemp.setChannel4Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+					});
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	private void updateMK1AandMK2Temp() {
+
+		new Thread(() -> {
+			for (int i = 0; i < 10000; i++) {
+				try {
+					Random random = new Random();
+					Platform.runLater(() -> {
+
+						ChannelTemperature temp1 = new ChannelTemperature(
+								String.format("b1 :%01d", random.nextInt(9) + 10),
+								String.format("b1 :%01d", random.nextInt(9) + 10),
+								String.format("b1 :%01d", random.nextInt(9) + 10),
+								String.format("b1 :%01d", random.nextInt(9) + 10));
+						ChannelTemperature temp2 = new ChannelTemperature(
+								String.format("b2 :%01d", random.nextInt(9) + 10),
+								String.format("b2 :%01d", random.nextInt(9) + 10),
+								String.format("b2 :%01d", random.nextInt(9) + 10),
+								String.format("b2 :%01d", random.nextInt(9) + 10));
+						ChannelTemperature temp3 = new ChannelTemperature(
+								String.format("b3 :%01d", random.nextInt(9) + 10),
+								String.format("b3 :%01d", random.nextInt(9) + 10),
+								String.format("b3 :%01d", random.nextInt(9) + 10),
+								String.format("b3 :%01d", random.nextInt(9) + 10));
+						ChannelTemperature temp4 = new ChannelTemperature(
+								String.format("b4 :%01d", random.nextInt(9) + 10),
+								String.format("b4 :%01d", random.nextInt(9) + 10),
+								String.format("b4 :%01d", random.nextInt(9) + 10),
+								String.format("b4 :%01d", random.nextInt(9) + 10));
+
+						boardChannelTemp.addBoardTemperatureMap("Board-1", temp1);
+						boardChannelTemp.addBoardTemperatureMap("Board-2", temp2);
+						boardChannelTemp.addBoardTemperatureMap("Board-3", temp3);
+						boardChannelTemp.addBoardTemperatureMap("Board-4", temp4);
+
+					});
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	private void setMK1Temp(String selectedItem, VBox box1, VBox box2, VBox box3, VBox box4) {
+		Label label1 = (Label) box1.getChildren().get(0);
+		Label label2 = (Label) box2.getChildren().get(0);
+		Label label3 = (Label) box3.getChildren().get(0);
+		Label label4 = (Label) box4.getChildren().get(0);
+
+		if (selectedItem.equalsIgnoreCase("sc")) {
+			label1.textProperty().bind(channelSCTemp.channel1TemperatureProperty());
+			label2.textProperty().bind(channelSCTemp.channel2TemperatureProperty());
+			label3.textProperty().bind(channelSCTemp.channel3TemperatureProperty());
+			label4.textProperty().bind(channelSCTemp.channel4TemperatureProperty());
+		} else {
+			label1.textProperty().bind(channelAECTemp.channel1TemperatureProperty());
+			label2.textProperty().bind(channelAECTemp.channel2TemperatureProperty());
+			label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
+			label4.textProperty().bind(channelAECTemp.channel4TemperatureProperty());
+		}
 	}
 
 	private VBox createBottomRightMidThird() {
@@ -546,25 +718,25 @@ public class UserDashboardController {
 		box1.setAlignment(Pos.CENTER);
 		Label label1 = new Label("CH-1");
 		box1.getChildren().add(label1);
-		box1.getStyleClass().add("power-status-box");
+		box1.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box2 = new VBox();
 		box2.setAlignment(Pos.CENTER);
 		Label label2 = new Label("CH-2");
 		box2.getChildren().add(label2);
-		box2.getStyleClass().add("power-status-box");
+		box2.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box3 = new VBox();
 		box3.setAlignment(Pos.CENTER);
 		Label label3 = new Label("CH-3");
 		box3.getChildren().add(label3);
-		box3.getStyleClass().add("power-status-box");
+		box3.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box4 = new VBox();
 		box4.setAlignment(Pos.CENTER);
 		Label label4 = new Label("CH-4");
 		box4.getChildren().add(label4);
-		box4.getStyleClass().add("power-status-box");
+		box4.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		bottomRightMidThirdGridPane.add(box1, 0, 0);
 		bottomRightMidThirdGridPane.add(box2, 1, 0);
@@ -605,25 +777,65 @@ public class UserDashboardController {
 		box1.setAlignment(Pos.CENTER);
 		Label label1 = new Label("CH-1");
 		box1.getChildren().add(label1);
-		box1.getStyleClass().add("power-status-box");
+		box1.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box2 = new VBox();
 		box2.setAlignment(Pos.CENTER);
 		Label label2 = new Label("CH-2");
 		box2.getChildren().add(label2);
-		box2.getStyleClass().add("power-status-box");
+		box2.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box3 = new VBox();
 		box3.setAlignment(Pos.CENTER);
 		Label label3 = new Label("CH-3");
 		box3.getChildren().add(label3);
-		box3.getStyleClass().add("power-status-box");
+		box3.getStyleClass().addAll("power-status-box", "power-status-box-off");
 
 		VBox box4 = new VBox();
 		box4.setAlignment(Pos.CENTER);
 		Label label4 = new Label("CH-4");
 		box4.getChildren().add(label4);
-		box4.getStyleClass().add("power-status-box");
+		box4.getStyleClass().addAll("power-status-box", "power-status-box-off");
+
+		OnlineStatus.channel1StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box1.getStyleClass().remove("power-status-box-off");
+				box1.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box1.getStyleClass().remove("power-status-box-on");
+				box1.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		OnlineStatus.channel2StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box2.getStyleClass().remove("power-status-box-off");
+				box2.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box2.getStyleClass().remove("power-status-box-on");
+				box2.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		OnlineStatus.channel3StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box3.getStyleClass().remove("power-status-box-off");
+				box3.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box3.getStyleClass().remove("power-status-box-on");
+				box3.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		OnlineStatus.channel4StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box4.getStyleClass().remove("power-status-box-off");
+				box4.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box4.getStyleClass().remove("power-status-box-on");
+				box4.getStyleClass().add("power-status-box-off");
+			}
+		});
 
 		bottomRightMidFourthGridPane.add(box1, 0, 0);
 		bottomRightMidFourthGridPane.add(box2, 1, 0);
@@ -660,12 +872,25 @@ public class UserDashboardController {
 		int i = 0;
 		String[] labels = { "INIT DFCC", "Power Reset", "Erase EEPROM", "Cycle Power", "Check OFP", "Check WDM",
 				"Check OFP 2", "Check WDM 2" };
+		
+		macroButtonList=macroConfigurationManagement.getAllMacroButtonsByUutId(currentSessionDetails.getUutId());
 
+		
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 2; col++) {
 				VBox box = new VBox();
 				box.setAlignment(Pos.CENTER);
-				Label label = new Label(labels[i]);
+				Label label = new Label(macroButtonList.get(i).getButtonName());
+				label.setUserData(macroButtonList.get(i).getCommand());
+				
+				label.setOnMouseClicked(e ->{
+					if(!label.getUserData().equals("<NOT SET>")) {
+						Notifications.showSuccessAlert("Selected Macro Command : "+label.getUserData());
+					}else {
+						Notifications.showErrorAlert("Macro Button Not Configured" );
+					}
+				});
+
 				box.getChildren().add(label);
 				box.getStyleClass().add("third-conatiner-button");
 				rightMidSecondGridPane.add(box, col, row);
@@ -699,14 +924,9 @@ public class UserDashboardController {
 		return rightBottomGridPane;
 	}
 
-	
-	
-	
-
-
 	private GridPane createBottomMidGridPane() {
 		bottomGridPane.setVgap(10);
-		
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -714,79 +934,43 @@ public class UserDashboardController {
 		firstRow.setPercentHeight(93);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(7);
-		
+
 		bottomGridPane.getColumnConstraints().addAll(firstColumn);
 		bottomGridPane.getRowConstraints().addAll(firstRow, secondRow);
-		
+
 		Button showTerminalButton = new Button("SHOW TERMINAL");
-		showTerminalButton.setMaxWidth(Double.MAX_VALUE);  
-	    showTerminalButton.setMaxHeight(Double.MAX_VALUE);
+		showTerminalButton.setMaxWidth(Double.MAX_VALUE);
+		showTerminalButton.setMaxHeight(Double.MAX_VALUE);
 		showTerminalButton.getStyleClass().add("show-terminal-button");
-		
-		showTerminalButton.setOnAction(e->{
+
+		showTerminalButton.setOnAction(e -> {
 			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal");
 		});
 
-		bottomGridPane.add(createBottomMidContentArea(),0, 0);
+		bottomGridPane.add(createBottomMidContentArea(), 0, 0);
 		bottomGridPane.add(showTerminalButton, 0, 1);
-		
+
 		return bottomGridPane;
 	}
 
-	
-	
-	private GridPane createBottomMidContentArea(){
-		
+	private GridPane createBottomMidContentArea() {
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
-		
+
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-		
+
 		bottomMidTopGridPane.getColumnConstraints().addAll(firstColumn);
 		bottomMidTopGridPane.getRowConstraints().addAll(firstRow);
-		
+
 		bottomMidTopGridPane.getStyleClass().add("center-container");
-		
+
 		return bottomMidTopGridPane;
 
-
 	}
-	
+
 }
-	
-	
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //package com.teclever.dfcc.Controller.ui;
 //

@@ -32,7 +32,6 @@
     -fx-background-radius: 10.0px;
 }
 .button {
-	-fx-min-width:90px;
     -fx-background-color: button-bg ; 
     -fx-text-fill:button-text; 
     -fx-font-size: 18px;

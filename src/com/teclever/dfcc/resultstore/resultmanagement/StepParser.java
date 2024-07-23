@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.teclever.dfcc.resultstore.dto.StepDto;
-import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
+import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
 
 
 public class StepParser {

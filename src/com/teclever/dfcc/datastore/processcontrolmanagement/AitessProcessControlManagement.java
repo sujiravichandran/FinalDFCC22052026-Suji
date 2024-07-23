@@ -11,20 +11,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.itextpdf.text.log.SysoCounter;
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.dfcc.Controller.ui.LoadDriverController;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
 import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
-import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.WDMStatus;
-import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
-import com.teclever.dfcc.stateMachine.StateMachine.channelTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
+import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.utils.ProcessControl;
@@ -445,10 +443,10 @@ if (dfccCheckStstusStarted) {
 							channelTemperature = temperatureParser.getChannelTemperature(finalLine);
 
 							if (channelTemperature != null) {
-								channelTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
-								channelTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
-								channelTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
-								channelTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
+								channelSCTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
+								channelSCTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
+								channelSCTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
+								channelSCTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
 							}
 							break;
 
@@ -456,10 +454,10 @@ if (dfccCheckStstusStarted) {
 							channelTemperature = temperatureParser.getChannelTemperature(finalLine);
 
 							if (channelTemperature != null) {
-								channelTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
-								channelTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
-								channelTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
-								channelTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
+								channelAECTemp.setChannel1Temperature(channelTemperature.getChannel1Temp());
+								channelAECTemp.setChannel2Temperature(channelTemperature.getChannel2Temp());
+								channelAECTemp.setChannel3Temperature(channelTemperature.getChannel3Temp());
+								channelAECTemp.setChannel4Temperature(channelTemperature.getChannel4Temp());
 							}
 							break;
 
@@ -561,14 +559,14 @@ if (dfccCheckStstusStarted) {
 		launcherFuture2
 				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
 		currentCommand = "DfccPowerOnCommand";
-		dfccCheckStatus.setDfccPowerStatus(true);
+		dfccCheckStatus.getDfccPowerStatus().set(true);
 	}
 
 	public void WriteDfccPowerOffCommandToAitess2() {
 		launcherFuture2
 				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
 		currentCommand = "DfccPowerOffCommand";
-		dfccCheckStatus.setDfccPowerStatus(false);
+		dfccCheckStatus.getDfccPowerStatus().set(false);
 	}
 
 	public void WriteAitess2Command1() {
