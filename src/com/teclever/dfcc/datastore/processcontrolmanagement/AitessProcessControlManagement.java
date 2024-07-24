@@ -569,6 +569,11 @@ if (dfccCheckStstusStarted) {
 		dfccCheckStatus.getDfccPowerStatus().set(false);
 	}
 
+	public void WriteMacroCommandToAitess2(String macroCommand) {
+		launcherFuture2
+				.thenRun(() -> aitess2ProcessControl.WritingProcess(macroCommand + "\n"));
+	}
+	
 	public void WriteAitess2Command1() {
 
 		// pending

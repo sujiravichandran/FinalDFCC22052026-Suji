@@ -9,6 +9,8 @@ import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationMan
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
+import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
@@ -48,15 +50,16 @@ public class UserDashboardController {
 
 	private ObservableMap<String, ChannelTemperature> boardTemperatureMap;
 	private List<MacroButtonMapDto> macroButtonList;
-	
-	
+
 	UserCenterContentController centerContentController = new UserCenterContentController();
 	SessionManagement sessionManagement = new SessionManagement();
 	MacroConfigurationManagement macroConfigurationManagement = new MacroConfigurationManagement();
-
+	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+	Aitess2ConfigManagement aitess2ConfigManagement = new Aitess2ConfigManagement();
 
 	public GridPane createUserDashboard() {
 		getAllStagesData();
+		aitess2ConfigManagement.getAllDfccStatusCommand();
 		bottomMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
@@ -459,33 +462,33 @@ public class UserDashboardController {
 
 		secondRowBox.setOnMouseClicked(e -> {
 			if (statusLabel.getText().toLowerCase().contains("on")) {
-				statusLabel.setText("DFCC Power OFF");
-				dfccCheckStatus.getDfccPowerStatus().set(false);
-			} else {
-				statusLabel.setText("DFCC Power ON");
-				dfccCheckStatus.getDfccPowerStatus().set(true);
-			}
+				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
 
+				Platform.runLater(() -> {
+					statusLabel.setText("DFCC Power OFF");
+					dfccCheckStatus.getDfccPowerStatus().set(false);
+				});
+
+			} else if (statusLabel.getText().toLowerCase().contains("off")) {
+				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+
+				Platform.runLater(() -> {
+					statusLabel.setText("DFCC Power ON");
+					dfccCheckStatus.getDfccPowerStatus().set(true);
+				});
+
+			}
 		});
 
 		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {
 				secondRowBox.getStyleClass().remove("dfcc-status-box-off");
 				secondRowBox.getStyleClass().add("dfcc-status-box-on");
-				OnlineStatus.setChannel1Status("online");
-				OnlineStatus.setChannel2Status("offline");
-				OnlineStatus.setChannel3Status("online");
-				OnlineStatus.setChannel4Status("online");
 			} else {
 				secondRowBox.getStyleClass().remove("dfcc-status-box-on");
 				secondRowBox.getStyleClass().add("dfcc-status-box-off");
-				OnlineStatus.setChannel1Status("offline");
-				OnlineStatus.setChannel2Status("offline");
-				OnlineStatus.setChannel3Status("offline");
-				OnlineStatus.setChannel4Status("offline");
 			}
 		});
-
 		secondRowBox.getStyleClass().addAll("dfcc-status-box", "dfcc-status-box-off");
 		statusLabel.getStyleClass().add("dfcc-status");
 		secondRowBox.getChildren().add(statusLabel);
@@ -509,9 +512,10 @@ public class UserDashboardController {
 		if (currentSessionDetails.getUutId().equals("UUT1")) {
 			temperatureComboBox.getItems().addAll("SC", "AEC");
 
-		} else {
-			temperatureComboBox.getItems().addAll("Board-1", "Board-2", "Board-3", "Board-4");
 		}
+//		else {
+//			temperatureComboBox.getItems().addAll("Board-1", "Board-2", "Board-3", "Board-4");
+//		}
 
 		HBox temperatureTitleHBox = new HBox(5);
 		HBox.setHgrow(temperatureComboBox, Priority.ALWAYS);
@@ -565,8 +569,8 @@ public class UserDashboardController {
 		bottomRightMidSecondGridPane.add(box3, 0, 1);
 		bottomRightMidSecondGridPane.add(box4, 1, 1);
 
-		updateMK1Temp();
-		updateMK1AandMK2Temp();
+//		updateMK1Temp();
+//		updateMK1AandMK2Temp();
 
 		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
@@ -577,6 +581,7 @@ public class UserDashboardController {
 		});
 
 		boardTemperatureMap.addListener((MapChangeListener<String, ChannelTemperature>) change -> {
+			populateTemperatureComboBox(temperatureComboBox, change.getKey());
 			if (temperatureComboBox.getValue() != null) {
 				if (temperatureComboBox.getValue().equals(change.getKey())) {
 					Platform.runLater(() -> {
@@ -592,6 +597,16 @@ public class UserDashboardController {
 
 	}
 
+	private void populateTemperatureComboBox(ComboBox<String> temperatureComboBox, String key) {
+	    if (!currentSessionDetails.getUutId().equals("UUT1")) {
+	    	if(!temperatureComboBox.getItems().contains(key)){
+	    		Platform.runLater(() -> {	    			
+	    			temperatureComboBox.getItems().add(key);	
+	    		});
+	    	}
+	     }
+	}
+
 	private void setMk1AandMk2Temp(ChannelTemperature valueAdded, VBox box1, VBox box2, VBox box3, VBox box4) {
 		Label label1 = (Label) box1.getChildren().get(0);
 		Label label2 = (Label) box2.getChildren().get(0);
@@ -604,71 +619,71 @@ public class UserDashboardController {
 		label4.textProperty().bind(valueAdded.channel4TempProperty());
 	}
 
-	private void updateMK1Temp() {
-		new Thread(() -> {
-			for (int i = 0; i < 10000; i++) {
-				try {
-					Random random = new Random();
-					Platform.runLater(() -> {
-						channelAECTemp.setChannel1Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
-						channelAECTemp.setChannel2Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
-						channelAECTemp.setChannel3Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
-						channelAECTemp.setChannel4Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
-						channelSCTemp.setChannel1Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
-						channelSCTemp.setChannel2Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
-						channelSCTemp.setChannel3Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
-						channelSCTemp.setChannel4Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
-					});
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
-
-	private void updateMK1AandMK2Temp() {
-
-		new Thread(() -> {
-			for (int i = 0; i < 10000; i++) {
-				try {
-					Random random = new Random();
-					Platform.runLater(() -> {
-
-						ChannelTemperature temp1 = new ChannelTemperature(
-								String.format("b1 :%01d", random.nextInt(9) + 10),
-								String.format("b1 :%01d", random.nextInt(9) + 10),
-								String.format("b1 :%01d", random.nextInt(9) + 10),
-								String.format("b1 :%01d", random.nextInt(9) + 10));
-						ChannelTemperature temp2 = new ChannelTemperature(
-								String.format("b2 :%01d", random.nextInt(9) + 10),
-								String.format("b2 :%01d", random.nextInt(9) + 10),
-								String.format("b2 :%01d", random.nextInt(9) + 10),
-								String.format("b2 :%01d", random.nextInt(9) + 10));
-						ChannelTemperature temp3 = new ChannelTemperature(
-								String.format("b3 :%01d", random.nextInt(9) + 10),
-								String.format("b3 :%01d", random.nextInt(9) + 10),
-								String.format("b3 :%01d", random.nextInt(9) + 10),
-								String.format("b3 :%01d", random.nextInt(9) + 10));
-						ChannelTemperature temp4 = new ChannelTemperature(
-								String.format("b4 :%01d", random.nextInt(9) + 10),
-								String.format("b4 :%01d", random.nextInt(9) + 10),
-								String.format("b4 :%01d", random.nextInt(9) + 10),
-								String.format("b4 :%01d", random.nextInt(9) + 10));
-
-						boardChannelTemp.addBoardTemperatureMap("Board-1", temp1);
-						boardChannelTemp.addBoardTemperatureMap("Board-2", temp2);
-						boardChannelTemp.addBoardTemperatureMap("Board-3", temp3);
-						boardChannelTemp.addBoardTemperatureMap("Board-4", temp4);
-
-					});
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
+//	private void updateMK1Temp() {
+//		new Thread(() -> {
+//			for (int i = 0; i < 10000; i++) {
+//				try {
+//					Random random = new Random();
+//					Platform.runLater(() -> {
+//						channelAECTemp.setChannel1Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+//						channelAECTemp.setChannel2Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+//						channelAECTemp.setChannel3Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+//						channelAECTemp.setChannel4Temperature(String.format("AE :%01d", random.nextInt(9) + 10));
+//						channelSCTemp.setChannel1Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+//						channelSCTemp.setChannel2Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+//						channelSCTemp.setChannel3Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+//						channelSCTemp.setChannel4Temperature(String.format("SC :%01d", random.nextInt(9) + 10));
+//					});
+//					Thread.sleep(3000);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}).start();
+//	}
+//
+//	private void updateMK1AandMK2Temp() {
+//
+//		new Thread(() -> {
+//			for (int i = 0; i < 10000; i++) {
+//				try {
+//					Random random = new Random();
+//					Platform.runLater(() -> {
+//
+//						ChannelTemperature temp1 = new ChannelTemperature(
+//								String.format("b1 :%01d", random.nextInt(9) + 10),
+//								String.format("b1 :%01d", random.nextInt(9) + 10),
+//								String.format("b1 :%01d", random.nextInt(9) + 10),
+//								String.format("b1 :%01d", random.nextInt(9) + 10));
+//						ChannelTemperature temp2 = new ChannelTemperature(
+//								String.format("b2 :%01d", random.nextInt(9) + 10),
+//								String.format("b2 :%01d", random.nextInt(9) + 10),
+//								String.format("b2 :%01d", random.nextInt(9) + 10),
+//								String.format("b2 :%01d", random.nextInt(9) + 10));
+//						ChannelTemperature temp3 = new ChannelTemperature(
+//								String.format("b3 :%01d", random.nextInt(9) + 10),
+//								String.format("b3 :%01d", random.nextInt(9) + 10),
+//								String.format("b3 :%01d", random.nextInt(9) + 10),
+//								String.format("b3 :%01d", random.nextInt(9) + 10));
+//						ChannelTemperature temp4 = new ChannelTemperature(
+//								String.format("b4 :%01d", random.nextInt(9) + 10),
+//								String.format("b4 :%01d", random.nextInt(9) + 10),
+//								String.format("b4 :%01d", random.nextInt(9) + 10),
+//								String.format("b4 :%01d", random.nextInt(9) + 10));
+//
+//						boardChannelTemp.addBoardTemperatureMap("Board-1", temp1);
+//						boardChannelTemp.addBoardTemperatureMap("Board-2", temp2);
+//						boardChannelTemp.addBoardTemperatureMap("Board-3", temp3);
+//						boardChannelTemp.addBoardTemperatureMap("Board-4", temp4);
+//
+//					});
+//					Thread.sleep(3000);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}).start();
+//	}
 
 	private void setMK1Temp(String selectedItem, VBox box1, VBox box2, VBox box3, VBox box4) {
 		Label label1 = (Label) box1.getChildren().get(0);
@@ -872,22 +887,22 @@ public class UserDashboardController {
 		int i = 0;
 		String[] labels = { "INIT DFCC", "Power Reset", "Erase EEPROM", "Cycle Power", "Check OFP", "Check WDM",
 				"Check OFP 2", "Check WDM 2" };
-		
-		macroButtonList=macroConfigurationManagement.getAllMacroButtonsByUutId(currentSessionDetails.getUutId());
 
-		
+		macroButtonList = macroConfigurationManagement.getAllMacroButtonsByUutId(currentSessionDetails.getUutId());
+
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 2; col++) {
 				VBox box = new VBox();
 				box.setAlignment(Pos.CENTER);
 				Label label = new Label(macroButtonList.get(i).getButtonName());
 				label.setUserData(macroButtonList.get(i).getCommand());
-				
-				label.setOnMouseClicked(e ->{
-					if(!label.getUserData().equals("<NOT SET>")) {
-						Notifications.showSuccessAlert("Selected Macro Command : "+label.getUserData());
-					}else {
-						Notifications.showErrorAlert("Macro Button Not Configured" );
+
+				box.setOnMouseClicked(e -> {
+					if (!label.getUserData().toString().equals("<NOT SET>")) {
+//						Notifications.showSuccessAlert("Selected Macro Command : " + label.getUserData().toString());
+						aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+					} else {
+						Notifications.showErrorAlert("Macro Button Not Configured");
 					}
 				});
 
