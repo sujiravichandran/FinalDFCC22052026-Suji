@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.StageLevelResponse;
@@ -20,6 +21,7 @@ import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.SessionMasterService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
+import com.teclever.datastore.service.SessionTypeOrderService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
@@ -486,4 +488,17 @@ e.printStackTrace();
 		return res;
 	}
 
+	// Add session type orders
+	public Response addSessionTypeOrder(String uutId, String sessionTypeId, List<String> levelOneIds) {
+		Response response = new Response();
+		try {
+			SessionTypeOrderService sessionTypeOrderService = new SessionTypeOrderService();
+			GetObjResponse objResponse= sessionTypeOrderService.addSessionTypeOrder(uutId, sessionTypeId, levelOneIds);
+			response=objResponse.getResponse();
+		} catch (Exception e) {
+			response.setResponseCode(0);
+			response.setResponseMessage("Add Unsuccesfull");
+		}
+		return response;	
+	}
 }
