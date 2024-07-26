@@ -101,3 +101,15 @@
 	-fx-padding: 1px 5px;
 }
 
+
+
+.session-creation-option-button-container{
+    -fx-background-color: primary-color; 
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
+}
+
+.custom-button{
+    -fx-font-size: 24px;
+    -fx-pref-height: 100px;
+}
