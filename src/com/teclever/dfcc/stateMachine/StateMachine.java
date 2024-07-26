@@ -1,5 +1,6 @@
 package com.teclever.dfcc.stateMachine;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,7 +25,9 @@ public class StateMachine {
 
 	private static TestState testState = TestState.PENDING;
 	private static RunningTestName runningTestName = RunningTestName.OTHER;
+	
 
+	
 	public static TestState getTestState() {
 		return testState;
 	}
@@ -745,5 +748,30 @@ public class StateMachine {
 	public static void setPreviousRunConfigId(String previousRunConfigId) {
 		StateMachine.previousRunConfigId = previousRunConfigId;
 	}
+	
+	//FOR SESSION FOLDERS
+			//homelocation
+			private static Path homelocation;
+
+			public static Path getHomelocation() {
+				return homelocation;
+			}
+
+			public static void setHomelocation(Path homelocation) {
+				StateMachine.homelocation = homelocation;
+			}
+			
+			
+			//output
+			private static Path outputLocation;
+
+			public static Path getOutputLocation() {
+				return outputLocation;
+			}
+
+			public static void setOutputLocation(Path outputLocation) {
+				StateMachine.outputLocation = outputLocation;
+			}
+
 
 }
