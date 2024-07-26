@@ -6,6 +6,7 @@ public class RunConfigurationDto {
 	private String uutId;
 	private String testTypeId;
 	private String configFile;
+	private String aitess2ConfigFile;
 	private String aitess;
 	private String driver;
 	public String getRunConfigId() {
@@ -46,6 +47,15 @@ public class RunConfigurationDto {
 	public void setDriver(String driver) {
 		this.driver = driver;
 	}
+	
+	public String getAitess2ConfigFile() {
+		return aitess2ConfigFile;
+	}
+
+	public void setAitess2ConfigFile(String aitess2ConfigFile) {
+		this.aitess2ConfigFile = aitess2ConfigFile;
+	}
+
 	public RunConfigurationDto() {
 		super();
 		// TODO Auto-generated constructor stub

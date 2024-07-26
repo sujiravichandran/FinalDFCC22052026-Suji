@@ -29,6 +29,19 @@ public class SessionToStagesMappingDTO {
 	private String testTypeId;
 
 	private String status;
+	
+	private String path;
+		
+	
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
 
 	public String getSessionStagesMappingId() {
 		return sessionStagesMappingId;
@@ -141,5 +154,7 @@ public class SessionToStagesMappingDTO {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	
 
 }
