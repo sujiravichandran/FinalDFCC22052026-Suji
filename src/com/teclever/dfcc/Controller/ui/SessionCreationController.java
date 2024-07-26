@@ -806,6 +806,10 @@ public class SessionCreationController {
 	}
 
 	private void openExistingSession() {
+		if(SESSION_ID == null) {
+			Notifications.showWarningAlert("Select any existing session");
+			return ;
+		}
 		currentSessionDetails.setUutId(fetchUutId(uutTypeTextField.getText().trim()));
 		currentSessionDetails.setUutType(uutTypeTextField.getText());
 		currentSessionDetails.setSessionTypeID(fetchSessionTypeId(sessionTypeField.getValue()));
