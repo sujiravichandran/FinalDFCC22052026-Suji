@@ -162,12 +162,14 @@ public class AitessProcessControlManagement {
 
 			// Copy config.dat to the respective folders
 			Path configFile = Paths.get(currentAitess.getConfigFile());
+			Path configFile1 = Paths.get(currentAitess.getAitess2ConfigFile());
+			
 
 			Path configFileParentPath = Paths.get(currentAitess.getConfigFile()).getParent();
 
-			if (Files.exists(configFile)) {
+			if (Files.exists(configFile)&&Files.exists(configFile1)) {
 				Files.copy(configFile, aitessConfigFile, StandardCopyOption.REPLACE_EXISTING);
-				Files.copy(configFile, aitess1ConfigFile, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(configFile1, aitess1ConfigFile, StandardCopyOption.REPLACE_EXISTING);
 			}
 
 			startupUserFile = configFileParentPath.resolve("startup.user");
@@ -740,7 +742,7 @@ if (dfccCheckStstusStarted) {
 				.getAitessDetailsByRunConfigId(currentRunConfigId);
 
 		configureAitess(currentAitess.getConfigFile());
-		configureAitess1(currentAitess.getConfigFile());
+		configureAitess1(currentAitess.getAitess2ConfigFile());
 
 		launcherFuture1
 				.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
