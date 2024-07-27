@@ -6,6 +6,7 @@ import com.teclever.dfcc.UserData;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -22,6 +23,7 @@ public class AdminDashboardController {
 	private GridPane bottomMidTopGridPane = new GridPane();
 
 	AdminCenterContentController adminCenterContentController = new AdminCenterContentController();
+	UserManagementController userManagementController = new UserManagementController();
 	
 	public GridPane createAdminDashboard() {
 		bottomMainGridPane.getStylesheets()
@@ -115,9 +117,9 @@ public class AdminDashboardController {
 			addTreeItemWithChildren(rootItem, "VDD Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png", null);
 			addTreeItemWithChildren(rootItem, "Fault Code Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png", null);
 			addTreeItemWithChildren(rootItem, "AITESS Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
-					new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
+					new String[] { "AITESS Version", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
 			addTreeItemWithChildren(rootItem, "OFP Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
-					new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
+					new String[] { "OFP Version", "Test Files-OFP", "Symbol Files-OFP", "Macro Files-OFP", "Download Plan" });
 			addTreeItemWithChildren(rootItem, "Stage Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png", null);
 			addTreeItemWithChildren(rootItem, "MACRO Buttons", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png", null);
 			addTreeItemWithChildren(rootItem, "cPCI card's Details", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png", null);
@@ -230,10 +232,13 @@ public class AdminDashboardController {
 		
 		bottomMidTopGridPane.getColumnConstraints().addAll(firstColumn);
 		bottomMidTopGridPane.getRowConstraints().addAll(firstRow);
-		
 		bottomMidTopGridPane.getStyleClass().add("center-container");
 		
-		return bottomMidTopGridPane;
+		Node userManagementPane = userManagementController.createUserManagemenGridPane();
+        bottomMidTopGridPane.add(userManagementPane, 0, 0);
+
+        return bottomMidTopGridPane;
+		
 
 
 	}

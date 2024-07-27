@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="adduser" prefHeight="564.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
+<Pane fx:id="adduser" prefHeight="564.0" prefWidth="450.0" stylesheets="@../css/AddAitess.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddAitessController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
@@ -97,7 +97,7 @@
             </VBox>
             <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
                <children>
-                  <Label fx:id="labelLoadDriver" text="Load Driver" textFill="WHITE">
+                  <Label fx:id="labelLoadDriver" text="Load driver Command" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="16.0" />
                      </font>
@@ -114,7 +114,7 @@
             </VBox>
             <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="380.0">
                <children>
-                  <Label fx:id="labelUnLoadDriver" text="UnLoad Driver" textFill="WHITE">
+                  <Label fx:id="labelUnLoadDriver" text="Unload driver Command" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="16.0" />
                      </font>

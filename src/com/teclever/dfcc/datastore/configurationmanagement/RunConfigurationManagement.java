@@ -66,8 +66,8 @@ public class RunConfigurationManagement {
 		runConfiguration.setConfigFile(runConfigurationDto.getConfigFile());
 		runConfiguration.setAitess(runConfigurationDto.getAitess());
 		runConfiguration.setDriver(runConfigurationDto.getDriver());
-		runConfiguration.setAitees2ConfigFile(runConfiguration.getAitees2ConfigFile());
-
+		runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
+		System.out.println("Aites  2"+runConfiguration.getAitees2ConfigFile());
 		RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
 		try {
 			serviceResponse = service.addRunConfiguration(runConfiguration, uutId);

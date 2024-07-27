@@ -106,7 +106,7 @@ public class OFPDownloadCodeController {
 	}
 
 	private HBox headerHbox() {
-		Label headerLabel = new Label("DOWNLOAD CODE");
+		Label headerLabel = new Label("DOWNLOAD FILES");
 		headerLabel.getStyleClass().add("ofpDownloadCode-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);

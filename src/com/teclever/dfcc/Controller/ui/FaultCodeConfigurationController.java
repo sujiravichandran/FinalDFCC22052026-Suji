@@ -1,10 +1,13 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
+import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.model.FaultCodeConfig;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -16,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -37,10 +41,22 @@ public class FaultCodeConfigurationController {
 	private GridPane faultCodeConfigMainGridPane = new GridPane();
 	private GridPane faultCodeConfigTitleGridPane = new GridPane();
 	private GridPane faultCodeConfigTableGridPane = new GridPane();
+	private GridPane midGridPane = new GridPane();
 	
+	private HBox midHBoxUUTType = new HBox(10);
+	public ComboBox<String> uutTypeField;
+	
+	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
 	
+	public FaultCodeConfigurationController() 
+	{
+	uutTypeField = new ComboBox<>();
+	loadUUTTypes();
+	}
+	
 	public void refreshFaultCodeConfigList() {
+		
 		setTableData();
 	}
 	
@@ -55,15 +71,19 @@ public class FaultCodeConfigurationController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(5);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(95);
+		secondRow.setPercentHeight(7);
+
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(88);
 		
 		faultCodeConfigMainGridPane.setPadding(new Insets(10));
 		faultCodeConfigMainGridPane.setVgap(5);
 		faultCodeConfigMainGridPane.getColumnConstraints().addAll(firstColumn);
-		faultCodeConfigMainGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		faultCodeConfigMainGridPane.getRowConstraints().addAll(firstRow,secondRow, thirdRow);
 
 		faultCodeConfigMainGridPane.add(createFaultCodeConfigTitleGridPane(), 0, 0);
-		faultCodeConfigMainGridPane.add(createFaultCodeConfigTable(), 0, 1);
+		faultCodeConfigMainGridPane.add(runConfigurationMidContainer(), 0, 1);
+		faultCodeConfigMainGridPane.add(createFaultCodeConfigTable(), 0, 2);
 		return faultCodeConfigMainGridPane;
 	}
 
@@ -87,7 +107,7 @@ public class FaultCodeConfigurationController {
 
 		HBox addUserBox = new HBox(10);
 		addUserBox.setAlignment(Pos.CENTER_RIGHT);
-		Button addUserBtn = new Button("ADD FILE");
+		Button addUserBtn = new Button("ADD FAULT CODES");
 		addUserBox.getChildren().add(addUserBtn);
 
 		addUserBtn.setOnAction(e -> {
@@ -95,11 +115,56 @@ public class FaultCodeConfigurationController {
 		});
 
 		faultCodeConfigTitleGridPane.add(titleBox, 0, 0);
+		
 		faultCodeConfigTitleGridPane.add(addUserBox, 1, 0);
 
 		return faultCodeConfigTitleGridPane;
 	}
 	
+	private GridPane runConfigurationMidContainer() {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+//		uutTypeField.setOnAction((event) -> runuutTypeAction());
+
+		midGridPane.getColumnConstraints().addAll(firstColumn);
+		midGridPane.getRowConstraints().addAll(firstRow);
+
+		midGridPane.add(createUUTypeComboBox(), 0, 0);
+
+		midGridPane.getStyleClass().add("fault-code-Container");
+		return midGridPane;
+	}
+	
+	private HBox createUUTypeComboBox() {
+		uutTypeField.setPromptText("UUT TYPE");
+		midHBoxUUTType.setPadding(new Insets(0, 0, 0, 18.5));
+		midHBoxUUTType.setAlignment(Pos.CENTER_LEFT);
+		midHBoxUUTType.getChildren().add(uutTypeField);
+
+		return midHBoxUUTType;
+	}
+	
+	private void loadUUTTypes() {
+		try {
+			ArrayList<String> uutTypeList = new ArrayList<String>();
+			UUTMasterDetailsDto[] uutDataList;
+			UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList = this.configManager.getAllUUT();
+			int n = uutDataList.length;
+			int n2 = 0;
+			while (n2 < n) {
+				UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
+				uutTypeList.add(uutType.getUutType());
+				++n2;
+			}
+			ObservableList types = FXCollections.observableArrayList(uutTypeList);
+			uutTypeField.setItems(types);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	private GridPane createFaultCodeConfigTable() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -115,6 +180,8 @@ public class FaultCodeConfigurationController {
 		
 		return faultCodeConfigTableGridPane;
 	}
+	
+
 
 	private void setTableData() {
 		FaultCodeResponse faultCodeList =faultCodeConfiguration.getFaultCodeList();
@@ -137,6 +204,8 @@ public class FaultCodeConfigurationController {
 
 		faultCodeConfigTableGridPane.add(customTableView, 0, 0);
 	}
+	
+	
 	
 	private void uploadfile() {
 		FileChooser fileChooser = new FileChooser();
