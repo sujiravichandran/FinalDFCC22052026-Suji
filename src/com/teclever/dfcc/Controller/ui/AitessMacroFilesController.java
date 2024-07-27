@@ -123,7 +123,7 @@ public class AitessMacroFilesController {
 
 	private HBox createButtonHbox() {
 
-		Button addFileButton = new Button("ADD FILE");
+		Button addFileButton = new Button("ADD MACRO FILE");
 		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 

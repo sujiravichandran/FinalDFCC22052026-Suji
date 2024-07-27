@@ -115,7 +115,7 @@ public class OFPMasterController {
 	}
 
 	private HBox headerHbox() {
-		Label headerLabel = new Label("OFP MASTER");
+		Label headerLabel = new Label("OFP VERSIONS");
 		headerLabel.getStyleClass().add("ofpMaster-headerLabel");
 
 		HBox headerLabelHbox = new HBox(10);

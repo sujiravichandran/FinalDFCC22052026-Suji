@@ -18,13 +18,19 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
+import com.teclever.dfcc.utils.CustomButton;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -58,7 +64,7 @@ public class AddUserController {
 	private Label confirmPasswordLabel;
 
 	@FXML
-	private TextField confirmPasswordTextField;
+	private PasswordField confirmPasswordTextField;
 
 	@FXML
 	private VBox digitalSignBox;
@@ -79,7 +85,7 @@ public class AddUserController {
 	private Label passwordLabel;
 
 	@FXML
-	private TextField passwordTextField;
+	private PasswordField passwordTextField;
 
 	@FXML
 	private Button saveButton;
@@ -127,8 +133,8 @@ public class AddUserController {
 	}
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		addUserMainContainer.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
+		addUserMainContainer.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/AddUser.css").toExternalForm());
 	}
 
 	private void createAddUserPopup(String userId) {
@@ -224,15 +230,18 @@ public class AddUserController {
 		} else if (confirmPasswordTextField.getText().isEmpty()) {
 			Notifications.showWarningAlert("Please enter confirm password...");
 			return;
-		} else if (imageData == null) {
-			Notifications.showWarningAlert("Please select digiatl signature...");
-			return;
-		} else if (!passwordTextField.getText().equals(confirmPasswordTextField.getText())) {
+		}
+//		else if (imageData == null) {
+//			Notifications.showWarningAlert("Please select digiatl signature...");
+//			return;
+//		} 
+		else if (!passwordTextField.getText().equals(confirmPasswordTextField.getText())) {
 			Notifications.showWarningAlert("Password and confirm password mismatch..");
 			return;
 		}
 
 		StringBuilder errorMessage = new StringBuilder();
+
 		if (confirmPassword.length() < 8) {
 			errorMessage.append("Password must be at least 8 characters long.\n");
 		}
@@ -262,27 +271,57 @@ public class AddUserController {
 	}
 
 	private void handleAddNewUser() {
-		UserLoginDetailsDto addUserData = new UserLoginDetailsDto();
-		addUserData.setRoleId(userRoleType.get(userRoleComboBox.getValue()));
-		;
-		addUserData.setLoginName(userNameTextField.getText());
-		addUserData.setPassword(confirmPasswordTextField.getText());
-		try {
-			addUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	    UserLoginDetailsDto addUserData = new UserLoginDetailsDto();
+	    addUserData.setRoleId(userRoleType.get(userRoleComboBox.getValue()));
 
-		UserLoginDetailsDto userDetails = userManagement.addUser(addUserData);
-		if (userDetails.getResponse().getResponseCode() == 1) {
-			Notifications.showSuccessAlert(userDetails.getResponse().getResponseMessage());
-			mainPageController.refreshUserList();
-			Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
-			stage.close();
+	    // Check if the username contains special characters
+	    if (userNameTextField.getText().matches(".*[&+*+#+$+%+@].*")) {
+	        Notifications.showErrorAlert("Please enter a Correct User Name");
+	        return;  // Exit the method if special characters are found
+	    } else {
+	        addUserData.setLoginName(userNameTextField.getText());
+	        addUserData.setPassword(confirmPasswordTextField.getText());
 
-		} else {
-			Notifications.showErrorAlert(userDetails.getResponse().getResponseMessage());
-		}
+	        if (imageData == null) {
+	            // Show confirmation alert
+	            Alert alert = new Alert(AlertType.CONFIRMATION);
+	            alert.setTitle("Confirmation Dialog");
+	            alert.setHeaderText("Digital Signature Missing");
+	            alert.setContentText("Are you sure you want to proceed without adding a Digital Signature?");
+	            
+	            // Capture the response from the user
+	            alert.showAndWait().ifPresent(response -> {
+	                if (response == ButtonType.OK) {
+	                    // Proceed with adding the user without a digital signature
+	                    UserLoginDetailsDto userDetails = userManagement.addUser(addUserData);
+	                    if (userDetails.getResponse().getResponseCode() == 1) {
+	                        Notifications.showSuccessAlert(userDetails.getResponse().getResponseMessage());
+	                        mainPageController.refreshUserList();
+	                        Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
+	                        stage.close();
+	                    } else {
+	                        Notifications.showErrorAlert(userDetails.getResponse().getResponseMessage());
+	                    }
+	                }
+	            });
+	        } else {
+	            try {
+	                addUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+
+	            UserLoginDetailsDto userDetails = userManagement.addUser(addUserData);
+	            if (userDetails.getResponse().getResponseCode() == 1) {
+	                Notifications.showSuccessAlert(userDetails.getResponse().getResponseMessage());
+	                mainPageController.refreshUserList();
+	                Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
+	                stage.close();
+	            } else {
+	                Notifications.showErrorAlert(userDetails.getResponse().getResponseMessage());
+	            }
+	        }
+	    }
 	}
 
 	private void handleEditUserData(String userId) {
@@ -290,36 +329,44 @@ public class AddUserController {
 		addUserData.setUserId(userId);
 		addUserData.setLoginName(userNameTextField.getText());
 		addUserData.setPassword(confirmPasswordTextField.getText());
-		try {
-			addUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 
-		Response editDetails = userManagement.updateUser(addUserData);
-		if (editDetails.getResponseCode() == 1) {
-			Notifications.showSuccessAlert(editDetails.getResponseMessage());
-			mainPageController.refreshUserList();
-			Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
-			stage.close();
+		if (imageData == null) {
+			Notifications.showWarningAlert("Are You Sure you are not added Digital Sign ");
+			Response editDetails = userManagement.updateUser(addUserData);
+			if (editDetails.getResponseCode() == 1) {
+				Notifications.showSuccessAlert(editDetails.getResponseMessage());
+				mainPageController.refreshUserList();
+				Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
+				stage.close();
+			} else {
+				Notifications.showErrorAlert(editDetails.getResponseMessage());
+			}
 		} else {
-			Notifications.showErrorAlert(editDetails.getResponseMessage());
-		}
+			try {
+				addUserData.setDigitalSignature(new javax.sql.rowset.serial.SerialBlob(imageData));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
+			Response editDetails = userManagement.updateUser(addUserData);
+			if (editDetails.getResponseCode() == 1) {
+				Notifications.showSuccessAlert(editDetails.getResponseMessage());
+				mainPageController.refreshUserList();
+				Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
+				stage.close();
+			} else {
+				Notifications.showErrorAlert(editDetails.getResponseMessage());
+			}
+		}
 	}
 
 	private void handleCancelButton() {
 		Stage stage = (Stage) addUserMainContainer.getScene().getWindow();
 		stage.close();
 	}
+	
+
 }
-
-
-
-
-
-
-
 
 //package com.teclever.dfcc.Controller.ui;
 //

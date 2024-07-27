@@ -115,7 +115,7 @@ public class OFPTestFilesController {
 
 	private HBox createButtonHbox() {
 
-		Button addFileButton = new Button("ADD FILE");
+		Button addFileButton = new Button("ADD TEST FILES");
 		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 
@@ -172,7 +172,7 @@ public class OFPTestFilesController {
 
 		for (TestFileDto testFileDto : testFileList) {
 			AitessTestFiles testFileData = new AitessTestFiles();
-			testFileData.setFileName(testFileDto.getTestFileName());
+			testFileData.setFileNamewithpath(testFileDto.getTestFileName());
 			tableData.add(testFileData);
 		}
 
@@ -188,9 +188,9 @@ public class OFPTestFilesController {
 
 	private void handleDeleteButtonClicked(AitessTestFiles rowData) {
 		String title = "Confirmation Dialog";
-		String contentText = "Are you sure you want to delete OFP Test File: " + rowData.getFileName() + "?";
+		String contentText = "Are you sure you want to delete OFP Test File: " + rowData.getFileNamewithpath() + "?";
 
-		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPTestFile(rowData.getFileName()));
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPTestFile(rowData.getFileNamewithpath()));
 	}
 
 	private void deleteOFPTestFile(String fileName) {
