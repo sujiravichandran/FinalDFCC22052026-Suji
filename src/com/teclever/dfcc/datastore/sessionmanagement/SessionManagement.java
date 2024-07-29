@@ -212,11 +212,11 @@ public class SessionManagement {
 	}
 
 	// AT FIRST TIME SESSION CREATION
-	public StageMasterLevelOneResponse getLevelOneStageMasterBySessionId(String sessionId) {
+	public StageMasterLevelOneResponse getLevelOneStageMasterBySessionId(String uutId,String sessionId) {
 		StageMasterLevelOneResponse stageMasterLevelOne = new StageMasterLevelOneResponse();
 		try {
 			LevelOneMasterService levelOne = new LevelOneMasterService();
-			StageLevelResponse serviceResponse = levelOne.getLevelTOneMasterBySessionId(sessionId);
+			StageLevelResponse serviceResponse = levelOne.getLevelTOneMasterBySessionId(uutId,sessionId);
 
 			if (serviceResponse.getResponse().getResponseCode() == 0) {
 				stageMasterLevelOne.setResponse(serviceResponse.getResponse());
