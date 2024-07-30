@@ -97,7 +97,15 @@ public class SessionFileManagement {
                 Files.createDirectories(sessionDirectory.resolve("upload"));
                 Files.createDirectories(sessionDirectory.resolve("datapack"));
                 Files.createDirectories(sessionDirectory.resolve("report"));
-
+                Files.createDirectories(sessionDirectory.resolve("Advance Testing"));
+                
+                // Creating four more folders inside "Advance Testing"
+                Path advanceTestingDirectory = sessionDirectory.resolve("Advance Testing");
+                Files.createDirectories(advanceTestingDirectory.resolve("HWATP HSI Testing"));
+                Files.createDirectories(advanceTestingDirectory.resolve("Interface Testing"));
+                Files.createDirectories(advanceTestingDirectory.resolve("Custom Testing 01"));
+                Files.createDirectories(advanceTestingDirectory.resolve("Custom Testing 02"));
+                
                 // Create multiple sets of levels
                 for (List<String> levels : levelSets) {
                     createLevel(sessionDirectory, levels, 0);
@@ -139,5 +147,6 @@ public class SessionFileManagement {
             e.printStackTrace();
         }
     }
+    
+    
 }
-

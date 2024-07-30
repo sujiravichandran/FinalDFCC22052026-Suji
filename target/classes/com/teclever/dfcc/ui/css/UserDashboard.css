@@ -81,6 +81,7 @@
     -fx-background-color: login-button-bg; 
 	-fx-background-radius: 5px;
     -fx-border-radius: 5px;
+    -fx-cursor: hand;
 }
 .logout-text{
     -fx-text-fill: login-button-text;
@@ -91,6 +92,7 @@
     -fx-background-color: login-button-bg; 
 	-fx-background-radius: 5px;
     -fx-border-radius: 5px;
+    -fx-cursor: hand;
 }
 .exit-text{
     -fx-text-fill: login-button-text;
@@ -157,16 +159,21 @@
 	-fx-font-weight: bold;
 }
 .dfcc-status-box{
-	-fx-background-color: #1FD348;
 	-fx-alignment: center;
 	-fx-background-radius: 15px;
     -fx-border-radius: 15px;
+    -fx-cursor: hand;
+}
+.dfcc-status-box-off{
+	-fx-background-color: #FF3D31;
+}
+.dfcc-status-box-on{
+	-fx-background-color: #1FD348;	
 }
 .dfcc-status{
 	-fx-font-size: 18px;
 	-fx-font-weight: bold;
 	-fx-text-fill:white;
-	-fx-background-color: #1FD348;
 }
 
 .right-common-title{
@@ -184,7 +191,6 @@
     -fx-text-fill:#0F1728;
 }
 .power-status-box{
-	-fx-background-color: #BBFFBB;
 	-fx-font-size: 18px;
 	-fx-font-weight: bold;
 	-fx-background-radius: 10px;
@@ -192,6 +198,13 @@
     -fx-padding:5px;
     -fx-text-fill:#0F1728;
 }
+.power-status-box-off{
+	-fx-background-color: #FACECA;
+}
+.power-status-box-on{
+	-fx-background-color: #BBFFBB;
+}
+
 
 .third-conatiner-button{
 	-fx-background-color: right-card-button-bg;
@@ -200,6 +213,7 @@
 	-fx-background-radius: 5px;
     -fx-border-radius: 5px;
     -fx-text-fill: right-card-button-text;
+    -fx-cursor: hand;
 }
 
 .bottom-conatiner-button{
@@ -283,3 +297,35 @@
     -fx-background-color:button-text; 
     -fx-border-color: button-bg; 
 }
+
+
+
+/* Style the ComboBox */
+.combo-box {
+    -fx-border-color: #ff7e5f;
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+	-fx-font-weight: bold;
+}
+
+.combo-box .combo-box-popup {
+    -fx-background-color: #ffffff;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weigth: bold;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: primary-color;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-cell:filled:selected {
+    -fx-text-fill: secondary-text-color;
+}
+
+

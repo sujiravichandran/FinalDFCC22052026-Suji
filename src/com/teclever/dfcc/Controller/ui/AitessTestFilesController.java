@@ -171,11 +171,12 @@ public class AitessTestFilesController {
 		System.out.println("Aitess Run Config Id");
 		List<TestFileDto> testFileList = testPlanFileManagement.getAllTestFiles(runConfigId);
 		
-
-		for (TestFileDto testFileDto : testFileList) {
-			AitessTestFiles testFileData = new AitessTestFiles();
-			testFileData.setFileNamewithpath(testFileDto.getTestFileName());
-			tableData.add(testFileData);
+		if (testFileList.size() > 0) {
+			for (TestFileDto testFileDto : testFileList) {
+				AitessTestFiles testFileData = new AitessTestFiles();
+				testFileData.setFileNameWithPath(testFileDto.getTestFileName());
+				tableData.add(testFileData);
+			}
 		}
 
 		customTableView_testFiles = userFactory.createTableView(tableData, true, false);
@@ -190,8 +191,8 @@ public class AitessTestFilesController {
 	
 	private void handleDeleteButtonClicked(AitessTestFiles rowData) {	
 		String title = "Confirmation Dialog";
-		String contentText = "Are you sure you want to delete Test File: " + rowData.getFileNamewithpath() + "?";
-		Notifications.showConfirmationDialog(title, contentText, () -> deleteTestFileConfig(rowData.getFileNamewithpath()));
+		String contentText = "Are you sure you want to delete Test File: " + rowData.getFileNameWithPath() + "?";
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteTestFileConfig(rowData.getFileNameWithPath()));
 	}
 
 	private void deleteTestFileConfig(String fileName) {
