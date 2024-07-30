@@ -172,7 +172,7 @@ public class OFPTestFilesController {
 
 		for (TestFileDto testFileDto : testFileList) {
 			AitessTestFiles testFileData = new AitessTestFiles();
-			testFileData.setFileNamewithpath(testFileDto.getTestFileName());
+			testFileData.setFileNameWithPath(testFileDto.getTestFileName());
 			tableData.add(testFileData);
 		}
 
@@ -188,9 +188,9 @@ public class OFPTestFilesController {
 
 	private void handleDeleteButtonClicked(AitessTestFiles rowData) {
 		String title = "Confirmation Dialog";
-		String contentText = "Are you sure you want to delete OFP Test File: " + rowData.getFileNamewithpath() + "?";
+		String contentText = "Are you sure you want to delete OFP Test File: " + rowData.getFileNameWithPath() + "?";
 
-		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPTestFile(rowData.getFileNamewithpath()));
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteOFPTestFile(rowData.getFileNameWithPath()));
 	}
 
 	private void deleteOFPTestFile(String fileName) {

@@ -4,15 +4,15 @@ public class AitessTestFiles {
 	
 	private String fileNameWithPath;
 
-	public String getFileNamewithpath() {
+	public String getFileNameWithPath() {
 		return fileNameWithPath;
 	}
 
-	public void setFileNamewithpath(String fileNameWithPath) {
+	public void setFileNameWithPath(String fileNameWithPath) {
 		this.fileNameWithPath = fileNameWithPath;
 	}
-
-
+	
+	
 
 	
 }
