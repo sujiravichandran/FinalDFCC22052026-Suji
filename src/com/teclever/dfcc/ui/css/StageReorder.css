@@ -1,0 +1,56 @@
+@import url("Global.css");
+
+#stageReorderContainer{
+	 -fx-background-color:form-bg;
+}
+#headingLabel{
+	 -fx-font-size: 24.0px;
+	  -fx-font-weight: bold;
+	  -fx-text-fill: form-title;
+}
+
+
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: form-label; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+.button {
+	-fx-min-width: 150.0px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18.0px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px; 
+    -fx-border-color: transparent; 
+    -fx-cursor:hand;
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
+
+
+
+
+.stage-reorder-listview .list-cell {
+    -fx-padding: 2.0px;
+   -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill: secondary-text-color;
+}
+
+.stage-reorder-listview .list-cell:filled:selected, .list-cell:filled:selected:hover {
+    -fx-background-color: button-bg;
+    -fx-text-fill: button-text;
+}
+
+.stage-reorder-listview .list-cell:hover {
+    -fx-background-color: sub-text-color;
+    -fx-text-fill: primary-text-color;
+}
+
