@@ -87,6 +87,7 @@ public class StageConfigurationController {
 
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
 	private Map<String, String> sessionTypeMap = new HashMap<>();
+	private Button reorderButton = new Button("Reorder Stage");
 
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
 	private RunConfigurationManagement runConfig = new RunConfigurationManagement();
@@ -143,9 +144,26 @@ public class StageConfigurationController {
 	private HBox stageConfigMidContainer() {
 		Label uutLabel = createLabel("Select UUT Type:", "stageConfig-comboBox-label");
 
-		stageConfigMidHbox.getChildren().addAll(uutLabel, uut_type_field);
+		stageConfigMidHbox.getChildren().addAll(uutLabel, uut_type_field, reorderButton);
 		stageConfigMidHbox.getStyleClass().add("stageConfig-container");
 		stageConfigMidHbox.setAlignment(Pos.CENTER);
+		
+		reorderButton.setOnAction(event ->{
+			try {
+				FXMLLoader addStagePopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/StageReorder.fxml"));
+				Parent root = addStagePopup.load();
+
+				Stage stage = new Stage();
+				stage.initModality(Modality.APPLICATION_MODAL);
+				stage.initStyle(StageStyle.UNDECORATED);
+				stage.centerOnScreen();
+				stage.setScene(new Scene(root));
+				stage.showAndWait();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		
 		return stageConfigMidHbox;
 	}
 
