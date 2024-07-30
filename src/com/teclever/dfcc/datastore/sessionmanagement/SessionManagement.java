@@ -199,36 +199,42 @@ public class SessionManagement {
 
 			for (Object object : getResponse.getResponseList()) {
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-				StageObject stageObject = new StageObject();
-				stageObject.setL1StageId(sessionStage.getLevelOneStageId());
-				stageObject.setL1StageName(levelOneStage.get(sessionStage.getLevelOneStageId()));
+				
+				if (sessionStage.getRunCount() <= 1) {
+					StageObject stageObject = new StageObject();
 
-				stageObject.setL2StageId(sessionStage.getLevelTwoStageId());
-				stageObject.setL2StageName(levelTwoStage.get(sessionStage.getLevelTwoStageId()));
+					stageObject.setSessionStagesMappingId(sessionStage.getSessionStagesMappingId());
 
-				stageObject.setL3StageId(sessionStage.getLevelThreeStageId());
-				stageObject.setL3StageName(levelThreeStage.get(sessionStage.getLevelThreeStageId()));
+					stageObject.setL1StageId(sessionStage.getLevelOneStageId());
+					stageObject.setL1StageName(levelOneStage.get(sessionStage.getLevelOneStageId()));
 
-				stageObject.setL4StageId(sessionStage.getLevelFourStageId());
-				stageObject.setL4StageName(levelFourStage.get(sessionStage.getLevelFourStageId()));
+					stageObject.setL2StageId(sessionStage.getLevelTwoStageId());
+					stageObject.setL2StageName(levelTwoStage.get(sessionStage.getLevelTwoStageId()));
 
-				stageObject.setL5StageId(sessionStage.getLevelFiveStageId());
-				stageObject.setL5StageName(levelFiveStage.get(sessionStage.getLevelFiveStageId()));
+					stageObject.setL3StageId(sessionStage.getLevelThreeStageId());
+					stageObject.setL3StageName(levelThreeStage.get(sessionStage.getLevelThreeStageId()));
 
-				stageObject.setTestTypeId(sessionStage.getTestTypeId());
+					stageObject.setL4StageId(sessionStage.getLevelFourStageId());
+					stageObject.setL4StageName(levelFourStage.get(sessionStage.getLevelFourStageId()));
 
-				stageObject.setStatus(sessionStage.getStatus());
+					stageObject.setL5StageId(sessionStage.getLevelFiveStageId());
+					stageObject.setL5StageName(levelFiveStage.get(sessionStage.getLevelFiveStageId()));
 
-				stageObject.setMandatoryStatus(
-						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isMandatory());
-				stageObject.setContinueWithErrorStatus(
-						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isContinuewitheror());
-				stageObject.setAdvanceStatus(
-						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isAdvancestatus());
-				stageObject.setDefaultStatus(
-						levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
+					stageObject.setTestTypeId(sessionStage.getTestTypeId());
 
-				listOfStageObject.add(stageObject);
+					stageObject.setStatus(sessionStage.getStatus());
+
+					stageObject.setMandatoryStatus(
+							levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isMandatory());
+					stageObject.setContinueWithErrorStatus(
+							levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isContinuewitheror());
+					stageObject.setAdvanceStatus(
+							levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isAdvancestatus());
+					stageObject.setDefaultStatus(
+							levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
+
+					listOfStageObject.add(stageObject);
+				}
 			}
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
