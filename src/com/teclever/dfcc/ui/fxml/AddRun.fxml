@@ -9,12 +9,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="addrun" prefHeight="444.0" prefWidth="412.0" stylesheets="@../css/AddRun.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddRunConfigurationController">
+<Pane fx:id="addrun" prefHeight="557.0" prefWidth="412.0" stylesheets="@../css/AddRun.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AddRunConfigurationController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
    <children>
-      <VBox alignment="CENTER" prefHeight="444.0" prefWidth="412.0" spacing="20.0">
+      <VBox alignment="CENTER" prefHeight="557.0" prefWidth="412.0" spacing="20.0">
          <children>
             <Label fx:id="headinglbl" alignment="CENTER" prefHeight="23.0" prefWidth="93.0" text="ADD RUN" textFill="WHITE">
                <font>
@@ -53,19 +53,17 @@
                   <Insets top="-5.0" />
                </VBox.margin>
             </VBox>
-            <HBox fx:id="vBoxDriver" alignment="CENTER" prefHeight="39.0" prefWidth="316.0" />
+            <HBox fx:id="vBoxDriver1" alignment="CENTER" prefHeight="39.0" prefWidth="316.0" />
             <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="280.0">
                <children>
-                  <Button fx:id="selectConfigfile" mnemonicParsing="false" onAction="#selectConfigfileAction" prefHeight="42.0" prefWidth="375.0" stylesheets="@../css/AddRun.css" text="Select Config File" textFill="WHITE" />
+                  <Button fx:id="selectConfigfile1" mnemonicParsing="false" onAction="#selectConfigfileAction1" prefHeight="42.0" prefWidth="375.0" stylesheets="@../css/AddRun.css" text="Select Aitess1 Config File" textFill="WHITE" />
                </children>
                <VBox.margin>
                   <Insets />
                </VBox.margin>
             </VBox>
+            <Button fx:id="selectConfigfile2" mnemonicParsing="false" onAction="#selectConfigfileAction2" prefHeight="42.0" prefWidth="375.0" stylesheets="@../css/AddRun.css" text="Select Aitess2 Config File" textFill="WHITE" />
             <HBox prefHeight="42.0" prefWidth="312.0" spacing="71.0">
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
                <children>
                   <Button fx:id="saveButton" mnemonicParsing="false" text="Save" />
                   <Button fx:id="cancelButton" minWidth="125.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="125.0" text="Close">
@@ -74,6 +72,9 @@
                      </HBox.margin>
                   </Button>
                </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </HBox>
          </children>
          <padding>

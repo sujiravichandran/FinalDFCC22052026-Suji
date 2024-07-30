@@ -54,6 +54,7 @@ public class AddRunConfigurationController {
 	public static String testTypeValue;
 	public static String aitessTypeValue;
 	public static String fileConfigName;
+	public static String fileConfigName2;
 	public static String driverName;
 
 	Map<String, String> aitessNameDriverNameMap = new HashMap<String, String>();
@@ -64,43 +65,40 @@ public class AddRunConfigurationController {
 	RunConfigurationController runConfigurationController = new RunConfigurationController();
 
 	@FXML
-	private Pane addrun;
+    private Pane addrun;
 
-	@FXML
-	private Button cancelButton;
+    @FXML
+    private ComboBox<String> aitessType;
 
-	@FXML
-	private Button saveButton;
+    @FXML
+    private Button cancelButton;
 
-	@FXML
-	private Label headinglbl;
+    @FXML
+    private Label headinglbl;
 
-	@FXML
-	private Label labelAitessCommand;
+    @FXML
+    private Label labelAitessname;
 
-	@FXML
-	private Label labelAitessname;
+    @FXML
+    private Label labelAitessname1;
 
-	@FXML
-	private Label labelDriverName;
+    @FXML
+    private Button saveButton;
 
-	@FXML
-	private Button selectConfigfile;
+    @FXML
+    private Button selectConfigfile1;
 
-	@FXML
-	private ComboBox<String> testType;
+    @FXML
+    private Button selectConfigfile2;
 
-	@FXML
-	private ComboBox<String> aitessType;
+    @FXML
+    private ComboBox<String> testType;
 
-	@FXML
-	private TextField textAitessCommand;
+    @FXML
+    private HBox vBoxDriver1;
 
-	@FXML
-	private TextField textDriverName;
-
-	@FXML
-	private HBox vBoxDriver;
+    @FXML
+    private HBox vBoxDriver2;
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	private RunConfigurationManagement runConfiguration = new RunConfigurationManagement();
@@ -126,8 +124,8 @@ public class AddRunConfigurationController {
 			Stage stage = (Stage) addrun.getScene().getWindow();
 			stage.setMinWidth(400); // Set your desired width
 			stage.setMaxWidth(444);
-			stage.setMinHeight(400); // Set your desired height
-			stage.setMaxHeight(444);
+			stage.setMinHeight(557); // Set your desired height
+			stage.setMaxHeight(557);
 			stage.setResizable(false);
 		});
 	}
@@ -220,6 +218,8 @@ public class AddRunConfigurationController {
 		RunConfigurationDto runaitessConfigurationDTO = new RunConfigurationDto();
 		runaitessConfigurationDTO.setAitess(aitessTypeValue);
 		runaitessConfigurationDTO.setConfigFile(fileConfigName);
+		runaitessConfigurationDTO.setAitess2ConfigFile(fileConfigName2);
+		System.out.println("Aitess 2 Config File"+fileConfigName2);
 		runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
 		runaitessConfigurationDTO.setDriver(driverName);
 		runaitessConfigurationDTO.setUutId(uutId);
@@ -277,6 +277,10 @@ public class AddRunConfigurationController {
 		if (fileConfigName == null || fileConfigName.isEmpty()) {
 			errors.add("Please select the File Configuration.");
 		}
+		
+		if (fileConfigName2 == null || fileConfigName2.isEmpty()) {
+			errors.add("Please select the File Configuration2.");
+		}
 		if (driverName == null || driverName.isEmpty()) {
 			errors.add("Please enter the Driver Name.");
 		}
@@ -312,29 +316,66 @@ public class AddRunConfigurationController {
 	}
 
 	@FXML
-	void selectConfigfileAction(ActionEvent event) {
+	void selectConfigfileAction1(ActionEvent event) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a Configuration File");
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		File file = fileChooser.showOpenDialog(this.selectConfigfile.getScene().getWindow());
-		if (file != null) {
-			String filePath = file.getAbsolutePath();
-			this.selectConfigfile.setText(filePath);
+		File file1 = fileChooser.showOpenDialog(this.selectConfigfile1.getScene().getWindow());
+		if (file1 != null) {
+			String filePath = file1.getAbsolutePath();
+			this.selectConfigfile1.setText(filePath);
 			Preferences prefs = Preferences.userNodeForPackage(this.getClass());
 			prefs.put("LastUsedFilePath", filePath);
 			fileConfigName = filePath;
 		}
 	}
+		@FXML
+		void selectConfigfileAction2(ActionEvent event) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select a Configuration File");
+		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		File file2 = fileChooser.showOpenDialog(this.selectConfigfile2.getScene().getWindow());
+		if (file2 != null) {
+			String filePath = file2.getAbsolutePath();
+			this.selectConfigfile2.setText(filePath);
+			Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+			prefs.put("LastUsedFilePath", filePath);
+			fileConfigName2 = filePath;
+		}
+	}
 
 	private void setupDriverLabel() {
 		TextField driverLabel = new TextField("Driver");
+		
 
 
 		driverLabel.setEditable(false);
 		driverLabel.setStyle(
 				"-fx-background-color: white; -fx-border-radius:10px; -fx-border-color: #b9bcbd; -fx-background-radius:10px; -fx-border-width: 1px;-fx-font-size: 16px;-fx-alignment: center;-fx-text-fill: black;");
 
-	    driverLabel.prefWidthProperty().bind(vBoxDriver.widthProperty());
+	    driverLabel.prefWidthProperty().bind(vBoxDriver1.widthProperty());
+
+		
+		aitessType.setOnAction(event -> {
+			aitessTypeValue = (String) this.aitessType.getValue();
+			CompletableFuture.supplyAsync(() -> {
+				driverName = fetchDriverNameFromDatabase(aitessTypeValue);
+				return driverName;
+			}).thenAccept(driverName -> {
+				Platform.runLater(() -> {
+					driverLabel.setText(driverName);
+				});
+			}).exceptionally(e -> {
+				e.printStackTrace();
+				return null;
+			});
+		});
+		
+		driverLabel.setEditable(false);
+		driverLabel.setStyle(
+				"-fx-background-color: white; -fx-border-radius:10px; -fx-border-color: #b9bcbd; -fx-background-radius:10px; -fx-border-width: 1px;-fx-font-size: 16px;-fx-alignment: center;-fx-text-fill: black;");
+
+	    driverLabel.prefWidthProperty().bind(vBoxDriver1.widthProperty());
 
 		
 		aitessType.setOnAction(event -> {
@@ -352,7 +393,7 @@ public class AddRunConfigurationController {
 			});
 		});
 
-		vBoxDriver.getChildren().add(driverLabel);
+		vBoxDriver1.getChildren().add(driverLabel);
 	}
 
 	private String fetchDriverNameFromDatabase(String driverName) {

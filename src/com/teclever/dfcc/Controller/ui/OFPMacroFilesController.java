@@ -125,7 +125,7 @@ public class OFPMacroFilesController {
 
 	private HBox createButtonHbox() {
 
-		Button addFileButton = new Button("ADD FILE");
+		Button addFileButton = new Button("ADD MACRO FILES");
 		addFileButton.setOnAction(e -> onClickAddFileButton());
 		HBox headerButtonHbox = new HBox(10);
 

@@ -1,9 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
-
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.stateMachine.StateMachine;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -17,7 +15,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-
 public class AdvancedTestingCustomTesting1 {
 	
 	private GridPane tab3MainGridPane = new GridPane();
@@ -67,13 +64,11 @@ public class AdvancedTestingCustomTesting1 {
 	private TextField testNameTextField = new TextField();
 	
 	RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
-
 	public GridPane createAdvancedTestingTab3GridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
 		secondColumn.setPercentWidth(50);
-
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(10);
 		RowConstraints secondRow = new RowConstraints();
@@ -86,7 +81,6 @@ public class AdvancedTestingCustomTesting1 {
 		tab3MainGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
 		tab3MainGridPane.getRowConstraints().addAll(firstRow,secondRow,thirdRow);
 		
-
 		tab3MainGridPane.add(createLeftSideTitle(), 0, 0, 1, 2);
 		tab3MainGridPane.add(createLeftTerminalBox(), 0, 1);
 		tab3MainGridPane.add(createLeftMacroBox(), 0, 2);
@@ -95,8 +89,6 @@ public class AdvancedTestingCustomTesting1 {
 		tab3MainGridPane.add(createRightTextArea(), 1, 1, 1, 2);
 		return tab3MainGridPane;
 	}
-
-
 	private HBox createLeftSideTitle() {
 		leftTitleHBox.getStyleClass().add("advanced-testing-custom-tab-container");
 		leftLabel.getStyleClass().add("title-label");
@@ -114,7 +106,6 @@ public class AdvancedTestingCustomTesting1 {
 		secondColumn.setPercentWidth(40);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
 		thirdColumn.setPercentWidth(30);
-
 		RowConstraints rowConstraints = new RowConstraints();
 	    rowConstraints.setPercentHeight(20);
 		terminalCommandGridPane.getColumnConstraints().addAll(firstColumn,secondColumn,thirdColumn);
@@ -133,25 +124,23 @@ public class AdvancedTestingCustomTesting1 {
 	    terminalCommandGridPane.add(minValueLabel, 0, 2);
 	    terminalCommandGridPane.add(maxValueLabel, 0, 3);
 	    terminalCommandGridPane.add(ipDataLabel, 0, 4);
-	    
+	   
 	    symbolTextField.getStyleClass().add("form-textfield");
 	    typeTextField.getStyleClass().add("form-textfield");
 	    minValueTextField.getStyleClass().add("form-textfield");
 	    maxValueTextField.getStyleClass().add("form-textfield");
 	    ipDataTextField.getStyleClass().add("form-textfield");
-	    
+	   
 	    terminalCommandGridPane.add(symbolTextField, 1, 0);
 	    terminalCommandGridPane.add(typeTextField, 1, 1);
 	    terminalCommandGridPane.add(minValueTextField, 1, 2);
 	    terminalCommandGridPane.add(maxValueTextField, 1, 3);
 	    terminalCommandGridPane.add(ipDataTextField, 1, 4);
-	    
+	   
 	    terminalCommandGridPane.add(createTerminalButtonBox(),2 ,0 , 1, 5);
 		
 		return terminalCommandGridPane;
 	}
-
-
 	private VBox createTerminalButtonBox() {
 		terminalButtonVBox.setAlignment(Pos.CENTER);
 		terminalButtonVBox.getChildren().addAll(terminalAddButton, terminalRunButton);
@@ -166,20 +155,19 @@ public class AdvancedTestingCustomTesting1 {
 		secondColumn.setPercentWidth(40);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
 		thirdColumn.setPercentWidth(30);
-
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-	    
+	   
 	    macroGridPane.getColumnConstraints().addAll(firstColumn,secondColumn,thirdColumn);
 	    macroGridPane.getRowConstraints().add(firstRow);
-	    
-	    macroLabel.getStyleClass().add("form-label");    
+	   
+	    macroLabel.getStyleClass().add("form-label");
 	    macroTextField.getStyleClass().add("form-textfield");
-	    
+	   
 	    macroGridPane.add(macroLabel, 0, 0);
 	    macroGridPane.add(macroTextField, 1, 0);
 	    macroGridPane.add(createMacroButton(), 2, 0);
-	    
+	   
 		return macroGridPane;
 	}
 	
@@ -188,18 +176,14 @@ public class AdvancedTestingCustomTesting1 {
 		macroButtonVBox.getChildren().addAll(macroAddButton, macroRunButton);
 		return macroButtonVBox;
 	}
-
-
 	private GridPane createRightSideTop() {
 		rightTopGridPane.getStyleClass().add("advanced-testing-custom-tab-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
 		secondColumn.setPercentWidth(50);
-
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-
 		rightTopGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
 		rightTopGridPane.getRowConstraints().addAll(firstRow);
 		
@@ -207,18 +191,14 @@ public class AdvancedTestingCustomTesting1 {
 		rightTopGridPane.add(createTestTypeComboBox(), 1, 0);
 		return rightTopGridPane;
 	}
-
 	private HBox createRightSideTitle() {
 		rightLabel.getStyleClass().add("title-label");
 		rightTitleHBox.setAlignment(Pos.TOP_LEFT);
 		rightTitleHBox.getChildren().add(rightLabel);
 		return rightTitleHBox;
 	}
-
-
 	private HBox createTestTypeComboBox() {
 		testTypeComboBox.setPromptText("TEST TYPE");
-
 		testTypeHBox.setAlignment(Pos.TOP_RIGHT);
 		testTypeHBox.getChildren().add(testTypeComboBox);
 		initializeTestTypeComboBox();
@@ -238,7 +218,6 @@ public class AdvancedTestingCustomTesting1 {
 		userTestTextArea.getStyleClass().add("user-test-textarea");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
-
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(85);
 		RowConstraints secondRow = new RowConstraints();
@@ -251,8 +230,6 @@ public class AdvancedTestingCustomTesting1 {
 		
 		return userTestGridPane;
 	}
-
-
 	private HBox createUserTestButtonBox() {
 		userTestHBox.setAlignment(Pos.CENTER);
 		testNameLabel.getStyleClass().add("form-label");
@@ -260,5 +237,7 @@ public class AdvancedTestingCustomTesting1 {
 		userTestHBox.getChildren().addAll(testNameLabel, testNameTextField, userTestRunButton);
 		return userTestHBox;
 	}
-
 }
+
+
+

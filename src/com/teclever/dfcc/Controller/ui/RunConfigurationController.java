@@ -303,7 +303,8 @@ public class RunConfigurationController {
 	        runAitessData.setTestType(testTypeNameId.get(runConfig.getTestTypeId()));
 	        runAitessData.setAitess(runConfig.getAitess());
 	        runAitessData.setDriver(runConfig.getDriver());
-	        runAitessData.setConfigFile(runConfig.getConfigFile());
+	        runAitessData.setAitess1ConfigFile(runConfig.getConfigFile());
+	        runAitessData.setAitess2ConfigFile(runConfig.getAitess2ConfigFile());
 	        runAitessData.setId(runConfig.getRunConfigId());
 	        driverData.add(runAitessData);
 	    }

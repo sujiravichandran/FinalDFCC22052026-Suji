@@ -114,7 +114,7 @@ public class AitessMasterController {
 	}
 
 	private HBox headingHbox() {
-		Label pageHeading = new Label("AITESS MASTER");
+		Label pageHeading = new Label("AITESS VERSION");
 		pageHeading.getStyleClass().add("headerLabel");
 		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
@@ -123,7 +123,7 @@ public class AitessMasterController {
 
 	private HBox createButtonHbox() {
 
-		Button addButton = new Button("ADD AITESS");
+		Button addButton = new Button("ADD AITESS CONFIGURATION");
 		addButton.setOnAction(e -> onClickGETButton());
 		midHbox.getChildren().addAll(addButton);
 		midHbox.setAlignment(Pos.CENTER_RIGHT);

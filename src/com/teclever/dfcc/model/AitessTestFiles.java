@@ -2,15 +2,17 @@ package com.teclever.dfcc.model;
 
 public class AitessTestFiles {
 	
-	private String fileName;
+	private String fileNameWithPath;
 
-	public String getFileName() {
-		return fileName;
+	public String getFileNamewithpath() {
+		return fileNameWithPath;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setFileNamewithpath(String fileNameWithPath) {
+		this.fileNameWithPath = fileNameWithPath;
 	}
+
+
 
 	
 }

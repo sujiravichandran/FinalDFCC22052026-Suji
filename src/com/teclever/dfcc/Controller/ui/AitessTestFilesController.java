@@ -115,7 +115,7 @@ public class AitessTestFilesController {
 
 	private HBox createButtonHbox() {
 
-		Button addFileButton = new Button("ADD FILE");
+		Button addFileButton = new Button("ADD TEST FILES");
 		addFileButton.setOnAction(e -> onClickAddFileButton());
 		
 		HBox headerButtonHbox = new HBox(10);
@@ -174,7 +174,7 @@ public class AitessTestFilesController {
 
 		for (TestFileDto testFileDto : testFileList) {
 			AitessTestFiles testFileData = new AitessTestFiles();
-			testFileData.setFileName(testFileDto.getTestFileName());
+			testFileData.setFileNamewithpath(testFileDto.getTestFileName());
 			tableData.add(testFileData);
 		}
 
@@ -190,8 +190,8 @@ public class AitessTestFilesController {
 	
 	private void handleDeleteButtonClicked(AitessTestFiles rowData) {	
 		String title = "Confirmation Dialog";
-		String contentText = "Are you sure you want to delete Test File: " + rowData.getFileName() + "?";
-		Notifications.showConfirmationDialog(title, contentText, () -> deleteTestFileConfig(rowData.getFileName()));
+		String contentText = "Are you sure you want to delete Test File: " + rowData.getFileNamewithpath() + "?";
+		Notifications.showConfirmationDialog(title, contentText, () -> deleteTestFileConfig(rowData.getFileNamewithpath()));
 	}
 
 	private void deleteTestFileConfig(String fileName) {

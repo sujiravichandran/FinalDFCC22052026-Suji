@@ -89,7 +89,7 @@ public class AdminCenterContentController {
 		case "Fault Code Config":
 			faultCodeConfigStackPane.toFront();
 			break;
-		case "AITESS Master":
+		case "AITESS Version":
 			aitessMasterStackPane.toFront();
 			break;
 		case "Run Config":
@@ -107,16 +107,16 @@ public class AdminCenterContentController {
 		case "Download Code":
 			aitessDownloadCodeStackPane.toFront();
 			break;
-		case "OFP Master":
+		case "OFP Version":
 			ofpMasterStackPane.toFront();
 			break;
-		case "Test Plan":
+		case "Test Files-OFP":
 			ofpTestFilesStackPane.toFront();
 			break;
-		case "Symbol Plan":
+		case "Symbol Files-OFP":
 			ofpSymbolFilesStackPane.toFront();
 			break;
-		case "Macro Plan":
+		case "Macro Files-OFP":
 			ofpMacroFilesStackPane.toFront();
 			break;
 		case "Download Plan":

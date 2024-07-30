@@ -151,7 +151,7 @@ public class UserManagementController {
 				User userData = new User();
 				userData.setId(user.getUserId());
 				userData.setUserName(user.getLoginName());
-				userData.setRoleType(user.getRoleId());
+				userData.setRoleType(user.getRoleName());
 				userData.setDigitalSignature(user.getDigitalSignature());
 				data.add(userData);
 			}

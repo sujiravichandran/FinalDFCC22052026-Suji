@@ -66,7 +66,8 @@ public class RunConfigurationManagement {
 		runConfiguration.setConfigFile(runConfigurationDto.getConfigFile());
 		runConfiguration.setAitess(runConfigurationDto.getAitess());
 		runConfiguration.setDriver(runConfigurationDto.getDriver());
-
+		runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
+		System.out.println("Aites  2"+runConfiguration.getAitees2ConfigFile());
 		RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
 		try {
 			serviceResponse = service.addRunConfiguration(runConfiguration, uutId);
@@ -133,6 +134,7 @@ public class RunConfigurationManagement {
 				dto.setConfigFile(runConfig.getConfigFile());
 				dto.setAitess(runConfig.getAitess());
 				dto.setDriver(runConfig.getDriver());
+				dto.setAitess2ConfigFile(runConfig.getAitees2ConfigFile());
 				dtoList.add(dto);
 			}
 		} else {
@@ -161,6 +163,7 @@ public class RunConfigurationManagement {
 					dto.setConfigFile(runConfig.getConfigFile());
 					dto.setAitess(runConfig.getAitess());
 					dto.setDriver(runConfig.getDriver());
+					dto.setAitess2ConfigFile(runConfig.getAitees2ConfigFile());
 					dtoList.add(dto);
 				}
 			} else {

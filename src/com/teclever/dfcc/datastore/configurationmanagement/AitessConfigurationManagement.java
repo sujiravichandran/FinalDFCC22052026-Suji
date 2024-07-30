@@ -1,9 +1,5 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +8,14 @@ import java.util.Map;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.AitessConfiguration;
 import com.teclever.datastore.entities.CardDetails;
+import com.teclever.datastore.entities.RunConfiguration;
 import com.teclever.datastore.response.AitessConfigurationResponse;
 import com.teclever.datastore.response.AitessDriverResponse;
+import com.teclever.datastore.response.RunConfigurationResponse;
 import com.teclever.datastore.response.UUTMasterDetailsServiceResponse;
 import com.teclever.datastore.service.AitessConfigurationService;
 import com.teclever.datastore.service.CardDetailsService;
+import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.UUTMasterDetailsService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
@@ -97,13 +96,53 @@ public class AitessConfigurationManagement {
 
 	// API : DELETE AITESS CONFIG
 	public AitessConfigurationResponse deleteAitessConfig(int aitessId) {
+		
+		AitessConfigurationResponse serviceResponse = new AitessConfigurationResponse();
 	    AitessConfigurationService service = new AitessConfigurationService();
-	    AitessConfigurationResponse serviceResponse = service.removeAitessConfiguration(aitessId);
+	    
+	    AitessConfigurationResponse aitessConfigurationResponse = new AitessConfigurationResponse();
+	    aitessConfigurationResponse = service.getAllAitessConfiguration();
+	    Map<Integer,String> aitessIdAitessName = new HashMap<Integer,String>();
+	    List<AitessConfiguration> configs = aitessConfigurationResponse.getConfigurations();
+		if (configs.size() > 0) {
+			for (AitessConfiguration aitessConfiguration : configs) {
+				aitessIdAitessName.put(aitessConfiguration.getAitessId(), aitessConfiguration.getAitessName());
+			}
+		}
+	    String aitessName = aitessIdAitessName.get(aitessId);
+	    RunConfigurationService runConfig = new RunConfigurationService();
+	    RunConfigurationResponse runConfigurationResponse = runConfig.getRunConfigurationByAitessName(aitessName);
+	    List<RunConfiguration> lstRunConfigs = new ArrayList<RunConfiguration>();
+	    lstRunConfigs = runConfigurationResponse.getRunConfigurations();
+	  /*  if(lstRunConfigs.size()>0 && !deleteIt)
+	    {
+	    	serviceResponse.setResponseCode(1);
+	    	serviceResponse.setResponseMessage("Aitess are Configured With Run Configuration(s). Are Sure to Delete ?");
+	    	return serviceResponse;
+	    }*/
+	    
+	   serviceResponse = service.removeAitessConfiguration(aitessId);
 	    if (serviceResponse.getResponseCode() == 1) {
 	        System.out.println("Aitess configuration deleted successfully.");
 	    } else {
 	        System.err.println("Failed to remove Aitess configuration: " + serviceResponse.getResponseMessage());
 	    }
+		//if (lstRunConfigs.size() > 0 && deleteIt) {
+			for(RunConfiguration con:lstRunConfigs)
+			{
+				RunConfigurationManagement runMgt = new RunConfigurationManagement();
+				Response res =runMgt.deleteRunConfigById(con.getRunConfigId());
+				if(res.getResponseCode()!=1)
+				{
+				serviceResponse.setResponseCode(res.getResponseCode());
+				serviceResponse.setResponseMessage(res.getResponseMessage());
+				return serviceResponse;
+				}
+			}
+		//}
+		serviceResponse.setResponseCode(1);
+		serviceResponse.setResponseMessage("Aitess & Run Configurations Deleted Succefully");
+	
 	    return serviceResponse;
 	}
 

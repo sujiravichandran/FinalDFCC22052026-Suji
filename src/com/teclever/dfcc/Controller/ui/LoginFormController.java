@@ -278,8 +278,10 @@ public class LoginFormController {
 						AdminDashboardController adminDashboardController = new AdminDashboardController();
 						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
 					} else if(loginResponse.getRoleId().equals("RL_ID_3") || loginResponse.getRoleId().equals("RL_ID_4")) {
-						SessionCreationController sessionCreationController=new SessionCreationController();
-						parent1.getChildren().add(sessionCreationController.createSession());			
+//						SessionCreationController sessionCreationController=new SessionCreationController();
+//						parent1.getChildren().add(sessionCreationController.createSession());			
+						SessionCreationOptionController sessionCreationOptionController=new SessionCreationOptionController();
+						parent1.getChildren().add(sessionCreationOptionController.createSessionOption());			
 					}
 				}
 			} else {

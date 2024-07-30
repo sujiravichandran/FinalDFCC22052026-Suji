@@ -1,14 +1,18 @@
 package com.teclever.dfcc.stateMachine;
 
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 public class StateMachine {
 	public enum TestState {
@@ -21,7 +25,9 @@ public class StateMachine {
 
 	private static TestState testState = TestState.PENDING;
 	private static RunningTestName runningTestName = RunningTestName.OTHER;
+	
 
+	
 	public static TestState getTestState() {
 		return testState;
 	}
@@ -186,7 +192,7 @@ public class StateMachine {
 	// USER ACTION
 	private static String userAction;
 	private static String userExitError;
-	
+
 	public static String getUserExitError() {
 		return userExitError;
 	}
@@ -194,27 +200,29 @@ public class StateMachine {
 	public static void setUserExitError(String userExitError) {
 		StateMachine.userExitError = userExitError;
 	}
-	
 
 	private static BooleanProperty userActionFlag = new SimpleBooleanProperty(false);
-	
+
 	public static String getUserAction() {
 		return userAction;
 	}
+
 	public static void setUserAction(String userAction) {
 		StateMachine.userAction = userAction;
 	}
+
 	public static BooleanProperty userActionFlagProperty() {
 		return userActionFlag;
 	}
+
 	public static BooleanProperty getUserActionFlag() {
 		return userActionFlag;
 	}
+
 	public static void setUserActionFlag(BooleanProperty userActionFlag) {
 		StateMachine.userActionFlag = userActionFlag;
 	}
 
-	
 	// LAUNCH AITESS 1, 2
 	private static boolean aitess1Launched = false;
 	private static boolean aitess2Launched = false;
@@ -245,365 +253,492 @@ public class StateMachine {
 	public static void setTextArea(boolean textArea) {
 		StateMachine.textArea = textArea;
 	}
-	
-	
-	
-	
-	
-	//AITESS 2 
-	public static class dfccCheckStatus{
-		
-		private static boolean dfccPowerStatus;			//for checking status ON or OFF
+
+	// AITESS 2
+	public static class dfccCheckStatus {
+
+		private static BooleanProperty dfccPowerStatus = new SimpleBooleanProperty(false);
 		private static String dfccPowerOnCommand;
 		private static String dfccPowerOffCommand;
 		private static String onlineStatusCommand;
 		private static String mk1ScTemperatureCommand;
 		private static String mk1AecTemperatureCommand;
-		
+
 		private static String mk1aTemperatureCommand;
 		private static String mk2TemperatureCommand;
-		
+
 		private static String ofpVersionStatusCommand;
 		private static String wdmStatusCommand;
-		
-		
+
+		public static BooleanProperty dfccPowerStatusProperty() {
+			return dfccPowerStatus;
+		}
+
+		public static BooleanProperty getDfccPowerStatus() {
+			return dfccPowerStatus;
+		}
+
+		public static void setDfccPowerStatus(BooleanProperty dfccPowerStatus) {
+			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
+		}
+
 		public static String getDfccPowerOnCommand() {
 			return dfccPowerOnCommand;
 		}
+
 		public static void setDfccPowerOnCommand(String dfccPowerOnCommand) {
 			dfccCheckStatus.dfccPowerOnCommand = dfccPowerOnCommand;
 		}
+
 		public static String getDfccPowerOffCommand() {
 			return dfccPowerOffCommand;
 		}
+
 		public static void setDfccPowerOffCommand(String dfccPowerOffCommand) {
 			dfccCheckStatus.dfccPowerOffCommand = dfccPowerOffCommand;
 		}
+
 		public static String getOnlineStatusCommand() {
 			return onlineStatusCommand;
 		}
+
 		public static void setOnlineStatusCommand(String onlineStatusCommand) {
 			dfccCheckStatus.onlineStatusCommand = onlineStatusCommand;
 		}
+
 		public static String getMk1ScTemperatureCommand() {
 			return mk1ScTemperatureCommand;
 		}
+
 		public static void setMk1ScTemperatureCommand(String mk1ScTemperatureCommand) {
 			dfccCheckStatus.mk1ScTemperatureCommand = mk1ScTemperatureCommand;
 		}
+
 		public static String getMk1AecTemperatureCommand() {
 			return mk1AecTemperatureCommand;
 		}
+
 		public static void setMk1AecTemperatureCommand(String mk1AecTemperatureCommand) {
 			dfccCheckStatus.mk1AecTemperatureCommand = mk1AecTemperatureCommand;
 		}
-		public static Boolean getDfccPowerStatus() {
-			return dfccPowerStatus;
-		}
-		public static void setDfccPowerStatus(Boolean dfccPowerStatus) {
-			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
-		}
+
 		public static String getMk1aTemperatureCommand() {
 			return mk1aTemperatureCommand;
 		}
+
 		public static void setMk1aTemperatureCommand(String mk1aTemperatureCommand) {
 			dfccCheckStatus.mk1aTemperatureCommand = mk1aTemperatureCommand;
 		}
+
 		public static String getMk2TemperatureCommand() {
 			return mk2TemperatureCommand;
 		}
+
 		public static void setMk2TemperatureCommand(String mk2TemperatureCommand) {
 			dfccCheckStatus.mk2TemperatureCommand = mk2TemperatureCommand;
 		}
+
 		public static String getOfpVersionStatusCommand() {
 			return ofpVersionStatusCommand;
 		}
+
 		public static void setOfpVersionStatusCommand(String ofpVersionStatusCommand) {
 			dfccCheckStatus.ofpVersionStatusCommand = ofpVersionStatusCommand;
 		}
+
 		public static String getWdmStatusCommand() {
 			return wdmStatusCommand;
 		}
+
 		public static void setWdmStatusCommand(String wdmStatusCommand) {
 			dfccCheckStatus.wdmStatusCommand = wdmStatusCommand;
 		}
-		public static void setDfccPowerStatus(boolean dfccPowerStatus) {
-			dfccCheckStatus.dfccPowerStatus = dfccPowerStatus;
-		}
-			
-		
-		
+
 	}
-	
-	
-	//STORING DATA FOR DFCC STATUS CHECK AITESS 2
-	
-	//ONLINE STATUS
-	public static class OnlineStatus{
-		
+
+	// STORING DATA FOR DFCC STATUS CHECK AITESS 2
+
+	// ONLINE STATUS
+	public static class OnlineStatus {
+
+		private static StringProperty channel1Status = new SimpleStringProperty();
+		private static StringProperty channel2Status = new SimpleStringProperty();
+		private static StringProperty channel3Status = new SimpleStringProperty();
+		private static StringProperty channel4Status = new SimpleStringProperty();
+
+		public static StringProperty channel1StatusProperty() {
+			return channel1Status;
+		}
+
+		public static String getChannel1Status() {
+			return channel1Status.get();
+		}
+
+		public static void setChannel1Status(String channel1Status) {
+			OnlineStatus.channel1Status.set(channel1Status);
+		}
+
+		public static StringProperty channel2StatusProperty() {
+			return channel2Status;
+		}
+
+		public static String getChannel2Status() {
+			return channel2Status.get();
+		}
+
+		public static void setChannel2Status(String channel2Status) {
+			OnlineStatus.channel2Status.set(channel2Status);
+		}
+
+		public static StringProperty channel3StatusProperty() {
+			return channel3Status;
+		}
+
+		public static String getChannel3Status() {
+			return channel3Status.get();
+		}
+
+		public static void setChannel3Status(String channel3Status) {
+			OnlineStatus.channel3Status.set(channel3Status);
+		}
+
+		public static StringProperty channel4StatusProperty() {
+			return channel4Status;
+		}
+
+		public static String getChannel4Status() {
+			return channel4Status.get();
+		}
+
+		public static void setChannel4Status(String channel4Status) {
+			OnlineStatus.channel4Status.set(channel4Status);
+		}
+	}
+
+	// WDM STATUS
+	public static class WDMStatus {
+
 		private static String channel1Status;
 		private static String channel2Status;
 		private static String channel3Status;
 		private static String channel4Status;
-		
+
 		public static String getChannel1Status() {
 			return channel1Status;
 		}
+
 		public static void setChannel1Status(String channel1Status) {
-			OnlineStatus.channel1Status = channel1Status;
+			WDMStatus.channel1Status = channel1Status;
 		}
+
 		public static String getChannel2Status() {
 			return channel2Status;
 		}
+
 		public static void setChannel2Status(String channel2Status) {
-			OnlineStatus.channel2Status = channel2Status;
+			WDMStatus.channel2Status = channel2Status;
 		}
+
 		public static String getChannel3Status() {
 			return channel3Status;
 		}
+
 		public static void setChannel3Status(String channel3Status) {
-			OnlineStatus.channel3Status = channel3Status;
+			WDMStatus.channel3Status = channel3Status;
 		}
+
 		public static String getChannel4Status() {
 			return channel4Status;
 		}
+
 		public static void setChannel4Status(String channel4Status) {
-			OnlineStatus.channel4Status = channel4Status;
-		}	
+			WDMStatus.channel4Status = channel4Status;
+		}
 
 	}
-	
-	//WDM STATUS
-	public static class WDMStatus{
-		
+
+	// OFP VERSION STATUS
+	public static class OFPversionStatus {
+
 		private static String channel1Status;
 		private static String channel2Status;
 		private static String channel3Status;
 		private static String channel4Status;
-		
+
 		public static String getChannel1Status() {
 			return channel1Status;
 		}
+
 		public static void setChannel1Status(String channel1Status) {
-			OnlineStatus.channel1Status = channel1Status;
+			OFPversionStatus.channel1Status = channel1Status;
 		}
+
 		public static String getChannel2Status() {
 			return channel2Status;
 		}
+
 		public static void setChannel2Status(String channel2Status) {
-			OnlineStatus.channel2Status = channel2Status;
+			OFPversionStatus.channel2Status = channel2Status;
 		}
+
 		public static String getChannel3Status() {
 			return channel3Status;
 		}
+
 		public static void setChannel3Status(String channel3Status) {
-			OnlineStatus.channel3Status = channel3Status;
+			OFPversionStatus.channel3Status = channel3Status;
 		}
+
 		public static String getChannel4Status() {
 			return channel4Status;
 		}
+
 		public static void setChannel4Status(String channel4Status) {
-			OnlineStatus.channel4Status = channel4Status;
-		}	
+			OFPversionStatus.channel4Status = channel4Status;
+		}
 
+	}
+
+	// MK1 SC  TEMPERATURE
+	public static class channelSCTemp {
+	    private static StringProperty channel1Temperature = new SimpleStringProperty();
+	    private static StringProperty channel2Temperature = new SimpleStringProperty();
+	    private static StringProperty channel3Temperature = new SimpleStringProperty();
+	    private static StringProperty channel4Temperature = new SimpleStringProperty();
+
+	    public static StringProperty channel1TemperatureProperty() {
+	        return channel1Temperature;
+	    }
+
+	    public static String getChannel1Temperature() {
+	        return channel1Temperature.get();
+	    }
+
+	    public static void setChannel1Temperature(String channel1Temperature) {
+	        channelSCTemp.channel1Temperature.set(channel1Temperature);
+	    }
+
+	    public static StringProperty channel2TemperatureProperty() {
+	        return channel2Temperature;
+	    }
+
+	    public static String getChannel2Temperature() {
+	        return channel2Temperature.get();
+	    }
+
+	    public static void setChannel2Temperature(String channel2Temperature) {
+	        channelSCTemp.channel2Temperature.set(channel2Temperature);
+	    }
+
+	    public static StringProperty channel3TemperatureProperty() {
+	        return channel3Temperature;
+	    }
+
+	    public static String getChannel3Temperature() {
+	        return channel3Temperature.get();
+	    }
+
+	    public static void setChannel3Temperature(String channel3Temperature) {
+	        channelSCTemp.channel3Temperature.set(channel3Temperature);
+	    }
+
+	    public static StringProperty channel4TemperatureProperty() {
+	        return channel4Temperature;
+	    }
+
+	    public static String getChannel4Temperature() {
+	        return channel4Temperature.get();
+	    }
+
+	    public static void setChannel4Temperature(String channel4Temperature) {
+	        channelSCTemp.channel4Temperature.set(channel4Temperature);
+	    }
+	}
+	
+
+	// MK1 AEC TEMPERATURE
+	public static class channelAECTemp {
+		
+	    private static StringProperty channel1Temperature = new SimpleStringProperty();
+	    private static StringProperty channel2Temperature = new SimpleStringProperty();
+	    private static StringProperty channel3Temperature = new SimpleStringProperty();
+	    private static StringProperty channel4Temperature = new SimpleStringProperty();
+
+	    public static StringProperty channel1TemperatureProperty() {
+	        return channel1Temperature;
+	    }
+
+	    public static String getChannel1Temperature() {
+	        return channel1Temperature.get();
+	    }
+
+	    public static void setChannel1Temperature(String channel1Temperature) {
+	        channelAECTemp.channel1Temperature.set(channel1Temperature);
+	    }
+
+	    public static StringProperty channel2TemperatureProperty() {
+	        return channel2Temperature;
+	    }
+
+	    public static String getChannel2Temperature() {
+	        return channel2Temperature.get();
+	    }
+
+	    public static void setChannel2Temperature(String channel2Temperature) {
+	        channelAECTemp.channel2Temperature.set(channel2Temperature);
+	    }
+
+	    public static StringProperty channel3TemperatureProperty() {
+	        return channel3Temperature;
+	    }
+
+	    public static String getChannel3Temperature() {
+	        return channel3Temperature.get();
+	    }
+
+	    public static void setChannel3Temperature(String channel3Temperature) {
+	        channelAECTemp.channel3Temperature.set(channel3Temperature);
+	    }
+
+	    public static StringProperty channel4TemperatureProperty() {
+	        return channel4Temperature;
+	    }
+
+	    public static String getChannel4Temperature() {
+	        return channel4Temperature.get();
+	    }
+
+	    public static void setChannel4Temperature(String channel4Temperature) {
+	        channelAECTemp.channel4Temperature.set(channel4Temperature);
+	    }
 	}
 	
 	
 	
-	
-	//OFP VERSION STATUS
-	public static class OFPversionStatus{
-		
-		private static String channel1Status;
-		private static String channel2Status;
-		private static String channel3Status;
-		private static String channel4Status;
-		
-		public static String getChannel1Status() {
-			return channel1Status;
-		}
-		public static void setChannel1Status(String channel1Status) {
-			OnlineStatus.channel1Status = channel1Status;
-		}
-		public static String getChannel2Status() {
-			return channel2Status;
-		}
-		public static void setChannel2Status(String channel2Status) {
-			OnlineStatus.channel2Status = channel2Status;
-		}
-		public static String getChannel3Status() {
-			return channel3Status;
-		}
-		public static void setChannel3Status(String channel3Status) {
-			OnlineStatus.channel3Status = channel3Status;
-		}
-		public static String getChannel4Status() {
-			return channel4Status;
-		}
-		public static void setChannel4Status(String channel4Status) {
-			OnlineStatus.channel4Status = channel4Status;
-		}	
+	// MK1a MK2 TEMPERATURE
+	public static class boardChannelTemp {
 
-	}
-	
-	
-	
-	
-	//MK1 SC AEC TEMPERATURE
-	public static class channelTemp
-	{
-		private static String channel1Temperature;
-		private static String channel2Temperature;
-		private static String channel3Temperature;
-		private static String channel4Temperature;
-		
-		
-		public static String getChannel1Temperature() {
-			return channel1Temperature;
-		}
-		public static void setChannel1Temperature(String channel1Temperature) {
-			channelTemp.channel1Temperature = channel1Temperature;
-		}
-		public static String getChannel2Temperature() {
-			return channel2Temperature;
-		}
-		public static void setChannel2Temperature(String channel2Temperature) {
-			channelTemp.channel2Temperature = channel2Temperature;
-		}
-		public static String getChannel3Temperature() {
-			return channel3Temperature;
-		}
-		public static void setChannel3Temperature(String channel3Temperature) {
-			channelTemp.channel3Temperature = channel3Temperature;
-		}
-		public static String getChannel4Temperature() {
-			return channel4Temperature;
-		}
-		public static void setChannel4Temperature(String channel4Temperature) {
-			channelTemp.channel4Temperature = channel4Temperature;
-		}	
-	}
-	
-	
-	//MK1a MK2 TEMPERATURE
-	public static class boardChannelTemp{
-		
-	    public static Map<String, List<ChannelTemperature>> boardTemperatureMap;
+		public static ObservableMap<String, ChannelTemperature> boardTemperatureMap=FXCollections.observableMap(new HashMap<>());
 
-		public static Map<String, List<ChannelTemperature>> getBoardTemperatureMap() {
+		public static ObservableMap<String, ChannelTemperature> getBoardTemperatureMap() {
 			return boardTemperatureMap;
 		}
-
-		public static void setBoardTemperatureMap(Map<String, List<ChannelTemperature>> boardTemperatureMap) {
-			boardChannelTemp.boardTemperatureMap = boardTemperatureMap;
+		
+		public static void addBoardTemperatureMap(String key, ChannelTemperature value) {
+			boardTemperatureMap.put(key, value);
 		}
 
-	    
-
-		// FOR RDF FILE PARSER
-		public static class rdfFileParser {
-			private static int dStarCount = 0;
-			private static boolean dStarFound = false;
-			private static boolean parseFileError = false;
-
-			public static void setDStarCount(int count) {
-				dStarCount = count;
-			}
-
-			public static int getDStarCount() {
-				return dStarCount;
-			}
-
-			public static void setDStarFound(boolean found) {
-				dStarFound = found;
-			}
-
-			public static boolean isDStarFound() {
-				return dStarFound;
-			}
-
-			public static void incrementDStarCount() {
-				dStarCount++;
-			}
-
-			public static boolean isParseFileError() {
-				return parseFileError;
-			}
-
-			public static void setParseFileError(boolean parseFileError) {
-				rdfFileParser.parseFileError = parseFileError;
-			}
-
-		
-			
+		public static void setBoardTemperatureMap(ObservableMap<String, ChannelTemperature> boardTemperatureMap) {
+			 boardChannelTemp.boardTemperatureMap.clear();
+		     boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
 		}
-
-		
-		
-		public static class aitessRunning{
-			private static volatile boolean aitess1Exited = true;
-			private static volatile boolean aitess2Exited = true;
-			private static volatile boolean aitess1Switched = false;
-			private static volatile boolean aitess1SwitchedFailed = false;
-			private static volatile boolean aitess2Switched = false;
-			private static volatile boolean aitess2SwitchedFailed = false;
-			private static volatile boolean aitess1ReloadConfigured = false;
-
-
-			
-			public static synchronized boolean isAitess1Exited() {
-				return aitess1Exited;
-			}
-			public static synchronized void setAitess1Exited(boolean aitess1Exited) {
-				aitessRunning.aitess1Exited = aitess1Exited;
-			}
-			public static synchronized boolean isAitess2Exited() {
-				return aitess2Exited;
-			}
-			public static synchronized void setAitess2Exited(boolean aitess2Exited) {
-				aitessRunning.aitess2Exited = aitess2Exited;
-			}
-			public static synchronized boolean isAitess1Switched() {
-				return aitess1Switched;
-			}
-			public static synchronized void setAitess1Switched(boolean aitess1Switched) {
-				System.out.println("aitess1 flag:: "+ aitess1Switched);
-				aitessRunning.aitess1Switched = aitess1Switched;
-			}
-			public static synchronized boolean isAitess2Switched() {
-				return aitess2Switched;
-			}
-			public static synchronized void setAitess2Switched(boolean aitess2Switched) {
-				System.out.println("aitess2 flag:: "+ aitess2Switched);
-				aitessRunning.aitess2Switched = aitess2Switched;
-			}
-			public static synchronized boolean isAitess1SwitchedFailed() {
-				return aitess1SwitchedFailed;
-			}
-			public static synchronized void setAitess1SwitchedFailed(boolean aitess1SwitchedFailed) {
-				aitessRunning.aitess1SwitchedFailed = aitess1SwitchedFailed;
-			}
-			public static synchronized boolean isAitess2SwitchedFailed() {
-				return aitess2SwitchedFailed;
-			}
-			public static synchronized void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
-				aitessRunning.aitess2SwitchedFailed = aitess2SwitchedFailed;
-			}
-			public static synchronized boolean isAitess1ReloadConfigured() {
-				return aitess1ReloadConfigured;
-			}
-			public static synchronized void setAitess1ReloadConfigured(boolean aitess1ReloadConfigured) {
-				aitessRunning.aitess1ReloadConfigured = aitess1ReloadConfigured;
-			}
-			
-			
-				
-		}
-			
-		
 	}
-	
-	
+
+	// FOR RDF FILE PARSER
+	public static class rdfFileParser {
+		private static int dStarCount = 0;
+		private static boolean dStarFound = false;
+		private static boolean parseFileError = false;
+
+		public static void setDStarCount(int count) {
+			dStarCount = count;
+		}
+
+		public static int getDStarCount() {
+			return dStarCount;
+		}
+
+		public static void setDStarFound(boolean found) {
+			dStarFound = found;
+		}
+
+		public static boolean isDStarFound() {
+			return dStarFound;
+		}
+
+		public static void incrementDStarCount() {
+			dStarCount++;
+		}
+
+		public static boolean isParseFileError() {
+			return parseFileError;
+		}
+
+		public static void setParseFileError(boolean parseFileError) {
+			rdfFileParser.parseFileError = parseFileError;
+		}
+
+	}
+
+	public static class aitessRunning {
+		private static volatile boolean aitess1Exited = true;
+		private static volatile boolean aitess2Exited = true;
+		private static volatile boolean aitess1Switched = false;
+		private static volatile boolean aitess1SwitchedFailed = false;
+		private static volatile boolean aitess2Switched = false;
+		private static volatile boolean aitess2SwitchedFailed = false;
+		private static volatile boolean aitess1ReloadConfigured = false;
+
+		public static synchronized boolean isAitess1Exited() {
+			return aitess1Exited;
+		}
+
+		public static synchronized void setAitess1Exited(boolean aitess1Exited) {
+			aitessRunning.aitess1Exited = aitess1Exited;
+		}
+
+		public static synchronized boolean isAitess2Exited() {
+			return aitess2Exited;
+		}
+
+		public static synchronized void setAitess2Exited(boolean aitess2Exited) {
+			aitessRunning.aitess2Exited = aitess2Exited;
+		}
+
+		public static synchronized boolean isAitess1Switched() {
+			return aitess1Switched;
+		}
+
+		public static synchronized void setAitess1Switched(boolean aitess1Switched) {
+			System.out.println("aitess1 flag:: " + aitess1Switched);
+			aitessRunning.aitess1Switched = aitess1Switched;
+		}
+
+		public static synchronized boolean isAitess2Switched() {
+			return aitess2Switched;
+		}
+
+		public static synchronized void setAitess2Switched(boolean aitess2Switched) {
+			System.out.println("aitess2 flag:: " + aitess2Switched);
+			aitessRunning.aitess2Switched = aitess2Switched;
+		}
+
+		public static synchronized boolean isAitess1SwitchedFailed() {
+			return aitess1SwitchedFailed;
+		}
+
+		public static synchronized void setAitess1SwitchedFailed(boolean aitess1SwitchedFailed) {
+			aitessRunning.aitess1SwitchedFailed = aitess1SwitchedFailed;
+		}
+
+		public static synchronized boolean isAitess2SwitchedFailed() {
+			return aitess2SwitchedFailed;
+		}
+
+		public static synchronized void setAitess2SwitchedFailed(boolean aitess2SwitchedFailed) {
+			aitessRunning.aitess2SwitchedFailed = aitess2SwitchedFailed;
+		}
+
+		public static synchronized boolean isAitess1ReloadConfigured() {
+			return aitess1ReloadConfigured;
+		}
+
+		public static synchronized void setAitess1ReloadConfigured(boolean aitess1ReloadConfigured) {
+			aitessRunning.aitess1ReloadConfigured = aitess1ReloadConfigured;
+		}
+
+	}
+
 	private static String previousRunConfigId;
 
 	public static String getPreviousRunConfigId() {
@@ -614,6 +749,29 @@ public class StateMachine {
 		StateMachine.previousRunConfigId = previousRunConfigId;
 	}
 	
-	
+	//FOR SESSION FOLDERS
+			//homelocation
+			private static Path homelocation;
+
+			public static Path getHomelocation() {
+				return homelocation;
+			}
+
+			public static void setHomelocation(Path homelocation) {
+				StateMachine.homelocation = homelocation;
+			}
+			
+			
+			//output
+			private static Path outputLocation;
+
+			public static Path getOutputLocation() {
+				return outputLocation;
+			}
+
+			public static void setOutputLocation(Path outputLocation) {
+				StateMachine.outputLocation = outputLocation;
+			}
+
 
 }
