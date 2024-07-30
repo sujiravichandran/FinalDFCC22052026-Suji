@@ -2,6 +2,8 @@ package com.teclever.dfcc.datastore.dto;
 
 public class StageObject {
 
+	private String sessionStagesMappingId;
+
 	private String l1StageId;
 
 	private String l1StageName;
@@ -25,14 +27,22 @@ public class StageObject {
 	private String testTypeId;
 
 	private String status;
-	
+
 	private boolean mandatoryStatus;
-	
+
 	private boolean defaultStatus;
-	
+
 	private boolean continueWithErrorStatus;
-	
+
 	private boolean advanceStatus;
+
+	public String getSessionStagesMappingId() {
+		return sessionStagesMappingId;
+	}
+
+	public void setSessionStagesMappingId(String sessionStagesMappingId) {
+		this.sessionStagesMappingId = sessionStagesMappingId;
+	}
 
 	public String getL1StageId() {
 		return l1StageId;
@@ -162,7 +172,4 @@ public class StageObject {
 		this.advanceStatus = advanceStatus;
 	}
 
-
-
-	
 }

@@ -99,8 +99,8 @@ public class ResultExecutionManagement {
 					resultExecutionDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				}
-				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getTestFileId());
-				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getTestFileId()));
+				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getSelectedtestFileId());
+				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getSelectedtestFileId()));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
 				resultList.add(resultExecutionDTO);
 
@@ -257,8 +257,8 @@ public class ResultExecutionManagement {
 					resultExecutionDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				}
-				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getTestFileId());
-				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getTestFileId()));
+				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getSelectedtestFileId());
+				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getSelectedtestFileId()));
 
 			}
 
@@ -530,8 +530,8 @@ public class ResultExecutionManagement {
 					resultExecutionDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				}
-				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getTestFileId());
-				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getTestFileId()));
+				resultExecutionDTO.setTestFileId(sessionStagesTestFilesResult.getSelectedtestFileId());
+				resultExecutionDTO.setTestFileName(testFileIdName.get(sessionStagesTestFilesResult.getSelectedtestFileId()));
 				resultExecutionDTO.setSessionName(sessionIdName.get(sessionStagesTestFilesResult.getSessionId()));
 
 			}
