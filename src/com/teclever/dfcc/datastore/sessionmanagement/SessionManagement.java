@@ -391,7 +391,7 @@ public class SessionManagement {
 				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
 
 				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
-				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList();
+				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutId());
 				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
 
 				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {

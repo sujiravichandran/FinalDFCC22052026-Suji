@@ -37,13 +37,13 @@ import org.apache.commons.lang3.StringUtils;
 public class FaultCodeConfiguration {
 	public static String[] headers = { "FaultCodeId", "FaultCodeDescription" };
 
-	public FaultCodeResponse getFaultCodeList() {
+	public FaultCodeResponse getFaultCodeList(String uutId) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		try {
 			FaultCodeMasterService faultCodeMasterService = new FaultCodeMasterService();
 
-			GetResponse faultCodeServiceResponse = faultCodeMasterService.getAllFaultCodeMaster();
+			GetResponse faultCodeServiceResponse = faultCodeMasterService.getFaultCodeMasterByUutId(uutId);
 			if (faultCodeServiceResponse.getCode() == 0) {
 				res.setResponseCode(faultCodeServiceResponse.getCode());
 				res.setResponseMessage(faultCodeServiceResponse.geteMsg());
@@ -54,7 +54,7 @@ public class FaultCodeConfiguration {
 			List<FaultCodeDTO> faultCodeList = new ArrayList<>();
 			for (Object object : faultCodeServiceResponse.getResponseList()) {
 				FaultCodeMaster faultCodeMaster = (FaultCodeMaster) object;
-				FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),
+				FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(), faultCodeMaster.getUutId(),
 						faultCodeMaster.getFaultCode(), faultCodeMaster.getFaultCodeDescription(),
 						faultCodeMaster.getFalutCodeFilePath());
 				faultCodeList.add(faultCodeDTO);
@@ -74,7 +74,7 @@ public class FaultCodeConfiguration {
 		}
 	}
 
-	public FaultCodeResponse addListFaultCode(List<FaultCodeDTO> listOfFaultCodeDto, String faultCodeFilePath) {
+	public FaultCodeResponse addListFaultCode(List<FaultCodeDTO> listOfFaultCodeDto, String faultCodeFilePath , String uutId) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		try {
@@ -94,6 +94,7 @@ public class FaultCodeConfiguration {
 				if (!faultCodes.contains(fileNameAndPath)) {
 					FaultCodeMaster faultCodeMaster = new FaultCodeMaster();
 
+					faultCodeMaster.setUutId(uutId);
 					faultCodeMaster.setFaultCode(faultCodeDTO.getFaultCode());
 					faultCodeMaster.setFaultCodeDescription(faultCodeDTO.getFaultCodeDescription());
 					faultCodeMaster.setFalutCodeFilePath(faultCodeFilePath);
@@ -109,7 +110,7 @@ public class FaultCodeConfiguration {
 			if (response.getResponse().getResponseCode() == 1 && response.getFaultCodeMasterList().size() > 0) {
 				for (Object entry : response.getFaultCodeMasterList()) {
 					FaultCodeMaster faultCodeMaster = (FaultCodeMaster) entry;
-					FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),
+					FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMaster.getFaultCodeId(),faultCodeMaster.getUutId(),
 							faultCodeMaster.getFaultCode(), faultCodeMaster.getFaultCodeDescription(),
 							faultCodeMaster.getFalutCodeFilePath());
 					faultCodeList.add(faultCodeDTO);
@@ -147,7 +148,7 @@ public class FaultCodeConfiguration {
 
 			GetObjResponse response = faultCodeMasterService.addFaultCodeMaster(faultCodeMaster);
 			FaultCodeMaster faultCodeMasterResponse = (FaultCodeMaster) response.getObject();
-			FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMasterResponse.getFaultCodeId(),
+			FaultCodeDTO faultCodeDTO = new FaultCodeDTO(faultCodeMasterResponse.getFaultCodeId(),faultCodeMaster.getUutId(),
 					faultCodeMasterResponse.getFaultCode(), faultCodeMasterResponse.getFaultCodeDescription(),
 					faultCodeMasterResponse.getFalutCodeFilePath());
 
@@ -162,14 +163,14 @@ public class FaultCodeConfiguration {
 		}
 	}
 
-	public FaultCodeResponse faultCodeFile(String path) {
+	public FaultCodeResponse faultCodeFile(String path, String uutId) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		try {
 			if (path.endsWith(".xlsx")) {
-				return extractingFaultCodeExcelFile(path);
+				return extractingFaultCodeExcelFile(path, uutId);
 			} else if (path.endsWith(".csv")) {
-				return extractingFaultCodeCSVFile(path);
+				return extractingFaultCodeCSVFile(path, uutId);
 			} else {
 				res.setResponseCode(0);
 				res.setResponseMessage("Please upload an Excel Or CSV file! ");
@@ -184,7 +185,7 @@ public class FaultCodeConfiguration {
 		}
 	}
 
-	private FaultCodeResponse extractingFaultCodeExcelFile(String path) {
+	private FaultCodeResponse extractingFaultCodeExcelFile(String path, String uutId) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		Map<Integer, String> errors = new HashMap<>();
@@ -308,7 +309,7 @@ public class FaultCodeConfiguration {
 				workbook.close();
 				return faultCodeResponse;
 			}
-			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path);
+			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path, uutId);
 			workbook.close();
 
 		} catch (ConstraintViolationException ex) {
@@ -323,7 +324,7 @@ public class FaultCodeConfiguration {
 		return faultCodeResponse;
 	}
 
-	private FaultCodeResponse extractingFaultCodeCSVFile(String path) {
+	private FaultCodeResponse extractingFaultCodeCSVFile(String path, String uutId) {
 		FaultCodeResponse faultCodeResponse = new FaultCodeResponse();
 		Response res = new Response();
 		Map<Integer, String> errors = new HashMap<>();
@@ -393,7 +394,7 @@ public class FaultCodeConfiguration {
 				} else {
 					listOfFaultCodeDto.add(faultCodeDto);
 				}
-			}
+			} 
 			// If there are errors, set the response accordingly
 			if (!errors.isEmpty()) {
 				res.setResponseCode(0);
@@ -402,7 +403,7 @@ public class FaultCodeConfiguration {
 				faultCodeResponse.setMapResponse(errors);
 				return faultCodeResponse;
 			}
-			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path);
+			faultCodeResponse = addListFaultCode(listOfFaultCodeDto, path, uutId);
 
 		} catch (Exception e) {
 			res.setResponseCode(0);
