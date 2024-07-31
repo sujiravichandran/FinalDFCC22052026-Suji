@@ -432,6 +432,7 @@ public class SessionCreationController {
 			if (ROLE_ID.equals("RL_ID_4")) {
 				setDefaultSessionTypeSelection();
 			}
+			refreshFaultCode();
 		});
 	}
 
@@ -1151,7 +1152,7 @@ public class SessionCreationController {
 	// FETCHING ALL FAULTCODE LIST
 	private void populateFaultCodeTableView() {
 		ObservableList<FaultCodeList> faultCodeList = FXCollections.observableArrayList();
-		FaultCodeResponse response = faultCodeConfig.getFaultCodeList();
+		FaultCodeResponse response = faultCodeConfig.getFaultCodeList(UUT_ID);
 		if (response.getResponse().getResponseCode() == 1) {
 			for (FaultCodeDTO faultCodeDto : response.getFaultCodeList()) {
 				FaultCodeList faultCode = new FaultCodeList();
@@ -1211,10 +1212,11 @@ public class SessionCreationController {
 	private void refreshFaultCode() {
 		selectedFaultCodeList.clear();
 		faultCodeTextArea.clear();
-		for (FaultCodeList faultCode : faultCodeTableView.getItems()) {
-			faultCode.setSelected(false);
-		}
-		faultCodeTableView.refresh();
+		populateFaultCodeTableView();
+//		for (FaultCodeList faultCode : faultCodeTableView.getItems()) {
+//			faultCode.setSelected(false);
+//		}
+//		faultCodeTableView.refresh();
 	}
 
 }

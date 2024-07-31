@@ -6,6 +6,8 @@ public class FaultCodeDTO {
 	private String faultCodeMasterId;
 
 	private int faultCode;
+	
+	private String uutId;
 
 	private String faultCodeDescription;
 	
@@ -13,10 +15,11 @@ public class FaultCodeDTO {
 
 	
 
-	public FaultCodeDTO(String faultCodeMasterId, int faultCode, String faultCodeDescription,
+	public FaultCodeDTO(String faultCodeMasterId,String uutId, int faultCode, String faultCodeDescription,
 			String faultCodeFilePath) {
 		super();
 		this.faultCodeMasterId = faultCodeMasterId;
+		this.uutId = uutId;
 		this.faultCode = faultCode;
 		this.faultCodeDescription = faultCodeDescription;
 		this.faultCodeFilePath = faultCodeFilePath;
@@ -57,5 +60,21 @@ public class FaultCodeDTO {
 	public void setFaultCodeDescription(String faultCodeDescription) {
 		this.faultCodeDescription = faultCodeDescription;
 	}
+
+	public String getUutId() {
+		return uutId;
+	}
+
+	public void setUutId(String uutId) {
+		this.uutId = uutId;
+	}
+
+	@Override
+	public String toString() {
+		return "[faultCodeMasterId=" + faultCodeMasterId + ", faultCode=" + faultCode + ", uutId=" + uutId
+				+ ", faultCodeDescription=" + faultCodeDescription + ", faultCodeFilePath=" + faultCodeFilePath + "]";
+	}
+	
+	
 
 }

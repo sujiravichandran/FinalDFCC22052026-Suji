@@ -529,10 +529,10 @@ public class SessionTestingController {
 //	            return !("Self Test".equalsIgnoreCase(l1StageName) || "LRU Test".equalsIgnoreCase(l1StageName));
 	            return !(stage.isDefaultStatus() || stage.isAdvanceStatus());
 	        })
-	        .sorted(Comparator.comparing((StageObject stage) -> {
-	            String l1StageId = stage.getL1StageId();
-	            return l1StageId != null ? Integer.parseInt(l1StageId.split("_")[1]) : Integer.MAX_VALUE;
-	        }))
+//	        .sorted(Comparator.comparing((StageObject stage) -> {
+//	            String l1StageId = stage.getL1StageId();
+//	            return l1StageId != null ? Integer.parseInt(l1StageId.split("_")[1]) : Integer.MAX_VALUE;
+//	        }))
 	        .forEach(stage -> {
 	            String l1StageId = stage.getL1StageId();
 	            String l1StageName = stage.getL1StageName().trim();
@@ -549,7 +549,7 @@ public class SessionTestingController {
 
 	   
 	    observableStageList.stream()
-	        .sorted(combinedComparator)
+//	        .sorted(combinedComparator)
 	        .forEach(stage -> {
 	            String l1StageId = stage.getL1StageId();
 	            String l2StageId = stage.getL2StageId();
