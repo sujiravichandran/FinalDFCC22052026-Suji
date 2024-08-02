@@ -8,6 +8,8 @@ public class FaultCodeDTO {
 	private int faultCode;
 	
 	private String uutId;
+	
+	private String ofpConfigId;
 
 	private String faultCodeDescription;
 	
@@ -15,11 +17,12 @@ public class FaultCodeDTO {
 
 	
 
-	public FaultCodeDTO(String faultCodeMasterId,String uutId, int faultCode, String faultCodeDescription,
+	public FaultCodeDTO(String faultCodeMasterId,String uutId,String ofpConfigId, int faultCode, String faultCodeDescription,
 			String faultCodeFilePath) {
 		super();
 		this.faultCodeMasterId = faultCodeMasterId;
 		this.uutId = uutId;
+		this.ofpConfigId = ofpConfigId;
 		this.faultCode = faultCode;
 		this.faultCodeDescription = faultCodeDescription;
 		this.faultCodeFilePath = faultCodeFilePath;
@@ -69,11 +72,21 @@ public class FaultCodeDTO {
 		this.uutId = uutId;
 	}
 
+	public String getOfpConfigId() {
+		return ofpConfigId;
+	}
+
+	public void setOfpConfigId(String ofpConfigId) {
+		this.ofpConfigId = ofpConfigId;
+	}
+
 	@Override
 	public String toString() {
-		return "[faultCodeMasterId=" + faultCodeMasterId + ", faultCode=" + faultCode + ", uutId=" + uutId
-				+ ", faultCodeDescription=" + faultCodeDescription + ", faultCodeFilePath=" + faultCodeFilePath + "]";
+		return "faultCodeMasterId=" + faultCodeMasterId + ", faultCode=" + faultCode + ", uutId=" + uutId
+				+ ", ofpConfigId=" + ofpConfigId + ", faultCodeDescription=" + faultCodeDescription
+				+ ", faultCodeFilePath=" + faultCodeFilePath + "";
 	}
+
 	
 	
 

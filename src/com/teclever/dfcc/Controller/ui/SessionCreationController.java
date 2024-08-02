@@ -117,6 +117,7 @@ public class SessionCreationController {
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
+	private String ofpConfigId;
 
 	private ObservableList<SessionMasterDTO> sessionDataList;
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
@@ -1152,16 +1153,16 @@ public class SessionCreationController {
 	// FETCHING ALL FAULTCODE LIST
 	private void populateFaultCodeTableView() {
 		ObservableList<FaultCodeList> faultCodeList = FXCollections.observableArrayList();
-		FaultCodeResponse response = faultCodeConfig.getFaultCodeList(UUT_ID);
-		if (response.getResponse().getResponseCode() == 1) {
-			for (FaultCodeDTO faultCodeDto : response.getFaultCodeList()) {
-				FaultCodeList faultCode = new FaultCodeList();
-				faultCode.setCode(faultCodeDto.getFaultCode());
-				faultCode.setFaultCodeId(faultCodeDto.getFaultCodeMasterId());
-				faultCode.setCodeDescription(faultCodeDto.getFaultCodeDescription());
-				faultCodeList.add(faultCode);
-			}
-		}
+//		FaultCodeResponse response = faultCodeConfig.getFaultCodeList(UUT_ID);
+//		if (response.getResponse().getResponseCode() == 1) {
+//			for (FaultCodeDTO faultCodeDto : response.getFaultCodeList()) {
+//				FaultCodeList faultCode = new FaultCodeList();
+//				faultCode.setCode(faultCodeDto.getFaultCode());
+//				faultCode.setFaultCodeId(faultCodeDto.getFaultCodeMasterId());
+//				faultCode.setCodeDescription(faultCodeDto.getFaultCodeDescription());
+//				faultCodeList.add(faultCode);
+//			}
+//		}
 		faultCodeTableView.setItems(faultCodeList);
 	}
 
