@@ -387,23 +387,23 @@ public class SessionManagement {
 
 			FaultCodeSessionMappingService faultCodeSessionMap = new FaultCodeSessionMappingService();
 			List<String> ListOfFaultCodeIds = faultCodeSessionMap.getFaultCodeBySessionId(sessionEntityId);
-			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
-				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
-
-				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
-				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutId());
-				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
-
-				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {
-					faultCodePKeyWithDto.put(faultCode.getFaultCodeMasterId(), faultCode);
-				}
-				for (String faultCodePKey : ListOfFaultCodeIds) {
-					if (faultCodePKeyWithDto.get(faultCodePKey) != null) {
-						faultCodeMappingList.add(faultCodePKeyWithDto.get(faultCodePKey));
-					}
-				}
-				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
-			}
+//			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
+//				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
+//
+//				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+//				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutId());
+//				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
+//
+//				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {
+//					faultCodePKeyWithDto.put(faultCode.getFaultCodeMasterId(), faultCode);
+//				}
+//				for (String faultCodePKey : ListOfFaultCodeIds) {
+//					if (faultCodePKeyWithDto.get(faultCodePKey) != null) {
+//						faultCodeMappingList.add(faultCodePKeyWithDto.get(faultCodePKey));
+//					}
+//				}
+//				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
+//			}
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull");
