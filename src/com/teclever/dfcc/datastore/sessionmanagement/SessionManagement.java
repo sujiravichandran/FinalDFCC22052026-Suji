@@ -275,7 +275,6 @@ public class SessionManagement {
 			for (Object object : getResponse.getResponseList()) {
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
 
-				if (sessionStage.getRunCount() <= 1) {
 					StageObject stageObject = new StageObject();
 
 					stageObject.setSessionStagesMappingId(sessionStage.getSessionStagesMappingId());
@@ -309,7 +308,6 @@ public class SessionManagement {
 							levelOneStageWithObject.get(sessionStage.getLevelOneStageId()).isDefaultStatus());
 
 					listOfStageObject.add(stageObject);
-				}
 			}
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
