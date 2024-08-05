@@ -152,7 +152,6 @@ public class FaultCodeConfigurationController {
         uutTypeField.setOnAction((event) -> {
             UUT_ID = fetchUutId(uutTypeField.getValue());
             initializeOfpVersionComboBox();
-//            addUserBtn.setDisable(false);
             setTableData();
         });
     }
@@ -215,7 +214,7 @@ public class FaultCodeConfigurationController {
     private String fetchOFPVersion(String ofpVersionName) {
         for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
             if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
-                return ofpVersion.getOfpVersion();
+                return ofpVersion.getOfpConfigId();
             }
         }
         return null;
@@ -245,9 +244,10 @@ public class FaultCodeConfigurationController {
     }
 
     private void setTableData() {
+        ObservableList<FaultCodeConfig> tableData = FXCollections.observableArrayList();
+
         if (UUT_ID != null && ofpConfigId != null) {
             FaultCodeResponse faultCodeList = faultCodeConfiguration.getFaultCodeList(UUT_ID, ofpConfigId);
-            ObservableList<FaultCodeConfig> tableData = FXCollections.observableArrayList();
             if (faultCodeList.getResponse().getResponseCode() != 0) {
                 for (FaultCodeDTO faultCode : faultCodeList.getFaultCodeList()) {
                     FaultCodeConfig faultCodeData = new FaultCodeConfig();
@@ -259,13 +259,13 @@ public class FaultCodeConfigurationController {
                     tableData.add(faultCodeData);
                 }
             }
-
-            TableViewFactory<FaultCodeConfig> userFactory = new FaultCodeConfigTableViewFactory();
-            CustomTableView<FaultCodeConfig> customTableView = userFactory.createTableView(tableData, false, false);
-
-            faultCodeConfigTableGridPane.getChildren().clear(); // Clear existing table if any
-            faultCodeConfigTableGridPane.add(customTableView, 0, 0);
         }
+       
+        TableViewFactory<FaultCodeConfig> userFactory = new FaultCodeConfigTableViewFactory();
+        CustomTableView<FaultCodeConfig> customTableView = userFactory.createTableView(tableData, false, false);
+
+        faultCodeConfigTableGridPane.getChildren().clear(); // Clear existing table if any
+        faultCodeConfigTableGridPane.add(customTableView, 0, 0);
     }
 
     private void uploadfile() {

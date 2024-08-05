@@ -17,11 +17,13 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
+import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SessionDTO;
 import com.teclever.dfcc.datastore.dto.SessionDTOResponse;
 import com.teclever.dfcc.datastore.dto.SessionList;
@@ -93,6 +95,7 @@ public class SessionCreationController {
 	private GridPane sessionEntryGridPane = new GridPane();
 	private ComboBox<String> uutTypeField = new ComboBox<String>();
 	private TextField uutTypeTextField = new TextField();
+	
 	// middleBox
 	private Label sessionTypeLabel = new Label("Session Type");
 	private GridPane sessionTypeGridPane = new GridPane();
@@ -107,6 +110,8 @@ public class SessionCreationController {
 	private GridPane ofpVersionGridPane = new GridPane();
 	private Label ofpVersionLabel = new Label("OFP Version");
 	private ComboBox<String> ofpVersionField = new ComboBox<>();
+	private TextField ofpVersionTextField = new TextField();
+
 	private Button addFaultCodeButton = new Button("ADD FAULT CODE");
 	private Label selectedFaultCodeLabel = new Label("Selected Fault Code");
 	private TextArea faultCodeTextArea = new TextArea();
@@ -124,6 +129,10 @@ public class SessionCreationController {
 	private ObservableList<SessionMasterDTO> sessionDataList;
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
 	private String SESSION_TYPE_ID;
+
+	private List<OfpConfigurationDto> ofpDataList;
+	private ObservableList<String> ofpList = FXCollections.observableArrayList();
+	private String OFP_CONFIG_ID;
 
 	// SESSION NAME TABLE
 	private TableView<SessionDetails> sessionDetailsTableView = new TableView<>();
@@ -145,8 +154,10 @@ public class SessionCreationController {
 	private StageConfiguration stageConfig = new StageConfiguration();
 	private LoadDriverController loadDriverController = new LoadDriverController();
 	private RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
+	private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
 
 	private ObservableList<StageOne> session_l1Data = FXCollections.observableArrayList();
+	private ObservableList<FaultCodeList> faultCodeList = FXCollections.observableArrayList();
 
 	private List<List<String>> filteredHierarchies;
 	private Set<List<String>> selectedHierarchies = new HashSet<>();
@@ -431,12 +442,47 @@ public class SessionCreationController {
 			sessionTypeField.setDisable(false);
 			createButton.setDisable(false);
 			UUT_ID = fetchUutId(uutTypeField.getValue());
+			initializeOfpComboBox();
 			refreshSessionTypeComboBox();
 			if (ROLE_ID.equals("RL_ID_4")) {
 				setDefaultSessionTypeSelection();
 			}
-			refreshFaultCode();
 		});
+	}
+
+	private void initializeOfpComboBox() {
+		ofpVersionField.getItems().clear();
+		ofpDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
+		for (OfpConfigurationDto ofp : ofpDataList) {
+			ofpList.add(ofp.getOfpVersion());
+		}
+		ofpVersionField.setItems(ofpList);
+
+		ofpVersionField.setOnAction(e -> {
+			if (ofpVersionField.getValue() != null) {
+				OFP_CONFIG_ID = fetchOfpConfigId(ofpVersionField.getValue());
+				refreshFaultCode();
+				populateFaultCodeTableView();
+			}
+		});
+	}
+
+	private String fetchOfpConfigId(String ofpVerison) {
+		for (OfpConfigurationDto ofp : ofpDataList) {
+			if (ofp.getOfpVersion().equals(ofpVerison)) {
+				return ofp.getOfpConfigId();
+			}
+		}
+		return null;
+	}
+
+	private String fetchOfpVersionByConfigId(String configId) {
+		for (OfpConfigurationDto ofp : ofpDataList) {
+			if (ofp.getOfpConfigId().equals(configId)) {
+				return ofp.getOfpVersion();
+			}
+		}
+		return null;
 	}
 
 	private String fetchUutId(String uutType) {
@@ -729,6 +775,11 @@ public class SessionCreationController {
 		if (startRemarksTextArea.getText().trim() == null || startRemarksTextArea.getText().trim().isEmpty()) {
 			errorMessage.append("Please add remark...\n");
 		}
+		if (sessionTypeField.getValue().toLowerCase().trim().contains("fru")){
+			if (selectedFaultCodeList.size() == 0) {
+				errorMessage.append("Please add fault code for FRU session...\n");
+			}
+		}
 
 		if (errorMessage.length() > 0) {
 			Notifications.showErrorAlert(errorMessage.toString());
@@ -786,7 +837,9 @@ public class SessionCreationController {
 		sessionDTO.setDfccPartNo(dfccPartNoField.getText().trim());
 		sessionDTO.setStartRemarks(startRemarksTextArea.getText().trim());
 		sessionDTO.setSessionStagesList(sessionStagesList);
+		sessionDTO.setOfpConfigId(OFP_CONFIG_ID);
 		sessionDTO.setFaultCodeMappingList(selectedFaultCodeList);
+
 
 		Response response = sessionManagement.saveSession(sessionDTO);
 
@@ -896,7 +949,11 @@ public class SessionCreationController {
 			dfccSNoField.setText(String.valueOf(sessionListResponse.getDfccSNo()));
 			startRemarksTextArea.setText(sessionListResponse.getStartRemarks());
 			sessionTypeField.setValue(fetchSessionNameById(sessionListResponse.getSessionTypeMasterId()));
-
+			
+			String ofpVersion = fetchOfpVersionByUUTIdandConfigId(uutTypeTextField.getText(),sessionListResponse.getOfpConfigId());
+			
+			ofpVersionTextField.setText(ofpVersion);
+			
 			List<StageObject> stageObjList = sessionListResponse.getSessionStagesList();
 
 			if (middleContainer.getChildren().contains(treeView)) {
@@ -1009,7 +1066,7 @@ public class SessionCreationController {
 						l2HBox.setAlignment(Pos.CENTER_LEFT);
 
 						if (l2Value.getTestTypeId() != null) {
-							Label l2TestTypeLabel = new Label(fetchTestTypeNameById(l2Value.getTestTypeId())); 
+							Label l2TestTypeLabel = new Label(fetchTestTypeNameById(l2Value.getTestTypeId()));
 							l2TestTypeLabel.getStyleClass().add("treeview-test-type-label");
 							l2HBox.getChildren().add(l2TestTypeLabel);
 						}
@@ -1099,7 +1156,6 @@ public class SessionCreationController {
 			selectedSessionStageTreeView.setShowRoot(false);
 
 			middleContainer.getChildren().add(selectedSessionStageTreeView);
-
 			if (sessionListResponse.getFaultCodeMappingList() != null) {
 				List<FaultCodeDTO> faultCodeMappingList = sessionListResponse.getFaultCodeMappingList();
 				StringBuilder faultCodeTextBuilder = new StringBuilder();
@@ -1125,10 +1181,20 @@ public class SessionCreationController {
 		}
 
 	}
+	
+	private String fetchOfpVersionByUUTIdandConfigId(String uutId, String configId) {
+		ofpDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
+		for (OfpConfigurationDto ofp : ofpDataList) {
+			if(ofp.getOfpConfigId().equals(configId)) {
+				return ofp.getOfpVersion();
+			}
+		}
+		return null;
+	}
 
 	private VBox createRightContainer() {
 		initializeFaultCodeTableView();
-		populateFaultCodeTableView();
+//		populateFaultCodeTableView();
 
 		addFaultCodeButton.prefWidthProperty().bind(rightContainer.widthProperty());
 		selectedFaultCodeLabel.getStyleClass().add("field-label");
@@ -1145,7 +1211,7 @@ public class SessionCreationController {
 			}
 			faultCodeTextArea.setText(selectedFaultCodes.toString());
 		});
-		
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(40);
 		ColumnConstraints secondColumn = new ColumnConstraints();
@@ -1154,32 +1220,35 @@ public class SessionCreationController {
 		firstRow.setPercentHeight(100);
 		ofpVersionGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		ofpVersionGridPane.getRowConstraints().add(firstRow);
-		
+
 		ofpVersionLabel.getStyleClass().add("field-label");
-		
+
 		ofpVersionGridPane.add(ofpVersionLabel, 0, 0);
-		ofpVersionGridPane.add(ofpVersionField, 1, 0);
+		if(newSession) {			
+			ofpVersionGridPane.add(ofpVersionField, 1, 0);
+		}else {
+			ofpVersionGridPane.add(ofpVersionTextField, 1, 0);
+		}
 		ofpVersionField.prefWidthProperty().bind(ofpVersionGridPane.widthProperty());
 
 		rightContainer.getStyleClass().add("session-creation-container");
-		rightContainer.getChildren().addAll(ofpVersionGridPane, faultCodeTableView, addFaultCodeButton, selectedFaultCodeLabel,
-				faultCodeTextArea);
+		rightContainer.getChildren().addAll(ofpVersionGridPane, faultCodeTableView, addFaultCodeButton,
+				selectedFaultCodeLabel, faultCodeTextArea);
 		return rightContainer;
 	}
 
 	// FETCHING ALL FAULTCODE LIST
 	private void populateFaultCodeTableView() {
-		ObservableList<FaultCodeList> faultCodeList = FXCollections.observableArrayList();
-//		FaultCodeResponse response = faultCodeConfig.getFaultCodeList(UUT_ID);
-//		if (response.getResponse().getResponseCode() == 1) {
-//			for (FaultCodeDTO faultCodeDto : response.getFaultCodeList()) {
-//				FaultCodeList faultCode = new FaultCodeList();
-//				faultCode.setCode(faultCodeDto.getFaultCode());
-//				faultCode.setFaultCodeId(faultCodeDto.getFaultCodeMasterId());
-//				faultCode.setCodeDescription(faultCodeDto.getFaultCodeDescription());
-//				faultCodeList.add(faultCode);
-//			}
-//		}
+		FaultCodeResponse response = faultCodeConfig.getFaultCodeList(UUT_ID, OFP_CONFIG_ID);
+		if (response.getResponse().getResponseCode() == 1) {
+			for (FaultCodeDTO faultCodeDto : response.getFaultCodeList()) {
+				FaultCodeList faultCode = new FaultCodeList();
+				faultCode.setCode(faultCodeDto.getFaultCode());
+				faultCode.setFaultCodeId(faultCodeDto.getFaultCodeMasterId());
+				faultCode.setCodeDescription(faultCodeDto.getFaultCodeDescription());
+				faultCodeList.add(faultCode);
+			}
+		}
 		faultCodeTableView.setItems(faultCodeList);
 	}
 
@@ -1230,7 +1299,7 @@ public class SessionCreationController {
 	private void refreshFaultCode() {
 		selectedFaultCodeList.clear();
 		faultCodeTextArea.clear();
-		populateFaultCodeTableView();
+		faultCodeList.clear();
 //		for (FaultCodeList faultCode : faultCodeTableView.getItems()) {
 //			faultCode.setSelected(false);
 //		}
@@ -1297,10 +1366,6 @@ class CustomCheckBoxTreeItem<T> extends CheckBoxTreeItem<T> {
 		return parentIds;
 	}
 }
-
-
-
-
 
 //package com.teclever.dfcc.Controller.ui;
 //
