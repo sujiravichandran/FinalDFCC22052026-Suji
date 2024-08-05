@@ -17,9 +17,11 @@ public class SessionDTOResponse {
 	private Date creationDate;
 	private Date startDate;
 	private Date endDate;
+	private String ofpConfigId;
 	private String startRemarks;
 	private List<StageObject> sessionStagesList;
 	private List<FaultCodeDTO> faultCodeMappingList;
+	private List<FaultCodeDTO> faultCodeOnOFPVersion;
 
 	private Response response;
 
@@ -134,5 +136,24 @@ public class SessionDTOResponse {
 	public void setResponse(Response response) {
 		this.response = response;
 	}
+
+	public String getOfpConfigId() {
+		return ofpConfigId;
+	}
+
+	public void setOfpConfigId(String ofpConfigId) {
+		this.ofpConfigId = ofpConfigId;
+	}
+
+	public List<FaultCodeDTO> getFaultCodeOnOFPVersion() {
+		return faultCodeOnOFPVersion;
+	}
+
+	public void setFaultCodeOnOFPVersion(List<FaultCodeDTO> faultCodeOnOFPVersion) {
+		this.faultCodeOnOFPVersion = faultCodeOnOFPVersion;
+	}
+	
+	
+	
 
 }
