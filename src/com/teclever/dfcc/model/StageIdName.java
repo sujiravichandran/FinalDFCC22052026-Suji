@@ -6,6 +6,8 @@ public class StageIdName {
 	private String stageName;
 	private String parentId;
 	private String testTypeId;
+	private boolean mandatoryStatus;
+	private boolean continueWithErrorStatus;
 
 	public String getStageId() {
 		return stageId;
@@ -38,5 +40,23 @@ public class StageIdName {
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
+
+	public boolean isMandatoryStatus() {
+		return mandatoryStatus;
+	}
+
+	public void setMandatoryStatus(boolean mandatoryStatus) {
+		this.mandatoryStatus = mandatoryStatus;
+	}
+
+	public boolean isContinueWithErrorStatus() {
+		return continueWithErrorStatus;
+	}
+
+	public void setContinueWithErrorStatus(boolean continueWithErrorStatus) {
+		this.continueWithErrorStatus = continueWithErrorStatus;
+	}
+	
+	
 
 }
