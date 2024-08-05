@@ -146,8 +146,8 @@ public class AddStageController implements Initializable {
 		headerLabel.setText("Edit Stage1");
 		add_new_stage_button.setText("Update Stage");
 		stage_name_field.setText(stage1Data.getL1_name());
-		mandatoryCheckBox.setSelected(stage1Data.isDefault());
-		continueWithErrorCheckBox.setSelected(stage1Data.isDefault());
+		mandatoryCheckBox.setSelected(stage1Data.isMandatory());
+		continueWithErrorCheckBox.setSelected(stage1Data.isContinueWithError());
 		
 		List<String> sessionTypeIds = stage1Data.getSessionType();
 		session_type_box.getChildren().clear();

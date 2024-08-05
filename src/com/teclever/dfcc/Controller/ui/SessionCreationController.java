@@ -104,6 +104,9 @@ public class SessionCreationController {
 	private TreeView<HBox> selectedSessionStageTreeView = new TreeView<>();
 
 	// rightBox
+	private GridPane ofpVersionGridPane = new GridPane();
+	private Label ofpVersionLabel = new Label("OFP Version");
+	private ComboBox<String> ofpVersionField = new ComboBox<>();
 	private Button addFaultCodeButton = new Button("ADD FAULT CODE");
 	private Label selectedFaultCodeLabel = new Label("Selected Fault Code");
 	private TextArea faultCodeTextArea = new TextArea();
@@ -117,7 +120,6 @@ public class SessionCreationController {
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
-	private String ofpConfigId;
 
 	private ObservableList<SessionMasterDTO> sessionDataList;
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
@@ -1143,9 +1145,24 @@ public class SessionCreationController {
 			}
 			faultCodeTextArea.setText(selectedFaultCodes.toString());
 		});
+		
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(40);
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(60);
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		ofpVersionGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		ofpVersionGridPane.getRowConstraints().add(firstRow);
+		
+		ofpVersionLabel.getStyleClass().add("field-label");
+		
+		ofpVersionGridPane.add(ofpVersionLabel, 0, 0);
+		ofpVersionGridPane.add(ofpVersionField, 1, 0);
+		ofpVersionField.prefWidthProperty().bind(ofpVersionGridPane.widthProperty());
 
 		rightContainer.getStyleClass().add("session-creation-container");
-		rightContainer.getChildren().addAll(faultCodeTableView, addFaultCodeButton, selectedFaultCodeLabel,
+		rightContainer.getChildren().addAll(ofpVersionGridPane, faultCodeTableView, addFaultCodeButton, selectedFaultCodeLabel,
 				faultCodeTextArea);
 		return rightContainer;
 	}
