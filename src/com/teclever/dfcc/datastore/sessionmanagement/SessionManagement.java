@@ -70,6 +70,7 @@ public class SessionManagement {
 			sessionDto.setUutId(sessionDTO.getUutId());
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
+			sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
 			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
 					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
 			sessionDto.setPath(sessionPath);
@@ -341,6 +342,7 @@ public class SessionManagement {
 				sessionList.setSessionId(sessionEntity.getSessionId());
 				sessionList.setSessionName(sessionEntity.getSessionName());
 				sessionList.setCreationDate(sessionEntity.getCreationDate());
+				sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
 				listOfSession.add(sessionList);
 
 			}
@@ -380,11 +382,14 @@ public class SessionManagement {
 			sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
 			sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
 			sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
+			sessionDtoResponse.setOfpConfigId(sessionEntity.getOfpConfigId());
 
 			sessionDtoResponse.setSessionStagesList(sessionSrageResponse.getListOfStageObject());
 
 			FaultCodeSessionMappingService faultCodeSessionMap = new FaultCodeSessionMappingService();
 			List<String> ListOfFaultCodeIds = faultCodeSessionMap.getFaultCodeBySessionId(sessionEntityId);
+			
+			
 //			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
 //				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
 //

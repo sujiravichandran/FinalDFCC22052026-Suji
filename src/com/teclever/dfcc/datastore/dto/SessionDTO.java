@@ -15,6 +15,7 @@ public class SessionDTO {
 	private Date creationDate;
 	private Date startDate;
 	private Date endDate;
+	private String ofpConfigId;
 	private String startRemarks;
 	private List<SessionToStagesMappingDTO> sessionStagesList;
 	private List<String> faultCodeMappingList;
@@ -122,5 +123,15 @@ public class SessionDTO {
 	public void setStartRemarks(String startRemarks) {
 		this.startRemarks = startRemarks;
 	}
+
+	public String getOfpConfigId() {
+		return ofpConfigId;
+	}
+
+	public void setOfpConfigId(String ofpConfigId) {
+		this.ofpConfigId = ofpConfigId;
+	}
+	
+	
 
 }

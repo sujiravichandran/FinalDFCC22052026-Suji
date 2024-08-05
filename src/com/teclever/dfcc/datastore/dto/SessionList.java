@@ -10,6 +10,8 @@ public class SessionList {
 
 	private Date creationDate;
 
+	private String ofpConfigId;
+	
 	public String getSessionId() {
 		return sessionId;
 	}
@@ -33,5 +35,15 @@ public class SessionList {
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
+
+	public String getOfpConfigId() {
+		return ofpConfigId;
+	}
+
+	public void setOfpConfigId(String ofpConfigId) {
+		this.ofpConfigId = ofpConfigId;
+	}
+	
+	
 
 }
