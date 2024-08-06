@@ -1,0 +1,92 @@
+@import url("Global.css");
+
+.configuration-main-container{
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;	
+}
+
+.headerLabel{
+	-fx-text-fill:heading-text-color;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+}
+.configuration-tabs-container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}
+.tab-content-container{
+	-fx-background-color: white;
+	-fx-padding:5px;
+}
+.tab {
+    -fx-background-insets: 0 2 0 2,0,0;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+    -fx-border-radius:5px;
+    -fx-background-radius:5px;
+}
+.tab-pane .tab {
+    -fx-background-color: light-bg;
+    -fx-text-fill: secondary-text-color;
+    -fx-padding: 0; 
+    -fx-pref-height: 40px; 
+    -fx-border-color: transparent; 
+}
+.tab-pane .tab-label {
+    -fx-font-size: 17px;
+    -fx-font-weight:bold;
+    -fx-text-fill: secondary-text-color;
+    -fx-alignment: center; 
+}
+.tab-pane .tab:selected {
+    -fx-background-color: secondary-text-color;
+    -fx-border-color: transparent; 
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill:light-bg;
+}
+.tab-pane .tab-content {
+    -fx-background-color:light-bg;
+}
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+.tab-pane {
+    -fx-tab-min-width: 200px;
+}
+
+.configuration-Container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+}
+.configuration-custom-tab-container{
+	
+	-fx-padding:10px;
+	-fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
+}
+
+.form-label {
+	-fx-text-fill:#ffffff;
+	-fx-font-weight: bold;
+	-fx-font-size: 20.0px;
+
+}
+.combo-box {
+	-fx-background-color: primary-text-color;
+    -fx-font-size: 16.0px;
+    -fx-border-radius: 5.0px;
+    -fx-background-radius: 5.0px;
+    -fx-pref-width: 200px;
+    -fx-font-weight: bold;
+}
+
+.configuration-code-Container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+}
+
+

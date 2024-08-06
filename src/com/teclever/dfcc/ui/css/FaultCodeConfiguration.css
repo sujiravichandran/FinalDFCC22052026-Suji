@@ -5,6 +5,12 @@
 	-fx-background-radius: 15px;
     -fx-border-radius: 15px;
 }
+
+.fault-code-main-container{
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;	
+}
 .fault-code-config-title{
 	-fx-font-size:30px;
 	-fx-font-weight:bold;
@@ -19,6 +25,13 @@
 .fault-code-Container{
 	-fx-background-color: dark-bg;
 	-fx-background-radius: 10px;
+}
+
+.faultcode-user-grid{
+	-fx-background-color: dark-bg;
+	-fx-padding:10px;
+	-fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
 }
 
 
@@ -49,4 +62,11 @@
 	-fx-text-fill:button-bg; 
     -fx-background-color:button-text; 
     -fx-border-color: button-bg; 
+}
+
+.faultcode-user-custom-tab-container{
+	
+	-fx-padding:10px;
+	-fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
 }

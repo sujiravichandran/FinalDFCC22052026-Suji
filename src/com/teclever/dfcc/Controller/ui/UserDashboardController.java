@@ -250,6 +250,7 @@ public class UserDashboardController {
 
 			label.setOnMouseClicked(event -> {
 				System.out.println("Label clicked: " + labelText);
+				centerContentController.createUserCenterContent(bottomMidTopGridPane,labelText);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
 						((Label) node).getStyleClass().remove("selected");

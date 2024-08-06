@@ -17,7 +17,8 @@ public class UserCenterContentController {
 	private StackPane sessionTestingStackPane = new StackPane();
 	private StackPane advancedTestingStackPane = new StackPane();
 	private StackPane currentExecutionResultStackPane = new StackPane();
-
+	private StackPane configurationStackPane = new StackPane();
+	
 	private TerminalController terminalController = new TerminalController();
 
 	public UserCenterContentController() {
@@ -77,6 +78,17 @@ public class UserCenterContentController {
 				centerStackPane.getChildren().add(advancedTestingStackPane);
 			} else {
 				advancedTestingStackPane.toFront();
+			}
+			
+			break;
+			
+		case "Configuration":
+			if (!centerStackPane.getChildren().contains(configurationStackPane)) {
+				ConfigurationController configurationController = new ConfigurationController();
+				configurationStackPane.getChildren().add(configurationController.createConfigurationGridPane());
+				centerStackPane.getChildren().add(configurationStackPane);
+			} else {
+				configurationStackPane.toFront();
 			}
 			
 			break;
