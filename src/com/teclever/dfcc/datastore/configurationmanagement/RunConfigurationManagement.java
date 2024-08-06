@@ -1,11 +1,16 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
@@ -21,6 +26,7 @@ import com.teclever.datastore.service.SymbolService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestTypeMasterDetailsService;
 import com.teclever.datastore.utils.PathMasterDeleteResponse;
+import com.teclever.dfcc.datastore.dto.ConfigDatResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
@@ -415,5 +421,32 @@ public class RunConfigurationManagement {
 	        }
 	    }
 	
+	    public ConfigDatResponse getConfigData(String uutId, String testTypeId) {
+	        RunConfigurationService runConfigurationService = new RunConfigurationService();
+	        String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+	        String configFile = runConfigurationService.getConfigFileByRunConfigId(runConfigId);
+
+	        if (configFile != null && !configFile.isEmpty()) {
+	            String configContent = readFileContent(configFile);
+	            return new ConfigDatResponse(configContent, 1, "Success");
+	        } else {
+	            return new ConfigDatResponse(null, 0, "Config file is not available or empty.");
+	        }
+	    }
+
+	    
+	    private String readFileContent(String filePath) {
+	        StringBuilder contentBuilder = new StringBuilder();
+	        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                contentBuilder.append(line).append(System.lineSeparator());
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return "Error reading file: " + e.getMessage();
+	        }
+	        return contentBuilder.toString();
+	    }
 	
 }
