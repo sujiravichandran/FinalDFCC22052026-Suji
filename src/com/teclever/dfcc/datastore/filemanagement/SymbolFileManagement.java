@@ -1,5 +1,7 @@
 package com.teclever.dfcc.datastore.filemanagement;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,41 +49,96 @@ public class SymbolFileManagement {
 	}
 
 	public static List<SymbolDto> saveSymbols(List<String> fileNamePaths, String runPathMasterId) {
-		List<String> filePaths = null;
-		try {
-			filePaths = fetchSymbolFilePathsDoubleSlash(fileNamePaths);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SymbolService symbolService = new SymbolService();
-		for(String fileNamePath:fileNamePaths)
-		{
-			symbolService.saveSymbolToDatabase("--", "--", "--", "--", fileNamePath,
-					runPathMasterId);
-		}
-		List<SymbolDto> symbols = SymbolFileParser.parseSymbols(filePaths, runPathMasterId);
-		
+	    List<String> allFilePaths = new ArrayList<>();
 
-		// Mark previous macro rows as deleted before adding new ones
-		markPreviousSymbolRowsAsDeleted(runPathMasterId);
+	    try {
+	        // Step 1: Fetch the initial list of file paths
+	        List<String> initialFilePaths = fetchSymbolFilePathsDoubleSlash(fileNamePaths);
 
-		for (SymbolDto symbolDto : symbols) {
-			String symbolName = symbolDto.getSymbolName();
-			String symbolType = symbolDto.getSymbolType();
-			String minValue = symbolDto.getMin();
-			String maxValue = symbolDto.getMax();
-			String fileName = symbolDto.getFileName();
-			Response response = symbolService.saveSymbolToDatabase(symbolName, symbolType, minValue, maxValue, fileName,
-					runPathMasterId);
-			if (response.getResponseCode() == 1) {
-//				System.out.println("Symbol saved successfully: " + symbolName);
-			} else {
-				System.err.println("Failed to save symbol: " + symbolName + " Error: " + response.getResponseMessage());
-			}
-		}
-		return symbols;
+	        // Step 2: Recursively fetch all symbol files
+	        for (String filePath : initialFilePaths) {
+	            allFilePaths.add(filePath);
+	            List<String> additionalPaths = fetchReferencedSymbolFiles(filePath);
+	            allFilePaths.addAll(additionalPaths);
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    SymbolService symbolService = new SymbolService();
+
+	    for (String filePath : allFilePaths) {
+	        symbolService.saveSymbolToDatabase("--", "--", "--", "--", filePath, runPathMasterId);
+	    }
+
+	    List<SymbolDto> symbols = SymbolFileParser.parseSymbols(allFilePaths, runPathMasterId);
+
+	    // Mark previous macro rows as deleted before adding new ones
+	    markPreviousSymbolRowsAsDeleted(runPathMasterId);
+
+	    for (SymbolDto symbolDto : symbols) {
+	        String symbolName = symbolDto.getSymbolName();
+	        String symbolType = symbolDto.getSymbolType();
+	        String minValue = symbolDto.getMin();
+	        String maxValue = symbolDto.getMax();
+	        String fileName = symbolDto.getFileName();
+	        Response response = symbolService.saveSymbolToDatabase(symbolName, symbolType, minValue, maxValue, fileName,
+	                runPathMasterId);
+	        if (response.getResponseCode() == 1) {
+	            // Symbol saved successfully
+	        } else {
+	            System.err.println("Failed to save symbol: " + symbolName + " Error: " + response.getResponseMessage());
+	        }
+	    }
+
+	    return symbols;
 	}
+
+	public static List<String> fetchReferencedSymbolFiles(String filePath) {
+	    List<String> referencedFilePaths = new ArrayList<>();
+	    List<String> symbolReferences = symbolFileReader(filePath);
+
+	    for (String reference : symbolReferences) {
+	        // Assuming the references are valid file paths, otherwise modify accordingly
+	        referencedFilePaths.add(reference);
+
+	        // Recursively fetch any further referenced symbol files
+	        List<String> furtherReferences = fetchReferencedSymbolFiles(reference);
+	        referencedFilePaths.addAll(furtherReferences);
+	    }
+
+	    return referencedFilePaths;
+	}
+
+	public static List<String> symbolFileReader(String filePath) {
+	    List<String> listOfSymbolNames = new ArrayList<>();
+
+	    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+	        String line;
+	        while ((line = br.readLine()) != null) {
+	            if ((!line.isEmpty())) {
+	                if (line.startsWith("@")) { // Assuming '@' marks a reference to another file
+	                    line = line.substring(1);
+	                    listOfSymbolNames.add(line); // Add the reference for further processing
+	                } else {
+	                    // Process the line as a normal symbol
+	                }
+	            }
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw e;
+	    }
+	    return listOfSymbolNames;
+	}
+
+	
+	
+	
 
 	public static List<SymbolDto> saveSymbolsForCustomFiles(List<String> fileNamePaths, String runPathMasterId) {
 		List<String> filePaths = null;
