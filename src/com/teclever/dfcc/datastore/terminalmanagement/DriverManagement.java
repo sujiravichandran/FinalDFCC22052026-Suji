@@ -85,59 +85,39 @@ public class DriverManagement {
 	}
 	
 	public DriverCard parseLine1(String outputLine, String cardIdentificationText) {
-		CardDetailsService cd = new CardDetailsService();
-		Response response = new Response();
-				
-		 // Fetch card name from the db based on the cardIdentificationText
+	    CardDetailsService cd = new CardDetailsService();
+	    Response response = new Response();
+
+	    // Fetch card name from the db based on the cardIdentificationText
 	    String dbCardName = cd.getCardNameByIdentificationText(cardIdentificationText);
-	    System.out.println("Parsed cardName from DB ::  "+dbCardName);
-	    
+	    System.out.println("Parsed cardName from DB ::  " + dbCardName);
+
 	    if (dbCardName == null) {
 	        response.setResponseCode(0);
 	        response.setResponseMessage("FAILURE");
 	        return new DriverCard(null, null, response);
 	    }
-		
-			if (cardIdentificationText != null) {
-				if (cardIdentificationText.contains("##NUM##")) {
-					// Replace ##NUM## with a capturing group for the number
-					String dynamicPatternString = cardIdentificationText.replace("##NUM##", "(\\d+)");
-					Pattern dynamicPattern = Pattern.compile(dynamicPatternString);
-					Matcher dynamicMatcher = dynamicPattern.matcher(outputLine);
 
-					if (dynamicMatcher.find()) {
-						String numOfCards = dynamicMatcher.group(1);
-						response.setResponseCode(1);
-						response.setResponseMessage("SUCCESS");
+	    if (cardIdentificationText != null && outputLine.contains(cardIdentificationText)) {
+	        // Extract the numeric value from the line if the cardIdentificationText is present
+	        Pattern numericPattern = Pattern.compile("\\d+");
+	        Matcher numericMatcher = numericPattern.matcher(outputLine);
 
-						return new DriverCard(dbCardName, numOfCards, response);
-					}
-				} else {
-					// Count occurrences of cardIdentificationText in outputLine
-		            int count = 0;
-		            int index = 0;
-		            while ((index = outputLine.indexOf(cardIdentificationText, index)) != -1) {
-		                count++;
-		                index += cardIdentificationText.length();
-		            }
-		            
-		            if (count > 0) {
-		                response.setResponseCode(1);
-		                response.setResponseMessage("SUCCESS");
-		                return new DriverCard(dbCardName, String.valueOf(count), response);
-		            }
-		        }
+	        String numOfCards = "0"; // Default to 0 if no number is found
+	        if (numericMatcher.find()) {
+	            numOfCards = numericMatcher.group();
+	        }
 
-			} else {
-				System.out.println("No card details found for the card: " + dbCardName);
-				response.setResponseCode(1);
-				response.setResponseMessage("SUCCESS");
-				return new DriverCard(dbCardName, "0", response); // Set card count to 0
-			}
-			response.setResponseCode(0);
-			response.setResponseMessage("FAILURE");
-			return new DriverCard(null, null, response);
-		}
+	        response.setResponseCode(1);
+	        response.setResponseMessage("SUCCESS");
+	        return new DriverCard(dbCardName, numOfCards, response);
+	    }
+
+	    // If cardIdentificationText is not found in outputLine
+	    response.setResponseCode(0);
+	    response.setResponseMessage("FAILURE");
+	    return new DriverCard(null, null, response);
+	}
 		}
 		
 	

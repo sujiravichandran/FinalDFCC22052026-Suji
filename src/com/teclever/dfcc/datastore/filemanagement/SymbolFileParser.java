@@ -25,7 +25,7 @@ public class SymbolFileParser {
                 String maxValue = null;
                 
 
-                Pattern keyValuePattern = Pattern.compile("(?i)\\b(SYMB|STYPE|MIN|MAX)\\b\\s*=\\s*(\\S+)");
+                Pattern keyValuePattern = Pattern.compile("(?i)\\b(SYMB|STYPE|TYPE|MIN|MAX)\\b\\s*=\\s*(\\S+)");
                 
                 while ((line = br.readLine()) != null) {
                     Matcher keyValueMatcher = keyValuePattern.matcher(line);
@@ -44,6 +44,9 @@ public class SymbolFileParser {
                                 maxValue = null;
                                 break;
                             case "STYPE":
+                                symbolType = value;
+                                break;
+                            case "TYPE":
                                 symbolType = value;
                                 break;
                             case "MIN":
