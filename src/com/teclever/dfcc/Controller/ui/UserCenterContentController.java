@@ -18,6 +18,7 @@ public class UserCenterContentController {
 	private StackPane advancedTestingStackPane = new StackPane();
 	private StackPane currentExecutionResultStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
+	private StackPane logBookStackPane = new StackPane();
 	
 	private TerminalController terminalController = new TerminalController();
 
@@ -89,6 +90,17 @@ public class UserCenterContentController {
 				centerStackPane.getChildren().add(configurationStackPane);
 			} else {
 				configurationStackPane.toFront();
+			}
+			
+			break;
+			
+		case "Log Book":
+			if (!centerStackPane.getChildren().contains(logBookStackPane)) {
+				LogBookController logBookController = new LogBookController();
+				logBookStackPane.getChildren().add(logBookController.createLogBookMainGridPane());
+				centerStackPane.getChildren().add(logBookStackPane);
+			} else {
+				logBookStackPane.toFront();
 			}
 			
 			break;
