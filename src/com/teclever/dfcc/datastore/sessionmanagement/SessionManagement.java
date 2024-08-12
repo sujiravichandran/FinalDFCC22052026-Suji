@@ -154,7 +154,7 @@ public class SessionManagement {
 
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : dbSessionStages) {
 
-				// for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
+				 for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
 				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
 				sessionStagesMapping.setRepeatCount(1);
 				sessionStagesMapping.setRunCount(0);
@@ -342,7 +342,7 @@ public class SessionManagement {
 				sessionList.setSessionId(sessionEntity.getSessionId());
 				sessionList.setSessionName(sessionEntity.getSessionName());
 				sessionList.setCreationDate(sessionEntity.getCreationDate());
-//				sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+				sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
 				listOfSession.add(sessionList);
 
 			}
@@ -382,7 +382,7 @@ public class SessionManagement {
 			sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
 			sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
 			sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
-//			sessionDtoResponse.setOfpConfigId(sessionEntity.getOfpConfigId());
+			sessionDtoResponse.setOfpConfigId(sessionEntity.getOfpConfigId());
 
 			sessionDtoResponse.setSessionStagesList(sessionSrageResponse.getListOfStageObject());
 
@@ -390,23 +390,23 @@ public class SessionManagement {
 			List<String> ListOfFaultCodeIds = faultCodeSessionMap.getFaultCodeBySessionId(sessionEntityId);
 			
 			
-//			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
-//				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
-//
-//				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
-//				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutId(),sessionEntity.getOfpConfigId());
-//				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
-//
-//				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {
-//					faultCodePKeyWithDto.put(faultCode.getFaultCodeMasterId(), faultCode);
-//				}
-//				for (String faultCodePKey : ListOfFaultCodeIds) {
-//					if (faultCodePKeyWithDto.get(faultCodePKey) != null) {
-//						faultCodeMappingList.add(faultCodePKeyWithDto.get(faultCodePKey));
-//					}
-//				}
-//				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
-//			}
+			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
+				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
+
+				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutId(),sessionEntity.getOfpConfigId());
+				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
+
+				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {
+					faultCodePKeyWithDto.put(faultCode.getFaultCodeMasterId(), faultCode);
+				}
+				for (String faultCodePKey : ListOfFaultCodeIds) {
+					if (faultCodePKeyWithDto.get(faultCodePKey) != null) {
+						faultCodeMappingList.add(faultCodePKeyWithDto.get(faultCodePKey));
+					}
+				}
+				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
+			}
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull");
