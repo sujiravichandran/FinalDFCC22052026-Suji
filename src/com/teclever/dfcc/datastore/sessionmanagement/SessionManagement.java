@@ -12,6 +12,7 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.StageLevelResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
 import com.teclever.datastore.entities.LevelFiveStageMaster;
 import com.teclever.datastore.entities.LevelFourStageMaster;
 import com.teclever.datastore.entities.LevelOneStageMaster;
@@ -19,6 +20,7 @@ import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
@@ -28,6 +30,7 @@ import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
@@ -43,7 +46,6 @@ import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
-import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
@@ -80,6 +82,159 @@ public class SessionManagement {
 				return resObj.getResponse();
 			}
 			SessionDto sessionResponseDto = (SessionDto) resObj.getObject();
+			String sessionId = sessionResponseDto.getSessionId();
+
+			// SessionId Update to StateMachine
+			StateMachine.currentSessionDetails.setSessionId(sessionId);
+
+			List<SessionToStagesMappingDTO> sessionStages = sessionDTO.getSessionStagesList();
+
+			sessionStages.addAll(getDefaultStatusLevelData(sessionDTO.getUutId()));
+
+			LevelOneMasterService levelOneService = new LevelOneMasterService();
+			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
+
+			LevelTwoMasterService levelTwoService = new LevelTwoMasterService();
+			Map<String, String> levelTwoStage = levelTwoService.getAllLevelIdAndLevelName();
+
+			LevelThreeService levelThreeService = new LevelThreeService();
+			Map<String, String> levelThreeStage = levelThreeService.getAllLevelIdAndLevelName();
+
+			LevelFourMasterSevice levelFourService = new LevelFourMasterSevice();
+			Map<String, String> levelFourStage = levelFourService.getAllLevelIdAndLevelName();
+
+			LevelFiveMasterService levelFiveService = new LevelFiveMasterService();
+			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
+
+			// For Adding Path In Table
+			List<SessionToStagesMappingDTO> dbSessionStages = new ArrayList<SessionToStagesMappingDTO>();
+
+			List<List<String>> levels = new ArrayList<List<String>>();
+			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
+				List<String> subLevels = new ArrayList<String>();
+				String path = sessionPath;
+				path = path + File.separator + levelOneStage.get(sessionToStagesMappingDTO.getLevelOneStageId());
+				subLevels.add(levelOneStage.get(sessionToStagesMappingDTO.getLevelOneStageId()));
+				if (sessionToStagesMappingDTO.getLevelTwoStageId() != null
+						&& !sessionToStagesMappingDTO.getLevelTwoStageId().equals("")) {
+					path = path + File.separator + levelTwoStage.get(sessionToStagesMappingDTO.getLevelTwoStageId());
+					subLevels.add(levelTwoStage.get(sessionToStagesMappingDTO.getLevelTwoStageId()));
+
+				}
+
+				if (sessionToStagesMappingDTO.getLevelThreeStageId() != null
+						&& !sessionToStagesMappingDTO.getLevelThreeStageId().equals("")) {
+					path = path + File.separator
+							+ levelThreeStage.get(sessionToStagesMappingDTO.getLevelThreeStageId());
+					subLevels.add(levelThreeStage.get(sessionToStagesMappingDTO.getLevelThreeStageId()));
+
+				}
+				if (sessionToStagesMappingDTO.getLevelFourStageId() != null
+						&& !sessionToStagesMappingDTO.getLevelFourStageId().equals("")) {
+					path = path + File.separator + levelFourStage.get(sessionToStagesMappingDTO.getLevelFourStageId());
+					subLevels.add(levelFourStage.get(sessionToStagesMappingDTO.getLevelFourStageId()));
+
+				}
+				if (sessionToStagesMappingDTO.getLevelFiveStageId() != null
+						&& !sessionToStagesMappingDTO.getLevelFiveStageId().equals("")) {
+					path = path + File.separator + levelFiveStage.get(sessionToStagesMappingDTO.getLevelFiveStageId());
+					subLevels.add(levelFiveStage.get(sessionToStagesMappingDTO.getLevelFiveStageId()));
+				}
+				path = path + File.separator;
+				levels.add(subLevels);
+				sessionToStagesMappingDTO.setPath(path);
+				dbSessionStages.add(sessionToStagesMappingDTO);
+			}
+
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			String uutName = uutIdName.get(sessionDTO.getUutId());
+
+			sessionFileManagement.createSessionFolders(uutName, sessionDTO.getDfccPartNo(), sessionDTO.getSessionName(),
+					levels);
+
+			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
+
+			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : dbSessionStages) {
+
+				// for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
+				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+				sessionStagesMapping.setRepeatCount(1);
+				sessionStagesMapping.setRunCount(0);
+				sessionStagesMapping.setSessionId(sessionId);
+				sessionStagesMapping.setStagelLevelId(sessionToStagesMappingDTO.getStagelLevelId());
+				sessionStagesMapping.setStatus("PENDING");
+				sessionStagesMapping.setRunDate(null);
+				sessionStagesMapping.setTestTypeId(sessionToStagesMappingDTO.getTestTypeId());
+				sessionStagesMapping.setLevelOneStageId(sessionToStagesMappingDTO.getLevelOneStageId());
+				sessionStagesMapping.setLevelTwoStageId(sessionToStagesMappingDTO.getLevelTwoStageId());
+				sessionStagesMapping.setLevelThreeStageId(sessionToStagesMappingDTO.getLevelThreeStageId());
+				sessionStagesMapping.setLevelFourStageId(sessionToStagesMappingDTO.getLevelFourStageId());
+				sessionStagesMapping.setLevelFiveStageId(sessionToStagesMappingDTO.getLevelFiveStageId());
+				sessionStagesMapping.setPath(sessionToStagesMappingDTO.getPath());
+				sessionToStagesMappingList.add(sessionStagesMapping);
+			}
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			// SESSION STAGE MAPPING : ADD
+			res = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
+			if (res.getResponseCode() == 0) {
+				sessionService.deleteSessionEntity(sessionId);
+			} else {
+				List<String> faultCodeList = sessionDTO.getFaultCodeMappingList();
+				if (faultCodeList.size() > 0) {
+					FaultCodeSessionMappingService faultCodeSessionMappingService = new FaultCodeSessionMappingService();
+					for (String faultCodeSessionId : faultCodeList) {
+						faultCodeSessionMappingService.addFaultCodeSession(faultCodeSessionId, sessionId);
+					}
+				}
+			}
+
+			LoginSessionService loginSessionService = new LoginSessionService();
+
+			// LOGIN SESSION DETAILS : UPDATE (SESSION ID)
+
+			loginSessionService.updateLoginSession(currentSessionDetails.getLoginSessionId(), sessionId, null);
+
+			res.setResponseCode(1);
+			res.setResponseMessage("Session Created Successfully..!");
+
+		} catch (Exception ex) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Session Not Created" + ex.getLocalizedMessage());
+			ex.printStackTrace();
+
+		}
+		return res;
+	}
+	
+	//To Save the Trail Session..
+	public Response saveTrailSession(SessionDTO sessionDTO) {
+		Response res = new Response();
+		try {
+			TrailSessionEntityService sessionService = new TrailSessionEntityService();
+			TrailSessionDto trailSessionDto = new TrailSessionDto();
+			Date utilDate = new Date();
+			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+			String sessionPath = new File(
+					SessionManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
+			Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+			trailSessionDto.setCreationDate(sqlDate);
+			trailSessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
+			trailSessionDto.setDfccSNo(sessionDTO.getDfccSNo());
+			trailSessionDto.setSessionName(sessionDTO.getSessionName());
+			trailSessionDto.setSessionTypeMasterId(sessionDTO.getSessionTypeMasterId());
+			trailSessionDto.setUserId(sessionDTO.getUserId());
+			trailSessionDto.setUutId(sessionDTO.getUutId());
+			trailSessionDto.setStartDate(sessionDTO.getStartDate());
+			trailSessionDto.setStartRemarks(sessionDTO.getStartRemarks());
+			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
+					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
+			trailSessionDto.setPath(sessionPath);
+			// SESSION ENTITY : ADD
+			GetObjResponse resObj = sessionService.addSession(trailSessionDto);
+			if (resObj.getResponse().getResponseCode() == 0) {
+				return resObj.getResponse();
+			}
+			TrailSessionDto sessionResponseDto = (TrailSessionDto) resObj.getObject();
 			String sessionId = sessionResponseDto.getSessionId();
 
 			// SessionId Update to StateMachine
@@ -241,8 +396,10 @@ public class SessionManagement {
 		}
 	}
 
+	
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE STAGE NAMEs
-	public SessionStageMapResponse getAllSessionStageMapping(String sessionEntityId) {
+	public SessionStageMapResponse getAllSessionStageMapping(String sessionEntityId
+) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
 		Response res = new Response();
 		try {
@@ -419,6 +576,69 @@ public class SessionManagement {
 		}
 		return sessionDtoResponse;
 	}
+	
+	//Get Trail Session Details
+	public SessionDTOResponse getTrailSessionDetailById(String sessionEntityId) {
+		SessionDTOResponse sessionDtoResponse = new SessionDTOResponse();
+		Response res = new Response();
+		try {
+			TrailSessionEntityService sessionService = new TrailSessionEntityService();
+			GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionId(sessionEntityId);
+			SessionStageMapResponse sessionStageResponse = getAllSessionStageMapping(sessionEntityId);
+			if (getObjResponse.getResponse().getResponseCode() == 0
+					|| sessionStageResponse.getResponse().getResponseCode() == 0) {
+				sessionDtoResponse.setResponse(getObjResponse.getResponse());
+				return sessionDtoResponse;
+			}
+			TrailSessionEntity sessionEntity = (TrailSessionEntity) getObjResponse.getObject();
+			sessionDtoResponse.setSessionId(sessionEntity.getTrailSessionId());
+			sessionDtoResponse.setUutId(sessionEntity.getUutTypeId());
+			sessionDtoResponse.setSessionName(sessionEntity.getTrailSessionName());
+			sessionDtoResponse.setSessionTypeMasterId("ST4");
+			sessionDtoResponse.setUserId(sessionEntity.getCreatedBy());
+			sessionDtoResponse.setDfccSNo(sessionEntity.getDfccSNo());
+			sessionDtoResponse.setDfccPartNo(sessionEntity.getDfccPartNo());
+			sessionDtoResponse.setCreationDate(sessionEntity.getCreationDate());
+			sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
+			sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
+			sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
+		
+			sessionDtoResponse.setSessionStagesList(sessionStageResponse.getListOfStageObject());
+
+		/*	FaultCodeSessionMappingService faultCodeSessionMap = new FaultCodeSessionMappingService();
+			List<String> ListOfFaultCodeIds = faultCodeSessionMap.getFaultCodeBySessionId(sessionEntityId);
+			
+			
+			if (ListOfFaultCodeIds != null && ListOfFaultCodeIds.size() > 0) {
+				List<FaultCodeDTO> faultCodeMappingList = new ArrayList<>();
+
+				FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+				FaultCodeResponse faultCodeResponse = faultCodeConfiguration.getFaultCodeList(sessionEntity.getUutTypeId(),sessionEntity.getOfpConfigId());
+				Map<String, FaultCodeDTO> faultCodePKeyWithDto = new HashMap<>();
+
+				for (FaultCodeDTO faultCode : faultCodeResponse.getFaultCodeList()) {
+					faultCodePKeyWithDto.put(faultCode.getFaultCodeMasterId(), faultCode);
+				}
+				for (String faultCodePKey : ListOfFaultCodeIds) {
+					if (faultCodePKeyWithDto.get(faultCodePKey) != null) {
+						faultCodeMappingList.add(faultCodePKeyWithDto.get(faultCodePKey));
+					}
+				}
+				sessionDtoResponse.setFaultCodeMappingList(faultCodeMappingList);
+			}*/
+
+			res.setResponseCode(1);
+			res.setResponseMessage("Fetch Data Successfull");
+			sessionDtoResponse.setResponse(res);
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Fetch Data Unsuccessfull");
+			sessionDtoResponse.setResponse(res);
+			e.printStackTrace();
+		}
+		return sessionDtoResponse;
+	}
+
 
 	public Response updateLoginSession(String input) {
 		Response res = new Response();
@@ -437,6 +657,10 @@ public class SessionManagement {
 			res.setResponseMessage("Update Login Session Unsuccessful ");
 		}
 		return res;
+	}
+	
+	public void updateActiveSession() {
+
 	}
 
 	/*
@@ -657,6 +881,36 @@ public class SessionManagement {
 		return sessionToStagesMappingDTO;
 
 	}
+	
+	public Map<String,String> getAllStageIdName()
+	{
+		Map<String,String>allStageIdName = new HashMap<String,String>();
+		try
+		{
+			LevelOneMasterService levelOneService = new LevelOneMasterService();
+			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
+			allStageIdName.putAll(levelOneStage);
+			LevelTwoMasterService levelTwoService = new LevelTwoMasterService();
+			Map<String, String> levelTwoStage = levelTwoService.getAllLevelIdAndLevelName();
+			allStageIdName.putAll(levelTwoStage);
+			LevelThreeService levelThreeService = new LevelThreeService();
+			Map<String, String> levelThreeStage = levelThreeService.getAllLevelIdAndLevelName();
+			allStageIdName.putAll(levelThreeStage);
+			LevelFourMasterSevice levelFourService = new LevelFourMasterSevice();
+			Map<String, String> levelFourStage = levelFourService.getAllLevelIdAndLevelName();
+			allStageIdName.putAll(levelFourStage);
+			LevelFiveMasterService levelFiveService = new LevelFiveMasterService();
+			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
+			allStageIdName.putAll(levelFiveStage);
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return allStageIdName;
+	}
+	
+
 
 //	private List<SessionToStagesMappingDTO> getSubStagesIdsWithTestType(String lruLevelTwoId, String advanceLevelOne,
 //			String advanceLevelTwo, Map<String, List<LevelThreeStageMaster>> levelThreeMap,

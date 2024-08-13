@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.LevelOneResponseDto;
@@ -48,10 +49,18 @@ public class StageConfiguration {
 				stageMasterLevelOne.setLevelOneResponse(null);
 				return stageMasterLevelOne;
 			}
+			List<LevelOneResponseDto> listOfLevelOneStage1 = (List<LevelOneResponseDto>) serviceResponse.getStageLevelList();
+			
+			listOfLevelOneStage1 = listOfLevelOneStage1.stream().filter(s->!s.getSessionIds().equals("ST4")) .collect(Collectors.toList());
+
 			List<?> listOfLevelOneStage = serviceResponse.getStageLevelList();
+
 			List<LevelOneDto> listOfLevelOnDto = new ArrayList<>();
-			for (Object levelOneStageMaster : listOfLevelOneStage) {
-				LevelOneResponseDto levelOneEntity = (LevelOneResponseDto) levelOneStageMaster;
+			// for (Object levelOneStageMaster : listOfLevelOneStage) {
+			for (LevelOneResponseDto levelOneEntity : listOfLevelOneStage1) {
+
+				// LevelOneResponseDto levelOneEntity = (LevelOneResponseDto)
+				// levelOneStageMaster;
 
 				LevelOneDto levelOneDto = new LevelOneDto();
 				levelOneDto.setLevelOneId(levelOneEntity.getLevelOneId());
@@ -74,6 +83,52 @@ public class StageConfiguration {
 		}
 	}
 
+	public StageMasterLevelOneResponse getLevelOneStageMasterForTrails(String uutId) {
+		StageMasterLevelOneResponse stageMasterLevelOne = new StageMasterLevelOneResponse();
+		try {
+			LevelOneMasterService levelOne = new LevelOneMasterService();
+			StageLevelResponse serviceResponse = levelOne.getLevelTOneMasterByUUTId(uutId);
+
+			if (serviceResponse.getResponse().getResponseCode() == 0) {
+				stageMasterLevelOne.setResponse(serviceResponse.getResponse());
+				stageMasterLevelOne.setLevelOneResponse(null);
+				return stageMasterLevelOne;
+			}
+			List<LevelOneResponseDto> listOfLevelOneStage1 = (List<LevelOneResponseDto>) serviceResponse.getStageLevelList();
+			
+			listOfLevelOneStage1 = listOfLevelOneStage1.stream().filter(s->s.getSessionIds().equals("ST4")) .collect(Collectors.toList());
+
+			List<?> listOfLevelOneStage = serviceResponse.getStageLevelList();
+
+			List<LevelOneDto> listOfLevelOnDto = new ArrayList<>();
+			// for (Object levelOneStageMaster : listOfLevelOneStage) {
+			for (LevelOneResponseDto levelOneEntity : listOfLevelOneStage1) {
+
+				// LevelOneResponseDto levelOneEntity = (LevelOneResponseDto)
+				// levelOneStageMaster;
+
+				LevelOneDto levelOneDto = new LevelOneDto();
+				levelOneDto.setLevelOneId(levelOneEntity.getLevelOneId());
+				levelOneDto.setStageName(levelOneEntity.getStageName());
+				levelOneDto.setSessionIds(levelOneEntity.getSessionIds());
+				levelOneDto.setUutId(levelOneEntity.getUutId());
+				levelOneDto.setNextLevel(levelOneEntity.getNextLevel());
+				levelOneDto.setDefaultStatus(levelOneEntity.isDefaultStatus());
+				levelOneDto.setMandatoryStatus(levelOneEntity.isMandatoryStatus());
+				levelOneDto.setContinueWithErrorStatus(levelOneEntity.isContinueWithErrorStatus());
+				levelOneDto.setAdvanceTestStatus(levelOneEntity.isAdvanceTestStatus());
+				listOfLevelOnDto.add(levelOneDto);
+
+			}
+			stageMasterLevelOne.setLevelOneResponse(listOfLevelOnDto);
+			stageMasterLevelOne.setResponse(serviceResponse.getResponse());
+			return stageMasterLevelOne;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	
 	public StageMasterLevelsResponse getStageLevelMaster(String parentId) {
 		StageMasterLevelsResponse stageMasterLevel = new StageMasterLevelsResponse();
 		try {

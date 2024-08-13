@@ -804,6 +804,21 @@ public class TestProcessManagement {
 		}
 		return listOfFileNames;
 	}
+	
+	private Map<String,String> getCurrentStagesIdName(String stageId)
+	{
+		Map<String, String> stageIdName = new HashMap<String, String>();
+		try {
+			
+			String level= stageId.substring(0, 2);
+			System.out.println("Sub String Level Finder"+level.substring(0, 2));
+		
+
+		} catch (Exception ex) {
+
+		}
+		return stageIdName;
+	}
 
 //	private void example() {
 //
