@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import com.teclever.datastore.entities.CustomTest;
 import com.teclever.datastore.service.CustomTestService;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.datastore.dto.AdvanceCustom1FileDetailsDTO;
 import com.teclever.dfcc.datastore.dto.CustomTestFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
@@ -113,7 +113,7 @@ public class AdvanceCustom1TestingManagement {
 
 	}
 
-	public Response customTesting1FileMaking(String fileName, List<String> symbolTestFormate) {
+	public Response customTesting1FileMaking(String fileName, List<AdvanceCustom1FileDetailsDTO> testFileDetails) {
 
 		Response res = new Response();
 
@@ -138,8 +138,19 @@ public class AdvanceCustom1TestingManagement {
 				}
 
 				try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-					for (String symbolCmd : symbolTestFormate) {
-						bw.write(symbolCmd);
+					for (AdvanceCustom1FileDetailsDTO symbolCmd : testFileDetails) {
+						
+
+						/*
+						 * SYMB=TTR1_I DEST=FCC1 IOTYPE=SPIL TYPE=U16 CHAN=1000 ADDR=206CC03E MASK=FFFF
+						 * SLPE=1. BIAS=0. MIN=-32768. MAX=32767. READ=1 WRTE=1 UNIT=XXX
+						 */
+
+						bw.write("SYMB="+symbolCmd.getSymbol()+ " DEST="+ " IOTYPE= "+ " TYPE="+" CHAN="+ " ADDR="+" MASK="+symbolCmd.getIpData());
+						bw.newLine();
+						bw.write("SLPE=" + " BIAS"+ " MIN="+symbolCmd.getMinValue()+" MAX="+symbolCmd.getMaxValue()+" READ="+" WRTE="+" UNIT=");
+						bw.newLine();
+						bw.newLine();
 						bw.newLine();
 					}
 
