@@ -141,25 +141,25 @@ public class SelfTestController {
 
 		 
 		 if(SelfTestStateObject.getSelfTestRack1Card().size() < 1) {
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd1", "Board-1(RUD)",null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd2", "Board-2(LIE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd3", "Board-3(LOE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd4", "Board-4(RIE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd5", "Board-5(ROE)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd6", "Board-6(LIS, LMS, LOS)", null, null));			
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd7", "Board-7(RIS, RMS, ROS)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd8", "Board-8(PCS, RPS)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd9", "Board-9(AOSS-1, A0SS-2, RA, LA)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd10", "Board-10(CWP,SPDCM,REFPRB))", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd11", "Board-11(ASA, DPSC)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd12", "Board-12(GSE,FTI)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd13", "Board-13(AD,AMD,CSD, SSCDR, MIP)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd14", "Board-14(LG, FCP, FTU)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd15", "Board-15(RSA-1)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd16", "Board-16(RSA-2)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd17", "Board-17(APP, AOA EXC MON)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd18", "Board-18(OPEN/GND, AO, DIFF AI/AO)", null, null));			 
-			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd19", "Board-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd1", "Card-1(RUD)",null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd2", "Card-2(LIE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd3", "Card-3(LOE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd4", "Card-4(RIE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd5", "Card-5(ROE)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd6", "Card-6(LIS, LMS, LOS)", null, null));			
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd7", "Card-7(RIS, RMS, ROS)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd8", "Card-8(PCS, RPS)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd9", "Card-9(AOSS-1, A0SS-2, RA, LA)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd10", "Card-10(CWP,SPDCM,REFPRB))", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd11", "Card-11(ASA, DPSC)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd12", "Card-12(GSE,FTI)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd13", "Card-13(AD,AMD,CSD, SSCDR, MIP)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd14", "Card-14(LG, FCP, FTU)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd15", "Card-15(RSA-1)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd16", "Card-16(RSA-2)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd17", "Card-17(APP, AOA EXC MON)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd18", "Card-18(OPEN/GND, AO, DIFF AI/AO)", null, null));			 
+			 SelfTestStateObject.addSelfTestRack1Card( new TestCardData("brd19", "Card-19(SPARE LVDT, 28V/OPEN, OPEN/GND)", null, null));			 
 
 		 }
 		

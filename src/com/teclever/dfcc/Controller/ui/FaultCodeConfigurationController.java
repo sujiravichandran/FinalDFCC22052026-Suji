@@ -63,7 +63,7 @@ public class FaultCodeConfigurationController {
 
     private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
     private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
-    FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+    private FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
 
     public void refreshFaultCodeConfigList() {
         setTableData();
@@ -253,7 +253,6 @@ public class FaultCodeConfigurationController {
                     FaultCodeConfig faultCodeData = new FaultCodeConfig();
                     faultCodeData.setId(faultCode.getFaultCodeMasterId());
                     faultCodeData.setFaultCode(faultCode.getFaultCode());
-                    faultCodeData.setDescription(faultCode.getFaultCodeDescription());
                     faultCodeData.setFilePath(faultCode.getFaultCodeFilePath());
 
                     tableData.add(faultCodeData);

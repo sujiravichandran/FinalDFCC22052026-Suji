@@ -201,8 +201,6 @@ public class TestProcessManagement {
 							TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation,
 									rdfFileName, tpfFileName, stageId, sessionId);
 
-							
-							
 							// Handle test result
 							if (testProcessRes.getResponse().getResponseCode() == 111) {
 								if (rdfFileResult.equals("OK")) {
@@ -213,7 +211,7 @@ public class TestProcessManagement {
 								if (!continueWithError) {
 									break outerLoop;
 								}
-							}else {
+							} else {
 								SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
 							}
 
@@ -252,11 +250,10 @@ public class TestProcessManagement {
 
 				}
 
-				if (testState.equals("STOPED")) {
+				if (testState != null && testState.equals("STOPED")) {
 					stageResult = "STOPED";
 				}
 				updateSessionStageMapping(sessionStageMapId, repeatCount, runCount, stageResult);
-
 
 			};
 
@@ -280,20 +277,23 @@ public class TestProcessManagement {
 		aitessRunning.setAitess2SwitchedFailed(false);
 
 	}
-	private void updateSessionStageMapping(String sessionStageMapId, int repeatCount, int runCount, String stageResult) {
+
+	private void updateSessionStageMapping(String sessionStageMapId, int repeatCount, int runCount,
+			String stageResult) {
 		SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 		if (runCount == 0) {
 			// Update SESSION STAGE MAPPING By Run Count 1
 			sessionStagesSelectedStagesService.updateRepeatAndRunCountStatus(sessionStageMapId, repeatCount,
 					stageResult);
 		} else {
-			// Add One More row into Session Stage Mapping and Update Run Count By adding One
-			sessionStagesSelectedStagesService.addSessionStagesBySessionIdAndStageId(sessionStageMapId,
-					repeatCount, (runCount + 1), stageResult);
+			// Add One More row into Session Stage Mapping and Update Run Count By adding
+			// One
+			sessionStagesSelectedStagesService.addSessionStagesBySessionIdAndStageId(sessionStageMapId, repeatCount,
+					(runCount + 1), stageResult);
 
 		}
 	}
-	
+
 	/**
 	 * Get RDF file result based on stage name and other parameters.
 	 * 
@@ -375,7 +375,7 @@ public class TestProcessManagement {
 	 * @param stageName     Name of the stage.
 	 * @param stageId       ID of the stage.
 	 * @param rdfFileResult Result of the RDF file processing.
-	 * @param keysSet		Set of FileIds of Stage From DB.
+	 * @param keysSet       Set of FileIds of Stage From DB.
 	 */
 	private void updateStateMachineCardStatus(String stageName, String stageId, String rdfFileResult,
 			Set<String> keysSet) {
@@ -498,7 +498,7 @@ public class TestProcessManagement {
 
 	private String getStageResult(String stageId, Set<String> fileIds) {
 		Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-		if (setOfFileIds.equals(fileIds)) {
+		if (setOfFileIds!=null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
 			return "COMPLETED";
 		} else {
 			return "pending";
