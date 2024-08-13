@@ -154,7 +154,7 @@ public class OFPMacroFilesController {
 		if(RUN_CONFIG_ID!=null) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-//		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.sym"));
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.mac"));
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpMacroFilesParentGridPane.getScene().getWindow());
 		List<String> filePaths = new ArrayList<>();
 		if (selectedFiles != null) {

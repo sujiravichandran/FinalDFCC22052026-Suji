@@ -225,7 +225,7 @@ public class LogBookController {
 
 	// DATE PICKER - FROM
 	private HBox createFromDatePickerComboBox() {
-		fromDate.setPromptText("SELECT FROM DATE");
+		fromDate.setPromptText("FROM DATE");
 		datePickerFromHBox.setPadding(new Insets(0, 0, 0, 18.5));
 		datePickerFromHBox.setAlignment(Pos.CENTER_LEFT);
 		datePickerFromHBox.getChildren().add(fromDate);
@@ -235,7 +235,7 @@ public class LogBookController {
 
 	// DATE PICKER - TO
 	private HBox createToDatePickerComboBox() {
-		toDate.setPromptText("SELECT TO DATE");
+		toDate.setPromptText("TO DATE");
 		datePickerToHBox.setPadding(new Insets(0, 0, 0, 18.5));
 		datePickerToHBox.setAlignment(Pos.CENTER_LEFT);
 		datePickerToHBox.getChildren().add(toDate);

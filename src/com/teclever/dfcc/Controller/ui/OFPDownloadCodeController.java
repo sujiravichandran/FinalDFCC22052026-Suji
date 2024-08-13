@@ -146,7 +146,7 @@ public class OFPDownloadCodeController {
 		if(RUN_CONFIG_ID!=null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
-//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.chk","*.run"));
 			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(ofpDownloadCodeParentGridPane.getScene().getWindow());
 			List<String> filePaths = new ArrayList<>();
 			if (selectedFiles != null) {

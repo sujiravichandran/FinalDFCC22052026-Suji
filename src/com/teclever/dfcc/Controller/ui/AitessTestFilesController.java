@@ -143,7 +143,7 @@ public class AitessTestFilesController {
 		if(RUN_CONFIG_ID!=null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select File");
-//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.tst","*.tpf","*.com"));
 			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(testFilesParentGridPane.getScene().getWindow());
 			List<String> filePaths = new ArrayList<>();
 			if (selectedFiles != null) {
