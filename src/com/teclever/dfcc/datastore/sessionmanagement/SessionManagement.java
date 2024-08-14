@@ -210,7 +210,6 @@ public class SessionManagement {
 		}
 		return res;
 	}
-	
 		
 
 	// AT FIRST TIME SESSION CREATION
@@ -337,15 +336,37 @@ public class SessionManagement {
 		SessionListResponse sessionListResponse = new SessionListResponse();
 		Response res = new Response();
 		try {
+			
+			//To Picking Trail Sessions...
+			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+			List<SessionList> listOfSession = new ArrayList<>();
+			
+			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+			trailActiveSession = trailSessionResponse.getListOfSession();
+			for(TrailSessionDto trailSessionDto:trailActiveSession)
+			{
+				SessionList sessionList = new SessionList();
+				sessionList.setSessionId(trailSessionDto.getSessionId());
+				sessionList.setSessionName(trailSessionDto.getSessionName());
+				sessionList.setCreationDate(trailSessionDto.getCreationDate());
+				listOfSession.add(sessionList);
+
+			}
+			
+			//For Picking Others Sessions...
 			SessionSelectedStagesService sessionSelectedStage = new SessionSelectedStagesService();
 			GetResponse getResponse = sessionSelectedStage.getAllSessionData(userId);
+
 			if (getResponse.getCode() == 0) {
 				res.setResponseCode(0);
 				res.setResponseMessage(getResponse.geteMsg());
 				sessionListResponse.setResponse(res);
 				return sessionListResponse;
 			}
-			List<SessionList> listOfSession = new ArrayList<>();
+			
+			
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
 				SessionList sessionList = new SessionList();
@@ -763,6 +784,21 @@ public class SessionManagement {
 		return allStageIdName;
 	}
 	
+	public boolean getActiveTrailSessionObject() {
+		boolean isConfig = false;
+		try {
+			TrailSessionEntity sessionEntity = new TrailSessionEntity();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			GetObjResponse objRes = trailSessionEntityService.getActiveTrailSessionObject();
+			sessionEntity = (TrailSessionEntity) objRes.getObject();
+			isConfig = sessionEntity.isRunned();
+		} catch (Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return isConfig;
+	}
+	
+	//Trail Method - To Save The Trails Entity
 	public GetObjResponse saveTrailSessionEntity(SessionDTO sessionDTO) {
 		GetObjResponse res = new GetObjResponse();
 		try {
@@ -803,7 +839,7 @@ public class SessionManagement {
 		
 	
 	
-	//To Save the Trail Session..
+	//Trails Method Save the Trail Session..With Stages Mapping
 		public TrailSaveResponse finalize(String trailSessionId) {
 			TrailSaveResponse res = new TrailSaveResponse();
 			try {
@@ -907,9 +943,10 @@ public class SessionManagement {
 				Response stagesRes = new Response();
 				stagesRes = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
 				if (stagesRes.getResponseCode() == 0) {
-					sessionService.deleteSessionEntity(trailSessionId);
+					//sessionService.deleteSessionEntity(trailSessionId);
 				} else {
-					
+					//trailEntitySession.setRunned(true);
+					sessionService.updateRunStatus(trailSessionId);
 				}
 
 				res.setCode(1);
@@ -925,7 +962,7 @@ public class SessionManagement {
 		}
 
 	
-	// Before Finalize 
+	//Trails Method Before Finalize 
 	public Map<String, String> validateIsAllLeafHavingTestFiles(List<String> leafIds) {
 		Map<String, String> StageNameValidateMessage = new HashMap<String, String>();
 
@@ -957,7 +994,7 @@ public class SessionManagement {
 		return StageNameValidateMessage;
 	}
 	
-	//Get Stages For Trails
+	//Trails Method Get Stages For Trails
 	public List<String> getStagesMappingLeafIdForTrails(String uutId) {
 		List<String> finalLeafIds = new ArrayList<String>();
 		try {
@@ -1064,6 +1101,7 @@ public class SessionManagement {
 		return finalLeafIds;
 	}
 	
+	//Trails Method
 	public boolean isActiveTrailsPresent() {
 		boolean isActive = false;
 		try {
@@ -1078,6 +1116,7 @@ public class SessionManagement {
 		return isActive;
 	}
 	
+	//Trails Method
 	public List<SessionToStagesMappingDTO> getAllTrailStageLevelData(String uutId) {
 
 		List<SessionToStagesMappingDTO> listOfSessionToStagesMappingDTO = new ArrayList<>();
