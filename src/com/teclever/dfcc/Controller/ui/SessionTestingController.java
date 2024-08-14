@@ -1,7 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,7 +15,7 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
-import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -25,6 +24,7 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -36,9 +36,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -66,6 +70,7 @@ public class SessionTestingController {
 	private Button startButton = new Button("Start");
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
+	private Button runAllButton = new Button("Run All");
 
 	private VBox repeatCountVBox = new VBox();
 	private Label repeatCountLabel = new Label();
@@ -79,6 +84,8 @@ public class SessionTestingController {
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
+	
+	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
 
 	public GridPane createSessionTestingGridPane() {
 		getSessionTestData();
@@ -216,8 +223,51 @@ public class SessionTestingController {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
+		
+		runAllButton.setOnAction(e ->{
+			List<String> testFileIds = new ArrayList<>();
+			for (CheckBox checkbox : checkBoxes) {
+				if (!checkbox.isDisable()) {
+					testFileIds.add(checkbox.getId());
+				}
+			}
+			if (testFileIds.size() == 0) {
+				Notifications.showWarningAlert("Please Select Test File...");
+				return;
+			}
+			
+			
+			TestState currentState = StateMachine.getTestState();
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+				startButton.setDisable(true);
+				runAllButton.setDisable(true);
+				StateMachine.setTestState(TestState.RUNNING);
+				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
+				stopButton.setDisable(false);
+				pauseButton.setDisable(false);
+			} else if (currentState == TestState.RUNNING) {
+				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			} else if (currentState == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			}
+
+			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
+			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
+			
+		});
 
 		startButton.setOnAction(e -> {
+			SessionTestResult sessionTestResult = new SessionTestResult("asd", "sadas");
+			SessionTestStateObject.addSessionTestResult(sessionTestResult);
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -240,6 +290,7 @@ public class SessionTestingController {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 				startButton.setDisable(true);
+				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
 				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
 				stopButton.setDisable(false);
@@ -259,16 +310,16 @@ public class SessionTestingController {
 				return;
 			}
 
-			SessionTestStateObject.getRunningTestLeafStatus().set(false);
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
-			SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
-				if (SessionTestStateObject.getRunningTestLeafStatus().get()) {
-					StateMachine.setTestState(TestState.COMPLETED);
-					setStateMachineCurrentL1StageId();
-				}
-			});
-
+		});
+		
+		SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				SessionTestStateObject.getRunningTestLeafStatus().set(false);
+				StateMachine.setTestState(TestState.COMPLETED);
+				setStateMachineCurrentL1StageId();
+			}
 		});
 
 		pauseButton.setOnAction(e -> {
@@ -285,6 +336,7 @@ public class SessionTestingController {
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
 			startButton.setDisable(false);
+			runAllButton.setDisable(false);
 		});
 
 		repeatCountLabel.setText("Repeat Count");
@@ -303,8 +355,9 @@ public class SessionTestingController {
 		repeatCountVBox.setAlignment(Pos.CENTER);
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
+		
 		buttonHBox.setAlignment(Pos.CENTER);
-		buttonHBox.getChildren().addAll(repeatCountVBox, startButton, pauseButton, stopButton);
+		buttonHBox.getChildren().addAll(repeatCountVBox,runAllButton, startButton, pauseButton, stopButton);
 		return buttonHBox;
 	}
 
@@ -319,7 +372,7 @@ public class SessionTestingController {
 		sessionTestingResultsGridPane.getColumnConstraints().addAll(firstColumn);
 		sessionTestingResultsGridPane.getRowConstraints().addAll(firstRow);
 
-//		sessionTestingResultsGridPane.add(createResultTableView(), 0, 0);
+		sessionTestingResultsGridPane.add(createResultTableView(), 0, 0);
 
 		return sessionTestingResultsGridPane;
 	}
@@ -607,7 +660,9 @@ public class SessionTestingController {
 
 			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-				startButton.setDisable(!anySelected);
+				if(StateMachine.getTestState() != TestState.RUNNING) {
+					startButton.setDisable(!anySelected);	
+				}
 			});
 		}
 
@@ -673,6 +728,7 @@ public class SessionTestingController {
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
 				
+				
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
 
@@ -681,6 +737,81 @@ public class SessionTestingController {
 		};
 
 		new Thread(task).start();
+	}
+	
+	
+	private TableView<SessionTestResult> createResultTableView() {
+		sessionTestTable = createTableView();
+		
+		return sessionTestTable;
+
+	}
+
+	private TableView<SessionTestResult> createTableView() {
+		TableView<SessionTestResult> tableView = new TableView<>();
+		tableView.getStylesheets()
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+
+		tableView.getStyleClass().add("check-sum-table");
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		tableView.setPrefHeight(900);
+
+		TableColumn<SessionTestResult, String> fileNameColumn = new TableColumn<>("File Name");
+		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+		fileNameColumn.setReorderable(false);
+		fileNameColumn.setSortable(false);
+		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+
+		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
+		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+		resultColumn.setReorderable(false);
+		resultColumn.setSortable(false);
+		resultColumn.setStyle("-fx-alignment: CENTER;");
+		rewriteColumn(resultColumn);
+		
+		SessionTestStateObject.getSessionTestResults().addListener((ListChangeListener<? super SessionTestResult>) change -> {
+			while (change.next()) {
+				if (change.wasAdded()) {
+					int lastIndex = SessionTestStateObject.getSessionTestResults().size() - 1;
+					Platform.runLater(() -> {
+						tableView.scrollTo(lastIndex);
+						tableView.getSelectionModel().select(lastIndex);
+						tableView.getFocusModel().focus(lastIndex);
+					});
+				}
+			}
+		});
+		
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.setItems(SessionTestStateObject.getSessionTestResults());
+
+		return tableView;
+	}
+	
+	private void rewriteColumn(TableColumn<SessionTestResult, String> resultColumn) {
+		resultColumn.setReorderable(false);
+		resultColumn.setSortable(false);
+		resultColumn.setCellFactory(column -> new TableCell<SessionTestResult, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setStyle("");
+				} else {
+					if ("OK".equalsIgnoreCase(item)) {
+						setText("Passed");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
+					} else if ("NOT OK".equalsIgnoreCase(item)) {
+						setText("Failed");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					} else {
+						setText(item);
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}
+				}
+			}
+		});
 	}
 
 }

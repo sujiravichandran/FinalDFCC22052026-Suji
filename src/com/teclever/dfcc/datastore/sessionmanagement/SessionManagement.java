@@ -402,12 +402,10 @@ public class SessionManagement {
 			{
 				TrailSessionEntityService sessionService = new TrailSessionEntityService();
 				GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionId(sessionEntityId);
-				SessionStageMapResponse sessionSrageResponse = getAllSessionStageMapping(sessionEntityId);
-				if (getObjResponse.getResponse().getResponseCode() == 0
-						|| sessionSrageResponse.getResponse().getResponseCode() == 0) {
-					sessionDtoResponse.setResponse(getObjResponse.getResponse());
-					return sessionDtoResponse;
-				}
+			//	SessionStageMapResponse sessionSrageResponse = getAllSessionStageMapping(sessionEntityId);
+				if(getObjResponse.getResponse().getResponseCode()==1)
+				{
+					
 				TrailSessionEntity sessionEntity = (TrailSessionEntity) getObjResponse.getObject();
 				sessionDtoResponse.setSessionId(sessionEntity.getTrailSessionId());
 				sessionDtoResponse.setUutId(sessionEntity.getUutTypeId());
@@ -419,9 +417,12 @@ public class SessionManagement {
 				sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
 				sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
 				sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
-				sessionDtoResponse.setSessionStagesList(sessionSrageResponse.getListOfStageObject());
-				
+				Response res1 = new Response();
+				res1.setResponseCode(getObjResponse.getResponse().getResponseCode());
+				res1.setResponseMessage(getObjResponse.getResponse().getResponseMessage());
+				sessionDtoResponse.setResponse(res1);
 				return sessionDtoResponse;
+				}
 
 			}
 			SessionService sessionService = new SessionService();

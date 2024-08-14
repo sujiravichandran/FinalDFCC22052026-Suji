@@ -16,6 +16,7 @@ public class UserCenterContentController {
 	private StackPane lruTestStackPane = new StackPane();
 	private StackPane sessionTestingStackPane = new StackPane();
 	private StackPane advancedTestingStackPane = new StackPane();
+	private StackPane trialsConfigStackPane = new StackPane();
 	private StackPane currentExecutionResultStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
@@ -82,6 +83,18 @@ public class UserCenterContentController {
 			}
 			
 			break;
+			
+		case "Trials Config" :
+			if (!centerStackPane.getChildren().contains(trialsConfigStackPane)) {
+				TrialsConfigurationController trialsConfigurationController = new TrialsConfigurationController();
+				trialsConfigStackPane.getChildren().add(trialsConfigurationController.createTrialsConfigMainGridPane());
+				centerStackPane.getChildren().add(trialsConfigStackPane);
+			} else {
+				trialsConfigStackPane.toFront();
+			}
+			
+			break;
+			
 			
 		case "Configuration":
 			if (!centerStackPane.getChildren().contains(configurationStackPane)) {

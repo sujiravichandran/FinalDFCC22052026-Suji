@@ -59,7 +59,7 @@ public class TestMapingController {
         searchField.getStyleClass().add("test-mapping-textField");
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
 
-        saveTestFilesButton = new Button("Save Selected Files");
+        saveTestFilesButton = new Button("Save");
         saveTestFilesButton.setOnAction(event -> onSaveSelectedFiles());
 
         selectAllButton = new Button("Select All");

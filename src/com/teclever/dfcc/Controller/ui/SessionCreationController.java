@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
@@ -45,6 +46,7 @@ import com.teclever.dfcc.model.SubStage;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -508,13 +510,26 @@ public class SessionCreationController {
 		}
 		sessionTypeField.setItems(sessionTypeList);
 		sessionTypeField.setOnAction((event) -> {
-			handleSessionTypeSelection();
+			if(sessionTypeField.getValue() != null && !sessionTypeField.getValue().isEmpty()) {				
+				handleSessionTypeSelection();
+			}
 		});
 	}
 
 	private void handleSessionTypeSelection() {
 		refreshFaultCode();
 		SESSION_TYPE_ID = fetchSessionTypeId(sessionTypeField.getValue());
+		
+		if (SESSION_TYPE_ID.equals("ST4")) {
+			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
+			if(trailsActiveStatus) {
+				Notifications.showWarningAlert("The existing trail session is still active, so a new trail session cannot be created.");
+				Platform.runLater(() -> {
+				    sessionTypeField.setValue(null);
+				});
+			}
+		}
+		
 		session_l1Data = getStageOneFromDb(SESSION_TYPE_ID);
 
 		treeView = createTreeViewWithCheckBoxes(session_l1Data);
@@ -601,7 +616,9 @@ public class SessionCreationController {
 					stage.setMandatory(levelOneDto.isMandatoryStatus());
 					stage.setContinueWithError(levelOneDto.isContinueWithErrorStatus());
 					stage.setAdvancedTest(levelOneDto.isAdvanceTestStatus());
-					stageList.add(stage);
+					if(!sessionTypeId.equals("ST4")) {
+						stageList.add(stage);
+					}
 				}
 			}
 		}
@@ -762,6 +779,12 @@ public class SessionCreationController {
 			if (!ROLE_ID.equals("RL_ID_4")) {
 				errorMessage.append("Please Select Session Type...\n");
 			}
+		}else {
+			if (sessionTypeField.getValue().toLowerCase().trim().contains("fru")) {
+				if (selectedFaultCodeList.size() == 0) {
+					errorMessage.append("Please add fault code for FRU session...\n");
+				}
+			}
 		}
 		if (dfccSNoField.getText().trim() == null || dfccSNoField.getText().trim().isEmpty()) {
 			errorMessage.append("Please add DFCC serial number...\n");
@@ -771,11 +794,6 @@ public class SessionCreationController {
 		}
 		if (startRemarksTextArea.getText().trim() == null || startRemarksTextArea.getText().trim().isEmpty()) {
 			errorMessage.append("Please add remark...\n");
-		}
-		if (sessionTypeField.getValue().toLowerCase().trim().contains("fru")) {
-			if (selectedFaultCodeList.size() == 0) {
-				errorMessage.append("Please add fault code for FRU session...\n");
-			}
 		}
 
 		if (errorMessage.length() > 0) {
@@ -838,9 +856,22 @@ public class SessionCreationController {
 		sessionDTO.setOfpConfigId(OFP_CONFIG_ID);
 		sessionDTO.setFaultCodeMappingList(selectedFaultCodeList);
 
-		Response response = sessionManagement.saveSession(sessionDTO);
+		Response response ;
+		GetObjResponse trailResponse;
+		String msg ="";
+		int code = 0;
+		
+		if(!SESSION_TYPE_ID.equals("ST4")) {
+			response = sessionManagement.saveSession(sessionDTO);	
+			code = response.getResponseCode();
+			msg = response.getResponseMessage();
+		}else {
+			trailResponse = sessionManagement.saveTrailSessionEntity(sessionDTO);
+			code = trailResponse.getResponse().getResponseCode();
+			msg = trailResponse.getResponse().getResponseMessage();
+		}
 
-		if (response.getResponseCode() == 1) {
+		if (code == 1) {
 
 			currentSessionDetails.setUutId(UUT_ID);
 			currentSessionDetails.setUutType(uutTypeField.getValue());
@@ -852,7 +883,7 @@ public class SessionCreationController {
 			parent1.getChildren().clear();
 			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
 		} else {
-			System.out.println("Session Not Created " + response.getResponseMessage());
+			System.out.println("Session Not Created " + msg);
 		}
 
 	}
@@ -909,6 +940,7 @@ public class SessionCreationController {
 
 	private void retriveSessionDetailsUsingSessionID() {
 		SessionDTOResponse sessionListResponse = sessionManagement.getSessionDetailById(SESSION_ID);
+		
 		if (sessionListResponse.getResponse().getResponseCode() == 1) {
 
 			uutTypeTextField.setText(fetchUUTNameById(sessionListResponse.getUutId()));
@@ -935,10 +967,14 @@ public class SessionCreationController {
 			Map<String, StageIdName> l3StageMap = new LinkedHashMap<>();
 			Map<String, StageIdName> l4StageMap = new LinkedHashMap<>();
 			Map<String, StageIdName> l5StageMap = new LinkedHashMap<>();
+			
 
-			for (StageObject stageObject : stageObjList) {
-				if (!stageObject.isDefaultStatus() && !stageObject.isAdvanceStatus()) {
-					l1StageMap.put(stageObject.getL1StageId(), stageObject.getL1StageName());
+
+			if(stageObjList != null) {				
+				for (StageObject stageObject : stageObjList) {
+					if (!stageObject.isDefaultStatus() && !stageObject.isAdvanceStatus()) {
+						l1StageMap.put(stageObject.getL1StageId(), stageObject.getL1StageName());
+					}
 				}
 			}
 
