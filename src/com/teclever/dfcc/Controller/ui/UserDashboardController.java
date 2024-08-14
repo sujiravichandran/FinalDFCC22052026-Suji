@@ -162,9 +162,17 @@ public class UserDashboardController {
 		if (UserData.getRoleId().equals("RL_ID_3")) {
 			addTreeItemWithChildren(rootItem, "Dashboard",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/dashboard.png", null);
-			addTreeItemWithChildren(rootItem, "Testing",
-					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
-					new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
+			
+			if(currentSessionDetails.getSessionTypeID().equals("ST4")) {
+				addTreeItemWithChildren(rootItem, "Testing",
+						DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
+						new String[] { "Self Test", "SRU/LRU Test", "Trials Config", "Trials Testing" , "Advanced Testing" });	
+			}else {				
+				addTreeItemWithChildren(rootItem, "Testing",
+						DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
+						new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
+			}
+			
 			addTreeItemWithChildren(rootItem, "Results",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
 					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
