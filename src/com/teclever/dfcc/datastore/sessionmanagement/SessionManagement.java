@@ -24,6 +24,7 @@ import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
+import com.teclever.datastore.response.UUTMasterDetailsServiceResponse;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
@@ -35,6 +36,7 @@ import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.service.TrailSessionEntityService;
+import com.teclever.datastore.service.UUTMasterDetailsService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
@@ -356,6 +358,7 @@ public class SessionManagement {
 			}
 			
 			//For Picking Others Sessions...
+
 			SessionSelectedStagesService sessionSelectedStage = new SessionSelectedStagesService();
 			GetResponse getResponse = sessionSelectedStage.getAllSessionData(userId);
 
@@ -393,6 +396,34 @@ public class SessionManagement {
 		SessionDTOResponse sessionDtoResponse = new SessionDTOResponse();
 		Response res = new Response();
 		try {
+			
+			
+			if(sessionEntityId.substring(0,4).equals("TSSN"))
+			{
+				TrailSessionEntityService sessionService = new TrailSessionEntityService();
+				GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionId(sessionEntityId);
+				SessionStageMapResponse sessionSrageResponse = getAllSessionStageMapping(sessionEntityId);
+				if (getObjResponse.getResponse().getResponseCode() == 0
+						|| sessionSrageResponse.getResponse().getResponseCode() == 0) {
+					sessionDtoResponse.setResponse(getObjResponse.getResponse());
+					return sessionDtoResponse;
+				}
+				TrailSessionEntity sessionEntity = (TrailSessionEntity) getObjResponse.getObject();
+				sessionDtoResponse.setSessionId(sessionEntity.getTrailSessionId());
+				sessionDtoResponse.setUutId(sessionEntity.getUutTypeId());
+				sessionDtoResponse.setSessionName(sessionEntity.getTrailSessionName());
+				sessionDtoResponse.setSessionTypeMasterId("ST4");
+				sessionDtoResponse.setDfccSNo(sessionEntity.getDfccSNo());
+				sessionDtoResponse.setDfccPartNo(sessionEntity.getDfccPartNo());
+				sessionDtoResponse.setCreationDate(sessionEntity.getCreationDate());
+				sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
+				sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
+				sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
+				sessionDtoResponse.setSessionStagesList(sessionSrageResponse.getListOfStageObject());
+				
+				return sessionDtoResponse;
+
+			}
 			SessionService sessionService = new SessionService();
 			GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionEntityId);
 			SessionStageMapResponse sessionSrageResponse = getAllSessionStageMapping(sessionEntityId);
@@ -784,7 +815,7 @@ public class SessionManagement {
 		return allStageIdName;
 	}
 	
-	public boolean getActiveTrailSessionObject() {
+	public boolean getFinalizeStatus() {
 		boolean isConfig = false;
 		try {
 			TrailSessionEntity sessionEntity = new TrailSessionEntity();
@@ -910,10 +941,25 @@ public class SessionManagement {
 					sessionToStagesMappingDTO.setPath(path);
 					dbSessionStages.add(sessionToStagesMappingDTO);
 				}
-				Map<String,String> uutIdNameMap = DFCCConstant.getUutIdNameMap();
+				Map<String,String> uutIdNameMap = new HashMap<String,String>();
+				UUTMasterDetailsService uUTMasterDetailsService = new UUTMasterDetailsService();
+				UUTMasterDetailsServiceResponse uUTMasterDetailsServiceResponse = new UUTMasterDetailsServiceResponse();
+				uUTMasterDetailsServiceResponse=uUTMasterDetailsService.getAllUutDetails();
+				String[][]uutIdName	= uUTMasterDetailsServiceResponse.getData();
+				 for (int i = 0; i < uutIdName.length; i++) {
+			            if (uutIdName[i].length == 2) {
+			                String key = uutIdName[i][0];
+			                String value = uutIdName[i][1];
+			                uutIdNameMap.put(key, value);
+			            } else {
+			                System.out.println("Invalid entry at row " + i);
+			            }
+			        }
+				
 				SessionFileManagement sessionFileManagement = new SessionFileManagement();
+				System.out.println();
 				String uutName = uutIdNameMap.get(trailEntitySession.getUutTypeId());
-
+                System.out.println("uutName"+uutName);
 				sessionFileManagement.createSessionFolders(uutName, trailEntitySession.getDfccPartNo(), trailEntitySession.getTrailSessionName(),
 						levels);
 
