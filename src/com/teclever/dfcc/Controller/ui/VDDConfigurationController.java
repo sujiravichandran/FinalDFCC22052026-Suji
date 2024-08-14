@@ -2,9 +2,11 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
+import com.teclever.dfcc.datastore.filemanagement.ChecksumManagement;
 import com.teclever.dfcc.datastore.filemanagement.VDDManagement;
 import com.teclever.dfcc.model.VDDConfiguraion;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -39,6 +41,7 @@ public class VDDConfigurationController {
 	private GridPane vddConfigTableGridPane = new GridPane();
 	
 	VDDManagement vddManagement = new VDDManagement();
+	ChecksumManagement checksumManagement = new ChecksumManagement();
 	
 	public void refreshVddConfigList() {
 		setTableData();
@@ -141,16 +144,16 @@ public class VDDConfigurationController {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
 		fileChooser.getExtensionFilters()
-				.addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+				.addAll(new FileChooser.ExtensionFilter("Script File", "*.sh"));
 		File selectedFile = fileChooser.showOpenDialog(vddConfigMainGridPane.getScene().getWindow());
 		 if (selectedFile != null) {
 	            String filePath = selectedFile.getAbsolutePath();
-	            VDDResponse response = vddManagement.extractingVDDFile(filePath);
-	            if(response.getResponse().getResponseCode()==1) {
+	            Response response = checksumManagement.selectScriptFile(filePath);
+	            if(response.getResponseCode()==1) {
 	            	Notifications.showSuccessAlert("File Uploaded Successfully");
 	            	refreshVddConfigList();
-	            }else if(response.getResponse().getResponseCode()==0) {
-	            	Notifications.showSuccessAlert(response.getResponse().getResponseMessage());
+	            }else if(response.getResponseCode()==0) {
+	            	Notifications.showSuccessAlert(response.getResponseMessage());
 	            }
 	      }		
 	}

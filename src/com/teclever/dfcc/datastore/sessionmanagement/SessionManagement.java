@@ -1021,19 +1021,19 @@ public class SessionManagement {
 
 			Map<String, LevelTwoStageMaster> level2Map = new HashMap<String, LevelTwoStageMaster>();
 			LevelTwoMasterService level2Service = new LevelTwoMasterService();
-			level2Map = level2Service.getLevelTwoStageMasterMap();
+//			level2Map = level2Service.getLevelTwoStageMasterMap();
 
 			Map<String, LevelThreeStageMaster> level3Map = new HashMap<String, LevelThreeStageMaster>();
 			LevelThreeService level3Service = new LevelThreeService();
-			level3Map = level3Service.getLevelThreeStageMasterMap();
+//			level3Map = level3Service.getLevelThreeStageMasterMap();
 
 			Map<String, LevelFourStageMaster> level4Map = new HashMap<String, LevelFourStageMaster>();
 			LevelFourMasterSevice level4Service = new LevelFourMasterSevice();
-			level4Map = level4Service.getLevelFourStageMasterMap();
+//			level4Map = level4Service.getLevelFourStageMasterMap();
 
 			Map<String, LevelFiveStageMaster> level5Map = new HashMap<String, LevelFiveStageMaster>();
 			LevelFiveMasterService level5Service = new LevelFiveMasterService();
-			level5Map = level5Service.getLevelFiveStageMasterMap();
+//			level5Map = level5Service.getLevelFiveStageMasterMap();
 
 			// To Find the Final Leaf of Second And Find Next Level of Third Leaf
 			

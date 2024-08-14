@@ -50,14 +50,11 @@ public class LogBookController {
 	private HBox selectionBoxSESSION = new HBox(10);
 	private HBox datePickerFromHBox = new HBox(10);
 	private HBox datePickerToHBox = new HBox(10);
-	private HBox timePickerFromHBox = new HBox(10);
-	private HBox timePickerToHBox = new HBox(10);
+
 
 	private DatePicker fromDate = new DatePicker();
 	private DatePicker toDate = new DatePicker();
 
-//	private JFXTimePicker fromTimePicker = new JFXTimePicker();
-//	private JFXTimePicker toTimePicker = new JFXTimePicker();
 
 	private TextArea aitessTextArea = new TextArea();
 	private TextArea uutTextArea = new TextArea();
@@ -66,6 +63,8 @@ public class LogBookController {
 	public ComboBox<String> uutTypeField = new ComboBox<>();
 	public ComboBox<String> uutSerialNoField = new ComboBox<>();
 	public ComboBox<String> sessionField = new ComboBox<>();
+	private ComboBox<String> fromTimePicker = new ComboBox<>();
+    private ComboBox<String> toTimePicker = new ComboBox<>();
 
 	private ObservableList<SessionDTO> sessionNameDataList;
 	public static String sesssionNameValue;
@@ -343,28 +342,49 @@ public class LogBookController {
 		logBookBottomGridPane.add(createUserInputTextArea(), 0, 1, 4, 1);
 		logBookBottomGridPane.add(createBottomButton(), 3,0);
 //
-//      logBookBottomGridPane.add(createFromTimePicker(), 1, 0); // Adding From Time Picker
-//      logBookBottomGridPane.add(createToTimePicker(), 2, 0); 
+      logBookBottomGridPane.add(createFromTimePicker(), 1, 0); // Adding From Time Picker
+      logBookBottomGridPane.add(createToTimePicker(), 2, 0); 
 
 		return logBookBottomGridPane;
 	}
 
-//	private HBox createFromTimePicker() {
-//		Label fromTimeLabel = new Label("From Time");
-//		timePickerFromHBox.setAlignment(Pos.CENTER_LEFT);
-//		timePickerFromHBox.getChildren().addAll(fromTimeLabel, fromTimePicker);
-//
-//		return timePickerFromHBox;
-//	}
+	
+	private HBox createFromTimePicker() {
+        fromTimePicker.setPromptText("FROM TIME");
 
-//	private HBox createToTimePicker() {
-//		Label toTimeLabel = new Label("To Time");
-//		timePickerToHBox.setAlignment(Pos.CENTER_LEFT);
-//		timePickerToHBox.getChildren().addAll(toTimeLabel, toTimePicker);
-//
-//		return timePickerToHBox;
-//	}
+        // Populate time picker with combined hour and minute
+        fromTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
 
+        HBox timePickerHBox = new HBox(5);
+        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
+        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
+        timePickerHBox.getChildren().add(fromTimePicker);
+
+        return timePickerHBox;
+    }
+	private HBox createToTimePicker() {
+        toTimePicker.setPromptText("TO TIME");
+
+        // Populate time picker with combined hour and minute
+        toTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
+
+        HBox timePickerHBox = new HBox(5);
+        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
+        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
+        timePickerHBox.getChildren().add(toTimePicker);
+
+        return timePickerHBox;
+    }
+	private ObservableList<String> generateTimeOptions() {
+        ObservableList<String> timeOptions = FXCollections.observableArrayList();
+        for (int hour = 0; hour < 24; hour++) {
+            for (int minute = 0; minute < 60; minute += 5) { // Interval of 5 minutes
+                timeOptions.add(String.format("%02d:%02d", hour, minute));
+            }
+        }
+        return timeOptions;
+    }
+	
 	private HBox createBottomTitle() {
 		bottomTitleHBox.getStyleClass().add("logBook-bottom-container");
 		bottomLabel.getStyleClass().add("title-label");

@@ -319,6 +319,8 @@ public class AddRunConfigurationController {
 	void selectConfigfileAction1(ActionEvent event) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a Configuration File");
+		  fileChooser.getExtensionFilters()
+          .addAll(new FileChooser.ExtensionFilter("Excel Files", "*.dat"));
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		File file1 = fileChooser.showOpenDialog(this.selectConfigfile1.getScene().getWindow());
 		if (file1 != null) {
@@ -333,6 +335,8 @@ public class AddRunConfigurationController {
 		void selectConfigfileAction2(ActionEvent event) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select a Configuration File");
+			 fileChooser.getExtensionFilters()
+	          .addAll(new FileChooser.ExtensionFilter("Excel Files", "*.dat"));
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		File file2 = fileChooser.showOpenDialog(this.selectConfigfile2.getScene().getWindow());
 		if (file2 != null) {

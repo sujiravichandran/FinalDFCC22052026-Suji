@@ -19,6 +19,8 @@ import com.teclever.datastore.response.RunConfigurationResponse;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.RunPathMasterService;
 import com.teclever.dfcc.datastore.dto.CheckSum;
+import com.teclever.dfcc.datastore.dto.ChecksumDto;
+import com.teclever.dfcc.datastore.dto.ChecksumResponse;
 import com.teclever.dfcc.datastore.dto.DownloadFileDto;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
@@ -105,21 +107,21 @@ public class ValidateChecksum {
 		Response response = new Response();
 		try {
 
-			VDDManagement vddManagement = new VDDManagement();
-			VDDResponse vddResponse = vddManagement.getListOfVDD();
+			ChecksumManagement checksumManagement = new ChecksumManagement();
+			ChecksumResponse checksumResponse = checksumManagement.getListOfVDD();
 			// Get VDD Table Data
-			List<VDDDto> listOfVdd = vddResponse.getvDDList();
+			List<ChecksumDto> listOfVdd = checksumResponse.getvDDList();
 //			Map<String, String> vddMap = new HashMap<>();
 
 			List<CheckSum> listOfCheckSum = new ArrayList<>();
-			for (VDDDto vddDto : listOfVdd) {
+			for (ChecksumDto vddDto : listOfVdd) {
 
 				CheckSum checkSum = new CheckSum();
 
 				if (vddDto.getFilePath() != null && vddDto.getFileName() != null) {
 					
 					// Passing DB File Name and VDD CheckSum and Get The CheckSum object as Return
-					checkSum = validateChecksum(vddDto.getFilePath() + vddDto.getFileName(), vddDto.getFileCheckSum());
+					checkSum = validateChecksum(vddDto.getFilePath() + vddDto.getFileName(), vddDto.getChecksum());
 
 				}
 //				else if(vddDto.getFilePath() == null){

@@ -150,7 +150,7 @@ public class AddOFPController {
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select Configuration File");
-//		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.txt"));
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.dat"));
 		File selectedFile = fileChooser.showOpenDialog(addOfpMainContainer.getScene().getWindow());
 		 if (selectedFile != null) {
 			 selectedConfigFile = selectedFile.getAbsolutePath();

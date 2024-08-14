@@ -41,30 +41,37 @@ public class DownloadFileManagement {
 	}
 
 	public static List<String> saveDownloadFilesToDatabase(List<String> downloadFilePaths, String runPathMasterId) {
-		DownloadFileService downloadFileService = new DownloadFileService();
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Transaction transaction = session.beginTransaction();
+	    DownloadFileService downloadFileService = new DownloadFileService();
+	    try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+	        Transaction transaction = session.beginTransaction();
 
-			markPreviousDownloadFileRowsAsDeleted(runPathMasterId);
+	        // Mark previous download file rows as deleted
+	        markPreviousDownloadFileRowsAsDeleted(runPathMasterId);
 
-			for (String filePath : downloadFilePaths) {
-				Path dir = Paths.get(filePath);
-				Files.walk(dir).filter(Files::isRegularFile).forEach(path -> {
-					String fileName = path.toString();
-					DownloadFile downloadFile = new DownloadFile();
-					downloadFile.setDownloadFileName(fileName);
-					downloadFile.setRunPathMasterId(runPathMasterId);
-					downloadFileService.saveDownloadFileToDatabase(downloadFile);
-				});
-			}
+	        for (String filePath : downloadFilePaths) {
+	            Path dir = Paths.get(filePath);
+	            Files.walk(dir)
+	                .filter(Files::isRegularFile)
+	                .filter(path -> {
+	                    String fileName = path.toString();
+	                    return fileName.endsWith(".chk") || fileName.endsWith(".run");
+	                })
+	                .forEach(path -> {
+	                    String fileName = path.toString();
+	                    DownloadFile downloadFile = new DownloadFile();
+	                    downloadFile.setDownloadFileName(fileName);
+	                    downloadFile.setRunPathMasterId(runPathMasterId);
+	                    downloadFileService.saveDownloadFileToDatabase(downloadFile);
+	                });
+	        }
 
-			session.flush();
-			session.clear();
-			transaction.commit();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return downloadFilePaths;
+	        session.flush();
+	        session.clear();
+	        transaction.commit();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    return downloadFilePaths;
 	}
 	
 	public static List<String> saveDownloadFilesToDatabaseForCustomAdding(List<String> downloadFilePaths, String runPathMasterId) {
