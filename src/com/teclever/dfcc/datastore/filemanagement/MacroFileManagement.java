@@ -133,8 +133,9 @@ public class MacroFileManagement {
                 Path dir = Paths.get(filePath);
                 Files.walk(dir)
                      .filter(Files::isRegularFile)
+                     .filter(path -> path.toString().endsWith(".mac")) // Filter only .mac files
                      .map(Path::toString)
-                     .map(path -> path.replace("\\", "\\\\"))
+                     .map(path -> path.replace("\\", "\\\\")) // Escape backslashes
                      .forEach(filePaths::add);
             } catch (IOException e) {
                 System.err.println("Error processing file path: " + filePath);

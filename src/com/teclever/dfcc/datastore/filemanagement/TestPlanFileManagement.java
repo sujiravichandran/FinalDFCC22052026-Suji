@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -56,27 +57,35 @@ public class TestPlanFileManagement {
 
 			// markPreviousTestFileRowsAsDeleted(runPathMasterId);
 
-			for (String filePath : testPlanFilePaths) {
-				Path dir = Paths.get(filePath);
-				Files.walk(dir).filter(Files::isRegularFile).forEach(path -> {
-					String fileName = path.toString();
-					String testFileId = TestFileService.generateUniqueTestFileId();
-					TestFile testFile = new TestFile();
-					testFile.setTestFileId(testFileId);
-					testFile.setTestFileName(fileName);
-					testFile.setRunPathMasterId(runPathMasterId);
-					testFileService.saveTestFileToDatabase(testFile);
-				});
-			}
+			 for (String filePath : testPlanFilePaths) {
+		            Path dir = Paths.get(filePath);
+		            // Stream<Path> to walk through the directory and filter files by extension
+		            try (Stream<Path> paths = Files.walk(dir)) {
+		                paths.filter(Files::isRegularFile)
+		                     .filter(path -> {
+		                         String fileName = path.toString().toLowerCase();
+		                         return fileName.endsWith(".tst") || fileName.endsWith(".tpf") || fileName.endsWith(".com");
+		                     })
+		                     .forEach(path -> {
+		                         String fileName = path.toString();
+		                         String testFileId = TestFileService.generateUniqueTestFileId();
+		                         TestFile testFile = new TestFile();
+		                         testFile.setTestFileId(testFileId);
+		                         testFile.setTestFileName(fileName);
+		                         testFile.setRunPathMasterId(runPathMasterId);
+		                         testFileService.saveTestFileToDatabase(testFile);
+		                     });
+		            }
+		        }
 
-			session.flush();
-			session.clear();
-			transaction.commit();
-		} catch (IOException e) {
-			e.printStackTrace();
+		        session.flush();
+		        session.clear();
+		        transaction.commit();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		    return testPlanFilePaths;
 		}
-		return testPlanFilePaths;
-	}
 
 	public static List<String> saveTestFilesToDatabaseForCustomFiles(List<String> testPlanFilePaths,
 			String runPathMasterId) {
