@@ -119,7 +119,7 @@ public class SessionFileManagement {
     }
 
     private void createLevel(Path basePath, List<String> levels, int index) throws IOException {
-        Path currentPath = basePath.resolve(levels.get(index));
+        Path currentPath = basePath.resolve(levels.get(index).trim());
         Files.createDirectories(currentPath);
 
         // Track output folder path for the current session
