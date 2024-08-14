@@ -773,5 +773,20 @@ public class StateMachine {
 				StateMachine.outputLocation = outputLocation;
 			}
 
+			//scriptFileLocation
+			private static String scriptFileLocation;
+
+
+
+			public static String getScriptFileLocation() {
+				return scriptFileLocation;
+			}
+
+			public static void setScriptFileLocation(String scriptFileLocation) {
+				StateMachine.scriptFileLocation = scriptFileLocation;
+			}
+			
+			
+			
 
 }

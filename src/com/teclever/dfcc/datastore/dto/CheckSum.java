@@ -45,6 +45,10 @@ public class CheckSum {
 		this.msg = msg;
 	}
 	
+	public CheckSum(String file, String msg) {
+		this.file = file;
+		this.msg = msg;
+	}
 	
 		
 }
