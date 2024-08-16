@@ -64,6 +64,7 @@ public class SessionManagement {
 		Response res = new Response();
 		try {
 			SessionService sessionService = new SessionService();
+			sessionDTO.setSessionName(sessionDTO.getSessionName().replace(":", " "));
 			SessionDto sessionDto = new SessionDto();
 			Date utilDate = new Date();
 			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
@@ -834,7 +835,8 @@ public class SessionManagement {
 	public GetObjResponse saveTrailSessionEntity(SessionDTO sessionDTO) {
 		GetObjResponse res = new GetObjResponse();
 		try {
-	       TrailSessionDto sessionDto = new TrailSessionDto();
+			sessionDTO.setSessionName(sessionDTO.getSessionName().replace(":", " "));
+	        TrailSessionDto sessionDto = new TrailSessionDto();
 			Date utilDate = new Date();
 			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 			String sessionPath = new File(
@@ -883,11 +885,15 @@ public class SessionManagement {
 		     	Map<String,String> stageNameMsg = validateIsAllLeafHavingTestFiles(leafIds);
 				// SessionId Update to StateMachine
 				//StateMachine.currentSessionDetails.setSessionId(trailEntitySession.getTrailSessionId());
+		     	//Validate the Leafs Having Test Files..
+		     	if(stageNameMsg.size()>0)
+		     	{
+		     		res.setCode(0);
+		     		res.setMsg("Some Of Stages Not Configured With Test Files..");
+		     	}
+		     			     	
 
 				List<SessionToStagesMappingDTO> sessionStages = getAllTrailStageLevelData(trailEntitySession.getUutTypeId());
-
-			
-
 				LevelOneMasterService levelOneService = new LevelOneMasterService();
 				Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
 
