@@ -1,15 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
@@ -210,6 +213,9 @@ public class SelfTestController {
 		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);
 		        StateMachine.setRunningTestName(RunningTestName.SELF_TEST);
+		        ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on self test START button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);

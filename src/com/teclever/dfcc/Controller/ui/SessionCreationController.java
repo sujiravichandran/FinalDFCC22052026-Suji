@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
@@ -35,14 +37,18 @@ import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.model.FaultCodeList;
 import com.teclever.dfcc.model.SessionDetails;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -231,8 +237,18 @@ public class SessionCreationController {
 		}
 		createButton.setOnAction(e -> {
 			if (createButton.getText().equals("CREATE SESSION")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+						StateMachine.getCurrentUserLogin(), new Date(), "clicked on CREATE SESSION button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				saveNewSession();
 			} else if (createButton.getText().equals("OPEN SESSION")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+						StateMachine.getCurrentUserLogin(), new Date(), "clicked on OPEN SESSION button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				openExistingSession();
 			}
 		});
@@ -242,11 +258,23 @@ public class SessionCreationController {
 			String contentText = "Are you sure you want to exit the application";
 			Notifications.showConfirmationDialog(title, contentText, () -> {
 				Stage stage = (Stage) sessionCreationParentGridPane.getScene().getWindow();
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+						StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on EXIT button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				stage.close();
 			});
 		});
 
 		backButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on BACK button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StackPane parent = (StackPane) sessionCreationParentGridPane.getParent();
 			parent.getChildren().clear();
 			SessionCreationOptionController sessionCreationOptionController = new SessionCreationOptionController();
@@ -878,7 +906,21 @@ public class SessionCreationController {
 			currentSessionDetails.setSessionTypeID(SESSION_TYPE_ID);
 			currentSessionDetails.setSessionTypeName(sessionTypeField.getValue());
 			currentSessionDetails.setSessionName(sessionNameField.getText());
+			currentSessionDetails.setDfccSerialNumber(dfccSNoField.getText().trim());
 
+
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"session " + sessionName + " created");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"session " + sessionName + " created");
+			uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+			
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
 			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
@@ -931,6 +973,13 @@ public class SessionCreationController {
 		currentSessionDetails.setSessionTypeName(sessionTypeField.getValue());
 		currentSessionDetails.setSessionId(SESSION_ID);
 		currentSessionDetails.setSessionName(sessionNameField.getText());
+		currentSessionDetails.setDfccSerialNumber(dfccSNoField.getText().trim());
+
+		UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
+				currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+				"session "+ currentSessionDetails.getSessionName() + " opened");
+		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 
 		StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 		parent1.getChildren().clear();

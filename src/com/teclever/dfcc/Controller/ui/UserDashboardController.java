@@ -1,15 +1,19 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
+import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -148,6 +152,13 @@ public class UserDashboardController {
 				Label selectedLabel = selectedItem.getValue();
 //		        System.out.println("Selected Label: " + selectedLabel.getText());
 
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on " + selectedLabel.getText() + " menu");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
 				if (selectedItem.getChildren().isEmpty()) {
 					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());
 				}
@@ -162,17 +173,17 @@ public class UserDashboardController {
 		if (UserData.getRoleId().equals("RL_ID_3")) {
 			addTreeItemWithChildren(rootItem, "Dashboard",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/dashboard.png", null);
-			
-			if(currentSessionDetails.getSessionTypeID().equals("ST4")) {
+
+			if (currentSessionDetails.getSessionTypeID().equals("ST4")) {
 				addTreeItemWithChildren(rootItem, "Testing",
-						DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
-						new String[] { "Self Test", "SRU/LRU Test", "Trials Config", "Trials Testing" , "Advanced Testing" });	
-			}else {				
+						DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png", new String[] { "Self Test",
+								"SRU/LRU Test", "Trials Config", "Trials Testing", "Advanced Testing" });
+			} else {
 				addTreeItemWithChildren(rootItem, "Testing",
 						DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
 						new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
 			}
-			
+
 			addTreeItemWithChildren(rootItem, "Results",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
 					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
@@ -258,7 +269,31 @@ public class UserDashboardController {
 
 			label.setOnMouseClicked(event -> {
 				System.out.println("Label clicked: " + labelText);
-				centerContentController.createUserCenterContent(bottomMidTopGridPane,labelText);
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on " + labelText);
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+				if (labelText == "End Session") {
+					UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+					UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+							currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+							StateMachine.getCurrentUserLogin(), new Date(),
+							"session " + currentSessionDetails.getSessionName() + " ended");
+					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+				}
+
+				if (labelText == "Close Session") {
+					UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+					UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+							currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+							StateMachine.getCurrentUserLogin(), new Date(),
+							"session " + currentSessionDetails.getSessionName() + " closed");
+					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+				}
+				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
 						((Label) node).getStyleClass().remove("selected");
@@ -293,7 +328,14 @@ public class UserDashboardController {
 		logoutBox.getStyleClass().add("logout-button");
 		logoutLabel.getStyleClass().add("logout-text");
 
-		logoutBox.setOnMouseClicked(e -> Platform.exit());
+		logoutBox.setOnMouseClicked(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), StateMachine.getCurrentUserLogin() + " logged out");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			Platform.exit();
+		});
 
 		bottomButtonGridPane.add(logoutBox, 0, 0);
 
@@ -471,6 +513,18 @@ public class UserDashboardController {
 
 		secondRowBox.setOnMouseClicked(e -> {
 			if (statusLabel.getText().toLowerCase().contains("on")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on DFCC power ON button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered OFF");
+				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
 
 				Platform.runLater(() -> {
@@ -479,6 +533,18 @@ public class UserDashboardController {
 				});
 
 			} else if (statusLabel.getText().toLowerCase().contains("off")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on DFCC power OFF button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered ON");
+				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
 
 				Platform.runLater(() -> {
@@ -584,6 +650,13 @@ public class UserDashboardController {
 		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
 				Platform.runLater(() -> {
+					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+					ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+							currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+							currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+							"clicked on " + newValue + " temperature");
+					appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
 					setMK1Temp(newValue, box1, box2, box3, box4);
 				});
 			}
@@ -607,13 +680,13 @@ public class UserDashboardController {
 	}
 
 	private void populateTemperatureComboBox(ComboBox<String> temperatureComboBox, String key) {
-	    if (!currentSessionDetails.getUutId().equals("UUT1")) {
-	    	if(!temperatureComboBox.getItems().contains(key)){
-	    		Platform.runLater(() -> {	    			
-	    			temperatureComboBox.getItems().add(key);	
-	    		});
-	    	}
-	     }
+		if (!currentSessionDetails.getUutId().equals("UUT1")) {
+			if (!temperatureComboBox.getItems().contains(key)) {
+				Platform.runLater(() -> {
+					temperatureComboBox.getItems().add(key);
+				});
+			}
+		}
 	}
 
 	private void setMk1AandMk2Temp(ChannelTemperature valueAdded, VBox box1, VBox box2, VBox box3, VBox box4) {
@@ -711,6 +784,14 @@ public class UserDashboardController {
 			label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
 			label4.textProperty().bind(channelAECTemp.channel4TemperatureProperty());
 		}
+
+		UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(),
+				selectedItem + " temperature fetched [" + "CH1: " + label1.getText() + ", CH2: " + label2.getText()
+						+ ", CH3: " + label3.getText() + ", CH4: " + label4.getText() + "]");
+		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 	}
 
 	private VBox createBottomRightMidThird() {
@@ -903,15 +984,41 @@ public class UserDashboardController {
 			for (int col = 0; col < 2; col++) {
 				VBox box = new VBox();
 				box.setAlignment(Pos.CENTER);
+				final int x = i;
 				Label label = new Label(macroButtonList.get(i).getButtonName());
 				label.setUserData(macroButtonList.get(i).getCommand());
 
 				box.setOnMouseClicked(e -> {
 					if (!label.getUserData().toString().equals("<NOT SET>")) {
+						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+								currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+								currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+								"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
+						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 //						Notifications.showSuccessAlert("Selected Macro Command : " + label.getUserData().toString());
+						UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+						UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+								currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+								StateMachine.getCurrentUserLogin(), new Date(),
+								"macro command " + label.getUserData().toString() + " executed");
+						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+
 						aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
 					} else {
+						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+								currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+								currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+								"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
+						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 						Notifications.showErrorAlert("Macro Button Not Configured");
+						UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+						UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+								currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+								StateMachine.getCurrentUserLogin(), new Date(),
+								"no macro command found for " + macroButtonList.get(x).getButtonName());
+						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 					}
 				});
 
@@ -968,6 +1075,11 @@ public class UserDashboardController {
 		showTerminalButton.getStyleClass().add("show-terminal-button");
 
 		showTerminalButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getSessionId(), currentSessionDetails.getDfccSerialNumber(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on SHOW TERMINAL button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal");
 		});
 

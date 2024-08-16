@@ -132,41 +132,52 @@ public class ChecksumManagement {
 	}
 
 	public ChecksumResponse extractingFilesumFile(String path) {
-		ChecksumResponse vDDResponse = new ChecksumResponse();
-		Response res = new Response();
+	    ChecksumResponse vDDResponse = new ChecksumResponse();
+	    Response res = new Response();
+	    
+	    try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+	        String line;
+	        List<ChecksumDto> vDDList = new ArrayList<>();
+	        
+	        while ((line = reader.readLine()) != null) {
+	            String[] parts = line.split("\\s+");
+	            if (parts.length < 2) {
+	                continue;
+	            }
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-			String line;
-			List<ChecksumDto> vDDList = new ArrayList<>();
+	            String fileCheckSum = parts[0];
+	            String fileName = parts[1].substring(parts[1].lastIndexOf("/") + 1);
+	            
+	            // Check if the file is filesum.txt
+	            String filePathString;
+	            if (fileName.equals("filesum.txt")) {
+	                // Use scriptFileParentPath for filesum.txt
+	                filePathString = scriptFileParentPath+File.separator;
+	            } else {
+	                // Normal file processing
+	                filePathString = parts[1].substring(0, parts[1].lastIndexOf("/") + 1);
+	            }
 
-			while ((line = reader.readLine()) != null) {
-				String[] parts = line.split("\\s+");
-				if (parts.length < 2)
-					continue;
-
-				String fileCheckSum = parts[0];
-				String fileName = parts[1].substring(parts[1].lastIndexOf("/") + 1);
-				String filePathString = parts[1].substring(0, parts[1].lastIndexOf("/") + 1);
-
-				boolean isSingleChecksum = fileName.equals("filesum.txt");
-
-				ChecksumDto vDDDto = new ChecksumDto(fileName, filePathString, fileCheckSum, isSingleChecksum);
-				vDDList.add(vDDDto);
-			}
-
-			addVDDList(vDDList);
-
-			res.setResponseCode(1);
-			res.setResponseMessage("Get Data From File Successful");
-			vDDResponse.setResponse(res);
-			return vDDResponse;
-		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Fetching Filesum Unsuccessful: " + e);
-			vDDResponse.setResponse(res);
-			e.printStackTrace();
-			return vDDResponse;
-		}
+	            // Create ChecksumDto and add to the list
+	            ChecksumDto vDDDto = new ChecksumDto(fileName, filePathString, fileCheckSum, fileName.equals("filesum.txt"));
+	            vDDList.add(vDDDto);
+	        }
+	        
+	        // Presuming addVDDList adds the list to some storage or processing structure
+	        addVDDList(vDDList);
+	        
+	        res.setResponseCode(1);
+	        res.setResponseMessage("Get Data From File Successful");
+	        vDDResponse.setResponse(res);
+	        return vDDResponse;
+	        
+	    } catch (Exception e) {
+	        res.setResponseCode(0);
+	        res.setResponseMessage("Fetching Filesum Unsuccessful: " + e.getMessage());
+	        vDDResponse.setResponse(res);
+	        e.printStackTrace();
+	        return vDDResponse;
+	    }
 	}
 
 	public List<FileChecksumDetailDto> extractingFilesumFileUserLogin(String path) {

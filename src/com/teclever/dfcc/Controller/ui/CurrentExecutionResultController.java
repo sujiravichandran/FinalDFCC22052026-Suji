@@ -1,9 +1,13 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.Date;
+
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.model.BriefData;
 import com.teclever.dfcc.model.DetailedData;
 import com.teclever.dfcc.reportgeneration.ReportGeneration;
@@ -11,6 +15,7 @@ import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -140,8 +145,14 @@ public class CurrentExecutionResultController {
 		downloadButton.setOnAction(e ->{
 			if(currentTab.equals("tab1")) {
 				downloadReport(StateMachine.currentSessionDetails.getSessionId(), true);
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief Data Download button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			}else {
 				downloadReport(StateMachine.currentSessionDetails.getSessionId(), false);
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed Data Download button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			}
 		});
 		
@@ -217,9 +228,15 @@ public class CurrentExecutionResultController {
 	        if (newTab == tab2) {
 	            showTab2Content();
 	            currentTab = "tab2";
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed data button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 	        } else {
 	            showTab1Content();
 	            currentTab = "tab1";
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief data button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 	        }
 	    });
 

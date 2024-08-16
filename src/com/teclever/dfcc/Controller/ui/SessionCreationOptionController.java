@@ -1,6 +1,12 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.Date;
+
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -46,16 +52,16 @@ public class SessionCreationOptionController {
 	}
 
 	private VBox createOptionButton() {
-		
+
 		sessionCreationOptionButtonVBox.getStyleClass().add("session-creation-option-button-container");
 		sessionCreationOptionButtonVBox.setPadding(new Insets(20));
 		sessionCreationOptionButtonVBox.setAlignment(Pos.CENTER);
-		
+
 		Button newSessionButton = new Button("Create New Session");
 		Button existingSessionButton = new Button("Open Existing Session");
 		newSessionButton.setMaxWidth(Double.MAX_VALUE);
 		existingSessionButton.setMaxWidth(Double.MAX_VALUE);
-		
+
 		newSessionButton.getStyleClass().add("custom-button");
 		existingSessionButton.getStyleClass().add("custom-button");
 
@@ -63,12 +69,22 @@ public class SessionCreationOptionController {
 
 		VBox.setVgrow(newSessionButton, Priority.ALWAYS);
 		VBox.setVgrow(existingSessionButton, Priority.ALWAYS);
-		
-		newSessionButton.setOnAction(e ->{			
+
+		newSessionButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on CREATE NEW SESSION button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSessionCreationPageType(true);
 		});
-		
-		existingSessionButton.setOnAction(e ->{
+
+		existingSessionButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on OPEN EXISTING SESSION button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSessionCreationPageType(false);
 		});
 
@@ -78,8 +94,8 @@ public class SessionCreationOptionController {
 	private void handleSessionCreationPageType(boolean newSession) {
 		StackPane parent = (StackPane) sessionCreationOptionGridPane.getParent();
 		parent.getChildren().clear();
-		SessionCreationController sessionCreationController=new SessionCreationController();
-		parent.getChildren().add(sessionCreationController.createSession(newSession));	
+		SessionCreationController sessionCreationController = new SessionCreationController();
+		parent.getChildren().add(sessionCreationController.createSession(newSession));
 	}
 
 }
