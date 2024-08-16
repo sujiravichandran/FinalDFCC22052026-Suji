@@ -39,12 +39,10 @@ import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
-
+import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
-
-import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
 
 public class TestProcessManagement {
@@ -66,209 +64,63 @@ public class TestProcessManagement {
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
 			boolean continueWithError, String stageName, String testTypeId) {
 
-		// Service to retrieve session stage mapping
-		SessionSelectedStagesService sessionStagesSelectedStage = new SessionSelectedStagesService();
-		GetObjResponse getObjResponse = sessionStagesSelectedStage.getSessionStagesMapp(sessionId, stageId);
-		SessionStagesMapping sessionStagesMapping = (SessionStagesMapping) getObjResponse.getObject();
-
-		// Retrieve SessionStagesMapping Id (primary key)
-		String sessionStageMapId = sessionStagesMapping.getSessionStagesMappingId();
-		int runCount = sessionStagesMapping.getRunCount();
-
 		Response res = new Response();
-
-		// Check and update AETS process status
-		AitessProcessControlManagement.getInstance().check(testTypeId);
-
-		// If AETS process failed to launch, return failure response
-		if (aitessRunning.isAitess1SwitchedFailed() || aitessRunning.isAitess2SwitchedFailed()) {
-			res.setResponseCode(0);
-			res.setResponseMessage("   AETS Failed to launch ");
-			resetAitessFailureStates();
-			return res;
-		}
-
-		resetAitessFailureStates();
-
 		try {
+
+			// Retrieve Highest RunCount Session Stage Mapping Data.
+			SessionStagesMapping sessionStagesMapping = getSessionStageMapping(sessionId, stageId);
+
+			if (sessionStagesMapping == null) {
+				return createErrorResponse("Failed to retrieve session stage mapping");
+			}
+
+			// If AETS process failed to launch, return failure response
+			if (checkAndUpdateAetsProcessStatus(testTypeId)) {
+				resetAitessFailureStates();
+				return createErrorResponse("AETS Failed to launch");
+			}
+
+			resetAitessFailureStates();
+
 			// Update SESSION ENTITY with start data
 			res = updateSessionEntityStartData(sessionId);
 			if (res.getResponseCode() == 0) {
 				return res;
 			}
-			// Update SESSION STAGE MAPPING with Repeat count and Status and RunCount
-			res = sessionStagesSelectedStage.updateRepeatAndRunCountStatus(sessionStageMapId, repeatCount, "STARTED");
+			
+			// ADD Or Update SESSION STAGE MAPPING  Based on RunCount
+			String sessionStageMapId  = getSessionStageMappingIdAndRunCount(
+					sessionStagesMapping.getSessionStagesMappingId(), repeatCount, sessionStagesMapping.getRunCount());
+
+			// Update SESSION STAGE MAPPING Status
+			res = updateSessionStageMapStatus(sessionStageMapId, "STARTED");
 			if (res.getResponseCode() == 0) {
 				return res;
 			}
 
-			// Getting File ID and FileName as Key Value.
-			TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
-			TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
-			Map<String, String> testFilesIdName = testFileResponse.getTestFilesIdName();
+			// Fetching Selected TestFile IDs From DB.
+			Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
 			Set<String> keysSet = new HashSet<>(testFilesIdName.keySet());
 
-			// Runnable to execute the test process
-			Runnable runTestThread = () -> {
-
-				System.out.println(" 1 ----  Thread Start ");
-				String startTime;
-				String endTime;
-				String rdfFileName = null;
-				String rdfFileResult = "OK";
-				String testState = null;
-				List<String> listOfFileIds = new ArrayList<>();
-
-				// Service class for generating unique test file IDs
-				SessionStagesTestFilesResultService sessionStageTestFileResult = new SessionStagesTestFilesResultService();
-
-				// Getting RDF file path from RUN PATH MASTER
-				DownloadFileService downloadFileService = new DownloadFileService();
-				String rdfFileLocation = downloadFileService
-						.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
-
-				// Populate list of file IDs for repetition
-				for (int i = 1; i <= repeatCount; i++) {
-
-					listOfFileIds.addAll(listOfFileId);
-
-				}
-
-				String testFileName;
-				List<String> listOfTestFileNames = new ArrayList<>();
-				String sessionStageSelectedTestFileId;
-
-				// Outer loop for file IDs
-				outerLoop: for (String testFileId : listOfFileIds) {
-
-					// Check if file ID has a corresponding name
-					if (testFilesIdName.get(testFileId) != null) {
-						listOfTestFileNames.clear();
-						testFileName = testFilesIdName.get(testFileId);
-
-						if (testFileName.endsWith(".com")) {
-							// Read files if .com extension is found
-							listOfTestFileNames.addAll(dotComFileReader(testFileName));
-						} else {
-							listOfTestFileNames.add(testFileName);
-						}
-
-						// Inner loop for file names
-						for (String tpfFileName : listOfTestFileNames) {
-
-							// Wait if text area is not ready
-							if (!StateMachine.isTextArea()) {
-								boolean flag = true;
-								while (flag) {
-									try {
-										Thread.sleep(1000);
-										if (StateMachine.isTextArea()) {
-											break;
-										}
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-								}
-							}
-							// Update State Machine : Set TextArea to FALSE.
-							StateMachine.setTextArea(false);
-
-							// Handle PAUSED or STOPPED states
-							if (StateMachine.getTestState() == TestState.PAUSED) {
-								boolean loopFlag = true;
-								while (loopFlag) {
-									System.out.println(StateMachine.getTestState());
-									if (StateMachine.getTestState() == TestState.RUNNING) {
-
-										loopFlag = false;
-									} else if (StateMachine.getTestState() == TestState.STOPPED) {
-										testState = "STOPED";
-										loopFlag = false;
-										break outerLoop;
-									}
-								}
-
-							} else if (StateMachine.getTestState() == TestState.STOPPED) {
-								break outerLoop;
-							}
-
-							// Test Started Time
-							startTime = String.valueOf(new Date());
-
-							// Getting RDF file Name from PerformTest()
-							rdfFileName = AitessProcessControlManagement.getInstance().performTest(tpfFileName);
-
-							TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation,
-									rdfFileName, tpfFileName, stageId, sessionId);
-
-							// Handle test result
-							if (testProcessRes.getResponse().getResponseCode() == 111) {
-								if (rdfFileResult.equals("OK")) {
-									rdfFileResult = "NOT OK";
-								}
-
-								// check continue With Error
-								if (!continueWithError) {
-									break outerLoop;
-								}
-							} else {
-								SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
-							}
-
-							// Test Ended Time
-							endTime = String.valueOf(new Date());
-
-							// ADD File ID to SESSION STAGE SELECTED TEST FILES
-							sessionStageSelectedTestFileId = addSelectedTestFile(testFileId, sessionStageMapId);
-
-							// Save test file result.
-							addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
-									stageId, testFileId, String.valueOf(mongoUniqueIdentifier), rdfFileLocation,
-									(rdfFileName != null)
-											? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
-											: "RDF NOT GENERATED",
-									(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
-									String.valueOf(testProcessRes.getdStarCount()), startTime, endTime,
-									sessionStageSelectedTestFileId);
-
-							// Update State Machine to Set TextArea to TRUE.
-							StateMachine.setTextArea(true);
-						} // Inner loop
-					}
-
-				} // Outer loop
-
-				// Update state machine card status
-				updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
-
-				// Determine stage result
-				String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
-						: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
-
-				if (stageName.equals("SESSION TEST")) {
-					stageResult = getStageResult(stageId, keysSet);
-
-				}
-
-				if (testState != null && testState.equals("STOPED")) {
-					stageResult = "STOPED";
-				}
-				updateSessionStageMapping(sessionStageMapId, repeatCount, runCount, stageResult);
-
-			};
-
+			Thread startTestProcessThread = new Thread(() -> runTestProcess(sessionId, stageId, repeatCount,
+					listOfFileId, continueWithError, stageName, sessionStageMapId, testFilesIdName, keysSet));
 			// Thread START
-			Thread startTestProcessThread = new Thread(runTestThread);
 			startTestProcessThread.start();
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
 
 		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Test Start Unsuccessfull.. ");
+			return createErrorResponse("Test Start Unsuccessfull.. ");
+
 		}
 		return res;
+	}
+
+	private SessionStagesMapping getSessionStageMapping(String sessionId, String stageId) {
+		SessionSelectedStagesService sessionStagesSelectedStage = new SessionSelectedStagesService();
+		GetObjResponse getObjResponse = sessionStagesSelectedStage.getSessionStagesMapp(sessionId, stageId);
+		return (SessionStagesMapping) getObjResponse.getObject();
 	}
 
 	// Reset Aitess failure states
@@ -278,20 +130,53 @@ public class TestProcessManagement {
 
 	}
 
-	private void updateSessionStageMapping(String sessionStageMapId, int repeatCount, int runCount,
-			String stageResult) {
+	private Response updateSessionStageMapStatus(String sessionStageMapId, String status) {
+		SessionSelectedStagesService sessionStagesSelectedStage = new SessionSelectedStagesService();
+		return sessionStagesSelectedStage.updateSessionStageMapStatus(sessionStageMapId, status);
+	}
+
+	private Response createErrorResponse(String message) {
+		Response res = new Response();
+		res.setResponseCode(0);
+		res.setResponseMessage(message);
+		return res;
+	}
+
+	private boolean checkAndUpdateAetsProcessStatus(String testTypeId) {
+		// Check and update AETS process status
+		AitessProcessControlManagement.getInstance().check(testTypeId);
+
+		// If AETS process failed to launch, return failure response
+		return aitessRunning.isAitess1SwitchedFailed() || aitessRunning.isAitess2SwitchedFailed();
+	}
+
+	private Map<String, String> getStageSelectedTestFileIds(String stageId) {
+		// Getting File ID and FileName as Key Value.
+		TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+		TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
+		return testFileResponse.getTestFilesIdName();
+	}
+
+	private String getSessionStageMappingIdAndRunCount(String sessionStageMapId, int repeatCount,
+			int runCount) {
 		SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
+
+		String sessionStageMappingId;
 		if (runCount == 0) {
 			// Update SESSION STAGE MAPPING By Run Count 1
-			sessionStagesSelectedStagesService.updateRepeatAndRunCountStatus(sessionStageMapId, repeatCount,
-					stageResult);
+			sessionStagesSelectedStagesService.updateRepeatAndRunCountStatus(sessionStageMapId, repeatCount);
+
+			sessionStageMappingId=sessionStageMapId;
+
 		} else {
-			// Add One More row into Session Stage Mapping and Update Run Count By adding
-			// One
-			sessionStagesSelectedStagesService.addSessionStagesBySessionIdAndStageId(sessionStageMapId, repeatCount,
-					(runCount + 1), stageResult);
+			// Add One More row into Session Stage Mapping and Increment RunCount
+			SessionStagesMapping returnRes = sessionStagesSelectedStagesService
+					.addSessionStagesBySessionIdAndStageId(sessionStageMapId, repeatCount, (runCount + 1));
+
+			sessionStageMappingId=returnRes.getSessionStagesMappingId();
 
 		}
+		return sessionStageMappingId;
 	}
 
 	/**
@@ -334,11 +219,16 @@ public class TestProcessManagement {
 			SessionService sessionService = new SessionService();
 			GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
 			SessionEntity sessionEntity = (SessionEntity) objResponse.getObject();
-			Date utilDate = new Date();
-			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-			sessionEntity.setStartDate(sqlDate);
-			res = sessionService.updateSession(sessionEntity);
+			if(sessionEntity.getStartDate()==null) {
+				Date utilDate = new Date();
+				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+				sessionEntity.setStartDate(sqlDate);
+				res = sessionService.updateSession(sessionEntity);
 
+			}else {
+				res.setResponseCode(1);
+				res.setResponseMessage("Session Already Started ");
+			}
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Update Unsuccessful ");
@@ -471,13 +361,7 @@ public class TestProcessManagement {
 						.println("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
 				break;
 			case "SESSION TEST":
-//				Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-//				for (String fileId : keysSet) {
-//					if (!setOfFileIds.contains(fileId)) {
-//						SessionTestStateObject.updateEndLeafMapStatus(stageId, "pending");
-//
-//					}
-//				}
+
 				SessionTestStateObject.updateEndLeafMapStatus(stageId, getStageResult(stageId, keysSet));
 
 				// System.out.println("CASE : SESSION TEST");
@@ -498,7 +382,7 @@ public class TestProcessManagement {
 
 	private String getStageResult(String stageId, Set<String> fileIds) {
 		Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-		if (setOfFileIds!=null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
+		if (setOfFileIds != null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
 			return "COMPLETED";
 		} else {
 			return "pending";
@@ -804,47 +688,183 @@ public class TestProcessManagement {
 		}
 		return listOfFileNames;
 	}
-	
-	private Map<String,String> getCurrentStagesIdName(String stageId)
-	{
-		Map<String, String> stageIdName = new HashMap<String, String>();
+
+	private void runTestProcess(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
+			boolean continueWithError, String stageName, String sessionStageMapId, Map<String, String> testFilesIdName,
+			Set<String> keysSet) {
 		try {
-			
-			String level= stageId.substring(0, 2);
-			System.out.println("Sub String Level Finder"+level.substring(0, 2));
-		
 
-		} catch (Exception ex) {
+			String startTime;
+			String endTime;
+			String rdfFileName = null;
+			String rdfFileResult = "OK";
+			String testState = null;
 
+			// For generating unique test file IDs
+			SessionStagesTestFilesResultService sessionStageTestFileResult = new SessionStagesTestFilesResultService();
+
+			// Fetching RDF file path from RUN PATH MASTER
+			DownloadFileService downloadFileService = new DownloadFileService();
+			String rdfFileLocation = downloadFileService
+					.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
+
+			// Populate list of file IDs for repetition
+			List<String> listOfFileIds = generateFileIdsList(repeatCount, listOfFileId);
+
+			List<String> listOfTestFileNames = new ArrayList<>();
+			String sessionStageSelectedTestFileId;
+
+			// Outer loop for file IDs
+			outerLoop: for (String testFileId : listOfFileIds) {
+				
+				// Check if file ID has a corresponding name
+				if (testFilesIdName.get(testFileId) != null) {
+					listOfTestFileNames.clear();
+
+					listOfTestFileNames = getTestFileNames(testFilesIdName.get(testFileId));
+
+					// Inner loop for file names
+					for (String tpfFileName : listOfTestFileNames) {
+
+						// Wait if text area is not ready
+						checkTestisRunning();
+
+						// Update State Machine : Set TextArea to FALSE.
+						StateMachine.setTextArea(false);
+
+						// Handle PAUSED or STOPPED states
+						if (handleTestState() == true) {
+							testState = "STOPED";
+							break outerLoop;
+						}
+
+						// Test Started Time
+						startTime = String.valueOf(new Date());
+
+						// Getting RDF file Name from PerformTest()
+						rdfFileName = AitessProcessControlManagement.getInstance().performTest(tpfFileName);
+
+						TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName,
+								tpfFileName, stageId, sessionId);
+						// Handle test result
+						if (testProcessRes.getResponse().getResponseCode() == 111) {
+							if (rdfFileResult.equals("OK")) {
+								rdfFileResult = "NOT OK";
+							}
+
+							// check continue With Error
+//							if (!continueWithError) {
+//								break outerLoop;
+//							}
+						} else {
+
+							SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+							
+						}
+
+						// Test Ended Time
+						endTime = String.valueOf(new Date());
+
+						// ADD File ID to SESSION STAGE SELECTED TEST FILES
+						sessionStageSelectedTestFileId = addSelectedTestFile(testFileId, sessionStageMapId);
+
+						// Save test file result.
+						addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
+								stageId, testFileId, String.valueOf(mongoUniqueIdentifier), rdfFileLocation,
+								(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
+										: "RDF NOT GENERATED",
+								(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
+								String.valueOf(testProcessRes.getdStarCount()), startTime, endTime,
+								sessionStageSelectedTestFileId);
+
+						// Update State Machine to Set TextArea to TRUE.
+						StateMachine.setTextArea(true);
+					} // Inner loop
+				}
+
+			} // Outer loop
+
+			// Update state machine card status
+			updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
+
+			// Determine stage result
+			String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
+					: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
+
+			if (stageName.equals("SESSION TEST")) {
+				stageResult = getStageResult(stageId, keysSet);
+			}
+			if (testState != null && testState.equals("STOPED")) {
+				stageResult = "STOPED";
+			}
+
+			// update Stage Result : Session StageMapping
+			updateSessionStageMapStatus(sessionStageMapId, stageResult);
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return stageIdName;
 	}
 
-//	private void example() {
-//
-//		try {
-//			boolean flag = true;
-//			while (true) {
-//				// Sleep for 2 minutes (120000 milliseconds)
-//				Thread.sleep(2 * 60 * 1000);
-//				if (!StateMachine.isTextArea()) {
-//
-//					while (flag) {
-//						try {
-//							Thread.sleep(1000);
-//							if (!StateMachine.isTextArea()) {
-//								flag = false;
-//							}
-//						} catch (InterruptedException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//					}
-//				}
-//			}
-//		} catch (InterruptedException e) {
-//			// Handle the exception if the thread is interrupted
-//			System.err.println("Thread was interrupted: " + e.getMessage());
-//		}
-//	}
+	private List<String> generateFileIdsList(int repeatCount, List<String> listOfFileId) {
+		List<String> listOfFileIds = new ArrayList<>();
+		for (int i = 1; i <= repeatCount; i++) {
+
+			listOfFileIds.addAll(listOfFileId);
+
+		}
+		return listOfFileIds;
+	}
+
+	private List<String> getTestFileNames(String testFileName) {
+
+		List<String> listOfTestFileNames = new ArrayList<>();
+		if (testFileName.endsWith(".com")) {
+			// Read files if .com extension is found
+			listOfTestFileNames.addAll(dotComFileReader(testFileName));
+		} else {
+			listOfTestFileNames.add(testFileName);
+		}
+		return listOfTestFileNames;
+	}
+
+	private void checkTestisRunning() {
+		if (!StateMachine.isTextArea()) {
+			boolean flag = true;
+			while (flag) {
+				try {
+					Thread.sleep(1000);
+					if (StateMachine.isTextArea()) {
+						break;
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private boolean handleTestState() {
+
+		if (StateMachine.getTestState() == TestState.PAUSED) {
+			boolean loopFlag = true;
+			while (loopFlag) {
+				System.out.println(StateMachine.getTestState());
+
+				if (StateMachine.getTestState() == TestState.RUNNING) {
+
+					loopFlag = false;
+				} else if (StateMachine.getTestState() == TestState.STOPPED) {
+					loopFlag = false;
+					return true;
+				}
+			}
+
+		} else if (StateMachine.getTestState() == TestState.STOPPED) {
+			return true;
+		}
+
+		return false;
+	}
+
 }
