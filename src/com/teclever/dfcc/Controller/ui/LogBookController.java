@@ -3,13 +3,22 @@ package com.teclever.dfcc.Controller.ui;
 import javafx.event.EventTarget;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.SessionDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -88,9 +97,9 @@ public class LogBookController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(7);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(7);
+		secondRow.setPercentHeight(14);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(60);
+		thirdRow.setPercentHeight(53);
 		RowConstraints fourthRow = new RowConstraints();
 		fourthRow.setPercentHeight(26);
 
@@ -143,22 +152,63 @@ public class LogBookController {
 		fifthColumn.setPercentWidth(20);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		firstRow.setPercentHeight(50);
+		
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(50);
 
 		logBookSelectionGridPane.setPadding(new Insets(5));
 
 		logBookSelectionGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn,
 				fifthColumn);
-		logBookSelectionGridPane.getRowConstraints().addAll(firstRow);
+		logBookSelectionGridPane.getRowConstraints().addAll(firstRow,secondRow);
 
 		logBookSelectionGridPane.add(createUUTypeComboBox(), 0, 0);
 		logBookSelectionGridPane.add(createUUTSerialNoComboBox(), 1, 0);
 		logBookSelectionGridPane.add(createSessionComboBox(), 2, 0);
 		logBookSelectionGridPane.add(createFromDatePickerComboBox(), 3, 0);
 		logBookSelectionGridPane.add(createToDatePickerComboBox(), 4, 0);
+		logBookSelectionGridPane.add(createFromTimePicker(), 3, 1);
+	    logBookSelectionGridPane.add(createToTimePicker(), 4, 1);
 
 		return logBookSelectionGridPane;
 	}
+	
+	private HBox createFromTimePicker() {
+        fromTimePicker.setPromptText("FROM TIME");
+
+        // Populate time picker with combined hour and minute
+        fromTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
+
+        HBox timePickerHBox = new HBox(5);
+        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
+        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
+        timePickerHBox.getChildren().add(fromTimePicker);
+
+        return timePickerHBox;
+    }
+	private HBox createToTimePicker() {
+        toTimePicker.setPromptText("TO TIME");
+
+        // Populate time picker with combined hour and minute
+        toTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
+
+        HBox timePickerHBox = new HBox(5);
+        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
+        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
+        timePickerHBox.getChildren().add(toTimePicker);
+
+        return timePickerHBox;
+    }
+	private ObservableList<String> generateTimeOptions() {
+        ObservableList<String> timeOptions = FXCollections.observableArrayList();
+        for (int hour = 0; hour < 24; hour++) {
+            for (int minute = 0; minute < 60; minute += 5) { // Interval of 5 minutes
+                timeOptions.add(String.format("%02d:%02d", hour, minute));
+            }
+        }
+        return timeOptions;
+    }
 
 	// UUT TYPE FIELD
 	private void initializeUUTTypeComboBox() {
@@ -319,13 +369,10 @@ public class LogBookController {
 	private GridPane createLogBookBottomGridPane() {
 		logBookBottomGridPane.getStyleClass().add("logbook-mid-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(25);
+		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(25);
-		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(25);
-		ColumnConstraints fourthColumn = new ColumnConstraints();
-		fourthColumn.setPercentWidth(25);
+		secondColumn.setPercentWidth(50);
+
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(20);
@@ -335,55 +382,19 @@ public class LogBookController {
 		logBookBottomGridPane.setPadding(new Insets(5));
 		logBookBottomGridPane.setHgap(5);
 		logBookBottomGridPane.setVgap(5);
-		logBookBottomGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
+		logBookBottomGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		logBookBottomGridPane.getRowConstraints().addAll(firstRow, secondRow);
 
 		logBookBottomGridPane.add(createBottomTitle(), 0, 0);
-		logBookBottomGridPane.add(createUserInputTextArea(), 0, 1, 4, 1);
-		logBookBottomGridPane.add(createBottomButton(), 3,0);
-//
-      logBookBottomGridPane.add(createFromTimePicker(), 1, 0); // Adding From Time Picker
-      logBookBottomGridPane.add(createToTimePicker(), 2, 0); 
+		logBookBottomGridPane.add(createUserInputTextArea(), 0, 1, 2, 1);
+		logBookBottomGridPane.add(createBottomButton(), 1,0);
+
 
 		return logBookBottomGridPane;
 	}
 
 	
-	private HBox createFromTimePicker() {
-        fromTimePicker.setPromptText("FROM TIME");
-
-        // Populate time picker with combined hour and minute
-        fromTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
-
-        HBox timePickerHBox = new HBox(5);
-        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
-        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
-        timePickerHBox.getChildren().add(fromTimePicker);
-
-        return timePickerHBox;
-    }
-	private HBox createToTimePicker() {
-        toTimePicker.setPromptText("TO TIME");
-
-        // Populate time picker with combined hour and minute
-        toTimePicker.setItems(FXCollections.observableArrayList(generateTimeOptions()));
-
-        HBox timePickerHBox = new HBox(5);
-        timePickerHBox.setAlignment(Pos.CENTER_LEFT);
-        timePickerHBox.setPadding(new Insets(0, 0, 0, 18.5));
-        timePickerHBox.getChildren().add(toTimePicker);
-
-        return timePickerHBox;
-    }
-	private ObservableList<String> generateTimeOptions() {
-        ObservableList<String> timeOptions = FXCollections.observableArrayList();
-        for (int hour = 0; hour < 24; hour++) {
-            for (int minute = 0; minute < 60; minute += 5) { // Interval of 5 minutes
-                timeOptions.add(String.format("%02d:%02d", hour, minute));
-            }
-        }
-        return timeOptions;
-    }
+	
 	
 	private HBox createBottomTitle() {
 		bottomTitleHBox.getStyleClass().add("logBook-bottom-container");
@@ -408,10 +419,26 @@ public class LogBookController {
 	}
 
 	private HBox createBottomButton() {
-		bottomSubmitButton.getStyleClass().add("logBook-container");
-		bottomButtonHBox.setAlignment(Pos.CENTER_RIGHT);
-		bottomButtonHBox.getChildren().add(bottomSubmitButton);
-		return bottomButtonHBox;
-	}
+	    bottomSubmitButton.getStyleClass().add("logBook-container");
+	    bottomButtonHBox.setAlignment(Pos.CENTER_RIGHT);
+	    bottomButtonHBox.getChildren().add(bottomSubmitButton);
+	    
+	    bottomSubmitButton.setOnAction(e -> {
+	        String userInput = userInputTextArea.getText();
+	        
+	        UUTLogbookManagement app = new UUTLogbookManagement();
+	        UUTLogBookDto uutDto = new UUTLogBookDto();
+	        uutDto.setSessionId(currentSessionDetails.getSessionId());
+	        uutDto.setUsername(StateMachine.getCurrentUserLogin());
+	        uutDto.setUutSerialNumber(currentSessionDetails.getDfccSerialNumber());
+	        uutDto.setUutId(currentSessionDetails.getUutId());
+	        uutDto.setDetails(userInput);
+	        
+	        app.addUUTLogBook(uutDto);
+	       
+  
+	    });
 
+	    return bottomButtonHBox;
+	}
 }

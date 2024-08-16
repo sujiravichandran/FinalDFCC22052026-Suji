@@ -4,6 +4,8 @@ import java.io.File;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ChecksumDto;
+import com.teclever.dfcc.datastore.dto.ChecksumResponse;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
 import com.teclever.dfcc.datastore.filemanagement.ChecksumManagement;
@@ -120,14 +122,14 @@ public class VDDConfigurationController {
 	}
 
 	private void setTableData() {
-		VDDResponse vddList =vddManagement.getListOfVDD();
+		ChecksumResponse vddList =checksumManagement.getListOfVDD();
 		ObservableList<VDDConfiguraion> tableData = FXCollections.observableArrayList();
 		if (vddList.getResponse().getResponseCode() != 0) {
-			for (VDDDto vdd : vddList.getvDDList()) {
+			for (ChecksumDto vdd : vddList.getvDDList()) {
 				VDDConfiguraion vddData = new VDDConfiguraion();
 				vddData.setFileName(vdd.getFileName());
 				vddData.setPath(vdd.getFilePath());
-				vddData.setChecksumValue(vdd.getFileCheckSum());
+				vddData.setChecksumValue(vdd.getChecksum());
 				vdd.setFilePath(null);
 				
 				tableData.add(vddData);

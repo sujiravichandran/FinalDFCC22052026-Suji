@@ -45,8 +45,9 @@ public class CheckSum {
 		this.msg = msg;
 	}
 	
-	public CheckSum(String file, String msg) {
+	public CheckSum(String file, String checksumValue,String msg) {
 		this.file = file;
+		this.checksumValue = checksumValue;
 		this.msg = msg;
 	}
 	
