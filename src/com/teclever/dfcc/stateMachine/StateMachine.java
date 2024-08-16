@@ -48,6 +48,7 @@ public class StateMachine {
 		private static String userId;
 		private static String uutId;
 		private static String uutType;
+		private static String dfccSerialNumber;
 		private static String sessionId;
 		private static String sessionName;
 		private static String sessionTypeID;
@@ -127,6 +128,15 @@ public class StateMachine {
 		public static void setLoginSessionId(int loginSessionId) {
 			currentSessionDetails.loginSessionId = loginSessionId;
 		}
+
+		public static String getDfccSerialNumber() {
+			return dfccSerialNumber;
+		}
+
+		public static void setDfccSerialNumber(String dfccSerialNumber) {
+			currentSessionDetails.dfccSerialNumber = dfccSerialNumber;
+		}
+		
 
 	}
 
@@ -786,6 +796,16 @@ public class StateMachine {
 				StateMachine.scriptFileLocation = scriptFileLocation;
 			}
 			
+			//current user
+			private static String currentUserLogin;
+
+			public static String getCurrentUserLogin() {
+				return currentUserLogin;
+			}
+
+			public static void setCurrentUserLogin(String currentUserLogin) {
+				StateMachine.currentUserLogin = currentUserLogin;
+			}
 			
 			
 

@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,9 +9,11 @@ import java.util.stream.Collectors;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
@@ -307,6 +310,9 @@ public class LRUTestingController {
 				    	startTest.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
+				    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+					    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on " + newButton.getText() + " button");
+						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 				        startTest.setDisable(false);
@@ -520,6 +526,9 @@ public class LRUTestingController {
 			newButton.setOnAction(e ->{
 				getSRUSubStage(newButton.getId(), newButton.getText());
 				selectedSRUCard = newButton.getText();
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on "+ newButton.getText());
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			});
 			sruCardVBox.getChildren().add(newButton);
 		}
@@ -581,6 +590,9 @@ public class LRUTestingController {
 		    	startTest.setDisable(true);
 		    	StateMachine.setTestState(TestState.RUNNING);
 		    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
+		    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on SRU test START button");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 		    } else if(currentState == TestState.RUNNING) {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);
@@ -700,6 +712,9 @@ public class LRUTestingController {
 				    	startTest.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
+				    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+					    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on " + newButton.getText() + " button");
+						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 				        startTest.setDisable(false);

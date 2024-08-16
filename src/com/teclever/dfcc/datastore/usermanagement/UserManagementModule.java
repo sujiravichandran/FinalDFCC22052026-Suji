@@ -13,6 +13,7 @@ import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.service.UserRoleMasterDetailsService;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.LoginResponse;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
 import com.teclever.dfcc.datastore.dto.UserGetAllResponse;
@@ -20,6 +21,8 @@ import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.dto.UserRoleMasterDto;
 import com.teclever.dfcc.datastore.dto.UserRoleResponse;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class UserManagementModule {
@@ -160,7 +163,9 @@ public class UserManagementModule {
 				loginResponse.setRoleId(userLoginDto.getRoleId());
 				loginResponse.setLoginName(userLoginDto.getLoginName());
 				loginResponse.setUserId(userLoginDto.getUserId());
-				saveLoginInfo(userLoginDto.getUserId());				
+				saveLoginInfo(userLoginDto.getUserId());	
+				StateMachine.setCurrentUserLogin(userLoginDto.getLoginName());
+
 			} else {
 				Response res = new Response();
 				res.setResponseCode(0);
@@ -172,6 +177,9 @@ public class UserManagementModule {
 			System.out.println("Exception in User Management ");
 			e.printStackTrace();
 		}
+		ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+	    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(null,null,null,StateMachine.getCurrentUserLogin(),new Date(),StateMachine.getCurrentUserLogin()+" logged in");
+		appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 		return loginResponse;
 	}
 
