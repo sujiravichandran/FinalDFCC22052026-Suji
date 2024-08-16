@@ -87,9 +87,9 @@ public class TestProcessManagement {
 			if (res.getResponseCode() == 0) {
 				return res;
 			}
-			
-			// ADD Or Update SESSION STAGE MAPPING  Based on RunCount
-			String sessionStageMapId  = getSessionStageMappingIdAndRunCount(
+
+			// ADD Or Update SESSION STAGE MAPPING Based on RunCount
+			String sessionStageMapId = getSessionStageMappingIdAndRunCount(
 					sessionStagesMapping.getSessionStagesMappingId(), repeatCount, sessionStagesMapping.getRunCount());
 
 			// Update SESSION STAGE MAPPING Status
@@ -157,8 +157,7 @@ public class TestProcessManagement {
 		return testFileResponse.getTestFilesIdName();
 	}
 
-	private String getSessionStageMappingIdAndRunCount(String sessionStageMapId, int repeatCount,
-			int runCount) {
+	private String getSessionStageMappingIdAndRunCount(String sessionStageMapId, int repeatCount, int runCount) {
 		SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
 
 		String sessionStageMappingId;
@@ -166,14 +165,14 @@ public class TestProcessManagement {
 			// Update SESSION STAGE MAPPING By Run Count 1
 			sessionStagesSelectedStagesService.updateRepeatAndRunCountStatus(sessionStageMapId, repeatCount);
 
-			sessionStageMappingId=sessionStageMapId;
+			sessionStageMappingId = sessionStageMapId;
 
 		} else {
 			// Add One More row into Session Stage Mapping and Increment RunCount
 			SessionStagesMapping returnRes = sessionStagesSelectedStagesService
 					.addSessionStagesBySessionIdAndStageId(sessionStageMapId, repeatCount, (runCount + 1));
 
-			sessionStageMappingId=returnRes.getSessionStagesMappingId();
+			sessionStageMappingId = returnRes.getSessionStagesMappingId();
 
 		}
 		return sessionStageMappingId;
@@ -219,13 +218,13 @@ public class TestProcessManagement {
 			SessionService sessionService = new SessionService();
 			GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
 			SessionEntity sessionEntity = (SessionEntity) objResponse.getObject();
-			if(sessionEntity.getStartDate()==null) {
+			if (sessionEntity.getStartDate() == null) {
 				Date utilDate = new Date();
 				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 				sessionEntity.setStartDate(sqlDate);
 				res = sessionService.updateSession(sessionEntity);
 
-			}else {
+			} else {
 				res.setResponseCode(1);
 				res.setResponseMessage("Session Already Started ");
 			}
@@ -713,10 +712,12 @@ public class TestProcessManagement {
 
 			List<String> listOfTestFileNames = new ArrayList<>();
 			String sessionStageSelectedTestFileId;
+			int incrementNum = 0;
 
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
-				
+				incrementNum++;
+
 				// Check if file ID has a corresponding name
 				if (testFilesIdName.get(testFileId) != null) {
 					listOfTestFileNames.clear();
@@ -746,20 +747,25 @@ public class TestProcessManagement {
 
 						TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName,
 								tpfFileName, stageId, sessionId);
-						// Handle test result
-						if (testProcessRes.getResponse().getResponseCode() == 111) {
-							if (rdfFileResult.equals("OK")) {
-								rdfFileResult = "NOT OK";
+
+						if (incrementNum > (listOfFileIds.size() - listOfFileId.size())) {
+
+							// Handle test result
+							if (testProcessRes.getResponse().getResponseCode() == 111) {
+								if (rdfFileResult.equals("OK")) {
+									rdfFileResult = "NOT OK";
+								}
+
+								// check continue With Error
+								if (continueWithError) {
+									SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+									// break outerLoop;
+								}
+							} else {
+
+								SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+
 							}
-
-							// check continue With Error
-//							if (!continueWithError) {
-//								break outerLoop;
-//							}
-						} else {
-
-							SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
-							
 						}
 
 						// Test Ended Time
