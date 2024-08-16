@@ -1077,7 +1077,7 @@ public class UserDashboardController {
 		showTerminalButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
-					currentSessionDetails.getSessionId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
 					StateMachine.getCurrentUserLogin(), new Date(), "clicked on SHOW TERMINAL button");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal");

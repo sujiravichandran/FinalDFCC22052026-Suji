@@ -237,7 +237,7 @@ public class ChecksumManagement {
 		File scriptFileObj = new File(scriptFile);
 		String scriptFileDir = scriptFileObj.getParent();
 		System.out.println("SCRIPT FILE ------" + scriptFileDir);
-		//scriptFileParentPath = scriptFileDir;
+		scriptFileParentPath = scriptFileDir;
 		
 		List<String> command = new ArrayList<>();
 		command.add("/bin/bash");
@@ -422,17 +422,17 @@ public class ChecksumManagement {
 
 	    for (String filePathKey : fileSumMap.keySet()) {
 	        if (!dbChecksumMap.containsKey(filePathKey)) {
-	            checkSumList.add(new CheckSum(filePathKey, "Extra File"));
+	            checkSumList.add(new CheckSum(filePathKey,"", "Extra File"));
 	        } else if (!fileSumMap.get(filePathKey).equals(dbChecksumMap.get(filePathKey))) {
-	            checkSumList.add(new CheckSum(filePathKey, "NOT OK"));
+	            checkSumList.add(new CheckSum(filePathKey,fileSumMap.get(filePathKey) ,"NOT OK"));
 	        } else {
-	            checkSumList.add(new CheckSum(filePathKey, "OK"));
+	            checkSumList.add(new CheckSum(filePathKey,fileSumMap.get(filePathKey), "OK"));
 	        }
 	    }
 
 	    for (String filePathKey : dbChecksumMap.keySet()) {
 	        if (!fileSumMap.containsKey(filePathKey)) {
-	            checkSumList.add(new CheckSum(filePathKey, "No File"));
+	            checkSumList.add(new CheckSum(filePathKey,dbChecksumMap.get(filePathKey) ,"No File"));
 	        }
 	    }
 
