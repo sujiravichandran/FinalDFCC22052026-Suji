@@ -359,17 +359,23 @@ public class SessionManagement {
 			}
 			
 			//For Picking Others Sessions...
-
 			SessionSelectedStagesService sessionSelectedStage = new SessionSelectedStagesService();
 			GetResponse getResponse = sessionSelectedStage.getAllSessionData(userId);
 
 			if (getResponse.getCode() == 0) {
+				if (listOfSession.size() > 0) {
+					res.setResponseCode(1);
+					res.setResponseMessage(getResponse.geteMsg()+ "  Error On Session Enity....");
+					sessionListResponse.setResponse(res);
+					sessionListResponse.setListOfSession(listOfSession);
+					return sessionListResponse;
+					
+				}
 				res.setResponseCode(0);
 				res.setResponseMessage(getResponse.geteMsg());
 				sessionListResponse.setResponse(res);
 				return sessionListResponse;
 			}
-			
 			
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
@@ -844,6 +850,7 @@ public class SessionManagement {
 			Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
 			sessionDto.setCreationDate(sqlDate);
 			sessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
+			System.out.println(sessionDTO.getDfccSNo()+ " Checking");
 			sessionDto.setDfccSNo(sessionDTO.getDfccSNo());
 			sessionDto.setSessionName(sessionDTO.getSessionName());
 			sessionDto.setSessionTypeMasterId(sessionDTO.getSessionTypeMasterId());
