@@ -867,7 +867,11 @@ public class SessionManagement {
 			TrailSessionEntityService sessionService = new TrailSessionEntityService();
 			res = sessionService.addSession(sessionDto);
 		
-		
+			TrailSessionEntity s = (TrailSessionEntity) res.getObject();
+			System.out.println("Trail Session Id"+s.getTrailSessionId());
+			StateMachine.currentSessionDetails.setSessionId(s.getTrailSessionId());
+
+			
 		} catch (Exception ex) {
 			Response res1 = new Response();
 			res1.setResponseCode(0);
@@ -888,8 +892,10 @@ public class SessionManagement {
 				GetObjResponse obj = sessionService.getSessionDetailBySessionId(trailSessionId);
 				TrailSessionEntity trailEntitySession = (TrailSessionEntity) obj.getObject();
 				String sessionPath = trailEntitySession.getPath();
+				System.out.println("Trail Session path"+sessionPath);
 		     	List<String>leafIds =	getStagesMappingLeafIdForTrails(trailEntitySession.getUutTypeId());
 		     	Map<String,String> stageNameMsg = validateIsAllLeafHavingTestFiles(leafIds);
+		     	System.out.println("Leaf Ids"+leafIds);
 				// SessionId Update to StateMachine
 				//StateMachine.currentSessionDetails.setSessionId(trailEntitySession.getTrailSessionId());
 		     	//Validate the Leafs Having Test Files..
@@ -897,6 +903,8 @@ public class SessionManagement {
 		     	{
 		     		res.setCode(0);
 		     		res.setMsg("Some Of Stages Not Configured With Test Files..");
+		     		res.setStageNameMessage(stageNameMsg);
+		     		return res;
 		     	}
 		     			     	
 
