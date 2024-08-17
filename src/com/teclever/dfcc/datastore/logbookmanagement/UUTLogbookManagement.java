@@ -29,96 +29,10 @@ public class UUTLogbookManagement {
 		return serviceResponse;
 	}
 
-	// GET -- UUT LOGBOOK BY UUT ID
-	public List<UUTLogBookDto> getUUTLogBooks(String uutId) {
-		UUTLogBookService service = new UUTLogBookService();
-		UUTLogBookResponse response = service.getUUTLogBooksByUUTId(uutId);
-		List<UUTLogBookDto> dtoList = new ArrayList<>();
-
-		if (response.getResponseCode() == 1) {
-			List<UUTLogBook> logBooks = response.getLogBooks();
-
-			for (UUTLogBook logBook : logBooks) {
-				UUTLogBookDto dto = new UUTLogBookDto();
-				dto.setLogId(logBook.getLogId());
-				dto.setUutId(logBook.getUutId());
-				dto.setUutSerialNumber(logBook.getUutSerialNumber());
-				dto.setSessionId(logBook.getSessionId());
-				dto.setUsername(logBook.getUsername());
-				dto.setTimestamp(logBook.getTimestamp());
-				dto.setDetails(logBook.getDetails());
-
-				dtoList.add(dto);
-			}
-		} else {
-			System.err.println("Failed to fetch UUT log books: " + response.getResponseMessage());
-		}
-
-		return dtoList;
-	}
-
-	// GET -- UUT LOGBOOK BY UUT ID AND SERIAL NUMBER
-	public List<UUTLogBookDto> getUUTLogBooksByUUTIdAndSerialNo(String uutId, String uutSerialNumber) {
-		UUTLogBookService service = new UUTLogBookService();
-		UUTLogBookResponse response = service.getUUTLogBooksByUUTIdAndSerialNo(uutId, uutSerialNumber);
-		List<UUTLogBookDto> dtoList = new ArrayList<>();
-
-		if (response.getResponseCode() == 1) {
-			List<UUTLogBook> logBooks = response.getLogBooks();
-
-			for (UUTLogBook logBook : logBooks) {
-				UUTLogBookDto dto = new UUTLogBookDto();
-				dto.setLogId(logBook.getLogId());
-				dto.setUutId(logBook.getUutId());
-				dto.setUutSerialNumber(logBook.getUutSerialNumber());
-				dto.setSessionId(logBook.getSessionId());
-				dto.setUsername(logBook.getUsername());
-				dto.setTimestamp(logBook.getTimestamp());
-				dto.setDetails(logBook.getDetails());
-
-				dtoList.add(dto);
-			}
-		} else {
-			System.err.println("Failed to fetch UUT log books: " + response.getResponseMessage());
-		}
-
-		return dtoList;
-	}
-
-	// GET -- UUT LOGBOOK BY UUT ID AND SERIAL NUMBER AND SESSIONID
-	public List<UUTLogBookDto> getUUTLogBooks(String uutId, String uutSerialNumber, String sessionId) {
-		UUTLogBookService service = new UUTLogBookService();
-		UUTLogBookResponse response = service.getUUTLogBooksByUUTIdAndSerialNoAndSessionId(uutId, uutSerialNumber,
-				sessionId);
-		List<UUTLogBookDto> dtoList = new ArrayList<>();
-
-		if (response.getResponseCode() == 1) {
-			List<UUTLogBook> logBooks = response.getLogBooks();
-
-			for (UUTLogBook logBook : logBooks) {
-				UUTLogBookDto dto = new UUTLogBookDto();
-				dto.setLogId(logBook.getLogId());
-				dto.setUutId(logBook.getUutId());
-				dto.setUutSerialNumber(logBook.getUutSerialNumber());
-				dto.setSessionId(logBook.getSessionId());
-				dto.setUsername(logBook.getUsername());
-				dto.setTimestamp(logBook.getTimestamp());
-				dto.setDetails(logBook.getDetails());
-
-				dtoList.add(dto);
-			}
-		} else {
-			System.err.println("Failed to fetch UUT log books: " + response.getResponseMessage());
-		}
-
-		return dtoList;
-	}
-
 	public List<UUTLogBookDto> getUUTLogBooksByDate(String uutId, String uutSerialNumber, String sessionId,
 			Date fromDate, Date toDate) {
 		UUTLogBookService service = new UUTLogBookService();
-		UUTLogBookResponse response = service.getUUTLogBooksByUUTIdAndSerialNumberAndSessionIdAndDateRange(uutId,
-				uutSerialNumber, sessionId, fromDate, toDate);
+		UUTLogBookResponse response = service.getUUTLogBooks(uutId, uutSerialNumber, sessionId, fromDate, toDate);
 		List<UUTLogBookDto> dtoList = new ArrayList<>();
 
 		if (response.getResponseCode() == 1) {
