@@ -22,6 +22,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -207,6 +208,10 @@ public class SelfTestController {
 	  
 		
 		startTest.setOnAction(e -> {
+			CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
+			}
 		    TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
