@@ -196,8 +196,8 @@ public class TrialsConfigurationController {
 			FINALIZE_CONFIG = true;
 			disableDispaly();
 		} else if (response.getCode() == 0) {
-			Map<String, String> dataMap = Map.of("stage1", "John Doe", "stage2", "Jane Smith", "stage3",
-					"Alice Johnson", "stage4", "Bob Brown");
+			
+			Map<String, String> dataMap = response.getStageNameMessage();
 
 			StringBuilder keyList = new StringBuilder();
 			for (String key : dataMap.keySet()) {
@@ -224,7 +224,6 @@ public class TrialsConfigurationController {
 
 		finalizeButton.setDisable(FINALIZE_CONFIG);
 		stageNameField.setDisable(FINALIZE_CONFIG);
-		System.out.println(trialsConfigBottomGridPane.getChildren().size());
 		if (trialsConfigBottomGridPane.getChildren().size() == 2) {
 			trialsConfigBottomGridPane.getChildren().get(1).setDisable(FINALIZE_CONFIG);
 		}
@@ -266,7 +265,7 @@ public class TrialsConfigurationController {
 				List<String> sessionIdsList = Arrays.asList(levelOneDto.getSessionIds().split(","));
 				stage.setSessionType(new ArrayList<>(sessionIdsList));
 
-				if (!levelOneDto.isDefaultStatus() && !levelOneDto.isAdvanceTestStatus()) {
+				if (!levelOneDto.isDefaultStatus()) {
 					stageList.add(stage);
 				}
 			}
