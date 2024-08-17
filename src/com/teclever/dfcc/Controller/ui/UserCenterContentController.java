@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.scene.layout.GridPane;
@@ -65,7 +67,7 @@ public class UserCenterContentController {
 		case "Session Testing":
 			if (!centerStackPane.getChildren().contains(sessionTestingStackPane)) {
 				SessionTestingController sessionTestingController = new SessionTestingController();
-				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane());
+				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane(false));
 				centerStackPane.getChildren().add(sessionTestingStackPane);
 			} else {
 				sessionTestingStackPane.toFront();
@@ -91,6 +93,22 @@ public class UserCenterContentController {
 				centerStackPane.getChildren().add(trialsConfigStackPane);
 			} else {
 				trialsConfigStackPane.toFront();
+			}
+			
+			break;
+			
+		case "Trials Testing":
+			if (!centerStackPane.getChildren().contains(sessionTestingStackPane)) {
+				SessionTestingController sessionTestingController = new SessionTestingController();
+				SessionManagement sessionManagement = new SessionManagement();
+				if(!sessionManagement.getFinalizeStatus()) {
+					Notifications.showWarningAlert("Please finalize the trials configuration on the trials config page if you want to run trials testing..");
+					return;
+				}
+				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane(true));
+				centerStackPane.getChildren().add(sessionTestingStackPane);
+			} else {
+				sessionTestingStackPane.toFront();
 			}
 			
 			break;

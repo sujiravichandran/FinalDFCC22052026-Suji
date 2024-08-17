@@ -6,12 +6,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
@@ -81,13 +83,18 @@ public class SessionTestingController {
 	private RunConfigurationService runConfigurationService = new RunConfigurationService();
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
+	private SessionManagement sessionManagement = new SessionManagement();
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
+	private boolean isTrailSession = false ;
 	
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
 
-	public GridPane createSessionTestingGridPane() {
+	public GridPane createSessionTestingGridPane(boolean status) {
+		if(status) {
+			isTrailSession = true ;
+		}
 		getSessionTestData();
 		sessionTestingMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
@@ -130,7 +137,12 @@ public class SessionTestingController {
 		sessionTestingHeadingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("SESSION TESTING");
+		if(isTrailSession) {
+			title.setText("TRIALS TESTING");	
+		}else {
+			title.setText("SESSION TESTING");
+		}
+
 		title.getStyleClass().add("session-testing-title");
 		titleBox.getChildren().add(title);
 
