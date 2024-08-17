@@ -506,6 +506,8 @@ public class StageConfigurationController {
 				} else if (stage.getL_name().trim().toLowerCase().contains("custom test")) {
 					return null;
 				}
+			}else if(stage.getId().startsWith("L3")) {
+				buttonsContainer.getChildren().addAll(editBtn);
 			}
 		}
 

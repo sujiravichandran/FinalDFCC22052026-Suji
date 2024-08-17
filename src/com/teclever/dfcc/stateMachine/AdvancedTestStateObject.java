@@ -27,4 +27,28 @@ public class AdvancedTestStateObject {
 			}
 		}
 	}
+	
+	
+//	HWATP Test Card List
+
+	private static ObservableList<TestCardData> hwatpTestList = FXCollections.observableArrayList();
+	
+	public static ObservableList<TestCardData> getHwatpTestList() {
+		return hwatpTestList;
+	}
+	public static void clearHwatpTestList() {
+		hwatpTestList.clear();
+	}
+	public static void addHwatpTestList(TestCardData newCardData) {
+		hwatpTestList.add(newCardData);
+	}
+	public static void updateHwatpTeststatus(String cardId, String status) {
+		for (TestCardData cardData : hwatpTestList) {
+			if (cardData.getCardId().equals(cardId)) {
+				cardData.setStatus(status);
+				break;
+			}
+		}
+	}
+	
 }
