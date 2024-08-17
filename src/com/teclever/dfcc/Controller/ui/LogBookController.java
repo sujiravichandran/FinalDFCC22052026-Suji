@@ -1,6 +1,11 @@
 package com.teclever.dfcc.Controller.ui;
 
 import javafx.event.EventTarget;
+
+import java.util.List;
+
+import com.teclever.datastore.response.RunConfigurationResponse;
+import com.teclever.datastore.response.UUTLogBookResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -12,10 +17,12 @@ import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagemen
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -29,6 +36,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 //import com.jfoenix.controls.JFXTimePicker;
+import javafx.stage.Stage;
 
 public class LogBookController {
 	private GridPane logBookMainGridPane = new GridPane();
@@ -82,6 +90,7 @@ public class LogBookController {
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
+	 String selectedUUTType;
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 
@@ -203,7 +212,7 @@ public class LogBookController {
 	private ObservableList<String> generateTimeOptions() {
         ObservableList<String> timeOptions = FXCollections.observableArrayList();
         for (int hour = 0; hour < 24; hour++) {
-            for (int minute = 0; minute < 60; minute += 5) { // Interval of 5 minutes
+            for (int minute = 0; minute < 60; minute += 15) { // Interval of 5 minutes
                 timeOptions.add(String.format("%02d:%02d", hour, minute));
             }
         }
@@ -212,16 +221,60 @@ public class LogBookController {
 
 	// UUT TYPE FIELD
 	private void initializeUUTTypeComboBox() {
-		uutDataList = FXCollections.observableArrayList(configManager.getAllUUT());
-		for (UUTMasterDetailsDto uut : uutDataList) {
-			uutTypeList.add(uut.getUutType());
-		}
-		uutTypeField.setItems(uutTypeList);
-		uutTypeField.setOnAction((event) -> {
-			UUT_ID = fetchUutId(uutTypeField.getValue());
-		});
+	    uutDataList = FXCollections.observableArrayList(configManager.getAllUUT());
+	    
+	    for (UUTMasterDetailsDto uut : uutDataList) {
+	        uutTypeList.add(uut.getUutType());
+	    }
+	    
+	    uutTypeField.setItems(uutTypeList);
+	    
+	    uutTypeField.setOnAction((event) -> {
+	        String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+	        
+	        createUUTBasedList(selectedUUTType);
+	        
+	    });
 	}
 
+	private void createUUTBasedList(String uutType) {
+	    String selectedUUTType = fetchUutId(uutType);
+
+	    if (selectedUUTType != null) {
+	    	
+	    	ApplicationLogbookManagement app = new ApplicationLogbookManagement();
+		    List<ApplicationLogBookDto> logBookEntries = app.getApplicationLogBooksByUUTId(selectedUUTType);
+		    for(ApplicationLogBookDto s: logBookEntries)
+		    {
+		    	System.out.println("-----   "+s.getDetails());
+		    }
+		    System.out.println("LogBoook" + app.getApplicationLogBooksByUUTId(selectedUUTType) );
+		    
+		    List<String> logBookTexts = logBookEntries.stream()
+		                                              .map(ApplicationLogBookDto::toString) // Assuming toString() is overridden or use a custom method
+		                                              .toList();
+		    
+		    System.out.println();
+		    
+		    String logBookText = String.join("\n", logBookTexts);
+		    
+		    aitessTextArea.setText(logBookText);
+	    	
+	        System.out.println("Selected UUT ID: " + selectedUUTType);
+	    } else {
+	        System.out.println("No UUT found for the given type.");
+	    }
+	}
+//	
+//	  private String fetchTestTypeId(String testTypeName) {
+//	        for (TestTypeMasterDetailsDto testType : testTypeDataList) {
+//	            if (testType.getTestName().equals(testTypeName)) {
+//	                return testType.getTestTypeId();
+//	            }
+//	        }
+//	        return null;
+//	    }
+	
 	private String fetchUutId(String uutType) {
 		for (UUTMasterDetailsDto uut : uutDataList) {
 			if (uut.getUutType().equals(uutType)) {
@@ -351,6 +404,10 @@ public class LogBookController {
 
 		return logBookAitessTextAreaGridPane;
 	}
+	
+	private void generateDataAitessTextArea(String selectedUUTType) {
+		
+	}
 
 	private GridPane createUutTextArea() {
 		uutTextArea.getStyleClass().add("logbook-textarea");
@@ -426,7 +483,7 @@ public class LogBookController {
 	    bottomSubmitButton.setOnAction(e -> {
 	        String userInput = userInputTextArea.getText();
 	        
-	        UUTLogbookManagement app = new UUTLogbookManagement();
+	        UUTLogbookManagement uutLogBookManagement = new UUTLogbookManagement();
 	        UUTLogBookDto uutDto = new UUTLogBookDto();
 	        uutDto.setSessionId(currentSessionDetails.getSessionId());
 	        uutDto.setUsername(StateMachine.getCurrentUserLogin());
@@ -434,9 +491,15 @@ public class LogBookController {
 	        uutDto.setUutId(currentSessionDetails.getUutId());
 	        uutDto.setDetails(userInput);
 	        
-	        app.addUUTLogBook(uutDto);
-	       
-  
+	        uutLogBookManagement.addUUTLogBook(uutDto);
+	        
+	        UUTLogBookResponse response = uutLogBookManagement.addUUTLogBook(uutDto);
+	        		 if(response.getResponseCode() == 1) {
+	               	  Notifications.showSuccessAlert(response.getResponseMessage());
+	                 }else if(response.getResponseCode() == 0){
+	               	  Notifications.showErrorAlert(response.getResponseMessage());
+	                 }
+	        		 userInputTextArea.clear();
 	    });
 
 	    return bottomButtonHBox;
