@@ -23,6 +23,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -60,6 +61,7 @@ public class UserDashboardController {
 	MacroConfigurationManagement macroConfigurationManagement = new MacroConfigurationManagement();
 	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 	Aitess2ConfigManagement aitess2ConfigManagement = new Aitess2ConfigManagement();
+	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
 	public GridPane createUserDashboard() {
 		getAllStagesData();
@@ -512,6 +514,9 @@ public class UserDashboardController {
 		Label statusLabel = new Label("DFCC Power OFF");
 
 		secondRowBox.setOnMouseClicked(e -> {
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
+			}
 			if (statusLabel.getText().toLowerCase().contains("on")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -649,6 +654,9 @@ public class UserDashboardController {
 
 		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
+				if(!checkAitessStatus.isBothAitessOn()) {
+					return ;
+				}
 				Platform.runLater(() -> {
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 					ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -990,6 +998,9 @@ public class UserDashboardController {
 
 				box.setOnMouseClicked(e -> {
 					if (!label.getUserData().toString().equals("<NOT SET>")) {
+						if(!checkAitessStatus.isBothAitessOn()) {
+							return ;
+						}
 						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 								currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),

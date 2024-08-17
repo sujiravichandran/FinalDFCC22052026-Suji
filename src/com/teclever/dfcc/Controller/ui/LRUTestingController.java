@@ -24,6 +24,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -97,6 +98,7 @@ public class LRUTestingController {
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
+	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
 	public GridPane createlruTestMainContainerGridPane() {
 
@@ -305,6 +307,9 @@ public class LRUTestingController {
 			firstButton =false;
 
 			newButton.setOnAction(e ->{
+				if(!checkAitessStatus.isBothAitessOn()) {
+					return ;
+				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 				    	startTest.setDisable(true);
@@ -585,6 +590,9 @@ public class LRUTestingController {
 		startTest.setDisable(true);
 		
 		startTest.setOnAction(e ->{
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
+			}
 			TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 		    	startTest.setDisable(true);
@@ -707,6 +715,9 @@ public class LRUTestingController {
 			newButton.setWrapText(true);
 			newButton.setDisable(true);
 			newButton.setOnAction(e ->{
+				if(!checkAitessStatus.isBothAitessOn()) {
+					return ;
+				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
 				    	startTest.setDisable(true);

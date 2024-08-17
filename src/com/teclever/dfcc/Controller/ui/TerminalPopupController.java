@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -44,6 +45,7 @@ public class TerminalPopupController {
 	private TextArea textArea;
 
 	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
 	
 	@FXML
@@ -68,6 +70,9 @@ public class TerminalPopupController {
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
+		if(!checkAitessStatus.isBothAitessOn()) {
+			return ;
+		}
         String inputCommand = terminalTextField.getText() + "\n";
 		aitessProcessControlManagement.WriteAitess1Command(inputCommand);		
         terminalTextField.clear();

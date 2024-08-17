@@ -22,6 +22,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -84,6 +85,7 @@ public class SessionTestingController {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private SessionManagement sessionManagement = new SessionManagement();
+	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
@@ -237,6 +239,9 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 		
 		runAllButton.setOnAction(e ->{
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
+			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (!checkbox.isDisable()) {
@@ -278,8 +283,6 @@ public class SessionTestingController {
 		});
 
 		startButton.setOnAction(e -> {
-			SessionTestResult sessionTestResult = new SessionTestResult("asd", "sadas");
-			SessionTestStateObject.addSessionTestResult(sessionTestResult);
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -287,6 +290,9 @@ public class SessionTestingController {
 				pauseButton.setDisable(false);
 				stopButton.setDisable(false);
 				return;
+			}
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
 			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
