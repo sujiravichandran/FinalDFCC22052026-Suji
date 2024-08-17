@@ -30,9 +30,9 @@ public class UUTLogbookManagement {
 	}
 
 	public List<UUTLogBookDto> getUUTLogBooksByDate(String uutId, String uutSerialNumber, String sessionId,
-			Date fromDate, Date toDate) {
+			Date fromDate, Date toDate,String username) {
 		UUTLogBookService service = new UUTLogBookService();
-		UUTLogBookResponse response = service.getUUTLogBooks(uutId, uutSerialNumber, sessionId, fromDate, toDate);
+		UUTLogBookResponse response = service.getUUTLogBooks(uutId, uutSerialNumber, sessionId, fromDate, toDate,username);
 		List<UUTLogBookDto> dtoList = new ArrayList<>();
 
 		if (response.getResponseCode() == 1) {

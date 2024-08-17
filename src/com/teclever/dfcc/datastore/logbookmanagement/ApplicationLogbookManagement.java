@@ -33,9 +33,9 @@ public class ApplicationLogbookManagement {
 	
 	
 	//GET -  APPLICATION LOG BOOKS 
-		public List<ApplicationLogBookDto> getApplicationLogBooksByDate(String uutId, String uutSerialNumber,String sessionId,Date fromDate, Date toDate) {
+		public List<ApplicationLogBookDto> getApplicationLogBooksByDate(String uutId, String uutSerialNumber,String sessionId,Date fromDate, Date toDate,String username) {
 			ApplicationLogBookService service = new ApplicationLogBookService();
-			ApplicationLogBookResponse response = service.getApplicationLogBooks(uutId, uutSerialNumber,sessionId,fromDate,toDate);
+			ApplicationLogBookResponse response = service.getApplicationLogBooks(uutId, uutSerialNumber,sessionId,fromDate,toDate,username);
 	        List<ApplicationLogBookDto> dtoList = new ArrayList<>();
 
 	        if (response.getResponseCode() == 1) {
