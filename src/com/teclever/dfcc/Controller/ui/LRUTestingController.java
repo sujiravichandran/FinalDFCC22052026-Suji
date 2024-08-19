@@ -311,7 +311,7 @@ public class LRUTestingController {
 					return ;
 				}
 				 TestState currentState = StateMachine.getTestState();            
-				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
 				    	startTest.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);

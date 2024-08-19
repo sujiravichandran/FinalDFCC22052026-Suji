@@ -406,7 +406,7 @@ public class StageConfigurationController {
 			for (Node child : gridPane.getChildren()) {
 				if (child instanceof Label) {
 					Label newLabel = (Label) child;
-					if (newLabel.getText().trim().toLowerCase().equals("interface")) {
+					if (newLabel.getText().trim().toLowerCase().equals("interface test")) {
 						return true;
 					}
 				}
