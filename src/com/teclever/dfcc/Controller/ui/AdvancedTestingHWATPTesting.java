@@ -294,7 +294,7 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 
-			callStartTest(selectedStageId, "ADVANCED TEST", selectedTestTypeId, testFileIds);
+			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
 		
 		startButton.setOnAction(e -> {
@@ -343,7 +343,7 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 
-			callStartTest(selectedStageId, "ADVANCED TEST", selectedTestTypeId, testFileIds);
+			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
 		
 		pauseButton.setOnAction(e -> {
@@ -382,6 +382,15 @@ public class AdvancedTestingHWATPTesting {
 
 		buttonHBox.setAlignment(Pos.CENTER);
 		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+		
+		AdvancedTestStateObject.hwatpTestStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if(!newValue) {
+				StateMachine.setTestState(TestState.COMPLETED);
+				AdvancedTestStateObject.hwatpTestStatusProperty().set(true);
+			}
+		
+		});
+		
 		return buttonHBox;
 	}
 	
@@ -390,8 +399,7 @@ public class AdvancedTestingHWATPTesting {
 			@Override
 			protected Void call() throws Exception {
 				
-				boolean isContinueWithError = SessionTestStateObject.getL1ContinueWithErrorStatus().get(SessionTestStateObject.getCurrentRunningStageId());			
-				
+
 				String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
@@ -399,7 +407,7 @@ public class AdvancedTestingHWATPTesting {
 				
 				
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
+						repeatCount, testFileIds, true, stageName, testTypeId);
 
 				return null;
 			}
