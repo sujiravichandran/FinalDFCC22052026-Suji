@@ -213,7 +213,7 @@ public class SelfTestController {
 				return ;
 			}
 		    TestState currentState = StateMachine.getTestState();            
-		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
 		    	startTest.setDisable(true);
 		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);
@@ -393,6 +393,8 @@ public class SelfTestController {
 		                if (testFileResponse.getTestFilesIdName() == null) {
 		                    Platform.runLater(() -> {
 		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
+		                        startTest.setDisable(false);
+		        		        StateMachine.setTestState(TestState.COMPLETED);
 		                    });
 		                    return null;
 		                }
