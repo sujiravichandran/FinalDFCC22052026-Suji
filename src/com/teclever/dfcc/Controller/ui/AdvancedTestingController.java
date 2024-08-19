@@ -2,6 +2,9 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.model.TestSummary;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
+import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -10,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -208,8 +212,8 @@ public class AdvancedTestingController {
 		return advancedTestingResultsGridPane;
 	}
 	
-	private TableView<TestSummary> createResultTableView() {
-		TableView<TestSummary> tableView = new TableView<>();
+	private TableView<AdvancedTestResult> createResultTableView() {
+		TableView<AdvancedTestResult> tableView = new TableView<>();
 		tableView.getStylesheets()
 		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
@@ -217,22 +221,48 @@ public class AdvancedTestingController {
 		
 		 tableView.setPrefHeight(900); 
 
-		TableColumn<TestSummary, String> fileNameColumn = new TableColumn<>("File Name");
+		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<TestSummary, String> resultColumn = new TableColumn<>("Result");
+		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
-
+		rewriteColumn(resultColumn);
 
 		tableView.getColumns().addAll(fileNameColumn, resultColumn);
 		
+		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
+				
 		return tableView;
 	}
-
+	private void rewriteColumn(TableColumn<AdvancedTestResult, String> resultColumn) {
+		resultColumn.setReorderable(false);
+		resultColumn.setSortable(false);
+		resultColumn.setCellFactory(column -> new TableCell<AdvancedTestResult, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setStyle("");
+				} else {
+					if ("OK".equalsIgnoreCase(item)) {
+						setText("Passed");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
+					} else if ("NOT OK".equalsIgnoreCase(item)) {
+						setText("Failed");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}else {
+						setText(item);
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+					}
+				}
+			}
+		});
+	}
 }

@@ -286,7 +286,7 @@ public class AdvancedTestingInterfaceTesting {
 				return;
 			}
 
-			callStartTest(selectedStageId, "ADVANCED TEST", selectedTestTypeId, testFileIds);
+			callStartTest(selectedStageId, "INTERFACE TEST", selectedTestTypeId, testFileIds);
 		});
 
 		startButton.setOnAction(e -> {
@@ -336,7 +336,7 @@ public class AdvancedTestingInterfaceTesting {
 				return;
 			}
 
-			callStartTest(selectedStageId, "ADVANCED TEST", selectedTestTypeId, testFileIds);
+			callStartTest(selectedStageId, "INTERFACE TEST", selectedTestTypeId, testFileIds);
 		});
 
 		pauseButton.setOnAction(e -> {
@@ -374,6 +374,15 @@ public class AdvancedTestingInterfaceTesting {
 
 		buttonHBox.setAlignment(Pos.CENTER);
 		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+		
+		AdvancedTestStateObject.interfaceTestStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if(!newValue) {
+				StateMachine.setTestState(TestState.COMPLETED);
+				AdvancedTestStateObject.interfaceTestStatusProperty().set(true);
+			}
+		
+		});
+		
 		return buttonHBox;
 	}
 
@@ -382,9 +391,7 @@ public class AdvancedTestingInterfaceTesting {
 			@Override
 			protected Void call() throws Exception {
 
-				boolean isContinueWithError = SessionTestStateObject.getL1ContinueWithErrorStatus()
-						.get(SessionTestStateObject.getCurrentRunningStageId());
-
+	
 				String runConfigId = runConfigurationService
 						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 				currentSessionDetails.setRunConfigId(runConfigId);
@@ -392,7 +399,7 @@ public class AdvancedTestingInterfaceTesting {
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
+						repeatCount, testFileIds, true, stageName, testTypeId);
 
 				return null;
 			}

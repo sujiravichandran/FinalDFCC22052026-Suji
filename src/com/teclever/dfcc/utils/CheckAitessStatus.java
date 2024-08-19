@@ -8,7 +8,7 @@ public class CheckAitessStatus {
 		if(StateMachine.isAitess1Launched() && StateMachine.isAitess2Launched()) {
 			return true;
 		}else {		
-			Notifications.showWarningAlert("Aitess is currently loading. Please try again in a moment...");
+			Notifications.showWarningAlert("Aitess is currently loading/switching. Please try again in a moment...");
 			return false;	
 		}
 	}
