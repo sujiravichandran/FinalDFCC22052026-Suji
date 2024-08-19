@@ -30,8 +30,11 @@ import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.SymbolListResponse;
+import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 
 public class AdvanceCustom1TestingManagement {
@@ -107,7 +110,7 @@ public class AdvanceCustom1TestingManagement {
 
 		String symbolCommand;
 		try {
-			symbolCommand = symbolName + " = " + ipData;
+			symbolCommand = customOneAdd(symbolName, minValue, maxValue, ipData);
 		} catch (Exception e) {
 			return null;
 		}
@@ -143,8 +146,8 @@ public class AdvanceCustom1TestingManagement {
 			symbolCommand = "SYMB=" + symbolName + " DEST=" + " IOTYPE= " + " TYPE=" + " CHAN=" + " ADDR=" + " MASK="
 					+ ipData;
 
-			symbolCommand = symbolCommand+"SLPE=" + " BIAS" + " MIN=" + minValue + " MAX=" + maxValue + " READ=" + " WRTE="
-					+ " UNIT=";
+			symbolCommand = symbolCommand + "SLPE=" + " BIAS" + " MIN=" + minValue + " MAX=" + maxValue + " READ="
+					+ " WRTE=" + " UNIT=";
 
 		} catch (Exception e) {
 			return null;
@@ -196,6 +199,7 @@ public class AdvanceCustom1TestingManagement {
 						return res;
 					}
 				}
+//				String filewithfullPath = customFileDir + fileName + ".txt";
 
 				try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 					for (String symbolCmd : symbolMacroTextFormate) {
@@ -319,7 +323,7 @@ public class AdvanceCustom1TestingManagement {
 		return listOfFileData;
 
 	}
-	
+
 	// NOT USED
 	public CustomTestFileResponse getListOfFileNamesWithId() {
 		CustomTestFileResponse customTestFileResponse = new CustomTestFileResponse();
@@ -356,7 +360,6 @@ public class AdvanceCustom1TestingManagement {
 		return customTestFileResponse;
 	}
 
-	
 	// Copying The File
 	public static void copyFileRdfFile(String sourceFilePath, String destinationDirectory) {
 		try {
