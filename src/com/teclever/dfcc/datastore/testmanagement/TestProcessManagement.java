@@ -38,6 +38,8 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
@@ -198,7 +200,8 @@ public class TestProcessManagement {
 				testProcessRes = rack1TestFileTest(rdfFileLocation, rdfFileName, oneFileName);
 
 			} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
-					|| stageName.equals("SRU") || stageName.equals("SESSION TEST")) {
+					|| stageName.equals("SRU") || stageName.equals("SESSION TEST")
+					|| stageName.equals("HWATP TEST")|| stageName.equals("INTERFACE TEST")) {
 				System.out.println("   ->  7  parseTestFileTest()  ");
 
 				testProcessRes = parseTestFileTest(rdfFileLocation, rdfFileName, stageId, stageName, oneFileName,
@@ -368,6 +371,16 @@ public class TestProcessManagement {
 				SessionTestStateObject.getRunningTestLeafStatus().set(true);
 				StateMachine.setTestState(TestState.COMPLETED);
 
+				break;
+
+			case "HWATP TEST":
+				
+				System.out.println("CASE : HWATP TEST");
+				AdvancedTestStateObject.getHwatpTestStatus().set(false);
+				break;
+			case "INTERFACE TEST":
+				System.out.println("CASE : INTERFACE TEST");
+				AdvancedTestStateObject.getInterfaceTestStatus().set(false);
 				break;
 			default:
 				System.out.println("INVALID TEST TYPE ID ");
@@ -639,6 +652,10 @@ public class TestProcessManagement {
 
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
 
+			} else if (stageName.equals("HWATP TEST")||stageName.equals("INTERFACE TEST")) {
+				
+				AdvancedTestResult advancedTestResult = new AdvancedTestResult(filePath, rdfFileStatus);
+				AdvancedTestStateObject.addAdvancedTestResult(advancedTestResult);
 			}
 
 			res.setResponseMessage("Successful ");
@@ -872,5 +889,6 @@ public class TestProcessManagement {
 
 		return false;
 	}
+
 
 }
