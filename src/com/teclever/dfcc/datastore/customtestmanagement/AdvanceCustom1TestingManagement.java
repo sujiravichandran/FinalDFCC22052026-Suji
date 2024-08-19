@@ -68,7 +68,7 @@ public class AdvanceCustom1TestingManagement {
 			res.setResponseMessage("Error while Fetching Macro ");
 
 		}
-
+		macroListResponse.setResponse(res);
 		return macroListResponse;
 	}
 
@@ -98,6 +98,7 @@ public class AdvanceCustom1TestingManagement {
 			res.setResponseCode(0);
 			res.setResponseMessage("Symbol Data is Empty ");
 		}
+		symbolListResponse.setResponse(res);
 		return symbolListResponse;
 	}
 
