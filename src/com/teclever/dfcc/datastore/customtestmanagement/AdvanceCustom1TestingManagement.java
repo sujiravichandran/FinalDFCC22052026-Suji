@@ -21,21 +21,22 @@ import javax.sql.rowset.serial.SerialBlob;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.CustomTest;
+import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.service.CustomTestService;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.datastore.service.TestFileService;
+import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
-import com.teclever.dfcc.datastore.dto.AdvanceCustom1FileDetailsDTO;
 import com.teclever.dfcc.datastore.dto.CustomTestFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.SymbolListResponse;
-import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class AdvanceCustom1TestingManagement {
 
@@ -50,9 +51,7 @@ public class AdvanceCustom1TestingManagement {
 		MacroListResponse macroListResponse = new MacroListResponse();
 		Response res = new Response();
 		try {
-			RunConfigurationService runConfigurationService = new RunConfigurationService();
-			String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutTypeId, testTypeId);
-			List<MacroDto> macros = MacroFileManagement.getAllMacros(runConfigId);
+			List<MacroDto> macros = MacroFileManagement.getAllMacros(getRunConfigId(testTypeId));
 			if (macros != null && macros.size() > 0) {
 
 				macroListResponse.setListOfMacroDto(macros);
@@ -80,9 +79,7 @@ public class AdvanceCustom1TestingManagement {
 		SymbolListResponse symbolListResponse = new SymbolListResponse();
 		Response res = new Response();
 		try {
-			RunConfigurationService runConfigurationService = new RunConfigurationService();
-			String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutTypeId, testTypeId);
-			List<SymbolDto> symbols = SymbolFileManagement.getAllSymbols(runConfigId);
+			List<SymbolDto> symbols = SymbolFileManagement.getAllSymbols(getRunConfigId(testTypeId));
 
 			if (symbols != null && symbols.size() > 0) {
 
@@ -170,87 +167,113 @@ public class AdvanceCustom1TestingManagement {
 	}
 
 	// Creating Text File To Run Test
-	public Response customOneRunTestFile(String fileName, List<String> symbolMacroTextFormate) {
-
+	public Response customOneRunTestFile(String stageId, String stageName, String fileName,
+			List<String> symbolMacroTextFormate, String testTypeId) {
+		fileName = fileName + ".tst";
 		Response res = new Response();
+		String fileNamewithFullPath=customFileDir + fileName;
+		try {
+			createDirectoryIfNotExists(customFileDir);
+			if (directoryExist(customFileDir)) {
+				if (!createFileIfNotExists(fileNamewithFullPath)) {
+					res.setResponseCode(0);
+					res.setResponseMessage("File Already Exist: Use Other Name ");
+					return res;
+				}
 
-		File theDir = new File(customFileDir);
+				File file = new File(fileNamewithFullPath);
+				writeCommandsToFile(file, symbolMacroTextFormate);
+
+				addCustomTest(fileName, file);
+				
+				
+				updateDB(testTypeId, fileName, stageId, stageName);
+			} else {
+				System.out.println("CustomTesting1Files Directory Not Present,Please Create");
+				res.setResponseCode(0);
+				res.setResponseMessage("Test Not Started : CustomTesting1Files Directory Not Present, Create It");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		res.setResponseCode(1);
+		res.setResponseMessage("Test Started");
+		return res;
+	}
+
+	private void writeCommandsToFile(File file, List<String> commands) throws IOException {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			for (String command : commands) {
+				bw.write(command);
+				bw.newLine();
+			}
+		}
+	}
+
+	private void addCustomTest(String fileName, File file) throws SQLException, IOException {
+		CustomTestService customTestService = new CustomTestService();
+		customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
+				convertFileToBlob(file), customFileDir, "custom1");
+	}
+
+	private void updateDB(String testTypeId, String fileName, String stageId, String stageName) {
+		try {
+
+			List<String> listOfTestFileIds = addTestFileandGetFileId(fileName, testTypeId);
+			TestFilesStagesMappingService testFileStageMapService = new TestFilesStagesMappingService();
+			testFileStageMapService.addTestFilesStagesMapping(stageId, listOfTestFileIds);
+
+			TestProcessManagement testProcessManangement = new TestProcessManagement();
+			testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
+					listOfTestFileIds /* listOfFileId */, true /* continueWithError */, stageName/* stageName */,
+					testTypeId/* testTypeId */);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void createDirectoryIfNotExists(String directoryPath) {
+		File theDir = new File(directoryPath);
 		if (!theDir.exists()) {
 			theDir.mkdirs();
 		}
+	}
 
-		if (directoryExist(customFileDir)) {
-
-			File file = new File(customFileDir + fileName + ".txt");
-
-			try {
-				if (file.exists()) {
-					System.out.println("File exist");
-					res.setResponseCode(0);
-					res.setResponseMessage("File Already Exist: User Other Name ");
-					return res;
-				} else {
-					if (file.createNewFile()) {
-						System.out.println("New File is Created ");
-					} else {
-						System.out.println("File is not created");
-						res.setResponseCode(0);
-						res.setResponseMessage("File is not created ");
-						return res;
-					}
-				}
-//				String filewithfullPath = customFileDir + fileName + ".txt";
-
-				try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-					for (String symbolCmd : symbolMacroTextFormate) {
-
-						/*
-						 * SYMB=TTR1_I DEST=FCC1 IOTYPE=SPIL TYPE=U16 CHAN=1000 ADDR=206CC03E MASK=FFFF
-						 * SLPE=1. BIAS=0. MIN=-32768. MAX=32767. READ=1 WRTE=1 UNIT=XXX
-						 */
-
-						bw.write(symbolCmd);
-						bw.newLine();
-//						bw.write("SYMB=" + symbolCmd.getSymbol() + " DEST=" + " IOTYPE= " + " TYPE=" + " CHAN="
-//								+ " ADDR=" + " MASK=" + symbolCmd.getIpData());
-//						bw.newLine();
-//						bw.write("SLPE=" + " BIAS" + " MIN=" + symbolCmd.getMinValue() + " MAX="
-//								+ symbolCmd.getMaxValue() + " READ=" + " WRTE=" + " UNIT=");
-//						bw.newLine();
-//						bw.newLine();
-//						bw.newLine();
-					}
-
-					bw.close();
-				}
-
-				CustomTestService customTestService = new CustomTestService();
-				customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
-						convertFileToBlob(file), customFileDir + fileName, "custom1");
-
-//				TestProcessManagement testProcessManangement = new TestProcessManagement();
-//				testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), "stageId",
-//						0, null /* listOfFileId */, true /* continueWithError */, null/* stageName */,
-//						null/* testTypeId */);
-
-			} catch (IOException e) {
-				e.printStackTrace();
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw e;
-			}
-			res.setResponseCode(1);
-			res.setResponseMessage("Test Started");
+	private boolean createFileIfNotExists(String filePath) throws IOException {
+		File file = new File(filePath);
+		if (file.exists()) {
+			return false; // File already exists
 		} else {
-			System.out.println("CustomTesting1Files Directory Not Present,Please Create");
-			res.setResponseCode(0);
-			res.setResponseMessage("Test Not Started : CustomTesting1Files Directory Not Present, Create It");
+			return file.createNewFile(); // File created
 		}
-		return res;
+	}
+
+	private String getRunConfigId(String testTypeId) {
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
+		return runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+
+	}
+
+	private List<String> addTestFileandGetFileId(String fileName, String testTypeId) {
+		TestFileService testFileService = new TestFileService();
+		TestFile testFile = new TestFile();
+		testFile.setTestFileName(fileName);
+
+		testFile.setRunPathMasterId(getRunConfigId(testTypeId));
+		TestFile dbSavedTestFile = testFileService.saveTestFile(testFile);
+
+		String testFileId = dbSavedTestFile.getTestFileId();
+		List<String> listOfTestFileIds = new ArrayList<>();
+		listOfTestFileIds.add(testFileId);
+		return listOfTestFileIds;
 	}
 
 	private SerialBlob convertFileToBlob(File file) throws IOException, SQLException {
