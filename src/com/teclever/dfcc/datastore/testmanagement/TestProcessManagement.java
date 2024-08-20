@@ -913,6 +913,7 @@ public class TestProcessManagement {
 			resetAitessFailureStates();
 
 			// Call writing command to Terminal
+			AitessProcessControlManagement.getInstance().exitAitess1Command();
 
 		} catch (Exception e) {
 			return createErrorResponse("Test Failled  " + e.getLocalizedMessage());
