@@ -1,13 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
+import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -47,6 +52,7 @@ public class AdvancedTestingController {
 	AdvancedTestingCustomTesting2 advancedTestingCustomTesting2 = new AdvancedTestingCustomTesting2();
 	
 	public GridPane createAdvancedTestingGridPane() {
+		getSubStageId();
 		advancedTestingMainGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AdvancedTesting.css").toExternalForm());
 		advancedTestingMainGridPane.getStyleClass().add("advanced-testing-container");
@@ -73,6 +79,24 @@ public class AdvancedTestingController {
 				
 		
 		return advancedTestingMainGridPane;
+	}
+
+	private void getSubStageId() {
+		ObservableList<StageObject> observableStageList = FXCollections
+				.observableArrayList(StateMachine.getStageDatalist());
+		observableStageList.stream()
+				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName()))
+				.forEach(stage -> {
+					if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HST")) {
+						AdvancedTestStateObject.setHwatpTestId(stage.getL2StageId());
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Interface Test")) {
+						AdvancedTestStateObject.setInterfaceTestId(stage.getL2StageId());
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-1")) {
+						AdvancedTestStateObject.setCustomTest1Id(stage.getL2StageId());
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-2")) {
+						AdvancedTestStateObject.setCustomTest2Id(stage.getL2StageName());
+					}					
+				});
 	}
 
 	private GridPane createHeadingBox() {
