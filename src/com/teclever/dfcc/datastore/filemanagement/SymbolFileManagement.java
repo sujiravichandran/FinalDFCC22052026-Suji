@@ -98,12 +98,9 @@ public class SymbolFileManagement {
 	public static List<String> fetchReferencedSymbolFiles(String filePath) {
 	    List<String> referencedFilePaths = new ArrayList<>();
 	    List<String> symbolReferences = symbolFileReader(filePath);
-
 	    for (String reference : symbolReferences) {
-	        // Assuming the references are valid file paths, otherwise modify accordingly
+	    	reference=reference.trim();
 	        referencedFilePaths.add(reference);
-
-	        // Recursively fetch any further referenced symbol files
 	        List<String> furtherReferences = fetchReferencedSymbolFiles(reference);
 	        referencedFilePaths.addAll(furtherReferences);
 	    }
@@ -118,11 +115,11 @@ public class SymbolFileManagement {
 	        String line;
 	        while ((line = br.readLine()) != null) {
 	            if ((!line.isEmpty())) {
-	                if (line.startsWith("@")) { // Assuming '@' marks a reference to another file
-	                    line = line.substring(1);
-	                    listOfSymbolNames.add(line); // Add the reference for further processing
+	                if (line.startsWith("@")) { 
+	                    line = line.substring(1).trim();
+	                    listOfSymbolNames.add(line); 
 	                } else {
-	                    // Process the line as a normal symbol
+	                    
 	                }
 	            }
 	        }
