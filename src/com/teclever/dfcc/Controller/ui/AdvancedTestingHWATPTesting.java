@@ -12,7 +12,6 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
-import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
