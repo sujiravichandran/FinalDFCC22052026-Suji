@@ -102,49 +102,11 @@ public class AdvanceCustom1TestingManagement {
 		return symbolListResponse;
 	}
 
-	// Running Single Symbol Command
-	public String customOneRun(String symbolName, String minValue, String maxValue, String ipData) {
+	// Running Single Symbol And Macro Command
+	public String customOneRun(String runCommand, String testTypeId) {
 
-		String symbolCommand;
+		String symbolCommand = null;
 		try {
-			symbolCommand = customOneAdd(symbolName, minValue, maxValue, ipData);
-		} catch (Exception e) {
-			return null;
-		}
-		return symbolCommand;
-
-	}
-
-	// Running Single Macro Command
-	public String customOneRun(String macroName) {
-
-		String macroCommand;
-		try {
-			macroCommand = macroName;
-		} catch (Exception e) {
-			return null;
-		}
-		return macroCommand;
-
-	}
-
-	// Return Formated Single Symbol Command
-	public String customOneAdd(String symbolName, String minValue, String maxValue, String ipData) {
-
-		String symbolCommand;
-		try {
-			symbolCommand = symbolName + " = " + ipData;
-
-			/*
-			 * SYMB=TTR1_I DEST=FCC1 IOTYPE=SPIL TYPE=U16 CHAN=1000 ADDR=206CC03E MASK=FFFF
-			 * SLPE=1. BIAS=0. MIN=-32768. MAX=32767. READ=1 WRTE=1 UNIT=XXX
-			 */
-
-			symbolCommand = "SYMB=" + symbolName + " DEST=" + " IOTYPE= " + " TYPE=" + " CHAN=" + " ADDR=" + " MASK="
-					+ ipData;
-
-			symbolCommand = symbolCommand + "SLPE=" + " BIAS" + " MIN=" + minValue + " MAX=" + maxValue + " READ="
-					+ " WRTE=" + " UNIT=";
 
 		} catch (Exception e) {
 			return null;
@@ -153,25 +115,63 @@ public class AdvanceCustom1TestingManagement {
 
 	}
 
-	// Return Formated Single Macro Command
-	public String customOneAdd(String macroName) {
+//	// Running Single Macro Command
+//	public String customOneRun(String macroName) {
+//
+//		String macroCommand;
+//		try {
+//			macroCommand = macroName;
+//		} catch (Exception e) {
+//			return null;
+//		}
+//		return macroCommand;
+//
+//	}
 
-		String macroCommand;
-		try {
-			macroCommand = macroName;
-		} catch (Exception e) {
-			return null;
-		}
-		return macroCommand;
-
-	}
+//	// Return Formated Single Symbol Command
+//	public String customOneAdd(String symbolName, String minValue, String maxValue, String ipData) {
+//
+//		String symbolCommand;
+//		try {
+//			symbolCommand = symbolName + " = " + ipData;
+//
+//			/*
+//			 * SYMB=TTR1_I DEST=FCC1 IOTYPE=SPIL TYPE=U16 CHAN=1000 ADDR=206CC03E MASK=FFFF
+//			 * SLPE=1. BIAS=0. MIN=-32768. MAX=32767. READ=1 WRTE=1 UNIT=XXX
+//			 */
+//
+//			symbolCommand = "SYMB=" + symbolName + " DEST=" + " IOTYPE= " + " TYPE=" + " CHAN=" + " ADDR=" + " MASK="
+//					+ ipData;
+//
+//			symbolCommand = symbolCommand + "SLPE=" + " BIAS" + " MIN=" + minValue + " MAX=" + maxValue + " READ="
+//					+ " WRTE=" + " UNIT=";
+//
+//		} catch (Exception e) {
+//			return null;
+//		}
+//		return symbolCommand;
+//
+//	}
+//
+//	// Return Formated Single Macro Command
+//	public String customOneAdd(String macroName) {
+//
+//		String macroCommand;
+//		try {
+//			macroCommand = macroName;
+//		} catch (Exception e) {
+//			return null;
+//		}
+//		return macroCommand;
+//
+//	}
 
 	// Creating Text File To Run Test
-	public Response customOneRunTestFile(String stageId, String stageName, String fileName,
-			List<String> symbolMacroTextFormate, String testTypeId) {
+	public Response customOneRunTestFile(String stageId, String fileName, List<String> symbolMacroTextFormate,
+			String testTypeId) {
 		fileName = fileName + ".tst";
 		Response res = new Response();
-		String fileNamewithFullPath=customFileDir + fileName;
+		String fileNamewithFullPath = customFileDir + fileName;
 		try {
 			createDirectoryIfNotExists(customFileDir);
 			if (directoryExist(customFileDir)) {
@@ -184,10 +184,10 @@ public class AdvanceCustom1TestingManagement {
 				File file = new File(fileNamewithFullPath);
 				writeCommandsToFile(file, symbolMacroTextFormate);
 
-				addCustomTest(fileName, file);
-				
-				
-				updateDB(testTypeId, fileName, stageId, stageName);
+				addCustomTest(fileName,customFileDir, file,"C1");
+
+				addTestFiletoStageAndStartTest(testTypeId, fileNamewithFullPath, stageId, "CUSTOM ONE");
+
 			} else {
 				System.out.println("CustomTesting1Files Directory Not Present,Please Create");
 				res.setResponseCode(0);
@@ -218,13 +218,13 @@ public class AdvanceCustom1TestingManagement {
 		}
 	}
 
-	private void addCustomTest(String fileName, File file) throws SQLException, IOException {
+	private void addCustomTest(String fileName,String filePath, File file,String customType) throws SQLException, IOException {
 		CustomTestService customTestService = new CustomTestService();
 		customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
-				convertFileToBlob(file), customFileDir, "custom1");
+				convertFileToBlob(file), filePath, customType);
 	}
 
-	private void updateDB(String testTypeId, String fileName, String stageId, String stageName) {
+	private void addTestFiletoStageAndStartTest(String testTypeId, String fileName, String stageId, String stageName) {
 		try {
 
 			List<String> listOfTestFileIds = addTestFileandGetFileId(fileName, testTypeId);
@@ -235,6 +235,7 @@ public class AdvanceCustom1TestingManagement {
 			testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
 					listOfTestFileIds /* listOfFileId */, true /* continueWithError */, stageName/* stageName */,
 					testTypeId/* testTypeId */);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -310,6 +311,41 @@ public class AdvanceCustom1TestingManagement {
 			throw e;
 		}
 		return returnFlag;
+	}
+
+	public Response customTwoRunTestFile(String stageId, String testfileName,
+			String testTypeId) {
+		Response res = new Response();
+		try {
+			File file = new File(testfileName);
+			if (!file.exists()) {
+				res.setResponseCode(0);
+				res.setResponseMessage("File Not Exist In the Path "+testfileName);
+				return res;
+			
+			}
+			Path path = Paths.get(testfileName);
+
+	        // Get the file name
+	        String fileName = path.getFileName().toString();
+
+	        // Get the parent directory (path without the file name)
+	        String filePath = path.getParent().toString();
+
+	        // Print results
+	        System.out.println("File Name: " + fileName);
+	        System.out.println("Directory Path: " + filePath);
+	        
+			addCustomTest(fileName,filePath, file,"C2");
+			
+			addTestFiletoStageAndStartTest(testTypeId, testfileName, stageId, "CUSTOM TWO");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			res.setResponseCode(0);
+			res.setResponseMessage("Test not Started : "+e.getLocalizedMessage());
+		}
+		return res;
 	}
 
 	// NOT USED
