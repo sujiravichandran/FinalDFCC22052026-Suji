@@ -105,13 +105,13 @@ public class AdvanceCustom1TestingManagement {
 	// Running Single Symbol And Macro Command
 	public String customOneRun(String runCommand, String testTypeId) {
 
-		String symbolCommand = null;
 		try {
-
+			TestProcessManagement testProcess = new TestProcessManagement();
+			testProcess.runCommand(runCommand, testTypeId);
 		} catch (Exception e) {
-			return null;
+			return "NOT OK";
 		}
-		return symbolCommand;
+		return "OK";
 
 	}
 
@@ -184,7 +184,7 @@ public class AdvanceCustom1TestingManagement {
 				File file = new File(fileNamewithFullPath);
 				writeCommandsToFile(file, symbolMacroTextFormate);
 
-				addCustomTest(fileName,customFileDir, file,"C1");
+				addCustomTest(fileName, customFileDir, file, "C1");
 
 				addTestFiletoStageAndStartTest(testTypeId, fileNamewithFullPath, stageId, "CUSTOM ONE");
 
@@ -218,7 +218,8 @@ public class AdvanceCustom1TestingManagement {
 		}
 	}
 
-	private void addCustomTest(String fileName,String filePath, File file,String customType) throws SQLException, IOException {
+	private void addCustomTest(String fileName, String filePath, File file, String customType)
+			throws SQLException, IOException {
 		CustomTestService customTestService = new CustomTestService();
 		customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
 				convertFileToBlob(file), filePath, customType);
@@ -313,37 +314,36 @@ public class AdvanceCustom1TestingManagement {
 		return returnFlag;
 	}
 
-	public Response customTwoRunTestFile(String stageId, String testfileName,
-			String testTypeId) {
+	public Response customTwoRunTestFile(String stageId, String testfileName, String testTypeId) {
 		Response res = new Response();
 		try {
 			File file = new File(testfileName);
 			if (!file.exists()) {
 				res.setResponseCode(0);
-				res.setResponseMessage("File Not Exist In the Path "+testfileName);
+				res.setResponseMessage("File Not Exist In the Path " + testfileName);
 				return res;
-			
+
 			}
 			Path path = Paths.get(testfileName);
 
-	        // Get the file name
-	        String fileName = path.getFileName().toString();
+			// Get the file name
+			String fileName = path.getFileName().toString();
 
-	        // Get the parent directory (path without the file name)
-	        String filePath = path.getParent().toString();
+			// Get the parent directory (path without the file name)
+			String filePath = path.getParent().toString();
 
-	        // Print results
-	        System.out.println("File Name: " + fileName);
-	        System.out.println("Directory Path: " + filePath);
-	        
-			addCustomTest(fileName,filePath, file,"C2");
-			
+			// Print results
+			System.out.println("File Name: " + fileName);
+			System.out.println("Directory Path: " + filePath);
+
+			addCustomTest(fileName, filePath, file, "C2");
+
 			addTestFiletoStageAndStartTest(testTypeId, testfileName, stageId, "CUSTOM TWO");
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			res.setResponseCode(0);
-			res.setResponseMessage("Test not Started : "+e.getLocalizedMessage());
+			res.setResponseMessage("Test not Started : " + e.getLocalizedMessage());
 		}
 		return res;
 	}
