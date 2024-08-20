@@ -23,7 +23,7 @@ public class UUTLogbookManagement {
 		uutLogBook.setSessionId(uutLogBookDto.getSessionId());
 		uutLogBook.setUsername(uutLogBookDto.getUsername());
 		uutLogBook.setDetails(uutLogBookDto.getDetails());
-		uutLogBook.setTimestamp(new Date());
+		uutLogBook.setTimestamp(uutLogBookDto.getTimestamp());
 
 		UUTLogBookResponse serviceResponse = service.addUUTLogBook(uutLogBook);
 		return serviceResponse;
