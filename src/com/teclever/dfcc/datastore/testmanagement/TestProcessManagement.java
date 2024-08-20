@@ -200,8 +200,8 @@ public class TestProcessManagement {
 				testProcessRes = rack1TestFileTest(rdfFileLocation, rdfFileName, oneFileName);
 
 			} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
-					|| stageName.equals("SRU") || stageName.equals("SESSION TEST")
-					|| stageName.equals("HWATP TEST")|| stageName.equals("INTERFACE TEST")) {
+					|| stageName.equals("SRU") || stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
+					|| stageName.equals("INTERFACE TEST") || stageName.equals("CUSTOM ONE")||stageName.equals("CUSTOM TWO")) {
 				System.out.println("   ->  7  parseTestFileTest()  ");
 
 				testProcessRes = parseTestFileTest(rdfFileLocation, rdfFileName, stageId, stageName, oneFileName,
@@ -374,13 +374,22 @@ public class TestProcessManagement {
 				break;
 
 			case "HWATP TEST":
-				
+
 				System.out.println("CASE : HWATP TEST");
 				AdvancedTestStateObject.getHwatpTestStatus().set(false);
 				break;
 			case "INTERFACE TEST":
 				System.out.println("CASE : INTERFACE TEST");
 				AdvancedTestStateObject.getInterfaceTestStatus().set(false);
+				break;
+
+			case "CUSTOM ONE":
+				System.out.println("CASE : CUSTOM ONE");
+				AdvancedTestStateObject.getCustomTest1Status().set(false);
+				break;
+			case "CUSTOM TWO":
+				System.out.println("CASE : CUSTOM TWO");
+				AdvancedTestStateObject.getCustomTest2Status().set(false);
 				break;
 			default:
 				System.out.println("INVALID TEST TYPE ID ");
@@ -652,8 +661,9 @@ public class TestProcessManagement {
 
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
 
-			} else if (stageName.equals("HWATP TEST")||stageName.equals("INTERFACE TEST")) {
-				
+			} else if (stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
+					|| stageName.equals("CUSTOM ONE")||stageName.equals("CUSTOM TWO")) {
+
 				AdvancedTestResult advancedTestResult = new AdvancedTestResult(filePath, rdfFileStatus);
 				AdvancedTestStateObject.addAdvancedTestResult(advancedTestResult);
 			}
@@ -890,5 +900,23 @@ public class TestProcessManagement {
 		return false;
 	}
 
+	public Response runCommand(String command, String testTypeId) {
+		Response res = new Response();
+		try {
 
+			// If AETS process failed to launch, return failure response
+			if (checkAndUpdateAetsProcessStatus(testTypeId)) {
+				resetAitessFailureStates();
+				return createErrorResponse("AETS Failed to launch");
+			}
+
+			resetAitessFailureStates();
+
+			// Call writing command to Terminal
+
+		} catch (Exception e) {
+			return createErrorResponse("Test Failled  " + e.getLocalizedMessage());
+		}
+		return res;
+	}
 }
