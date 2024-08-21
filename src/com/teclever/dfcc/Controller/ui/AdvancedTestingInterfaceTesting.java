@@ -99,8 +99,9 @@ public class AdvancedTestingInterfaceTesting {
 		observableStageList.stream()
 				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName())
 						&& "Interface Test".equalsIgnoreCase(stage.getL2StageName()))
-				.filter(stage -> stage.getL3StageId() != null).forEach(stage -> {
-					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
+				.filter(stage -> stage.getL3StageId() != null && stage.getL4StageId() != null)
+				.forEach(stage -> {
+					TestCardData newCard = new TestCardData(stage.getL4StageId(), stage.getL4StageName(),
 							stage.getTestTypeId(), null);
 					AdvancedTestStateObject.addInterfaceTestList(newCard);
 				});
