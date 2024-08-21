@@ -81,9 +81,9 @@ public class SessionFileManagement {
         try {
             sessionDirectory = null;
             switch (uutType) {
-                case "MK1":
-                case "MK1-A":
-                case "MK2":
+                case "MK-1":
+                case "MK-1A":
+                case "MK-2":
                     //sessionDirectory = dfccSerialNoDirectory.resolve(sessionName + "_" + dfccSerialNumber + "_" + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()));
                     sessionDirectory = dfccSerialNoDirectory.resolve(sessionName);
                     
