@@ -34,9 +34,9 @@ public class SessionFileManagement {
             StateMachine.setHomelocation(Paths.get(currentDirectory));
             
             System.out.println(currentDirectory);
-            mark1Directory = StateMachine.getHomelocation().resolve("MK1");
-            mark1aDirectory = StateMachine.getHomelocation().resolve("MK1-A");
-            mark2Directory = StateMachine.getHomelocation().resolve("MK2");
+            mark1Directory = StateMachine.getHomelocation().resolve("MK-1");
+            mark1aDirectory = StateMachine.getHomelocation().resolve("MK-1A");
+            mark2Directory = StateMachine.getHomelocation().resolve("MK-2");
 
             if (Files.notExists(mark1Directory)) {
                 Files.createDirectory(mark1Directory);
@@ -55,13 +55,13 @@ public class SessionFileManagement {
         try {
             dfccSerialNoDirectory = null;
             switch (uutType) {
-                case "MK1":
+                case "MK-1":
                     dfccSerialNoDirectory = mark1Directory.resolve(dfccSerialNumber);
                     break;
-                case "MK1-A":
+                case "MK-1A":
                     dfccSerialNoDirectory = mark1aDirectory.resolve(dfccSerialNumber);
                     break;
-                case "MK2":
+                case "MK-2":
                     dfccSerialNoDirectory = mark2Directory.resolve(dfccSerialNumber);
                     break;
                 default:

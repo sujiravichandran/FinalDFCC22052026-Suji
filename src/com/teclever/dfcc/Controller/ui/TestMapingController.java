@@ -174,6 +174,7 @@ public class TestMapingController {
     }
 
     private void onSaveSelectedFiles() {
+    	
 	    List<String> selectedTestFileIds = new ArrayList<>();
 	    if(selectedTestFileList.size() == 0) {
 	    	Notifications.showWarningAlert("Please Select Test File...");
@@ -183,7 +184,7 @@ public class TestMapingController {
 	    	selectedTestFileIds.add(file.getTestFileId());
 	    }
 	    if (STAGE_ID != null) {
-	        Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID);
+	        Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID, StageConfigurationController.UUT_ID);
 	        if(res.getResponseCode() == 1) {
 		         Notifications.showSuccessAlert("Test File Successfully Configured....");
 	        }else {
