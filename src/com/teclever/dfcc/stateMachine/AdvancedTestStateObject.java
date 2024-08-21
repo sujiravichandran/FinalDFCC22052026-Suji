@@ -12,8 +12,9 @@ public class AdvancedTestStateObject {
 //	Advanced Test SubStage Id
 	private static String hwatpTestId;
 	private static String interfaceTestId;
-	private static String customTest1Id;
-	private static String customTest2Id;
+	private static String customTest1UserDefinedTestId;
+	private static String customTest2UserDefinedTestId;
+	private static String customTest2DownloadCodeTestId;
 
 	public static String getHwatpTestId() {
 		return hwatpTestId;
@@ -27,20 +28,28 @@ public class AdvancedTestStateObject {
 	public static void setInterfaceTestId(String interfaceTestId) {
 		AdvancedTestStateObject.interfaceTestId = interfaceTestId;
 	}
-	public static String getCustomTest1Id() {
-		return customTest1Id;
+	public static String getCustomTest1UserDefinedTestId() {
+		return customTest1UserDefinedTestId;
 	}
-	public static void setCustomTest1Id(String customTest1Id) {
-		AdvancedTestStateObject.customTest1Id = customTest1Id;
+	public static void setCustomTest1UserDefinedTestId(String customTest1UserDefinedTestId) {
+		AdvancedTestStateObject.customTest1UserDefinedTestId = customTest1UserDefinedTestId;
 	}
-	public static String getCustomTest2Id() {
-		return customTest2Id;
+	public static String getCustomTest2UserDefinedTestId() {
+		return customTest2UserDefinedTestId;
 	}
-	public static void setCustomTest2Id(String customTest2Id) {
-		AdvancedTestStateObject.customTest2Id = customTest2Id;
+	public static void setCustomTest2UserDefinedTestId(String customTest2UserDefinedTestId) {
+		AdvancedTestStateObject.customTest2UserDefinedTestId = customTest2UserDefinedTestId;
+	}
+	public static String getCustomTest2DownloadCodeTestId() {
+		return customTest2DownloadCodeTestId;
+	}
+	public static void setCustomTest2DownloadCodeTestId(String customTest2DownloadCodeTestId) {
+		AdvancedTestStateObject.customTest2DownloadCodeTestId = customTest2DownloadCodeTestId;
 	}
 
-//  HWATP Test Card List
+
+
+	//  HWATP Test Card List
 	private static ObservableList<TestCardData> hwatpTestList = FXCollections.observableArrayList();
 
 	public static ObservableList<TestCardData> getHwatpTestList() {

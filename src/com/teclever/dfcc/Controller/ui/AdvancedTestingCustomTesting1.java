@@ -27,6 +27,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -41,12 +42,12 @@ public class AdvancedTestingCustomTesting1 {
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
 	private ObservableList<String> testTypeList = FXCollections.observableArrayList();
 
-	private HBox leftTitleHBox = new HBox(20);
+	private HBox leftTitleHBox = new HBox(25);
 	private CheckBox ch1CheckBox = new CheckBox("CH-1");
 	private CheckBox ch2CheckBox = new CheckBox("CH-2");
 	private CheckBox ch3CheckBox = new CheckBox("CH-3");
 	private CheckBox ch4CheckBox = new CheckBox("CH-4");
-	
+
 	private GridPane terminalCommandGridPane = new GridPane();
 	private Label symbolLabel = new Label("Symbol");
 	private Label typeLabel = new Label("Type");
@@ -92,7 +93,7 @@ public class AdvancedTestingCustomTesting1 {
 	private RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 	private AdvanceCustom1TestingManagement advanceCustom1TestingManagement = new AdvanceCustom1TestingManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	
+
 	private String UUT_ID;
 	private String TEST_TYPE_ID;
 
@@ -177,10 +178,30 @@ public class AdvancedTestingCustomTesting1 {
 		terminalCommandGridPane.add(maxValueTextField, 1, 3);
 		terminalCommandGridPane.add(ipDataTextField, 1, 4);
 
+		typeTextField.setDisable(true);
+		minValueTextField.setDisable(true);
+		maxValueTextField.setDisable(true);
+
+		ipDataTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+			String text = ipDataTextField.getText();
+			String character = event.getCharacter();
+
+			if (character.matches("\\d")) {
+				return;
+			}
+			if (character.equals(".") && text != null && !text.contains(".")) {
+				return;
+			}
+			if (character.equals("-") && text != null && text.isEmpty()) {
+				return;
+			}
+			event.consume();
+		});
+
 		symbolComboBox.prefWidthProperty().bind(terminalCommandGridPane.widthProperty());
 		symbolComboBox.setItems(symbolList);
 		symbolComboBox.setEditable(true);
-		addSearchFunctionality(symbolComboBox, symbolList);
+		addSearchFunctionality(symbolComboBox, symbolList, true);
 
 		symbolComboBox.setOnAction(e -> {
 			handleSymbolSection(symbolComboBox.getValue());
@@ -203,9 +224,14 @@ public class AdvancedTestingCustomTesting1 {
 		}
 	}
 
-	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> items) {
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> items, boolean isSymbol) {
 		TextField editor = comboBox.getEditor();
 		comboBox.setOnKeyReleased(event -> {
+			if (isSymbol) {
+				typeTextField.setText(null);
+				minValueTextField.setText(null);
+				maxValueTextField.setText(null);
+			}
 			String filter = editor.getText();
 			if (filter.isEmpty()) {
 				comboBox.setItems(items);
@@ -240,15 +266,15 @@ public class AdvancedTestingCustomTesting1 {
 		terminalRunButton.setOnAction(e -> {
 			handleSymbolAddOrRun(true);
 		});
-		
+
 		AdvancedTestStateObject.customTest1StatusProperty().addListener((observable, oldValue, newValue) -> {
-			if(!newValue) {
+			if (!newValue) {
 				StateMachine.setTestState(TestState.COMPLETED);
 				AdvancedTestStateObject.customTest1StatusProperty().set(true);
 			}
-		
+
 		});
-		
+
 		return terminalButtonVBox;
 	}
 
@@ -277,7 +303,7 @@ public class AdvancedTestingCustomTesting1 {
 		macroComboBox.setItems(macroList);
 		macroComboBox.setEditable(true);
 
-		addSearchFunctionality(macroComboBox, macroList);
+		addSearchFunctionality(macroComboBox, macroList, false);
 
 		return macroGridPane;
 	}
@@ -335,15 +361,13 @@ public class AdvancedTestingCustomTesting1 {
 			testTypeList.add(testType.getTestName());
 		}
 		testTypeComboBox.setItems(testTypeList);
-		
-		
+
 		testTypeComboBox.setOnAction(e -> {
 			TEST_TYPE_ID = fetchTestTypeId(testTypeComboBox.getValue());
 			getDataByUUTandTestId();
 			enableOrDisable(false);
 		});
 	}
-	
 
 	private String fetchTestTypeId(String testTypeName) {
 		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
@@ -428,9 +452,6 @@ public class AdvancedTestingCustomTesting1 {
 	private void enableOrDisable(boolean status) {
 		symbolComboBox.setDisable(status);
 		macroComboBox.setDisable(status);
-		typeTextField.setDisable(status);
-		minValueTextField.setDisable(status);
-		maxValueTextField.setDisable(status);
 		ipDataTextField.setDisable(status);
 		userTestTextArea.setDisable(status);
 		testNameTextField.setDisable(status);
@@ -443,18 +464,18 @@ public class AdvancedTestingCustomTesting1 {
 
 	private void handleSymbolAddOrRun(boolean runStatus) {
 		StringBuilder errorMessage = new StringBuilder();
-		String symbolName = symbolComboBox.getValue();
+		String symbolName = symbolComboBox.getValue().trim();
 		String symbolType = typeTextField.getText();
 		String minValue = minValueTextField.getText();
 		String maxValue = maxValueTextField.getText();
 		String inputData = ipDataTextField.getText();
-		String ch1Status = ch1CheckBox.isSelected() ? "1" : "0" ; 
-		String ch2Status = ch2CheckBox.isSelected() ? "1" : "0" ; 
-		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0" ; 
-		String ch4Status = ch4CheckBox.isSelected() ? "1" : "0" ; 
+		String ch1Status = ch1CheckBox.isSelected() ? "1" : "0";
+		String ch2Status = ch2CheckBox.isSelected() ? "1" : "0";
+		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0";
+		String ch4Status = ch4CheckBox.isSelected() ? "1" : "0";
 
 		if (symbolName == null || symbolName.isEmpty())
-			errorMessage.append("Please select or add any symbol.\n");
+			errorMessage.append("Please select any symbol.\n");
 		if (symbolType == null || symbolType.isEmpty())
 			errorMessage.append("Symbol type is empty.\n");
 		if (minValue == null || minValue.isEmpty())
@@ -463,13 +484,24 @@ public class AdvancedTestingCustomTesting1 {
 			errorMessage.append("Maximum value is empty.\n");
 		if (inputData == null || inputData.isEmpty())
 			errorMessage.append("Input data is empty.\n");
+		else {
+
+			double minValueAsDouble = Double.parseDouble(minValue);
+			double maxValueAsDouble = Double.parseDouble(maxValue);
+			double inputDataDouble = Double.parseDouble(inputData);
+			if (inputDataDouble < minValueAsDouble)
+				errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
+			else if (inputDataDouble > maxValueAsDouble)
+				errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
+		}
 
 		if (errorMessage.length() > 0) {
-			Notifications.showErrorAlert(errorMessage.toString());
+			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
 
-		String formattedData = symbolName+"("+ch1Status+ch2Status+ch3Status+ch4Status+") = "+inputData+";";
+		String formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + inputData
+				+ ";";
 
 		if (runStatus) {
 			if (!checkAitessStatus.isBothAitessOn()) {
@@ -488,9 +520,9 @@ public class AdvancedTestingCustomTesting1 {
 						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
 				return;
 			}
-			
+
 			String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
-			
+
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
 		}
@@ -500,13 +532,24 @@ public class AdvancedTestingCustomTesting1 {
 		StringBuilder errorMessage = new StringBuilder();
 		String macroName = macroComboBox.getValue();
 		if (macroName == null || macroName.isEmpty())
-			errorMessage.append("Please select or add any macro.\n");
+			errorMessage.append("Please select any macro.\n");
+		else {
+			boolean isMatched = false;
+			for (MacroDto macro : macroDataList) {
+				if (macro.getMacroName().equals(macroName.trim())) {
+					isMatched = true;
+				}
+			}
+			if (!isMatched) {
+				errorMessage.append("Please select any macro.\n");
+			}
+		}
 
 		if (errorMessage.length() > 0) {
-			Notifications.showErrorAlert(errorMessage.toString());
+			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
-		String formattedData = "macn = "+macroName+";";
+		String formattedData = "macn = " + macroName + ";";
 		if (runStatus) {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
@@ -524,24 +567,21 @@ public class AdvancedTestingCustomTesting1 {
 						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
 				return;
 			}
-
 			String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
-
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
 		}
 	}
 
 	private void handleUserTestRun() {
-		String stageId = AdvancedTestStateObject.getCustomTest1Id();
-		
+		String stageId = AdvancedTestStateObject.getCustomTest1UserDefinedTestId();
 		StringBuilder errorMessage = new StringBuilder();
 		String testName = testNameTextField.getText();
 		if (testName == null || testName.isEmpty())
 			errorMessage.append("Please select test file name.\n");
 
 		if (errorMessage.length() > 0) {
-			Notifications.showErrorAlert(errorMessage.toString());
+			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
 
@@ -552,8 +592,7 @@ public class AdvancedTestingCustomTesting1 {
 		for (String line : lines) {
 			testFileData.add(line);
 		}
-		
-		
+
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return;
 		}
@@ -566,12 +605,11 @@ public class AdvancedTestingCustomTesting1 {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return;
 		} else if (currentState == TestState.PAUSED) {
-			Notifications.showWarningAlert(
-					StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+			Notifications
+					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
 			return;
 		}
-		
-		Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData, TEST_TYPE_ID);
-		
+		Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
+				TEST_TYPE_ID);
 	}
 }

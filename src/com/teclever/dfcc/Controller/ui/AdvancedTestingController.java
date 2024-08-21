@@ -92,9 +92,15 @@ public class AdvancedTestingController {
 					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Interface Test")) {
 						AdvancedTestStateObject.setInterfaceTestId(stage.getL2StageId());
 					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-1")) {
-						AdvancedTestStateObject.setCustomTest1Id(stage.getL2StageId());
+						if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {							
+							AdvancedTestStateObject.setCustomTest1UserDefinedTestId(stage.getL3StageId());
+						}
 					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-2")) {
-						AdvancedTestStateObject.setCustomTest2Id(stage.getL2StageName());
+						if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {							
+							AdvancedTestStateObject.setCustomTest2UserDefinedTestId(stage.getL3StageId());
+						}else if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("Download Code")) {							
+							AdvancedTestStateObject.setCustomTest2DownloadCodeTestId(stage.getL3StageId());
+						}
 					}					
 				});
 	}
