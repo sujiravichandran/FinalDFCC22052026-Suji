@@ -70,7 +70,7 @@ public class StageConfigurationController {
 	private ComboBox<String> uut_type_field = new ComboBox<>();
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
-	private String UUT_ID;
+	public static String UUT_ID;
 	private String RUN_CONFIG_ID;
 
 	private TextField stageNameField = new TextField();

@@ -12,6 +12,7 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.StageLevelResponse;
 import com.teclever.datastore.dto.StageMasterLevelResponse;
 import com.teclever.datastore.dto.SubLevelResponseDto;
+import com.teclever.datastore.entities.LevelFourStageMaster;
 import com.teclever.datastore.entities.SessionMaster;
 import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
@@ -26,6 +27,7 @@ import com.teclever.datastore.service.SessionTypeOrderService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.datastore.customtestmanagement.AdvanceInterfaceTestingManagement;
 import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
@@ -35,6 +37,7 @@ import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
 import com.teclever.dfcc.datastore.dto.StagesFilesDTO;
 import com.teclever.dfcc.datastore.dto.StagesFilesResponseDTO;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 
 public class StageConfiguration {
 
@@ -461,14 +464,47 @@ e.printStackTrace();
 		}
 	}
 
-	public Response addTestFilesToStage(List<String> fileIds, String stageLevel) {
+	public Response addTestFilesToStage(List<String> fileIds, String stageLevel,String UUTtypeId) {
+		System.out.println("Stage Level From LRU"+ stageLevel);
 		Response response = new Response();
 		try {
 			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
 			response = testFilesStagesMappingService.addTestFilesStagesMapping(stageLevel, fileIds);
+			// Checking Wheather levelId Level 4
+
+			SessionManagement sessionManagement = new SessionManagement();
+			Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+			String levelName = stageIdName.get(stageLevel);
+
+			if (stageLevel.substring(0, 2).equalsIgnoreCase("L4")) {
+				LevelFourMasterSevice levelFourMasterSevice = new LevelFourMasterSevice();
+				LevelFourStageMaster levelFourStageMaster = levelFourMasterSevice.getLevelFourMasterBy(stageLevel);
+				// Checking is From LRU Test
+				if (!levelFourStageMaster.getLevelThreeRefernce().equals("")
+						&& levelFourStageMaster.getLevelThreeRefernce() != null) {
+					AdvanceInterfaceTestingManagement advanceInterfaceTestingManagement = new AdvanceInterfaceTestingManagement();
+					boolean checkLRUStage = advanceInterfaceTestingManagement
+							.checkIsStageFromLRU(levelFourStageMaster.getLevelThreeRefernce());
+					if (checkLRUStage) {
+						Map<String, String> advanceTestingStageNameId = new HashMap<String, String>();
+						advanceTestingStageNameId = advanceInterfaceTestingManagement.getAdvanceStageNameStageId("UUT1");
+
+						String advanceStageLevelId = advanceTestingStageNameId.get(levelName);
+						System.out.println("advanceStageLevelId"+advanceStageLevelId);
+						
+						if (!advanceStageLevelId.equals("") && advanceStageLevelId != null) {
+							response = testFilesStagesMappingService.addTestFilesStagesMapping(advanceStageLevelId, fileIds);
+							response.setResponseMessage("Interface Stages "+response.getResponseMessage());
+							return response;
+						}
+					}
+				}
+
+			}
 		} catch (Exception ex) {
 			response.setResponseCode(0);
 			response.setResponseMessage("Error" + ex.getLocalizedMessage());
+			return response;
 		}
 		return response;
 	}
