@@ -1033,7 +1033,12 @@ public class SessionManagement {
 	//Trails Method Before Finalize 
 	public Map<String, String> validateIsAllLeafHavingTestFiles(List<String> leafIds) {
 		Map<String, String> StageNameValidateMessage = new HashMap<String, String>();
-
+		LevelOneMasterService level1MasterService = new LevelOneMasterService();
+		LevelTwoMasterService level2MasterService = new LevelTwoMasterService();
+		LevelThreeService level3MasterService = new LevelThreeService();												
+		LevelFourMasterSevice level4MasterService = new LevelFourMasterSevice();
+		LevelFiveMasterService level5MasterService = new LevelFiveMasterService();
+		
 		try {
 			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
 			GetResponse response = testFilesStagesMappingService.getAllTestFilesStagesMapping();
@@ -1051,7 +1056,7 @@ public class SessionManagement {
 
 				} else {
 					String stageName = leafIdName.get(leafId);
-					StageNameValidateMessage.put(stageName, "Test File(s) Not Configured Pls Configure..");
+					StageNameValidateMessage.put(getFullPathForLeafIds(leafId), "Test File(s) Not Configured Pls Configure..");
 
 				}
 
@@ -1060,6 +1065,92 @@ public class SessionManagement {
 			System.out.println(ex.getLocalizedMessage());
 		}
 		return StageNameValidateMessage;
+	}
+	
+	public String getFullPathForLeafIds(String leafId) {
+		String msg = "";
+		try {
+			Map<String, String> leafIdName = getAllStageIdName();
+
+			LevelOneMasterService level1MasterService = new LevelOneMasterService();
+			LevelTwoMasterService level2MasterService = new LevelTwoMasterService();
+			LevelThreeService level3MasterService = new LevelThreeService();												
+			LevelFourMasterSevice level4MasterService = new LevelFourMasterSevice();
+			LevelFiveMasterService level5MasterService = new LevelFiveMasterService();
+		
+			if(leafId.substring(0, 2).equalsIgnoreCase("L1"))
+			{
+				msg = leafIdName.get(leafId);
+			}
+			if(leafId.substring(0, 2).equalsIgnoreCase("L2"))
+			{
+				LevelTwoStageMaster l2Master = new LevelTwoStageMaster();
+				LevelOneStageMaster l1Master = new LevelOneStageMaster();
+				
+				l2Master = level2MasterService.getLevelTwoMasterByLevelId(leafId);
+				l1Master = level1MasterService.getLevelOneMasterByLevelId(l2Master.getLevelOneRefernce());
+				
+				msg = leafIdName.get(l2Master.getLevelOneRefernce())+"/"+leafIdName.get(leafId);
+		
+			}
+			
+			if(leafId.substring(0, 2).equalsIgnoreCase("L3"))
+			{
+				LevelThreeStageMaster l3Master = new LevelThreeStageMaster();
+				LevelTwoStageMaster l2Master = new LevelTwoStageMaster();
+				LevelOneStageMaster l1Master = new LevelOneStageMaster();
+				
+				l3Master = level3MasterService.getLevelThreeMasterByLevelId(leafId);
+				l2Master = level2MasterService.getLevelTwoMasterByLevelId(l3Master.getLevelTwoRefernce());
+				l1Master = level1MasterService.getLevelOneMasterByLevelId(l2Master.getLevelOneRefernce());
+				
+				msg = leafIdName.get(l2Master.getLevelOneRefernce())+"/"+leafIdName.get(l2Master.getLevelTwoStageId())+"/"+leafIdName.get(leafId);
+		
+			}
+			
+			if(leafId.substring(0, 2).equalsIgnoreCase("L4"))
+			{
+				LevelFourStageMaster l4Master = new LevelFourStageMaster();
+				LevelThreeStageMaster l3Master = new LevelThreeStageMaster();
+				LevelTwoStageMaster l2Master = new LevelTwoStageMaster();
+				LevelOneStageMaster l1Master = new LevelOneStageMaster();
+				
+				l4Master = level4MasterService.getLevelFourMasterBy(leafId);
+				l3Master = level3MasterService.getLevelThreeMasterByLevelId(l4Master.getLevelThreeRefernce());
+				l2Master = level2MasterService.getLevelTwoMasterByLevelId(l3Master.getLevelTwoRefernce());
+				l1Master = level1MasterService.getLevelOneMasterByLevelId(l2Master.getLevelOneRefernce());
+				
+				msg = leafIdName.get(l2Master.getLevelOneRefernce())+"/"+leafIdName.get(l2Master.getLevelTwoStageId())+"/"+leafIdName.get(l3Master.getLevelThreeStageId())+"/"+leafIdName.get(leafId);
+		
+			}
+			
+			if(leafId.substring(0, 2).equalsIgnoreCase("L5"))
+			{
+				LevelFiveStageMaster l5Master = new LevelFiveStageMaster();
+				LevelFourStageMaster l4Master = new LevelFourStageMaster();
+				LevelThreeStageMaster l3Master = new LevelThreeStageMaster();
+				LevelTwoStageMaster l2Master = new LevelTwoStageMaster();
+				LevelOneStageMaster l1Master = new LevelOneStageMaster();
+				
+				l5Master = level5MasterService.getLevelFiveMasterBy(leafId);
+				l4Master = level4MasterService.getLevelFourMasterBy(l5Master.getLevelFourRefernce());
+				l3Master = level3MasterService.getLevelThreeMasterByLevelId(l4Master.getLevelThreeRefernce());
+				l2Master = level2MasterService.getLevelTwoMasterByLevelId(l3Master.getLevelTwoRefernce());
+				l1Master = level1MasterService.getLevelOneMasterByLevelId(l2Master.getLevelOneRefernce());
+				
+				msg = leafIdName.get(l2Master.getLevelOneRefernce())+"/"+leafIdName.get(l2Master.getLevelTwoStageId())+"/"+leafIdName.get(l3Master.getLevelThreeStageId())+"/"+leafIdName.get(l4Master.getLevelFourStageId())+"/"+leafIdName.get(leafId);
+				
+			}
+			
+			
+			
+			
+			
+		} catch (Exception ex) {
+			
+			System.out.println("Errro On Fetching"+ex.getLocalizedMessage());
+		}
+		return msg;
 	}
 	
 	//Trails Method Get Stages For Trails
