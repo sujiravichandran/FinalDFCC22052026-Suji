@@ -15,6 +15,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
+import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelDto;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
@@ -23,6 +24,7 @@ import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -195,6 +197,8 @@ public class TrialsConfigurationController {
 			Notifications.showSuccessAlert("Trials Configuration Successfully Finalized");
 			FINALIZE_CONFIG = true;
 			disableDispaly();
+			getAllStagesData();
+			
 		} else if (response.getCode() == 0) {
 			
 			Map<String, String> dataMap = response.getStageNameMessage();
@@ -217,6 +221,16 @@ public class TrialsConfigurationController {
 
 			alert.getDialogPane().setExpandableContent(textArea);
 			alert.showAndWait();
+		}
+	}
+	
+	private void getAllStagesData() {
+		SessionStageMapResponse data = sessionManagement
+				.getAllSessionStageMapping(currentSessionDetails.getSessionId());
+		if (data.getResponse().getResponseCode() == 1) {
+			StateMachine.setStageDatalist(data.getListOfStageObject());
+		} else {
+			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
 
