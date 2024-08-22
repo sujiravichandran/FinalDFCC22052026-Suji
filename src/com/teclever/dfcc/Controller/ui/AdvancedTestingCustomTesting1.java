@@ -504,24 +504,9 @@ public class AdvancedTestingCustomTesting1 {
 				+ ";";
 
 		if (runStatus) {
-			if (!checkAitessStatus.isBothAitessOn()) {
-				return;
+			if (checkAndSetTestState()) {
+				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
 			}
-			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
-					|| currentState == TestState.STOPPED) {
-				StateMachine.setTestState(TestState.RUNNING);
-				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
-			} else if (currentState == TestState.RUNNING) {
-				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				return;
-			} else if (currentState == TestState.PAUSED) {
-				Notifications.showWarningAlert(
-						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
-				return;
-			}
-
-			String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
 
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
@@ -551,23 +536,9 @@ public class AdvancedTestingCustomTesting1 {
 		}
 		String formattedData = "macn = " + macroName + ";";
 		if (runStatus) {
-			if (!checkAitessStatus.isBothAitessOn()) {
-				return;
+			if (checkAndSetTestState()) {
+				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
 			}
-			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
-					|| currentState == TestState.STOPPED) {
-				StateMachine.setTestState(TestState.RUNNING);
-				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
-			} else if (currentState == TestState.RUNNING) {
-				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				return;
-			} else if (currentState == TestState.PAUSED) {
-				Notifications.showWarningAlert(
-						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
-				return;
-			}
-			String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
 		}
@@ -593,23 +564,33 @@ public class AdvancedTestingCustomTesting1 {
 			testFileData.add(line);
 		}
 
-		if (!checkAitessStatus.isBothAitessOn()) {
-			return;
+		if (checkAndSetTestState()) {
+			Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
+					TEST_TYPE_ID);
 		}
+	}
+
+	private boolean checkAndSetTestState() {
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return false;
+		}
+
 		TestState currentState = StateMachine.getTestState();
+
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
 			StateMachine.setTestState(TestState.RUNNING);
 			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-			return;
+			return false;
 		} else if (currentState == TestState.PAUSED) {
 			Notifications
 					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
-			return;
+			return false;
 		}
-		Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
-				TEST_TYPE_ID);
+
+		return true;
 	}
+
 }

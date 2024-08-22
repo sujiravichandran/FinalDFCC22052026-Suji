@@ -2,15 +2,20 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -31,21 +36,33 @@ public class AdvancedTestingCustomTesting2 {
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
 	private ObservableList<String> testTypeList = FXCollections.observableArrayList();
 
-	private VBox selectTestFileVBox = new VBox(10);
+	private VBox selectTestFileVBox = new VBox(5);
 	private HBox selectTestFileHBox = new HBox(10);
-	private Label selectTestFileLabel = new Label("Select Test File");
+	private Label selectTestFileLabel = new Label("Test File");
 	private Label addTestFileLabel = new Label("+");
 	private HBox selectedTestFileHBox = new HBox(10);
-	private Label selectedTestFileName = new Label("--------");
+	private Label selectedTestFileName = new Label();
 	private Button selectTestFileRunButton = new Button("Run");
 
-	private VBox downloadCodeVBox = new VBox(10);
+	private VBox downloadCodeVBox = new VBox(5);
 	private HBox downloadCodeHBox = new HBox(10);
 	private Label downloadCodeLabel = new Label("Download Code");
 	private Label addDownloadCodeLabel = new Label("+");
 	private HBox selectedDownloadCodeHBox = new HBox(10);
-	private Label selectedDownloadCodeName = new Label("--------");
+	private Label selectedDownloadCodeName = new Label();
 	private Button downloadCodeRunButton = new Button("Run");
+
+//	private HBox baseFileHBox = new HBox(10);
+//	private Label baseFileLabel = new Label("Base File");
+//	private Label addBaseFileLabel = new Label("+");
+//	private HBox selectedBaseFileHBox = new HBox(10);
+//	private Label selectedBaseFileName = new Label();
+
+	private HBox checkSumFileHBox = new HBox(10);
+	private Label checkSumFileLabel = new Label("CheckSum File");
+	private Label addCheckSumFileLabel = new Label("+");
+	private HBox selectedCheckSumFileHBox = new HBox(10);
+	private Label selectedCheckSumFileName = new Label();
 
 	private GridPane memoryTestGridPane = new GridPane();
 
@@ -68,9 +85,12 @@ public class AdvancedTestingCustomTesting2 {
 
 	private RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 	private AdvanceCustom1TestingManagement advanceCustom1TestingManagement = new AdvanceCustom1TestingManagement();
+	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+
 
 	private String selectedTestFilePath;
 	private String selectedDownloadCodeFilePath;
+	private String selectedCheckSumFilePath;
 
 	private String UUT_ID;
 	private String TEST_TYPE_ID;
@@ -84,11 +104,11 @@ public class AdvancedTestingCustomTesting2 {
 		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(14);
+		firstRow.setPercentHeight(10);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(43);
+		secondRow.setPercentHeight(24);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(43);
+		thirdRow.setPercentHeight(65);
 
 		tab4MainGridPane.setVgap(5);
 		tab4MainGridPane.setHgap(5);
@@ -144,13 +164,15 @@ public class AdvancedTestingCustomTesting2 {
 		addTestFileLabel.getStyleClass().add("form-label-add-button");
 		selectedTestFileName.getStyleClass().add("form-label-selected-text");
 
-		selectedTestFileName.setMaxWidth(400);
+		
+		selectTestFileLabel.setPrefWidth(150);
+		selectedTestFileName.setPrefWidth(480);
 		selectedTestFileName.setWrapText(true);
 
 		selectTestFileHBox.getChildren().addAll(selectTestFileLabel, addTestFileLabel);
 		selectedTestFileHBox.getChildren().addAll(selectedTestFileName, selectTestFileRunButton);
-		selectTestFileHBox.setAlignment(Pos.CENTER);
-		selectedTestFileHBox.setAlignment(Pos.CENTER);
+		selectTestFileHBox.setAlignment(Pos.CENTER_LEFT);
+		selectedTestFileHBox.setAlignment(Pos.CENTER_LEFT);
 
 		selectTestFileVBox.getChildren().addAll(selectTestFileHBox, selectedTestFileHBox);
 
@@ -169,24 +191,61 @@ public class AdvancedTestingCustomTesting2 {
 		downloadCodeVBox.getStyleClass().add("advanced-testing-custom-tab-container");
 		downloadCodeVBox.setAlignment(Pos.CENTER);
 
+//		Download Code
 		downloadCodeLabel.getStyleClass().add("form-label");
 		addDownloadCodeLabel.getStyleClass().add("form-label-add-button");
 		selectedDownloadCodeName.getStyleClass().add("form-label-selected-text");
 
-		selectedDownloadCodeName.setMaxWidth(400);
+		downloadCodeLabel.setPrefWidth(150);
+		selectedDownloadCodeName.setPrefWidth(480);
 		selectedDownloadCodeName.setWrapText(true);
 
 		downloadCodeHBox.getChildren().addAll(downloadCodeLabel, addDownloadCodeLabel);
-		selectedDownloadCodeHBox.getChildren().addAll(selectedDownloadCodeName, downloadCodeRunButton);
-		downloadCodeHBox.setAlignment(Pos.CENTER);
-		selectedDownloadCodeHBox.setAlignment(Pos.CENTER);
+		selectedDownloadCodeHBox.getChildren().add(selectedDownloadCodeName);
+		downloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
+		selectedDownloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
 
-		downloadCodeVBox.getChildren().addAll(downloadCodeHBox, selectedDownloadCodeHBox);
+//		Base File
+//		baseFileLabel.getStyleClass().add("form-label");
+//		addBaseFileLabel.getStyleClass().add("form-label-add-button");
+//		selectedBaseFileName.getStyleClass().add("form-label-selected-text");
+//
+//		baseFileLabel.setPrefWidth(150);
+//		selectedBaseFileName.setPrefWidth(480);
+//		selectedBaseFileName.setWrapText(true);
+//
+//		baseFileHBox.getChildren().addAll(baseFileLabel, addBaseFileLabel);
+//		selectedBaseFileHBox.getChildren().add(selectedBaseFileName);
+//		baseFileHBox.setAlignment(Pos.CENTER_LEFT);
+//		selectedBaseFileHBox.setAlignment(Pos.CENTER_LEFT);
+		
+//		End File
+		checkSumFileLabel.getStyleClass().add("form-label");
+		addCheckSumFileLabel.getStyleClass().add("form-label-add-button");
+		selectedCheckSumFileName.getStyleClass().add("form-label-selected-text");
+
+		checkSumFileLabel.setPrefWidth(150);
+		selectedCheckSumFileName.setPrefWidth(480);
+		selectedCheckSumFileName.setWrapText(true);
+
+		checkSumFileHBox.getChildren().addAll(checkSumFileLabel, addCheckSumFileLabel);
+		selectedCheckSumFileHBox.getChildren().addAll(selectedCheckSumFileName,downloadCodeRunButton);
+		checkSumFileHBox.setAlignment(Pos.CENTER_LEFT);
+		selectedCheckSumFileHBox.setAlignment(Pos.CENTER_LEFT);
+
+//		downloadCodeVBox.getChildren().addAll(baseFileHBox, selectedBaseFileHBox, downloadCodeHBox,
+//				selectedDownloadCodeHBox, endFileHBox, selectedEndFileHBox);
+		downloadCodeVBox.getChildren().addAll(downloadCodeHBox,
+				selectedDownloadCodeHBox, checkSumFileHBox, selectedCheckSumFileHBox);
 
 		addDownloadCodeLabel.setOnMouseClicked(e -> {
 			uploadFile("downloadCode");
 		});
 		
+		addCheckSumFileLabel.setOnMouseClicked(e -> {
+			uploadFile("checksumFile");
+		});
+
 		downloadCodeRunButton.setOnAction(e -> {
 			handleRunTestFile(false);
 		});
@@ -260,7 +319,13 @@ public class AdvancedTestingCustomTesting2 {
 	private void uploadFile(String type) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All Files", "*.*"));
+		if (type.equalsIgnoreCase("selectTestFile")) {			
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Test File", "*.tst","*.tpf","*.com"));
+		}else if (type.equalsIgnoreCase("downloadCode")) {
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Download Code", "*.tst","*.tpf","*.com"));			
+		}else if (type.equalsIgnoreCase("checksumFile")) {
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CheckSum File", "*.run","*.chk"));						
+		}
 		File selectedFile = fileChooser.showOpenDialog(tab4MainGridPane.getScene().getWindow());
 		if (selectedFile != null) {
 			String filePath = selectedFile.getAbsolutePath();
@@ -271,13 +336,18 @@ public class AdvancedTestingCustomTesting2 {
 			} else if (type.equalsIgnoreCase("downloadCode")) {
 				selectedDownloadCodeName.setText(fileName);
 				selectedDownloadCodeFilePath = filePath;
+			} else if (type.equalsIgnoreCase("checksumFile")) {
+				selectedCheckSumFileName.setText(fileName);
+				selectedCheckSumFilePath = filePath;
 			}
 		}
 	}
 
 	private void enableOrDisable(boolean status) {
 		addTestFileLabel.setDisable(status);
+//		addBaseFileLabel.setDisable(status);
 		addDownloadCodeLabel.setDisable(status);
+		addCheckSumFileLabel.setDisable(status);
 		selectTestFileRunButton.setDisable(status);
 		downloadCodeRunButton.setDisable(status);
 		memoryTypeComboBox.setDisable(status);
@@ -287,26 +357,60 @@ public class AdvancedTestingCustomTesting2 {
 		ipDataTextField.setDisable(status);
 		memoryTestRunButton.setDisable(status);
 	}
-	
 
 	private void handleRunTestFile(boolean isTestFile) {
-		if(isTestFile) {
-			if(selectedTestFilePath != null) {	
+		if (isTestFile) {
+			if (selectedTestFilePath != null) {
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
-				System.out.println("TEST FILE");
-				System.out.println(UUT_ID+"  "+TEST_TYPE_ID+"  "+selectedTestFilePath+" "+stageId);
-//				advanceCustom1TestingManagement.customTwoRunTestFile(stageId, selectedTestFilePath, TEST_TYPE_ID);
-			}else {
+//				System.out.println("TEST FILE");
+//				System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedTestFilePath + " " + stageId);
+				if(checkAndSetTestState()) {					
+					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId, selectedTestFilePath, TEST_TYPE_ID);
+				}
+			} else {
 				Notifications.showWarningAlert("Select a test file to run.");
 			}
-		}else {
-			if(selectedDownloadCodeFilePath != null) {	
-				String stageId = AdvancedTestStateObject.getCustomTest2DownloadCodeTestId();
-				System.out.println("DOWNLOAD CODE");
-				System.out.println(UUT_ID+"  "+TEST_TYPE_ID+"  "+selectedDownloadCodeFilePath+" "+stageId);
-			}else {
+		} else {
+			if (selectedDownloadCodeFilePath != null) {
+				if(selectedCheckSumFilePath != null) {					
+					String stageId = AdvancedTestStateObject.getCustomTest2DownloadCodeTestId();
+//					System.out.println("DOWNLOAD CODE");
+//					System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedDownloadCodeFilePath + " " + stageId);
+//					System.out.println("CheckSum File");
+//					System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedCheckSumFilePath + " " + stageId);
+					if(checkAndSetTestState()) {
+						Response response = advanceCustom1TestingManagement.customTwoRunDownloadFile(stageId, selectedDownloadCodeFilePath, selectedCheckSumFilePath, TEST_TYPE_ID);
+					}
+				}else {
+					Notifications.showWarningAlert("Select a checksum file to run.");
+				}
+			} else {
 				Notifications.showWarningAlert("Select a download code file to run.");
 			}
 		}
+	}
+	
+	
+	private boolean checkAndSetTestState() {
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return false;
+		}
+
+		TestState currentState = StateMachine.getTestState();
+
+		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+				|| currentState == TestState.STOPPED) {
+			StateMachine.setTestState(TestState.RUNNING);
+			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+		} else if (currentState == TestState.RUNNING) {
+			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+			return false;
+		} else if (currentState == TestState.PAUSED) {
+			Notifications
+					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+			return false;
+		}
+
+		return true;
 	}
 }
