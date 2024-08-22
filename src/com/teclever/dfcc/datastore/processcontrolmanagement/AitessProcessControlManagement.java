@@ -19,6 +19,7 @@ import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
 import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.WDMStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
@@ -517,6 +518,7 @@ if (dfccCheckStstusStarted) {
 
 	public String performTest(String tpfFileName) {
 
+		checkChannelStatus();
 		String aets1QResponse = null;
 		try {
 			testStarted = true;
@@ -558,17 +560,61 @@ if (dfccCheckStstusStarted) {
 	}
 
 	public void WriteDfccPowerOnCommandToAitess2() {
-		launcherFuture2
-				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
+
+		try {
+			dfccCheckStstusStarted = true;
+			launcherFuture2
+			.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
+			Thread.sleep(500);
+			launcherFuture2
+			.thenRun(() -> aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n"));
+			System.out.println("EXECUTED gse_conn=1");
+			
+			launcherFuture2.thenRun(
+					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		currentCommand = "DfccPowerOnCommand";
 		dfccCheckStatus.getDfccPowerStatus().set(true);
+		dfccCheckStstusStarted = false;
+
 	}
 
-	public void WriteDfccPowerOffCommandToAitess2() {
+	// check before any test is get started
+	public void checkChannelStatus() {
+		dfccCheckStstusStarted = true;
 		launcherFuture2
-				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
+				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+		dfccCheckStstusStarted = false;
+
+		if (OnlineStatus.getChannel1Status() == "offline" || OnlineStatus.getChannel2Status() == "offline"
+				|| OnlineStatus.getChannel3Status() == "offline" || OnlineStatus.getChannel4Status() == "offline") {
+
+			WriteDfccPowerOnCommandToAitess2();
+		} else {
+
+		}
+	}
+	
+	
+	
+	public void WriteDfccPowerOffCommandToAitess2() {
+		try {
+			dfccCheckStstusStarted = true;
+			launcherFuture2
+			.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
+			Thread.sleep(500);
+			launcherFuture2.thenRun(
+					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		currentCommand = "DfccPowerOffCommand";
 		dfccCheckStatus.getDfccPowerStatus().set(false);
+		dfccCheckStstusStarted = false;
+
 	}
 
 	public void WriteMacroCommandToAitess2(String macroCommand) {
@@ -905,4 +951,21 @@ if (dfccCheckStstusStarted) {
 		return finalHtmlText;
 	}
 
+	public void endAllProcessOnLogout() {
+
+		// unloadDriver
+		RunConfigurationService runConfigurationService = new RunConfigurationService();
+		String currentRunConfigId = currentSessionDetails.getRunConfigId();
+		AitessConfigurationDetails currentAitess = runConfigurationService
+				.getAitessDetailsByRunConfigId(currentRunConfigId);
+		
+		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
+		pcm.loadDriver(null, currentAitess.getUnloadDriverCommand(), 0,
+				LoadDriverProcessControlManagement.LoadMode.LOGOUT);
+
+		// kill pty process
+		exitAitess1Command();
+		exitAitess2Command();
+
+	}
 }

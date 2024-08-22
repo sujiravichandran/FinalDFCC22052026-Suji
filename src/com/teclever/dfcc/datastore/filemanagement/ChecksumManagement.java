@@ -388,7 +388,7 @@ public class ChecksumManagement {
 	            validateResponse.setResponse(response);
 	            checkSumList.addAll(performDetailedComparison(dbFileChecksumDetails, Paths.get(filePath)));
 	        } else {
-	        	response.setResponseCode(0);
+	        	response.setResponseCode(1);
 	        	response.setResponseMessage("CHECKSUM NOT MATCHED");
 	            validateResponse.setResponse(response);
 	            checkSumList.addAll(performDetailedComparison(dbFileChecksumDetails, Paths.get(filePath)));
