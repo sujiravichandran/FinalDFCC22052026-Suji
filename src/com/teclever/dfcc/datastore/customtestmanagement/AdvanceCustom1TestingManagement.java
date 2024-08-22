@@ -1,20 +1,26 @@
 package com.teclever.dfcc.datastore.customtestmanagement;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.rowset.serial.SerialBlob;
 
@@ -115,57 +121,6 @@ public class AdvanceCustom1TestingManagement {
 
 	}
 
-//	// Running Single Macro Command
-//	public String customOneRun(String macroName) {
-//
-//		String macroCommand;
-//		try {
-//			macroCommand = macroName;
-//		} catch (Exception e) {
-//			return null;
-//		}
-//		return macroCommand;
-//
-//	}
-
-//	// Return Formated Single Symbol Command
-//	public String customOneAdd(String symbolName, String minValue, String maxValue, String ipData) {
-//
-//		String symbolCommand;
-//		try {
-//			symbolCommand = symbolName + " = " + ipData;
-//
-//			/*
-//			 * SYMB=TTR1_I DEST=FCC1 IOTYPE=SPIL TYPE=U16 CHAN=1000 ADDR=206CC03E MASK=FFFF
-//			 * SLPE=1. BIAS=0. MIN=-32768. MAX=32767. READ=1 WRTE=1 UNIT=XXX
-//			 */
-//
-//			symbolCommand = "SYMB=" + symbolName + " DEST=" + " IOTYPE= " + " TYPE=" + " CHAN=" + " ADDR=" + " MASK="
-//					+ ipData;
-//
-//			symbolCommand = symbolCommand + "SLPE=" + " BIAS" + " MIN=" + minValue + " MAX=" + maxValue + " READ="
-//					+ " WRTE=" + " UNIT=";
-//
-//		} catch (Exception e) {
-//			return null;
-//		}
-//		return symbolCommand;
-//
-//	}
-//
-//	// Return Formated Single Macro Command
-//	public String customOneAdd(String macroName) {
-//
-//		String macroCommand;
-//		try {
-//			macroCommand = macroName;
-//		} catch (Exception e) {
-//			return null;
-//		}
-//		return macroCommand;
-//
-//	}
-
 	// Creating Text File To Run Test
 	public Response customOneRunTestFile(String stageId, String fileName, List<String> symbolMacroTextFormate,
 			String testTypeId) {
@@ -173,6 +128,7 @@ public class AdvanceCustom1TestingManagement {
 		Response res = new Response();
 		String fileNamewithFullPath = customFileDir + fileName;
 		try {
+			System.out.println("fileNamewithFullPath  " + fileNamewithFullPath);
 			createDirectoryIfNotExists(customFileDir);
 			if (directoryExist(customFileDir)) {
 				if (!createFileIfNotExists(fileNamewithFullPath)) {
@@ -346,6 +302,130 @@ public class AdvanceCustom1TestingManagement {
 			res.setResponseMessage("Test not Started : " + e.getLocalizedMessage());
 		}
 		return res;
+	}
+
+	public Response customTwoRunDownloadFile(String stageId, String testFile, String checkSumValueFile,
+			String testTypeId) {
+		Response res = new Response();
+		try {
+			File downloadFile = new File(testFile);
+			File checkSumFile = new File(checkSumValueFile);
+			if (!downloadFile.exists() || !checkSumFile.exists()) {
+				System.out.println("Please Check File paths - " + testFile + "  " + checkSumValueFile);
+				res.setResponseCode(0);
+				res.setResponseMessage("Please Check File paths - " + testFile + "  " + checkSumValueFile);
+				return res;
+
+			}
+			Path path = Paths.get(checkSumValueFile);
+
+			Map<String, String> listOfCheckSum = extractCheckSumValues(checkSumFile);
+
+			File modifiedFile = filenameAndCheckSumModification(downloadFile, listOfCheckSum,
+					path.getFileName().toString(), currentDirectory + File.separator + "MK-1");
+
+			
+			addCustomTest(modifiedFile.getName(), modifiedFile.getParent().toString()+ File.separator, downloadFile, "C2");
+
+			addTestFiletoStageAndStartTest(testTypeId, modifiedFile.getAbsolutePath(), stageId, "CUSTOM TWO");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			res.setResponseCode(0);
+			res.setResponseMessage("Test not Started : " + e.getLocalizedMessage());
+		}
+		return res;
+	}
+
+	private File filenameAndCheckSumModification(File downloadFile, Map<String, String> listOfCheckSum,
+			String chckSumFileName, String fileLocationToCopy) {
+
+		File modifiedFile = new File(fileLocationToCopy + File.separator + downloadFile.getName());
+
+		// Define the regex pattern to match the path and file name
+		Pattern pathFinePattern = Pattern.compile("DOWNLOAD =\\s*(.+/)([^/]+)$");
+
+		// Define the regex pattern to match the Blocks(BLOCK1, BLOCK2, etc.)
+		Pattern blockFindPattern = Pattern.compile("OPMSG ... CHECK SUM VERIFICATION FOR BLOCK-(\\d{1,2}) IN PROGRESS");
+
+		// Define the regex pattern to match the Value lines
+		Pattern valueFinPattern = Pattern.compile("tip # VR (\\S+) (\\S+) (\\S+)");
+
+		try (BufferedReader br = new BufferedReader(new FileReader(downloadFile));
+				BufferedWriter bw = new BufferedWriter(new FileWriter(modifiedFile))) {
+			String line;
+			String currentBlock = null;
+			while ((line = br.readLine()) != null) {
+				Matcher blockMatcher = blockFindPattern.matcher(line);
+
+				Matcher matcher = pathFinePattern.matcher(line);
+
+				if (matcher.find()) {
+					String fileName = matcher.group(2);// File Name
+					line = line.replace(fileName, chckSumFileName);
+				}
+
+				if (blockMatcher.find()) {
+
+					// Get the current block number from the OPMSG line
+					currentBlock = "BLOCK" + blockMatcher.group(1); // BLOCK1, BLOCK2, etc.
+
+				} else if (currentBlock != null) {
+					Matcher checkSumValueMatcher = valueFinPattern.matcher(line);
+					if (checkSumValueMatcher.find()) {
+
+						String oldChecksum = checkSumValueMatcher.group(3); // The original checksum value
+
+						// Replace the old checksum with the new checksum from the map
+						String newChecksum = listOfCheckSum.get(currentBlock);
+						if (newChecksum != null) {
+							line = line.replace(oldChecksum, newChecksum); // Replace in the line
+							currentBlock = null;
+						}
+					}
+				}
+				// Write the modified line to the temporary file
+				bw.write(line);
+				bw.newLine(); // Add a new line to the temporary file
+			}
+			bw.close();
+			br.close();
+			// Replace the original file with the temporary file
+//		if (downloadFile.delete()) {
+//			tempFile.renameTo(downloadFile);
+//			System.out.println("File Deleted Succesfull  "+tempFile.getAbsolutePath()+"  "+downloadFile.getAbsolutePath());
+//		} else {
+//			System.out.println("Could not delete the original file.");
+//		}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return modifiedFile;
+	}
+
+	public Map<String, String> extractCheckSumValues(File checkSumFile) {
+		Map<String, String> checksumMap = new LinkedHashMap<>();
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(checkSumFile))) {
+			String line;
+			Pattern pattern = Pattern.compile("CHECKSUM FOR (BLOCK\\d+) .* (\\w{9})$");
+
+			while ((line = reader.readLine()) != null) {
+				Matcher matcher = pattern.matcher(line);
+
+				if (matcher.find()) {
+					String key = matcher.group(1); // BLOCK1, BLOCK2, etc.
+					String value = matcher.group(2);// The checksum value
+					checksumMap.put(key, value);
+				}
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return checksumMap;
 	}
 
 	// NOT USED
