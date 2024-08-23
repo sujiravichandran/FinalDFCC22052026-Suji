@@ -22,7 +22,7 @@ public class LoadDriverProcessControlManagement {
 	private static LoadDriverProcessControlManagement instance;
 
 	public enum LoadMode {
-		STARTUP, SWITCH
+		STARTUP, SWITCH, LOGOUT
 	}
 
 	private BlockingQueue<String> loadDriverBQueue = new ArrayBlockingQueue<>(10000);
