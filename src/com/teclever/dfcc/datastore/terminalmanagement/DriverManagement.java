@@ -41,48 +41,6 @@ public class DriverManagement {
 		return driverCardDetails;
 	}
 
-	public DriverCard parseLine(String outputLine, String cardIdentificationText) {
-		DriverCard dr = new DriverCard();
-		Pattern cardNamePattern = Pattern.compile("\\*{12}Initializing\\s+(\\w+)\\s+Card\\*{12}");
-		Matcher cardNameMatcher = cardNamePattern.matcher(outputLine);
-		Response response = new Response();
-		if (cardNameMatcher.find()) {
-			String cardName = cardNameMatcher.group(1);
-			System.out.println("Card Name: " + cardName);
-
-			if (cardIdentificationText != null) {
-				if (cardIdentificationText.contains("##NUM##")) {
-					// Replace ##NUM## with a capturing group for the number
-					String dynamicPatternString = cardIdentificationText.replace("##NUM##", "(\\d+)");
-					Pattern dynamicPattern = Pattern.compile(dynamicPatternString);
-					Matcher dynamicMatcher = dynamicPattern.matcher(outputLine);
-
-					if (dynamicMatcher.find()) {
-						String numOfCards = dynamicMatcher.group(1);
-						response.setResponseCode(1);
-						response.setResponseMessage("SUCCESS");
-
-						return new DriverCard(cardName, numOfCards, response);
-					}
-				} else {
-					// Static pattern, check if output line contains the cardIdentificationText
-					if (outputLine.contains(cardIdentificationText)) {
-						response.setResponseCode(1);
-						response.setResponseMessage("SUCCESS");
-						return new DriverCard(cardName, "1", response);
-					}
-				}
-			} else {
-				System.out.println("No card details found for the card: " + cardName);
-				response.setResponseCode(1);
-				response.setResponseMessage("SUCCESS");
-				return new DriverCard(cardName, "0", response); // Set card count to 0
-			}
-		}
-		response.setResponseCode(0);
-		response.setResponseMessage("FAILURE");
-		return new DriverCard(null, null, response);
-	}
 	
 	public DriverCard parseLine1(String outputLine, String cardIdentificationText) {
 	    CardDetailsService cd = new CardDetailsService();
@@ -118,6 +76,56 @@ public class DriverManagement {
 	    response.setResponseMessage("FAILURE");
 	    return new DriverCard(null, null, response);
 	}
+	
+	
+	//new logic 
+	public DriverCard parseLineNEW(String outputLine, String cardIdentificationText) {
+	    CardDetailsService cd = new CardDetailsService();
+	    Response response = new Response();
+
+	    // Fetch card name from the db based on the cardIdentificationText
+	    String dbCardName = cd.getCardNameByIdentificationText(cardIdentificationText);
+	    System.out.println("Parsed cardName from DB ::  " + dbCardName);
+
+	    if (dbCardName == null) {
+	        response.setResponseCode(100);
+	        response.setResponseMessage("FAILURE: Card identification text not found in the database");
+	        return new DriverCard(null, "FAILURE", response);
+	    }
+
+	    if (cardIdentificationText != null && outputLine.contains(cardIdentificationText)) {
+	        // Card identification text found in the outputLine
+	        response.setResponseCode(1);
+	        response.setResponseMessage("SUCCESS");
+	        return new DriverCard(dbCardName, "CARD MATCHED", response);
+	    }
+
+	    // Card identification text not found in outputLine, but still return dbCardName
+	    response.setResponseCode(0);
+	    response.setResponseMessage("FAILURE: Card identification text not found");
+	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
+	}
+
+	
+	public DriverCard parseLineAIM(String outputLine) {
+	    Response response = new Response();
+        String dbCardName = "aim_mil"; 
+
+	    if (outputLine != null && outputLine.contains("aim_mil")) {
+	        response.setResponseCode(1);
+	        response.setResponseMessage("SUCCESS");
+	        return new DriverCard(dbCardName, "CARD MATCHED", response);
+	    }
+
+	    response.setResponseCode(0);
+	    response.setResponseMessage("FAILURE: aim_mil not found");
+	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
+	}
+
+	
+	
+	
+	
 		}
 		
 	

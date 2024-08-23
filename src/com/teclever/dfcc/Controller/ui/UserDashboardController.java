@@ -336,6 +336,9 @@ public class UserDashboardController {
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
 					StateMachine.getCurrentUserLogin(), new Date(), StateMachine.getCurrentUserLogin() + " logged out");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+
+			aitessProcessControlManagement.endAllProcessOnLogout();
 			Platform.exit();
 		});
 
