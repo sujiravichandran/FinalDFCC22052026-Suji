@@ -249,6 +249,15 @@ public class AdvancedTestingCustomTesting2 {
 		downloadCodeRunButton.setOnAction(e -> {
 			handleRunTestFile(false);
 		});
+		
+
+		AdvancedTestStateObject.customTest2StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue) {
+				StateMachine.setTestState(TestState.COMPLETED);
+				AdvancedTestStateObject.customTest2StatusProperty().set(true);
+			}
+
+		});
 
 		return downloadCodeVBox;
 	}
