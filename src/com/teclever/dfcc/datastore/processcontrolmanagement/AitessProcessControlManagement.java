@@ -258,7 +258,7 @@ public class AitessProcessControlManagement {
 						
 						
 						if(checkMethod==true) {
-							if(s1.contains("Message: AITESS configured")) {
+							if(s1.contains(">>>")) {
 								System.out.println("END LINE FOR RELOAD CONFIG FOUNDED -------777777777777777777777");
 								aitessRunning.setAitess1ReloadConfigured(true);
 								checkMethod=false;
@@ -723,18 +723,24 @@ if (dfccCheckStstusStarted) {
 
 			} else {
 				checkMethod=true;
-				boolean aets1SwitchFlag = true;
+				boolean aets1SwitchFlagg = true;
 				System.out.println(
 						"Aitess Matches::---- " + smAitess.getAitessName() + " == " + currentAitess.getAitessName());
 				if (!smAitess.getConfigFile().equals(currentAitess.getConfigFile())) {
 					try {
 						Files.copy(Paths.get(currentAitess.getConfigFile()), aitessConfigFile,
 								StandardCopyOption.REPLACE_EXISTING);
-						Files.copy(Paths.get(currentAitess.getConfigFile()), aitess1ConfigFile,
-								StandardCopyOption.REPLACE_EXISTING);
+	
+						//exit from aitess
+						exitAitess1Command();
 						Thread.sleep(200);
-						launcherFuture1
-								.thenRun(() -> aitess1ProcessControl.WritingProcess("reload_configuration" + "\n"));
+						
+						//load aitess
+						launcherFuture1.thenRun(
+								() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
+						
+//						launcherFuture1
+//								.thenRun(() -> aitess1ProcessControl.WritingProcess("reload_configuration" + "\n"));
 						// launcherFuture2.thenRun(() ->
 						// aitess2ProcessControl.WritingProcess("reload_configuration" + "\n"));
 					} catch (IOException e) {
@@ -745,10 +751,10 @@ if (dfccCheckStstusStarted) {
 					}
 				
 				
-				while (aets1SwitchFlag) {
+				while (aets1SwitchFlagg) {
 					// System.out.print(" 1 ");
 					if (aitessRunning.isAitess1ReloadConfigured()) {
-						aets1SwitchFlag = false;
+						aets1SwitchFlagg = false;
 						// currentSessionDetails.setRunConfigId(currentRunConfigId);
 						System.out.println("AFTER 1 SWITCHING RUN CONFIG GETS UPDATED:: ------>>> "
 								+ currentSessionDetails.getRunConfigId());
@@ -962,6 +968,7 @@ if (dfccCheckStstusStarted) {
 		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
 		pcm.loadDriver(null, currentAitess.getUnloadDriverCommand(), 0,
 				LoadDriverProcessControlManagement.LoadMode.LOGOUT);
+		System.out.println("DRIVER <<< "+currentAitess.getDriverName()+" >>> UNLOADED");
 
 		// kill pty process
 		exitAitess1Command();

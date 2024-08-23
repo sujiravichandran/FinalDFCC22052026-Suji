@@ -22,23 +22,34 @@ public class LoadDriverProcessControlManagement {
 	private static LoadDriverProcessControlManagement instance;
 
 	public enum LoadMode {
-		STARTUP, SWITCH, LOGOUT
+		STARTUP, SWITCH,LOGOUT,CARD
 	}
 
 	private BlockingQueue<String> loadDriverBQueue = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> aimMilBQueue = new ArrayBlockingQueue<>(10000);
+
 	private Thread loadDriverLaunchingThread;
+	
+	
 	private Thread outputProcessingThread;
+	private Thread aimMilOutputProcessingThread;
+	
 	boolean flag = true;
+	boolean aimFlag = true;
 	private String currentLoadedDriver = null;
 	private boolean closeCommandExecuted = false;
 	private boolean endOfLoadDriverCommand = false;
 
 	private ProcessControl loadDriverProcessController;
+	private ProcessControl aimMil;
 
 	CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
+	CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
+
 
 	private LoadDriverProcessControlManagement() {
 		loadDriverProcessController = new ProcessControl(loadDriverBQueue);
+		aimMil = new ProcessControl(aimMilBQueue);
 	}
 
 	public static synchronized LoadDriverProcessControlManagement getInstance() {
@@ -130,6 +141,59 @@ public class LoadDriverProcessControlManagement {
 				System.out.println("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
 				return response;
 
+				
+			case CARD:
+				aimMil.LaunchingProcess(command, launcherFuture1);
+
+				launcherFuture1.thenRun(() -> {
+					aimMil.ReadingProcess();
+					aimMilOutputProcessingThread = new Thread(() -> {
+						try {
+							aimFlag = true;
+							while (aimFlag) {
+								String output = aimMilBQueue.take();
+								System.out.println("aimMil :: " + output);
+								
+								DriverCard aimMil = dm.parseLineAIM(output);
+								if(aimMil.getResponse().getResponseCode()==1) {
+									aimMil.setCardName("aim_mil");
+									aimMil.setMsg("OK");
+									responseDriverCards.add(aimMil);
+								}
+								
+								
+								System.out.println(output);
+								if (output.contains("aim_mil")) {
+									aimFlag = false;
+								}
+							}
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+							Thread.currentThread().interrupt();
+						}
+						aimMilOutputProcessingThread.interrupt();
+					});
+					aimMilOutputProcessingThread.start();
+
+				});
+
+				launcherFuture1.join();
+				if (aimMilOutputProcessingThread != null) {
+					aimMilOutputProcessingThread.join();
+				}
+				DriverCardDetailsResponse response1 = new DriverCardDetailsResponse();
+
+				while (aimFlag) {
+					System.out.print("- ");
+				}
+
+				response1.setDriverCardDetails(responseDriverCards);
+				System.out.println("---- RESPONSE LIST SIZE AIM_MIL ----" + response1.getDriverCardDetails().size());
+				return response1;
+				
+				
+				
+				
 			case SWITCH:
 				launcherFuture.thenRun(() -> {
 					loadDriverProcessController.ReadingProcess();
@@ -189,6 +253,16 @@ public class LoadDriverProcessControlManagement {
 					endOfLoadDriverCommand = false;
 					break;
 				}
+				
+			case LOGOUT:
+				aitessProcessControlManagement.exitAitess1Command();
+				aitessProcessControlManagement.exitAitess2Command();
+				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
+				launcherFuture.thenRun(
+						() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
+				
+				stopLoadDriverLaunchingThread();
+								
 			}
 		} catch (Exception e) {
 			System.err.println("An error occurred while loading the driver: " + e.getMessage());
