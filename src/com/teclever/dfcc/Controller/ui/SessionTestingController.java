@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,12 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -53,6 +58,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class SessionTestingController {
 	private GridPane sessionTestingMainGridPane = new GridPane();
@@ -89,15 +98,16 @@ public class SessionTestingController {
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
-	private boolean isTrailSession = false ;
-	
+	private boolean isTrailSession = false;
+
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
 
 	public GridPane createSessionTestingGridPane(boolean status) {
-		if(status) {
-			isTrailSession = true ;
+		if (status) {
+			isTrailSession = true;
 		}
 		getSessionTestData();
+		initializeRdfFileCopyPopup();
 		sessionTestingMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
 		sessionTestingMainGridPane.getStyleClass().add("session-testing-container");
@@ -139,9 +149,9 @@ public class SessionTestingController {
 		sessionTestingHeadingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		if(isTrailSession) {
-			title.setText("TRIALS TESTING");	
-		}else {
+		if (isTrailSession) {
+			title.setText("TRIALS TESTING");
+		} else {
 			title.setText("SESSION TESTING");
 		}
 
@@ -237,10 +247,10 @@ public class SessionTestingController {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
-		
-		runAllButton.setOnAction(e ->{
-			if(!checkAitessStatus.isBothAitessOn()) {
-				return ;
+
+		runAllButton.setOnAction(e -> {
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
 			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -252,10 +262,10 @@ public class SessionTestingController {
 				Notifications.showWarningAlert("Please Select Test File...");
 				return;
 			}
-			
-			
+
 			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+					|| currentState == TestState.STOPPED) {
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -279,10 +289,11 @@ public class SessionTestingController {
 
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
-			
+
 		});
 
 		startButton.setOnAction(e -> {
+			SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -291,8 +302,8 @@ public class SessionTestingController {
 				stopButton.setDisable(false);
 				return;
 			}
-			if(!checkAitessStatus.isBothAitessOn()) {
-				return ;
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
 			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -306,7 +317,8 @@ public class SessionTestingController {
 			}
 
 			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+					|| currentState == TestState.STOPPED) {
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -331,7 +343,7 @@ public class SessionTestingController {
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
 		});
-		
+
 		SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {
 				SessionTestStateObject.getRunningTestLeafStatus().set(false);
@@ -373,9 +385,8 @@ public class SessionTestingController {
 		repeatCountVBox.setAlignment(Pos.CENTER);
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
-		
 		buttonHBox.setAlignment(Pos.CENTER);
-		buttonHBox.getChildren().addAll(repeatCountVBox,runAllButton, startButton, pauseButton, stopButton);
+		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
 		return buttonHBox;
 	}
 
@@ -678,8 +689,8 @@ public class SessionTestingController {
 
 			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-				if(StateMachine.getTestState() != TestState.RUNNING) {
-					startButton.setDisable(!anySelected);	
+				if (StateMachine.getTestState() != TestState.RUNNING) {
+					startButton.setDisable(!anySelected);
 				}
 			});
 		}
@@ -738,15 +749,16 @@ public class SessionTestingController {
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				
-				boolean isContinueWithError = SessionTestStateObject.getL1ContinueWithErrorStatus().get(SessionTestStateObject.getCurrentRunningStageId());			
-				
-				String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+
+				boolean isContinueWithError = SessionTestStateObject.getL1ContinueWithErrorStatus()
+						.get(SessionTestStateObject.getCurrentRunningStageId());
+
+				String runConfigId = runConfigurationService
+						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
-				
-				
+
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
 
@@ -756,19 +768,18 @@ public class SessionTestingController {
 
 		new Thread(task).start();
 	}
-	
-	
+
 	private TableView<SessionTestResult> createResultTableView() {
 		sessionTestTable = createTableView();
-		
+
 		return sessionTestTable;
 
 	}
 
 	private TableView<SessionTestResult> createTableView() {
 		TableView<SessionTestResult> tableView = new TableView<>();
-		tableView.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		tableView.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -786,26 +797,27 @@ public class SessionTestingController {
 		resultColumn.setSortable(false);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
-		
-		SessionTestStateObject.getSessionTestResults().addListener((ListChangeListener<? super SessionTestResult>) change -> {
-			while (change.next()) {
-				if (change.wasAdded()) {
-					int lastIndex = SessionTestStateObject.getSessionTestResults().size() - 1;
-					Platform.runLater(() -> {
-						tableView.scrollTo(lastIndex);
-						tableView.getSelectionModel().select(lastIndex);
-						tableView.getFocusModel().focus(lastIndex);
-					});
-				}
-			}
-		});
-		
+
+		SessionTestStateObject.getSessionTestResults()
+				.addListener((ListChangeListener<? super SessionTestResult>) change -> {
+					while (change.next()) {
+						if (change.wasAdded()) {
+							int lastIndex = SessionTestStateObject.getSessionTestResults().size() - 1;
+							Platform.runLater(() -> {
+								tableView.scrollTo(lastIndex);
+								tableView.getSelectionModel().select(lastIndex);
+								tableView.getFocusModel().focus(lastIndex);
+							});
+						}
+					}
+				});
+
 		tableView.getColumns().addAll(fileNameColumn, resultColumn);
 		tableView.setItems(SessionTestStateObject.getSessionTestResults());
 
 		return tableView;
 	}
-	
+
 	private void rewriteColumn(TableColumn<SessionTestResult, String> resultColumn) {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
@@ -827,6 +839,37 @@ public class SessionTestingController {
 						setText(item);
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
+				}
+			}
+		});
+	}
+
+	private void initializeRdfFileCopyPopup() {
+		SessionTestStateObject.isRdfFileCopyPopupStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				try {
+					FXMLLoader rdfFileCopyPopup = new FXMLLoader(getClass()
+							.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/RdfFileCopy.fxml"));
+					Parent root = rdfFileCopyPopup.load();
+
+					Stage stage = new Stage();
+					stage.initModality(Modality.APPLICATION_MODAL);
+					stage.initStyle(StageStyle.UNDECORATED);
+					stage.centerOnScreen();
+					
+					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
+					
+					Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+				    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
+				    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+				    stage.setX(centerX);
+				    stage.setY(centerY);
+				   
+					stage.setScene(new Scene(root));
+					stage.showAndWait();
+				    
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		});

@@ -1,0 +1,152 @@
+package com.teclever.dfcc.Controller.ui;
+
+import com.teclever.dfcc.model.RdfFileCopy;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class RdfFileCopyPopupController {
+
+	@FXML
+	private AnchorPane rdfFileCopyMainContainer;
+	@FXML
+	private HBox rdfFileCopyHeadingHBox;
+	@FXML
+	private VBox rdfFileCopyMidVBox;
+
+	private Label headingLabel = new Label("Copy RDF Files");
+	private HBox buttonHBox = new HBox(15);
+	private Button copyButton = new Button("Copy Files");
+	private Button closeButton = new Button("Close");
+	private TableView<RdfFileCopy> tableView = new TableView<>();
+	
+	private VBox pathLabelVBox = new VBox(5);
+	private HBox currentDirHBox = new HBox(5);
+	private HBox copyDirHBox = new HBox(5);
+	
+	private Label currentDirLabel = new Label("Current Directory"); 
+	private Label currentDirPath = new Label("----"); 
+	private Label copyDirLabel = new Label("Copy Directory"); 
+	private Label copyDirPath = new Label("----"); 
+
+	@FXML
+	private void initialize() {
+		headingLabel.getStyleClass().add("title");
+
+		rdfFileCopyHeadingHBox.getChildren().add(headingLabel);
+		rdfFileCopyHeadingHBox.setAlignment(Pos.CENTER);
+		createMidContainer();
+	}
+
+	private void createMidContainer() {
+		tableView.getStyleClass().add("rdf-file-table");
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		 TableColumn<RdfFileCopy, Boolean> selectColumn = new TableColumn<>("");
+		    selectColumn.setCellValueFactory(new PropertyValueFactory<>("selected")); // 'selected' is the property name in RdfFileCopy
+		    selectColumn.setReorderable(false);
+		    selectColumn.setSortable(false);
+		    selectColumn.setStyle("-fx-alignment: CENTER;");
+		    
+		    selectColumn.setPrefWidth(60); 
+		    selectColumn.setMinWidth(60); 
+		    selectColumn.setMaxWidth(60);  
+		    
+		    // Custom rendering for the checkbox
+		    selectColumn.setCellFactory(tc -> new TableCell<RdfFileCopy, Boolean>() {
+		        private final CheckBox checkBox = new CheckBox();
+
+		        @Override
+		        protected void updateItem(Boolean item, boolean empty) {
+		            super.updateItem(item, empty);
+		            if (empty) {
+		                setGraphic(null);
+		            } else {
+		                checkBox.setSelected(item);
+		                checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+		                    RdfFileCopy rdfFileCopy = getTableRow().getItem();
+		                    if (rdfFileCopy != null) {
+		                        rdfFileCopy.setSelected(isNowSelected);
+		                    }
+		                });
+		                setGraphic(checkBox);
+		            }
+		        }
+		    });
+
+		TableColumn<RdfFileCopy, String> fileNameColumn = new TableColumn<>("File Path");
+		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("filePath"));
+		fileNameColumn.setReorderable(false);
+		fileNameColumn.setSortable(false);
+		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+
+
+		TableColumn<RdfFileCopy, String> statusColumn = new TableColumn<>("Status");
+		statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+		tableView.getColumns().addAll( selectColumn, fileNameColumn, statusColumn);
+		
+		 ObservableList<RdfFileCopy> data = FXCollections.observableArrayList(
+			        new RdfFileCopy("C:/path/to/File1.txt", "Valid", false),
+			        new RdfFileCopy("C:/path/to/File2.txt", "Invalid", false),
+			        new RdfFileCopy("C:/path/to/File3.txt", "Valid", false),
+			        new RdfFileCopy("C:/path/to/File4.txt", "Unknown", false),
+			        new RdfFileCopy("C:/path/to/File5.txt", "Valid", false)
+				 );
+
+	    tableView.setItems(data);
+
+		rdfFileCopyMidVBox.getChildren().addAll(tableView,createLabelBox(), createButtonBox());
+	}
+
+	private VBox createLabelBox() {
+		currentDirLabel.setPrefWidth(150);
+		copyDirLabel.setPrefWidth(150);
+		
+		currentDirLabel.getStyleClass().add("rdf-file-path-label");
+		currentDirPath.getStyleClass().add("rdf-file-path-label");
+		copyDirLabel.getStyleClass().add("rdf-file-path-label");
+		copyDirPath.getStyleClass().add("rdf-file-path-label");
+		
+		currentDirHBox.getChildren().addAll(currentDirLabel,currentDirPath);
+		copyDirHBox.getChildren().addAll(copyDirLabel,copyDirPath);
+		
+		pathLabelVBox.getChildren().addAll(currentDirHBox,copyDirHBox);
+		
+		return pathLabelVBox;
+	}
+
+	private HBox createButtonBox() {
+		buttonHBox.setAlignment(Pos.CENTER);
+		buttonHBox.getChildren().addAll(copyButton, closeButton);
+		
+		closeButton.setOnAction(e ->{
+			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+			stage.close();
+		});
+		
+		copyButton.setOnAction(e ->{
+            for (RdfFileCopy rdfFile : tableView.getItems()) {
+            if (rdfFile.isSelected()) {
+                System.out.println("Selected File: " + rdfFile.getFilePath() + ", Status: " + rdfFile.getStatus());
+            }
+        }
+		});
+
+		return buttonHBox;
+	}
+
+}

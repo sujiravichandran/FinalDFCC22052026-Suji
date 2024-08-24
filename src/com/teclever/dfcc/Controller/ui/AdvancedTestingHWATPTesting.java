@@ -101,7 +101,7 @@ public class AdvancedTestingHWATPTesting {
 				.observableArrayList(StateMachine.getStageDatalist());
 		observableStageList.stream()
 				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName())
-						&& "HWATP/HST".equalsIgnoreCase(stage.getL2StageName()))
+						&& "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
 				.filter(stage -> stage.getL3StageId() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 							stage.getTestTypeId(), null);
