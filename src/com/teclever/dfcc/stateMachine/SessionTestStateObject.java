@@ -228,5 +228,21 @@ public class SessionTestStateObject {
 			}
 		}
 	}
+	
+	
+//	Session Test Copying RDF File Popup Action
+//	SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+
+	private static BooleanProperty isRdfFileCopyPopupStatus = new SimpleBooleanProperty(false);
+
+	public static BooleanProperty isRdfFileCopyPopupStatusProperty() {
+		return isRdfFileCopyPopupStatus;
+	}
+	public static BooleanProperty getIsRdfFileCopyPopupStatus() {
+		return isRdfFileCopyPopupStatus;
+	}
+	public static void setIsRdfFileCopyPopupStatus(BooleanProperty isRdfFileCopyPopupStatus) {
+		SessionTestStateObject.isRdfFileCopyPopupStatus = isRdfFileCopyPopupStatus;
+	}
 
 }
