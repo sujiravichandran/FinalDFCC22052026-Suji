@@ -27,9 +27,12 @@ import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.resultstore.resultmanagement.RdfFileDetailsParser;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
@@ -38,8 +41,6 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
-import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
@@ -111,7 +112,13 @@ public class TestProcessManagement {
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
-
+			
+			//To Copying File 
+			//Checking and Copying
+			//SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			//boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
+			//To Vignesh Implement 
+			//Set Flag By Using popupflag
 		} catch (Exception e) {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 

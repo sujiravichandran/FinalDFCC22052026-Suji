@@ -5,10 +5,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.teclever.datastore.dto.GetObjResponse;
+import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
+import com.teclever.datastore.entities.SessionStagesTestFilesResult;
+import com.teclever.datastore.entities.TestFilesStagesMapping;
+import com.teclever.datastore.service.SessionSelectedStagesService;
+import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
+import com.teclever.datastore.service.SessionStagesTestFilesResultService;
+import com.teclever.datastore.service.TestFilesStagesMappingService;
+import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
+import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.stateMachine.StateMachine;
 
 public class SessionFileManagement {
@@ -134,6 +149,159 @@ public class SessionFileManagement {
         }
     }
 
+    
+	// checking the is All Are TestFiles Runned
+	public boolean getTestFilesRunnedSuccess(String sessionId, String stageId) {
+		boolean popupShowed = false;
+		try {
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
+			List<String> fileIdsRunnedInStages = new ArrayList<String>();
+			
+			if (getResponseStageTestFileResult.getCode() != 0) {
+				sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+						.getResponseList();
+				for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultServiceList) {
+					fileIdsRunnedInStages.add(sessionStagesTestFilesResult.getSelectedtestFileId());
+
+				}
+
+			}
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping session = new SessionStagesMapping();
+			session = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = session.getSessionStagesMappingId();
+			String stagePath = session.getPath();
+		
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse resStagesMap = sessionStagesSelectedTestFilesService
+					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList = new ArrayList<SessionStagesSelectedTestFiles>();
+			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) resStagesMap.getResponseList();
+			Map<String, String> sessionStagesSelectedTestFilesIdAndTestFileId = new HashMap<String, String>();
+			for (SessionStagesSelectedTestFiles sssTestFiles : sessionStagesSelectedTestFilesList) {
+				sessionStagesSelectedTestFilesIdAndTestFileId.put(sssTestFiles.getSessionStagesSelectedTestFilesId(),
+						sssTestFiles.getTestFilesId());
+			}
+
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse getResponseFileMapping = testFilesStagesMappingService
+					.getTestFilesStagesMappingByLastLevelReference(stageId);
+			List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+			testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+			List<String> filesMappingIds = new ArrayList<String>();
+			if (getResponseFileMapping.getCode() != 0) {
+				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+				for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+					filesMappingIds.add(testFilesStagesMapping.getTestFileId());
+				}
+
+			}
+			List<SessionStagesTestFilesResult> lstByKeys = new ArrayList<SessionStagesTestFilesResult>();
+
+			boolean notRunnedAll = false;
+			boolean runnedAllSuccess = true;
+			if (filesMappingIds.size() > 0 && fileIdsRunnedInStages.size() > 0) {
+				for (String fileId : filesMappingIds) {
+
+					if (sessionStagesSelectedTestFilesIdAndTestFileId.values().contains(fileId)) {
+
+						List<String> keys = getKeysByValue(sessionStagesSelectedTestFilesIdAndTestFileId, fileId);
+
+					//	List<SessionStagesTestFilesResult> lstByKeys = new ArrayList<SessionStagesTestFilesResult>();
+
+						for (String key : keys) {
+							List<SessionStagesTestFilesResult> lst = sessionStagesTestFilesResultServiceList.stream()
+									.filter(stage -> stage.getSelectedtestFileId().equals(key))
+									.collect(Collectors.toList());
+							if (lst != null) {
+								lstByKeys.addAll(lst);
+							}
+						}
+
+						if (lstByKeys != null) {
+
+							/*
+							 * List<SessionStagesTestFilesResult> lstFilter = lst.stream() .filter(stage ->
+							 * stage.getTestStatus().equalsIgnoreCase("failure"))
+							 * .collect(Collectors.toList()); if(lstFilter!=null) { runnedAllSuccess =
+							 * false; }
+							 */
+
+							for (SessionStagesTestFilesResult s : lstByKeys) {
+								{
+									/*
+									 * String dStarCount = s.getdStarCount(); int dStarCountInt =
+									 * Integer.parseInt(dStarCount); if (dStarCountInt > 0) { runnedAllSuccess =
+									 * false; }
+									 */
+									String testStatus = s.getTestStatus();
+									if (testStatus != null && !testStatus.equals("")
+											&& testStatus.equalsIgnoreCase("failure")) {
+										runnedAllSuccess = false;
+									}
+								}
+
+							}
+						} /*
+							 * else { notRunnedAll = true; }
+							 */
+
+					} else {
+						notRunnedAll = true;
+					}
+				}
+			}
+
+			if (!notRunnedAll && runnedAllSuccess) {
+			//	stagePath = "C:\\Users\\TECLEVER\\Downloads\\Copied\\";
+				Path outputPath = Path.of(stagePath);
+				List<Path> listOfPath = new ArrayList<Path>();
+				for (SessionStagesTestFilesResult service : lstByKeys) {
+					String pathString = service.getRdfPath() + service.getRdfFileName();
+					Path path = Path.of(pathString);
+					listOfPath.add(path);
+				}
+				
+				
+				copyFilesToOutputFolder(listOfPath,outputPath);
+			}
+
+			if (!notRunnedAll && !runnedAllSuccess) {
+				popupShowed = true;
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return popupShowed;
+	}   
+	
+	
+	
+	
+	 // Method to copy a list of files to the output folder
+    public void copyFilesToOutputFolder(List<Path> sourceFiles,Path outputFolder) {
+        try {
+            if (outputFolder != null && Files.exists(outputFolder)) {
+                for (Path sourceFile : sourceFiles) {
+                    Path destinationFile = outputFolder.resolve(sourceFile.getFileName());
+                    Files.copy(sourceFile, destinationFile);
+                    System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+                }
+            } else {
+                System.out.println("Output folder does not exist for the current session.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }  
+    
     public void copyFilesToOutputFolder(Path sourceFile) {
         try {
             if (currentOutputFolder != null && Files.exists(currentOutputFolder)) {
@@ -148,5 +316,83 @@ public class SessionFileManagement {
         }
     }
     
+    public  <K, V> K getKeyByValue(Map<K, V> map, V value) {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null; // Return null if value is not found
+    }
     
+    
+    public  <K, V> List<K> getKeysByValue(Map<K, V> map, V value) {
+        List<K> keys = new ArrayList<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                keys.add(entry.getKey());
+            }
+        }
+        return keys; // Return list of keys with matching value
+    }
+    
+    //To Vignesh Implement
+	public CopyingListDTO getShowPopupContent(String sessionId, String stageId) {
+		CopyingListDTO response = new CopyingListDTO();
+		try {
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+			sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult.getResponseList();
+			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
+			List<CopyFileDTO> lst = new ArrayList<CopyFileDTO>();
+			if (sessionStagesTestFilesResultServiceList.size() > 0) {
+				for (SessionStagesTestFilesResult sesStageTFR : sessionStagesTestFilesResultServiceList) {
+					CopyFileDTO copyFileDTO = new CopyFileDTO();
+					copyFileDTO.setCopyingFileId(sesStageTFR.getSessionStagesTestFilesResultId());
+					copyFileDTO.setRdfFiledName(sesStageTFR.getRdfFileName());
+					copyFileDTO.setRdfFileNamewithPath(sesStageTFR.getRdfPath() + sesStageTFR.getRdfFileName());
+					copyFileDTO.setRdfFilePath(sesStageTFR.getRdfPath());
+					copyFileDTO.setCopyingFileId(sesStageTFR.getSessionStagesTestFilesResultId());
+					lst.add(copyFileDTO);
+				}
+			}
+			response.setCode(1);
+			response.setCodeMsg("Fetched Succesfully..");
+		} catch (Exception ex) {
+			response.setCode(1);
+			response.setCodeMsg("Un Fetched Succesfully.."+ex.getLocalizedMessage());
+	
+		}
+		return response;
+	}
+	
+	//To Vignesh Implement
+	//Selected File Copying Method..
+	public Response copyingSelectedFile(List<CopyFileDTO>lst,String sessionId,String stageId)
+	{
+		Response response = new Response();
+		try {
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping session = new SessionStagesMapping();
+			session = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = session.getSessionStagesMappingId();
+			String stagePath = session.getPath();
+			List<Path>paths = new ArrayList<Path>();
+			for(CopyFileDTO copyFileDTO:lst)
+			{
+				paths.add(Paths.get(copyFileDTO.getRdfFileNamewithPath()));
+			}
+			
+			copyFilesToOutputFolder(paths,Paths.get(stagePath));
+			
+			
+		} catch (Exception ex) {
+
+		}
+		return response;
+	}
 }
