@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class AdvanceCustom1TestingManagement {
 			AdvanceCustom1TestingManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
 			.getParent();
 
-	static String customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator;
+	// static String customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator;
 
 	// Custom Testing For Generating Macro On Drop Down..
 	public MacroListResponse getAllMacrosForAdavanceTest(String uutTypeId, String testTypeId) {
@@ -126,9 +125,31 @@ public class AdvanceCustom1TestingManagement {
 			String testTypeId) {
 		fileName = fileName + ".tst";
 		Response res = new Response();
-		String fileNamewithFullPath = customFileDir + fileName;
+		String customFileDir;
 		try {
-			System.out.println("fileNamewithFullPath  " + fileNamewithFullPath);
+			String uutType = currentSessionDetails.getUutType();
+			switch (uutType) {
+			case "MK-1":
+				customFileDir = currentDirectory + File.separator + "MK-1" + File.separator + "CustomTesting1Files"
+						+ File.separator;
+
+				break;
+			case "Mk-1A":
+				customFileDir = currentDirectory + File.separator + "MK-1A" + File.separator + "CustomTesting1Files"
+						+ File.separator;
+				break;
+			case "MK-2":
+				customFileDir = currentDirectory + File.separator + "MK-2" + File.separator + "CustomTesting1Files"
+						+ File.separator;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid uutType: " + uutType);
+			}
+
+			String fileNamewithFullPath = customFileDir + fileName;
+			;
+
+			// System.out.println("fileNamewithFullPath  " + fileNamewithFullPath);
 			createDirectoryIfNotExists(customFileDir);
 			if (directoryExist(customFileDir)) {
 				if (!createFileIfNotExists(fileNamewithFullPath)) {
@@ -195,6 +216,7 @@ public class AdvanceCustom1TestingManagement {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 	}
 
@@ -304,31 +326,74 @@ public class AdvanceCustom1TestingManagement {
 		return res;
 	}
 
-	public Response customTwoRunDownloadFile(String stageId, String testFile, String checkSumValueFile,
+	public Response customTwoRunDownloadFile(String stageId, String downloadFilePath, String checkSumValueFile,
 			String testTypeId) {
 		Response res = new Response();
 		try {
-			File downloadFile = new File(testFile);
-			File checkSumFile = new File(checkSumValueFile);
-			if (!downloadFile.exists() || !checkSumFile.exists()) {
-				System.out.println("Please Check File paths - " + testFile + "  " + checkSumValueFile);
+			String uutType = currentSessionDetails.getUutType();
+			String basetestFilePath = "";
+			String modifiedFilePath = "";
+			switch (uutType) {
+			case "MK-1":
+				basetestFilePath = currentDirectory + File.separator + "MK-1" + File.separator + "download_files"
+						+ File.separator + "basefile" + File.separator + "download_V7355.tpf";
+				modifiedFilePath = currentDirectory + File.separator + "MK-1" + File.separator + "download_files"
+						+ File.separator + "modifiedfile" + File.separator;
+				break;
+			case "Mk-1A":
+				basetestFilePath = currentDirectory + File.separator + "MK-1A" + File.separator + "download_files"
+						+ File.separator + "basefile" + File.separator + "external_flash.tst";
+				modifiedFilePath = currentDirectory + File.separator + "MK-1A" + File.separator + "download_files"
+						+ File.separator + "modifiedfile" + File.separator;
+				break;
+			case "MK-2":
+				basetestFilePath = currentDirectory + File.separator + "MK-2" + File.separator + "download_files"
+						+ File.separator + "basefile" + File.separator + "external_flash.tst";
+				modifiedFilePath = currentDirectory + File.separator + "MK-2" + File.separator + "download_files"
+						+ File.separator + "modifiedfile" + File.separator;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid uutType: " + uutType);
+			}
+			File testFile = new File(basetestFilePath);
+			File downloadFile = new File(downloadFilePath);
+
+			// Check base File directory and file Exists.
+			if (!testFile.exists()) {
+//				System.out.println("Please Check File paths - " + basetestFilePath);
 				res.setResponseCode(0);
-				res.setResponseMessage("Please Check File paths - " + testFile + "  " + checkSumValueFile);
+				res.setResponseMessage("Please Check Base File path - " + basetestFilePath);
+				return res;
+			}
+			if (!downloadFile.exists() /* || !checkSumFile.exists() */) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Please Check Given File paths - " + downloadFilePath);
 				return res;
 
 			}
-			Path path = Paths.get(checkSumValueFile);
+			Path path = Paths.get(downloadFilePath);
+			Map<String, String> listOfCheckSum = null;
+			if (checkSumValueFile != null) {
+				File checkSumFile = new File(checkSumValueFile);
+				if (!checkSumFile.exists()) {
+					res.setResponseCode(0);
+					res.setResponseMessage("Please Check Given File paths - " + checkSumValueFile);
+					return res;
 
-			Map<String, String> listOfCheckSum = extractCheckSumValues(checkSumFile);
+				}
+				listOfCheckSum = extractCheckSumValues(checkSumFile);
+			}
 
-			File modifiedFile = filenameAndCheckSumModification(downloadFile, listOfCheckSum,
-					path.getFileName().toString(), currentDirectory + File.separator + "MK-1");
+			File modifiedFile = filenameAndCheckSumModification(testFile, listOfCheckSum,
+					path.getParent().toString() + File.separator, path.getFileName().toString(), modifiedFilePath);
 
-			
-			addCustomTest(modifiedFile.getName(), modifiedFile.getParent().toString()+ File.separator, downloadFile, "C2");
+			addCustomTest(modifiedFile.getName(), modifiedFile.getParent().toString() + File.separator, downloadFile,
+					"C2");
 
 			addTestFiletoStageAndStartTest(testTypeId, modifiedFile.getAbsolutePath(), stageId, "CUSTOM TWO");
-
+			res.setResponseCode(1);
+			res.setResponseMessage("Test Started ");
+			return res;
 		} catch (Exception e) {
 			e.printStackTrace();
 			res.setResponseCode(0);
@@ -337,21 +402,21 @@ public class AdvanceCustom1TestingManagement {
 		return res;
 	}
 
-	private File filenameAndCheckSumModification(File downloadFile, Map<String, String> listOfCheckSum,
-			String chckSumFileName, String fileLocationToCopy) {
+	private File filenameAndCheckSumModification(File baseTestFile, Map<String, String> listOfCheckSum,
+			String downloadFilePath, String downloadFileName, String fileLocationToCopy) {
 
-		File modifiedFile = new File(fileLocationToCopy + File.separator + downloadFile.getName());
-
+		File modifiedFile = new File(fileLocationToCopy + File.separator + baseTestFile.getName());
+		System.out.println(modifiedFile);
 		// Define the regex pattern to match the path and file name
 		Pattern pathFinePattern = Pattern.compile("DOWNLOAD =\\s*(.+/)([^/]+)$");
-
+		Pattern downloadPathPattern = Pattern.compile("download=\\s*(.+/)([^/]+)$");
 		// Define the regex pattern to match the Blocks(BLOCK1, BLOCK2, etc.)
 		Pattern blockFindPattern = Pattern.compile("OPMSG ... CHECK SUM VERIFICATION FOR BLOCK-(\\d{1,2}) IN PROGRESS");
 
 		// Define the regex pattern to match the Value lines
 		Pattern valueFinPattern = Pattern.compile("tip # VR (\\S+) (\\S+) (\\S+)");
 
-		try (BufferedReader br = new BufferedReader(new FileReader(downloadFile));
+		try (BufferedReader br = new BufferedReader(new FileReader(baseTestFile));
 				BufferedWriter bw = new BufferedWriter(new FileWriter(modifiedFile))) {
 			String line;
 			String currentBlock = null;
@@ -361,8 +426,16 @@ public class AdvanceCustom1TestingManagement {
 				Matcher matcher = pathFinePattern.matcher(line);
 
 				if (matcher.find()) {
+					String filePath = matcher.group(1); // File Path
 					String fileName = matcher.group(2);// File Name
-					line = line.replace(fileName, chckSumFileName);
+					line = line.replace(filePath, downloadFilePath).replace(fileName, downloadFileName);
+//					line = line.replace(fileName, downloadFileName);
+				}
+				Matcher downloadMatcher = downloadPathPattern.matcher(line);
+				if (downloadMatcher.find()) {
+					String filePath = downloadMatcher.group(1); // File Path
+					String fileName = downloadMatcher.group(2);// File Name
+					line = line.replace(filePath, downloadFilePath).replace(fileName, downloadFileName);
 				}
 
 				if (blockMatcher.find()) {
@@ -377,10 +450,12 @@ public class AdvanceCustom1TestingManagement {
 						String oldChecksum = checkSumValueMatcher.group(3); // The original checksum value
 
 						// Replace the old checksum with the new checksum from the map
-						String newChecksum = listOfCheckSum.get(currentBlock);
-						if (newChecksum != null) {
-							line = line.replace(oldChecksum, newChecksum); // Replace in the line
-							currentBlock = null;
+						if (listOfCheckSum != null && listOfCheckSum.size() > 0) {
+							String newChecksum = listOfCheckSum.get(currentBlock);
+							if (newChecksum != null) {
+								line = line.replace(oldChecksum, newChecksum); // Replace in the line
+								currentBlock = null;
+							}
 						}
 					}
 				}
@@ -420,7 +495,7 @@ public class AdvanceCustom1TestingManagement {
 					checksumMap.put(key, value);
 				}
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
