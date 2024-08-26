@@ -3,6 +3,7 @@ package com.teclever.dfcc.datastore.terminalmanagement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 
 public class ChannelStatusParser {
@@ -26,6 +27,10 @@ public class ChannelStatusParser {
 					System.out.println("State Machine Channel 2 Status:: " + channel2);
 					System.out.println("State Machine Channel 3 Status:: " + channel3);
 					System.out.println("State Machine Channel 4 Status:: " + channel4);
+					OnlineStatus.setChannel1Status(channel1);
+					OnlineStatus.setChannel2Status(channel2);
+					OnlineStatus.setChannel3Status(channel3);
+					OnlineStatus.setChannel4Status(channel4);
 					return new ChannelStatus(channel1, channel2, channel3, channel4);
 
 				} else {

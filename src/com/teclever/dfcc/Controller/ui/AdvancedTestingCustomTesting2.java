@@ -331,7 +331,7 @@ public class AdvancedTestingCustomTesting2 {
 		if (type.equalsIgnoreCase("selectTestFile")) {			
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Test File", "*.tst","*.tpf","*.com"));
 		}else if (type.equalsIgnoreCase("downloadCode")) {
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Download Code", "*.tst","*.tpf","*.com"));			
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Download Code", "*.run","*.chk"));			
 		}else if (type.equalsIgnoreCase("checksumFile")) {
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CheckSum File", "*.run","*.chk"));						
 		}

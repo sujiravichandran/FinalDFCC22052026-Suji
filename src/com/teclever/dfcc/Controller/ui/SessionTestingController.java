@@ -78,7 +78,7 @@ public class SessionTestingController {
 	private List<CheckBox> checkBoxes = new ArrayList<>();
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
-	private HBox buttonHBox = new HBox(10);
+	private HBox buttonHBox = new HBox(5);
 	private Button startButton = new Button("Start");
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
@@ -293,7 +293,6 @@ public class SessionTestingController {
 		});
 
 		startButton.setOnAction(e -> {
-			SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -348,6 +347,11 @@ public class SessionTestingController {
 			if (newValue) {
 				SessionTestStateObject.getRunningTestLeafStatus().set(false);
 				StateMachine.setTestState(TestState.COMPLETED);
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				runAllButton.setDisable(false);
 				setStateMachineCurrentL1StageId();
 			}
 		});
