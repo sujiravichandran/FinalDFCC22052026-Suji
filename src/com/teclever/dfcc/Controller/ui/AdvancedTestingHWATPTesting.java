@@ -57,7 +57,7 @@ public class AdvancedTestingHWATPTesting {
 	private List<CheckBox> checkBoxes = new ArrayList<>();
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
-	private HBox buttonHBox = new HBox(10);
+	private HBox buttonHBox = new HBox(5);
 	private Button startButton = new Button("Start");
 	private Button runAllButton = new Button("Run All");
 	private Button stopButton = new Button("Stop");
@@ -100,7 +100,7 @@ public class AdvancedTestingHWATPTesting {
 		ObservableList<StageObject> observableStageList = FXCollections
 				.observableArrayList(StateMachine.getStageDatalist());
 		observableStageList.stream()
-				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName())
+				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName())
 						&& "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
 				.filter(stage -> stage.getL3StageId() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
@@ -386,6 +386,11 @@ public class AdvancedTestingHWATPTesting {
 			if(!newValue) {
 				StateMachine.setTestState(TestState.COMPLETED);
 				AdvancedTestStateObject.hwatpTestStatusProperty().set(true);
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				runAllButton.setDisable(false);
 			}
 		
 		});

@@ -244,5 +244,16 @@ public class SessionTestStateObject {
 	public static void setIsRdfFileCopyPopupStatus(BooleanProperty isRdfFileCopyPopupStatus) {
 		SessionTestStateObject.isRdfFileCopyPopupStatus = isRdfFileCopyPopupStatus;
 	}
+	
+
+	private static String popupStageId;
+	
+	public static String getPopupStageId() {
+		return popupStageId;
+	}
+
+	public static void setPopupStageId(String popupStageId) {
+		SessionTestStateObject.popupStageId = popupStageId;
+	}
 
 }

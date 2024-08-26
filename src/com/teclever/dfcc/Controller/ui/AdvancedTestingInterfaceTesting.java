@@ -54,7 +54,7 @@ public class AdvancedTestingInterfaceTesting {
 	private List<CheckBox> checkBoxes = new ArrayList<>();
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
-	private HBox buttonHBox = new HBox(10);
+	private HBox buttonHBox = new HBox(5);
 	private Button startButton = new Button("Start");
 	private Button runAllButton = new Button("Run All");
 	private Button stopButton = new Button("Stop");
@@ -97,7 +97,7 @@ public class AdvancedTestingInterfaceTesting {
 		ObservableList<StageObject> observableStageList = FXCollections
 				.observableArrayList(StateMachine.getStageDatalist());
 		observableStageList.stream()
-				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName())
+				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName())
 						&& "Interface Test".equalsIgnoreCase(stage.getL2StageName()))
 				.filter(stage -> stage.getL3StageId() != null && stage.getL4StageId() != null)
 				.forEach(stage -> {
@@ -380,6 +380,11 @@ public class AdvancedTestingInterfaceTesting {
 			if(!newValue) {
 				StateMachine.setTestState(TestState.COMPLETED);
 				AdvancedTestStateObject.interfaceTestStatusProperty().set(true);
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				runAllButton.setDisable(false);
 			}
 		
 		});

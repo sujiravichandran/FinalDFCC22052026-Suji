@@ -85,7 +85,7 @@ public class AdvancedTestingController {
 		ObservableList<StageObject> observableStageList = FXCollections
 				.observableArrayList(StateMachine.getStageDatalist());
 		observableStageList.stream()
-				.filter(stage -> "Advance Test".equalsIgnoreCase(stage.getL1StageName()))
+				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName()))
 				.forEach(stage -> {
 					if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HST")) {
 						AdvancedTestStateObject.setHwatpTestId(stage.getL2StageId());

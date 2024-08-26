@@ -1,9 +1,15 @@
 package com.teclever.dfcc.Controller.ui;
 
-import com.teclever.dfcc.model.RdfFileCopy;
+import java.util.List;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
+import com.teclever.dfcc.datastore.dto.CopyingListDTO;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.model.RdfFileCopy;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Notifications;
+
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -42,6 +48,8 @@ public class RdfFileCopyPopupController {
 	private Label copyDirLabel = new Label("Copy Directory"); 
 	private Label copyDirPath = new Label("----"); 
 
+	private SessionFileManagement sessionFileManagement = new SessionFileManagement();
+	
 	@FXML
 	private void initialize() {
 		headingLabel.getStyleClass().add("title");
@@ -49,6 +57,7 @@ public class RdfFileCopyPopupController {
 		rdfFileCopyHeadingHBox.getChildren().add(headingLabel);
 		rdfFileCopyHeadingHBox.setAlignment(Pos.CENTER);
 		createMidContainer();
+		getRdfFileDetails();
 	}
 
 	private void createMidContainer() {
@@ -99,15 +108,15 @@ public class RdfFileCopyPopupController {
 
 		tableView.getColumns().addAll( selectColumn, fileNameColumn, statusColumn);
 		
-		 ObservableList<RdfFileCopy> data = FXCollections.observableArrayList(
-			        new RdfFileCopy("C:/path/to/File1.txt", "Valid", false),
-			        new RdfFileCopy("C:/path/to/File2.txt", "Invalid", false),
-			        new RdfFileCopy("C:/path/to/File3.txt", "Valid", false),
-			        new RdfFileCopy("C:/path/to/File4.txt", "Unknown", false),
-			        new RdfFileCopy("C:/path/to/File5.txt", "Valid", false)
-				 );
+//		 ObservableList<RdfFileCopy> data = FXCollections.observableArrayList(
+//			        new RdfFileCopy("C:/path/to/File1.txt", "Valid", false),
+//			        new RdfFileCopy("C:/path/to/File2.txt", "Invalid", false),
+//			        new RdfFileCopy("C:/path/to/File3.txt", "Valid", false),
+//			        new RdfFileCopy("C:/path/to/File4.txt", "Unknown", false),
+//			        new RdfFileCopy("C:/path/to/File5.txt", "Valid", false)
+//				 );
 
-	    tableView.setItems(data);
+//	    tableView.setItems(data);
 
 		rdfFileCopyMidVBox.getChildren().addAll(tableView,createLabelBox(), createButtonBox());
 	}
@@ -147,6 +156,27 @@ public class RdfFileCopyPopupController {
 		});
 
 		return buttonHBox;
+	}
+	
+
+	private void getRdfFileDetails() {
+		String sessionId = currentSessionDetails.getSessionId();
+		String stageId = SessionTestStateObject.getPopupStageId();
+		
+		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
+		if (response.getCode() == 1) {
+			List<CopyFileDTO> rdfList = response.getLst();
+			if (rdfList != null) {
+				for(CopyFileDTO rdfFile : rdfList) {
+					System.out.println(rdfFile);
+				}	
+			}else {
+				Notifications.showErrorAlert("RDF files are empty");
+			}
+
+		}else if (response.getCode() == 0) {
+			Notifications.showErrorAlert(response.getCodeMsg());
+		}
 	}
 
 }

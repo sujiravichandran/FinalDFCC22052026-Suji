@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.MacroDto;
@@ -15,15 +16,21 @@ import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -90,6 +97,7 @@ public class AdvancedTestingCustomTesting1 {
 	private Label testNameLabel = new Label("Test Name");
 	private TextField testNameTextField = new TextField();
 
+	private RunConfigurationService runConfigurationService = new RunConfigurationService();
 	private RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 	private AdvanceCustom1TestingManagement advanceCustom1TestingManagement = new AdvanceCustom1TestingManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
@@ -409,32 +417,88 @@ public class AdvancedTestingCustomTesting1 {
 		return userTestHBox;
 	}
 
+//	private void getDataByUUTandTestId() {
+//
+//		clearFiledValues();
+//
+//		SymbolListResponse symbolResponse = advanceCustom1TestingManagement.getAllSymbolsForAdavanceTest(UUT_ID,
+//				TEST_TYPE_ID);
+//		if (symbolResponse.getResponse().getResponseCode() == 1) {
+//			symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
+//			for (SymbolDto symbol : symbolDataList) {
+//				symbolList.add(symbol.getSymbolName());
+//			}
+//		} else if (symbolResponse.getResponse().getResponseCode() == 0) {
+//			Notifications.showErrorAlert(symbolResponse.getResponse().getResponseMessage());
+//		}
+//
+//		MacroListResponse macroResponse = advanceCustom1TestingManagement.getAllMacrosForAdavanceTest(UUT_ID,
+//				TEST_TYPE_ID);
+//		if (macroResponse.getResponse().getResponseCode() == 1) {
+//			macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
+//			for (MacroDto macro : macroDataList) {
+//				macroList.add(macro.getMacroName());
+//			}
+//		} else if (macroResponse.getResponse().getResponseCode() == 0) {
+//			Notifications.showErrorAlert(macroResponse.getResponse().getResponseMessage());
+//		}
+//
+//	}
+
 	private void getDataByUUTandTestId() {
-
 		clearFiledValues();
-
-		SymbolListResponse symbolResponse = advanceCustom1TestingManagement.getAllSymbolsForAdavanceTest(UUT_ID,
-				TEST_TYPE_ID);
-		if (symbolResponse.getResponse().getResponseCode() == 1) {
-			symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
-			for (SymbolDto symbol : symbolDataList) {
-				symbolList.add(symbol.getSymbolName());
+		 Platform.runLater(() -> {
+			 tab3MainGridPane.getScene().setCursor(Cursor.WAIT);
+	         setControlsDisabled(tab3MainGridPane.getScene().getRoot(), true);
+		 });
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				SymbolListResponse symbolResponse = advanceCustom1TestingManagement.getAllSymbolsForAdavanceTest(UUT_ID,
+						TEST_TYPE_ID);
+				if (symbolResponse.getResponse().getResponseCode() == 1) {
+					symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
+				} else if (symbolResponse.getResponse().getResponseCode() == 0) {
+					Platform.runLater(
+							() -> Notifications.showErrorAlert(symbolResponse.getResponse().getResponseMessage()));
+				}
+				MacroListResponse macroResponse = advanceCustom1TestingManagement.getAllMacrosForAdavanceTest(UUT_ID,
+						TEST_TYPE_ID);
+				if (macroResponse.getResponse().getResponseCode() == 1) {
+					macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
+				} else if (macroResponse.getResponse().getResponseCode() == 0) {
+					Platform.runLater(
+							() -> Notifications.showErrorAlert(macroResponse.getResponse().getResponseMessage()));
+				}
+				return null;
 			}
-		} else if (symbolResponse.getResponse().getResponseCode() == 0) {
-			Notifications.showErrorAlert(symbolResponse.getResponse().getResponseMessage());
-		}
 
-		MacroListResponse macroResponse = advanceCustom1TestingManagement.getAllMacrosForAdavanceTest(UUT_ID,
-				TEST_TYPE_ID);
-		if (macroResponse.getResponse().getResponseCode() == 1) {
-			macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
-			for (MacroDto macro : macroDataList) {
-				macroList.add(macro.getMacroName());
+			@Override
+			protected void succeeded() {
+				Platform.runLater(() -> {
+					for (SymbolDto symbol : symbolDataList) {
+						symbolList.add(symbol.getSymbolName());
+					}
+					for (MacroDto macro : macroDataList) {
+						macroList.add(macro.getMacroName());
+					}
+				});
+				Platform.runLater(() -> {
+		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
+			        setControlsDisabled(tab3MainGridPane.getScene().getRoot(), false);
+		        });
 			}
-		} else if (macroResponse.getResponse().getResponseCode() == 0) {
-			Notifications.showErrorAlert(macroResponse.getResponse().getResponseMessage());
-		}
 
+			@Override
+			protected void failed() {
+				Platform.runLater(() -> {
+		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
+			        setControlsDisabled(tab3MainGridPane.getScene().getRoot(), false);
+		        });
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+			}
+		};
+		new Thread(task).start();
 	}
 
 	private void clearFiledValues() {
@@ -505,7 +569,7 @@ public class AdvancedTestingCustomTesting1 {
 
 		if (runStatus) {
 			if (checkAndSetTestState()) {
-				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
+				handleRunCommand(formattedData);
 			}
 
 		} else {
@@ -537,11 +601,28 @@ public class AdvancedTestingCustomTesting1 {
 		String formattedData = "macn = " + macroName + ";";
 		if (runStatus) {
 			if (checkAndSetTestState()) {
-				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
+				handleRunCommand(formattedData);
 			}
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
 		}
+	}
+
+	private void handleRunCommand(String formattedData) {
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+
+				String runConfigId = runConfigurationService
+						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), TEST_TYPE_ID);
+				currentSessionDetails.setRunConfigId(runConfigId);
+
+				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
+
+				return null;
+			}
+		};
+		new Thread(task).start();
 	}
 
 	private void handleUserTestRun() {
@@ -565,8 +646,21 @@ public class AdvancedTestingCustomTesting1 {
 		}
 
 		if (checkAndSetTestState()) {
-			Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
-					TEST_TYPE_ID);
+			Task<Void> task = new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+
+					String runConfigId = runConfigurationService
+							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), TEST_TYPE_ID);
+					currentSessionDetails.setRunConfigId(runConfigId);
+
+					Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
+							TEST_TYPE_ID);
+					
+					return null;
+				}
+			};
+			new Thread(task).start();
 		}
 	}
 
@@ -591,6 +685,14 @@ public class AdvancedTestingCustomTesting1 {
 		}
 
 		return true;
+	}
+	
+	private void setControlsDisabled(Node root, boolean disabled) {
+	    for (Node node : root.lookupAll("*")) {
+	        if (node instanceof Control) {
+	            ((Control) node).setDisable(disabled);
+	        }
+	    }
 	}
 
 }
