@@ -112,13 +112,14 @@ public class TestProcessManagement {
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
+
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 			
-			//To Copying File 
-			//Checking and Copying
-			//SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			//boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
-			//To Vignesh Implement 
-			//Set Flag By Using popupflag
+			if(popupflag) {
+				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+				SessionTestStateObject.setPopupStageId(stageId);
+			}
 		} catch (Exception e) {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 
@@ -208,7 +209,8 @@ public class TestProcessManagement {
 
 			} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
 					|| stageName.equals("SRU") || stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
-					|| stageName.equals("INTERFACE TEST") || stageName.equals("CUSTOM ONE")||stageName.equals("CUSTOM TWO")) {
+					|| stageName.equals("INTERFACE TEST") || stageName.equals("CUSTOM ONE")
+					|| stageName.equals("CUSTOM TWO")) {
 				System.out.println("   ->  7  parseTestFileTest()  ");
 
 				testProcessRes = parseTestFileTest(rdfFileLocation, rdfFileName, stageId, stageName, oneFileName,
@@ -669,7 +671,7 @@ public class TestProcessManagement {
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
 
 			} else if (stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
-					|| stageName.equals("CUSTOM ONE")||stageName.equals("CUSTOM TWO")) {
+					|| stageName.equals("CUSTOM ONE") || stageName.equals("CUSTOM TWO")) {
 
 				AdvancedTestResult advancedTestResult = new AdvancedTestResult(filePath, rdfFileStatus);
 				AdvancedTestStateObject.addAdvancedTestResult(advancedTestResult);
@@ -751,7 +753,7 @@ public class TestProcessManagement {
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
 				incrementNum++;
-
+				String dotComFileResult = "OK";
 				// Check if file ID has a corresponding name
 				if (testFilesIdName.get(testFileId) != null) {
 					listOfTestFileNames.clear();
@@ -789,6 +791,10 @@ public class TestProcessManagement {
 								if (rdfFileResult.equals("OK")) {
 									rdfFileResult = "NOT OK";
 								}
+								
+								if (dotComFileResult.equals("OK")) {
+									dotComFileResult = "NOT OK";
+								}
 
 								// check continue With Error
 								if (continueWithError) {
@@ -796,9 +802,9 @@ public class TestProcessManagement {
 									// break outerLoop;
 								}
 							} else {
-
-								SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
-
+								if (dotComFileResult.equals("OK")) {
+									SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+								}
 							}
 						}
 
