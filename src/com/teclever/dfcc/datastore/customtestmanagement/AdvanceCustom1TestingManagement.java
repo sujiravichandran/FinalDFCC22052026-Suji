@@ -49,7 +49,8 @@ public class AdvanceCustom1TestingManagement {
 			AdvanceCustom1TestingManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
 			.getParent();
 
-	// static String customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator;
+	// static String customFileDir = currentDirectory + File.separator +
+	// "CustomTesting1Files" + File.separator;
 
 	// Custom Testing For Generating Macro On Drop Down..
 	public MacroListResponse getAllMacrosForAdavanceTest(String uutTypeId, String testTypeId) {
@@ -130,16 +131,16 @@ public class AdvanceCustom1TestingManagement {
 			String uutType = currentSessionDetails.getUutType();
 			switch (uutType) {
 			case "MK-1":
-				customFileDir = currentDirectory + File.separator + "MK-1" + File.separator + "CustomTesting1Files"
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + "MK-1" 
 						+ File.separator;
 
 				break;
 			case "Mk-1A":
-				customFileDir = currentDirectory + File.separator + "MK-1A" + File.separator + "CustomTesting1Files"
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + "MK-1A" 
 						+ File.separator;
 				break;
 			case "MK-2":
-				customFileDir = currentDirectory + File.separator + "MK-2" + File.separator + "CustomTesting1Files"
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator + "MK-2"
 						+ File.separator;
 				break;
 			default:
@@ -149,7 +150,7 @@ public class AdvanceCustom1TestingManagement {
 			String fileNamewithFullPath = customFileDir + fileName;
 			;
 
-			// System.out.println("fileNamewithFullPath  " + fileNamewithFullPath);
+			// System.out.println("fileNamewithFullPath " + fileNamewithFullPath);
 			createDirectoryIfNotExists(customFileDir);
 			if (directoryExist(customFileDir)) {
 				if (!createFileIfNotExists(fileNamewithFullPath)) {
@@ -335,21 +336,21 @@ public class AdvanceCustom1TestingManagement {
 			String modifiedFilePath = "";
 			switch (uutType) {
 			case "MK-1":
-				basetestFilePath = currentDirectory + File.separator + "MK-1" + File.separator + "download_files"
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1"
 						+ File.separator + "basefile" + File.separator + "download_V7355.tpf";
-				modifiedFilePath = currentDirectory + File.separator + "MK-1" + File.separator + "download_files"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1"
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
 			case "Mk-1A":
-				basetestFilePath = currentDirectory + File.separator + "MK-1A" + File.separator + "download_files"
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
 						+ File.separator + "basefile" + File.separator + "external_flash.tst";
-				modifiedFilePath = currentDirectory + File.separator + "MK-1A" + File.separator + "download_files"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
 			case "MK-2":
-				basetestFilePath = currentDirectory + File.separator + "MK-2" + File.separator + "download_files"
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-2"
 						+ File.separator + "basefile" + File.separator + "external_flash.tst";
-				modifiedFilePath = currentDirectory + File.separator + "MK-2" + File.separator + "download_files"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-2"
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
 			default:
