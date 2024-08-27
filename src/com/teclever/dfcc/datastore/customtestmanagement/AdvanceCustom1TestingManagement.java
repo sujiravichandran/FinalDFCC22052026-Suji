@@ -485,7 +485,7 @@ public class AdvanceCustom1TestingManagement {
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(checkSumFile))) {
 			String line;
-			Pattern pattern = Pattern.compile("CHECKSUM FOR (BLOCK\\d+) .* (\\w{9})$");
+			Pattern pattern = Pattern.compile("CHECKSUM FOR (BLOCK\\d+) .* (\\w{8})$");
 
 			while ((line = reader.readLine()) != null) {
 				Matcher matcher = pattern.matcher(line);
