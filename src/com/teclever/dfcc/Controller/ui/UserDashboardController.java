@@ -186,9 +186,9 @@ public class UserDashboardController {
 						new String[] { "Self Test", "SRU/LRU Test", "Session Testing", "Advanced Testing" });
 			}
 
-			addTreeItemWithChildren(rootItem, "Results",
+			addTreeItemWithChildren(rootItem, "Current Results",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
-					new String[] { "Current Execution Results", "Current Session Results", "Current Unit Results" });
+					new String[] { "Execution Results", "Session Results", "Unit Results" });
 			addTreeItemWithChildren(rootItem, "Advanced Data Analysis",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",

@@ -3,7 +3,7 @@ package com.teclever.dfcc.model;
 public class DetailedData {
 	
 	private int id;
-	private String sNo;
+	private String slNo;
 	private String testName;
 	private String rdfName;
 	private String tpgphNo;
@@ -20,11 +20,11 @@ public class DetailedData {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getSNo() {
-		return sNo;
+	public String getSlNo() {
+		return slNo;
 	}
-	public void setSNo(String sNo) {
-		this.sNo = sNo;
+	public void setSlNo(String slNo) {
+		this.slNo = slNo;
 	}
 	public String getTestName() {
 		return testName;

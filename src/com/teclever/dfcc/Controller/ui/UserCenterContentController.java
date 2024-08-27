@@ -20,6 +20,8 @@ public class UserCenterContentController {
 	private StackPane advancedTestingStackPane = new StackPane();
 	private StackPane trialsConfigStackPane = new StackPane();
 	private StackPane currentExecutionResultStackPane = new StackPane();
+	private StackPane currentSessionResultStackPane = new StackPane();
+	private StackPane currentUnitResultStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	
@@ -136,7 +138,7 @@ public class UserCenterContentController {
 			
 			break;
 		
-		case "Current Execution Results" :
+		case "Execution Results" :
 			if (!centerStackPane.getChildren().contains(currentExecutionResultStackPane)) {
 				CurrentExecutionResultController currentExcecutionResultController = new CurrentExecutionResultController();
 				currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane());
@@ -146,7 +148,28 @@ public class UserCenterContentController {
 			}
 			
 			break;
-	
+			
+		case "Session Results" :
+			if (!centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
+				CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
+				currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane());
+				centerStackPane.getChildren().add(currentSessionResultStackPane);
+			} else {
+				currentSessionResultStackPane.toFront();
+			}
+			
+			break;
+			
+		case "Unit Results" :
+			if (!centerStackPane.getChildren().contains(currentUnitResultStackPane)) {
+				CurrentUnitResultController currentUnitResultController = new CurrentUnitResultController();
+				currentUnitResultStackPane.getChildren().add(currentUnitResultController.createcurrentUnitResultGridPane());
+				centerStackPane.getChildren().add(currentUnitResultStackPane);
+			} else {
+				currentUnitResultStackPane.toFront();
+			}
+			
+			break;
 		case "Show Terminal":
 			terminalController.createTerminalPopup();
 			break;
