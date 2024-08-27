@@ -226,6 +226,30 @@ public class TestProcessManagement {
 	// From SESSION ENTITY : Add Session Start Time.
 	private Response updateSessionEntityStartData(String sessionId) {
 		Response res = new Response();
+		// If Trails
+		if (sessionId.substring(0, 4).equals("TSSN")) {
+			try {
+				SessionService sessionService = new SessionService();
+				GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = (SessionEntity) objResponse.getObject();
+				if (sessionEntity.getStartDate() == null) {
+					Date utilDate = new Date();
+					java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+					sessionEntity.setStartDate(sqlDate);
+					res = sessionService.updateSession(sessionEntity);
+
+				} else {
+					res.setResponseCode(1);
+					res.setResponseMessage("Trail Session Already Started ");
+				}
+			} catch (Exception e) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Update Unsuccessful ");
+
+			}
+			return res;
+		}
+
 		try {
 			SessionService sessionService = new SessionService();
 			GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
