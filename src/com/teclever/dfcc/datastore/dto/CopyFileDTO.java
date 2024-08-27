@@ -7,6 +7,7 @@ public class CopyFileDTO {
 	private String rdfFileNamewithPath;
 	private String rdfFilePath;
 	private String copyingId;
+	private String status;
 	
 	public String getCopyingFileId() {
 		return copyingFileId;
@@ -31,6 +32,18 @@ public class CopyFileDTO {
 	}
 	public void setRdfFilePath(String rdfFilePath) {
 		this.rdfFilePath = rdfFilePath;
+	}
+	public String getCopyingId() {
+		return copyingId;
+	}
+	public void setCopyingId(String copyingId) {
+		this.copyingId = copyingId;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 	

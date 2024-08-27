@@ -5,7 +5,10 @@ import java.util.List;
 public class CopyingListDTO {
 	private List<CopyFileDTO> lst;
 	private int code;
+	private String toPath;
+	private String fromPath;
 	private String codeMsg;
+	
 	
 	public List<CopyFileDTO> getLst() {
 		return lst;
@@ -24,6 +27,18 @@ public class CopyingListDTO {
 	}
 	public void setCodeMsg(String codeMsg) {
 		this.codeMsg = codeMsg;
+	}
+	public String getToPath() {
+		return toPath;
+	}
+	public void setToPath(String toPath) {
+		this.toPath = toPath;
+	}
+	public String getFromPath() {
+		return fromPath;
+	}
+	public void setFromPath(String fromPath) {
+		this.fromPath = fromPath;
 	}
 	
 	
