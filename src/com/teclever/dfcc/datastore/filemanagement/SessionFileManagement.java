@@ -282,9 +282,6 @@ public class SessionFileManagement {
 		return popupShowed;
 	}   
 	
-	
-	
-	
 	 // Method to copy a list of files to the output folder
     public void copyFilesToOutputFolder(List<Path> sourceFiles,Path outputFolder) {
         try {

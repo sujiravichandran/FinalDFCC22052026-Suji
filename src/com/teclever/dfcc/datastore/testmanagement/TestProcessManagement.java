@@ -20,11 +20,13 @@ import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
@@ -226,6 +228,30 @@ public class TestProcessManagement {
 	// From SESSION ENTITY : Add Session Start Time.
 	private Response updateSessionEntityStartData(String sessionId) {
 		Response res = new Response();
+		// If Trails
+		if (sessionId.substring(0, 4).equals("TSSN")) {
+			try {
+				TrailSessionEntityService sessionService = new TrailSessionEntityService();
+				GetObjResponse objResponse = sessionService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity sessionEntity = (TrailSessionEntity) objResponse.getObject();
+				if (sessionEntity.getStartDate() == null) {
+					Date utilDate = new Date();
+					java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+					sessionEntity.setStartDate(sqlDate);
+					res = sessionService.updateSession(sessionEntity);
+
+				} else {
+					res.setResponseCode(1);
+					res.setResponseMessage("Trail Session Already Started ");
+				}
+			} catch (Exception e) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Update Unsuccessful ");
+
+			}
+			return res;
+		}
+
 		try {
 			SessionService sessionService = new SessionService();
 			GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
