@@ -180,7 +180,6 @@ public class CurrentExecutionResultController {
 	        }
 	    };
 
-
 	    Thread thread = new Thread(task);
 	    thread.setDaemon(true);
 	    thread.start();
@@ -273,7 +272,7 @@ public class CurrentExecutionResultController {
 				
 				BriefData newBriefData = new BriefData();
 
-				newBriefData.setSNo(String.valueOf(i));;
+				newBriefData.setSlNo(String.valueOf(i));;
 				newBriefData.setRdfName(data.getRdfFile());
 				newBriefData.setDStarCount(data.getDStarCount());
 				newBriefData.setStatus(data.getStatus());
@@ -345,7 +344,7 @@ public class CurrentExecutionResultController {
 				
 				DetailedData newDetailedData = new DetailedData();
 				
-				newDetailedData.setSNo(String.valueOf(i));
+				newDetailedData.setSlNo(String.valueOf(i));
 				newDetailedData.setTestName(data.getTestName());
 				newDetailedData.setRdfName(data.getRdfName());
 				newDetailedData.setTpgphNo(data.getTpgph());

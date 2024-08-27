@@ -3,7 +3,7 @@ package com.teclever.dfcc.model;
 public class BriefData {
 	
 	private int id;
-	private String sNo;
+	private String slNo;
 	private String rdfName;
 	private String dStarCount;
 	private String status;
@@ -15,11 +15,11 @@ public class BriefData {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getSNo() {
-		return sNo;
+	public String getSlNo() {
+		return slNo;
 	}
-	public void setSNo(String sNo) {
-		this.sNo = sNo;
+	public void setSlNo(String slNo) {
+		this.slNo = slNo;
 	}
 	public String getRdfName() {
 		return rdfName;

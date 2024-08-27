@@ -1,0 +1,171 @@
+package com.teclever.dfcc.Controller.ui;
+
+import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.model.SessionData;
+import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.TableViewFactory;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
+
+class SessionDataTableViewFactory implements TableViewFactory<SessionData> {
+	@Override
+	public CustomTableView<SessionData> createTableView(ObservableList<SessionData> items, boolean addUserColumn,
+			boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, SessionData.class, addUserColumn, addCheckboxColumn);
+	}
+}
+
+public class CurrentSessionResultController {
+
+    private GridPane currentSessionResultGridPane = new GridPane();
+    private GridPane currentSessionResultHeadingGridPane = new GridPane();
+    private GridPane currentSessionResultTableGridPane = new GridPane();
+	
+    private HBox titleBox = new HBox();
+	private Label title = new Label();
+	private HBox buttonBox = new HBox();
+	private Button downloadButton = new Button("Download");
+	
+	private ScrollPane tableScrollPane = new ScrollPane();
+	
+	private ObservableList<SessionData> sessionDataList = FXCollections.observableArrayList();
+	
+	private TableViewFactory<SessionData> sessionDataFactory = new SessionDataTableViewFactory();
+	private CustomTableView<SessionData> sessionDataTableView ;
+	
+	
+    public GridPane createCurrentSessionResultGridPane() {
+    	currentSessionResultGridPane.getStylesheets()
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
+    	currentSessionResultGridPane.getStyleClass().add("current-execution-result-container");
+
+        ColumnConstraints firstColumn = new ColumnConstraints();
+        firstColumn.setPercentWidth(100);
+
+        RowConstraints firstRow = new RowConstraints();
+        firstRow.setPercentHeight(7);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(93);
+
+		currentSessionResultGridPane.setPadding(new Insets(5));
+		currentSessionResultGridPane.getColumnConstraints().addAll(firstColumn);
+		currentSessionResultGridPane.getRowConstraints().addAll(firstRow, secondRow);
+
+
+		currentSessionResultGridPane.add(createHeadingBox(), 0, 0);
+		currentSessionResultGridPane.add(createCurrentSessionResultTableGridPane(), 0, 1);
+        return currentSessionResultGridPane;
+    }
+    
+	private GridPane createHeadingBox() {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(50);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		currentSessionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
+		currentSessionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
+	
+		titleBox.setAlignment(Pos.CENTER_LEFT);
+		title.setText("CURRENT SESSION RESULTS");
+		title.getStyleClass().add("current-execution-result-title");
+		titleBox.getChildren().add(title);
+		
+		currentSessionResultHeadingGridPane.add(titleBox, 0, 0);
+		currentSessionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		
+		return currentSessionResultHeadingGridPane;
+	}
+	
+	private HBox createDownloadButton() {
+		buttonBox.setAlignment(Pos.CENTER_RIGHT);
+		buttonBox.getChildren().add(downloadButton);
+		
+		downloadButton.setOnAction(e ->{
+
+		});
+		
+		return buttonBox;
+	}
+	
+	private GridPane createCurrentSessionResultTableGridPane() {
+		currentSessionResultTableGridPane.getStyleClass().add("current-execution-result-tabs-container");
+		
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		currentSessionResultTableGridPane.setPadding(new Insets(5));
+		
+		currentSessionResultTableGridPane.getColumnConstraints().addAll(firstColumn);
+		currentSessionResultTableGridPane.getRowConstraints().addAll(firstRow);
+		
+		currentSessionResultTableGridPane.add(createCurrentSessionResultTable(), 0, 0);
+		return currentSessionResultTableGridPane;
+	}
+	
+	private ScrollPane createCurrentSessionResultTable() {
+		
+		sessionDataTableView = sessionDataFactory.createTableView(sessionDataList, false, false);
+
+		sessionDataTableView.getColumns().forEach(column -> {   
+        	column.setMinWidth(column.getText().length()*16);
+        	updateSessionData((TableColumn<SessionData, String>) column);
+        });
+		
+		
+		tableScrollPane.setContent(sessionDataTableView);
+		tableScrollPane.setFitToHeight(true);
+		return tableScrollPane;
+	}
+	
+
+	private void updateSessionData(TableColumn<SessionData, String> column) {
+	    column.setCellFactory(col -> new TableCell<SessionData, String>() {
+	        private Label label;
+
+	        @Override
+	        protected void updateItem(String item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (item == null || empty) {
+	                setText(null);
+	                setGraphic(null);
+	            } else {
+	                if (label == null) {
+	                    label = new Label();
+	                    label.setWrapText(false);
+	                    label.setAlignment(Pos.CENTER); 
+	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+	                    setStyle("-fx-alignment: CENTER;"); 
+	                }
+	                label.setText(item);
+	                label.setStyle("-fx-text-fill: white; ");
+	                label.setMinWidth(label.getText().length() * 16);
+	                setGraphic(label);
+	                this.setMinWidth(label.getText().length() * 16);
+	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+	            }
+	        }
+	    });
+	}
+	
+}
