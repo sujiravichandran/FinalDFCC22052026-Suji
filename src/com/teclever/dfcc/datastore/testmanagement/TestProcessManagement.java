@@ -20,11 +20,13 @@ import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
@@ -229,9 +231,9 @@ public class TestProcessManagement {
 		// If Trails
 		if (sessionId.substring(0, 4).equals("TSSN")) {
 			try {
-				SessionService sessionService = new SessionService();
-				GetObjResponse objResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-				SessionEntity sessionEntity = (SessionEntity) objResponse.getObject();
+				TrailSessionEntityService sessionService = new TrailSessionEntityService();
+				GetObjResponse objResponse = sessionService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity sessionEntity = (TrailSessionEntity) objResponse.getObject();
 				if (sessionEntity.getStartDate() == null) {
 					Date utilDate = new Date();
 					java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
