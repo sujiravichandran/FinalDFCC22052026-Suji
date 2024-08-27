@@ -346,6 +346,7 @@ public class SessionFileManagement {
 			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
 			sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult.getResponseList();
 			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
+			String fromPath = "";
 			List<CopyFileDTO> lst = new ArrayList<CopyFileDTO>();
 			if (sessionStagesTestFilesResultServiceList.size() > 0) {
 				for (SessionStagesTestFilesResult sesStageTFR : sessionStagesTestFilesResultServiceList) {
@@ -355,11 +356,21 @@ public class SessionFileManagement {
 					copyFileDTO.setRdfFileNamewithPath(sesStageTFR.getRdfPath() + sesStageTFR.getRdfFileName());
 					copyFileDTO.setRdfFilePath(sesStageTFR.getRdfPath());
 					copyFileDTO.setCopyingFileId(sesStageTFR.getSessionStagesTestFilesResultId());
+					copyFileDTO.setStatus(sesStageTFR.getTestStatus());
 					lst.add(copyFileDTO);
 				}
 			}
+			fromPath = sessionStagesTestFilesResultServiceList.get(0).getRdfPath();
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping session = new SessionStagesMapping();
+			session = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = session.getSessionStagesMappingId();
+			String stagePath = session.getPath();
 			response.setCode(1);
 			response.setCodeMsg("Fetched Succesfully..");
+			response.setFromPath(fromPath);
+			response.setToPath(stagePath);
 		} catch (Exception ex) {
 			response.setCode(1);
 			response.setCodeMsg("Un Fetched Succesfully.."+ex.getLocalizedMessage());
