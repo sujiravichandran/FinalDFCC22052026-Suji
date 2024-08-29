@@ -255,4 +255,12 @@
     -fx-font-weight:bold;
 }
 
+.progress-bar {
+	-fx-min-width: 250px;
+}
+.progress-label{
+    -fx-text-fill: primary-text-color ;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
 

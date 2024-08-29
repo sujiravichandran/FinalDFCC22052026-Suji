@@ -31,6 +31,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -66,6 +67,12 @@ public class AdvancedTestingInterfaceTesting {
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
+	
+	private VBox buttonMainVBox = new VBox(15);
+	private HBox allButtonHBox = new HBox(5);
+	private HBox progressBarHBox = new HBox(5);
+	private ProgressBar testProgressBar = new ProgressBar();
+	private Label percentageLabel = new Label("0%");
 
 	private RunConfigurationService runConfigurationService = new RunConfigurationService();
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
@@ -185,10 +192,10 @@ public class AdvancedTestingInterfaceTesting {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(80);
+		firstRow.setPercentHeight(77);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(20);
+		secondRow.setPercentHeight(23);
 
 		rightSideGridPane.getColumnConstraints().addAll(firstColumn);
 		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow);
@@ -374,7 +381,19 @@ public class AdvancedTestingInterfaceTesting {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+//		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+		
+		testProgressBar.setProgress(0);
+		testProgressBar.getStyleClass().add("progress-bar");
+		percentageLabel.getStyleClass().add("progress-label");
+
+		progressBarHBox.setAlignment(Pos.CENTER);
+
+		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
+		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
+		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+
+		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
 		
 		AdvancedTestStateObject.interfaceTestStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if(!newValue) {
@@ -389,6 +408,16 @@ public class AdvancedTestingInterfaceTesting {
 		
 		});
 		
+		AdvancedTestStateObject.runnedInterfaceestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			if(newValue != null) {
+				double percentage = AdvancedTestStateObject.getRunnedInterfaceTestFileCount();
+				Platform.runLater(()->{					
+					testProgressBar.setProgress(percentage);
+					percentageLabel.setText(percentage*100+"%");
+				});
+			}
+		});
+		
 		return buttonHBox;
 	}
 
@@ -397,13 +426,15 @@ public class AdvancedTestingInterfaceTesting {
 			@Override
 			protected Void call() throws Exception {
 
-	
 				String runConfigId = runConfigurationService
 						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
 
+				int totalTestFileCount = testFileIds.size() * repeatCount;
+				AdvancedTestStateObject.setTotalInterfaceSelectedTestFileCount(totalTestFileCount);
+				
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, true, stageName, testTypeId);
 
