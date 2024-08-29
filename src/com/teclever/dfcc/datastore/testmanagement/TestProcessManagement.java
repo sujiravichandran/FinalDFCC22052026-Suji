@@ -952,7 +952,7 @@ public class TestProcessManagement {
 			resetAitessFailureStates();
 
 			// Call writing command to Terminal
-			AitessProcessControlManagement.getInstance().WriteAitess1Command(command);
+			AitessProcessControlManagement.getInstance().WriteAitess1Command(command + "\n");
 
 		} catch (Exception e) {
 			return createErrorResponse("Test Failled  " + e.getLocalizedMessage());
