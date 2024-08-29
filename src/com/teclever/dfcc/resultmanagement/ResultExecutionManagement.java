@@ -1,6 +1,8 @@
 package com.teclever.dfcc.resultmanagement;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,12 +13,16 @@ import org.bson.types.ObjectId;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.entities.LevelFiveStageMaster;
 import com.teclever.datastore.entities.LevelFourStageMaster;
 import com.teclever.datastore.entities.LevelOneStageMaster;
 import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
+import com.teclever.datastore.entities.SessionMaster;
+import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.entities.UserLoginDetails;
@@ -25,14 +31,22 @@ import com.teclever.datastore.service.LevelFourMasterSevice;
 import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
+import com.teclever.datastore.service.SessionMasterService;
+import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TestFileService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.ReportDetails;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
+import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsDTO;
+import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsResponse;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
 import com.teclever.dfcc.resultstore.dto.ResultDto;
@@ -743,4 +757,249 @@ public class ResultExecutionManagement {
 		return sessionDetailsMap;
 	}
 
+	// For Getting Unit Sessions..
+	public ResultUnitSessionDetailsResponse getSessionDetailsForResultsByUnit(String uutTypeId) {
+		ResultUnitSessionDetailsResponse res = new ResultUnitSessionDetailsResponse();
+
+		try {
+			SessionService sessionService = new SessionService();
+			SessionResponse sessionResponse = sessionService.getAllSession();
+			TrailSessionEntityService trailSessionService = new TrailSessionEntityService();
+			TrailSessionResponse trailSessionResponse = trailSessionService.getAllSession();
+			List<ResultUnitSessionDetailsDTO> resultUnitSessionDetailsDTOList = new ArrayList<ResultUnitSessionDetailsDTO>();
+			Map<String, String> sessionIdName = new HashMap<String, String>();
+			SessionMasterService sessionMasterService = new SessionMasterService();
+			GetResponse responseMaster = sessionMasterService.getAllSessionMaster();
+			List<SessionMaster> sessionMasterList = new ArrayList<SessionMaster>();
+			sessionMasterList = (List<SessionMaster>) responseMaster.getResponseList();
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse res1 = new GetResponse();
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = new ArrayList<SessionStagesTestFilesResult>();
+			res1 = sessionStagesTestFilesResultService.getTestResultFileByUUTId(uutTypeId);
+
+			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
+			for (SessionMaster sessionMaster : sessionMasterList) {
+				sessionIdName.put(sessionMaster.getSessionMasterId(), sessionMaster.getSessionTypeName());
+			}
+
+			for (SessionDto sessionDetails : sessionResponse.getListOfSession()) {
+				if (sessionDetails.getUutId().equals(uutTypeId)) {
+					ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
+					if (sessionDetails.getEndDate() != null) {
+						resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDate().toString());
+
+					} else {
+						resultUnitSessionDetailsDTO.setEndTime("Not Done");
+
+					}
+					if (sessionDetails.getStartDate() != null) {
+						resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDate().toString());
+
+					} else {
+						resultUnitSessionDetailsDTO.setStartTime("Not Started");
+
+					}
+					resultUnitSessionDetailsDTO.setSessionName(sessionDetails.getSessionName());
+					String status = "Pending";
+					if (sessionDetails.getStartDate() != null) {
+						status = "Started";
+					}
+					String results = "-";
+					if (sessionDetails.getEndDate() != null) {
+						status = "Completed";
+					}
+					resultUnitSessionDetailsDTO.setSessionStatus(status);
+					if (status.equals("Completed")) {
+						if (sessionStagesTestFilesResultList != null) {
+							List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySession = sessionStagesTestFilesResultList
+									.stream().filter(ses -> ses.getSessionId().equals(sessionDetails.getSessionId()))
+									.collect(Collectors.toList());
+							if (sessionStagesTestFilesResultListBySession != null) {
+								List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySessionfailed = sessionStagesTestFilesResultListBySession
+										.stream().filter(ses -> ses.getSessionId().equals("FAILURE"))
+										.collect(Collectors.toList());
+								if (sessionStagesTestFilesResultListBySessionfailed != null) {
+									results = "Failure";
+								}
+							}
+						}
+					}
+					resultUnitSessionDetailsDTO.setSessionResults(results);
+					resultUnitSessionDetailsDTO
+							.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
+					resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+					resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+				}
+			}
+
+			for (TrailSessionDto sessionDetails : trailSessionResponse.getListOfSession()) {
+				if (sessionDetails.getUutId().equals(uutTypeId)) {
+					ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
+					if (sessionDetails.getEndDate() != null) {
+						resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDate().toString());
+
+					} else {
+						resultUnitSessionDetailsDTO.setEndTime("Not Done");
+
+					}
+					if (sessionDetails.getStartDate() != null) {
+						resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDate().toString());
+
+					} else {
+						resultUnitSessionDetailsDTO.setStartTime("Not Started");
+
+					}
+
+					resultUnitSessionDetailsDTO.setSessionName(sessionDetails.getSessionName());
+					String status = "Pending";
+					if (sessionDetails.getStartDate() != null) {
+						status = "Started";
+					}
+					if (sessionDetails.getEndDate() != null) {
+						status = "Completed";
+					}
+					String results = "-";
+					resultUnitSessionDetailsDTO.setSessionStatus(status);
+					if (status.equals("Completed")) {
+						List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySession = sessionStagesTestFilesResultList
+								.stream().filter(ses -> ses.getSessionId().equals(sessionDetails.getSessionId()))
+								.collect(Collectors.toList());
+						if (sessionStagesTestFilesResultListBySession != null) {
+							List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySessionfailed = sessionStagesTestFilesResultListBySession
+									.stream().filter(ses -> ses.getSessionId().equals("FAILURE"))
+									.collect(Collectors.toList());
+							if (sessionStagesTestFilesResultListBySessionfailed != null) {
+								results = "Failure";
+							}
+						}
+					}
+
+					resultUnitSessionDetailsDTO.setSessionResults(results);
+					resultUnitSessionDetailsDTO
+							.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
+					resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+					resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+				}
+			}
+			res.setResultUnitSessionDetailsDTOList(resultUnitSessionDetailsDTOList);
+			res.setTotalNoOfSessions(resultUnitSessionDetailsDTOList.size());
+			res.setUutTypeId(uutTypeId);
+			res.setCode(1);
+			res.setMsg("Data Fetched");
+
+		} catch (Exception ex) {
+			res.setCode(0);
+			res.setMsg("Not Fetched..");
+			res.seteMsg(ex.getLocalizedMessage());
+			System.err.println(ex.getLocalizedMessage());
+		}
+		return res;
+	}
+	
+	// For Getting Session Stages...
+	public ResultSessionStagesDetailsResponse getStagesDetailsForSession(String sessionId) {
+		ResultSessionStagesDetailsResponse response = new ResultSessionStagesDetailsResponse();
+		try {
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetResponse getStagesResponse = sessionSelectedStagesService.getAllSessionStagesBySessionStageId(sessionId);
+			List<SessionStagesMapping> stagesDetailsList = new ArrayList<SessionStagesMapping>();
+			stagesDetailsList = (List<SessionStagesMapping>) getStagesResponse.getResponseList();
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse res1 = new GetResponse();
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = new ArrayList<SessionStagesTestFilesResult>();
+			res1 = sessionStagesTestFilesResultService.getTestResultFileBySessionIdOrderByDate(sessionId);
+			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
+			SessionManagement sessionManagement = new SessionManagement();
+			Map<String, String> stagesIdName = sessionManagement.getAllStageIdName();
+			List<ResultSessionStagesDetailsDTO> resultSessionStagesDetailsDTOList = new ArrayList<ResultSessionStagesDetailsDTO>();
+
+			String levelId = "";
+			for (SessionStagesMapping sessionStagesMapping : stagesDetailsList) {
+
+				if (sessionStagesMapping.getLevelTwoStageId() != null
+						&& sessionStagesMapping.getLevelTwoStageId().equals("")) {
+					levelId = sessionStagesMapping.getLevelTwoStageId();
+				}
+				if (sessionStagesMapping.getLevelThreeStageId() != null
+						&& sessionStagesMapping.getLevelThreeStageId().equals("")) {
+					levelId = sessionStagesMapping.getLevelThreeStageId();
+				}
+				if (sessionStagesMapping.getLevelFourStageId() != null
+						&& sessionStagesMapping.getLevelFourStageId().equals("")) {
+					levelId = sessionStagesMapping.getLevelFourStageId();
+				}
+				if (sessionStagesMapping.getLevelFiveStageId() != null
+						&& sessionStagesMapping.getLevelFiveStageId().equals("")) {
+					levelId = sessionStagesMapping.getLevelFiveStageId();
+				}
+				String stageId = levelId;
+				String levelName = stagesIdName.get(levelId);
+				String startTime = "-";
+				String endTime = "-";
+				int failedFiles = 0;
+				int files = 0;
+				if (sessionStagesTestFilesResultList != null & stageId != null) {
+					List<SessionStagesTestFilesResult> stgesfilesList = sessionStagesTestFilesResultList = sessionStagesTestFilesResultList
+							.stream().filter(ses -> ses.getStageId().equals(stageId)).collect(Collectors.toList());
+					if (stgesfilesList != null) {
+						startTime = sessionStagesTestFilesResultList.get(0).getStartTime();
+						endTime = sessionStagesTestFilesResultList.get(sessionStagesTestFilesResultList.size() - 1)
+								.getEndTime();
+					}
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultList) {
+						if (!sessionStagesTestFilesResult.getTestStatus().equals("Success")) {
+							failedFiles++;
+						}
+						files++;
+					}
+				}
+
+				ResultSessionStagesDetailsDTO resultSessionStagesDetailsDTO = new ResultSessionStagesDetailsDTO();
+				resultSessionStagesDetailsDTO.setFailedFiles(failedFiles);
+				resultSessionStagesDetailsDTO.setEndTime(endTime);
+				resultSessionStagesDetailsDTO.setStartTime(startTime);
+				if (!startTime.equals("-") && !endTime.equals("-")) {
+					SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+					Date d1 = format.parse(startTime);
+					Date d2 = format.parse(endTime);
+					long differenceInMillis = d2.getTime() - d1.getTime();
+
+					long differenceInSeconds = differenceInMillis / 1000;
+					long differenceInMinutes = differenceInSeconds / 60;
+					long differenceInHours = differenceInMinutes / 60;
+					long differenceInDays = differenceInHours / 24;
+					resultSessionStagesDetailsDTO.setTimeTakenForExecution(differenceInMinutes + "");
+					resultSessionStagesDetailsDTO.setStatus("COMPLETED");
+				} else {
+					resultSessionStagesDetailsDTO.setTimeTakenForExecution("-");
+					resultSessionStagesDetailsDTO.setStatus("Pending");
+				}
+				if (failedFiles > 0) {
+					resultSessionStagesDetailsDTO.setResult("Failed");
+				} else {
+					resultSessionStagesDetailsDTO.setResult("Success");
+
+				}
+				resultSessionStagesDetailsDTO.setStageMappingId(sessionStagesMapping.getSessionStagesMappingId());
+				resultSessionStagesDetailsDTO.setStage(stagesIdName.get(levelId));
+				resultSessionStagesDetailsDTOList.add(resultSessionStagesDetailsDTO);
+				
+
+			}
+			response.setTotalNoOfStages(resultSessionStagesDetailsDTOList.size());
+			response.setResultSessionStagesDetailsDTOList(resultSessionStagesDetailsDTOList);
+		} catch (Exception ex) {
+			response.setCode(0);
+			response.setMsg("Not Fetched");
+			response.seteMsg(ex.getLocalizedMessage());
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return response;
+	}
+	
+	// For Getting Session Stages...
+
+	
 }
