@@ -151,3 +151,13 @@
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
+
+
+.progress-bar {
+	-fx-min-width: 250px;
+}
+.progress-label{
+    -fx-text-fill: primary-text-color ;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}

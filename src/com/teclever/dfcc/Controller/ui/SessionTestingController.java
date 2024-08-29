@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
@@ -44,6 +43,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -101,6 +101,14 @@ public class SessionTestingController {
 	private boolean isTrailSession = false;
 
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
+	
+	private VBox buttonMainVBox = new VBox(15);
+	private HBox allButtonHBox = new HBox(5);
+	private HBox progressBarHBox = new HBox(5);
+	private ProgressBar testProgressBar = new ProgressBar();
+	private Label percentageLabel = new Label("0%");
+	
+	private double progress = 0.1;
 
 	public GridPane createSessionTestingGridPane(boolean status) {
 		if (status) {
@@ -292,7 +300,7 @@ public class SessionTestingController {
 
 		});
 
-		startButton.setOnAction(e -> {
+		startButton.setOnAction(e -> {			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -390,7 +398,31 @@ public class SessionTestingController {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+//		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+		
+
+		testProgressBar.setProgress(0);
+		testProgressBar.getStyleClass().add("progress-bar");
+		percentageLabel.getStyleClass().add("progress-label");
+
+		progressBarHBox.setAlignment(Pos.CENTER);
+
+		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
+		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
+		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+
+		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
+		
+		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			if(newValue != null) {
+				double percentage = SessionTestStateObject.getTotalSelectedTestFileCount()/SessionTestStateObject.getRunnedTestFileCount();
+				Platform.runLater(()->{					
+					testProgressBar.setProgress(percentage);
+					percentageLabel.setText(percentage*100+"%");
+				});
+			}
+		});
+		
 		return buttonHBox;
 	}
 
@@ -762,6 +794,9 @@ public class SessionTestingController {
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
+				
+				int totalTestFileCount = testFileIds.size() * repeatCount;
+				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
@@ -860,18 +895,18 @@ public class SessionTestingController {
 					stage.initModality(Modality.APPLICATION_MODAL);
 					stage.initStyle(StageStyle.UNDECORATED);
 					stage.centerOnScreen();
-					
+
 					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
-					
+
 					Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-				    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
-				    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
-				    stage.setX(centerX);
-				    stage.setY(centerY);
-				   
+					double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
+					double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+					stage.setX(centerX);
+					stage.setY(centerY);
+
 					stage.setScene(new Scene(root));
 					stage.showAndWait();
-				    
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

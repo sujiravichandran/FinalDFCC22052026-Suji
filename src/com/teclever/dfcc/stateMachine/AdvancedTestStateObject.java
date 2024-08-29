@@ -3,7 +3,9 @@ package com.teclever.dfcc.stateMachine;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -199,5 +201,40 @@ public class AdvancedTestStateObject {
 			}
 		}
 	}
+	
+	
+//	HWATP Progress Bar
+	private static int totalHWATPSelectedTestFileCount;
+	private static IntegerProperty runnedHWATPTestFileCount = new SimpleIntegerProperty(0);
 
+	public static int getTotalHWATPSelectedTestFileCount() {
+		return totalHWATPSelectedTestFileCount;
+	}
+	public static void setTotalHWATPSelectedTestFileCount(int totalHWATPSelectedTestFileCount) {
+		AdvancedTestStateObject.totalHWATPSelectedTestFileCount = totalHWATPSelectedTestFileCount;
+	}
+    public static IntegerProperty runnedHWATPTestFileCountProperty() {
+        return runnedHWATPTestFileCount;
+    }
+    public static int getRunnedHWATPTestFileCount() {
+        return runnedHWATPTestFileCount.get();
+    }
+	
+//	Interface Progress Bar
+	private static int totalInterfaceSelectedTestFileCount;
+	private static IntegerProperty runnedInterfaceTestFileCount = new SimpleIntegerProperty(0);
+
+	public static int getTotalInterfaceSelectedTestFileCount() {
+		return totalInterfaceSelectedTestFileCount;
+	}
+	public static void setTotalInterfaceSelectedTestFileCount(int totalInterfaceSelectedTestFileCount) {
+		AdvancedTestStateObject.totalInterfaceSelectedTestFileCount = totalInterfaceSelectedTestFileCount;
+	}
+    public static IntegerProperty runnedInterfaceestFileCountProperty() {
+        return runnedInterfaceTestFileCount;
+    }
+    public static int getRunnedInterfaceTestFileCount() {
+        return runnedInterfaceTestFileCount.get();
+    }
+    
 }

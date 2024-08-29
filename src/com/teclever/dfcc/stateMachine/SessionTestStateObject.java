@@ -8,7 +8,9 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.model.StageIdName;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -255,5 +257,27 @@ public class SessionTestStateObject {
 	public static void setPopupStageId(String popupStageId) {
 		SessionTestStateObject.popupStageId = popupStageId;
 	}
+	
+	
+//	Progress Bar
+	private static int totalSelectedTestFileCount;
+	private static IntegerProperty runnedTestFileCount = new SimpleIntegerProperty(0);
+
+	public static int getTotalSelectedTestFileCount() {
+		return totalSelectedTestFileCount;
+	}
+
+	public static void setTotalSelectedTestFileCount(int totalSelectedTestFileCount) {
+		SessionTestStateObject.totalSelectedTestFileCount = totalSelectedTestFileCount;
+	}
+
+    public static IntegerProperty runnedTestFileCountProperty() {
+        return runnedTestFileCount;
+    }
+
+    public static int getRunnedTestFileCount() {
+        return runnedTestFileCount.get();
+    }
+    
 
 }
