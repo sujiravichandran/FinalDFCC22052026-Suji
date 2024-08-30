@@ -275,8 +275,8 @@ public class SessionTestStateObject {
         return runnedTestFileCount;
     }
 
-    public static int getRunnedTestFileCount() {
-        return runnedTestFileCount.get();
+    public static IntegerProperty getRunnedTestFileCount() {
+        return runnedTestFileCount;
     }
     
 

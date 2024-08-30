@@ -216,8 +216,8 @@ public class AdvancedTestStateObject {
     public static IntegerProperty runnedHWATPTestFileCountProperty() {
         return runnedHWATPTestFileCount;
     }
-    public static int getRunnedHWATPTestFileCount() {
-        return runnedHWATPTestFileCount.get();
+    public static IntegerProperty getRunnedHWATPTestFileCount() {
+        return runnedHWATPTestFileCount;
     }
 	
 //	Interface Progress Bar
@@ -233,8 +233,8 @@ public class AdvancedTestStateObject {
     public static IntegerProperty runnedInterfaceestFileCountProperty() {
         return runnedInterfaceTestFileCount;
     }
-    public static int getRunnedInterfaceTestFileCount() {
-        return runnedInterfaceTestFileCount.get();
+    public static IntegerProperty getRunnedInterfaceTestFileCount() {
+        return runnedInterfaceTestFileCount;
     }
     
 }

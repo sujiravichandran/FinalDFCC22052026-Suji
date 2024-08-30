@@ -853,6 +853,7 @@ public class TestProcessManagement {
 						StateMachine.setTextArea(true);
 					} // Inner loop
 				}
+				SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);;
 
 			} // Outer loop
 
