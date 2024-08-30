@@ -1,8 +1,13 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.model.SessionData;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -46,6 +51,11 @@ public class CurrentSessionResultController {
 	private TableViewFactory<SessionData> sessionDataFactory = new SessionDataTableViewFactory();
 	private CustomTableView<SessionData> sessionDataTableView ;
 	
+	private ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+	
+	public CurrentSessionResultController() {
+    	getCurrentSessionResultData(currentSessionDetails.getSessionId());
+	}
 	
     public GridPane createCurrentSessionResultGridPane() {
     	currentSessionResultGridPane.getStylesheets()
@@ -70,6 +80,30 @@ public class CurrentSessionResultController {
         return currentSessionResultGridPane;
     }
     
+	private void getCurrentSessionResultData(String sessionId) {
+		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(sessionId);
+		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
+			int i = 1;
+			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
+				SessionData newSessionData = new SessionData();
+				
+				newSessionData.setSlNo(String.valueOf(i));
+				newSessionData.setStage(data.getStage());
+				newSessionData.setStartTime(data.getStartTime());
+				newSessionData.setEndTime(data.getEndTime());
+				newSessionData.setStatus(data.getStatus());
+				newSessionData.setResult(data.getResult());
+				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
+				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
+				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
+				i++;
+				sessionDataList.add(newSessionData);
+			}
+		}else if(response.getCode() == 0) {
+			Notifications.showErrorAlert(response.getMsg());
+		}
+	}
+
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
