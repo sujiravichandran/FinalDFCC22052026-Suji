@@ -853,8 +853,9 @@ public class TestProcessManagement {
 						StateMachine.setTextArea(true);
 					} // Inner loop
 				}
-				SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);;
-
+				if(stageName.equals("SESSION TEST")||stageName.equals("HWATP TEST")||stageName.equals("INTERFACE TEST")) {
+					updateProgressBar(stageName);
+				}
 			} // Outer loop
 
 			// Update state machine card status
@@ -939,7 +940,31 @@ public class TestProcessManagement {
 
 		return false;
 	}
+	private void updateProgressBar(String stageName) {
+		try {
 
+			switch (stageName) {
+			
+			case "SESSION TEST":
+				SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);
+				break;
+
+			case "HWATP TEST":
+				AdvancedTestStateObject.getRunnedHWATPTestFileCount().set(AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()+1);
+				break;
+			case "INTERFACE TEST":
+				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get()+1);
+				break;
+
+			default:
+				System.out.println("INVALID Stage Name : "+stageName);
+				break;
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	public Response runCommand(String command, String testTypeId) {
 		Response res = new Response();
 		try {
