@@ -1,8 +1,16 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
+import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
+import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsDTO;
+import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsResponse;
+import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.model.UnitData;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
 import javafx.collections.FXCollections;
@@ -46,6 +54,11 @@ public class CurrentUnitResultController {
 	private TableViewFactory<UnitData> unitDataFactory = new UnitDataTableViewFactory();
 	private CustomTableView<UnitData> unitDataTableView ;
 	
+	private ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+	
+	public CurrentUnitResultController() {
+    	getCurrentUnitResultData(currentSessionDetails.getUutId());
+	}
 	
     public GridPane createcurrentUnitResultGridPane() {
     	currentUnitResultGridPane.getStylesheets()
@@ -69,6 +82,28 @@ public class CurrentUnitResultController {
 		currentUnitResultGridPane.add(createcurrentUnitResultTableGridPane(), 0, 1);
         return currentUnitResultGridPane;
     }
+    
+	private void getCurrentUnitResultData(String uutId) {
+		ResultUnitSessionDetailsResponse response = resultExecutionManagement.getSessionDetailsForResultsByUnit(uutId);
+		if(response.getCode() == 1 && response.getResultUnitSessionDetailsDTOList() != null) {
+			int i = 1;
+			for(ResultUnitSessionDetailsDTO data : response.getResultUnitSessionDetailsDTOList()) {
+				UnitData newUnitData = new UnitData();
+				
+				newUnitData.setSlNo(String.valueOf(i));
+				newUnitData.setSessionType(data.getSessionType());
+				newUnitData.setSessonName(data.getSessionName());
+				newUnitData.setStartTime(data.getStartTime());
+				newUnitData.setEndTime(data.getEndTime());
+				newUnitData.setSessionStatus(data.getSessionStatus());
+				newUnitData.setSessionResult(data.getSessionResults());
+				i++;
+				unitDataList.add(newUnitData);
+			}
+		}else if(response.getCode() == 0) {
+			Notifications.showErrorAlert(response.getMsg());
+		}
+	}
     
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();

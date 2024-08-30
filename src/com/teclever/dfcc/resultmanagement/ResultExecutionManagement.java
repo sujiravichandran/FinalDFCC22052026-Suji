@@ -828,7 +828,7 @@ public class ResultExecutionManagement {
 					resultUnitSessionDetailsDTO.setSessionResults(results);
 					resultUnitSessionDetailsDTO
 							.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
-					resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+					//resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
 					resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
 				}
 			}
@@ -878,7 +878,7 @@ public class ResultExecutionManagement {
 					resultUnitSessionDetailsDTO.setSessionResults(results);
 					resultUnitSessionDetailsDTO
 							.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
-					resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+					//resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
 					resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
 				}
 			}
