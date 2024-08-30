@@ -12,7 +12,6 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
-import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -409,8 +408,8 @@ public class AdvancedTestingInterfaceTesting {
 		});
 		
 		AdvancedTestStateObject.runnedInterfaceestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if(newValue != null) {
-				double percentage = AdvancedTestStateObject.getRunnedInterfaceTestFileCount();
+			if(newValue != null && newValue.intValue() != 0) {
+				double percentage =AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount()/ AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get();
 				Platform.runLater(()->{					
 					testProgressBar.setProgress(percentage);
 					percentageLabel.setText(percentage*100+"%");
@@ -434,7 +433,9 @@ public class AdvancedTestingInterfaceTesting {
 
 				int totalTestFileCount = testFileIds.size() * repeatCount;
 				AdvancedTestStateObject.setTotalInterfaceSelectedTestFileCount(totalTestFileCount);
-				
+				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(0);
+				percentageLabel.setText("0%");
+
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, true, stageName, testTypeId);
 
