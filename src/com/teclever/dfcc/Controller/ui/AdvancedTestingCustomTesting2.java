@@ -1,21 +1,24 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+import java.util.Date;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -177,10 +180,22 @@ public class AdvancedTestingCustomTesting2 {
 		selectTestFileVBox.getChildren().addAll(selectTestFileHBox, selectedTestFileHBox);
 
 		addTestFileLabel.setOnMouseClicked(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Test File Add button in Custom Testing-2");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("selectTestFile");
 		});
 
 		selectTestFileRunButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Test File Run button in Custom Testing-2");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleRunTestFile(true);
 		});
 
@@ -239,14 +254,32 @@ public class AdvancedTestingCustomTesting2 {
 				selectedDownloadCodeHBox, checkSumFileHBox, selectedCheckSumFileHBox);
 
 		addDownloadCodeLabel.setOnMouseClicked(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Download Code Add button in Custom Testing-2");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("downloadCode");
 		});
 		
 		addCheckSumFileLabel.setOnMouseClicked(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Checksum File Add button in Custom Testing-2");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("checksumFile");
 		});
 
 		downloadCodeRunButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Download Code Run button in Custom Testing-2");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleRunTestFile(false);
 		});
 		

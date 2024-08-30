@@ -1,17 +1,20 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.SymbolListResponse;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
@@ -268,10 +271,22 @@ public class AdvancedTestingCustomTesting1 {
 		terminalButtonVBox.getChildren().addAll(terminalAddButton, terminalRunButton);
 
 		terminalAddButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Terminal Add button in Custom Testing-1");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSymbolAddOrRun(false);
 		});
 
 		terminalRunButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Terminal Run button in Custom Testing-1");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSymbolAddOrRun(true);
 		});
 
@@ -321,10 +336,22 @@ public class AdvancedTestingCustomTesting1 {
 		macroButtonVBox.getChildren().addAll(macroAddButton, macroRunButton);
 
 		macroAddButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Macro Add button in Custom Testing-1");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleMacroAddOrRun(false);
 		});
 
 		macroRunButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Macro Run button in Custom Testing-1");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleMacroAddOrRun(true);
 		});
 

@@ -2,6 +2,8 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,10 +11,14 @@ import java.util.Set;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.dfcc.DFCCConstant;
+import com.tec
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;lever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
-import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.dto.TestF
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;ileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
@@ -257,6 +263,12 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 
 		runAllButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Run All in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -300,7 +312,22 @@ public class SessionTestingController {
 
 		});
 
-		startButton.setOnAction(e -> {			
+		startButton.setOnAction(e -> {	
+			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Resume in Session Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			}else {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Start in Session Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -365,6 +392,12 @@ public class SessionTestingController {
 		});
 
 		pauseButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Pause in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
 			pauseButton.setDisable(true);
@@ -373,6 +406,12 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Stop in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
