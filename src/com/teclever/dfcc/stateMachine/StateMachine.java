@@ -807,6 +807,27 @@ public class StateMachine {
 				StateMachine.currentUserLogin = currentUserLogin;
 			}
 			
+			//command
+			private static boolean runCommand = false;
+			private static volatile boolean aitess1CommandFinished = false;
+
+			public static synchronized boolean isAitess1CommandFinished() {
+				return aitess1CommandFinished;
+			}
+
+			public static synchronized void setAitess1CommandFinished(boolean aitess1CommandFinished) {
+				StateMachine.aitess1CommandFinished = aitess1CommandFinished;
+			}
+
+			public static boolean isRunCommand() {
+				return runCommand;
+			}
+
+			public static void setRunCommand(boolean runCommand) {
+				StateMachine.runCommand = runCommand;
+			}
+			
+			
 			
 
 }
