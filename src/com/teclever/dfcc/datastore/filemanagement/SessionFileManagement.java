@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionFileManagement {
 
@@ -403,4 +405,38 @@ public class SessionFileManagement {
 		}
 		return response;
 	}
+	
+	
+	
+	//datapack
+	public static void copyToDataPack(String stageName, String fileLocation) {
+
+		String dataPackPath = StateMachine.getHomelocation() + File.separator + currentSessionDetails.getUutType()+ File.separator + currentSessionDetails.getDfccSerialNumber() + File.separator +currentSessionDetails.getSessionName() + File.separator + "datapack";
+		System.out.println("DATAPACK FOLDER CHECK ----- :: " + dataPackPath);
+		File targetDir = new File(dataPackPath);
+
+		if (!targetDir.exists()) {
+			if (!targetDir.mkdirs()) {
+				System.err.println("Failed to create directory: " + targetDir.getAbsolutePath());
+				return;
+			}
+		}
+
+		File sourceFile = new File(fileLocation);
+		String fileName = sourceFile.getName();
+
+		String newFileName = stageName + "_" + fileName;
+
+		File newFileLocation = new File(targetDir, newFileName);
+
+		try {
+			Files.copy(Paths.get(fileLocation), Paths.get(newFileLocation.getAbsolutePath()),
+					StandardCopyOption.REPLACE_EXISTING);
+			System.out.println("File copied and renamed to: " + newFileLocation.getAbsolutePath());
+		} catch (IOException e) {
+			System.err.println("Failed to copy file: " + e.getMessage());
+		}
+	}
+	
+	
 }
