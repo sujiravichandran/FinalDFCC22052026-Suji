@@ -34,29 +34,29 @@ public class AdvancedTestingController {
 	private GridPane advancedTestingHeadingGridPane = new GridPane();
 	private GridPane advancedTestingTabsGridpPane = new GridPane();
 	private GridPane advancedTestingResultsGridPane = new GridPane();
-
+	
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
-
+	
 	private TabPane advancedTestingTabPane = new TabPane();
-
+	
+	
 	private StackPane hwatpTestStackPane = new StackPane();
 	private StackPane interfaceTestStackPane = new StackPane();
 	private StackPane customTest1StackPane = new StackPane();
 	private StackPane customTest2StackPane = new StackPane();
-
+	
 	AdvancedTestingHWATPTesting advancedTestingHWATPTesting = new AdvancedTestingHWATPTesting();
 	AdvancedTestingInterfaceTesting advancedTestingInterfaceTesting = new AdvancedTestingInterfaceTesting();
 	AdvancedTestingCustomTesting1 advancedTestingCustomTesting1 = new AdvancedTestingCustomTesting1();
 	AdvancedTestingCustomTesting2 advancedTestingCustomTesting2 = new AdvancedTestingCustomTesting2();
-
+	
 	public GridPane createAdvancedTestingGridPane() {
 		getSubStageId();
 		advancedTestingMainGridPane.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/AdvancedTesting.css")
-						.toExternalForm());
+				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AdvancedTesting.css").toExternalForm());
 		advancedTestingMainGridPane.getStyleClass().add("advanced-testing-container");
-
+	
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -66,40 +66,42 @@ public class AdvancedTestingController {
 		secondRow.setPercentHeight(60);
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(33);
-
+		
 		advancedTestingMainGridPane.setPadding(new Insets(5));
 		advancedTestingMainGridPane.setVgap(5);
 		advancedTestingMainGridPane.setHgap(5);
 		advancedTestingMainGridPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
-
+		
 		advancedTestingMainGridPane.add(createHeadingBox(), 0, 0);
 		advancedTestingMainGridPane.add(createAdvancedTestingTabsGridPane(), 0, 1);
 		advancedTestingMainGridPane.add(createAdvancedTestingResultsGridPane(), 0, 2);
-
+				
+		
 		return advancedTestingMainGridPane;
 	}
 
 	private void getSubStageId() {
 		ObservableList<StageObject> observableStageList = FXCollections
 				.observableArrayList(StateMachine.getStageDatalist());
-		observableStageList.stream().filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName()))
+		observableStageList.stream()
+				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName()))
 				.forEach(stage -> {
-					if (stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HST")) {
+					if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HST")) {
 						AdvancedTestStateObject.setHwatpTestId(stage.getL2StageId());
-					} else if (stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Interface Test")) {
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Interface Test")) {
 						AdvancedTestStateObject.setInterfaceTestId(stage.getL2StageId());
-					} else if (stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-1")) {
-						if (stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-1")) {
+						if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {							
 							AdvancedTestStateObject.setCustomTest1UserDefinedTestId(stage.getL3StageId());
 						}
-					} else if (stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-2")) {
-						if (stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {
+					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Custom Test-2")) {
+						if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("User Defined")) {							
 							AdvancedTestStateObject.setCustomTest2UserDefinedTestId(stage.getL3StageId());
-						} else if (stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("Download Code")) {
+						}else if(stage.getL3StageName().toLowerCase().trim().equalsIgnoreCase("Download Code")) {							
 							AdvancedTestStateObject.setCustomTest2DownloadCodeTestId(stage.getL3StageId());
 						}
-					}
+					}					
 				});
 	}
 
@@ -109,119 +111,119 @@ public class AdvancedTestingController {
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-
+		
 		advancedTestingHeadingGridPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingHeadingGridPane.getRowConstraints().addAll(firstRow);
-
+	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
 		title.setText("ADVANCED TESTING");
 		title.getStyleClass().add("advanced-testing-title");
 		titleBox.getChildren().add(title);
-
+		
 		advancedTestingHeadingGridPane.add(titleBox, 0, 0);
-
+		
 		return advancedTestingHeadingGridPane;
 	}
 
 	private GridPane createAdvancedTestingTabsGridPane() {
 		advancedTestingTabsGridpPane.getStyleClass().add("advanced-testing-tabs-container");
-
+		
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-
+		
 		advancedTestingTabsGridpPane.setPadding(new Insets(5));
-
+		
 		advancedTestingTabsGridpPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingTabsGridpPane.getRowConstraints().addAll(firstRow);
-
+		
 		advancedTestingTabsGridpPane.add(createAdvancedTestingTabs(), 0, 0);
-
+		
 		return advancedTestingTabsGridpPane;
 	}
 
 	private TabPane createAdvancedTestingTabs() {
-		Tab tab1 = new Tab("HWATP / HSI Testing");
-		Tab tab2 = new Tab("Interface Testing");
-		Tab tab3 = new Tab("Custom Testing-1");
-		Tab tab4 = new Tab("Custom Testing-2");
+	    Tab tab1 = new Tab("HWATP / HSI Testing");
+	    Tab tab2 = new Tab("Interface Testing");
+	    Tab tab3 = new Tab("Custom Testing-1");
+	    Tab tab4 = new Tab("Custom Testing-2");
+	    
+	    StackPane tab1StackPane = createTab1Content();
+	    StackPane tab2StackPane = createTab2Content();
+	    StackPane tab3StackPane = createTab3Content();
+	    StackPane tab4StackPane = createTab4Content();
+	    
+	    tab1.setContent(tab1StackPane);
+	    tab1.setClosable(false);
 
-		StackPane tab1StackPane = createTab1Content();
-		StackPane tab2StackPane = createTab2Content();
-		StackPane tab3StackPane = createTab3Content();
-		StackPane tab4StackPane = createTab4Content();
+	    tab2.setContent(tab2StackPane);
+	    tab2.setClosable(false);
 
-		tab1.setContent(tab1StackPane);
-		tab1.setClosable(false);
+	    tab3.setContent(tab3StackPane);
+	    tab3.setClosable(false);
 
-		tab2.setContent(tab2StackPane);
-		tab2.setClosable(false);
+	    tab4.setContent(tab4StackPane);
+	    tab4.setClosable(false);
 
-		tab3.setContent(tab3StackPane);
-		tab3.setClosable(false);
+	    advancedTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
 
-		tab4.setContent(tab4StackPane);
-		tab4.setClosable(false);
+	    advancedTestingTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+	        if (newTab == tab2) {
+	            showTab2Content();
+	        } else if (newTab == tab3) {
+	            showTab3Content();
+	        }else if (newTab == tab4) {
+	            showTab4Content();
+	        } else {
+	            showTab1Content();
+	        }
+	    });
 
-		advancedTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
+	    showTab1Content();
 
-		advancedTestingTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-			if (newTab == tab2) {
-				showTab2Content();
-			} else if (newTab == tab3) {
-				showTab3Content();
-			} else if (newTab == tab4) {
-				showTab4Content();
-			} else {
-				showTab1Content();
-			}
-		});
-
-		showTab1Content();
-
-		return advancedTestingTabPane;
+	    return advancedTestingTabPane;
 	}
 
 	private void showTab1Content() {
-		hwatpTestStackPane.toFront();
+	    hwatpTestStackPane.toFront();
 	}
 
 	private void showTab2Content() {
-		interfaceTestStackPane.toFront();
+	    interfaceTestStackPane.toFront();
 	}
 
 	private void showTab3Content() {
-		customTest1StackPane.toFront();
+	    customTest1StackPane.toFront();
 	}
-
+	
 	private void showTab4Content() {
-		customTest2StackPane.toFront();
+	    customTest2StackPane.toFront();
 	}
 
 	private StackPane createTab1Content() {
-		hwatpTestStackPane.getStyleClass().add("tab-content-container");
-		hwatpTestStackPane.getChildren().add(advancedTestingHWATPTesting.createAdvancedTestingTab1GridPane());
-		return hwatpTestStackPane;
+	    hwatpTestStackPane.getStyleClass().add("tab-content-container");
+	    hwatpTestStackPane.getChildren().add(advancedTestingHWATPTesting.createAdvancedTestingTab1GridPane());
+	    return hwatpTestStackPane;
 	}
 
 	private StackPane createTab2Content() {
-		interfaceTestStackPane.getStyleClass().add("tab-content-container");
-		interfaceTestStackPane.getChildren().add(advancedTestingInterfaceTesting.createAdvancedTestingTab2GridPane());
-		return interfaceTestStackPane;
+	    interfaceTestStackPane.getStyleClass().add("tab-content-container");
+	    interfaceTestStackPane.getChildren().add(advancedTestingInterfaceTesting.createAdvancedTestingTab2GridPane());
+	    return interfaceTestStackPane;
 	}
 
 	private StackPane createTab3Content() {
-		customTest1StackPane.getStyleClass().add("tab-content-container");
-		customTest1StackPane.getChildren().add(advancedTestingCustomTesting1.createAdvancedTestingTab3GridPane());
-		return customTest1StackPane;
+	    customTest1StackPane.getStyleClass().add("tab-content-container");
+	    customTest1StackPane.getChildren().add(advancedTestingCustomTesting1.createAdvancedTestingTab3GridPane());
+	    return customTest1StackPane;
 	}
 
 	private StackPane createTab4Content() {
 		customTest2StackPane.getStyleClass().add("tab-content-container");
 		customTest2StackPane.getChildren().add(advancedTestingCustomTesting2.createAdvancedTestingTab4GridPane());
-		return customTest2StackPane;
+	    return customTest2StackPane;
 	}
 
 	private GridPane createAdvancedTestingResultsGridPane() {
@@ -231,48 +233,47 @@ public class AdvancedTestingController {
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-
+		
 		advancedTestingResultsGridPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingResultsGridPane.getRowConstraints().addAll(firstRow);
-
+		
 		advancedTestingResultsGridPane.add(createResultTableView(), 0, 0);
-
+		
 		return advancedTestingResultsGridPane;
 	}
-
+	
 	private TableView<AdvancedTestResult> createResultTableView() {
 		TableView<AdvancedTestResult> tableView = new TableView<>();
-		tableView.getStylesheets().add(getClass()
-				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		tableView.getStylesheets()
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-		tableView.setPrefHeight(900);
+		
+		 tableView.setPrefHeight(900); 
 
 		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(1100);
-		fileNameColumn.setMaxWidth(1100);
+		fileNameColumn.setMaxWidth(1000);
+		fileNameColumn.setMaxWidth(1000);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
 		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
-		resultColumn.setMinWidth(200);
-		resultColumn.setMaxWidth(200);
+		resultColumn.setMaxWidth(300);
+		resultColumn.setMinWidth(300);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
 
 		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-
+		
 		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
-
+				
 		return tableView;
 	}
-
 	private void rewriteColumn(TableColumn<AdvancedTestResult, String> resultColumn) {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
@@ -290,7 +291,7 @@ public class AdvancedTestingController {
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
-					} else {
+					}else {
 						setText(item);
 						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
 					}
