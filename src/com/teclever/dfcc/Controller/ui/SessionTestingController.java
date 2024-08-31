@@ -2,17 +2,20 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
@@ -44,6 +47,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -101,6 +105,14 @@ public class SessionTestingController {
 	private boolean isTrailSession = false;
 
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
+	
+	private VBox buttonMainVBox = new VBox(15);
+	private HBox allButtonHBox = new HBox(5);
+	private HBox progressBarHBox = new HBox(5);
+	private ProgressBar testProgressBar = new ProgressBar();
+	private Label percentageLabel = new Label("0%");
+	
+	private double progress = 0.1;
 
 	public GridPane createSessionTestingGridPane(boolean status) {
 		if (status) {
@@ -249,6 +261,12 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 
 		runAllButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Run All in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -292,7 +310,22 @@ public class SessionTestingController {
 
 		});
 
-		startButton.setOnAction(e -> {
+		startButton.setOnAction(e -> {	
+			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Resume in Session Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			}else {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Start in Session Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -357,6 +390,12 @@ public class SessionTestingController {
 		});
 
 		pauseButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Pause in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
 			pauseButton.setDisable(true);
@@ -365,6 +404,12 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Stop in Session Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
@@ -390,7 +435,31 @@ public class SessionTestingController {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+//		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
+		
+
+		testProgressBar.setProgress(0);
+		testProgressBar.getStyleClass().add("progress-bar");
+		percentageLabel.getStyleClass().add("progress-label");
+
+		progressBarHBox.setAlignment(Pos.CENTER);
+
+		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
+		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
+		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+
+		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
+		
+		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			if(newValue != null && newValue.intValue() != 0) {
+				double percentage = SessionTestStateObject.getTotalSelectedTestFileCount()/SessionTestStateObject.getRunnedTestFileCount().get();
+				Platform.runLater(()->{					
+					testProgressBar.setProgress(percentage);
+					percentageLabel.setText(percentage*100+"%");
+				});
+			}
+		});
+		
 		return buttonHBox;
 	}
 
@@ -762,6 +831,11 @@ public class SessionTestingController {
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
+				
+				int totalTestFileCount = testFileIds.size() * repeatCount;
+				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);
+				SessionTestStateObject.getRunnedTestFileCount().set(0);
+				percentageLabel.setText("0%");
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
@@ -793,16 +867,16 @@ public class SessionTestingController {
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(1100);
-		fileNameColumn.setMaxWidth(1100);
+		fileNameColumn.setMaxWidth(100);
+		fileNameColumn.setMaxWidth(100);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
 		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
-		resultColumn.setMinWidth(200);
-		resultColumn.setMaxWidth(200);
+		resultColumn.setMinWidth(300);
+		resultColumn.setMaxWidth(300);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
 
@@ -864,18 +938,18 @@ public class SessionTestingController {
 					stage.initModality(Modality.APPLICATION_MODAL);
 					stage.initStyle(StageStyle.UNDECORATED);
 					stage.centerOnScreen();
-					
+
 					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
-					
+
 					Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-				    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
-				    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
-				    stage.setX(centerX);
-				    stage.setY(centerY);
-				   
+					double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
+					double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+					stage.setX(centerX);
+					stage.setY(centerY);
+
 					stage.setScene(new Scene(root));
 					stage.showAndWait();
-				    
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
