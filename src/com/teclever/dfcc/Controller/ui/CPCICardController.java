@@ -132,7 +132,7 @@ public class CPCICardController {
 
 			HBox addUserBox = new HBox();
 			addUserBox.setAlignment(Pos.CENTER_RIGHT);
-			addUserBtn.setText("+ ADD cPCI CARD");;
+			addUserBtn.setText("+ ADD cPCI CARD");
 			addUserBtn.setDisable(true);
 			addUserBox.getChildren().add(addUserBtn);
 

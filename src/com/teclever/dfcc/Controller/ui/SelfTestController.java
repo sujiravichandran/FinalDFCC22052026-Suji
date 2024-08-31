@@ -609,12 +609,16 @@ public class SelfTestController {
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
+		fileNameColumn.setMaxWidth(1100);
+		fileNameColumn.setMaxWidth(1100);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
 		TableColumn<SelfTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
+		 resultColumn.setMinWidth(200);
+		resultColumn.setMaxWidth(200);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
 		

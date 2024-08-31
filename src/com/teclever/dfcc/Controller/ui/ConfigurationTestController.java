@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -32,8 +33,8 @@ public class ConfigurationTestController {
 	private HBox testTypeComboHBox = new HBox(10);
 	private ComboBox<String> testTypeComboBox = new ComboBox<>();
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
-	private ListView<String> configurationListView = new ListView<>();
-
+	private TextArea configurationListView = new TextArea();
+	
 	RunConfigurationManagement runConfig = new RunConfigurationManagement();
 	private ObservableList<String> testTypeList = FXCollections.observableArrayList();
 
@@ -41,6 +42,8 @@ public class ConfigurationTestController {
 	public static String testTypeValue;
 	public static String testTypeId;
 	public GridPane createConfigurationTestGridPane() {
+		configurationTestMainGridPane.getStylesheets().add(getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/ConfigurationTest.css").toExternalForm());
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -89,6 +92,7 @@ public class ConfigurationTestController {
 	private void initializeTestTypeComboBox() {
 		testTypeDataList = FXCollections.observableArrayList(
 				runConfig.getTestTypeByUUTId(StateMachine.currentSessionDetails.getUutId()));
+		
 		for (TestTypeMasterDetailsDto testType : testTypeDataList) {
 			testTypeList.add(testType.getTestName());
 			
@@ -98,7 +102,7 @@ public class ConfigurationTestController {
 	}
 
 	private GridPane createConfigurationListController() {
-		configurationListGridPane.getStyleClass().add("configuration-code-Container");
+		configurationListView.getStyleClass().add("configuration-textarea");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -138,7 +142,13 @@ public class ConfigurationTestController {
 		ConfigDatResponse a=runConfigMng.getConfigData(currentSessionDetails.getUutId(), testType);
 		a.getConfigContent();
 		fileData.addAll(a.getConfigContent());
+	
+		StringBuilder text = new StringBuilder();
+        for (String item : fileData) {
+            text.append(item).append("\n");
+        }
 
-		configurationListView.setItems(fileData);
+		configurationListView.setText(text.toString());
+		configurationListView.setEditable(false);
 	}
 }
