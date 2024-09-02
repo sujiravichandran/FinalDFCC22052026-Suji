@@ -2,7 +2,7 @@ package com.teclever.dfcc.model;
 
 public class SessionData {
 	
-	private int id;
+	private String id;
 	private String slNo;
 	private String stage;
 	private String startTime;
@@ -13,10 +13,10 @@ public class SessionData {
 	private String noOfFilesExecuted;
 	private String failedFiles;
 	
-	public int getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getSlNo() {

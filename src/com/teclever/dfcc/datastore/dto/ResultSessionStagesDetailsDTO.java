@@ -5,6 +5,7 @@ public class ResultSessionStagesDetailsDTO {
 	private String sessionId;
 	private String stageMappingId;
 	private String stage;
+	private String stageId;
 	private String startTime;
 	private String endTime;
 	private String status;
@@ -72,6 +73,12 @@ public class ResultSessionStagesDetailsDTO {
 	}
 	public void setFailedFiles(int failedFiles) {
 		this.failedFiles = failedFiles;
+	}
+	public String getStageId() {
+		return stageId;
+	}
+	public void setStageId(String stageId) {
+		this.stageId = stageId;
 	}
 	
 	

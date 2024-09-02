@@ -5,11 +5,17 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 public class UserCenterContentController {
 
+	private static UserCenterContentController instance;
+	
 	private StackPane centerStackPane = new StackPane();
 	private StackPane dashboardStackPane = new StackPane();
 	private StackPane testingStackPane = new StackPane();
@@ -32,8 +38,41 @@ public class UserCenterContentController {
 		centerStackPane.getChildren().addAll(dashboardStackPane);
 		terminalController.launchTerminal();
 	}
+	public static UserCenterContentController getInstance() {
+		if (instance == null) {
+			synchronized (UserCenterContentController.class) {
+				if (instance == null) {
+					instance = new UserCenterContentController();
+				}
+			}
+		}
+		return instance;
+	}
+	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String id) {
+		
+//		GridPane main = (GridPane) bottomMidTopGridPane.getParent().getParent();
+//		GridPane child = (GridPane) main.getChildren().get(0);
+//		TreeView<Label> menuItem = (TreeView<Label>) child.getChildren().get(0);
+//		VBox subMenuItem = (VBox) child.getChildren().get(1);
+//
+//		for (TreeItem<Label> childItem : menuItem.getRoot().getChildren()) {
+//			System.out.println("---------------------");
+//			Label item = childItem.getValue();
+//			if (!childItem.getChildren().isEmpty()) {
+//				for (TreeItem<Label> childSubItem : childItem.getChildren()) {
+//					Label subItem = childItem.getValue();
+//					System.out.println(menuItem.getSelectionModel().getSelectedItems());
+//					System.out.println(childSubItem);
+//					System.out.println(menuItem.getSelectionModel().getSelectedItems().contains(childSubItem));
+//					  if (menuItem.getSelectionModel().getSelectedItems().contains(childSubItem)) {
+//			                System.out.println("The sub-item is selected: " + subItem.getText());
+//			            } else {
+//			                System.out.println("The sub-item is not selected: " + subItem.getText());
+//			            }
+//				}
+//			}
+//		}
 
-	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
 		switch (selectedMenu) {
 		case "Dashboard":
 			dashboardStackPane.toFront();
@@ -150,13 +189,13 @@ public class UserCenterContentController {
 			break;
 			
 		case "Session Results" :
-			if (!centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
-				CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
-				currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane());
-				centerStackPane.getChildren().add(currentSessionResultStackPane);
-			} else {
-				currentSessionResultStackPane.toFront();
+			CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
+			if (centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
+				currentSessionResultStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(currentSessionResultStackPane);
 			}
+			currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane(id));
+			centerStackPane.getChildren().add(currentSessionResultStackPane);	
 			
 			break;
 			

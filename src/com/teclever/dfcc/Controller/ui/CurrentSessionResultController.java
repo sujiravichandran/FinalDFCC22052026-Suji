@@ -5,7 +5,6 @@ import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
-import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -53,11 +52,11 @@ public class CurrentSessionResultController {
 	
 	private ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	
-	public CurrentSessionResultController() {
-    	getCurrentSessionResultData(currentSessionDetails.getSessionId());
-	}
+	private String SESSION_ID ;
 	
-    public GridPane createCurrentSessionResultGridPane() {
+    public GridPane createCurrentSessionResultGridPane(String id) {
+    	SESSION_ID = id ;
+		getCurrentSessionResultData();
     	currentSessionResultGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
     	currentSessionResultGridPane.getStyleClass().add("current-execution-result-container");
@@ -80,13 +79,14 @@ public class CurrentSessionResultController {
         return currentSessionResultGridPane;
     }
     
-	private void getCurrentSessionResultData(String sessionId) {
-		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(sessionId);
+	private void getCurrentSessionResultData() {
+		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
 		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
 			int i = 1;
 			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
 				SessionData newSessionData = new SessionData();
 				
+				newSessionData.setId(data.getStageId());
 				newSessionData.setSlNo(String.valueOf(i));
 				newSessionData.setStage(data.getStage());
 				newSessionData.setStartTime(data.getStartTime());
@@ -100,7 +100,7 @@ public class CurrentSessionResultController {
 				sessionDataList.add(newSessionData);
 			}
 		}else if(response.getCode() == 0) {
-			Notifications.showErrorAlert(response.getMsg());
+			Notifications.showErrorAlert(response.geteMsg());
 		}
 	}
 
@@ -158,12 +158,13 @@ public class CurrentSessionResultController {
 	}
 	
 	private ScrollPane createCurrentSessionResultTable() {
-		
-		sessionDataTableView = sessionDataFactory.createTableView(sessionDataList, false, false);
+		sessionDataTableView = sessionDataFactory.createTableView(sessionDataList, true, false);
 
 		sessionDataTableView.getColumns().forEach(column -> {   
-        	column.setMinWidth(column.getText().length()*16);
-        	updateSessionData((TableColumn<SessionData, String>) column);
+			if(!column.getText().isEmpty()) {				
+				column.setMinWidth(column.getText().length()*16);
+				updateSessionData((TableColumn<SessionData, String>) column);
+			}
         });
 		
 		
@@ -201,5 +202,4 @@ public class CurrentSessionResultController {
 	        }
 	    });
 	}
-	
 }
