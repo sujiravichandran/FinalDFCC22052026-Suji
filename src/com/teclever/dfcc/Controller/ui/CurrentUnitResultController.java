@@ -118,7 +118,7 @@ public class CurrentUnitResultController {
 		currentUnitResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("CURRENT UNIT RESULTS");
+		title.setText("UNIT RESULTS");
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 		

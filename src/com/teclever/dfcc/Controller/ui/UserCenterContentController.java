@@ -2,9 +2,11 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -28,6 +30,7 @@ public class UserCenterContentController {
 	private StackPane currentExecutionResultStackPane = new StackPane();
 	private StackPane currentSessionResultStackPane = new StackPane();
 	private StackPane currentUnitResultStackPane = new StackPane();
+	private StackPane currentStageResultStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	
@@ -50,28 +53,42 @@ public class UserCenterContentController {
 	}
 	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String id) {
 		
-//		GridPane main = (GridPane) bottomMidTopGridPane.getParent().getParent();
-//		GridPane child = (GridPane) main.getChildren().get(0);
-//		TreeView<Label> menuItem = (TreeView<Label>) child.getChildren().get(0);
-//		VBox subMenuItem = (VBox) child.getChildren().get(1);
-//
-//		for (TreeItem<Label> childItem : menuItem.getRoot().getChildren()) {
-//			System.out.println("---------------------");
-//			Label item = childItem.getValue();
-//			if (!childItem.getChildren().isEmpty()) {
-//				for (TreeItem<Label> childSubItem : childItem.getChildren()) {
-//					Label subItem = childItem.getValue();
-//					System.out.println(menuItem.getSelectionModel().getSelectedItems());
-//					System.out.println(childSubItem);
-//					System.out.println(menuItem.getSelectionModel().getSelectedItems().contains(childSubItem));
-//					  if (menuItem.getSelectionModel().getSelectedItems().contains(childSubItem)) {
-//			                System.out.println("The sub-item is selected: " + subItem.getText());
-//			            } else {
-//			                System.out.println("The sub-item is not selected: " + subItem.getText());
-//			            }
-//				}
-//			}
-//		}
+		GridPane main = (GridPane) bottomMidTopGridPane.getParent().getParent();
+		GridPane child = (GridPane) main.getChildren().get(0);
+		TreeView<Label> menuItem = (TreeView<Label>) child.getChildren().get(0);
+		VBox subMenuItem = (VBox) child.getChildren().get(1);
+
+				
+		for (TreeItem<Label> childItem : menuItem.getRoot().getChildren()) {
+		    Label item = childItem.getValue();
+
+		    for (TreeItem<Label> childSubItem : childItem.getChildren()) {
+		        Label subItem = childSubItem.getValue();
+		        if (subItem.getText().equals(selectedMenu)) {
+		            menuItem.getSelectionModel().select(childSubItem);
+		        } else {
+		            menuItem.getSelectionModel().clearSelection(menuItem.getRow(childSubItem));
+		        }
+		    }
+
+		    if (childItem.getChildren().isEmpty()) {
+		        if (item.getText().equals(selectedMenu)) {
+		            menuItem.getSelectionModel().select(childItem);
+		        } else {
+		            menuItem.getSelectionModel().clearSelection(menuItem.getRow(childItem));
+		        }
+		    }
+		}
+		
+		for (Node node : subMenuItem.getChildren()) {
+			if (node instanceof Label) {
+				Label newLabel = (Label) node;
+				if(!newLabel.getText().equals(selectedMenu)) {					
+					((Label) node).getStyleClass().remove("selected");
+				}
+			}
+		}
+
 
 		switch (selectedMenu) {
 		case "Dashboard":
@@ -153,7 +170,51 @@ public class UserCenterContentController {
 			}
 			
 			break;
+					
+		case "Current Execution" :			
+			CurrentExecutionResultController currentExcecutionResultController = new CurrentExecutionResultController();
+			if (centerStackPane.getChildren().contains(currentExecutionResultStackPane)) {
+				currentExecutionResultStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(currentExecutionResultStackPane);
+			}
+			currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane(null,false));
+			centerStackPane.getChildren().add(currentExecutionResultStackPane);
 			
+			break;
+	
+			
+		case "Unit Results" :
+			CurrentUnitResultController currentUnitResultController = new CurrentUnitResultController();
+			if (centerStackPane.getChildren().contains(currentUnitResultStackPane)) {
+				currentUnitResultStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(currentUnitResultStackPane);
+			}
+			currentUnitResultStackPane.getChildren().add(currentUnitResultController.createcurrentUnitResultGridPane());
+			centerStackPane.getChildren().add(currentUnitResultStackPane);
+			
+			break;
+
+		case "Session Results" :
+			CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
+			if (centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
+				currentSessionResultStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(currentSessionResultStackPane);
+			}
+			currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane(id));
+			centerStackPane.getChildren().add(currentSessionResultStackPane);	
+			
+			break;
+			
+		case "Stage Results" :	
+			CurrentExecutionResultController currentExcecutionResultController1 = new CurrentExecutionResultController();
+			if (centerStackPane.getChildren().contains(currentStageResultStackPane)) {
+				currentStageResultStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(currentStageResultStackPane);
+			}
+			currentStageResultStackPane.getChildren().add(currentExcecutionResultController1.createCurrentExecutionResultGridPane(id,true));
+			centerStackPane.getChildren().add(currentStageResultStackPane);	
+			
+			break;
 			
 		case "Configuration":
 			if (!centerStackPane.getChildren().contains(configurationStackPane)) {
@@ -176,39 +237,7 @@ public class UserCenterContentController {
 			}
 			
 			break;
-		
-		case "Execution Results" :
-			if (!centerStackPane.getChildren().contains(currentExecutionResultStackPane)) {
-				CurrentExecutionResultController currentExcecutionResultController = new CurrentExecutionResultController();
-				currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane());
-				centerStackPane.getChildren().add(currentExecutionResultStackPane);
-			} else {
-				currentExecutionResultStackPane.toFront();
-			}
 			
-			break;
-			
-		case "Session Results" :
-			CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
-			if (centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
-				currentSessionResultStackPane.getChildren().clear();
-				centerStackPane.getChildren().remove(currentSessionResultStackPane);
-			}
-			currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane(id));
-			centerStackPane.getChildren().add(currentSessionResultStackPane);	
-			
-			break;
-			
-		case "Unit Results" :
-			if (!centerStackPane.getChildren().contains(currentUnitResultStackPane)) {
-				CurrentUnitResultController currentUnitResultController = new CurrentUnitResultController();
-				currentUnitResultStackPane.getChildren().add(currentUnitResultController.createcurrentUnitResultGridPane());
-				centerStackPane.getChildren().add(currentUnitResultStackPane);
-			} else {
-				currentUnitResultStackPane.toFront();
-			}
-			
-			break;
 		case "Show Terminal":
 			terminalController.createTerminalPopup();
 			break;
