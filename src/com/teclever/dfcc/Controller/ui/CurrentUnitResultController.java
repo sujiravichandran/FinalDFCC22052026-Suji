@@ -1,11 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
-import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsResponse;
-import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.model.UnitData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -13,6 +10,7 @@ import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -90,6 +88,7 @@ public class CurrentUnitResultController {
 			for(ResultUnitSessionDetailsDTO data : response.getResultUnitSessionDetailsDTOList()) {
 				UnitData newUnitData = new UnitData();
 				
+				newUnitData.setId(data.getSessionId());
 				newUnitData.setSlNo(String.valueOf(i));
 				newUnitData.setSessionType(data.getSessionType());
 				newUnitData.setSessonName(data.getSessionName());
@@ -160,12 +159,25 @@ public class CurrentUnitResultController {
 	
 	private ScrollPane createCurrentUnitResultTable() {
 
-		unitDataTableView = unitDataFactory.createTableView(unitDataList, false, false);
+		unitDataTableView = unitDataFactory.createTableView(unitDataList, true, false);
 
-		unitDataTableView.getColumns().forEach(column -> {   
-        	column.setMinWidth(column.getText().length()*16);
-        	updateUnitData((TableColumn<UnitData, String>) column);
+		unitDataTableView.getColumns().forEach(column -> { 
+			if(!column.getText().isEmpty()) {				
+				column.setMinWidth(column.getText().length()*16);
+				updateUnitData((TableColumn<UnitData, String>) column);
+			}
         });
+		
+			unitDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> { 
+				ObservableList<UnitData> selectedItems = unitDataTableView.getSelectedItems();
+				for (UnitData rowData : selectedItems) {
+					UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
+				
+					GridPane bottomMidTopGridPane = (GridPane) currentUnitResultGridPane.getParent().getParent().getParent();
+					userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Session Results", rowData.getId());							
+					break ;
+				}
+			});
 		
 		
 		tableScrollPane.setContent(unitDataTableView);

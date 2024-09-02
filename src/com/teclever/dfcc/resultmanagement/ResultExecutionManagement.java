@@ -801,6 +801,7 @@ public class ResultExecutionManagement {
 
 					}
 					resultUnitSessionDetailsDTO.setSessionName(sessionDetails.getSessionName());
+					resultUnitSessionDetailsDTO.setSessionId(sessionDetails.getSessionId());
 					String status = "Pending";
 					if (sessionDetails.getStartDate() != null) {
 						status = "Started";
@@ -852,6 +853,7 @@ public class ResultExecutionManagement {
 					}
 
 					resultUnitSessionDetailsDTO.setSessionName(sessionDetails.getSessionName());
+					resultUnitSessionDetailsDTO.setSessionId(sessionDetails.getSessionId());
 					String status = "Pending";
 					if (sessionDetails.getStartDate() != null) {
 						status = "Started";
@@ -918,20 +920,16 @@ public class ResultExecutionManagement {
 			String levelId = "";
 			for (SessionStagesMapping sessionStagesMapping : stagesDetailsList) {
 
-				if (sessionStagesMapping.getLevelTwoStageId() != null
-						&& sessionStagesMapping.getLevelTwoStageId().equals("")) {
+				if (sessionStagesMapping.getLevelTwoStageId() != null) {
 					levelId = sessionStagesMapping.getLevelTwoStageId();
 				}
-				if (sessionStagesMapping.getLevelThreeStageId() != null
-						&& sessionStagesMapping.getLevelThreeStageId().equals("")) {
+				if (sessionStagesMapping.getLevelThreeStageId() != null) {
 					levelId = sessionStagesMapping.getLevelThreeStageId();
 				}
-				if (sessionStagesMapping.getLevelFourStageId() != null
-						&& sessionStagesMapping.getLevelFourStageId().equals("")) {
+				if (sessionStagesMapping.getLevelFourStageId() != null) {
 					levelId = sessionStagesMapping.getLevelFourStageId();
 				}
-				if (sessionStagesMapping.getLevelFiveStageId() != null
-						&& sessionStagesMapping.getLevelFiveStageId().equals("")) {
+				if (sessionStagesMapping.getLevelFiveStageId() !=null) {
 					levelId = sessionStagesMapping.getLevelFiveStageId();
 				}
 				String stageId = levelId;
@@ -940,7 +938,8 @@ public class ResultExecutionManagement {
 				String endTime = "-";
 				int failedFiles = 0;
 				int files = 0;
-				if (sessionStagesTestFilesResultList != null & stageId != null) {
+				//System.out.println("SIZE"+sessionStagesTestFilesResultList.size());
+				if (sessionStagesTestFilesResultList != null && stageId != null) {
 					List<SessionStagesTestFilesResult> stgesfilesList = sessionStagesTestFilesResultList = sessionStagesTestFilesResultList
 							.stream().filter(ses -> ses.getStageId().equals(stageId)).collect(Collectors.toList());
 					if (stgesfilesList != null) {
@@ -978,11 +977,16 @@ public class ResultExecutionManagement {
 				}
 				if (failedFiles > 0) {
 					resultSessionStagesDetailsDTO.setResult("Failed");
-				} else {
+				} else if (resultSessionStagesDetailsDTO.getStatus().equalsIgnoreCase("Pending")) {
+					resultSessionStagesDetailsDTO.setResult("-");
+				}
+
+				else if (failedFiles == 0 && resultSessionStagesDetailsDTO.getStatus().equalsIgnoreCase("COMPLETED")) {
 					resultSessionStagesDetailsDTO.setResult("Success");
 
 				}
 				resultSessionStagesDetailsDTO.setStageMappingId(sessionStagesMapping.getSessionStagesMappingId());
+				resultSessionStagesDetailsDTO.setStageId(levelId);
 				resultSessionStagesDetailsDTO.setStage(stagesIdName.get(levelId));
 				resultSessionStagesDetailsDTOList.add(resultSessionStagesDetailsDTO);
 				
@@ -990,6 +994,9 @@ public class ResultExecutionManagement {
 			}
 			response.setTotalNoOfStages(resultSessionStagesDetailsDTOList.size());
 			response.setResultSessionStagesDetailsDTOList(resultSessionStagesDetailsDTOList);
+			response.setCode(1);
+			response.setMsg("Fetched");
+			
 		} catch (Exception ex) {
 			response.setCode(0);
 			response.setMsg("Not Fetched");

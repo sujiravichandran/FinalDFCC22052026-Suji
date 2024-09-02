@@ -56,7 +56,7 @@ public class UserDashboardController {
 	private ObservableMap<String, ChannelTemperature> boardTemperatureMap;
 	private List<MacroButtonMapDto> macroButtonList;
 
-	UserCenterContentController centerContentController = new UserCenterContentController();
+	UserCenterContentController centerContentController = UserCenterContentController.getInstance();
 	SessionManagement sessionManagement = new SessionManagement();
 	MacroConfigurationManagement macroConfigurationManagement = new MacroConfigurationManagement();
 	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
@@ -69,6 +69,8 @@ public class UserDashboardController {
 		bottomMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
 		bottomMainGridPane.setHgap(10);
+		bottomMainGridPane.setId("bottomMainGridPane");
+		bottomMidTopGridPane.setId("bottomMidTopGridPane");
 
 		ColumnConstraints bottomLeftColumn = new ColumnConstraints();
 		bottomLeftColumn.setPercentWidth(17);
@@ -162,7 +164,7 @@ public class UserDashboardController {
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 
 				if (selectedItem.getChildren().isEmpty()) {
-					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText());
+					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText(), null);
 				}
 
 				if (!selectedItem.getChildren().isEmpty()) {
@@ -295,7 +297,7 @@ public class UserDashboardController {
 							"session " + currentSessionDetails.getSessionName() + " closed");
 					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				}
-				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText);
+				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
 						((Label) node).getStyleClass().remove("selected");
@@ -1094,7 +1096,7 @@ public class UserDashboardController {
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
 					StateMachine.getCurrentUserLogin(), new Date(), "clicked on SHOW TERMINAL button");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal");
+			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal", null);
 		});
 
 		bottomGridPane.add(createBottomMidContentArea(), 0, 0);
@@ -1119,8 +1121,8 @@ public class UserDashboardController {
 		return bottomMidTopGridPane;
 
 	}
-
 }
+
 
 //package com.teclever.dfcc.Controller.ui;
 //
@@ -1217,10 +1219,10 @@ public class UserDashboardController {
 //
 //				createBottomMidTopGridPane(selectedLabel.getText());
 //				if (!newValue.getChildren().isEmpty()) {
-////               System.out.println("Submenu Items:");
+////             System.out.println("Submenu Items:");
 //					newValue.getChildren().forEach(subMenuItem -> {
-////            	   Label subMenuLabel = subMenuItem.getValue();
-////            	   System.out.println(" -" + subMenuLabel.getText());
+////          	   Label subMenuLabel = subMenuItem.getValue();
+////          	   System.out.println(" -" + subMenuLabel.getText());
 //					});
 //				}
 //			}

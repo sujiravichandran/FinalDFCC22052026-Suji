@@ -12,7 +12,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventType;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -280,6 +279,11 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 					break;
 				case "AitessMacroFiles":
 				case "AitessSymbolFiles":
+					hBox.getChildren().add(0, viewBtn);
+					break;
+				case "SessionData":
+				case "UnitData":
+					hBox.getChildren().clear();
 					hBox.getChildren().add(0, viewBtn);
 					break;
 				default:

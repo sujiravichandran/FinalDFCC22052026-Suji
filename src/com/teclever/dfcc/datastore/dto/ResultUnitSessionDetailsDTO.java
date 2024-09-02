@@ -3,6 +3,7 @@ package com.teclever.dfcc.datastore.dto;
 public class ResultUnitSessionDetailsDTO {
 
 	private int sNo;
+	private String sessionId;
 	private String sessionType;
 	private String sessionName;
 	private String startTime;
@@ -51,6 +52,12 @@ public class ResultUnitSessionDetailsDTO {
 	}
 	public void setSessionResults(String sessionResults) {
 		this.sessionResults = sessionResults;
+	}
+	public String getSessionId() {
+		return sessionId;
+	}
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 	
 	
