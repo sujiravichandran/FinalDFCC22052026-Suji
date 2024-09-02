@@ -91,7 +91,15 @@ public class CurrentExecutionResultController {
 	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	ReportGeneration reportGeneration = new ReportGeneration();
 	
-    public GridPane createCurrentExecutionResultGridPane() {
+	private boolean isStageResult = false ;
+	private String STAGE_ID ;
+	
+    public GridPane createCurrentExecutionResultGridPane(String id, boolean isStageResult) {
+    	if(id != null) {
+    		STAGE_ID = id ;
+    	}
+		this.isStageResult = isStageResult;
+		
         currentExecutionResultGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
         currentExecutionResultGridPane.getStyleClass().add("current-execution-result-container");
@@ -128,7 +136,7 @@ public class CurrentExecutionResultController {
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("CURRENT EXECUTION RESULTS");
+		title.setText(isStageResult?"STAGE RESULTS":"CURRENT EXECUTION RESULTS");
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 		
@@ -144,12 +152,12 @@ public class CurrentExecutionResultController {
 		
 		downloadButton.setOnAction(e ->{
 			if(currentTab.equals("tab1")) {
-				downloadReport(StateMachine.currentSessionDetails.getSessionId(), true);
+				downloadReport(currentSessionDetails.getSessionId(), true);
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief Data Download button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			}else {
-				downloadReport(StateMachine.currentSessionDetails.getSessionId(), false);
+				downloadReport(currentSessionDetails.getSessionId(), false);
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed Data Download button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
@@ -265,7 +273,7 @@ public class CurrentExecutionResultController {
 	}
 
 	private ScrollPane createBriefDataTable() {
-		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages(StateMachine.currentSessionDetails.getSessionId());
+		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
 		if(response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for(ResultExecutionDTO data :response.getResultDTOList()) {
@@ -335,7 +343,7 @@ public class CurrentExecutionResultController {
 	
 	public ScrollPane createDetailedDataTable() {
 		
-		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages(StateMachine.currentSessionDetails.getSessionId());
+		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
 
 		
 		if(response.getCode() == 1 && response.getResultDetailedList() != null) {

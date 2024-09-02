@@ -4,6 +4,7 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.model.SessionData;
+import com.teclever.dfcc.model.UnitData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -118,7 +119,7 @@ public class CurrentSessionResultController {
 		currentSessionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("CURRENT SESSION RESULTS");
+		title.setText("SESSION RESULTS");
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 		
@@ -166,6 +167,17 @@ public class CurrentSessionResultController {
 				updateSessionData((TableColumn<SessionData, String>) column);
 			}
         });
+		
+		sessionDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> { 
+			ObservableList<SessionData> selectedItems = sessionDataTableView.getSelectedItems();
+			for (SessionData rowData : selectedItems) {
+				UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
+				
+				GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
+				userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", rowData.getId());							
+				break ;
+			}
+		});
 		
 		
 		tableScrollPane.setContent(sessionDataTableView);

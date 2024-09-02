@@ -25,8 +25,8 @@
     -fx-background-radius:5px;
 }
 .tab-pane .tab {
-    -fx-background-color: light-bg;
-    -fx-text-fill: secondary-text-color;
+    -fx-background-color: button-bg;
+    -fx-text-fill: button-text;
     -fx-padding: 0; 
     -fx-pref-height: 40px; 
     -fx-border-color: transparent; 
@@ -34,16 +34,17 @@
 .tab-pane .tab-label {
     -fx-font-size: 17px;
     -fx-font-weight:bold;
-    -fx-text-fill: secondary-text-color;
+    -fx-text-fill: light-bg;
     -fx-alignment: center; 
 }
 .tab-pane .tab:selected {
-    -fx-background-color: secondary-text-color;
     -fx-border-color: transparent; 
+    -fx-background-color: light-bg;
+    -fx-text-fill: secondary-text-color;
 }
 
 .tab-pane .tab:selected .tab-label {
-    -fx-text-fill:light-bg;
+    -fx-text-fill:secondary-text-color;
 }
 .tab-pane .tab-content {
     -fx-background-color:light-bg;
