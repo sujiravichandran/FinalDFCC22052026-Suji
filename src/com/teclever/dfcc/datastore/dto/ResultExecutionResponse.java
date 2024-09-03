@@ -13,6 +13,7 @@ public class ResultExecutionResponse {
 	private Map<String,String>stageIdName;
 	private Map<String,String>testFileIdName;
 	private Map<String,String>sessionIdName;
+	private String stageId;
 
 	public List<ResultExecutionDTO> getResultDTOList() {
 		return resultDTOList;
@@ -84,6 +85,14 @@ public class ResultExecutionResponse {
 	public void setSessionIdName(Map<String, String> sessionIdName) {
 		this.sessionIdName = sessionIdName;
 	}
-	
 
+	public String getStageId() {
+		return stageId;
+	}
+
+	public void setStageId(String stageId) {
+		this.stageId = stageId;
+	}
+	
+	
 }
