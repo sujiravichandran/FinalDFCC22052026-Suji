@@ -51,7 +51,7 @@ public class UserCenterContentController {
 		}
 		return instance;
 	}
-	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String id) {
+	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String sessionId, String stageId) {
 		
 		GridPane main = (GridPane) bottomMidTopGridPane.getParent().getParent();
 		GridPane child = (GridPane) main.getChildren().get(0);
@@ -177,7 +177,7 @@ public class UserCenterContentController {
 				currentExecutionResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentExecutionResultStackPane);
 			}
-			currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane(null,false));
+			currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane(null,null,false));
 			centerStackPane.getChildren().add(currentExecutionResultStackPane);
 			
 			break;
@@ -200,7 +200,7 @@ public class UserCenterContentController {
 				currentSessionResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentSessionResultStackPane);
 			}
-			currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane(id));
+			currentSessionResultStackPane.getChildren().add(currentSessionResultController.createCurrentSessionResultGridPane(sessionId));
 			centerStackPane.getChildren().add(currentSessionResultStackPane);	
 			
 			break;
@@ -211,7 +211,7 @@ public class UserCenterContentController {
 				currentStageResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentStageResultStackPane);
 			}
-			currentStageResultStackPane.getChildren().add(currentExcecutionResultController1.createCurrentExecutionResultGridPane(id,true));
+			currentStageResultStackPane.getChildren().add(currentExcecutionResultController1.createCurrentExecutionResultGridPane(sessionId,stageId,true));
 			centerStackPane.getChildren().add(currentStageResultStackPane);	
 			
 			break;
