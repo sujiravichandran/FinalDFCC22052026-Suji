@@ -262,12 +262,14 @@ public class SessionFileManagement {
 
 			if (!notRunnedAll && runnedAllSuccess) {
 			//	stagePath = "C:\\Users\\TECLEVER\\Downloads\\Copied\\";
+				System.out.println("STAGE PATH..."+stagePath);
 				Path outputPath = Path.of(stagePath);
 				List<Path> listOfPath = new ArrayList<Path>();
 				for (SessionStagesTestFilesResult service : lstByKeys) {
 					String pathString = service.getRdfPath() + service.getRdfFileName();
 					Path path = Path.of(pathString);
 					listOfPath.add(path);
+					System.out.println("PATH...."+pathString);
 				}
 				
 				

@@ -227,7 +227,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		table.setSpacingAfter(10f); // Space after table
 
 		// Set Column widths
-		float[] columnWidths = { 0.8f, 2.5f, 1.5f, 0.8f };
+		float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
 		table.setWidths(columnWidths);
 
 		// Add table header
