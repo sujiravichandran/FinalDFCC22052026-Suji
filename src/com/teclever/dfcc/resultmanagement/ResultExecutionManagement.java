@@ -307,16 +307,42 @@ public class ResultExecutionManagement {
 					.get(sessionStagesTestFilesResultLst.size() - 1);
 			String stageId = lastSessionStagesTestFilesResult.getStageId();
 			System.out.println("Stage Id" + stageId);
+			
+			
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObjRes = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
+			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
+			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
+
+			if (sessionStagesMappingId != null) {
+				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+				GetResponse getResponse = sessionStagesSelectedTestFilesService
+						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+				List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+				selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+				if (selectedTestFileInStages != null) {
+					for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+						selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+								selectedTestFile.getTestFilesId());
+					}
+				}
+			}
+			
+			
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
 					.filter(stage -> stage.getStageId().equals(stageId)).collect(Collectors.toList());
 			Map<String, String> objectIdTestFileId = new HashMap<String, String>();
 			Map<String, String> objectIdstageId = new HashMap<String, String>();
+			Map<String, String> objectIdSelectedTestFileId = new HashMap<String, String>();
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
 				systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
 				objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
 						sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
 				objectIdstageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
 						sessionStagesTestFilesResult.getStageId());
+				objectIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(), sessionStagesTestFilesResult.getSelectedtestFileId());
 
 			}
 			System.out.println("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
@@ -338,7 +364,7 @@ public class ResultExecutionManagement {
 					resultDetailedDTO.setSignalName(resultDto.getSignalName());
 					resultDetailedDTO.setStepName(resultDto.getStepName());
 					resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
-					resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
+					resultDetailedDTO.setTpfFileName(  testFileIdName.get(  selectedTestFileIdTestFileId.get(objectIdSelectedTestFileId.get(systemInfoId))));
 					resultDetailedDTO.setTpgph(resultDto.getTpgph());
 					resultDetailedDTO.setUnit(resultDto.getUnit());
 					System.out.println("ResultDto--->" + resultDto.getFileName());
@@ -360,6 +386,119 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
+	
+	public ResultDetailedResponse getResultExecutionDetailedListForStages(String sessionId,String stageId) {
+		ResultDetailedResponse response = new ResultDetailedResponse();
+		try {
+
+			SessionService sessionService = new SessionService();
+			/*
+			 * SessionResponse sessionResponse = sessionService.getAllSession();
+			 * List<SessionDto> sessionEntityList = new ArrayList<SessionDto>();
+			 * sessionEntityList = sessionResponse.getListOfSession(); if
+			 * (sessionEntityList.size() > 1) { response.setMsg("No Sessions...");
+			 * response.setCode(0); return response; } SessionDto sessionDto =
+			 * sessionEntityList.get(sessionEntityList.size() - 1); String sessionId =
+			 * sessionDto.getSessionId(); String sessionName = sessionDto.getSessionName();
+			 */
+
+			// Fetching the SessionId
+			List<String> systemInfoIdList = new ArrayList<String>();
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse res = sessionStagesTestFilesResultService.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultLst = new ArrayList<SessionStagesTestFilesResult>();
+			sessionStagesTestFilesResultLst = (List<SessionStagesTestFilesResult>) res.getResponseList();
+			if (sessionStagesTestFilesResultLst.size() < 1) {
+				response.setMsg("No TPF Files...");
+				response.setCode(0);
+				return response;
+			}
+			
+			//To Find Session Stages Mapping Id
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObjRes = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
+			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
+			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
+
+			if (sessionStagesMappingId != null) {
+				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+				GetResponse getResponse = sessionStagesSelectedTestFilesService
+						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+				List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+				selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+				if (selectedTestFileInStages != null) {
+					for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+						selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+								selectedTestFile.getTestFilesId());
+					}
+				}
+			}
+			
+			
+			Map<String, String> stageIdName = getStageIdName();
+			Map<String,String>testFileResultIdSelectedTestFileId = new HashMap<String,String>();
+			Map<String,String>objectIdSelectedTestfileId = new HashMap<String,String>();
+			
+			// TestFiles Fetching
+			Map<String, String> testFileIdName = getTestFileIdName();
+			System.out.println("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
+				Map<String, String> objectIdTestFileId = new HashMap<String, String>();
+			Map<String, String> objectIdstageId = new HashMap<String, String>();
+			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
+				systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
+				objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+						sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
+				objectIdstageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+						sessionStagesTestFilesResult.getStageId());
+				testFileResultIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSessionStagesTestFilesResultId(), sessionStagesTestFilesResult.getSelectedtestFileId());
+				objectIdSelectedTestfileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(), sessionStagesTestFilesResult.getSelectedtestFileId());
+			}
+			System.out.println("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
+			List<ResultDto> lstResults = new ArrayList<ResultDto>();
+			List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
+
+			for (String systemInfoId : systemInfoIdList) {
+				ObjectId objectId = new ObjectId(systemInfoId);
+				List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
+				lstInterResults = ResultManagement.getResult(sessionId, objectId);
+				// lstResults.addAll(lstInterResults);
+
+				for (ResultDto resultDto : lstInterResults) {
+					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+					resultDetailedDTO.setFaultyChannel(resultDto.getFaultyChannel());
+					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
+					resultDetailedDTO.setRdfName(resultDto.getFileName());
+					resultDetailedDTO.setSignalName(resultDto.getSignalName());
+					resultDetailedDTO.setStepName(resultDto.getStepName());
+					resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
+					String selectedTestFileId = objectIdSelectedTestfileId.get(systemInfoId);
+					resultDetailedDTO.setTpfFileName(testFileIdName.get(selectedTestFileIdTestFileId.get(selectedTestFileId)));
+					resultDetailedDTO.setTpgph(resultDto.getTpgph());
+					resultDetailedDTO.setUnit(resultDto.getUnit());
+					System.out.println("ResultDto--->" + resultDto.getFileName());
+					resultDetailedList.add(resultDetailedDTO);
+				}
+			}
+
+			response.setCode(1);
+			response.setResultDetailedList(resultDetailedList);
+			response.setMsg("Fetched Successfully");
+
+		} catch (Exception ex) {
+			response.setCode(1);
+			response.setMsg("Issue Successfully");
+			response.setMsg(ex.getLocalizedMessage());
+			System.out.println(ex.getLocalizedMessage());
+
+		}
+		return response;
+	}
+
+	
+	
 	// For Getting the List Of ExecutionFiles For Session...
 	public ResultExecutionResponse getResultExecutionListBriefListForSession(String sessionId) {
 		ResultExecutionResponse response = new ResultExecutionResponse();
