@@ -160,7 +160,11 @@ public class CurrentSessionResultController {
 	
 	private ScrollPane createCurrentSessionResultTable() {
 		sessionDataTableView = sessionDataFactory.createTableView(sessionDataList, true, false);
-
+		
+		Label tablePlaceholderLabel = new Label("Select any unit data from unit result table..");
+		tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
+		sessionDataTableView.setPlaceholder(tablePlaceholderLabel);
+		
 		sessionDataTableView.getColumns().forEach(column -> {   
 			if(!column.getText().isEmpty()) {				
 				column.setMinWidth(column.getText().length()*16);
@@ -174,7 +178,7 @@ public class CurrentSessionResultController {
 				UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
 				
 				GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
-				userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", rowData.getId());							
+				userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID,rowData.getId());							
 				break ;
 			}
 		});

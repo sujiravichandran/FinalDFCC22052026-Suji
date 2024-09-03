@@ -174,7 +174,7 @@ public class CurrentUnitResultController {
 					UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
 				
 					GridPane bottomMidTopGridPane = (GridPane) currentUnitResultGridPane.getParent().getParent().getParent();
-					userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Session Results", rowData.getId());							
+					userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Session Results", rowData.getId(), null);							
 					break ;
 				}
 			});

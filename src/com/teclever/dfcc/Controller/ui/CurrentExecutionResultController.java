@@ -92,11 +92,13 @@ public class CurrentExecutionResultController {
 	ReportGeneration reportGeneration = new ReportGeneration();
 	
 	private boolean isStageResult = false ;
+	private String SESSION_ID ;
 	private String STAGE_ID ;
 	
-    public GridPane createCurrentExecutionResultGridPane(String id, boolean isStageResult) {
-    	if(id != null) {
-    		STAGE_ID = id ;
+    public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId, boolean isStageResult) {
+    	if(sessionId != null && stageId != null) {
+    		SESSION_ID = sessionId ;
+    		STAGE_ID = stageId ;
     	}
 		this.isStageResult = isStageResult;
 		
@@ -141,7 +143,9 @@ public class CurrentExecutionResultController {
 		titleBox.getChildren().add(title);
 		
 		currentExecutionResultHeadingGridPane.add(titleBox, 0, 0);
-		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		if(!isStageResult) {			
+			currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		}
 		
 		return currentExecutionResultHeadingGridPane;
 	}
@@ -273,18 +277,23 @@ public class CurrentExecutionResultController {
 	}
 
 	private ScrollPane createBriefDataTable() {
-		ResultExecutionResponse response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+		ResultExecutionResponse response = null ;
+		if(isStageResult) {
+			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID,STAGE_ID);
+		}else {			
+			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+		}
 		if(response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for(ResultExecutionDTO data :response.getResultDTOList()) {
 				
 				BriefData newBriefData = new BriefData();
 
+				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));;
-				newBriefData.setRdfName(data.getRdfFile());
-				newBriefData.setDStarCount(data.getDStarCount());
-				newBriefData.setStatus(data.getStatus());
-				newBriefData.setCompletedTime(data.getEndTime());
+				newBriefData.setExecutedFileName(data.getTestFileName());
+				newBriefData.setTimeOfExecution(data.getEndTime());
+				newBriefData.setResult(data.getStatus());
 				
 				briefDataList.add(newBriefData);
 				i++;
@@ -294,6 +303,11 @@ public class CurrentExecutionResultController {
 		
 		
 		briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
+		if(isStageResult) {
+			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
+			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
+			briefDataTableView.setPlaceholder(tablePlaceholderLabel);
+		}
 
 		briefDataTableView.getColumns().forEach(column -> {   
         	column.setMinWidth(column.getText().length()*16);
@@ -343,8 +357,12 @@ public class CurrentExecutionResultController {
 	
 	public ScrollPane createDetailedDataTable() {
 		
-		ResultDetailedResponse response = resultExecutionManagement.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
-
+		ResultDetailedResponse response = null ;
+		if(isStageResult) {
+			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID,STAGE_ID);
+		}else {			
+			response = resultExecutionManagement.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+		}
 		
 		if(response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
@@ -371,6 +389,11 @@ public class CurrentExecutionResultController {
 
         detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 
+        if(isStageResult) {
+			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
+			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
+			detailedDataTableView.setPlaceholder(tablePlaceholderLabel);
+		}
 
         detailedDataTableView.getColumns().forEach(column -> {
             column.setMinWidth(column.getText().length() * 16);

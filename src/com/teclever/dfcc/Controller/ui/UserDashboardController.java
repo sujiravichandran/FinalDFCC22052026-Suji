@@ -164,7 +164,7 @@ public class UserDashboardController {
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 
 				if (selectedItem.getChildren().isEmpty()) {
-					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText(), null);
+					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText(), null, null);
 				}
 
 				if (!selectedItem.getChildren().isEmpty()) {
@@ -195,7 +195,7 @@ public class UserDashboardController {
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png",
-					new String[] { "Session Report", "Advanced Report", "UUT Report/Datapack" });
+					new String[] { "Session Report", "Advanced Report", "UUT/Datapack" });
 
 		} else if (UserData.getRoleId().equals("RL_ID_4")) {
 
@@ -297,7 +297,7 @@ public class UserDashboardController {
 							"session " + currentSessionDetails.getSessionName() + " closed");
 					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				}
-				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null);
+				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null, labelText);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
 						((Label) node).getStyleClass().remove("selected");
@@ -1096,7 +1096,7 @@ public class UserDashboardController {
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
 					StateMachine.getCurrentUserLogin(), new Date(), "clicked on SHOW TERMINAL button");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal", null);
+			centerContentController.createUserCenterContent(bottomMidTopGridPane, "Show Terminal", null, null);
 		});
 
 		bottomGridPane.add(createBottomMidContentArea(), 0, 0);
