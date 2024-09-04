@@ -102,10 +102,10 @@ public class ChannelStatusParser {
             String channel4 = channelMatcher.group(4);
             
             
-            System.out.println("StateMachine WDM status CH1 :: ");
-            System.out.println("StateMachine WDM status CH2 :: ");
-            System.out.println("StateMachine WDM status CH3 :: ");
-            System.out.println("StateMachine WDM status CH4 :: ");
+            System.out.println("StateMachine WDM status CH1 :: " + channel1);
+            System.out.println("StateMachine WDM status CH2 :: " + channel2);
+            System.out.println("StateMachine WDM status CH3 :: " + channel3);
+            System.out.println("StateMachine WDM status CH4 :: " + channel4);
             WDMStatus.setChannel1Status(channel1);
             WDMStatus.setChannel2Status(channel2);
             WDMStatus.setChannel3Status(channel3);

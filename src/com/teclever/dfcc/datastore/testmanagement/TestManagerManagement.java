@@ -5,6 +5,7 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.processcontrolmanagement.LoadDriverProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 
 public class TestManagerManagement {
@@ -14,17 +15,26 @@ public class TestManagerManagement {
 		String uutId =  StateMachine.currentSessionDetails.getUutId();
 		
 		String testTypeId = "TT1";
-
+				
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+		
+		currentSessionDetails.setRunConfigId(runConfigId);
+		System.out.println("At time of Load Driver RUN CONFIG :: "+ currentSessionDetails.getRunConfigId() + "--" + runConfigId);
+
 
 		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
 
 		LoadDriverProcessControlManagement pc = LoadDriverProcessControlManagement.getInstance();
 		DriverCardDetailsResponse response = pc.loadDriver("sudo " + aitess.getLoadDriverCommand() + "\n", null,
 				aitess.getAitessId(), LoadDriverProcessControlManagement.LoadMode.STARTUP);
+		
+		//aim card response
+		DriverCardDetailsResponse response1 = pc.loadDriver("lsmod" +"\n", null,
+				0, LoadDriverProcessControlManagement.LoadMode.CARD);
 
+		response.getDriverCardDetails().add(response1.getDriverCardDetails().get(0));
 		return response;
 
 	}
