@@ -166,22 +166,22 @@ public class LoadDriverController {
 		cardNameColumn.setReorderable(false);
 		cardNameColumn.setSortable(false);
 		cardNameColumn.setStyle("-fx-alignment: CENTER;");
-		TableColumn<LoadDriver, String> foundCardCountColumn = new TableColumn<>("Expected Cards");
-		foundCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("expectedCardCount"));
-		foundCardCountColumn.setReorderable(false);
-		foundCardCountColumn.setSortable(false);
-		foundCardCountColumn.setStyle("-fx-alignment: CENTER;");
-		
-		TableColumn<LoadDriver, String> actualCardCountColumn = new TableColumn<>("Actual Cards");
-		actualCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("actualCardCount"));
-		actualCardCountColumn.setReorderable(false);
-		actualCardCountColumn.setSortable(false);
-		actualCardCountColumn.setStyle("-fx-alignment: CENTER;");
+//		TableColumn<LoadDriver, String> foundCardCountColumn = new TableColumn<>("Expected Cards");
+//		foundCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("expectedCardCount"));
+//		foundCardCountColumn.setReorderable(false);
+//		foundCardCountColumn.setSortable(false);
+//		foundCardCountColumn.setStyle("-fx-alignment: CENTER;");
+//		
+//		TableColumn<LoadDriver, String> actualCardCountColumn = new TableColumn<>("Actual Cards");
+//		actualCardCountColumn.setCellValueFactory(new PropertyValueFactory<>("actualCardCount"));
+//		actualCardCountColumn.setReorderable(false);
+//		actualCardCountColumn.setSortable(false);
+//		actualCardCountColumn.setStyle("-fx-alignment: CENTER;");
 		
 		TableColumn<LoadDriver, String> statusColumn = new TableColumn<>("Status");
 		statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 		setupStatusColumn(statusColumn);
-		tableView.getColumns().addAll(cardNameColumn, foundCardCountColumn, actualCardCountColumn, statusColumn);
+		tableView.getColumns().addAll(cardNameColumn, statusColumn);
 		
 		tableView.setItems(loadDriverTableData);
 //		setTableData();
@@ -193,8 +193,8 @@ public class LoadDriverController {
 		for(DriverCard list : loadDriverDataList) {
 			LoadDriver loadDriver = new LoadDriver();
 			loadDriver.setCardName(list.getCardName());
-			loadDriver.setActualCardCount(list.getFoundedNumberOfCards());
-			loadDriver.setExpectedCardCount(list.getExpectedCountOfCards());
+			//loadDriver.setActualCardCount(list.getFoundedNumberOfCards());
+			//loadDriver.setExpectedCardCount(list.getExpectedCountOfCards());
 			loadDriver.setStatus(list.getMsg());
 			
 			loadDriverTableData.add(loadDriver);

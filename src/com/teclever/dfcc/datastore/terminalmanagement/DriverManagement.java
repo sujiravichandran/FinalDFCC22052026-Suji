@@ -40,52 +40,12 @@ public class DriverManagement {
 		}
 		return driverCardDetails;
 	}
-
 	
-	public DriverCard parseLine1(String outputLine, String cardIdentificationText) {
+	public DriverCard parseLineNEWtrim(String outputLine, String cardIdentificationText) {
 	    CardDetailsService cd = new CardDetailsService();
 	    Response response = new Response();
 
-	    // Fetch card name from the db based on the cardIdentificationText
 	    String dbCardName = cd.getCardNameByIdentificationText(cardIdentificationText);
-	    System.out.println("Parsed cardName from DB ::  " + dbCardName);
-
-	    if (dbCardName == null) {
-	        response.setResponseCode(0);
-	        response.setResponseMessage("FAILURE");
-	        return new DriverCard(null, null, response);
-	    }
-
-	    if (cardIdentificationText != null && outputLine.contains(cardIdentificationText)) {
-	        // Extract the numeric value from the line if the cardIdentificationText is present
-	        Pattern numericPattern = Pattern.compile("\\d+");
-	        Matcher numericMatcher = numericPattern.matcher(outputLine);
-
-	        String numOfCards = "0"; // Default to 0 if no number is found
-	        if (numericMatcher.find()) {
-	            numOfCards = numericMatcher.group();
-	        }
-
-	        response.setResponseCode(1);
-	        response.setResponseMessage("SUCCESS");
-	        return new DriverCard(dbCardName, numOfCards, response);
-	    }
-
-	    // If cardIdentificationText is not found in outputLine
-	    response.setResponseCode(0);
-	    response.setResponseMessage("FAILURE");
-	    return new DriverCard(null, null, response);
-	}
-	
-	
-	//new logic 
-	public DriverCard parseLineNEW(String outputLine, String cardIdentificationText) {
-	    CardDetailsService cd = new CardDetailsService();
-	    Response response = new Response();
-
-	    // Fetch card name from the db based on the cardIdentificationText
-	    String dbCardName = cd.getCardNameByIdentificationText(cardIdentificationText);
-	    System.out.println("Parsed cardName from DB ::  " + dbCardName);
 
 	    if (dbCardName == null) {
 	        response.setResponseCode(100);
@@ -93,14 +53,18 @@ public class DriverManagement {
 	        return new DriverCard(null, "FAILURE", response);
 	    }
 
-	    if (cardIdentificationText != null && outputLine.contains(cardIdentificationText)) {
-	        // Card identification text found in the outputLine
-	        response.setResponseCode(1);
-	        response.setResponseMessage("SUCCESS");
-	        return new DriverCard(dbCardName, "CARD MATCHED", response);
+	    String trimmedOutputLine = outputLine.trim();
+	    
+	    if (cardIdentificationText != null) {
+	        String trimmedCardIdentificationText = cardIdentificationText.trim();
+
+	        if (trimmedOutputLine.contains(trimmedCardIdentificationText)) {
+	            response.setResponseCode(1);
+	            response.setResponseMessage("SUCCESS");
+	            return new DriverCard(dbCardName, "CARD MATCHED", response);
+	        }
 	    }
 
-	    // Card identification text not found in outputLine, but still return dbCardName
 	    response.setResponseCode(0);
 	    response.setResponseMessage("FAILURE: Card identification text not found");
 	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
