@@ -870,8 +870,8 @@ public class SessionTestingController {
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(100);
-		fileNameColumn.setMaxWidth(100);
+		fileNameColumn.setMinWidth(1000);
+		fileNameColumn.setMaxWidth(1000);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
 		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
