@@ -51,6 +51,8 @@ import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.reportgeneration.l.TOCEntry;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
 
 public class ReportGenerationNew extends PdfPageEventHelper {
 
@@ -87,7 +89,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 	static PdfWriter writer;
 	static Document document = new Document(PageSize.A4);
 
-	static String excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+//	static String excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 
 	/*public static void main(String[] args) {
 		// Create a document
@@ -123,7 +125,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		System.out.println();
 	}*/
 
-	// Generation Of Breif Report
+	// Generation Of Breif Report 
 	public Response generateBreifReportForCurrentExecution(String sessionId)
 			throws DocumentException, MalformedURLException, IOException {
 		// yyyyMMdd_HHmmss
@@ -131,11 +133,21 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		Response res = new Response();
 		Document document = new Document(PageSize.A4);
-		String fileName = "BriefReport_"
+		String fileName = "CurrentExecutionBriefReport_"
 				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-		String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-//	      String filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/"+fileName;
-
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+		}
+		
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
 		data1 = data;
 		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -183,14 +195,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
 		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
 		
-		
-		 
-        
-     	
-     	
-     	
-     	
-    	Paragraph uutNameDetails = new Paragraph(
+	   	Paragraph uutNameDetails = new Paragraph(
 				" Uut Type Name      " ,headerFont);
 		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
 		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
@@ -221,7 +226,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(dfccPartNoDetails);
 
 		// Create table
-		PdfPTable table = new PdfPTable(4); // 10 columns
+	
+		PdfPTable table = new PdfPTable(4); // 4 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
 		table.setSpacingAfter(10f); // Space after table
@@ -232,48 +238,693 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		// Add table header
 		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-		String[] headers = { "SL.NO", "Time Of Execution", "Executed File Name", "Result"};
-		for (String header : headers) {
-			PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
-			cell.setBackgroundColor(BaseColor.GRAY);
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
+		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+		for (int i = 0; i < headers.length; i++) {
+		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+		    cell.setBackgroundColor(BaseColor.GRAY);
+		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		    
+
+		    if (i == 0) {
+		        cell.setPaddingLeft(10f); 
+		    }
+		    if (i == headers.length - 1) {
+		        cell.setPaddingRight(10f); 
+		    }
+		    
+		    table.addCell(cell);
 		}
 
 		// Set the number of header rows
 		table.setHeaderRows(1);
 
-		int sNo =1;
-		// Add rows from list
-		for (ResultExecutionDTO dto : resultExecutionDTOList) {
-			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+		int sNo = 1;
 
-			table.addCell(new Phrase(sNo));
-			table.addCell(new Phrase(dto.getEndTime()));
-			table.addCell(new Phrase(dto.getDStarCount()));
-			table.addCell(new Phrase(dto.getEndTime()));
-			table.addCell(new Phrase(dto.getStatus()));
-			/*
-			 * if (!dto.getStatus().equals("SUCCESS")) { table.addCell(new
-			 * Phrase(dto.getStatus(),greenFont)); } else { table.addCell(new
-			 * Phrase(dto.getStatus(),redFont));
-			 * 
-			 * }
-			 */
-		
+		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+		    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+		    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+		    table.addCell(cell1);
+
+		    table.addCell(new Phrase(dto.getEndTime()));
+		    table.addCell(new Phrase(dto.getTestFileName()));
+
+		    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+		    cell4.setPaddingRight(10f); // Padding on the right side for the last column
+		    table.addCell(cell4);
+
+		    sNo++;
 		}
 
-		// Add table to document
 		document.add(table);
-
-		// Close the document
 		document.close();
 
-		System.out.println("PDF saved to Here2 PdfMarginsExample " + filePath);
+		
+		System.out.println("Breif Report For Current Execution " + filePath);
 		return res;
 	}
 
+	
+	// Generation Of Breif Report For Given SessionId and StageId
+	public Response generateBreifReportForCurrentExecution(String sessionId,String stageId)
+				throws DocumentException, MalformedURLException, IOException {
+			// yyyyMMdd_HHmmss
+			// dd-MM-yyyy
+
+			Response res = new Response();
+			Document document = new Document(PageSize.A4);
+			String fileName = "StageBriefReport_"
+					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+			String filePath = "";
+			if (!DFCCConstant.isJarBuild) {
+				filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			} else {
+				filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			}
+			
+			String excelPath = "";
+			if (!DFCCConstant.isJarBuild) {
+				excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+			} else {
+				excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+			}
+			
+			Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+			data1 = data;
+			writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+			document.open();
+
+			ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+			writer.setPageEvent(event);
+			document.open();
+			// createTOCByRead();
+			createSummary1(document, data);
+
+			// To Fetch....
+			ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+			resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
+			List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+			resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+			document.newPage();
+			
+			/*GetObjResponse getObjResponse = new GetObjResponse();
+			SessionService sessionService = new SessionService();
+			getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
+			
+			Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+			// Add text in place of the second image
+			Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+			Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+			
+			BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
+			BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
+			BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
+			BaseColor tecCementColor = new BaseColor(151,185,196);
+	     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+	    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+	    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+	       
+
+			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+			//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+			Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+			SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+			document.add(SessionDetails);
+			SessionManagement sessionManagement = new SessionManagement();
+			Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
+			Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
+			
+		   	Paragraph uutNameDetails = new Paragraph(
+					" Uut Type Name      " ,headerFont);
+			uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+			uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(uutNameDetails);		
+			
+			Paragraph SessionNameDetails = new Paragraph(
+					" Session Name       " , headerFont);
+			SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+			SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(SessionNameDetails);
+
+			Paragraph StageNameDetails = new Paragraph(
+					" Stage Name         " , headerFont);
+			StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
+			StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(StageNameDetails);
+
+			Paragraph userNameDetails = new Paragraph(
+					" User Name          " , headerFont);
+			userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+			userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(userNameDetails);
+
+			Paragraph dfccPartNoDetails = new Paragraph(
+					" DFCC Part No       ", headerFont);
+			dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+			dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(dfccPartNoDetails);
+
+			// Create table
+		
+			PdfPTable table = new PdfPTable(4); // 4 columns
+			table.setWidthPercentage(100); // Width 100%
+			table.setSpacingBefore(10f); // Space before table
+			table.setSpacingAfter(10f); // Space after table
+
+			// Set Column widths
+			float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
+			table.setWidths(columnWidths);
+
+			// Add table header
+			Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+			String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+			for (int i = 0; i < headers.length; i++) {
+			    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			    cell.setBackgroundColor(BaseColor.GRAY);
+			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			    
+
+			    if (i == 0) {
+			        cell.setPaddingLeft(10f); 
+			    }
+			    if (i == headers.length - 1) {
+			        cell.setPaddingRight(10f); 
+			    }
+			    
+			    table.addCell(cell);
+			}
+
+			// Set the number of header rows
+			table.setHeaderRows(1);
+
+			int sNo = 1;
+
+			for (ResultExecutionDTO dto : resultExecutionDTOList) {
+			    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+			    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+			    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+			    table.addCell(cell1);
+
+			    table.addCell(new Phrase(dto.getEndTime()));
+			    table.addCell(new Phrase(dto.getTestFileName()));
+
+			    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+			    cell4.setPaddingRight(10f); // Padding on the right side for the last column
+			    table.addCell(cell4);
+
+			    sNo++;
+			}
+
+			document.add(table);
+			document.close();
+
+			
+			System.out.println("Breif Report For Selected Stage Current Execution " + filePath);
+			return res;
+		}
+	 
+	// Generation Of Detail Report For Last Executed Stage
+	public Response generateDetailedReportForCurrentExecution(String sessionId)
+			throws DocumentException, MalformedURLException, IOException {
+		// yyyyMMdd_HHmmss
+		// dd-MM-yyyy
+
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String fileName = "CurrentExecutionBriefReport_"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
+		
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+		}
+		
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		// createTOCByRead();
+		createSummary1(document, data);
+
+		// To Fetch....
+		ResultDetailedResponse resultDetailedResponse = new ResultDetailedResponse();
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		resultDetailedResponse = resultExecutionManagement.getResultExecutionDetailedListForStages(sessionId);
+		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
+		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+		document.newPage();
+		
+		/*GetObjResponse getObjResponse = new GetObjResponse();
+		SessionService sessionService = new SessionService();
+		getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
+		
+		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		// Add text in place of the second image
+		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+		
+		BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151,185,196);
+     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+       
+
+		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+		//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(SessionDetails);
+		SessionManagement sessionManagement = new SessionManagement();
+		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
+		
+	   	Paragraph uutNameDetails = new Paragraph(
+				" Uut Type Name      " ,headerFont);
+		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(uutNameDetails);		
+		
+		Paragraph SessionNameDetails = new Paragraph(
+				" Session Name       " , headerFont);
+		SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(SessionNameDetails);
+
+		Paragraph StageNameDetails = new Paragraph(
+				" Stage Name         " , headerFont);
+		StageNameDetails.add(new Chunk("     "+stageIdName.get(resultDetailedResponse.getStageName()),highlightCementFont));
+		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(StageNameDetails);
+
+		Paragraph userNameDetails = new Paragraph(
+				" User Name          " , headerFont);
+		userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(userNameDetails);
+
+		Paragraph dfccPartNoDetails = new Paragraph(
+				" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(dfccPartNoDetails);
+
+		// Create table
+	
+		PdfPTable table = new PdfPTable(8); // 4 columns
+		table.setWidthPercentage(100); // Width 100%
+		table.setSpacingBefore(10f); // Space before table
+		table.setSpacingAfter(10f); // Space after table
+
+		// Set Column widths
+		float[] columnWidths = { 0.5f,1.2f,1.4f,1.5f ,1.5f, 1.5f,1.3f, 0.8f };
+		table.setWidths(columnWidths);
+
+		// Add table header
+		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+		String[] headers = { "S.NO", "File Name", "TPGPH NO","SIGNAL NAME","STEP NO","EXPECTED VALUE (MIN)","EXPECTED VALUE (MAX)","MEASURED VALUE " };
+
+		for (int i = 0; i < headers.length; i++) {
+		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+		    cell.setBackgroundColor(BaseColor.GRAY);
+		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		    table.addCell(cell);
+		}
+
+		// Set the number of header rows
+		table.setHeaderRows(1);
+
+		int sNo = 1;
+
+		/*for (ResultDetailedDTO dto : resultDetailedDTOList) {
+		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+		   
+
+		    sNo++;
+		}*/
+
+		document.add(table);
+		document.close();
+
+		
+		System.out.println("Breif Report For Current Execution " + filePath);
+		return res;
+	}
+
+	
+	// Generation Of Details Report For Given SessionId and StageId
+	public Response generateDetailedReportForCurrentExecution(String sessionId,String stageId)
+				throws DocumentException, MalformedURLException, IOException {
+			// yyyyMMdd_HHmmss
+			// dd-MM-yyyy
+
+			Response res = new Response();
+			Document document = new Document(PageSize.A4);
+			String fileName = "StageBriefReport_"
+					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+			String filePath = "";
+			if (!DFCCConstant.isJarBuild) {
+				filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			} else {
+				filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			}
+			
+			String excelPath = "";
+			if (!DFCCConstant.isJarBuild) {
+				excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+			} else {
+				excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+			}
+			
+			Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+			data1 = data;
+			writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+			document.open();
+
+			ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+			writer.setPageEvent(event);
+			document.open();
+			// createTOCByRead();
+			createSummary1(document, data);
+
+			// To Fetch....
+			ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+			resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
+			List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+			resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+			document.newPage();
+			
+			/*GetObjResponse getObjResponse = new GetObjResponse();
+			SessionService sessionService = new SessionService();
+			getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
+			
+			Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+			// Add text in place of the second image
+			Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+			Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+			
+			BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
+			BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
+			BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
+			BaseColor tecCementColor = new BaseColor(151,185,196);
+	     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+	    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+	    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+	       
+
+			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+			//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+			Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+			SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+			document.add(SessionDetails);
+			SessionManagement sessionManagement = new SessionManagement();
+			Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
+			Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
+			
+		   	Paragraph uutNameDetails = new Paragraph(
+					" Uut Type Name      " ,headerFont);
+			uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+			uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(uutNameDetails);		
+			
+			Paragraph SessionNameDetails = new Paragraph(
+					" Session Name       " , headerFont);
+			SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+			SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(SessionNameDetails);
+
+			Paragraph StageNameDetails = new Paragraph(
+					" Stage Name         " , headerFont);
+			StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
+			StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(StageNameDetails);
+
+			Paragraph userNameDetails = new Paragraph(
+					" User Name          " , headerFont);
+			userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+			userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(userNameDetails);
+
+			Paragraph dfccPartNoDetails = new Paragraph(
+					" DFCC Part No       ", headerFont);
+			dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+			dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+			document.add(dfccPartNoDetails);
+
+			// Create table
+		
+			PdfPTable table = new PdfPTable(4); // 4 columns
+			table.setWidthPercentage(100); // Width 100%
+			table.setSpacingBefore(10f); // Space before table
+			table.setSpacingAfter(10f); // Space after table
+
+			// Set Column widths
+			float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
+			table.setWidths(columnWidths);
+
+			// Add table header
+			Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+			String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+			for (int i = 0; i < headers.length; i++) {
+			    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			    cell.setBackgroundColor(BaseColor.GRAY);
+			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			    
+
+			    if (i == 0) {
+			        cell.setPaddingLeft(10f); 
+			    }
+			    if (i == headers.length - 1) {
+			        cell.setPaddingRight(10f); 
+			    }
+			    
+			    table.addCell(cell);
+			}
+
+			// Set the number of header rows
+			table.setHeaderRows(1);
+
+			int sNo = 1;
+
+			for (ResultExecutionDTO dto : resultExecutionDTOList) {
+			    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+			    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+			    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+			    table.addCell(cell1);
+
+			    table.addCell(new Phrase(dto.getEndTime()));
+			    table.addCell(new Phrase(dto.getTestFileName()));
+
+			    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+			    cell4.setPaddingRight(10f); // Padding on the right side for the last column
+			    table.addCell(cell4);
+
+			    sNo++;
+			}
+
+			document.add(table);
+			document.close();
+
+			
+			System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
+			return res;
+		}
+	
+	//Session Result Report
+	public Response generateSessionReportForStages(String sessionId)
+			throws DocumentException, MalformedURLException, IOException {
+		// yyyyMMdd_HHmmss
+		// dd-MM-yyyy
+
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String fileName = "SessionReport_"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
+		
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+		}
+		
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		// createTOCByRead();
+		createSummary1(document, data);
+
+		// To Fetch....
+		ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+
+		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+		resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+		document.newPage();
+		
+		/*GetObjResponse getObjResponse = new GetObjResponse();
+		SessionService sessionService = new SessionService();
+		getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
+		
+		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		// Add text in place of the second image
+		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+		
+		BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151,185,196);
+     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+       
+
+		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+		//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(SessionDetails);
+		SessionManagement sessionManagement = new SessionManagement();
+		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
+		
+	   	Paragraph uutNameDetails = new Paragraph(
+				" Uut Type Name      " ,headerFont);
+		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(uutNameDetails);		
+		
+		Paragraph SessionNameDetails = new Paragraph(
+				" Session Name       " , headerFont);
+		SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(SessionNameDetails);
+
+		Paragraph StageNameDetails = new Paragraph(
+				" Stage Name         " , headerFont);
+		StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
+		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(StageNameDetails);
+
+		Paragraph userNameDetails = new Paragraph(
+				" User Name          " , headerFont);
+		userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(userNameDetails);
+
+		Paragraph dfccPartNoDetails = new Paragraph(
+				" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(dfccPartNoDetails);
+
+		// Create table
+	
+		PdfPTable table = new PdfPTable(4); // 4 columns
+		table.setWidthPercentage(100); // Width 100%
+		table.setSpacingBefore(10f); // Space before table
+		table.setSpacingAfter(10f); // Space after table
+
+		// Set Column widths
+		float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
+		table.setWidths(columnWidths);
+
+		// Add table header
+		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+		for (int i = 0; i < headers.length; i++) {
+		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+		    cell.setBackgroundColor(BaseColor.GRAY);
+		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		    
+
+		    if (i == 0) {
+		        cell.setPaddingLeft(10f); 
+		    }
+		    if (i == headers.length - 1) {
+		        cell.setPaddingRight(10f); 
+		    }
+		    
+		    table.addCell(cell);
+		}
+
+		// Set the number of header rows
+		table.setHeaderRows(1);
+
+		int sNo = 1;
+
+		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+		    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+		    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+		    table.addCell(cell1);
+
+		    table.addCell(new Phrase(dto.getEndTime()));
+		    table.addCell(new Phrase(dto.getTestFileName()));
+
+		    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+		    cell4.setPaddingRight(10f); // Padding on the right side for the last column
+		    table.addCell(cell4);
+
+		    sNo++;
+		}
+
+		document.add(table);
+		document.close();
+
+		
+		System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
+		return res;
+	}
+
+	
+	
 	public static void createTOCByRead1(Document document, Map<String, Map<String, Map<String, String>>> data)
 			throws DocumentException {
 		Paragraph tocTitle = new Paragraph("Table of Contents",

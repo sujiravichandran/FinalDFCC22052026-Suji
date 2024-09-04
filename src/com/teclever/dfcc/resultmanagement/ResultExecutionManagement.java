@@ -26,6 +26,7 @@ import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.TestFile;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
@@ -62,6 +63,7 @@ public class ResultExecutionManagement {
 
 		try {
 			SessionService sessionService = new SessionService();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
 			/*
 			 * SessionResponse sessionResponse = sessionService.getAllSession();
 			 * List<SessionDto> sessionEntityList = new ArrayList<SessionDto>();
@@ -74,16 +76,32 @@ public class ResultExecutionManagement {
 			 * String sessionId = sessionDto.getSessionId(); String sessionName =
 			 * sessionDto.getSessionName(); response.setSessionName(sessionName);
 			 */
-
-			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			String sessionName = "";
+			GetObjResponse sessionRes = new GetObjResponse();
+			if(!sessionId.substring(0,4).equals("TSSN"))
+			{
+				 sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				 SessionEntity sessionEntity = new SessionEntity();
+					sessionEntity = (SessionEntity) sessionRes.getObject();
+				 sessionName = sessionEntity.getSessionName();
+					response.setSessionName(sessionName);
+			} else {
+				 sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				 TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				 trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				 sessionName = trailSessionEntity.getTrailSessionName();
+					response.setSessionName(sessionName);
+			}
 
 			if (sessionRes.getResponse().getResponseCode() != 1) {
 				response.setMsg("Problem On Fetching SessionDetails  " + "Exception Msg:"
 						+ sessionRes.getResponse().getResponseMessage());
 			}
-			SessionEntity sessionEntity = new SessionEntity();
-			sessionEntity = (SessionEntity) sessionRes.getObject();
-			String sessionName = sessionEntity.getSessionName();
+			
+			System.out.println("Code "+sessionRes.getResponse().getResponseCode());
+			System.out.println("sessionId"+sessionId);
+			
+			System.out.println("getResultExecutionListBriefListForStages");
 			response.setSessionName(sessionName);
 			Map<String, String> stageIdName = getStageIdName();
 
@@ -145,8 +163,10 @@ public class ResultExecutionManagement {
 
 				}
 				resultExecutionDTO.setTestFileId( selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId()));
+				System.out.println( selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId()));
 				resultExecutionDTO
 						.setTestFileName(testFileIdName.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
+				System.out.println("Test File Name"+testFileIdName.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
 				resultList.add(resultExecutionDTO);
 
@@ -172,6 +192,7 @@ public class ResultExecutionManagement {
 
 		try {
 			SessionService sessionService = new SessionService();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
 			/*
 			 * SessionResponse sessionResponse = sessionService.getAllSession();
 			 * List<SessionDto> sessionEntityList = new ArrayList<SessionDto>();
@@ -185,15 +206,31 @@ public class ResultExecutionManagement {
 			 * sessionDto.getSessionName(); response.setSessionName(sessionName);
 			 */
 
-			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
-
+			String sessionName = "";
+			GetObjResponse sessionRes = new GetObjResponse();
+			if(!sessionId.substring(0,4).equals("TSSN"))
+			{
+				 sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				 SessionEntity sessionEntity = new SessionEntity();
+					sessionEntity = (SessionEntity) sessionRes.getObject();
+				 sessionName = sessionEntity.getSessionName();
+					response.setSessionName(sessionName);
+			} else {
+				 sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				 TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				 trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				 sessionName = trailSessionEntity.getTrailSessionName();
+					response.setSessionName(sessionName);
+			}
 			if (sessionRes.getResponse().getResponseCode() != 1) {
 				response.setMsg("Problem On Fetching SessionDetails  " + "Exception Msg:"
 						+ sessionRes.getResponse().getResponseMessage());
 			}
-			SessionEntity sessionEntity = new SessionEntity();
-			sessionEntity = (SessionEntity) sessionRes.getObject();
-			String sessionName = sessionEntity.getSessionName();
+			System.out.println("Code "+sessionRes.getResponse().getResponseCode());
+			System.out.println("sessionId"+sessionId);
+			
+			System.out.println("getResultExecutionListBriefListForSelectedStages");
+			
 			response.setSessionName(sessionName);
 			Map<String, String> stageIdName = getStageIdName();
 
@@ -371,7 +408,8 @@ public class ResultExecutionManagement {
 					resultDetailedList.add(resultDetailedDTO);
 				}
 			}
-
+			response.setStageId(stageId);
+			response.setStageName(stageIdName.get(stageId));
 			response.setCode(1);
 			response.setResultDetailedList(resultDetailedList);
 			response.setMsg("Fetched Successfully");
@@ -499,22 +537,41 @@ public class ResultExecutionManagement {
 
 	
 	
-	// For Getting the List Of ExecutionFiles For Session...
+	// For Getting the List Of ExecutionFiles For Session...Not Using
 	public ResultExecutionResponse getResultExecutionListBriefListForSession(String sessionId) {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 		try {
 			// Session Details
 			SessionService sessionService = new SessionService();
-			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
-
+		    TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			
+		    String sessionName = "";
+			GetObjResponse sessionRes = new GetObjResponse();
+			if(!sessionId.substring(0,4).equals("TSSN"))
+			{
+				 sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				 SessionEntity sessionEntity = new SessionEntity();
+					sessionEntity = (SessionEntity) sessionRes.getObject();
+				 sessionName = sessionEntity.getSessionName();
+					response.setSessionName(sessionName);
+			} else {
+				 sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				 TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				 trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				 sessionName = trailSessionEntity.getTrailSessionName();
+					response.setSessionName(sessionName);
+			}
+			
 			if (sessionRes.getResponse().getResponseCode() != 1) {
 				response.setMsg("Problem On Fetching SessionDetails  " + "Exception Msg:"
 						+ sessionRes.getResponse().getResponseMessage());
 			}
+			System.out.println("Code "+sessionRes.getResponse().getResponseCode());
+			System.out.println("sessionId"+sessionId);
+			
 			SessionEntity sessionEntity = new SessionEntity();
 			sessionEntity = (SessionEntity) sessionRes.getObject();
-			String sessionName = sessionEntity.getSessionName();
-
+			System.out.println("getResultExecutionListBriefListForSession");
 			Map<String, String> stageIdName = getStageIdName();
 
 			// TestFiles Fetching
@@ -552,6 +609,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
+	//Not Using....For Detailed Report For All Stages In Session
 	public ResultDetailedResponse getResultExecutionListDetailedListForSession(String sessionId) {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {

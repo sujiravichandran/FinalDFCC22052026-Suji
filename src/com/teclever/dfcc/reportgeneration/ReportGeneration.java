@@ -209,25 +209,27 @@ public class ReportGeneration {
  
 
         // Add rows from list
-        for (ResultExecutionDTO dto : resultExecutionDTOList) {
-        	Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-        	Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
 
-            table.addCell(new Phrase(dto.getTestFileName()));
-            table.addCell(new Phrase(dto.getRdfFilePath()+dto.getRdfFile()));
-            table.addCell(new Phrase(dto.getDStarCount()));
-            table.addCell(new Phrase(dto.getEndTime()));
-        	table.addCell(new Phrase(dto.getStatus()));
-			/*if (!dto.getStatus().equals("SUCCESS")) {
-				table.addCell(new Phrase(dto.getStatus(),greenFont));
-			} else {
-				table.addCell(new Phrase(dto.getStatus(),redFont));
+			table.addCell(new Phrase(dto.getTestFileName()));
+			table.addCell(new Phrase(dto.getRdfFilePath() + dto.getRdfFile()));
+			table.addCell(new Phrase(dto.getDStarCount()));
+			table.addCell(new Phrase(dto.getEndTime()));
+			table.addCell(new Phrase(dto.getStatus()));
 
-			}*/
-		   }
+			/*
+			 * if (!dto.getStatus().equals("SUCCESS")) { table.addCell(new
+			 * Phrase(dto.getStatus(),greenFont)); } else { table.addCell(new
+			 * Phrase(dto.getStatus(),redFont));
+			 * 
+			 * }
+			 */
+		}
 
-        // Add table to document
-        document.add(table);
+		// Add table to document
+		document.add(table);
 
 
         // Close the document
