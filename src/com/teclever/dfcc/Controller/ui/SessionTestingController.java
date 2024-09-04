@@ -451,11 +451,12 @@ public class SessionTestingController {
 		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
 		
 		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if(newValue != null && newValue.intValue() != 0) {
-				double percentage = SessionTestStateObject.getTotalSelectedTestFileCount()/SessionTestStateObject.getRunnedTestFileCount().get();
-				Platform.runLater(()->{					
-					testProgressBar.setProgress(percentage);
-					percentageLabel.setText(percentage*100+"%");
+			if (newValue != null ) {
+				double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() / SessionTestStateObject.getTotalSelectedTestFileCount();
+				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+				Platform.runLater(() -> {
+					testProgressBar.setProgress(roundedPercentage);
+					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
 				});
 			}
 		});
@@ -834,8 +835,10 @@ public class SessionTestingController {
 				
 				int totalTestFileCount = testFileIds.size() * repeatCount;
 				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(()->{
+					percentageLabel.setText("0%");
+				});
 				SessionTestStateObject.getRunnedTestFileCount().set(0);
-				percentageLabel.setText("0%");
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);

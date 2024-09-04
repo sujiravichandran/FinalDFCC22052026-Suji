@@ -451,11 +451,12 @@ public class AdvancedTestingHWATPTesting {
 		});
 		
 		AdvancedTestStateObject.runnedHWATPTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if(newValue != null && newValue.intValue() != 0) {
-				double percentage = AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount()/AdvancedTestStateObject.getRunnedHWATPTestFileCount().get();
-				Platform.runLater(()->{					
-					testProgressBar.setProgress(percentage);
-					percentageLabel.setText(percentage*100+"%");
+			if (newValue != null ) {
+				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get() / AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
+				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+				Platform.runLater(() -> {
+					testProgressBar.setProgress(roundedPercentage);
+					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
 				});
 			}
 		});
@@ -476,8 +477,10 @@ public class AdvancedTestingHWATPTesting {
 				
 				int totalTestFileCount = testFileIds.size() * repeatCount;
 				AdvancedTestStateObject.setTotalHWATPSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(()->{
+					percentageLabel.setText("0%");
+				});
 				AdvancedTestStateObject.getRunnedHWATPTestFileCount().set(0);
-				percentageLabel.setText("0%");
 				
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, true, stageName, testTypeId);
