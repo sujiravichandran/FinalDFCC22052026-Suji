@@ -191,7 +191,7 @@ public class UserDashboardController {
 			addTreeItemWithChildren(rootItem, "Results",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
 					new String[] {"Current Execution" ,"Unit Results"  , "Session Results" , "Stage Results"});
-			addTreeItemWithChildren(rootItem, "Advanced Data Analysis",
+			addTreeItemWithChildren(rootItem, "Data Analysis",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png",

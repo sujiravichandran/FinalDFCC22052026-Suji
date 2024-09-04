@@ -444,11 +444,12 @@ public class AdvancedTestingInterfaceTesting {
 		});
 		
 		AdvancedTestStateObject.runnedInterfaceestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if(newValue != null && newValue.intValue() != 0) {
-				double percentage =AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount()/ AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get();
-				Platform.runLater(()->{					
-					testProgressBar.setProgress(percentage);
-					percentageLabel.setText(percentage*100+"%");
+			if (newValue != null ) {
+				double percentage = (double) AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get() / AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount();
+				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+				Platform.runLater(() -> {
+					testProgressBar.setProgress(roundedPercentage);
+					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
 				});
 			}
 		});
@@ -469,8 +470,11 @@ public class AdvancedTestingInterfaceTesting {
 
 				int totalTestFileCount = testFileIds.size() * repeatCount;
 				AdvancedTestStateObject.setTotalInterfaceSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(()->{
+					percentageLabel.setText("0%");
+				});
 				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(0);
-				percentageLabel.setText("0%");
+			
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, true, stageName, testTypeId);
