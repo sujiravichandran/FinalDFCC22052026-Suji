@@ -67,7 +67,7 @@ public class TestProcessManagement {
 	 * @return Response object with the result of the operation.
 	 */
 	public Response testProcesControl(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
-			boolean continueWithError, String stageName, String testTypeId) {
+			boolean continueWithError, String stageName, String testTypeId, String ofpConfig) {
 
 		Response res = new Response();
 		try {
@@ -78,9 +78,8 @@ public class TestProcessManagement {
 			if (sessionStagesMapping == null) {
 				return createErrorResponse("Failed to retrieve session stage mapping");
 			}
-
 			// If AETS process failed to launch, return failure response
-			if (checkAndUpdateAetsProcessStatus(testTypeId)) {
+			if (checkAndUpdateAetsProcessStatus(testTypeId, ofpConfig)) {
 				resetAitessFailureStates();
 				return createErrorResponse("AETS Failed to launch");
 			}
@@ -117,8 +116,8 @@ public class TestProcessManagement {
 
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
-			
-			if(popupflag) {
+
+			if (popupflag) {
 				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 				SessionTestStateObject.setPopupStageId(stageId);
 			}
@@ -154,9 +153,14 @@ public class TestProcessManagement {
 		return res;
 	}
 
-	private boolean checkAndUpdateAetsProcessStatus(String testTypeId) {
-		// Check and update AETS process status
-		AitessProcessControlManagement.getInstance().check(testTypeId);
+	private boolean checkAndUpdateAetsProcessStatus(String testTypeId, String ofpConfig) {
+		if (ofpConfig == null) {
+			// Check and update AETS process status
+			AitessProcessControlManagement.getInstance().check(testTypeId);
+		} else if (ofpConfig != null) {
+			// Check and update AETS process status
+			AitessProcessControlManagement.getInstance().check1(testTypeId, ofpConfig);
+		}
 
 		// If AETS process failed to launch, return failure response
 		return aitessRunning.isAitess1SwitchedFailed() || aitessRunning.isAitess2SwitchedFailed();
@@ -817,7 +821,7 @@ public class TestProcessManagement {
 								if (rdfFileResult.equals("OK")) {
 									rdfFileResult = "NOT OK";
 								}
-								
+
 								if (dotComFileResult.equals("OK")) {
 									dotComFileResult = "NOT OK";
 								}
@@ -853,7 +857,8 @@ public class TestProcessManagement {
 						StateMachine.setTextArea(true);
 					} // Inner loop
 				}
-				if(stageName.equals("SESSION TEST")||stageName.equals("HWATP TEST")||stageName.equals("INTERFACE TEST")) {
+				if (stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
+						|| stageName.equals("INTERFACE TEST")) {
 					updateProgressBar(stageName);
 				}
 			} // Outer loop
@@ -940,24 +945,28 @@ public class TestProcessManagement {
 
 		return false;
 	}
+
 	private void updateProgressBar(String stageName) {
 		try {
 
 			switch (stageName) {
-			
+
 			case "SESSION TEST":
-				SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);
+				SessionTestStateObject.getRunnedTestFileCount()
+						.set(SessionTestStateObject.getRunnedTestFileCount().get() + 1);
 				break;
 
 			case "HWATP TEST":
-				AdvancedTestStateObject.getRunnedHWATPTestFileCount().set(AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()+1);
+				AdvancedTestStateObject.getRunnedHWATPTestFileCount()
+						.set(AdvancedTestStateObject.getRunnedHWATPTestFileCount().get() + 1);
 				break;
 			case "INTERFACE TEST":
-				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get()+1);
+				AdvancedTestStateObject.getRunnedInterfaceTestFileCount()
+						.set(AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get() + 1);
 				break;
 
 			default:
-				System.out.println("INVALID Stage Name : "+stageName);
+				System.out.println("INVALID Stage Name : " + stageName);
 				break;
 			}
 
@@ -965,12 +974,13 @@ public class TestProcessManagement {
 			throw e;
 		}
 	}
+
 	public Response runCommand(String command, String testTypeId) {
 		Response res = new Response();
 		try {
 
 			// If AETS process failed to launch, return failure response
-			if (checkAndUpdateAetsProcessStatus(testTypeId)) {
+			if (checkAndUpdateAetsProcessStatus(testTypeId, null)) {
 				resetAitessFailureStates();
 				return createErrorResponse("AETS Failed to launch");
 			}
