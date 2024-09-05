@@ -95,7 +95,7 @@ public class AitessProcessControlManagement {
 		return instance;
 	}
 
-	private void configureAitess(String configFileLocation) {
+	public void configureAitess(String configFileLocation) {
 		try {
 			WriteAitess1Command("sudo rm -r config.cache" + "\n");
 			Files.copy(Paths.get(configFileLocation), aitessConfigFile, StandardCopyOption.REPLACE_EXISTING);
@@ -106,6 +106,8 @@ public class AitessProcessControlManagement {
 			e.printStackTrace();
 		}
 	}
+	
+	
 
 	private void configureAitess1(String configFileLocation) {
 		try {
@@ -777,6 +779,49 @@ if (dfccCheckStstusStarted) {
 		StateMachine.setPreviousRunConfigId(currentRunConfigId);
 		System.out.println("UPDATED previous runConfig Id ::------" + StateMachine.getPreviousRunConfigId());
 		System.out.println("FUNCTION ENDED----------------------->>>>>>>>>>>>>>>>>>");
+	}
+	
+	
+	public void  check1(String testTypeId, String ofpConfigPath) {
+		checkMethod=true;
+		boolean aets1SwitchFlaggg = true;
+
+
+		// Check and update AETS process status
+				exitAitess1Command();
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				configureAitess(ofpConfigPath);
+				
+				String uutId = currentSessionDetails.getUutId();
+				RunConfigurationService r = new RunConfigurationService();
+				String currentRunConfigId = r.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+
+				AitessConfigurationDetails currentAitess = r
+						.getAitessDetailsByRunConfigId(currentRunConfigId);
+				
+				launcherFuture1
+				.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));			
+
+				while (aets1SwitchFlaggg) {
+					// System.out.print(" 1 ");
+					if (aitessRunning.isAitess1ReloadConfigured()) {
+						aets1SwitchFlaggg = false;
+						// currentSessionDetails.setRunConfigId(currentRunConfigId);
+						System.out.println("AFTER 1 SWITCHING RUN CONFIG GETS pbit UPDATED:: ------>>> "
+								+ currentSessionDetails.getRunConfigId());
+
+					} 
+				}
+				aitessRunning.setAitess1ReloadConfigured(false);
+				aitessRunning.setAitess1Switched(false);
+				StateMachine.setPreviousRunConfigId(currentRunConfigId);
+				System.out.println("UPDATED previous runConfig before pbit ::------" + StateMachine.getPreviousRunConfigId());
+
+				
 	}
 
 	public void switchAitess(String testTypeId) {
