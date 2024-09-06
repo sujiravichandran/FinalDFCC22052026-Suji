@@ -841,7 +841,7 @@ public class SessionTestingController {
 				SessionTestStateObject.getRunnedTestFileCount().set(0);
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId);
+						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId, null);
 
 				return null;
 			}

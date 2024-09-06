@@ -403,7 +403,7 @@ public class SelfTestController {
 		                
 		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    ID, 1, testFileList, true, stageName, testTypeId
+		                    ID, 1, testFileList, true, stageName, testTypeId, null
 		                );
 	                    			               
 	          
