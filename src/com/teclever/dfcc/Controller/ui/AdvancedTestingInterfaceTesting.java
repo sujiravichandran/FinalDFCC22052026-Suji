@@ -477,7 +477,7 @@ public class AdvancedTestingInterfaceTesting {
 			
 
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, true, stageName, testTypeId);
+						repeatCount, testFileIds, true, stageName, testTypeId, null);
 
 				return null;
 			}

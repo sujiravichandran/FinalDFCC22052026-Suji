@@ -213,7 +213,7 @@ public class AdvanceCustom1TestingManagement {
 			TestProcessManagement testProcessManangement = new TestProcessManagement();
 			testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
 					listOfTestFileIds /* listOfFileId */, true /* continueWithError */, stageName/* stageName */,
-					testTypeId/* testTypeId */);
+					testTypeId/* testTypeId */, null);
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -9,11 +9,15 @@ import java.util.stream.Collectors;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
@@ -28,6 +32,8 @@ import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -37,11 +43,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -99,7 +109,33 @@ public class LRUTestingController {
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	
+	private String UUT_ID;
+    private String ofpConfigId;
+    
 
+    private ObservableList<OfpConfigurationDto> ofpVersionDataList;
+    private ObservableList<String> ofpVersionList = FXCollections.observableArrayList();
+
+    private StringProperty RUN_CONFIG_ID = new SimpleStringProperty();
+    
+    private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
+    FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+
+AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+	
+	public String getRUN_CONFIG_ID() {
+        return RUN_CONFIG_ID.get();
+    }
+
+    public void setRUN_CONFIG_ID(String rUN_CONFIG_ID) {
+        RUN_CONFIG_ID.set(rUN_CONFIG_ID);
+    }
+
+    public StringProperty runConfigIdProperty() {
+        return RUN_CONFIG_ID;
+    }
+    
 	public GridPane createlruTestMainContainerGridPane() {
 
 		lruTestMainContainerGridPane.getStylesheets().add(getClass()
@@ -344,6 +380,13 @@ public class LRUTestingController {
 				    if(newButton.getText().toLowerCase().contains("spil")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 				    }else if(newButton.getText().toLowerCase().contains("pbit")) {
+				    	
+
+				    	if(aitessProcessControlManagement.pbitCheck().getResponseCode()==300) {
+						
+											dialogBox();
+											
+						}
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 				    }else if(newButton.getText().toLowerCase().contains("initialize")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
@@ -449,6 +492,96 @@ public class LRUTestingController {
 		});
 
 		return mandatoryTestVBox;
+	}
+	
+	private void initializeOfpVersionComboBox() {
+	       ofpVersionList.clear();
+	       UUT_ID= StateMachine.currentSessionDetails.getUutId();
+	  	  
+	        ofpVersionDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
+	        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
+	            ofpVersionList.add(ofpVersion.getOfpVersion());
+	        }
+	        OFPVersion.setItems(ofpVersionList);
+	        OFPVersion.setOnAction((event) -> {
+	            ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
+	            this.RUN_CONFIG_ID.set(ofpConfigId);
+	            
+	        });
+	        
+	    }
+
+	    private String fetchOFPVersion(String ofpVersionName) {
+	        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
+	            if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
+	                return ofpVersion.getOfpVersion();
+	            }
+	        }
+	        return null;
+	    }
+	
+	ComboBox<String> OFPVersion = new ComboBox<>();
+
+	private void dialogBox() {
+		String ofpConfig;
+		OFPVersion.setPromptText("select OFP Version");
+		OFPVersion.setVisible(false);
+
+		Dialog<String> dialog = new Dialog<>();
+		dialog.setWidth(500);
+		dialog.setTitle("Check Status");
+
+		Button okButton = new Button("OK");
+		Button cancelButton = new Button("Cancel");
+
+		okButton.setOnAction(event -> {
+			dialog.setResult("Ok");
+			
+			
+			dialog.close();
+		});
+
+		cancelButton.setOnAction(event -> {
+			dialog.setResult("Cancel");
+			dialog.close();
+		});
+		
+		
+
+		HBox buttonBox = new HBox();
+		buttonBox.setAlignment(Pos.CENTER);
+		buttonBox.setSpacing(10);
+
+		buttonBox.getChildren().addAll(okButton, cancelButton);
+
+		RadioButton option1 = new RadioButton("Option 1");
+		RadioButton option2 = new RadioButton("Option 2");
+
+		ToggleGroup group = new ToggleGroup();
+		option1.setToggleGroup(group);
+		option2.setToggleGroup(group);
+		
+		HBox ofpSelection = new HBox();
+		ofpSelection.setAlignment(Pos.CENTER_LEFT);
+		ofpSelection.setSpacing(30);
+
+		ofpSelection.getChildren().addAll(option2,OFPVersion);
+
+		VBox vbox = new VBox(option1,ofpSelection, buttonBox);
+		vbox.setSpacing(10);
+		dialog.getDialogPane().setContent(vbox);
+
+		option2.setOnAction(event ->  {
+	        OFPVersion.setVisible(true);
+	        initializeOfpVersionComboBox();
+	        
+	    });
+			
+		option1.setOnAction(event -> OFPVersion.setVisible(false));
+
+		dialog.showAndWait().ifPresent(result -> {
+			System.out.println("Dialog result: " + result);
+		});
 	}
 	
 	private boolean checkMandatoryStatus(String cardName) {
@@ -964,7 +1097,7 @@ public class LRUTestingController {
 		                
 		                Response response = testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
-		                    ID, 1, testFileList, true,stageName , testTypeId
+		                    ID, 1, testFileList, true,stageName , testTypeId , ofpConfigId 
 		                );                   			               
 	          
 	            return null;

@@ -483,7 +483,7 @@ public class AdvancedTestingHWATPTesting {
 				AdvancedTestStateObject.getRunnedHWATPTestFileCount().set(0);
 				
 				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, true, stageName, testTypeId);
+						repeatCount, testFileIds, true, stageName, testTypeId, null);
 
 				return null;
 			}
