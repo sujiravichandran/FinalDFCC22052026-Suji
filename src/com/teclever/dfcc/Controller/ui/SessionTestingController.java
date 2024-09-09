@@ -944,7 +944,8 @@ public class SessionTestingController {
 
 					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
 
-					Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+					Rectangle2D screenBounds = Screen.getPrimary()
+							.getVisualBounds();
 					double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
 					double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
 					stage.setX(centerX);

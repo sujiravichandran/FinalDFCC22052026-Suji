@@ -261,7 +261,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		int sNo = 1;
 
-		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+		/*for (ResultExecutionDTO dto : resultExecutionDTOList) {
 		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
 		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
 
@@ -277,7 +277,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		    table.addCell(cell4);
 
 		    sNo++;
-		}
+		}*/
 
 		document.add(table);
 		document.close();
@@ -1620,6 +1620,215 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		}
 	}
 
+	//With New Page Paragraph..
+/*	public static void createSummary1(Document document, Map<String, Map<String, Map<String, String>>> data)
+	        throws DocumentException, MalformedURLException, IOException {
+
+	    String imagePath = "src/Resources/Images/BellLogoRocket.png";
+	    Image img = Image.getInstance(imagePath);
+	    img.scaleAbsolute(2, 1);
+	    img.scalePercent(50);
+	    img.setAlignment(Element.ALIGN_CENTER);
+	    document.add(img);
+
+	    Paragraph preface = new Paragraph();
+	    preface.setAlignment(Element.ALIGN_CENTER);
+
+	    Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+	    Paragraph titlePara = new Paragraph(title, titleFont); // Assuming 'title' is a variable containing the title text
+	    titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+	    document.add(titlePara);
+
+	    document.add(new Paragraph("\n"));
+	    document.add(new Paragraph("\n"));
+
+	    // Tab Adding
+	    BaseColor textColor = new BaseColor(22, 28, 99);
+	    BaseColor bcolor = new BaseColor(228, 239, 255);
+	    Font boldFont1 = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD);
+	    Font boldFont4 = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD);
+	    Font boldFont2 = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL);
+	    Font boldFont3 = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+	    Font boldFont5 = new Font(Font.FontFamily.COURIER, 8, Font.BOLD);
+	    PdfPTable table = new PdfPTable(3);
+	    float[] columnWidths = {2, 2, 2}; // Adjust column widths as necessary
+	    table.setWidths(columnWidths);
+	    PdfPCell cell1 = new PdfPCell(new Phrase("Prepared By", boldFont3));
+	    cell1.setRowspan(1);
+	    cell1.setColspan(3);
+	    cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
+	    cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(cell1);
+
+	    PdfPCell cell2 = new PdfPCell(new Phrase(
+	            "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "   BEL Testing –LCA-EWA", boldFont4));
+	    cell2.setRowspan(2);
+	    cell2.setColspan(3);
+	    cell2.setFixedHeight(80f);
+	    cell2.setVerticalAlignment(Element.ALIGN_BOTTOM);
+	    cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(cell2);
+
+	    PdfPCell cell3 = new PdfPCell(
+	            new Phrase("VerifiedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "LCA-TS/EW&A", boldFont3));
+
+	    cell3.setRowspan(3);
+	    cell3.setColspan(1);
+	    cell3.setFixedHeight(100f);
+	    cell3.setVerticalAlignment(Element.ALIGN_BASELINE);
+	    cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(cell3);
+
+	    PdfPCell cell4 = new PdfPCell(
+	            new Phrase("ReviewedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "QM-EW & A", boldFont3));
+	    cell4.setRowspan(3);
+	    cell4.setColspan(1);
+	    cell4.setFixedHeight(60f);
+	    cell4.setVerticalAlignment(Element.ALIGN_BASELINE);
+	    cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(cell4);
+
+	    PdfPCell cell5 = new PdfPCell(
+	            new Phrase("ApporvedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "OAQA-BEL", boldFont3));
+	    cell5.setRowspan(3);
+	    cell5.setColspan(1);
+	    cell5.setFixedHeight(60f);
+	    cell5.setVerticalAlignment(Element.ALIGN_BASELINE);
+	    cell5.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(cell5);
+
+	    document.add(table);
+
+	    document.newPage();
+
+	    int summaryPlaceHolderCount = 1;
+	    int summaryPlaceHolderCountSub;
+	    int summaryPlaceHolderCountH3;
+
+	    for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
+	        String heading = entry.getKey();
+	        Map<String, Map<String, String>> subheadings = entry.getValue();
+
+	        if (heading.equalsIgnoreCase("Table Of Contents")) {
+	            createTOCByRead1(document, data);
+	            document.newPage();
+	            continue;
+	        }
+
+	        heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
+
+	        // Check available space for the heading
+	        if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	            document.newPage();
+	        }
+
+	        document.add(new Paragraph(" " + heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+
+	        BaseFont baseFont1 = BaseFont.createFont();
+	        String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
+	        System.out.println("Summary headingPageNum---->" + headingPageNum);
+	        if (tocPlaceholder.containsKey(headingPageNum)) {
+	            PdfTemplate template = tocPlaceholder.get(headingPageNum);
+	            template.beginText();
+	            template.setFontAndSize(baseFont1, 8);
+	            template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+	            if (writer.getPageNumber() - 1 < 10)
+	                template.showText(String.valueOf(writer.getPageNumber() - 1));
+	            template.endText();
+	        }
+
+	        if (!heading.contains("(TABLE)")) {
+	            summaryPlaceHolderCountSub = 1;
+	            for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+	                String subheading = subEntry.getKey();
+	                Map<String, String> h3Map = subEntry.getValue();
+
+	                if (subheading.contains("(h2)")) {
+	                    subheading = subheading.replaceAll("(h2)", "");
+
+	                    // Check available space for the subheading
+	                    if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	                        document.newPage();
+	                    }
+
+	                    document.add(new Paragraph("    " + subheading,
+	                            new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+
+	                    String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
+	                            + " " + subheading;
+	                    System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+	                    if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+	                        PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
+	                        template.beginText();
+	                        template.setFontAndSize(baseFont1, 8);
+	                        template.setTextMatrix(
+	                                50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+	                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+	                        template.endText();
+	                    }
+
+	                    summaryPlaceHolderCountH3 = 1;
+
+	                    for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
+	                        String h3 = h3Entry.getKey();
+	                        String content = h3Entry.getValue();
+
+	                        if (h3.contains("(h3)")) {
+	                            h3 = h3.replaceAll("(h3)", "");
+
+	                            // Check available space for the h3 heading
+	                            if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	                                document.newPage();
+	                            }
+
+	                            document.add(new Paragraph("        " + h3,
+	                                    new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+
+	                            String h3PageNum = "         " + summaryPlaceHolderCount + "."
+	                                    + summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
+	                            System.out.println("Summary h3PageNum" + h3PageNum);
+	                            if (tocPlaceholder.containsKey(h3PageNum)) {
+	                                PdfTemplate template = tocPlaceholder.get(h3PageNum);
+	                                template.beginText();
+	                                template.setFontAndSize(baseFont1, 8);
+	                                template.setTextMatrix(
+	                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+	                                template.showText(String.valueOf(writer.getPageNumber() - 1));
+	                                template.endText();
+	                            }
+
+	                            Paragraph contentParagraph = new Paragraph(content,
+	                                    new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+	                            contentParagraph.setIndentationLeft(5); // Indent from the left margin
+	                            contentParagraph.setIndentationRight(5); // Indent from the right margin
+	                            document.add(contentParagraph);
+
+	                        } else {
+	                            // Check available space for the h3 content
+	                            if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	                                document.newPage();
+	                            }
+
+	                            Paragraph contentParagraph = new Paragraph(content,
+	                                    new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+	                            contentParagraph.setIndentationLeft(10); // Further indent content under subheading
+	                            contentParagraph.setIndentationRight(5); // Indent from the right margin
+	                            document.add(contentParagraph);
+	                        }
+
+	                        summaryPlaceHolderCountH3++;
+	                    }
+	                    summaryPlaceHolderCountSub++;
+	                }
+	            }
+	        }
+	        summaryPlaceHolderCount++;
+	    }
+	}*/
+
+	
+	
+	
 	public static void createSummary(Document document, Map<String, Map<String, Map<String, String>>> data)
 			throws DocumentException, MalformedURLException, IOException {
 		// Starting Page
@@ -1845,6 +2054,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				// addHeader(document, writer); // adding image
 				// document.setMargins(document.leftMargin(), document.rightMargin(), 38,
 				// document.bottomMargin());
+				document.setMargins(36, 36, 60, 36);
 				addborder(writer); // adding Margins
 				currentPageNumber++;
 			} catch (DocumentException | IOException e) {
@@ -2317,6 +2527,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		}
 
+		//Used
+		public void addParagraphWithPageCheck(PdfWriter writer, Document document, Paragraph paragraph) throws DocumentException {
+		    // Get the current vertical position (y-position) on the page
+		    float currentPosition = writer.getVerticalPosition(true);
+
+		    // Define the estimated height of your paragraph (adjust as necessary)
+		    float paragraphHeight = 100f; // You may need to adjust this value based on your content
+
+		    // Check if there is enough space on the current page for the paragraph
+		    if (currentPosition - paragraphHeight < document.bottomMargin()) {
+		        // If not enough space, force a page break
+		        document.newPage();
+		    }
+
+		    // Add the paragraph after ensuring there's enough space
+		    document.add(paragraph);
+		}
+		
 		public static void addTableOfContents(Document document) throws DocumentException {
 			document.newPage();
 			Paragraph tocTitle = new Paragraph("Table of Contents",

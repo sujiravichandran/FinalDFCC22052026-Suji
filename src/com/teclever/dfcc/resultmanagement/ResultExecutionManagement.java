@@ -57,7 +57,7 @@ import com.teclever.dfcc.resultstore.resultmanagement.ResultManagement;
 
 public class ResultExecutionManagement {
 
-	// For Getting the List Of ExecutionFiles...For Stages
+	// For Getting the List Of ExecutionFiles...For Last Stage For Current SessionId
 	public ResultExecutionResponse getResultExecutionListBriefListForStages(String sessionId) {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 
@@ -187,6 +187,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
+	//Result Execution Brief List For Selected Stages On Session
 	public ResultExecutionResponse getResultExecutionListBriefListForSelectedStages(String sessionId, String stageId) {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 
@@ -309,6 +310,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
+	// Detailed Result Last Stage For Current SessionId
 	public ResultDetailedResponse getResultExecutionDetailedListForStages(String sessionId) {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {
@@ -424,7 +426,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
-	
+	//Result Execution Detailed List For Selected Stages On SessionId
 	public ResultDetailedResponse getResultExecutionDetailedListForStages(String sessionId,String stageId) {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {
@@ -609,7 +611,7 @@ public class ResultExecutionManagement {
 		return response;
 	}
 
-	//Not Using....For Detailed Report For All Stages In Session
+	//For Detailed Report For All Stages In Session
 	public ResultDetailedResponse getResultExecutionListDetailedListForSession(String sessionId) {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		try {
