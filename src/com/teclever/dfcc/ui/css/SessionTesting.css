@@ -49,14 +49,22 @@
     -fx-padding :13px 0 0 20px;
 }
 .tree-cell > .tree-disclosure-node > .arrow {
-      -fx-background-color: primary-text-color;
+    -fx-background-color: primary-text-color;
+    -fx-scale-x: 1.8; 
+    -fx-scale-y: 1.8; 
+    -fx-cursor: hand;
 }
 .tree-cell:hover > .tree-disclosure-node > .arrow {
     -fx-background-color: secondary-text-color;
+    -fx-scale-x: 1.8;
+    -fx-scale-y: 1.8;
 }
 .tree-cell:selected > .tree-disclosure-node > .arrow {
     -fx-background-color: secondary-text-color;
+    -fx-scale-x: 1.8;
+    -fx-scale-y: 1.8;
 }
+
 .tree-cell:selected {
     -fx-background-color: selected-menu-bg;
 }
