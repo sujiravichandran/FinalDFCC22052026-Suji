@@ -2,7 +2,6 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -31,6 +30,9 @@ public class UserCenterContentController {
 	private StackPane currentSessionResultStackPane = new StackPane();
 	private StackPane currentUnitResultStackPane = new StackPane();
 	private StackPane currentStageResultStackPane = new StackPane();
+	private StackPane pqtReportStackPane = new StackPane();
+	private StackPane essReportStackPane = new StackPane();
+	private StackPane datapackReportStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	
@@ -215,6 +217,40 @@ public class UserCenterContentController {
 			centerStackPane.getChildren().add(currentStageResultStackPane);	
 			
 			break;
+			
+		case "PQT Report" :	
+			ReportController reportControllerForPQT = new ReportController();
+			if (centerStackPane.getChildren().contains(pqtReportStackPane)) {
+				pqtReportStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(pqtReportStackPane);
+			}
+			pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
+			centerStackPane.getChildren().add(pqtReportStackPane);	
+			
+			break;
+			
+		case "ESS Report" :	
+			ReportController reportControllerForESS = new ReportController();
+			if (centerStackPane.getChildren().contains(essReportStackPane)) {
+				essReportStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(essReportStackPane);
+			}
+			essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
+			centerStackPane.getChildren().add(essReportStackPane);	
+			
+			break;
+
+		case "Datapack Report" :	
+			ReportController reportControllerForDatapack = new ReportController();
+			if (centerStackPane.getChildren().contains(datapackReportStackPane)) {
+				datapackReportStackPane.getChildren().clear();
+				centerStackPane.getChildren().remove(datapackReportStackPane);
+			}
+			datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
+			centerStackPane.getChildren().add(datapackReportStackPane);	
+			
+			break;
+
 			
 		case "Configuration":
 			if (!centerStackPane.getChildren().contains(configurationStackPane)) {

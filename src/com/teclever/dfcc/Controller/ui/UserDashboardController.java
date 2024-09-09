@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
@@ -10,12 +11,15 @@ import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
+import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.model.StageIdName;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
@@ -27,7 +31,9 @@ import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -98,9 +104,83 @@ public class UserDashboardController {
 				.getAllSessionStageMapping(currentSessionDetails.getSessionId());
 		if (data.getResponse().getResponseCode() == 1) {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
+			getSessionTestData();
 		} else {
 			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
+	}
+	
+	private void getSessionTestData() {
+		List<StageObject> stageList = StateMachine.getStageDatalist();
+		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+
+		observableStageList.stream().filter(stage -> {
+			return !(stage.isDefaultStatus() || stage.isAdvanceStatus());
+		}).forEach(stage -> {
+			String l1StageId = stage.getL1StageId();
+			SessionTestStateObject.addL1StageMap(l1StageId, stage);
+			SessionTestStateObject.addL1MandatoryStatus(l1StageId, stage.isMandatoryStatus());
+			SessionTestStateObject.addL1ContinueWithErrorStatus(l1StageId, stage.isContinueWithErrorStatus());
+		});
+
+		observableStageList.stream().forEach(stage -> {
+			String l1StageId = stage.getL1StageId();
+			String l2StageId = stage.getL2StageId();
+			String l3StageId = stage.getL3StageId();
+			String l4StageId = stage.getL4StageId();
+			String l5StageId = stage.getL5StageId();
+			if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
+				StageIdName l2StageObject = new StageIdName();
+				l2StageObject.setParentId(l1StageId);
+				l2StageObject.setStageId(l2StageId);
+				l2StageObject.setStageName(stage.getL2StageName());
+				if (l3StageId == null && stage.getTestTypeId() != null) {
+					l2StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l2StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l2StageId);
+				}
+				SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
+			}
+
+			if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
+				StageIdName l3StageObject = new StageIdName();
+				l3StageObject.setParentId(l2StageId);
+				l3StageObject.setStageId(l3StageId);
+				l3StageObject.setStageName(stage.getL3StageName());
+				if (l4StageId == null && stage.getTestTypeId() != null) {
+					l3StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l3StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l3StageId);
+				}
+				SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
+			}
+
+			if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
+				StageIdName l4StageObject = new StageIdName();
+				l4StageObject.setParentId(l3StageId);
+				l4StageObject.setStageId(l4StageId);
+				l4StageObject.setStageName(stage.getL4StageName());
+				if (l5StageId == null && stage.getTestTypeId() != null) {
+					l4StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l4StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l4StageId);
+				}
+				SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
+			}
+
+			if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
+				StageIdName l5StageObject = new StageIdName();
+				l5StageObject.setParentId(l4StageId);
+				l5StageObject.setStageId(l5StageId);
+				l5StageObject.setStageName(stage.getL5StageName());
+				if (stage.getTestTypeId() != null) {
+					l5StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l5StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l5StageId);
+				}
+				SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
+			}
+		});
 	}
 
 	private GridPane createBottomleftGridPane() {
@@ -195,7 +275,8 @@ public class UserDashboardController {
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png",
-					new String[] { "Session Report", "Advanced Report", "UUT/Datapack" });
+//					new String[] { "Session Report", "Advanced Report", "UUT/Datapack" });
+					new String[] { "PQT Report", "ESS Report", "Datapack Report", "Upload" });
 
 		} else if (UserData.getRoleId().equals("RL_ID_4")) {
 
