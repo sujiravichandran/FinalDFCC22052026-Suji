@@ -289,6 +289,7 @@ public class SessionFileManagement {
 	 // Method to copy a list of files to the output folder
     public void copyFilesToOutputFolder(List<Path> sourceFiles,Path outputFolder) {
         try {
+        	System.out.println("Enter To the Method copyFilesToOutputFolder");
             if (outputFolder != null && Files.exists(outputFolder)) {
                 for (Path sourceFile : sourceFiles) {
                     Path destinationFile = outputFolder.resolve(sourceFile.getFileName());
