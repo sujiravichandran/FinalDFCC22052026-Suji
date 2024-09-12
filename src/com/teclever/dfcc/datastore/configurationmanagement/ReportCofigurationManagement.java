@@ -1,7 +1,6 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -106,4 +105,17 @@ public class ReportCofigurationManagement {
 		reportConfigResponse.setResponse(res);
 		return reportConfigResponse;
 	}
+
+	public Response deleteFileName(String reportConfigId) {
+		Response res = new Response();
+		try {
+			ReportService reportService = new ReportService();
+			res = reportService.deleteByReportConfigId(reportConfigId);
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Delete Data Unsuccesfull ");
+		}
+		return res;
+	}
+
 }
