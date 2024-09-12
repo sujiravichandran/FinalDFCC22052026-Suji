@@ -87,7 +87,7 @@ public class AdvancedTestingController {
 		observableStageList.stream()
 				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName()))
 				.forEach(stage -> {
-					if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HST")) {
+					if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("HWATP/HSI")) {
 						AdvancedTestStateObject.setHwatpTestId(stage.getL2StageId());
 					}else if(stage.getL2StageName().toLowerCase().trim().equalsIgnoreCase("Interface Test")) {
 						AdvancedTestStateObject.setInterfaceTestId(stage.getL2StageId());
