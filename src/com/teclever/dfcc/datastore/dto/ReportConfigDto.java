@@ -29,6 +29,8 @@ public class ReportConfigDto {
 	private String levelFiveName;
 
 	private String levelFiveId;
+	
+	private String fileName;
 
 	public String getReportConfigId() {
 		return reportConfigId;
@@ -134,4 +136,13 @@ public class ReportConfigDto {
 		this.levelFiveName = levelFiveName;
 	}
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	
 }

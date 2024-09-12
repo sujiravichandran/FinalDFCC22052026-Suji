@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.ReportConfig;
 import com.teclever.datastore.service.LevelFiveMasterService;
@@ -25,11 +24,12 @@ public class ReportCofigurationManagement {
 		Response res = new Response();
 		try {
 			ReportService reportService = new ReportService();
-			GetObjResponse getObjResponse = reportService.addReportConfig(reportConfigDto.getFileNameWitFullPath(),
+			GetResponse getResponse = reportService.addReportConfig(reportConfigDto.getFileNameWitFullPath(),
 					currentSessionDetails.getSessionId(), reportConfigDto.getReportType(),
 					reportConfigDto.getLevelOneId(), reportConfigDto.getLevelTwoId(), reportConfigDto.getLevelThreeId(),
 					reportConfigDto.getLevelFourId(), reportConfigDto.getLevelFiveId());
-			res = getObjResponse.getResponse();
+			res.setResponseCode(getResponse.getCode());
+			res.setResponseMessage(getResponse.geteMsg());
 		} catch (Exception e) {
 			e.printStackTrace();
 			res.setResponseCode(0);
@@ -69,7 +69,7 @@ public class ReportCofigurationManagement {
 				ReportConfigDto reportConfigDto = new ReportConfigDto();
 
 				reportConfigDto.setReportConfigId(repoConfig.getReportConfigId());
-				reportConfigDto.setFileNameWitFullPath(Arrays.asList(repoConfig.getFileNameWitFullPath().split(",")));
+				reportConfigDto.setFileName(repoConfig.getFileNameWitFullPath());
 				reportConfigDto.setReportType(repoConfig.getReportType());
 
 				reportConfigDto.setLevelOneId(repoConfig.getLevelOneId());
@@ -91,10 +91,10 @@ public class ReportCofigurationManagement {
 
 			}
 			reportConfigResponse.setListOfReportConfigDto(listOfReportConfigDto);
-			if(reportConfigResponse.getListOfReportConfigDto().size()==0) {
+			if (reportConfigResponse.getListOfReportConfigDto().size() == 0) {
 				res.setResponseCode(0);
 				res.setResponseMessage("Data is Empty ");
-			}else {
+			} else {
 				res.setResponseCode(1);
 				res.setResponseMessage("Data Fetch Sucessfull ");
 			}
