@@ -1,17 +1,22 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.ReportConfig;
+import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
 import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.ReportService;
+import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
@@ -44,7 +49,9 @@ public class ReportCofigurationManagement {
 			ReportService reportService = new ReportService();
 			GetResponse getResponse = reportService.getReportCofigDetails(currentSessionDetails.getSessionId(),
 					reportType);
-			List<?> listOfReportConfig = getResponse.getResponseList();
+			
+			List<ReportConfig> listOfOrderReportConfig = listReportConfig(currentSessionDetails.getSessionId(),getResponse);
+			
 			List<ReportConfigDto> listOfReportConfigDto = new ArrayList<>();
 
 			LevelOneMasterService levelOneService = new LevelOneMasterService();
@@ -62,9 +69,8 @@ public class ReportCofigurationManagement {
 			LevelFiveMasterService levelFiveService = new LevelFiveMasterService();
 			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
 
-			for (Object reportConfigObject : listOfReportConfig) {
+			for (ReportConfig repoConfig : listOfOrderReportConfig) {
 
-				ReportConfig repoConfig = (ReportConfig) reportConfigObject;
 				ReportConfigDto reportConfigDto = new ReportConfigDto();
 
 				reportConfigDto.setReportConfigId(repoConfig.getReportConfigId());
@@ -87,9 +93,11 @@ public class ReportCofigurationManagement {
 				reportConfigDto.setLevelFiveName(levelFiveStage.get(repoConfig.getLevelFiveId()));
 
 				listOfReportConfigDto.add(reportConfigDto);
+				
 
 			}
 			reportConfigResponse.setListOfReportConfigDto(listOfReportConfigDto);
+			
 			if (reportConfigResponse.getListOfReportConfigDto().size() == 0) {
 				res.setResponseCode(0);
 				res.setResponseMessage("Data is Empty ");
@@ -118,4 +126,41 @@ public class ReportCofigurationManagement {
 		return res;
 	}
 
+	private List<ReportConfig> listReportConfig(String sessionId,GetResponse getResponse){
+		List<ReportConfig> listOfReportConfig = new ArrayList<>();
+		
+		Map<String, List<ReportConfig>> levelOneIdWithListOfReportConfig = new LinkedHashMap<>();
+		
+		List<?> listOfReportConfigObj = getResponse.getResponseList();
+		for (Object reportConfigObject : listOfReportConfigObj) {
+
+			ReportConfig repoConfig = (ReportConfig) reportConfigObject;
+
+			if(levelOneIdWithListOfReportConfig.get(repoConfig.getLevelOneId())!=null) {
+				levelOneIdWithListOfReportConfig.get(repoConfig.getLevelOneId()).add(repoConfig);
+			}else {
+				List<ReportConfig> tmpList = new ArrayList<>();
+				tmpList.add(repoConfig);
+				levelOneIdWithListOfReportConfig.put(repoConfig.getLevelOneId(), tmpList);
+			}
+			
+		}
+		SessionSelectedStagesService sessionSelectedStages = new SessionSelectedStagesService();
+		GetResponse getResponses = sessionSelectedStages.getAllSessionStagesBySessionStageId(sessionId);
+		
+		List<?> listOfSessionSelectedStagesObj = getResponses.getResponseList();
+		Set<String> levelOneOrder = new LinkedHashSet<>();
+		for (Object SessionSelectedStagesObject : listOfSessionSelectedStagesObj) {
+
+			SessionStagesMapping sessionStage = (SessionStagesMapping)  SessionSelectedStagesObject;
+			levelOneOrder.add(sessionStage.getLevelOneStageId());
+			
+		}
+		for(String levelOneId:levelOneOrder) {
+			if(levelOneIdWithListOfReportConfig.get(levelOneId)!=null) {
+				listOfReportConfig.addAll(levelOneIdWithListOfReportConfig.get(levelOneId));
+			}
+		}
+		return listOfReportConfig;
+	}
 }
