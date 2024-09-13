@@ -33,7 +33,7 @@ public class ReportCofigurationManagement {
 					reportConfigDto.getLevelOneId(), reportConfigDto.getLevelTwoId(), reportConfigDto.getLevelThreeId(),
 					reportConfigDto.getLevelFourId(), reportConfigDto.getLevelFiveId());
 			res.setResponseCode(getResponse.getCode());
-			res.setResponseMessage(getResponse.geteMsg());
+			res.setResponseMessage(getResponse.getMsg());
 		} catch (Exception e) {
 			e.printStackTrace();
 			res.setResponseCode(0);
