@@ -66,27 +66,36 @@ public class RunConfigurationManagement {
 
 	// API : ADD RUN CONFIG
 	public RunConfigurationResponse addRunConfig(RunConfigurationDto runConfigurationDto, String uutId) {
-		RunConfigurationService service = new RunConfigurationService();
-		RunConfiguration runConfiguration = new RunConfiguration();
-		runConfiguration.setUutId(uutId);
-		runConfiguration.setTestTypeId(runConfigurationDto.getTestTypeId());
-		runConfiguration.setConfigFile(runConfigurationDto.getConfigFile());
-		runConfiguration.setAitess(runConfigurationDto.getAitess());
-		runConfiguration.setDriver(runConfigurationDto.getDriver());
-		runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
-		System.out.println("Aites  2" + runConfiguration.getAitees2ConfigFile());
-		RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
-		try {
-			serviceResponse = service.addRunConfiguration(runConfiguration, uutId);
-			if (serviceResponse.getResponseCode() == 1) {
-				String runConfigId = runConfiguration.getRunConfigId();
-				System.out.println(runConfigId);
-				System.out.println("Run Config Id With TestType Id" + runConfigurationDto.getTestTypeId());
+	    RunConfigurationService service = new RunConfigurationService();
+	    RunConfiguration runConfiguration = new RunConfiguration();
+	    runConfiguration.setUutId(uutId);
+	    runConfiguration.setTestTypeId(runConfigurationDto.getTestTypeId());
+	    runConfiguration.setConfigFile(runConfigurationDto.getConfigFile());
+	    runConfiguration.setAitess(runConfigurationDto.getAitess());
+	    runConfiguration.setDriver(runConfigurationDto.getDriver());
+	    runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
+	    System.out.println("Aites  2" + runConfiguration.getAitees2ConfigFile());
 
-				// updating run path master table
-				updatePathsInDatabase(runConfiguration);
+	    RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
+	    try {
+	        serviceResponse = service.addRunConfiguration(runConfiguration, uutId);
+	        if (serviceResponse.getResponseCode() == 1) {
+	            String runConfigId = runConfiguration.getRunConfigId();
+	            System.out.println(runConfigId);
+	            System.out.println("Run Config Id With TestType Id" + runConfigurationDto.getTestTypeId());
 
-				// test file
+	            // updating run path master table
+	            Response pathsResponse = updatePathsInDatabase(runConfiguration);
+	            if (pathsResponse.getResponseCode() == 0) {
+	                // If paths saving fails, mark RunConfiguration as deleted (soft delete)
+	                markRunConfigurationAsDeleted(runConfigId);
+	                
+	                serviceResponse.setResponseCode(0);
+	                serviceResponse.setResponseMessage("Failed to save paths to the database: " + pathsResponse.getResponseMessage());
+	                return serviceResponse;
+	            }
+
+	         // test file
 				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(runConfigId);
 				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
 				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,
@@ -113,17 +122,35 @@ public class RunConfigurationManagement {
 				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
 
-			} else {
-				System.err.println("Failed to add Run Configuration: " + serviceResponse.getResponseMessage());
-			}
-		} catch (Exception e) {
-			System.err.println("Failed to add Run Configuration: " + e.getMessage());
-			serviceResponse.setResponseCode(0);
-			serviceResponse.setResponseMessage("Failed to add Run Configuration: " + e.getMessage());
-		}
-		return serviceResponse;
+	        } else {
+	            System.err.println("Failed to add Run Configuration: " + serviceResponse.getResponseMessage());
+	        }
+	    } catch (Exception e) {
+	        System.err.println("Failed to add Run Configuration: " + e.getMessage());
+	        serviceResponse.setResponseCode(0);
+	        serviceResponse.setResponseMessage("Failed to add Run Configuration: " + e.getMessage());
+	    }
+	    return serviceResponse;
 	}
 
+	private void markRunConfigurationAsDeleted(String runConfigId) {
+	    try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+	        Transaction transaction = session.beginTransaction();
+	        
+	        String hql = "UPDATE RunConfiguration SET deleteStatus = :deleteStatus WHERE runConfigId = :runConfigId";
+	        Query query = session.createQuery(hql);
+	        query.setParameter("deleteStatus", true);
+	        query.setParameter("runConfigId", runConfigId);
+	        query.executeUpdate();
+	        
+	        transaction.commit();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	
+	
 	// API : GET RUN CONFIG BASED ON UUT
 	public List<RunConfigurationDto> getRunConfig(String uutId) {
 		RunConfigurationService service = new RunConfigurationService();
@@ -316,21 +343,25 @@ public class RunConfigurationManagement {
 	}
 
 	// UPDATING RUN PATH MASTER
-	private void updatePathsInDatabase(RunConfiguration runConfiguration) {
-		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
-			Transaction transaction = session.beginTransaction();
-			RunPathMasterService pathMasterService = new RunPathMasterService();
-			Response pathsResponse = pathMasterService.saveRunPathsToDatabase(runConfiguration.getConfigFile(),
-					runConfiguration.getTestTypeId(), runConfiguration.getRunConfigId());
-			if (pathsResponse.getResponseCode() == 0) {
-				transaction.rollback();
-				System.err.println("Failed to save paths to the database: " + pathsResponse.getResponseMessage());
-			} else {
-				transaction.commit();
-			}
-		} catch (Exception e) {
-			System.err.println("Failed to update paths in the database: " + e.getMessage());
-		}
+	private Response updatePathsInDatabase(RunConfiguration runConfiguration) {
+	    Response res = new Response();
+	    try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+	        Transaction transaction = session.beginTransaction();
+	        RunPathMasterService pathMasterService = new RunPathMasterService();
+	        res = pathMasterService.saveRunPathsToDatabase(runConfiguration.getConfigFile(),
+	                runConfiguration.getTestTypeId(), runConfiguration.getRunConfigId());
+	        if (res.getResponseCode() == 0) {
+	            transaction.rollback();
+	            System.err.println("Failed to save paths to the database: " + res.getResponseMessage());
+	        } else {
+	            transaction.commit();
+	        }
+	    } catch (Exception e) {
+	        System.err.println("Failed to update paths in the database: " + e.getMessage());
+	        res.setResponseCode(0);
+	        res.setResponseMessage("Failed to update paths in the database: " + e.getMessage());
+	    }
+	    return res;
 	}
 
 	public String fetchRunPathMasterIdForMacro(String runConfigId) {
