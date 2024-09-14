@@ -26,19 +26,24 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
-
+import javafx.scene.layout.VBox;
 
 class BriefDataTableViewFactory implements TableViewFactory<BriefData> {
 	@Override
@@ -56,320 +61,400 @@ class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
 	}
 }
 
-
-
-
 public class CurrentExecutionResultController {
 
-    private GridPane currentExecutionResultGridPane = new GridPane();
-    private GridPane currentExecutionResultHeadingGridPane = new GridPane();
-    private GridPane currentExecutionResultTabsGridPane = new GridPane();
-    
+	private GridPane currentExecutionResultGridPane = new GridPane();
+	private GridPane currentExecutionResultHeadingGridPane = new GridPane();
+	private GridPane currentExecutionResultTabsGridPane = new GridPane();
+
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
 	private HBox buttonBox = new HBox();
 	private Button downloadButton = new Button("Download");
-	
-    
+
 	private TabPane currentExecutionResultTabPane = new TabPane();
-	
+
 	private StackPane briefDataStackPane = new StackPane();
 	private StackPane detailedDataStackPane = new StackPane();
-	
-    
+
 	private TableViewFactory<BriefData> briefDataFactory = new BriefDataTableViewFactory();
 	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
-	
+
 	private ObservableList<BriefData> briefDataList = FXCollections.observableArrayList();
 	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
-	
-	private CustomTableView<BriefData> briefDataTableView ;
-	private CustomTableView<DetailedData> detailedDataTableView ;
-	
-	private String currentTab = "tab1";;
-	
+
+	private CustomTableView<BriefData> briefDataTableView;
+	private CustomTableView<DetailedData> detailedDataTableView;
+
+	private String currentTab = "tab1";
+
 	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	ReportGeneration reportGeneration = new ReportGeneration();
-	
-	private boolean isStageResult = false ;
-	private String SESSION_ID ;
-	private String STAGE_ID ;
-	
-    public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId, boolean isStageResult) {
-    	if(sessionId != null && stageId != null) {
-    		SESSION_ID = sessionId ;
-    		STAGE_ID = stageId ;
-    	}
+
+	private boolean isStageResult = false;
+	private String SESSION_ID;
+	private String STAGE_ID;
+
+	public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId, boolean isStageResult) {
+		SESSION_ID = sessionId;
+		STAGE_ID = stageId;
 		this.isStageResult = isStageResult;
-		
-        currentExecutionResultGridPane.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
-        currentExecutionResultGridPane.getStyleClass().add("current-execution-result-container");
 
-        ColumnConstraints firstColumn = new ColumnConstraints();
-        firstColumn.setPercentWidth(100);
+		currentExecutionResultGridPane.getStylesheets()
+				.add(getClass()
+						.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/CurrentExecutionResults.css")
+						.toExternalForm());
+		currentExecutionResultGridPane.getStyleClass().add("current-execution-result-container");
 
-        RowConstraints firstRow = new RowConstraints();
-        firstRow.setPercentHeight(7);
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(7);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(93);
 
-        currentExecutionResultGridPane.setPadding(new Insets(5));
-        currentExecutionResultGridPane.getColumnConstraints().addAll(firstColumn);
-        currentExecutionResultGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		currentExecutionResultGridPane.setPadding(new Insets(5));
+		currentExecutionResultGridPane.getColumnConstraints().addAll(firstColumn);
+		currentExecutionResultGridPane.getRowConstraints().addAll(firstRow, secondRow);
 
+		currentExecutionResultGridPane.add(createHeadingBox(), 0, 0);
+		currentExecutionResultGridPane.add(createCurrentExecutionResultTabsGridPane(), 0, 1);
+		return currentExecutionResultGridPane;
+	}
 
-        currentExecutionResultGridPane.add(createHeadingBox(), 0, 0);
-        currentExecutionResultGridPane.add(createCurrentExecutionResultTabsGridPane(), 0, 1);
-        return currentExecutionResultGridPane;
-    }
-    
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
-		
+
 		ColumnConstraints secondColumn = new ColumnConstraints();
 		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-		
-		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
+
+		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
-	
+
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText(isStageResult?"STAGE RESULTS":"CURRENT EXECUTION RESULTS");
+		title.setText(isStageResult ? "STAGE RESULTS" : "CURRENT EXECUTION RESULTS");
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
-		
+
 		currentExecutionResultHeadingGridPane.add(titleBox, 0, 0);
-		if(!isStageResult) {			
-			currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
-		}
-		
+		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+
 		return currentExecutionResultHeadingGridPane;
 	}
-	
+
+//	private HBox createDownloadButton() {
+//		buttonBox.setAlignment(Pos.CENTER_RIGHT);
+//		buttonBox.getChildren().add(downloadButton);
+//		
+//		downloadButton.setOnAction(e ->{
+//			if(currentTab.equals("tab1")) {
+//				downloadReport(currentSessionDetails.getSessionId(), true);
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief Data Download button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}else {
+//				downloadReport(currentSessionDetails.getSessionId(), false);
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed Data Download button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}
+//		});
+//		
+//		return buttonBox;
+//	}
+
 	private HBox createDownloadButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
 		buttonBox.getChildren().add(downloadButton);
-		
-		downloadButton.setOnAction(e ->{
-			if(currentTab.equals("tab1")) {
-				downloadReport(currentSessionDetails.getSessionId(), true);
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief Data Download button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}else {
-				downloadReport(currentSessionDetails.getSessionId(), false);
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed Data Download button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}
+		downloadButton.setOnAction(e -> {
+			Dialog<String> dialog = new Dialog<>();
+			dialog.setTitle("Download Confirmation");
+			dialog.setHeaderText("Please select the type of report you want to download:");
+
+			// Create the radio buttons
+			RadioButton briefDataRadio = new RadioButton("Brief Data");
+			RadioButton detailedDataRadio = new RadioButton("Detailed Data");
+			ToggleGroup toggleGroup = new ToggleGroup();
+			briefDataRadio.setToggleGroup(toggleGroup);
+			detailedDataRadio.setToggleGroup(toggleGroup);
+
+			briefDataRadio.setSelected(true);
+
+			VBox vbox = new VBox(briefDataRadio, detailedDataRadio);
+			vbox.setSpacing(10);
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER_LEFT);
+
+			dialog.getDialogPane().setContent(vbox);
+
+			ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+			ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+			dialog.getDialogPane().getButtonTypes().addAll(okButtonType, cancelButtonType);
+
+			dialog.setResultConverter(dialogButton -> {
+				if (dialogButton == okButtonType) {
+					return briefDataRadio.isSelected() ? "Brief" : "Detailed";
+				}
+				return null;
+			});
+
+			dialog.showAndWait().ifPresent(result -> {
+				if ("Brief".equals(result)) {
+					if (STAGE_ID != null && SESSION_ID != null) {
+						downloadReport(SESSION_ID, STAGE_ID, true, false);
+						logDownload("Brief Data");
+					} else if(STAGE_ID == null && SESSION_ID != null){
+						downloadReport(SESSION_ID, null, true, false);
+						logDownload("Brief Data");
+					} else {
+						downloadReport(currentSessionDetails.getSessionId(), null, true, true);
+						logDownload("Brief Data");
+					}
+				} else {
+					if (STAGE_ID != null && SESSION_ID != null) {
+						downloadReport(SESSION_ID, STAGE_ID, false, false);
+						logDownload("Brief Data");
+					} else if(STAGE_ID == null && SESSION_ID != null){
+						downloadReport(SESSION_ID, null, false, false);
+						logDownload("Brief Data");
+					} else {
+						downloadReport(currentSessionDetails.getSessionId(), null , false, true);
+						logDownload("Brief Data");
+					}
+				}
+			});
 		});
-		
 		return buttonBox;
 	}
 
-
-	private void downloadReport(String sessionId, boolean isBrief) {
-	    Task<Void> task = new Task<Void>() {
-	        @Override
-	        protected Void call() throws Exception {
-	            Response response;
-	            if (isBrief) {
-	                response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
-	            } else {
-	                response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
-	            }
-	           
-	            if (response.getResponseCode() == 1) {
-	                Notifications.showSuccessAlert("Download Completed Successfully...");
-	            } else {
-	                Notifications.showErrorAlert(response.getResponseMessage());
-	            }
-	            return null;
-	        }
-	    };
-
-	    Thread thread = new Thread(task);
-	    thread.setDaemon(true);
-	    thread.start();
+	private void logDownload(String reportType) {
+		ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+		ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(), "Clicked on " + reportType + " Download button");
+		appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 	}
 
+	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession) {
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Response response = null;
+				if (isBrief) {
+					if(isCurrentSession) {
+						System.out.println("current session brief");
+						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
+					}else if(sessionId != null && stageId != null) {
+						System.out.println("stage brief");
+					}else if(sessionId != null && stageId == null ) {
+						System.out.println("all session brief");
+					}
+				} else {
+					if(isCurrentSession) {
+						System.out.println("current session detail");
+						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
+					}else if(sessionId != null && stageId != null) {
+						System.out.println("stage detail");
+					}else if(sessionId != null && stageId == null ) {
+						System.out.println("all session detail");
+					}
+				}
 
 
+				if (response.getResponseCode() == 1) {
+					Notifications.showSuccessAlert("Download Completed Successfully...");
+				} else {
+					Notifications.showErrorAlert(response.getResponseMessage());
+				}
+				return null;
+			}
+		};
+
+		Thread thread = new Thread(task);
+		thread.setDaemon(true);
+		thread.start();
+	}
 
 	private GridPane createCurrentExecutionResultTabsGridPane() {
 		currentExecutionResultTabsGridPane.getStyleClass().add("current-execution-result-tabs-container");
-		
+
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
-		
+
 		currentExecutionResultTabsGridPane.setPadding(new Insets(5));
-		
+
 		currentExecutionResultTabsGridPane.getColumnConstraints().addAll(firstColumn);
 		currentExecutionResultTabsGridPane.getRowConstraints().addAll(firstRow);
-		
+
 		currentExecutionResultTabsGridPane.add(createCurrentExecutionResultTabs(), 0, 0);
 		return currentExecutionResultTabsGridPane;
 	}
 
 	private TabPane createCurrentExecutionResultTabs() {
-	    Tab tab1 = new Tab("Brief Data");
-	    Tab tab2 = new Tab("Detailed Data");
+		Tab tab1 = new Tab("Brief Data");
+		Tab tab2 = new Tab("Detailed Data");
 
-	    StackPane tab1StackPane = createTab1Content();
-	    StackPane tab2StackPane = createTab2Content();
+		StackPane tab1StackPane = createTab1Content();
+		StackPane tab2StackPane = createTab2Content();
 
-	    tab1.setContent(tab1StackPane);
-	    tab1.setClosable(false);
+		tab1.setContent(tab1StackPane);
+		tab1.setClosable(false);
 
-	    tab2.setContent(tab2StackPane);
-	    tab2.setClosable(false);
+		tab2.setContent(tab2StackPane);
+		tab2.setClosable(false);
 
+		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
 
-
-	    currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
-
-	    currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-	        if (newTab == tab2) {
-	            showTab2Content();
-	            currentTab = "tab2";
+		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+			if (newTab == tab2) {
+				showTab2Content();
+				currentTab = "tab2";
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed data button");
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Detailed data button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-	        } else {
-	            showTab1Content();
-	            currentTab = "tab1";
+			} else {
+				showTab1Content();
+				currentTab = "tab1";
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief data button");
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Brief data button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-	        }
-	    });
+			}
+		});
 
-	    showTab1Content();
+		showTab1Content();
 
-	    return currentExecutionResultTabPane;
+		return currentExecutionResultTabPane;
 	}
 
 	private void showTab1Content() {
-	    briefDataStackPane.toFront();
+		briefDataStackPane.toFront();
 	}
 
 	private void showTab2Content() {
-	    detailedDataStackPane.toFront();
+		detailedDataStackPane.toFront();
 	}
 
 	private StackPane createTab1Content() {
-	    briefDataStackPane.getStyleClass().add("tab-content-container");
-	    briefDataStackPane.getChildren().add(createBriefDataTable());
-	    return briefDataStackPane;
+		briefDataStackPane.getStyleClass().add("tab-content-container");
+		briefDataStackPane.getChildren().add(createBriefDataTable());
+		return briefDataStackPane;
 	}
 
 	private StackPane createTab2Content() {
 		detailedDataStackPane.getStyleClass().add("tab-content-container");
 		detailedDataStackPane.getChildren().add(createDetailedDataTable());
-	    return detailedDataStackPane;
+		return detailedDataStackPane;
 	}
 
 	private ScrollPane createBriefDataTable() {
-		ResultExecutionResponse response = null ;
-		if(isStageResult) {
-			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID,STAGE_ID);
-		}else {			
+		ResultExecutionResponse response = null;
+		
+		if (STAGE_ID != null && SESSION_ID != null) {
+			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID, STAGE_ID);
+		} else if(STAGE_ID == null && SESSION_ID != null){
+			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+		} else {
 			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
 		}
-		if(response.getCode() == 1 && response.getResultDTOList() != null) {
+		
+		if (response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
-			for(ResultExecutionDTO data :response.getResultDTOList()) {
-				
+			for (ResultExecutionDTO data : response.getResultDTOList()) {
+
 				BriefData newBriefData = new BriefData();
 
 				newBriefData.setId(data.getTestFileId());
-				newBriefData.setSlNo(String.valueOf(i));;
+				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getTestFileName());
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
-				
+
 				briefDataList.add(newBriefData);
 				i++;
 			}
 		}
-	
-		
-		
+
 		briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
-		if(isStageResult) {
+		if (isStageResult) {
 			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
 			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
 			briefDataTableView.setPlaceholder(tablePlaceholderLabel);
 		}
 
-		briefDataTableView.getColumns().forEach(column -> {   
-        	column.setMinWidth(column.getText().length()*16);
-        	updateBriefData((TableColumn<BriefData, String>) column);
-        });
-		
-        
-        ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
-        
+		briefDataTableView.getColumns().forEach(column -> {
+			column.setMinWidth(column.getText().length() * 14);
+			updateBriefData((TableColumn<BriefData, String>) column);
+		});
 
-        tableScrollPane.setFitToWidth(true);
-        tableScrollPane.setFitToHeight(true);
+		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
+
+		tableScrollPane.setFitToWidth(true);
+		tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
 	}
-	
-	
-	private void updateBriefData(TableColumn<BriefData, String> column) {
-	    column.setCellFactory(col -> new TableCell<BriefData, String>() {
-	        private Label label;
 
-	        @Override
-	        protected void updateItem(String item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (item == null || empty) {
-	                setText(null);
-	                setGraphic(null);
-	            } else {
-	                if (label == null) {
-	                    label = new Label();
-	                    label.setWrapText(false);
-	                    label.setAlignment(Pos.CENTER); 
-	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;"); 
-	                }
-	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white; ");
-	                label.setMinWidth(label.getText().length() * 16);
-	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 16);
-	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-	            }
-	        }
-	    });
+	private void updateBriefData(TableColumn<BriefData, String> column) {
+		column.setCellFactory(col -> new TableCell<BriefData, String>() {
+			private Label label;
+
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setGraphic(null);
+				} else {
+					if (label == null) {
+						label = new Label();
+						label.setWrapText(false);
+						label.setAlignment(Pos.CENTER);
+						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+						setStyle("-fx-alignment: CENTER;");
+					}
+					label.setText(item);
+					label.setStyle("-fx-text-fill: white; ");
+					label.setMinWidth(label.getText().length() * 14);
+					setGraphic(label);
+					this.setMinWidth(label.getText().length() * 14);
+					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+				}
+			}
+		});
 	}
-	
-	
-	
+
 	public ScrollPane createDetailedDataTable() {
+		ResultDetailedResponse response = null;
 		
-		ResultDetailedResponse response = null ;
-		if(isStageResult) {
-			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID,STAGE_ID);
-		}else {			
-			response = resultExecutionManagement.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+		if (STAGE_ID != null && SESSION_ID != null) {
+			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
+		} else if(STAGE_ID == null && SESSION_ID != null){
+			response = resultExecutionManagement
+					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+		} else {
+			response = resultExecutionManagement
+					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
 		}
-		
-		if(response.getCode() == 1 && response.getResultDetailedList() != null) {
+
+		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
-			for(ResultDetailedDTO data :response.getResultDetailedList()) {
-				
+			for (ResultDetailedDTO data : response.getResultDetailedList()) {
+
 				DetailedData newDetailedData = new DetailedData();
-				
+
 				newDetailedData.setSlNo(String.valueOf(i));
 				newDetailedData.setTestName(data.getTestName());
 				newDetailedData.setRdfName(data.getRdfName());
@@ -381,57 +466,57 @@ public class CurrentExecutionResultController {
 				newDetailedData.setSignalName(data.getSignalName());
 				newDetailedData.setFaultyChannel(data.getFaultyChannel());
 
-		        detailedDataList.add(newDetailedData);
+				detailedDataList.add(newDetailedData);
 
 				i++;
 			}
 		}
 
-        detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
+		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 
-        if(isStageResult) {
+		if (isStageResult) {
 			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
 			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
 			detailedDataTableView.setPlaceholder(tablePlaceholderLabel);
 		}
 
-        detailedDataTableView.getColumns().forEach(column -> {
-            column.setMinWidth(column.getText().length() * 16);
-            updateDetailedData((TableColumn<DetailedData, String>) column);
-        });
+		detailedDataTableView.getColumns().forEach(column -> {
+			column.setMinWidth(column.getText().length() * 14);
+			updateDetailedData((TableColumn<DetailedData, String>) column);
+		});
 
-        ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
-        tableScrollPane.setFitToHeight(true);
-        return tableScrollPane;
-    }
+		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
+		tableScrollPane.setFitToHeight(true);
+		return tableScrollPane;
+	}
 
 	private void updateDetailedData(TableColumn<DetailedData, String> column) {
-	    column.setCellFactory(col -> new TableCell<DetailedData, String>() {
-	        private Label label;
+		column.setCellFactory(col -> new TableCell<DetailedData, String>() {
+			private Label label;
 
-	        @Override
-	        protected void updateItem(String item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (item == null || empty) {
-	                setText(null);
-	                setGraphic(null);
-	            } else {
-	                if (label == null) {
-	                    label = new Label();
-	                    label.setWrapText(false);
-	                    label.setAlignment(Pos.CENTER); 
-	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;"); 
-	                }
-	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white;");
-	                label.setMinWidth(label.getText().length() * 16);
-	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 16);
-	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-	            }
-	        }
-	    });
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setGraphic(null);
+				} else {
+					if (label == null) {
+						label = new Label();
+						label.setWrapText(false);
+						label.setAlignment(Pos.CENTER);
+						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+						setStyle("-fx-alignment: CENTER;");
+					}
+					label.setText(item);
+					label.setStyle("-fx-text-fill: white;");
+					label.setMinWidth(label.getText().length() * 14);
+					setGraphic(label);
+					this.setMinWidth(label.getText().length() * 14);
+					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+				}
+			}
+		});
 	}
 }
 
@@ -451,10 +536,9 @@ public class CurrentExecutionResultController {
 //    tableScrollPane.setFitToHeight(true);
 //	return tableScrollPane;
 //}
-	
-	
+
 // wrapping table data text
-	
+
 //	public ScrollPane createDetailedDataTable() {
 //        DetailedData newData = new DetailedData();
 //
@@ -507,16 +591,6 @@ public class CurrentExecutionResultController {
 //            }
 //        });
 //    }
-
-
-
-
-
-
-
-
-
-
 
 //package com.teclever.dfcc.Controller.ui;
 //
@@ -574,15 +648,6 @@ public class CurrentExecutionResultController {
 //        return currentExecutionResultGridPane;
 //    }
 //}
-
-
-
-
-
-
-
-
-
 
 //package com.teclever.dfcc.Controller.ui;
 //

@@ -5,7 +5,7 @@ public class UnitData {
 	private String id;
 	private String slNo;
 	private String sessionType;
-	private String sessonName;
+	private String sessionName;
 	private String startTime;
 	private String endTime;
 	private String sessionStatus;
@@ -30,11 +30,11 @@ public class UnitData {
 	public void setSessionType(String sessionType) {
 		this.sessionType = sessionType;
 	}
-	public String getSessonName() {
-		return sessonName;
+	public String getSessionName() {
+		return sessionName;
 	}
-	public void setSessonName(String sessonName) {
-		this.sessonName = sessonName;
+	public void setSessionName(String sessonName) {
+		this.sessionName = sessonName;
 	}
 	public String getStartTime() {
 		return startTime;

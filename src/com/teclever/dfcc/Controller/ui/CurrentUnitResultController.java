@@ -91,7 +91,7 @@ public class CurrentUnitResultController {
 				newUnitData.setId(data.getSessionId());
 				newUnitData.setSlNo(String.valueOf(i));
 				newUnitData.setSessionType(data.getSessionType());
-				newUnitData.setSessonName(data.getSessionName());
+				newUnitData.setSessionName(data.getSessionName());
 				newUnitData.setStartTime(data.getStartTime());
 				newUnitData.setEndTime(data.getEndTime());
 				newUnitData.setSessionStatus(data.getSessionStatus());
@@ -106,15 +106,12 @@ public class CurrentUnitResultController {
     
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 		
-		currentUnitResultHeadingGridPane.getColumnConstraints().addAll(firstColumn,secondColumn);
+		currentUnitResultHeadingGridPane.getColumnConstraints().addAll(firstColumn);
 		currentUnitResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER_LEFT);
@@ -123,20 +120,8 @@ public class CurrentUnitResultController {
 		titleBox.getChildren().add(title);
 		
 		currentUnitResultHeadingGridPane.add(titleBox, 0, 0);
-		currentUnitResultHeadingGridPane.add(createDownloadButton(), 1, 0);
 		
 		return currentUnitResultHeadingGridPane;
-	}
-	
-	private HBox createDownloadButton() {
-		buttonBox.setAlignment(Pos.CENTER_RIGHT);
-		buttonBox.getChildren().add(downloadButton);
-		
-		downloadButton.setOnAction(e ->{
-		
-		});
-		
-		return buttonBox;
 	}
 	
 	private GridPane createcurrentUnitResultTableGridPane() {
@@ -163,7 +148,7 @@ public class CurrentUnitResultController {
 
 		unitDataTableView.getColumns().forEach(column -> { 
 			if(!column.getText().isEmpty()) {				
-				column.setMinWidth(column.getText().length()*16);
+				column.setMinWidth(column.getText().length()*12);
 				updateUnitData((TableColumn<UnitData, String>) column);
 			}
         });
@@ -201,18 +186,19 @@ public class CurrentUnitResultController {
 	                    label = new Label();
 	                    label.setWrapText(false);
 	                    label.setAlignment(Pos.CENTER); 
+                        setStyle("-fx-alignment: CENTER;"); 
 	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;"); 
 	                }
 	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white; ");
-	                label.setMinWidth(label.getText().length() * 16);
+	                label.setStyle("-fx-text-fill: white;");
+	                label.setMinWidth(label.getText().length() * 12);
 	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 16);
+	                this.setMinWidth(label.getText().length() * 12);
 	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 	            }
 	        }
 	    });
 	}
+
 	
 }

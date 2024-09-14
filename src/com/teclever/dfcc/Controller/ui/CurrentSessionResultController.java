@@ -42,7 +42,7 @@ public class CurrentSessionResultController {
     private HBox titleBox = new HBox();
 	private Label title = new Label();
 	private HBox buttonBox = new HBox();
-	private Button downloadButton = new Button("Download");
+	private Button viewAllButton = new Button("View All Stages");
 	
 	private ScrollPane tableScrollPane = new ScrollPane();
 	
@@ -54,6 +54,8 @@ public class CurrentSessionResultController {
 	private ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	
 	private String SESSION_ID ;
+	private UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
+
 	
     public GridPane createCurrentSessionResultGridPane(String id) {
     	SESSION_ID = id ;
@@ -124,16 +126,19 @@ public class CurrentSessionResultController {
 		titleBox.getChildren().add(title);
 		
 		currentSessionResultHeadingGridPane.add(titleBox, 0, 0);
-		currentSessionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		currentSessionResultHeadingGridPane.add(createViewAllButtonButton(), 1, 0);
 		
 		return currentSessionResultHeadingGridPane;
 	}
 	
-	private HBox createDownloadButton() {
+	private HBox createViewAllButtonButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
-		buttonBox.getChildren().add(downloadButton);
+		buttonBox.getChildren().add(viewAllButton);
 		
-		downloadButton.setOnAction(e ->{
+		viewAllButton.setOnAction(e ->{
+			
+			GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
+			userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID,null);							
 
 		});
 		
@@ -167,16 +172,14 @@ public class CurrentSessionResultController {
 		
 		sessionDataTableView.getColumns().forEach(column -> {   
 			if(!column.getText().isEmpty()) {				
-				column.setMinWidth(column.getText().length()*16);
+				column.setMinWidth(column.getText().length()*14);
 				updateSessionData((TableColumn<SessionData, String>) column);
 			}
         });
 		
 		sessionDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> { 
 			ObservableList<SessionData> selectedItems = sessionDataTableView.getSelectedItems();
-			for (SessionData rowData : selectedItems) {
-				UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
-				
+			for (SessionData rowData : selectedItems) {				
 				GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
 				userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID,rowData.getId());							
 				break ;
@@ -188,8 +191,7 @@ public class CurrentSessionResultController {
 		tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
 	}
-	
-
+		
 	private void updateSessionData(TableColumn<SessionData, String> column) {
 	    column.setCellFactory(col -> new TableCell<SessionData, String>() {
 	        private Label label;
@@ -204,18 +206,26 @@ public class CurrentSessionResultController {
 	                if (label == null) {
 	                    label = new Label();
 	                    label.setWrapText(false);
-	                    label.setAlignment(Pos.CENTER); 
+
+	                    if (column.getText().equalsIgnoreCase("stage")) {
+	                        label.setAlignment(Pos.CENTER_LEFT); 
+	                        setStyle("-fx-alignment: CENTER_LEFT;"); 
+	                    } else {
+	                        label.setAlignment(Pos.CENTER); 
+	                        setStyle("-fx-alignment: CENTER;");
+	                    }
+
 	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;"); 
 	                }
 	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white; ");
-	                label.setMinWidth(label.getText().length() * 16);
+	                label.setStyle("-fx-text-fill: white;");
+	                label.setMinWidth(label.getText().length() * 12);
 	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 16);
+	                this.setMinWidth(label.getText().length() * 12);
 	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 	            }
 	        }
 	    });
 	}
+
 }
