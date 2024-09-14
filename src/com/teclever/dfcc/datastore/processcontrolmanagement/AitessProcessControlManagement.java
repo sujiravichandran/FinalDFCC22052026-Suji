@@ -999,9 +999,16 @@ public class AitessProcessControlManagement {
 			System.out.println("Channels have different OFP versions.");
 		}
 
+		String expectedWDMStatus = "0xfffe6020";
+		
+		if("UUT1".equals(currentSessionDetails.getUutId())) {
+			expectedWDMStatus = "0xffff6000";
+		}
+		
+		
 		// Check if all WDM statuses are "online"
-		if ("online".equals(WDMStatus.getChannel1Status()) && "online".equals(WDMStatus.getChannel2Status())
-				&& "online".equals(WDMStatus.getChannel3Status()) && "online".equals(WDMStatus.getChannel4Status())) {
+		if (expectedWDMStatus.equals(WDMStatus.getChannel1Status()) && expectedWDMStatus.equals(WDMStatus.getChannel2Status())
+				&& expectedWDMStatus.equals(WDMStatus.getChannel3Status()) && expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
 
 			// WDM Status OK
 			wdmMatch = true;
