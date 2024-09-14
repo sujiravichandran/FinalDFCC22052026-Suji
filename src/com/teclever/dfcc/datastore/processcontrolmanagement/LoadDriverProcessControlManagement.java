@@ -197,9 +197,9 @@ public class LoadDriverProcessControlManagement {
 								String output = loadDriverBQueue.take();
 								System.out.println("loadDriver:: " + output);
 
-								if (getCloseLoadDriverEndMatchingLine(output) != null) {
-									closeCommandExecuted = true;
-								}
+//								if (getCloseLoadDriverEndMatchingLine(output) != null) {
+//									closeCommandExecuted = true;
+//								}
 
 								if (output.contains("Starting AETS RT Scheduler")
 										|| output.contains("Staring AETS RT Scheduler")) {
@@ -228,13 +228,18 @@ public class LoadDriverProcessControlManagement {
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
-				if (closeCommandExecuted == true) {
-					if (unloadCommand != null && !unloadCommand.isEmpty()) {
-						launcherFuture.thenRun(
-								() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-					}
-					closeCommandExecuted = false;
-				}
+				Thread.sleep(2000);
+				
+				launcherFuture.thenRun(
+						() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
+				
+//				if (closeCommandExecuted == true) {
+//					if (unloadCommand != null && !unloadCommand.isEmpty()) {
+//						launcherFuture.thenRun(
+//								() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
+//					}
+//					closeCommandExecuted = false;
+//				}
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
 

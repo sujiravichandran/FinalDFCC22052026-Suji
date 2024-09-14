@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -71,7 +70,7 @@ public class AitessProcessControlManagement {
 
 	private boolean testStarted = false;
 	private final AtomicBoolean dfccCheckStstusStarted = new AtomicBoolean(false);
-    private final AtomicReference<String> currentCommand = new AtomicReference<>("Empty");
+	private final AtomicReference<String> currentCommand = new AtomicReference<>("Empty");
 	private boolean switchAitessMethod = false;
 	private boolean switchAitess1Method = false;
 	private boolean checkMethod = false;
@@ -209,9 +208,16 @@ public class AitessProcessControlManagement {
 			// launch aitess2 inside aitess1 folder
 			if (!StateMachine.isAitess2Launched()) {
 				launchAitess2("cd " + aitess1Dir.toString() + "\n");
-				launcherFuture2.thenRun(
-						() -> aitess2ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
-				System.out.println("AITESS 2 LAUNCHED COMMAND executed");
+				launcherFuture2.thenRun(() -> {
+					aitess2ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n");
+					System.out.println("AITESS 2 LAUNCHED COMMAND executed");
+
+					if (StateMachine.isAitess2Launched()) {
+						WriteAitess2Command1();
+					} else {
+						System.out.println("AITESS 2 is not fully launched yet.");
+					}
+				});
 
 			}
 
@@ -426,26 +432,26 @@ public class AitessProcessControlManagement {
 						if (!aitessRunning.isAitess2Exited()) {
 							aitessRunning.setAitess2Exited(true);
 						}
-						if (dfccCheckStstusStarted.get()==true) {
+						if (dfccCheckStstusStarted.get() == true) {
 							channelStatusParser.getChannelStatus(finalLine);
 							channelStatusParser.getOFPversionStatus(finalLine);
-				            String command1 = currentCommand.get();
+							String command1 = currentCommand.get();
 
 							switch (command1) {
 							case "OnlineStatusCommand":
-							channelStatus = channelStatusParser.getChannelStatus(finalLine);
+								channelStatus = channelStatusParser.getChannelStatus(finalLine);
 								break;
 
 							case "Mk1ScTemperatureCommand":
-								channelTemperature = temperatureParser.getChannelTemperature(finalLine);						
+								channelTemperature = temperatureParser.getChannelTemperature(finalLine);
 								break;
 
 							case "Mk1AecTemperatureCommand":
-								channelTemperature = temperatureParser.getChannelTemperature(finalLine);						
+								channelTemperature = temperatureParser.getChannelTemperature(finalLine);
 								break;
 
 							case "OFPversion":
-								channelStatus = channelStatusParser.getOFPversionStatus(finalLine);					
+								channelStatus = channelStatusParser.getOFPversionStatus(finalLine);
 								break;
 
 							case "WDMversion":
@@ -515,7 +521,8 @@ public class AitessProcessControlManagement {
 	public void WriteDfccPowerOnCommandToAitess2() {
 
 		try {
-			dfccCheckStstusStarted.set(true);;
+			dfccCheckStstusStarted.set(true);
+			;
 			launcherFuture2.thenRun(
 					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
 			Thread.sleep(500);
@@ -529,7 +536,8 @@ public class AitessProcessControlManagement {
 		}
 		currentCommand.set("DfccPowerOnCommand");
 		dfccCheckStatus.getDfccPowerStatus().set(true);
-		dfccCheckStstusStarted.set(false);;
+		dfccCheckStstusStarted.set(false);
+		;
 
 	}
 
@@ -563,7 +571,8 @@ public class AitessProcessControlManagement {
 		}
 		currentCommand.set("DfccPowerOffCommand");
 		dfccCheckStatus.getDfccPowerStatus().set(false);
-		dfccCheckStstusStarted.set(false);;
+		dfccCheckStstusStarted.set(false);
+		;
 
 	}
 
@@ -574,16 +583,16 @@ public class AitessProcessControlManagement {
 	public void WriteAitess2Command1() {
 		scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(() -> {
-			if (StateMachine.getTestState() != TestState.RUNNING && StateMachine.aitessRunning.isAitess2Switched()) {
+			if (StateMachine.getTestState() != TestState.RUNNING && !StateMachine.aitessRunning.isAitess2Switched()) {
 				executeCommands();
 			}
-		}, 0, 30, TimeUnit.SECONDS);
+		}, 0, 120, TimeUnit.SECONDS);
 	}
 
 	public void executeCommands() {
 
 		dfccCheckStatusThread = new Thread(() -> {
-			if(StateMachine.getTestState() == TestState.RUNNING) {
+			if (StateMachine.getTestState() == TestState.RUNNING) {
 				return;
 			}
 			try {
@@ -594,31 +603,31 @@ public class AitessProcessControlManagement {
 				launcherFuture2.thenRun(
 						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
 				currentCommand.set("OnlineStatusCommand");
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 
 				// SC TEMPERATURE
 				launcherFuture2.thenRun(() -> aitess2ProcessControl
 						.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
 				currentCommand.set("Mk1ScTemperatureCommand");
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 
 				// AEC TEMPERATURE
 				launcherFuture2.thenRun(() -> aitess2ProcessControl
 						.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
 				currentCommand.set("Mk1AecTemperatureCommand");
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 
 				// OFP VERSION
 				launcherFuture2.thenRun(() -> aitess2ProcessControl
 						.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
 				currentCommand.set("OFPversion");
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 
 				// WDM STATUS
 				launcherFuture2.thenRun(
 						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
 				currentCommand.set("WDMversion");
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 				dfccCheckStstusStarted.set(false);
 				StateMachine.setTextArea(true);
 			} catch (Exception e) {
@@ -931,8 +940,8 @@ public class AitessProcessControlManagement {
 			// kill pty process
 			exitAitess1Command();
 			exitAitess2Command();
-			
-			//aitess2thread stop
+
+			// aitess2thread stop
 			shutdownScheduler();
 
 		}
@@ -944,121 +953,116 @@ public class AitessProcessControlManagement {
 			scheduler.shutdown();
 		}
 	}
-	
-	
-	
+
 	public Response pbitCheck() {
-	    Response response = new Response();
-	    
-	    boolean ofpMatch = false;
-	    boolean wdmMatch = false;
+		Response response = new Response();
 
-	    try {
-	        dfccCheckStstusStarted.set(true);
+		boolean ofpMatch = false;
+		boolean wdmMatch = false;
 
-	        // Write OFP version command
-	        launcherFuture2.thenRun(
-	                () -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
-	        currentCommand.set("OFPversion");
-	        Thread.sleep(500);
+		try {
+			dfccCheckStstusStarted.set(true);
 
-	        // Write WDM version command
-	        launcherFuture2.thenRun(
-	                () -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
-	        currentCommand.set("WDMversion");
+			// Write OFP version command
+			launcherFuture2.thenRun(
+					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
+			currentCommand.set("OFPversion");
+			Thread.sleep(500);
 
-	    } catch (InterruptedException e) {
-	        e.printStackTrace();
-	        response.setResponseCode(500);
-	        response.setResponseMessage("Error occurred: " + e.getMessage());
-	        dfccCheckStstusStarted.set(false);
-	        return response;
-	    }
-	    
-	    dfccCheckStstusStarted.set(false);
+			// Write WDM version command
+			launcherFuture2
+					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
+			currentCommand.set("WDMversion");
 
-	    // Check if all OFP versions are equal
-	    if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status()) 
-	            && OFPversionStatus.getChannel2Status().equals(OFPversionStatus.getChannel3Status())
-	            && OFPversionStatus.getChannel3Status().equals(OFPversionStatus.getChannel4Status())) {
-	        
-	        // OFP Present OK
-	        ofpMatch = true;
-	        System.out.println("All channels have the same OFP version.");
-	        
-	    } else {
-	        // NOT OK
-	        ofpMatch = false;
-	        System.out.println("Channels have different OFP versions.");
-	    }
-	    
-	    // Check if all WDM statuses are "UP"
-	    if ("UP".equals(WDMStatus.getChannel1Status()) && "UP".equals(WDMStatus.getChannel2Status())
-	            && "UP".equals(WDMStatus.getChannel3Status()) && "UP".equals(WDMStatus.getChannel4Status())) {
-	        
-	        // WDM Status OK
-	        wdmMatch = true;
-	        System.out.println("All channels WDM status are UP.");
-	        
-	    } else {
-	        // NOT OK
-	        wdmMatch = false;
-	        System.out.println("All channels WDM status are not UP.");
-	    }
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			response.setResponseCode(500);
+			response.setResponseMessage("Error occurred: " + e.getMessage());
+			dfccCheckStstusStarted.set(false);
+			return response;
+		}
 
-	    if (ofpMatch && wdmMatch) {
-	        response.setResponseCode(200);
-	        response.setResponseMessage("All channels have the same OFP version and all WDM channels are UP.");
-	    } else if (ofpMatch && !wdmMatch) {
-	        response.setResponseCode(300);
-	        response.setResponseMessage("All channels have the same OFP version but not all WDM channels are UP.");
-	    } else if (!ofpMatch && wdmMatch) {
-	        response.setResponseCode(400);
-	        response.setResponseMessage("Channels have different OFP versions but all WDM channels are UP.");
-	    } 
+		dfccCheckStstusStarted.set(false);
 
-	    return response;
+		// Check if all OFP versions are equal
+		if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status())
+				&& OFPversionStatus.getChannel2Status().equals(OFPversionStatus.getChannel3Status())
+				&& OFPversionStatus.getChannel3Status().equals(OFPversionStatus.getChannel4Status())) {
+
+			// OFP Present OK
+			ofpMatch = true;
+			System.out.println("All channels have the same OFP version.");
+
+		} else {
+			// NOT OK
+			ofpMatch = false;
+			System.out.println("Channels have different OFP versions.");
+		}
+
+		// Check if all WDM statuses are "online"
+		if ("online".equals(WDMStatus.getChannel1Status()) && "online".equals(WDMStatus.getChannel2Status())
+				&& "online".equals(WDMStatus.getChannel3Status()) && "online".equals(WDMStatus.getChannel4Status())) {
+
+			// WDM Status OK
+			wdmMatch = true;
+			System.out.println("All channels WDM status are UP.");
+
+		} else {
+			// NOT OK
+			wdmMatch = false;
+			System.out.println("All channels WDM status are not UP.");
+		}
+
+		if (ofpMatch && wdmMatch) {
+			response.setResponseCode(200);
+			response.setResponseMessage("All channels have the same OFP version and all WDM channels are UP.");
+		} else if (ofpMatch && !wdmMatch) {
+			response.setResponseCode(300);
+			response.setResponseMessage("All channels have the same OFP version but not all WDM channels are UP.");
+		} else if (!ofpMatch && wdmMatch) {
+			response.setResponseCode(400);
+			response.setResponseMessage("Channels have different OFP versions but all WDM channels are UP.");
+		}
+
+		return response;
 	}
-	
-	public void  check1(String testTypeId, String ofpConfigPath) {
-		checkMethod=true;
+
+	public void check1(String testTypeId, String ofpConfigPath) {
+		checkMethod = true;
 		boolean aets1SwitchFlaggg = true;
 
-
 		// Check and update AETS process status
-				exitAitess1Command();
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				configureAitess(ofpConfigPath);
+		exitAitess1Command();
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		configureAitess(ofpConfigPath);
 
-				String uutId = currentSessionDetails.getUutId();
-				RunConfigurationService r = new RunConfigurationService();
-				String currentRunConfigId = r.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
+		String uutId = currentSessionDetails.getUutId();
+		RunConfigurationService r = new RunConfigurationService();
+		String currentRunConfigId = r.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 
-				AitessConfigurationDetails currentAitess = r
-						.getAitessDetailsByRunConfigId(currentRunConfigId);
+		AitessConfigurationDetails currentAitess = r.getAitessDetailsByRunConfigId(currentRunConfigId);
 
-				launcherFuture1
-				.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));			
+		launcherFuture1
+				.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
 
-				while (aets1SwitchFlaggg) {
-					// System.out.print(" 1 ");
-					if (aitessRunning.isAitess1ReloadConfigured()) {
-						aets1SwitchFlaggg = false;
-						// currentSessionDetails.setRunConfigId(currentRunConfigId);
-						System.out.println("AFTER 1 SWITCHING RUN CONFIG GETS pbit UPDATED:: ------>>> "
-								+ currentSessionDetails.getRunConfigId());
+		while (aets1SwitchFlaggg) {
+			// System.out.print(" 1 ");
+			if (aitessRunning.isAitess1ReloadConfigured()) {
+				aets1SwitchFlaggg = false;
+				// currentSessionDetails.setRunConfigId(currentRunConfigId);
+				System.out.println("AFTER 1 SWITCHING RUN CONFIG GETS pbit UPDATED:: ------>>> "
+						+ currentSessionDetails.getRunConfigId());
 
-					} 
-				}
-				aitessRunning.setAitess1ReloadConfigured(false);
-				aitessRunning.setAitess1Switched(false);
-				StateMachine.setPreviousRunConfigId(currentRunConfigId);
-				System.out.println("UPDATED previous runConfig before pbit ::------" + StateMachine.getPreviousRunConfigId());
-
+			}
+		}
+		aitessRunning.setAitess1ReloadConfigured(false);
+		aitessRunning.setAitess1Switched(false);
+		StateMachine.setPreviousRunConfigId(currentRunConfigId);
+		System.out.println("UPDATED previous runConfig before pbit ::------" + StateMachine.getPreviousRunConfigId());
 
 	}
 

@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 
 import javafx.event.ActionEvent;
@@ -65,7 +66,7 @@ public class TerminalPopupController {
 		terminalOperationsGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		terminalOperationsGridPane.getRowConstraints().addAll(firstRow);
 
-		aitessProcessControlManagement.launchAitess("TT1", textArea);
+		aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);
 	}
 
 	@FXML
