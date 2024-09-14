@@ -199,6 +199,10 @@ public class UserCenterContentController {
 		case "Session Results" :
 			CurrentSessionResultController currentSessionResultController = new CurrentSessionResultController();
 			if (centerStackPane.getChildren().contains(currentSessionResultStackPane)) {
+				if(sessionId == null) {
+					currentSessionResultStackPane.toFront();
+					break ;
+				}
 				currentSessionResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentSessionResultStackPane);
 			}
@@ -210,6 +214,10 @@ public class UserCenterContentController {
 		case "Stage Results" :	
 			CurrentExecutionResultController currentExcecutionResultController1 = new CurrentExecutionResultController();
 			if (centerStackPane.getChildren().contains(currentStageResultStackPane)) {
+				if(sessionId == null && stageId == null) {
+					currentStageResultStackPane.toFront();
+					break ;
+				}
 				currentStageResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentStageResultStackPane);
 			}
