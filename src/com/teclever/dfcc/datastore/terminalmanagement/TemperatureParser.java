@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 public class TemperatureParser {
@@ -102,7 +103,7 @@ public class TemperatureParser {
 	        }
 	    }
 
-	    boardChannelTemp.setBoardTemperatureMap((ObservableMap<String, ChannelTemperature>) boardTemperatureMap);
+	    boardChannelTemp.setBoardTemperatureMap(FXCollections.observableMap(boardTemperatureMap));
 	    System.out.println("---->>>>  "+ boardChannelTemp.getBoardTemperatureMap());
 	    return boardTemperatureMap;
 	}

@@ -2,10 +2,12 @@ package com.teclever.dfcc.datastore.testmanagement;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.processcontrolmanagement.LoadDriverProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 
 
 public class TestManagerManagement {
@@ -14,7 +16,12 @@ public class TestManagerManagement {
 
 		String uutId =  StateMachine.currentSessionDetails.getUutId();
 		
-		String testTypeId = "TT1";
+		RunConfigurationManagement mng = new RunConfigurationManagement();
+		
+		String testTypeId = mng.getTestTypeIdForSelfTestByUUT(uutId);
+		currentTestDetails.setTestType(testTypeId);
+		System.out.println("At time of Load Driver TEST TYPE ID :: "+ currentTestDetails.getTestType() + "--" + testTypeId);
+
 				
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 

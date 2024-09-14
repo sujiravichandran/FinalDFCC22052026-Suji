@@ -290,19 +290,26 @@ public class LoginFormController {
 //						SessionCreationController sessionCreationController=new SessionCreationController();
 //						parent1.getChildren().add(sessionCreationController.createSession());			
 
-						
-						/*	To Run the Script File please uncomment below*/
-						
+						/* To Run the Script File please uncomment below */
+
 						// running script File
+						if (DFCCConstant.isJarBuild) {
+							SingleChecksumService a = new SingleChecksumService();
+							SingleChecksumResponse res = a.getData();
+							for (SingleChecksum s : res.getSingleChecksums()) {
+								StateMachine.setScriptFileLocation(s.getScriptFileLocation());
+							}
+							checksumManagement.selectUserScriptFile(StateMachine.getScriptFileLocation());
+						}
 //						SingleChecksumService a = new SingleChecksumService();
 //						SingleChecksumResponse res = a.getData();
 //						for (SingleChecksum s : res.getSingleChecksums()) {
 //							StateMachine.setScriptFileLocation(s.getScriptFileLocation());
 //						}
 //						checksumManagement.selectUserScriptFile(StateMachine.getScriptFileLocation());
-				
+
 						parent1.getChildren().add(getCheckSumDataUserLogin());
-						
+
 					}
 				}
 			} else {
@@ -640,39 +647,70 @@ public class LoginFormController {
 	}
 
 	public GridPane getCheckSumDataUserLogin() {
-//		To Run the Script File need to Comment the below
-		
-		ValidateResponse checkSumData = systemConfigManagement.validateConfig();
-		List<CheckSum> checkSumDataList = checkSumData.getCheckSumList();
-		ObservableList<CheckSumList> checkSumTableData = FXCollections.observableArrayList();
 
-		if (checkSumData.getResponse().getResponseCode() == 0) {
-			Notifications.showErrorAlert(checkSumData.getResponse().getResponseMessage());
-			Platform.exit();
-		} else if (checkSumData.getResponse().getResponseCode() == 1) {
-			for (CheckSum data : checkSumDataList) {
-				CheckSumList checkSumUiDto = new CheckSumList();
-				checkSumUiDto.setFileName(data.getFile());
-				checkSumUiDto.setCheckSumValue(data.getChecksumValue());
-				checkSumUiDto.setStatus(data.getMsg());
-				checkSumTableData.add(checkSumUiDto);
+		if (DFCCConstant.isJarBuild) {
+
+			ValidateResponse response = checksumManagement.compare();
+
+			ObservableList<CheckSumList> checkSumTableData = FXCollections.observableArrayList();
+
+			if (response.getResponse().getResponseCode() == 0) {
+				Notifications.showErrorAlert(response.getResponse().getResponseMessage());
+				Platform.exit();
+			} else if (response.getResponse().getResponseCode() == 1) {
+				for (CheckSum data : response.getCheckSumList()) {
+					CheckSumList checkSumUiDto = new CheckSumList();
+					checkSumUiDto.setFileName(data.getFile());
+					checkSumUiDto.setCheckSumValue(data.getChecksumValue());
+					checkSumUiDto.setStatus(data.getMsg());
+					checkSumTableData.add(checkSumUiDto);
+				}
 			}
+
+			GridPane newGridPane = new GridPane();
+			newGridPane.setStyle(
+					"-fx-background-color: rgba(0, 0, 0, 0.7);-fx-border-radius: 10px;-fx-background-radius: 10px;");
+			setupGridPane(newGridPane);
+
+			VBox checkSumDataBox = createCheckSumDataBoxUserLogin(checkSumTableData);
+
+			newGridPane.add(checkSumDataBox, 1, 1);
+
+			return newGridPane;
+
+		} else {
+			ValidateResponse checkSumData = systemConfigManagement.validateConfig();
+			List<CheckSum> checkSumDataList = checkSumData.getCheckSumList();
+			ObservableList<CheckSumList> checkSumTableData = FXCollections.observableArrayList();
+
+			if (checkSumData.getResponse().getResponseCode() == 0) {
+				Notifications.showErrorAlert(checkSumData.getResponse().getResponseMessage());
+				Platform.exit();
+			} else if (checkSumData.getResponse().getResponseCode() == 1) {
+				for (CheckSum data : checkSumDataList) {
+					CheckSumList checkSumUiDto = new CheckSumList();
+					checkSumUiDto.setFileName(data.getFile());
+					checkSumUiDto.setCheckSumValue(data.getChecksumValue());
+					checkSumUiDto.setStatus(data.getMsg());
+					checkSumTableData.add(checkSumUiDto);
+				}
+			}
+
+			GridPane newGridPane = new GridPane();
+			newGridPane.setStyle(
+					"-fx-background-color: rgba(0, 0, 0, 0.7);-fx-border-radius: 10px;-fx-background-radius: 10px;");
+			setupGridPane(newGridPane);
+
+			VBox checkSumDataBox = createCheckSumDataBoxUserLogin(checkSumTableData);
+
+			newGridPane.add(checkSumDataBox, 1, 1);
+
+			return newGridPane;
+
 		}
 
-		GridPane newGridPane = new GridPane();
-		newGridPane.setStyle(
-				"-fx-background-color: rgba(0, 0, 0, 0.7);-fx-border-radius: 10px;-fx-background-radius: 10px;");
-		setupGridPane(newGridPane);
+		/* To Run the Script File please uncomment below */
 
-		VBox checkSumDataBox = createCheckSumDataBoxUserLogin(checkSumTableData);
-
-		newGridPane.add(checkSumDataBox, 1, 1);
-
-		return newGridPane;
-		
-		
-/*	To Run the Script File please uncomment below*/
-		
 //		ValidateResponse response = checksumManagement.compare();
 //
 //		
