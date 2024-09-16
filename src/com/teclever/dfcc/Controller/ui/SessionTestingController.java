@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,6 +68,7 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 
 public class SessionTestingController {
 	private GridPane sessionTestingMainGridPane = new GridPane();
@@ -861,7 +864,7 @@ public class SessionTestingController {
 	private TableView<SessionTestResult> createTableView() {
 		TableView<SessionTestResult> tableView = new TableView<>();
 		tableView.getStylesheets().add(getClass()
-				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -871,10 +874,52 @@ public class SessionTestingController {
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMinWidth(1000);
-		fileNameColumn.setMaxWidth(1000);
+		fileNameColumn.setMaxWidth(825);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
+		// Custom cell to show ellipsis for file path
+	    fileNameColumn.setCellFactory(new Callback<TableColumn<SessionTestResult, String>, TableCell<SessionTestResult, String>>() {
+	        @Override
+	        public TableCell<SessionTestResult, String> call(TableColumn<SessionTestResult, String> col) {
+	            return new TableCell<SessionTestResult, String>() {
+	                @Override
+	                protected void updateItem(String filePath, boolean empty) {
+	                    super.updateItem(filePath, empty);
+	                    if (empty || filePath == null) {
+	                        setText(null);
+	                    } else {
+	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
+	                        double availableWidth = getTableColumn().getWidth();
+	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
+	                        setText(displayText);
+	                    }
+	                }
+
+	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
+	                	
+	                    double padding = 35; // Adjust based on styling, padding, and alignment
+	                    double approxCharWidth = 7; // Estimated average width of a character
+
+	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
+
+	                    if (filePath.length() <= totalAvailableChars) {
+	                        return filePath;
+	                    }
+
+	                    int fileNameLength = fileName.length();
+	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
+
+	                    if (availableForPath > 0) {
+	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
+	                    } 
+						return fileName;
+	                }
+	            };
+	        }
+	    });
+		
+		
+		
 		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
@@ -897,9 +942,61 @@ public class SessionTestingController {
 						}
 					}
 				});
+		
+		
+		// View Button Column
+	    TableColumn<SessionTestResult, Void> viewButtonColumn = new TableColumn<>();
+	    viewButtonColumn.setCellFactory(col -> new TableCell<SessionTestResult, Void>() {
+	        private final Button viewButton = new Button("View");
 
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-		tableView.setItems(SessionTestStateObject.getSessionTestResults());
+	        {
+	            viewButton.setOnAction(e -> {
+	            	SessionTestResult sessionTestResult = getTableView().getItems().get(getIndex());
+	                File file = new File(sessionTestResult.getFileName());
+
+	                // Check if the file exists before trying to open it
+	                if (file.exists()) {
+	                    try {
+	                        Desktop desktop = Desktop.getDesktop();
+	                        if (desktop.isSupported(Desktop.Action.OPEN)) {
+	                            desktop.open(file); // Open the file using the default associated application
+	                        } else {
+	                            System.out.println("Open action not supported on this platform.");
+	                        }
+	                    } catch (IOException ex) {
+	                        System.out.println("Error opening file: " + ex.getMessage());
+	                    }
+	                } else {
+	                    System.out.println("File does not exist: " + file.getAbsolutePath());
+	                }
+	            });
+	        }
+
+	        @Override
+	        protected void updateItem(Void item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (empty) {
+	                setGraphic(null);
+	            } else {
+	                setGraphic(viewButton);
+	            }
+	        }
+	    });
+	    viewButtonColumn.setReorderable(false);
+	    viewButtonColumn.setSortable(false);
+	    viewButtonColumn.setMaxWidth(100);
+		
+		// Hardcoded test data
+	    ObservableList<SessionTestResult> data = FXCollections.observableArrayList(
+	        new SessionTestResult("C:\\\\New_folder\\\\dfcc-mk1\\\\HW_ATP\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\config_linux.dat", "OK"),
+	        new SessionTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK")
+	    );
+
+	    tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
+	    tableView.setItems(data);
+
+//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+//		tableView.setItems(SessionTestStateObject.getSessionTestResults());
 
 		return tableView;
 	}

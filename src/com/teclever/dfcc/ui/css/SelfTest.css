@@ -96,7 +96,7 @@
 	-fx-min-width:90px;
     -fx-background-color: button-bg ; 
     -fx-text-fill:button-text; 
-    -fx-font-size: 18px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
@@ -111,7 +111,17 @@
 }
 
 
+.check-sum-table .table-cell {
+    -fx-font-size: 16px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
 
+.check-sum-table .column-header .label {
+    -fx-font-size: 18px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
 
 
 .ok-status {

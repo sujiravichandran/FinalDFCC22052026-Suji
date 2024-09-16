@@ -17,7 +17,7 @@
 	 -fx-effect: innershadow(gaussian, white, 10, 1.0, 0, 0);
 }
 .menu-container .sub-menu-item {
-    -fx-padding: 5px 45px;
+    -fx-padding: 5px 25px;
     -fx-text-fill: primary-text-color;
 }
 .menu-container .tree-cell {
