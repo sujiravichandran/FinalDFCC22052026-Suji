@@ -1,5 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +46,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 public class SelfTestController {
 
@@ -599,25 +603,70 @@ public class SelfTestController {
 	private TableView<SelfTestResult> createTableView() {
 		TableView<SelfTestResult> tableView = new TableView<>();
 		tableView.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		tableView.setPrefHeight(900);
+		
+		
 
 		TableColumn<SelfTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(1000);
-		fileNameColumn.setMinWidth(1000);
+		fileNameColumn.setMaxWidth(825);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+		
+		// Custom cell to show ellipsis for file path
+	    fileNameColumn.setCellFactory(new Callback<TableColumn<SelfTestResult, String>, TableCell<SelfTestResult, String>>() {
+	        @Override
+	        public TableCell<SelfTestResult, String> call(TableColumn<SelfTestResult, String> col) {
+	            return new TableCell<SelfTestResult, String>() {
+	                @Override
+	                protected void updateItem(String filePath, boolean empty) {
+	                    super.updateItem(filePath, empty);
+	                    if (empty || filePath == null) {
+	                        setText(null);
+	                    } else {
+	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
+	                        double availableWidth = getTableColumn().getWidth();
+	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
+	                        setText(displayText);
+	                    }
+	                }
+
+	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
+	                	
+	                    double padding = 15; // Adjust based on styling, padding, and alignment
+	                    double approxCharWidth = 7; // Estimated average width of a character
+
+	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
+	                    System.out.println("totalAvailableChars" + totalAvailableChars);
+
+	                    if (filePath.length() <= totalAvailableChars) {
+	                        return filePath;
+	                    }
+
+	                    int fileNameLength = fileName.length();
+	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
+
+	                    if (availableForPath > 0) {
+	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
+	                    } 
+						return fileName;
+	                }
+	            };
+	        }
+	    });
+
 
 		TableColumn<SelfTestResult, String> resultColumn = new TableColumn<>("Result");
+		
+		
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
-		resultColumn.setMinWidth(300);
 		resultColumn.setMaxWidth(300);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
@@ -635,8 +684,59 @@ public class SelfTestController {
 			}
 		});
 		
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-		tableView.setItems(SelfTestStateObject.getTestResults());
+		// View Button Column
+	    TableColumn<SelfTestResult, Void> viewButtonColumn = new TableColumn<>();
+	    viewButtonColumn.setCellFactory(col -> new TableCell<SelfTestResult, Void>() {
+	        private final Button viewButton = new Button("View");
+
+	        {
+	            viewButton.setOnAction(e -> {
+	                SelfTestResult selfTestResult = getTableView().getItems().get(getIndex());
+	                File file = new File(selfTestResult.getFileName());
+
+	                // Check if the file exists before trying to open it
+	                if (file.exists()) {
+	                    try {
+	                        Desktop desktop = Desktop.getDesktop();
+	                        if (desktop.isSupported(Desktop.Action.OPEN)) {
+	                            desktop.open(file); // Open the file using the default associated application
+	                        } else {
+	                            System.out.println("Open action not supported on this platform.");
+	                        }
+	                    } catch (IOException ex) {
+	                        System.out.println("Error opening file: " + ex.getMessage());
+	                    }
+	                } else {
+	                    System.out.println("File does not exist: " + file.getAbsolutePath());
+	                }
+	            });
+	        }
+
+	        @Override
+	        protected void updateItem(Void item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (empty) {
+	                setGraphic(null);
+	            } else {
+	                setGraphic(viewButton);
+	            }
+	        }
+	    });
+	    viewButtonColumn.setReorderable(false);
+	    viewButtonColumn.setSortable(false);
+	    viewButtonColumn.setMaxWidth(100);
+		
+		// Hardcoded test data
+	    ObservableList<SelfTestResult> data = FXCollections.observableArrayList(
+	        new SelfTestResult("C:\\New_folder\\dfcc-mk1\\HW_ATP\\New folder\\New folder\\New folder\\New folder\\New folder\\New folder\\New folder\\config_linux.dat", "OK"),
+	        new SelfTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK")
+	    );
+
+	    tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
+	    tableView.setItems(data);	
+		
+//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+//		tableView.setItems(SelfTestStateObject.getTestResults());
 
 		return tableView;
 	}

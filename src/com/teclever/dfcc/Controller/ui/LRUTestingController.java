@@ -1,9 +1,14 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
@@ -41,7 +46,10 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
@@ -58,6 +66,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 public class LRUTestingController {
 
@@ -325,6 +334,173 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 	private VBox mandatoryTestVBox = new VBox(10);
 	
+	
+	private void ofpDownWDMUp(String stageId, String stageName, String testTypeId) {
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				try {
+					String runConfigId = runConfigurationService
+							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+					currentSessionDetails.setRunConfigId(runConfigId);
+					String ID = stageId;
+
+					String testFile1 = "download_versions.com";
+					String testFile2 = "PBIT_Test.com";
+
+					List<String> testFileName = Arrays.asList(testFile1, testFile2);
+
+					for (String testFile : testFileName) {
+						TestFileResponse testFileResponse = testPlanFileManagement
+								.getSelectedTestFilesFromStage(testFile);
+						Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+						List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+
+						Response response = testProcessManagement.testProcesControl(
+								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
+								ofpConfigId);
+
+						System.out.println("File Name of test file" + testFileList);
+					}
+				} catch (Exception e) {
+					e.printStackTrace(); // Optionally handle/log the exception
+				}
+
+				return null;
+			}
+		};
+
+		new Thread(task).start();
+	}
+
+	private void ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				try {
+					String runConfigId = runConfigurationService
+							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+					currentSessionDetails.setRunConfigId(runConfigId);
+					String ID = stageId;
+
+					String testFile2 = "PBIT_Test.com";
+
+					List<String> testFileName = Arrays.asList(testFile2);
+
+					for (String testFile : testFileName) {
+						TestFileResponse testFileResponse = testPlanFileManagement
+								.getSelectedTestFilesFromStage(testFile);
+						Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+						List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+
+						Response response = testProcessManagement.testProcesControl(
+								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
+								ofpConfigId);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return null;
+			}
+		};
+
+		new Thread(task).start();
+	}
+
+	private void initializeOfpVersionComboBox() {
+		ofpVersionList.clear();
+		UUT_ID = StateMachine.currentSessionDetails.getUutId();
+
+		ofpVersionDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
+		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
+			ofpVersionList.add(ofpVersion.getOfpVersion());
+		}
+		OFPVersion.setItems(ofpVersionList);
+		OFPVersion.setOnAction((event) -> {
+			ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
+			this.RUN_CONFIG_ID.set(ofpConfigId);
+
+		});
+
+	}
+
+	private String fetchOFPVersion(String ofpVersionName) {
+		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
+			if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
+				return ofpVersion.getOfpVersion();
+			}
+		}
+		return null;
+	}
+
+	ComboBox<String> OFPVersion = new ComboBox<>();
+
+	private void dialogBox() {
+		String ofpConfig;
+		OFPVersion.setPromptText("select OFP Version");
+		OFPVersion.setVisible(false);
+
+		Dialog<String> dialog = new Dialog<>();
+		dialog.setWidth(500);
+		dialog.setTitle("Check Status");
+
+		Button okButton = new Button("OK");
+		Button cancelButton = new Button("Cancel");
+
+		okButton.setOnAction(event -> {
+			dialog.setResult("Ok");
+
+			dialog.close();
+		});
+
+		cancelButton.setOnAction(event -> {
+			dialog.setResult("Cancel");
+			dialog.close();
+		});
+
+		HBox buttonBox = new HBox();
+		buttonBox.setAlignment(Pos.CENTER);
+		buttonBox.setSpacing(10);
+
+		buttonBox.getChildren().addAll(okButton, cancelButton);
+
+		RadioButton option1 = new RadioButton("Option 1");
+		RadioButton option2 = new RadioButton("Option 2");
+
+		ToggleGroup group = new ToggleGroup();
+
+		option1.setToggleGroup(group);
+		option2.setToggleGroup(group);
+
+		HBox ofpSelection = new HBox();
+		ofpSelection.setAlignment(Pos.CENTER_LEFT);
+		ofpSelection.setSpacing(30);
+
+		ofpSelection.getChildren().addAll(option2, OFPVersion);
+
+		VBox vbox = new VBox(option1, ofpSelection, buttonBox);
+		vbox.setSpacing(10);
+		dialog.getDialogPane().setContent(vbox);
+
+		option2.setOnAction(event -> {
+			OFPVersion.setVisible(true);
+			initializeOfpVersionComboBox();
+
+		});
+
+		option1.setOnAction(event -> OFPVersion.setVisible(false));
+
+		dialog.showAndWait().ifPresent(result -> {
+			System.out.println("Dialog result: " + result);
+		});
+	}
+	
+	
+	
+	
+	
+	
 	private VBox createLruTestCardButton() {
 		ObservableList<TestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
 		boolean firstButton = true;
@@ -376,19 +552,109 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				    
 				    
 				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
-				    
-				    if(newButton.getText().toLowerCase().contains("spil")) {
-				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-				    }else if(newButton.getText().toLowerCase().contains("pbit")) {
-				    	
+				    if (newButton.getText().toLowerCase().contains("spil")) {
 
-				    	if(aitessProcessControlManagement.pbitCheck().getResponseCode()==300) {
-						
-											dialogBox();
-											
+						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+					} else if (newButton.getText().toLowerCase().contains("pbit")) {
+
+						if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 300) {
+
+							String ofpConfig;
+							OFPVersion.setPromptText("select OFP Version");
+							OFPVersion.setVisible(false);
+
+							Dialog<String> dialog = new Dialog<>();
+							dialog.setWidth(500);
+							dialog.setTitle("Check Status");
+
+							Button okButton = new Button("OK");
+							Button cancelButton = new Button("Cancel");
+
+							okButton.setOnAction(event -> {
+								dialog.setResult("Ok");
+
+								dialog.close();
+							});
+
+							cancelButton.setOnAction(event -> {
+								dialog.setResult("Cancel");
+								dialog.close();
+							});
+
+							HBox buttonBox = new HBox();
+							buttonBox.setAlignment(Pos.CENTER);
+							buttonBox.setSpacing(10);
+
+							buttonBox.getChildren().addAll(okButton, cancelButton);
+
+							RadioButton option1 = new RadioButton("Option 1");
+							RadioButton option2 = new RadioButton("Option 2");
+
+							ToggleGroup group = new ToggleGroup();
+
+							if (option1.isPressed()) {
+								ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+							}
+							if (option2.isPressed()) {
+								ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+							}
+
+							option1.setToggleGroup(group);
+							option2.setToggleGroup(group);
+
+							HBox ofpSelection = new HBox();
+							ofpSelection.setAlignment(Pos.CENTER_LEFT);
+							ofpSelection.setSpacing(30);
+
+							ofpSelection.getChildren().addAll(option2, OFPVersion);
+
+							VBox vbox = new VBox(option1, ofpSelection, buttonBox);
+							vbox.setSpacing(10);
+							dialog.getDialogPane().setContent(vbox);
+
+							option2.setOnAction(event -> {
+								OFPVersion.setVisible(true);
+								initializeOfpVersionComboBox();
+
+							});
+
+							option1.setOnAction(event -> OFPVersion.setVisible(false));
+
+							dialog.showAndWait().ifPresent(result -> {
+								System.out.println("Dialog result: " + result);
+							});
+
 						}
-				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-				    }else if(newButton.getText().toLowerCase().contains("initialize")) {
+						if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
+
+							Alert alert = new Alert(AlertType.INFORMATION);
+							alert.setTitle("Information");
+							alert.setHeaderText(null);
+							alert.setContentText(
+									"OFP is not present, PBIT test will continue after downloading the Latest OFP");
+
+							Optional<ButtonType> result = alert.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.OK) {
+								ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+							}
+
+						}
+
+						if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 200) {
+							Alert alert = new Alert(AlertType.INFORMATION);
+							alert.setTitle("Information");
+							alert.setHeaderText(null);
+							alert.setContentText("OFP is Present, and WDM is also Present PBIT test is going to execute");
+
+							Optional<ButtonType> result = alert.showAndWait();
+							if (result.isPresent() && result.get() == ButtonType.OK) {
+								ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+
+							}
+						}
+
+						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+					}else if(newButton.getText().toLowerCase().contains("initialize")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
 				    }else if(newButton.getText().toLowerCase().contains("power")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
@@ -494,95 +760,9 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		return mandatoryTestVBox;
 	}
 	
-	private void initializeOfpVersionComboBox() {
-	       ofpVersionList.clear();
-	       UUT_ID= StateMachine.currentSessionDetails.getUutId();
-	  	  
-	        ofpVersionDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
-	        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
-	            ofpVersionList.add(ofpVersion.getOfpVersion());
-	        }
-	        OFPVersion.setItems(ofpVersionList);
-	        OFPVersion.setOnAction((event) -> {
-	            ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
-	            this.RUN_CONFIG_ID.set(ofpConfigId);
-	            
-	        });
-	        
-	    }
-
-	    private String fetchOFPVersion(String ofpVersionName) {
-	        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
-	            if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
-	                return ofpVersion.getOfpVersion();
-	            }
-	        }
-	        return null;
-	    }
 	
-	ComboBox<String> OFPVersion = new ComboBox<>();
 
-	private void dialogBox() {
-		String ofpConfig;
-		OFPVersion.setPromptText("select OFP Version");
-		OFPVersion.setVisible(false);
-
-		Dialog<String> dialog = new Dialog<>();
-		dialog.setWidth(500);
-		dialog.setTitle("Check Status");
-
-		Button okButton = new Button("OK");
-		Button cancelButton = new Button("Cancel");
-
-		okButton.setOnAction(event -> {
-			dialog.setResult("Ok");
-			
-			
-			dialog.close();
-		});
-
-		cancelButton.setOnAction(event -> {
-			dialog.setResult("Cancel");
-			dialog.close();
-		});
-		
-		
-
-		HBox buttonBox = new HBox();
-		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.setSpacing(10);
-
-		buttonBox.getChildren().addAll(okButton, cancelButton);
-
-		RadioButton option1 = new RadioButton("Option 1");
-		RadioButton option2 = new RadioButton("Option 2");
-
-		ToggleGroup group = new ToggleGroup();
-		option1.setToggleGroup(group);
-		option2.setToggleGroup(group);
-		
-		HBox ofpSelection = new HBox();
-		ofpSelection.setAlignment(Pos.CENTER_LEFT);
-		ofpSelection.setSpacing(30);
-
-		ofpSelection.getChildren().addAll(option2,OFPVersion);
-
-		VBox vbox = new VBox(option1,ofpSelection, buttonBox);
-		vbox.setSpacing(10);
-		dialog.getDialogPane().setContent(vbox);
-
-		option2.setOnAction(event ->  {
-	        OFPVersion.setVisible(true);
-	        initializeOfpVersionComboBox();
-	        
-	    });
-			
-		option1.setOnAction(event -> OFPVersion.setVisible(false));
-
-		dialog.showAndWait().ifPresent(result -> {
-			System.out.println("Dialog result: " + result);
-		});
-	}
+	
 	
 	private boolean checkMandatoryStatus(String cardName) {
 	    List<TestCardData> matchingCards = LRUTestStateObject.getLruMandatoryCardList().stream()
@@ -989,7 +1169,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 	private TableView<LRUTestResult> createTableView() {
 		TableView<LRUTestResult> tableView = new TableView<>();
 		tableView.getStylesheets().add(getClass()
-				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -997,9 +1177,55 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
 		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(1000);
-		fileNameColumn.setMinWidth(1000);
+		fileNameColumn.setMaxWidth(825);
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+
+		// Custom cell to show ellipsis for file path
+		fileNameColumn
+				.setCellFactory(new Callback<TableColumn<LRUTestResult, String>, TableCell<LRUTestResult, String>>() {
+					@Override
+					public TableCell<LRUTestResult, String> call(TableColumn<LRUTestResult, String> col) {
+						return new TableCell<LRUTestResult, String>() {
+							@Override
+							protected void updateItem(String filePath, boolean empty) {
+								super.updateItem(filePath, empty);
+								if (empty || filePath == null) {
+									setText(null);
+								} else {
+									String fileName = filePath.substring(
+											Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract
+																													// the
+																													// file
+																													// name
+									double availableWidth = getTableColumn().getWidth();
+									String displayText = getEllipsizedText(filePath, fileName, availableWidth);
+									setText(displayText);
+								}
+							}
+
+							private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
+
+								double padding = 15; // Adjust based on styling, padding, and alignment
+								double approxCharWidth = 7; // Estimated average width of a character
+
+								int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
+								System.out.println("totalAvailableChars" + totalAvailableChars);
+
+								if (filePath.length() <= totalAvailableChars) {
+									return filePath;
+								}
+
+								int fileNameLength = fileName.length();
+								int availableForPath = totalAvailableChars - fileNameLength - 3;
+
+								if (availableForPath > 0) {
+									return "..." + filePath.substring(filePath.length() - availableForPath);
+								}
+								return fileName;
+							}
+						};
+					}
+				});
 
 		TableColumn<LRUTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
@@ -1009,7 +1235,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		resultColumn.setMinWidth(300);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
-		
+
 		LRUTestStateObject.getTestFilesResultList().addListener((ListChangeListener<? super LRUTestResult>) change -> {
 			while (change.next()) {
 				if (change.wasAdded()) {
@@ -1041,13 +1267,62 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 //		channelColumn.setSortable(false);
 //		channelColumn.setStyle("-fx-alignment: CENTER;");
 
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		// View Button Column
+		TableColumn<LRUTestResult, Void> viewButtonColumn = new TableColumn<>();
+		viewButtonColumn.setCellFactory(col -> new TableCell<LRUTestResult, Void>() {
+			private final Button viewButton = new Button("View");
 
-		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
+			{
+				viewButton.setOnAction(e -> {
+					LRUTestResult lruTestResult = getTableView().getItems().get(getIndex());
+					File file = new File(lruTestResult.getFileName());
+
+					// Check if the file exists before trying to open it
+					if (file.exists()) {
+						try {
+							Desktop desktop = Desktop.getDesktop();
+							if (desktop.isSupported(Desktop.Action.OPEN)) {
+								desktop.open(file); // Open the file using the default associated application
+							} else {
+								System.out.println("Open action not supported on this platform.");
+							}
+						} catch (IOException ex) {
+							System.out.println("Error opening file: " + ex.getMessage());
+						}
+					} else {
+						System.out.println("File does not exist: " + file.getAbsolutePath());
+					}
+				});
+			}
+
+			@Override
+			protected void updateItem(Void item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty) {
+					setGraphic(null);
+				} else {
+					setGraphic(viewButton);
+				}
+			}
+		});
+		viewButtonColumn.setReorderable(false);
+		viewButtonColumn.setSortable(false);
+		viewButtonColumn.setMaxWidth(100);
+
+		// Hardcoded test data
+		ObservableList<LRUTestResult> data = FXCollections.observableArrayList(new LRUTestResult(
+				"C:\\\\New_folder\\\\dfcc-mk1\\\\HW_ATP\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\config_linux.dat",
+				"OK"), new LRUTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK"));
+
+		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
+		tableView.setItems(data);
+//		
+//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+//
+//		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
 
 		return tableView;
 	}
-	
 	private void rewriteColumn(TableColumn<LRUTestResult, String> resultColumn) {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
