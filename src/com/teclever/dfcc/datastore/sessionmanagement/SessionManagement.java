@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.GetObjResponse;
@@ -37,8 +38,10 @@ import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.service.UUTMasterDetailsService;
+import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
@@ -393,6 +396,78 @@ public class SessionManagement {
 		return sessionListResponse;
 	}
 
+	// BASED ON ROLE ID AND UUT ID GET LIST OF SESSION, WHICH DONT HAVE END TIME
+	public SessionListResponse getSessionDataByUUTId(String uutId) {
+		SessionListResponse sessionListResponse = new SessionListResponse();
+		Response res = new Response();
+		try {
+
+			// To Picking Trail Sessions...
+//			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+//			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+//			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+//
+			List<SessionList> listOfSession = new ArrayList<>();
+//
+//			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+//			trailActiveSession = trailSessionResponse.getListOfSession();
+//			for (TrailSessionDto trailSessionDto : trailActiveSession) {
+//				if (trailSessionDto.getUutId().equals(uutId)) {
+//					SessionList sessionList = new SessionList();
+//					sessionList.setSessionId(trailSessionDto.getSessionId());
+//					sessionList.setSessionName(trailSessionDto.getSessionName());
+//					sessionList.setCreationDate(trailSessionDto.getCreationDate());
+//					listOfSession.add(sessionList);
+//				}
+//
+//			}
+
+			// For Picking Others Sessions...
+			SessionService sessionSelectedStage = new SessionService();
+			GetResponse getResponse = sessionSelectedStage.getAllSessionDataByUUTId(uutId);
+
+			if (getResponse.getCode() == 0) {
+//				if (listOfSession.size() > 0) {
+//					res.setResponseCode(1);
+//					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+//					sessionListResponse.setResponse(res);
+//					sessionListResponse.setListOfSession(listOfSession);
+//					return sessionListResponse;
+//
+//				}
+				res.setResponseCode(0);
+				res.setResponseMessage(getResponse.geteMsg());
+				sessionListResponse.setResponse(res);
+				return sessionListResponse;
+			}
+
+			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(UserData.getRoleId());
+			for (Object object : getResponse.getResponseList()) {
+				SessionEntity sessionEntity = (SessionEntity) object;
+
+				if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+					SessionList sessionList = new SessionList();
+					sessionList.setSessionId(sessionEntity.getSessionId());
+					sessionList.setSessionName(sessionEntity.getSessionName());
+					sessionList.setCreationDate(sessionEntity.getCreationDate());
+					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+					listOfSession.add(sessionList);
+				}
+
+			}
+			res.setResponseCode(1);
+			res.setResponseMessage(getResponse.getMsg());
+			sessionListResponse.setResponse(res);
+			sessionListResponse.setListOfSession(listOfSession);
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Fetch Data Unsuccessfull");
+			sessionListResponse.setResponse(res);
+		}
+		return sessionListResponse;
+	}
+
 	public SessionDTOResponse getSessionDetailById(String sessionEntityId) {
 		SessionDTOResponse sessionDtoResponse = new SessionDTOResponse();
 		Response res = new Response();
@@ -545,7 +620,7 @@ public class SessionManagement {
 		return sessionDtoResponse;
 	}
 
-	// LOGIN SESSION : Add session Id 
+	// LOGIN SESSION : Add session Id
 	public Response addCurrentlyUsingSessionId(String sessionId) {
 		Response res = new Response();
 		try {
@@ -558,8 +633,8 @@ public class SessionManagement {
 		}
 		return res;
 	}
-	
-	// LOGIN SESSION : Add User Logout Time 
+
+	// LOGIN SESSION : Add User Logout Time
 	public Response addLogoutTime() {
 		Response res = new Response();
 		try {
@@ -572,7 +647,7 @@ public class SessionManagement {
 		}
 		return res;
 	}
-	
+
 	public void updateActiveSession() {
 
 	}

@@ -8,6 +8,8 @@ public class ReportConfigDto {
 
 	private List<String> fileNameWitFullPath;
 
+	private String sessionId;
+
 	private String reportType;// "PQT" "ESS" "DataPack"
 
 	private String levelOneName;
@@ -29,7 +31,7 @@ public class ReportConfigDto {
 	private String levelFiveName;
 
 	private String levelFiveId;
-	
+
 	private String fileName;
 
 	public String getReportConfigId() {
@@ -144,5 +146,12 @@ public class ReportConfigDto {
 		this.fileName = fileName;
 	}
 
-	
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
 }
