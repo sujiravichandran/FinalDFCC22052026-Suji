@@ -1308,18 +1308,10 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		viewButtonColumn.setReorderable(false);
 		viewButtonColumn.setSortable(false);
 		viewButtonColumn.setMaxWidth(100);
+		
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
 
-		// Hardcoded test data
-		ObservableList<LRUTestResult> data = FXCollections.observableArrayList(new LRUTestResult(
-				"C:\\\\New_folder\\\\dfcc-mk1\\\\HW_ATP\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\config_linux.dat",
-				"OK"), new LRUTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK"));
-
-		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
-		tableView.setItems(data);
-//		
-//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-//
-//		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
+		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
 
 		return tableView;
 	}

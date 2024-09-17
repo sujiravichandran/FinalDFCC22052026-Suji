@@ -725,18 +725,10 @@ public class SelfTestController {
 	    viewButtonColumn.setReorderable(false);
 	    viewButtonColumn.setSortable(false);
 	    viewButtonColumn.setMaxWidth(100);
+	
 		
-		// Hardcoded test data
-	    ObservableList<SelfTestResult> data = FXCollections.observableArrayList(
-	        new SelfTestResult("C:\\New_folder\\dfcc-mk1\\HW_ATP\\New folder\\New folder\\New folder\\New folder\\New folder\\New folder\\New folder\\config_linux.dat", "OK"),
-	        new SelfTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK")
-	    );
-
-	    tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
-	    tableView.setItems(data);	
-		
-//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-//		tableView.setItems(SelfTestStateObject.getTestResults());
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.setItems(SelfTestStateObject.getTestResults());
 
 		return tableView;
 	}

@@ -361,18 +361,11 @@ public class AdvancedTestingController {
 	    viewButtonColumn.setMaxWidth(100);
 		
 		
-		// Hardcoded test data
-	    ObservableList<AdvancedTestResult> data = FXCollections.observableArrayList(
-	        new AdvancedTestResult("C:\\\\New_folder\\\\dfcc-mk1\\\\HW_ATP\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\config_linux.dat", "OK"),
-	        new AdvancedTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK")
-	    );
-	    
-	    tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
-	    tableView.setItems(data);	
+		
 
-//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-//		
-//		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		
+		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
 				
 		return tableView;
 	}
