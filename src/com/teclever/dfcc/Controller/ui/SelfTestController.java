@@ -727,7 +727,7 @@ public class SelfTestController {
 	    viewButtonColumn.setMaxWidth(100);
 	
 		
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
 		tableView.setItems(SelfTestStateObject.getTestResults());
 
 		return tableView;

@@ -988,7 +988,7 @@ public class SessionTestingController {
 		
 	
 
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
 		tableView.setItems(SessionTestStateObject.getSessionTestResults());
 
 		return tableView;
