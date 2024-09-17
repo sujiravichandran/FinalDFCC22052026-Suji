@@ -363,7 +363,7 @@ public class AdvancedTestingController {
 		
 		
 
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
 		
 		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
 				

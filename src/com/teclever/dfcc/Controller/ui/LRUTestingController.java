@@ -1309,7 +1309,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		viewButtonColumn.setSortable(false);
 		viewButtonColumn.setMaxWidth(100);
 		
-		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
 
 		tableView.setItems(LRUTestStateObject.getTestFilesResultList());
 
