@@ -986,17 +986,10 @@ public class SessionTestingController {
 	    viewButtonColumn.setSortable(false);
 	    viewButtonColumn.setMaxWidth(100);
 		
-		// Hardcoded test data
-	    ObservableList<SessionTestResult> data = FXCollections.observableArrayList(
-	        new SessionTestResult("C:\\\\New_folder\\\\dfcc-mk1\\\\HW_ATP\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\New folder\\\\config_linux.dat", "OK"),
-	        new SessionTestResult("C:\\Suji\\SceneBuilder\\runtime\\lib\\Test.txt", "NOT OK")
-	    );
+	
 
-	    tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
-	    tableView.setItems(data);
-
-//		tableView.getColumns().addAll(fileNameColumn, resultColumn);
-//		tableView.setItems(SessionTestStateObject.getSessionTestResults());
+		tableView.getColumns().addAll(fileNameColumn, resultColumn);
+		tableView.setItems(SessionTestStateObject.getSessionTestResults());
 
 		return tableView;
 	}
