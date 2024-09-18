@@ -118,7 +118,7 @@
 }
 
 .session-testing-repeat-count-label{
-    -fx-text-fill: primary-text-color; 
+    -fx-text-fill: secondary-text-color; 
     -fx-font-size:16px;
     -fx-font-weight:bold;
 }
@@ -162,10 +162,17 @@
 
 
 .progress-bar {
-	-fx-min-width: 250px;
+	-fx-min-width: 420px;
 }
 .progress-label{
     -fx-text-fill: primary-text-color ;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+}
+
+.repeat-count-vbox{
+	-fx-border-color: light-bg;
+	-fx-border-width: 2px;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
 }

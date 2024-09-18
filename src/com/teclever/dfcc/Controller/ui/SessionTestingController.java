@@ -426,7 +426,9 @@ public class SessionTestingController {
 		repeatCountLabel.getStyleClass().add("session-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("session-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
-
+		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
+		repeatCountTextField.setAlignment(Pos.CENTER);
+		
 		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue.matches("\\d*")) {
 				repeatCountTextField.setText(oldValue);
@@ -436,6 +438,7 @@ public class SessionTestingController {
 		});
 
 		repeatCountVBox.setAlignment(Pos.CENTER);
+		repeatCountVBox.setPadding(new Insets(5));
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);

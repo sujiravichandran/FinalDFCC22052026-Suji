@@ -29,6 +29,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -76,7 +77,7 @@ public class AdvancedTestingHWATPTesting {
 	private String selectedTestTypeId = null;
 	
 	private VBox buttonMainVBox = new VBox(15);
-	private HBox allButtonHBox = new HBox(5);
+	private HBox allButtonHBox = new HBox(15);
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
@@ -410,7 +411,9 @@ public class AdvancedTestingHWATPTesting {
 		repeatCountLabel.getStyleClass().add("advanced-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("advanced-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
-
+		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
+		repeatCountTextField.setAlignment(Pos.CENTER);
+		
 		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue.matches("\\d*")) {
 				repeatCountTextField.setText(oldValue);
@@ -420,6 +423,7 @@ public class AdvancedTestingHWATPTesting {
 		});
 
 		repeatCountVBox.setAlignment(Pos.CENTER);
+		repeatCountVBox.setPadding(new Insets(5));
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
