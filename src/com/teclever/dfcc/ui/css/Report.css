@@ -18,6 +18,12 @@
 	  -fx-background-color: #037bdd; 
 }
 
+.report-top-container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+}
+
 .button {
 	-fx-min-width:90px;
     -fx-background-color: button-bg ; 
@@ -29,6 +35,20 @@
     -fx-border-color: transparent; 
 	-fx-cursor:hand;
 }
+
+.combo-box {
+	-fx-background-color: form-label;
+    -fx-font-size: 17.0px;
+    -fx-border-radius: 5.0px;
+    -fx-background-radius: 5.0px;
+    -fx-pref-width: 200px;
+}
+
+.combo-box .list-view .list-cell {
+    -fx-font-size: 12px;
+}
+
+
 .button:hover {
 	-fx-text-fill:button-bg; 
     -fx-background-color:button-text; 

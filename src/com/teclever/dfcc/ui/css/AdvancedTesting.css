@@ -256,7 +256,7 @@
 }
 
 .progress-bar {
-	-fx-min-width: 420px;
+	-fx-min-width: 400px;
 }
 .progress-label{
     -fx-text-fill: primary-text-color ;
