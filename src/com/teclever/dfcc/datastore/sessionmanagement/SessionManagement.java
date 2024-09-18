@@ -401,48 +401,49 @@ public class SessionManagement {
 		SessionListResponse sessionListResponse = new SessionListResponse();
 		Response res = new Response();
 		try {
+			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(UserData.getRoleId());
 
 			// To Picking Trail Sessions...
-//			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
-//			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-//			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			trailSessionResponse = trailSessionEntityService.getDeActiveTrailSessionId();
 //
 			List<SessionList> listOfSession = new ArrayList<>();
 //
-//			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
-//			trailActiveSession = trailSessionResponse.getListOfSession();
-//			for (TrailSessionDto trailSessionDto : trailActiveSession) {
-//				if (trailSessionDto.getUutId().equals(uutId)) {
-//					SessionList sessionList = new SessionList();
-//					sessionList.setSessionId(trailSessionDto.getSessionId());
-//					sessionList.setSessionName(trailSessionDto.getSessionName());
-//					sessionList.setCreationDate(trailSessionDto.getCreationDate());
-//					listOfSession.add(sessionList);
-//				}
-//
-//			}
+			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+			trailActiveSession = trailSessionResponse.getListOfSession();
+			for (TrailSessionDto trailSessionDto : trailActiveSession) {
+				if (trailSessionDto.getUutId().equals(uutId) && setOfUserLoginId != null
+						&& setOfUserLoginId.contains(trailSessionDto.getCreatedBy())) {
+					SessionList sessionList = new SessionList();
+					sessionList.setSessionId(trailSessionDto.getSessionId());
+					sessionList.setSessionName(trailSessionDto.getSessionName());
+					sessionList.setCreationDate(trailSessionDto.getCreationDate());
+					listOfSession.add(sessionList);
+				}
+
+			}
 
 			// For Picking Others Sessions...
 			SessionService sessionSelectedStage = new SessionService();
 			GetResponse getResponse = sessionSelectedStage.getAllSessionDataByUUTId(uutId);
 
 			if (getResponse.getCode() == 0) {
-//				if (listOfSession.size() > 0) {
-//					res.setResponseCode(1);
-//					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
-//					sessionListResponse.setResponse(res);
-//					sessionListResponse.setListOfSession(listOfSession);
-//					return sessionListResponse;
-//
-//				}
+				if (listOfSession.size() > 0) {
+					res.setResponseCode(1);
+					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+					sessionListResponse.setResponse(res);
+					sessionListResponse.setListOfSession(listOfSession);
+					return sessionListResponse;
+
+				}
 				res.setResponseCode(0);
 				res.setResponseMessage(getResponse.geteMsg());
 				sessionListResponse.setResponse(res);
 				return sessionListResponse;
 			}
 
-			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
-			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(UserData.getRoleId());
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
 
@@ -456,11 +457,13 @@ public class SessionManagement {
 				}
 
 			}
+
 			res.setResponseCode(1);
 			res.setResponseMessage(getResponse.getMsg());
 			sessionListResponse.setResponse(res);
 			sessionListResponse.setListOfSession(listOfSession);
 		} catch (Exception e) {
+			e.printStackTrace();
 			res.setResponseCode(0);
 			res.setResponseMessage("Fetch Data Unsuccessfull");
 			sessionListResponse.setResponse(res);
