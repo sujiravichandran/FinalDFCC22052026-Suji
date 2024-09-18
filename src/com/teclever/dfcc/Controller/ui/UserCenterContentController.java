@@ -227,35 +227,59 @@ public class UserCenterContentController {
 			break;
 			
 		case "PQT Report" :	
-			ReportController reportControllerForPQT = new ReportController();
-			if (centerStackPane.getChildren().contains(pqtReportStackPane)) {
-				pqtReportStackPane.getChildren().clear();
-				centerStackPane.getChildren().remove(pqtReportStackPane);
+//			ReportController reportControllerForPQT = new ReportController();
+//			if (centerStackPane.getChildren().contains(pqtReportStackPane)) {
+//				pqtReportStackPane.getChildren().clear();
+//				centerStackPane.getChildren().remove(pqtReportStackPane);
+//			}
+//			pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
+//			centerStackPane.getChildren().add(pqtReportStackPane);	
+			
+			if (!centerStackPane.getChildren().contains(pqtReportStackPane)) {
+				ReportController reportControllerForPQT = new ReportController();
+				pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
+				centerStackPane.getChildren().add(pqtReportStackPane);
+			} else {
+				pqtReportStackPane.toFront();
 			}
-			pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
-			centerStackPane.getChildren().add(pqtReportStackPane);	
 			
 			break;
 			
 		case "ESS Report" :	
-			ReportController reportControllerForESS = new ReportController();
-			if (centerStackPane.getChildren().contains(essReportStackPane)) {
-				essReportStackPane.getChildren().clear();
-				centerStackPane.getChildren().remove(essReportStackPane);
+//			ReportController reportControllerForESS = new ReportController();
+//			if (centerStackPane.getChildren().contains(essReportStackPane)) {
+//				essReportStackPane.getChildren().clear();
+//				centerStackPane.getChildren().remove(essReportStackPane);
+//			}
+//			essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
+//			centerStackPane.getChildren().add(essReportStackPane);	
+			
+			if (!centerStackPane.getChildren().contains(essReportStackPane)) {
+				ReportController reportControllerForESS = new ReportController();
+				essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
+				centerStackPane.getChildren().add(essReportStackPane);
+			} else {
+				essReportStackPane.toFront();
 			}
-			essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
-			centerStackPane.getChildren().add(essReportStackPane);	
 			
 			break;
 
 		case "Datapack Report" :	
-			ReportController reportControllerForDatapack = new ReportController();
-			if (centerStackPane.getChildren().contains(datapackReportStackPane)) {
-				datapackReportStackPane.getChildren().clear();
-				centerStackPane.getChildren().remove(datapackReportStackPane);
+//			ReportController reportControllerForDatapack = new ReportController();
+//			if (centerStackPane.getChildren().contains(datapackReportStackPane)) {
+//				datapackReportStackPane.getChildren().clear();
+//				centerStackPane.getChildren().remove(datapackReportStackPane);
+//			}
+//			datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
+//			centerStackPane.getChildren().add(datapackReportStackPane);	
+			
+			if (!centerStackPane.getChildren().contains(datapackReportStackPane)) {
+				ReportController reportControllerForDatapack = new ReportController();
+				datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
+				centerStackPane.getChildren().add(datapackReportStackPane);
+			} else {
+				datapackReportStackPane.toFront();
 			}
-			datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
-			centerStackPane.getChildren().add(datapackReportStackPane);	
 			
 			break;
 
