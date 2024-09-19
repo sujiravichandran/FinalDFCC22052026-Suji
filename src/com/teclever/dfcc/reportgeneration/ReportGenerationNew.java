@@ -1,7 +1,7 @@
 package com.teclever.dfcc.reportgeneration;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,17 +35,19 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
+import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.VerticalPositionMark;
-import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
-import com.teclever.datastore.entities.SessionEntity;
-import com.teclever.datastore.service.SessionService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.configurationmanagement.ReportCofigurationManagement;
+import com.teclever.dfcc.datastore.dto.ReportConfigDto;
+import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -91,41 +93,32 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 //	static String excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 
-	/*public static void main(String[] args) {
-		// Create a document
-		String pdfFilePath = "C:\\Users\\Teclever\\Downloads\\ReadExcelContent01nEW.pdf";
-		String excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
-		try {
+	/*
+	 * public static void main(String[] args) { // Create a document String
+	 * pdfFilePath = "C:\\Users\\Teclever\\Downloads\\ReadExcelContent01nEW.pdf";
+	 * String excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx"; try
+	 * {
+	 * 
+	 * Map<String, Map<String, Map<String, String>>> data =
+	 * readExcelForHeadingSubHeadings(excelPath); data1 = data; writer =
+	 * PdfWriter.getInstance(document, new FileOutputStream(pdfFilePath));
+	 * document.open();
+	 * 
+	 * ReportGenerationNew.HeaderFooter event = new
+	 * ReportGenerationNew.HeaderFooter(); writer.setPageEvent(event);
+	 * document.open(); // createTOCByRead(); createSummary1(document, data); //
+	 * addTableOfContents(document);
+	 * 
+	 * // HeaderFooter event1 = new HeaderFooter(); // writer.setPageEvent(event1);
+	 * } catch (DocumentException | FileNotFoundException e) { e.printStackTrace();
+	 * } catch (IOException e) { // TODO Auto-generated catch block
+	 * e.printStackTrace(); } finally { // Close the document document.close(); }
+	 * 
+	 * System.out.println("PDF saved to 1 PdfMarginsExample " + pdfFilePath);
+	 * System.out.println(); }
+	 */
 
-			Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
-			data1 = data;
-			writer = PdfWriter.getInstance(document, new FileOutputStream(pdfFilePath));
-			document.open();
-
-			ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
-			writer.setPageEvent(event);
-			document.open();
-			// createTOCByRead();
-			createSummary1(document, data);
-			// addTableOfContents(document);
-
-			// HeaderFooter event1 = new HeaderFooter();
-			// writer.setPageEvent(event1);
-		} catch (DocumentException | FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			// Close the document
-			document.close();
-		}
-
-		System.out.println("PDF saved to 1 PdfMarginsExample " + pdfFilePath);
-		System.out.println();
-	}*/
-
-	// Generation Of Breif Report 
+	// Generation Of Breif Report
 	public Response generateBreifReportForCurrentExecution(String sessionId)
 			throws DocumentException, MalformedURLException, IOException {
 		// yyyyMMdd_HHmmss
@@ -145,9 +138,9 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
-		
+
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
 		data1 = data;
 		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -166,67 +159,64 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
 		resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 		document.newPage();
-		
-		/*GetObjResponse getObjResponse = new GetObjResponse();
-		SessionService sessionService = new SessionService();
-		getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-		SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
-		
+
+		/*
+		 * GetObjResponse getObjResponse = new GetObjResponse(); SessionService
+		 * sessionService = new SessionService(); getObjResponse =
+		 * sessionService.getSessionDetailBySessionStageId(sessionId); SessionEntity
+		 * sessionEntity =(SessionEntity) getObjResponse.getObject();
+		 */
+
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-		
-		BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
-		BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
-		BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
-		BaseColor tecCementColor = new BaseColor(151,185,196);
-     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
-    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
-    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
-       
+
+		BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
 
 		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
-		//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		// document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
 		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
 		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
 		document.add(SessionDetails);
 		SessionManagement sessionManagement = new SessionManagement();
-		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
-		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
-		
-	   	Paragraph uutNameDetails = new Paragraph(
-				" Uut Type Name      " ,headerFont);
-		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+		Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+
+		Paragraph uutNameDetails = new Paragraph(" Uut Type Name      ", headerFont);
+		uutNameDetails.add(new Chunk("    " + sessionDetailsMap.get("uUtID"), highlightCementFont));
 		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-		document.add(uutNameDetails);		
-		
-		Paragraph SessionNameDetails = new Paragraph(
-				" Session Name       " , headerFont);
-		SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+		document.add(uutNameDetails);
+
+		Paragraph SessionNameDetails = new Paragraph(" Session Name       ", headerFont);
+		SessionNameDetails.add(new Chunk("     " + sessionDetailsMap.get("sessionName"), highlightCementFont));
 		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(SessionNameDetails);
 
-		Paragraph StageNameDetails = new Paragraph(
-				" Stage Name         " , headerFont);
-		StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
+		Paragraph StageNameDetails = new Paragraph(" Stage Name         ", headerFont);
+		StageNameDetails
+				.add(new Chunk("     " + stageIdName.get(resultExecutionResponse.getStageName()), highlightCementFont));
 		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(StageNameDetails);
 
-		Paragraph userNameDetails = new Paragraph(
-				" User Name          " , headerFont);
-		userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+		Paragraph userNameDetails = new Paragraph(" User Name          ", headerFont);
+		userNameDetails.add(new Chunk("     " + sessionDetailsMap.get("userName"), highlightCementFont));
 		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(userNameDetails);
 
-		Paragraph dfccPartNoDetails = new Paragraph(
-				" DFCC Part No       ", headerFont);
-		dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+		Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     " + sessionDetailsMap.get("dfccPartNo"), highlightCementFont));
 		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(dfccPartNoDetails);
 
 		// Create table
-	
+
 		PdfPTable table = new PdfPTable(4); // 4 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
@@ -241,19 +231,18 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
 
 		for (int i = 0; i < headers.length; i++) {
-		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
-		    cell.setBackgroundColor(BaseColor.GRAY);
-		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		    
+			PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-		    if (i == 0) {
-		        cell.setPaddingLeft(10f); 
-		    }
-		    if (i == headers.length - 1) {
-		        cell.setPaddingRight(10f); 
-		    }
-		    
-		    table.addCell(cell);
+			if (i == 0) {
+				cell.setPaddingLeft(10f);
+			}
+			if (i == headers.length - 1) {
+				cell.setPaddingRight(10f);
+			}
+
+			table.addCell(cell);
 		}
 
 		// Set the number of header rows
@@ -261,196 +250,403 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		int sNo = 1;
 
-		/*for (ResultExecutionDTO dto : resultExecutionDTOList) {
-		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
-
-		    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
-		    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
-		    table.addCell(cell1);
-
-		    table.addCell(new Phrase(dto.getEndTime()));
-		    table.addCell(new Phrase(dto.getTestFileName()));
-
-		    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
-		    cell4.setPaddingRight(10f); // Padding on the right side for the last column
-		    table.addCell(cell4);
-
-		    sNo++;
-		}*/
+		/*
+		 * for (ResultExecutionDTO dto : resultExecutionDTOList) { Font greenFont = new
+		 * Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN); Font
+		 * redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL,
+		 * BaseColor.RED);
+		 * 
+		 * PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+		 * cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+		 * table.addCell(cell1);
+		 * 
+		 * table.addCell(new Phrase(dto.getEndTime())); table.addCell(new
+		 * Phrase(dto.getTestFileName()));
+		 * 
+		 * PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+		 * cell4.setPaddingRight(10f); // Padding on the right side for the last column
+		 * table.addCell(cell4);
+		 * 
+		 * sNo++; }
+		 */
 
 		document.add(table);
 		document.close();
 
-		
 		System.out.println("Breif Report For Current Execution " + filePath);
 		return res;
 	}
 
-	
-	// Generation Of Breif Report For Given SessionId and StageId
-	public Response generateBreifReportForCurrentExecution(String sessionId,String stageId)
-				throws DocumentException, MalformedURLException, IOException {
-			// yyyyMMdd_HHmmss
-			// dd-MM-yyyy
+	// Generation Of Content For Ess Report..
+	public Response generateEssReportContent() throws DocumentException, MalformedURLException, IOException {
 
-			Response res = new Response();
-			Document document = new Document(PageSize.A4);
-			String fileName = "StageBriefReport_"
-					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-			String filePath = "";
-			if (!DFCCConstant.isJarBuild) {
-				filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			} else {
-				filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
-			}
-			
-			String excelPath = "";
-			if (!DFCCConstant.isJarBuild) {
-				excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
-			} else {
-				excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
-			}
-			
-			Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
-			data1 = data;
-			writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
-			document.open();
-
-			ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
-			writer.setPageEvent(event);
-			document.open();
-			// createTOCByRead();
-			createSummary1(document, data);
-
-			// To Fetch....
-			ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
-			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-			resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
-			List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
-			resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
-			document.newPage();
-			
-			/*GetObjResponse getObjResponse = new GetObjResponse();
-			SessionService sessionService = new SessionService();
-			getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-			SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
-			
-			Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
-			// Add text in place of the second image
-			Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
-			Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-			
-			BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
-			BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
-			BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
-			BaseColor tecCementColor = new BaseColor(151,185,196);
-	     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
-	    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
-	    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
-	       
-
-			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
-			//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
-			Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
-			SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
-			document.add(SessionDetails);
-			SessionManagement sessionManagement = new SessionManagement();
-			Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
-			Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
-			
-		   	Paragraph uutNameDetails = new Paragraph(
-					" Uut Type Name      " ,headerFont);
-			uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
-			uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(uutNameDetails);		
-			
-			Paragraph SessionNameDetails = new Paragraph(
-					" Session Name       " , headerFont);
-			SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
-			SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(SessionNameDetails);
-
-			Paragraph StageNameDetails = new Paragraph(
-					" Stage Name         " , headerFont);
-			StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
-			StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(StageNameDetails);
-
-			Paragraph userNameDetails = new Paragraph(
-					" User Name          " , headerFont);
-			userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
-			userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(userNameDetails);
-
-			Paragraph dfccPartNoDetails = new Paragraph(
-					" DFCC Part No       ", headerFont);
-			dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
-			dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(dfccPartNoDetails);
-
-			// Create table
-		
-			PdfPTable table = new PdfPTable(4); // 4 columns
-			table.setWidthPercentage(100); // Width 100%
-			table.setSpacingBefore(10f); // Space before table
-			table.setSpacingAfter(10f); // Space after table
-
-			// Set Column widths
-			float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
-			table.setWidths(columnWidths);
-
-			// Add table header
-			Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-			String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
-
-			for (int i = 0; i < headers.length; i++) {
-			    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
-			    cell.setBackgroundColor(BaseColor.GRAY);
-			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			    
-
-			    if (i == 0) {
-			        cell.setPaddingLeft(10f); 
-			    }
-			    if (i == headers.length - 1) {
-			        cell.setPaddingRight(10f); 
-			    }
-			    
-			    table.addCell(cell);
-			}
-
-			// Set the number of header rows
-			table.setHeaderRows(1);
-
-			int sNo = 1;
-
-			for (ResultExecutionDTO dto : resultExecutionDTOList) {
-			    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-			    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
-
-			    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
-			    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
-			    table.addCell(cell1);
-
-			    table.addCell(new Phrase(dto.getEndTime()));
-			    table.addCell(new Phrase(dto.getTestFileName()));
-
-			    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
-			    cell4.setPaddingRight(10f); // Padding on the right side for the last column
-			    table.addCell(cell4);
-
-			    sNo++;
-			}
-
-			document.add(table);
-			document.close();
-
-			
-			System.out.println("Breif Report For Selected Stage Current Execution " + filePath);
-			return res;
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
 		}
-	 
+
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_ESS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_ESS.xlsx";
+		}
+
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		essReportSummary(document, data);
+		document.close();
+
+		return res;
+	}
+
+	// Generation Of PQT Report Content
+	public Response generatePQTReportContent() throws DocumentException, MalformedURLException, IOException {
+
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
+		}
+
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_PQT.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_PQT.xlsx";
+		}
+
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		createSummary1(document, data);
+		document.close();
+
+		return res;
+	}
+
+	//// Generation Of ESS Report Content
+	public Response generateEssReport(String sessionId) {
+
+		Response res = new Response();
+
+		String fileName = "Ess_Report"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String contentFilePath = "";
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
+		}
+		List<String> pdfFiles = new ArrayList<String>();
+		pdfFiles.add(contentFilePath);
+		ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+		ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+		reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "ESS");
+		for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+			File file = new File(reportConfigDTO.getFileName());
+			ImageToPdfConverter img = new ImageToPdfConverter();
+
+			boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+			if (checkPdf) {
+				pdfFiles.add(reportConfigDTO.getFileName());
+			} else {
+				pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+			}
+			/*
+			 * String fullPathName = reportConfigDTO.getLevelOneName() + ":" +
+			 * reportConfigDTO.getLevelTwoName(); if (reportConfigDTO.getLevelThreeName() !=
+			 * null && !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
+			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
+			 * (reportConfigDTO.getLevelThreeName() != null &&
+			 * !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
+			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
+			 * (reportConfigDTO.getLevelFourName() != null &&
+			 * !reportConfigDTO.getLevelFourName().equals("")) { fullPathName = fullPathName
+			 * + ":" + reportConfigDTO.getLevelFourName(); } if
+			 * (reportConfigDTO.getLevelFiveName() != null &&
+			 * !reportConfigDTO.getLevelFiveName().equals("")) { fullPathName = fullPathName
+			 * + ":" + reportConfigDTO.getLevelFiveName(); }
+			 * filesPathStageFullPath.put(reportConfigDTO.getFileName(), fullPathName);
+			 */
+		}
+
+
+
+		try {
+			generateEssReportContent();
+			Document document = new Document();
+			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+			document.open();
+
+			for (String pdf : pdfFiles) {
+				PdfReader reader = new PdfReader(pdf);
+				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+					copy.addPage(copy.getImportedPage(reader, i));
+				}
+				reader.close();
+			}
+
+			document.close();
+			System.out.println("PDFs merged successfully!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+
+	}
+
+	// Generate PQT Report..
+	public Response generatePQTReport(String sessionId) {
+		Response res = new Response();
+		String fileName = "PQT_Report"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String filePath = "";
+		String contentFilePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
+		}
+
+		List<String> pdfFiles = new ArrayList<String>();
+		Map<String, String> filesPathStageFullPath = new HashMap<String, String>();
+		pdfFiles.add(contentFilePath);
+		ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+		ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+		reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "PQT");
+		for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+			File file = new File(reportConfigDTO.getFileName());
+			ImageToPdfConverter img = new ImageToPdfConverter();
+
+			boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+			if (checkPdf) {
+				pdfFiles.add(reportConfigDTO.getFileName());
+			} else {
+				pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+			}
+			/*
+			 * String fullPathName = reportConfigDTO.getLevelOneName() + ":" +
+			 * reportConfigDTO.getLevelTwoName(); if (reportConfigDTO.getLevelThreeName() !=
+			 * null && !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
+			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
+			 * (reportConfigDTO.getLevelThreeName() != null &&
+			 * !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
+			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
+			 * (reportConfigDTO.getLevelFourName() != null &&
+			 * !reportConfigDTO.getLevelFourName().equals("")) { fullPathName = fullPathName
+			 * + ":" + reportConfigDTO.getLevelFourName(); } if
+			 * (reportConfigDTO.getLevelFiveName() != null &&
+			 * !reportConfigDTO.getLevelFiveName().equals("")) { fullPathName = fullPathName
+			 * + ":" + reportConfigDTO.getLevelFiveName(); }
+			 * filesPathStageFullPath.put(reportConfigDTO.getFileName(), fullPathName);
+			 */
+		}
+
+		try {
+			generatePQTReportContent();
+			Document document = new Document();
+			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+			document.open();
+
+			for (String pdf : pdfFiles) {
+				PdfReader reader = new PdfReader(pdf);
+				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+					copy.addPage(copy.getImportedPage(reader, i));
+				}
+				reader.close();
+			}
+
+			document.close();
+			System.out.println("PDFs Created successfully In Path...!" + filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	// Generation Of Breif Report For Given SessionId and StageId
+	public Response generateBreifReportForCurrentExecution(String sessionId, String stageId)
+			throws DocumentException, MalformedURLException, IOException {
+		// yyyyMMdd_HHmmss
+		// dd-MM-yyyy
+
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String fileName = "StageBriefReport_"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
+
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+		}
+
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		// createTOCByRead();
+		createSummary1(document, data);
+
+		// To Fetch....
+		ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,
+				stageId);
+		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+		resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+		document.newPage();
+
+		/*
+		 * GetObjResponse getObjResponse = new GetObjResponse(); SessionService
+		 * sessionService = new SessionService(); getObjResponse =
+		 * sessionService.getSessionDetailBySessionStageId(sessionId); SessionEntity
+		 * sessionEntity =(SessionEntity) getObjResponse.getObject();
+		 */
+
+		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		// Add text in place of the second image
+		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+
+		BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+
+		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+		// document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(SessionDetails);
+		SessionManagement sessionManagement = new SessionManagement();
+		Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+
+		Paragraph uutNameDetails = new Paragraph(" Uut Type Name      ", headerFont);
+		uutNameDetails.add(new Chunk("    " + sessionDetailsMap.get("uUtID"), highlightCementFont));
+		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(uutNameDetails);
+
+		Paragraph SessionNameDetails = new Paragraph(" Session Name       ", headerFont);
+		SessionNameDetails.add(new Chunk("     " + sessionDetailsMap.get("sessionName"), highlightCementFont));
+		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(SessionNameDetails);
+
+		Paragraph StageNameDetails = new Paragraph(" Stage Name         ", headerFont);
+		StageNameDetails
+				.add(new Chunk("     " + stageIdName.get(resultExecutionResponse.getStageName()), highlightCementFont));
+		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(StageNameDetails);
+
+		Paragraph userNameDetails = new Paragraph(" User Name          ", headerFont);
+		userNameDetails.add(new Chunk("     " + sessionDetailsMap.get("userName"), highlightCementFont));
+		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(userNameDetails);
+
+		Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     " + sessionDetailsMap.get("dfccPartNo"), highlightCementFont));
+		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(dfccPartNoDetails);
+
+		// Create table
+
+		PdfPTable table = new PdfPTable(4); // 4 columns
+		table.setWidthPercentage(100); // Width 100%
+		table.setSpacingBefore(10f); // Space before table
+		table.setSpacingAfter(10f); // Space after table
+
+		// Set Column widths
+		float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
+		table.setWidths(columnWidths);
+
+		// Add table header
+		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+		for (int i = 0; i < headers.length; i++) {
+			PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+			if (i == 0) {
+				cell.setPaddingLeft(10f);
+			}
+			if (i == headers.length - 1) {
+				cell.setPaddingRight(10f);
+			}
+
+			table.addCell(cell);
+		}
+
+		// Set the number of header rows
+		table.setHeaderRows(1);
+
+		int sNo = 1;
+
+		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+			PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+			cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+			table.addCell(cell1);
+
+			table.addCell(new Phrase(dto.getEndTime()));
+			table.addCell(new Phrase(dto.getTestFileName()));
+
+			PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+			cell4.setPaddingRight(10f); // Padding on the right side for the last column
+			table.addCell(cell4);
+
+			sNo++;
+		}
+
+		document.add(table);
+		document.close();
+
+		System.out.println("Breif Report For Selected Stage Current Execution " + filePath);
+		return res;
+	}
+
 	// Generation Of Detail Report For Last Executed Stage
 	public Response generateDetailedReportForCurrentExecution(String sessionId)
 			throws DocumentException, MalformedURLException, IOException {
@@ -467,14 +663,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		} else {
 			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
-		
+
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
-		
+
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
 		data1 = data;
 		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -493,85 +689,83 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
 		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
 		document.newPage();
-		
-		/*GetObjResponse getObjResponse = new GetObjResponse();
-		SessionService sessionService = new SessionService();
-		getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-		SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
-		
+
+		/*
+		 * GetObjResponse getObjResponse = new GetObjResponse(); SessionService
+		 * sessionService = new SessionService(); getObjResponse =
+		 * sessionService.getSessionDetailBySessionStageId(sessionId); SessionEntity
+		 * sessionEntity =(SessionEntity) getObjResponse.getObject();
+		 */
+
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-		
-		BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
-		BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
-		BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
-		BaseColor tecCementColor = new BaseColor(151,185,196);
-     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
-    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
-    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
-       
+
+		BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
 
 		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
-		//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		// document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
 		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
 		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
 		document.add(SessionDetails);
 		SessionManagement sessionManagement = new SessionManagement();
-		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
-		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
-		
-	   	Paragraph uutNameDetails = new Paragraph(
-				" Uut Type Name      " ,headerFont);
-		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+		Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+
+		Paragraph uutNameDetails = new Paragraph(" Uut Type Name      ", headerFont);
+		uutNameDetails.add(new Chunk("    " + sessionDetailsMap.get("uUtID"), highlightCementFont));
 		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-		document.add(uutNameDetails);		
-		
-		Paragraph SessionNameDetails = new Paragraph(
-				" Session Name       " , headerFont);
-		SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+		document.add(uutNameDetails);
+
+		Paragraph SessionNameDetails = new Paragraph(" Session Name       ", headerFont);
+		SessionNameDetails.add(new Chunk("     " + sessionDetailsMap.get("sessionName"), highlightCementFont));
 		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(SessionNameDetails);
 
-		Paragraph StageNameDetails = new Paragraph(
-				" Stage Name         " , headerFont);
-		StageNameDetails.add(new Chunk("     "+stageIdName.get(resultDetailedResponse.getStageName()),highlightCementFont));
+		Paragraph StageNameDetails = new Paragraph(" Stage Name         ", headerFont);
+		StageNameDetails
+				.add(new Chunk("     " + stageIdName.get(resultDetailedResponse.getStageName()), highlightCementFont));
 		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(StageNameDetails);
 
-		Paragraph userNameDetails = new Paragraph(
-				" User Name          " , headerFont);
-		userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+		Paragraph userNameDetails = new Paragraph(" User Name          ", headerFont);
+		userNameDetails.add(new Chunk("     " + sessionDetailsMap.get("userName"), highlightCementFont));
 		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(userNameDetails);
 
-		Paragraph dfccPartNoDetails = new Paragraph(
-				" DFCC Part No       ", headerFont);
-		dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+		Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     " + sessionDetailsMap.get("dfccPartNo"), highlightCementFont));
 		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(dfccPartNoDetails);
 
 		// Create table
-	
+
 		PdfPTable table = new PdfPTable(8); // 4 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
 		table.setSpacingAfter(10f); // Space after table
 
 		// Set Column widths
-		float[] columnWidths = { 0.5f,1.2f,1.4f,1.5f ,1.5f, 1.5f,1.3f, 0.8f };
+		float[] columnWidths = { 0.5f, 1.2f, 1.4f, 1.5f, 1.5f, 1.5f, 1.3f, 0.8f };
 		table.setWidths(columnWidths);
 
 		// Add table header
 		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-		String[] headers = { "S.NO", "File Name", "TPGPH NO","SIGNAL NAME","STEP NO","EXPECTED VALUE (MIN)","EXPECTED VALUE (MAX)","MEASURED VALUE " };
+		String[] headers = { "S.NO", "File Name", "TPGPH NO", "SIGNAL NAME", "STEP NO", "EXPECTED VALUE (MIN)",
+				"EXPECTED VALUE (MAX)", "MEASURED VALUE " };
 
 		for (int i = 0; i < headers.length; i++) {
-		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
-		    cell.setBackgroundColor(BaseColor.GRAY);
-		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		    table.addCell(cell);
+			PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			table.addCell(cell);
 		}
 
 		// Set the number of header rows
@@ -579,188 +773,184 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		int sNo = 1;
 
-		/*for (ResultDetailedDTO dto : resultDetailedDTOList) {
-		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
-
-		   
-
-		    sNo++;
-		}*/
+		/*
+		 * for (ResultDetailedDTO dto : resultDetailedDTOList) { Font greenFont = new
+		 * Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN); Font
+		 * redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL,
+		 * BaseColor.RED);
+		 * 
+		 * 
+		 * 
+		 * sNo++; }
+		 */
 
 		document.add(table);
 		document.close();
 
-		
 		System.out.println("Breif Report For Current Execution " + filePath);
 		return res;
 	}
 
-	
 	// Generation Of Details Report For Given SessionId and StageId
-	public Response generateDetailedReportForCurrentExecution(String sessionId,String stageId)
-				throws DocumentException, MalformedURLException, IOException {
-			// yyyyMMdd_HHmmss
-			// dd-MM-yyyy
+	public Response generateDetailedReportForCurrentExecution(String sessionId, String stageId)
+			throws DocumentException, MalformedURLException, IOException {
+		// yyyyMMdd_HHmmss
+		// dd-MM-yyyy
 
-			Response res = new Response();
-			Document document = new Document(PageSize.A4);
-			String fileName = "StageBriefReport_"
-					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-			String filePath = "";
-			if (!DFCCConstant.isJarBuild) {
-				filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			} else {
-				filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
-			}
-			
-			String excelPath = "";
-			if (!DFCCConstant.isJarBuild) {
-				excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
-			} else {
-				excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
-			}
-			
-			Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
-			data1 = data;
-			writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
-			document.open();
-
-			ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
-			writer.setPageEvent(event);
-			document.open();
-			// createTOCByRead();
-			createSummary1(document, data);
-
-			// To Fetch....
-			ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
-			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-			resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
-			List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
-			resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
-			document.newPage();
-			
-			/*GetObjResponse getObjResponse = new GetObjResponse();
-			SessionService sessionService = new SessionService();
-			getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-			SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
-			
-			Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
-			// Add text in place of the second image
-			Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
-			Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-			
-			BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
-			BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
-			BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
-			BaseColor tecCementColor = new BaseColor(151,185,196);
-	     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
-	    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
-	    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
-	       
-
-			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
-			//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
-			Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
-			SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
-			document.add(SessionDetails);
-			SessionManagement sessionManagement = new SessionManagement();
-			Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
-			Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
-			
-		   	Paragraph uutNameDetails = new Paragraph(
-					" Uut Type Name      " ,headerFont);
-			uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
-			uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(uutNameDetails);		
-			
-			Paragraph SessionNameDetails = new Paragraph(
-					" Session Name       " , headerFont);
-			SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
-			SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(SessionNameDetails);
-
-			Paragraph StageNameDetails = new Paragraph(
-					" Stage Name         " , headerFont);
-			StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
-			StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(StageNameDetails);
-
-			Paragraph userNameDetails = new Paragraph(
-					" User Name          " , headerFont);
-			userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
-			userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(userNameDetails);
-
-			Paragraph dfccPartNoDetails = new Paragraph(
-					" DFCC Part No       ", headerFont);
-			dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
-			dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-			document.add(dfccPartNoDetails);
-
-			// Create table
-		
-			PdfPTable table = new PdfPTable(4); // 4 columns
-			table.setWidthPercentage(100); // Width 100%
-			table.setSpacingBefore(10f); // Space before table
-			table.setSpacingAfter(10f); // Space after table
-
-			// Set Column widths
-			float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
-			table.setWidths(columnWidths);
-
-			// Add table header
-			Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-			String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
-
-			for (int i = 0; i < headers.length; i++) {
-			    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
-			    cell.setBackgroundColor(BaseColor.GRAY);
-			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			    
-
-			    if (i == 0) {
-			        cell.setPaddingLeft(10f); 
-			    }
-			    if (i == headers.length - 1) {
-			        cell.setPaddingRight(10f); 
-			    }
-			    
-			    table.addCell(cell);
-			}
-
-			// Set the number of header rows
-			table.setHeaderRows(1);
-
-			int sNo = 1;
-
-			for (ResultExecutionDTO dto : resultExecutionDTOList) {
-			    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-			    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
-
-			    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
-			    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
-			    table.addCell(cell1);
-
-			    table.addCell(new Phrase(dto.getEndTime()));
-			    table.addCell(new Phrase(dto.getTestFileName()));
-
-			    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
-			    cell4.setPaddingRight(10f); // Padding on the right side for the last column
-			    table.addCell(cell4);
-
-			    sNo++;
-			}
-
-			document.add(table);
-			document.close();
-
-			
-			System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
-			return res;
+		Response res = new Response();
+		Document document = new Document(PageSize.A4);
+		String fileName = "StageBriefReport_"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
-	
-	//Session Result Report
+
+		String excelPath = "";
+		if (!DFCCConstant.isJarBuild) {
+			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
+		} else {
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+		}
+
+		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+		data1 = data;
+		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		document.open();
+
+		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+		writer.setPageEvent(event);
+		document.open();
+		// createTOCByRead();
+		createSummary1(document, data);
+
+		// To Fetch....
+		ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,
+				stageId);
+		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+		resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+		document.newPage();
+
+		/*
+		 * GetObjResponse getObjResponse = new GetObjResponse(); SessionService
+		 * sessionService = new SessionService(); getObjResponse =
+		 * sessionService.getSessionDetailBySessionStageId(sessionId); SessionEntity
+		 * sessionEntity =(SessionEntity) getObjResponse.getObject();
+		 */
+
+		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		// Add text in place of the second image
+		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+
+		BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+
+		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+		// document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
+		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(SessionDetails);
+		SessionManagement sessionManagement = new SessionManagement();
+		Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+
+		Paragraph uutNameDetails = new Paragraph(" Uut Type Name      ", headerFont);
+		uutNameDetails.add(new Chunk("    " + sessionDetailsMap.get("uUtID"), highlightCementFont));
+		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(uutNameDetails);
+
+		Paragraph SessionNameDetails = new Paragraph(" Session Name       ", headerFont);
+		SessionNameDetails.add(new Chunk("     " + sessionDetailsMap.get("sessionName"), highlightCementFont));
+		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(SessionNameDetails);
+
+		Paragraph StageNameDetails = new Paragraph(" Stage Name         ", headerFont);
+		StageNameDetails
+				.add(new Chunk("     " + stageIdName.get(resultExecutionResponse.getStageName()), highlightCementFont));
+		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(StageNameDetails);
+
+		Paragraph userNameDetails = new Paragraph(" User Name          ", headerFont);
+		userNameDetails.add(new Chunk("     " + sessionDetailsMap.get("userName"), highlightCementFont));
+		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(userNameDetails);
+
+		Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     " + sessionDetailsMap.get("dfccPartNo"), highlightCementFont));
+		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
+		document.add(dfccPartNoDetails);
+
+		// Create table
+
+		PdfPTable table = new PdfPTable(4); // 4 columns
+		table.setWidthPercentage(100); // Width 100%
+		table.setSpacingBefore(10f); // Space before table
+		table.setSpacingAfter(10f); // Space after table
+
+		// Set Column widths
+		float[] columnWidths = { 0.5f, 2.5f, 2.5f, 0.8f };
+		table.setWidths(columnWidths);
+
+		// Add table header
+		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
+
+		for (int i = 0; i < headers.length; i++) {
+			PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+			if (i == 0) {
+				cell.setPaddingLeft(10f);
+			}
+			if (i == headers.length - 1) {
+				cell.setPaddingRight(10f);
+			}
+
+			table.addCell(cell);
+		}
+
+		// Set the number of header rows
+		table.setHeaderRows(1);
+
+		int sNo = 1;
+
+		for (ResultExecutionDTO dto : resultExecutionDTOList) {
+			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+
+			PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+			cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+			table.addCell(cell1);
+
+			table.addCell(new Phrase(dto.getEndTime()));
+			table.addCell(new Phrase(dto.getTestFileName()));
+
+			PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+			cell4.setPaddingRight(10f); // Padding on the right side for the last column
+			table.addCell(cell4);
+
+			sNo++;
+		}
+
+		document.add(table);
+		document.close();
+
+		System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
+		return res;
+	}
+
+	// Session Result Report
 	public Response generateSessionReportForStages(String sessionId)
 			throws DocumentException, MalformedURLException, IOException {
 		// yyyyMMdd_HHmmss
@@ -776,14 +966,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		} else {
 			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
-		
+
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx" ;
+			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
-		
+
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
 		data1 = data;
 		writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -802,67 +992,64 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
 		resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 		document.newPage();
-		
-		/*GetObjResponse getObjResponse = new GetObjResponse();
-		SessionService sessionService = new SessionService();
-		getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
-		SessionEntity sessionEntity =(SessionEntity) getObjResponse.getObject();*/
-		
+
+		/*
+		 * GetObjResponse getObjResponse = new GetObjResponse(); SessionService
+		 * sessionService = new SessionService(); getObjResponse =
+		 * sessionService.getSessionDetailBySessionStageId(sessionId); SessionEntity
+		 * sessionEntity =(SessionEntity) getObjResponse.getObject();
+		 */
+
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-		
-		BaseColor tecBlueColor = new BaseColor(0,79,104,255); // RGB values (Red, Green, Blue)
-		BaseColor belBlueColor = new BaseColor(1,75,174,255); // RGB values (Red, Green, Blue)
-		BaseColor tecGreenColor = new BaseColor(99,137,52,255); // RGB values (Red, Green, Blue)
-		BaseColor tecCementColor = new BaseColor(151,185,196);
-     	Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
-    	Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
-    	Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
-       
+
+		BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
 
 		Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
-		//document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
+		// document.add(new Paragraph("\n" + "\n" + "\n" + "\n" + "\n" + "\n"));
 		Paragraph SessionDetails = new Paragraph("Stage Details", highlightbelBlueColor);
 		SessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
 		document.add(SessionDetails);
 		SessionManagement sessionManagement = new SessionManagement();
-		Map<String,String> stageIdName = sessionManagement.getAllStageIdName();
-		Map<String,String> uutIdName = DFCCConstant.getUutIdNameMap();
-		
-	   	Paragraph uutNameDetails = new Paragraph(
-				" Uut Type Name      " ,headerFont);
-		uutNameDetails.add(new Chunk("    "+ sessionDetailsMap.get("uUtID"), highlightCementFont));
+		Map<String, String> stageIdName = sessionManagement.getAllStageIdName();
+		Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
+
+		Paragraph uutNameDetails = new Paragraph(" Uut Type Name      ", headerFont);
+		uutNameDetails.add(new Chunk("    " + sessionDetailsMap.get("uUtID"), highlightCementFont));
 		uutNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
-		document.add(uutNameDetails);		
-		
-		Paragraph SessionNameDetails = new Paragraph(
-				" Session Name       " , headerFont);
-		SessionNameDetails.add(new Chunk("     "+ sessionDetailsMap.get("sessionName"),highlightCementFont));
+		document.add(uutNameDetails);
+
+		Paragraph SessionNameDetails = new Paragraph(" Session Name       ", headerFont);
+		SessionNameDetails.add(new Chunk("     " + sessionDetailsMap.get("sessionName"), highlightCementFont));
 		SessionNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(SessionNameDetails);
 
-		Paragraph StageNameDetails = new Paragraph(
-				" Stage Name         " , headerFont);
-		StageNameDetails.add(new Chunk("     "+stageIdName.get(resultExecutionResponse.getStageName()),highlightCementFont));
+		Paragraph StageNameDetails = new Paragraph(" Stage Name         ", headerFont);
+		StageNameDetails
+				.add(new Chunk("     " + stageIdName.get(resultExecutionResponse.getStageName()), highlightCementFont));
 		StageNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(StageNameDetails);
 
-		Paragraph userNameDetails = new Paragraph(
-				" User Name          " , headerFont);
-		userNameDetails.add(new Chunk("     "+sessionDetailsMap.get("userName"),highlightCementFont));
+		Paragraph userNameDetails = new Paragraph(" User Name          ", headerFont);
+		userNameDetails.add(new Chunk("     " + sessionDetailsMap.get("userName"), highlightCementFont));
 		userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(userNameDetails);
 
-		Paragraph dfccPartNoDetails = new Paragraph(
-				" DFCC Part No       ", headerFont);
-		dfccPartNoDetails.add(new Chunk("     "+sessionDetailsMap.get("dfccPartNo"),highlightCementFont));
+		Paragraph dfccPartNoDetails = new Paragraph(" DFCC Part No       ", headerFont);
+		dfccPartNoDetails.add(new Chunk("     " + sessionDetailsMap.get("dfccPartNo"), highlightCementFont));
 		dfccPartNoDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
 		document.add(dfccPartNoDetails);
 
 		// Create table
-	
+
 		PdfPTable table = new PdfPTable(4); // 4 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
@@ -877,19 +1064,18 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String[] headers = { "S.NO", "Time Of Execution", "Executed File Name", "Result" };
 
 		for (int i = 0; i < headers.length; i++) {
-		    PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
-		    cell.setBackgroundColor(BaseColor.GRAY);
-		    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		    
+			PdfPCell cell = new PdfPCell(new Phrase(headers[i], headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-		    if (i == 0) {
-		        cell.setPaddingLeft(10f); 
-		    }
-		    if (i == headers.length - 1) {
-		        cell.setPaddingRight(10f); 
-		    }
-		    
-		    table.addCell(cell);
+			if (i == 0) {
+				cell.setPaddingLeft(10f);
+			}
+			if (i == headers.length - 1) {
+				cell.setPaddingRight(10f);
+			}
+
+			table.addCell(cell);
 		}
 
 		// Set the number of header rows
@@ -898,33 +1084,30 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		int sNo = 1;
 
 		for (ResultExecutionDTO dto : resultExecutionDTOList) {
-		    Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-		    Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
 
-		    PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
-		    cell1.setPaddingLeft(10f); // Padding on the left side for the first column
-		    table.addCell(cell1);
+			PdfPCell cell1 = new PdfPCell(new Phrase(String.valueOf(sNo)));
+			cell1.setPaddingLeft(10f); // Padding on the left side for the first column
+			table.addCell(cell1);
 
-		    table.addCell(new Phrase(dto.getEndTime()));
-		    table.addCell(new Phrase(dto.getTestFileName()));
+			table.addCell(new Phrase(dto.getEndTime()));
+			table.addCell(new Phrase(dto.getTestFileName()));
 
-		    PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
-		    cell4.setPaddingRight(10f); // Padding on the right side for the last column
-		    table.addCell(cell4);
+			PdfPCell cell4 = new PdfPCell(new Phrase(dto.getStatus()));
+			cell4.setPaddingRight(10f); // Padding on the right side for the last column
+			table.addCell(cell4);
 
-		    sNo++;
+			sNo++;
 		}
 
 		document.add(table);
 		document.close();
 
-		
 		System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
 		return res;
 	}
 
-	
-	
 	public static void createTOCByRead1(Document document, Map<String, Map<String, Map<String, String>>> data)
 			throws DocumentException {
 		Paragraph tocTitle = new Paragraph("Table of Contents",
@@ -1525,6 +1708,645 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					document.newPage();
 				}
 				document.add(new Paragraph("\n"));
+				
+			} else {
+				document.add(new Paragraph("\n"));
+				// String heading = entry.getKey();
+				for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+					String subheading = subEntry.getKey();
+					String content = subEntry.getKey();
+
+					// System.out.println("Content In Table:" + content);
+					String sep = content;
+					// System.out.println("sub Heading :" + subheading);
+					String[] subheadinglines = subheading.split("\n");
+
+					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
+					// System.out.println("subheadinglines Length" + subheadinglines.length);
+
+					String lines = subheadinglines[0];
+					// System.out.println("Lines " + lines);
+
+					String[] lineArray = lines.split("|");
+					// System.out.println("Line Array Length" + lineArray.length);
+
+					for (int i = 0; i <= subheadinglines.length - 1; i++) {
+						String[] lineSeparting = subheadinglines[i].split(";");
+						// System.out.println("Line Separting Length" + lineSeparting.length);
+						// System.out.println("subheadinglines---> Index" + i + "---" +
+						// subheadinglines[i]);
+						PdfPTable table1 = new PdfPTable(lineSeparting.length);
+
+						// table1.setWidthPercentage(100); // Width 100%
+						// table1.setSpacingBefore(10f); // Space before table
+						// table1.setSpacingAfter(10f); // Space after table
+
+						if (lineSeparting.length == 2) {
+							float[] columnWidthsInner = { 0.5f, 5f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 3) {
+							float[] columnWidthsInner = { 0.8f, 2f, 2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 4) {
+							float[] columnWidthsInner = { 0.5f, 2f, 2f, 2.2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 5) {
+							// SN;Test;Description;Results;Remarks
+							float[] columnWidthsInner = { 0.4f, 2f, 2f, 0.7f, 1.2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 6) {
+							float[] columnWidthsInner = { 0.8f, 2f, 2f, 1f, 1f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+
+						if (i == 0) {
+
+							Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+							for (String header : lineSeparting) {
+								PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+								cell.setBackgroundColor(BaseColor.GRAY);
+								cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+								table1.addCell(cell);
+								// table1.setHeaderRows(1);
+
+							}
+						} else {
+
+							for (String cellContent : lineSeparting) {
+								PdfPCell cellCont = new PdfPCell(new Phrase(cellContent));
+								table1.addCell(cellCont);
+
+							}
+
+						}
+						document.add(table1);
+						// System.out.println("");
+
+					}
+
+					// document.add(new Paragraph(subheading, new Font(Font.FontFamily.HELVETICA,
+					// 10, Font.ITALIC)));
+					// document.add(new Paragraph(content, new Font(Font.FontFamily.HELVETICA,
+					// 10)));
+				}
+
+			}
+			summaryPlaceHolderCount++;
+		}
+	}
+
+	public static void essReportSummary(Document document, Map<String, Map<String, Map<String, String>>> data)
+			throws DocumentException, MalformedURLException, IOException {
+		// Starting Page
+
+		String imagePath = "src/Resources/Images/BellLogoRocket.png";
+		Image img = Image.getInstance(imagePath);
+		img.scaleAbsolute(2, 1);
+		img.scalePercent(50);
+		img.setAlignment(Element.ALIGN_CENTER);
+		document.add(img);
+
+		Paragraph preface = new Paragraph();
+		preface.setAlignment(Element.ALIGN_CENTER);
+
+		Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Paragraph titlePara = new Paragraph(title, titleFont); // Assuming 'title' is a variable containing the title
+																// text
+		titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(titlePara);
+
+		document.add(new Paragraph("\n"));
+		document.add(new Paragraph("\n"));
+
+		// Tab Adding
+		BaseColor textColor = new BaseColor(22, 28, 99);
+		BaseColor bcolor = new BaseColor(228, 239, 255);
+		Font boldFont1 = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD);
+		Font boldFont4 = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD);
+		Font boldFont2 = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL);
+		Font boldFont3 = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+		Font boldFont5 = new Font(Font.FontFamily.COURIER, 8, Font.BOLD);
+		PdfPTable table = new PdfPTable(3);
+		float[] columnWidths = { 2, 2, 2 }; // Adjust column widths as necessary
+		table.setWidths(columnWidths);
+		PdfPCell cell1 = new PdfPCell(new Phrase("Prepared By", boldFont3));
+		cell1.setRowspan(1);
+		cell1.setColspan(3);
+		cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell1);
+
+		PdfPCell cell2 = new PdfPCell(new Phrase(
+				"\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "   BEL Testing –LCA-EWA", boldFont4));
+		cell2.setRowspan(2);
+		cell2.setColspan(3);
+		cell2.setFixedHeight(80f);
+		cell2.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell2);
+
+		PdfPCell cell3 = new PdfPCell(
+				new Phrase("VerifiedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "LCA-TS/EW&A", boldFont3));
+
+		cell3.setRowspan(3);
+		cell3.setColspan(1);
+		cell3.setFixedHeight(100f);
+		cell3.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell3);
+
+		PdfPCell cell4 = new PdfPCell(
+				new Phrase("ReviewedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "QM-EW & A", boldFont3));
+		cell4.setRowspan(3);
+		cell4.setColspan(1);
+		cell4.setFixedHeight(60f);
+		cell4.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell4);
+
+		PdfPCell cell5 = new PdfPCell(
+				new Phrase("ApporvedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "OAQA-BEL", boldFont3));
+		cell5.setRowspan(3);
+		cell5.setColspan(1);
+		cell5.setFixedHeight(60f);
+		cell5.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell5.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell5);
+
+		document.add(table);
+
+		document.newPage();
+		// int summaryPlaceHolderCount = 1;
+		int summaryPlaceHolderCountSub;
+		int summaryPlaceHolderCountH3;
+
+		for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
+			String heading = entry.getKey();
+			Map<String, Map<String, String>> subheadings = entry.getValue();
+
+			if (heading.equalsIgnoreCase("Table Of Contents")) {
+				createTOCByRead1(document, data);
+				document.newPage();
+				continue;
+			}
+
+			heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
+
+			document.add(
+					new Paragraph(" " + heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+			// document.add(new Paragraph("\n"));
+
+			BaseFont baseFont1 = BaseFont.createFont();
+			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
+			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			if (tocPlaceholder.containsKey(headingPageNum)) {
+				PdfTemplate template = tocPlaceholder.get(headingPageNum);
+				template.beginText();
+				template.setFontAndSize(baseFont1, 8);
+				template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+				if (writer.getPageNumber() - 1 < 10)
+					template.showText(String.valueOf(writer.getPageNumber() - 1));
+				template.endText();
+			}
+			
+			
+
+
+			if (!heading.contains("(TABLE)")) {
+				summaryPlaceHolderCountSub = 1;
+				for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+					String subheading = subEntry.getKey();
+					Map<String, String> h3Map = subEntry.getValue();
+
+					if (subheading.contains("(h2)")) {
+						subheading = subheading.replaceAll("(h2)", "");
+						document.add(new Paragraph("    " + subheading,
+								new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+
+						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
+								+ " " + subheading;
+						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
+							template.beginText();
+							template.setFontAndSize(baseFont1, 8);
+							template.setTextMatrix(
+									50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+							template.showText(String.valueOf(writer.getPageNumber() - 1));
+							template.endText();
+						}
+
+						summaryPlaceHolderCountH3 = 1;
+
+						for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
+							String h3 = h3Entry.getKey();
+							String content = h3Entry.getValue();
+
+							if (h3.contains("(h3)")) {
+								h3 = h3.replaceAll("(h3)", "");
+								document.add(new Paragraph("        " + h3,
+										new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+
+								String h3PageNum = "         " + summaryPlaceHolderCount + "."
+										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
+								System.out.println("Summary h3PageNum" + h3PageNum);
+								if (tocPlaceholder.containsKey(h3PageNum)) {
+									PdfTemplate template = tocPlaceholder.get(h3PageNum);
+									template.beginText();
+									template.setFontAndSize(baseFont1, 8);
+									template.setTextMatrix(
+											50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+											0);
+									template.showText(String.valueOf(writer.getPageNumber() - 1));
+									template.endText();
+								}
+
+								Paragraph contentParagraph = new Paragraph(content,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+								contentParagraph.setIndentationLeft(5); // Indent from the left margin
+								contentParagraph.setIndentationRight(5); // Indent from the right margin
+								// contentParagraph.setSpacingBefore(10); // Space before the paragraph
+								// contentParagraph.setSpacingAfter(10); // Space after the paragraph
+								document.add(contentParagraph);
+
+								document.add(new Paragraph("            " + content,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+							} else {
+
+								// Now Added
+
+								Paragraph h3Paragraph = new Paragraph(h3,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+								h3Paragraph.setIndentationLeft(5); // Indent from the left margin
+								h3Paragraph.setIndentationRight(5); // Indent from the right margin
+								// h3Paragraph.setSpacingBefore(10); // Space before the paragraph
+								// h3Paragraph.setSpacingAfter(10); // Space after the paragraph
+								document.add(h3Paragraph);
+
+								// document.add(new Paragraph(" " + h3,
+								// new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+							}
+							summaryPlaceHolderCountH3++;
+						}
+					} else {
+
+						// Now Added
+
+						Paragraph paragraph = new Paragraph(subheading,
+								new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+						paragraph.setIndentationLeft(20); // Indent from the left margin
+						paragraph.setIndentationRight(20); // Indent from the right margin
+						paragraph.setSpacingBefore(10); // Space before the paragraph
+						paragraph.setSpacingAfter(10); // Space after the paragraph
+						document.add(paragraph);
+
+						// document.add(new Paragraph(" " + subheading,
+						// new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL)));
+
+						for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
+							String content = h3Entry.getValue();
+							document.add(
+									new Paragraph("            " + content, new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+						}
+					}
+					summaryPlaceHolderCountSub++;
+				}
+				if (heading.equals("Preface")) {
+					System.out.println("----------------Preface---------");
+					document.newPage();
+				}
+				document.add(new Paragraph("\n"));
+				
+			} 
+			else if(heading.contentEquals("Appendix"))
+			{
+				System.out.println("----Appendix-----");
+			}
+			else {
+				document.add(new Paragraph("\n"));
+				// String heading = entry.getKey();
+				 
+				for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+					String subheading = subEntry.getKey();
+					String content = subEntry.getKey();
+					System.out.println("Sub Headingss " + subheading);
+
+					// System.out.println("Content In Table:" + content);
+					String sep = content;
+					// System.out.println("sub Heading :" + subheading);
+					String[] subheadinglines = subheading.split("\n");
+
+					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
+					// System.out.println("subheadinglines Length" + subheadinglines.length);
+
+					String lines = subheadinglines[0];
+					// System.out.println("Lines " + lines);
+
+					String[] lineArray = lines.split("|");
+					// System.out.println("Line Array Length" + lineArray.length);
+
+					for (int i = 0; i <= subheadinglines.length - 1; i++) {
+						String[] lineSeparting = subheadinglines[i].split(";");
+						// System.out.println("Line Separting Length" + lineSeparting.length);
+						// System.out.println("subheadinglines---> Index" + i + "---" +
+						// subheadinglines[i]);
+						PdfPTable table1 = new PdfPTable(lineSeparting.length);
+
+						// table1.setWidthPercentage(100); // Width 100%
+						// table1.setSpacingBefore(10f); // Space before table
+						// table1.setSpacingAfter(10f); // Space after table
+
+						if (lineSeparting.length == 2) {
+							float[] columnWidthsInner = { 0.5f, 5f };
+							table1.setWidths(columnWidthsInner);
+							
+
+						}
+						if (lineSeparting.length == 3) {
+							float[] columnWidthsInner = { 0.8f, 2f, 2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 4) {
+							float[] columnWidthsInner = { 0.5f, 2f, 2f, 2.2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 5) {
+							// SN;Test;Description;Results;Remarks
+							float[] columnWidthsInner = { 0.4f, 2f, 2f, 0.7f, 1.2f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+						if (lineSeparting.length == 6) {
+							float[] columnWidthsInner = { 0.8f, 2f, 2f, 1f, 1f };
+							table1.setWidths(columnWidthsInner);
+
+						}
+
+						if (i == 0) {
+
+							Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+							for (String header : lineSeparting) {
+								PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+								cell.setBackgroundColor(BaseColor.GRAY);
+								cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+								table1.addCell(cell);
+								// table1.setHeaderRows(1);
+
+							}
+						} else {
+
+							for (String cellContent : lineSeparting) {
+								PdfPCell cellCont = new PdfPCell(new Phrase(cellContent));
+								table1.addCell(cellCont);
+
+							}
+
+						}
+						document.add(table1);
+						// System.out.println("");
+
+					}
+
+					// document.add(new Paragraph(subheading, new Font(Font.FontFamily.HELVETICA,
+					// 10, Font.ITALIC)));
+					// document.add(new Paragraph(content, new Font(Font.FontFamily.HELVETICA,
+					// 10)));
+				}
+
+			}
+			summaryPlaceHolderCount++;
+		}
+	}
+
+	public static void createSummary11(Document document, Map<String, Map<String, Map<String, String>>> data)
+			throws DocumentException, MalformedURLException, IOException {
+		// Starting Page
+
+		String imagePath = "src/Resources/Images/BellLogoRocket.png";
+		Image img = Image.getInstance(imagePath);
+		img.scaleAbsolute(2, 1);
+		img.scalePercent(50);
+		img.setAlignment(Element.ALIGN_CENTER);
+		document.add(img);
+
+		Paragraph preface = new Paragraph();
+		preface.setAlignment(Element.ALIGN_CENTER);
+
+		Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+		Paragraph titlePara = new Paragraph(title, titleFont); // Assuming 'title' is a variable containing the title
+																// text
+		titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+		document.add(titlePara);
+
+		document.add(new Paragraph("\n"));
+		document.add(new Paragraph("\n"));
+
+		// Tab Adding
+		BaseColor textColor = new BaseColor(22, 28, 99);
+		BaseColor bcolor = new BaseColor(228, 239, 255);
+		Font boldFont1 = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD);
+		Font boldFont4 = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD);
+		Font boldFont2 = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL);
+		Font boldFont3 = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+		Font boldFont5 = new Font(Font.FontFamily.COURIER, 8, Font.BOLD);
+		PdfPTable table = new PdfPTable(3);
+		float[] columnWidths = { 2, 2, 2 }; // Adjust column widths as necessary
+		table.setWidths(columnWidths);
+		PdfPCell cell1 = new PdfPCell(new Phrase("Prepared By", boldFont3));
+		cell1.setRowspan(1);
+		cell1.setColspan(3);
+		cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell1);
+
+		PdfPCell cell2 = new PdfPCell(new Phrase(
+				"\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "   BEL Testing –LCA-EWA", boldFont4));
+		cell2.setRowspan(2);
+		cell2.setColspan(3);
+		cell2.setFixedHeight(80f);
+		cell2.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell2);
+
+		PdfPCell cell3 = new PdfPCell(
+				new Phrase("VerifiedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "LCA-TS/EW&A", boldFont3));
+
+		cell3.setRowspan(3);
+		cell3.setColspan(1);
+		cell3.setFixedHeight(100f);
+		cell3.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell3);
+
+		PdfPCell cell4 = new PdfPCell(
+				new Phrase("ReviewedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "QM-EW & A", boldFont3));
+		cell4.setRowspan(3);
+		cell4.setColspan(1);
+		cell4.setFixedHeight(60f);
+		cell4.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell4);
+
+		PdfPCell cell5 = new PdfPCell(
+				new Phrase("ApporvedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "OAQA-BEL", boldFont3));
+		cell5.setRowspan(3);
+		cell5.setColspan(1);
+		cell5.setFixedHeight(60f);
+		cell5.setVerticalAlignment(Element.ALIGN_BASELINE);
+		cell5.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(cell5);
+
+		document.add(table);
+
+		document.newPage();
+		// int summaryPlaceHolderCount = 1;
+		int summaryPlaceHolderCountSub;
+		int summaryPlaceHolderCountH3;
+
+		for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
+			String heading = entry.getKey();
+			Map<String, Map<String, String>> subheadings = entry.getValue();
+
+			if (heading.equalsIgnoreCase("Table Of Contents")) {
+				createTOCByRead1(document, data);
+				document.newPage();
+				continue;
+			}
+
+			heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
+
+			document.add(
+					new Paragraph(" " + heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+			// document.add(new Paragraph("\n"));
+
+			BaseFont baseFont1 = BaseFont.createFont();
+			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
+			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			if (tocPlaceholder.containsKey(headingPageNum)) {
+				PdfTemplate template = tocPlaceholder.get(headingPageNum);
+				template.beginText();
+				template.setFontAndSize(baseFont1, 8);
+				template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+				if (writer.getPageNumber() - 1 < 10)
+					template.showText(String.valueOf(writer.getPageNumber() - 1));
+				template.endText();
+			}
+
+			if (!heading.contains("(TABLE)")) {
+				summaryPlaceHolderCountSub = 1;
+				for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+					String subheading = subEntry.getKey();
+					Map<String, String> h3Map = subEntry.getValue();
+
+					if (subheading.contains("(h2)")) {
+						subheading = subheading.replaceAll("(h2)", "");
+						document.add(new Paragraph("    " + subheading,
+								new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+
+						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
+								+ " " + subheading;
+						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
+							template.beginText();
+							template.setFontAndSize(baseFont1, 8);
+							template.setTextMatrix(
+									50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+							template.showText(String.valueOf(writer.getPageNumber() - 1));
+							template.endText();
+						}
+
+						summaryPlaceHolderCountH3 = 1;
+
+						for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
+							String h3 = h3Entry.getKey();
+							String content = h3Entry.getValue();
+
+							if (h3.contains("(h3)")) {
+								h3 = h3.replaceAll("(h3)", "");
+								document.add(new Paragraph("        " + h3,
+										new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+
+								String h3PageNum = "         " + summaryPlaceHolderCount + "."
+										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
+								System.out.println("Summary h3PageNum" + h3PageNum);
+								if (tocPlaceholder.containsKey(h3PageNum)) {
+									PdfTemplate template = tocPlaceholder.get(h3PageNum);
+									template.beginText();
+									template.setFontAndSize(baseFont1, 8);
+									template.setTextMatrix(
+											50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+											0);
+									template.showText(String.valueOf(writer.getPageNumber() - 1));
+									template.endText();
+								}
+
+								Paragraph contentParagraph = new Paragraph(content,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+								contentParagraph.setIndentationLeft(5); // Indent from the left margin
+								contentParagraph.setIndentationRight(5); // Indent from the right margin
+								// contentParagraph.setSpacingBefore(10); // Space before the paragraph
+								// contentParagraph.setSpacingAfter(10); // Space after the paragraph
+								document.add(contentParagraph);
+
+								document.add(new Paragraph("            " + content,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+							} else {
+
+								// Now Added
+
+								Paragraph h3Paragraph = new Paragraph(h3,
+										new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+								h3Paragraph.setIndentationLeft(5); // Indent from the left margin
+								h3Paragraph.setIndentationRight(5); // Indent from the right margin
+								// h3Paragraph.setSpacingBefore(10); // Space before the paragraph
+								// h3Paragraph.setSpacingAfter(10); // Space after the paragraph
+								document.add(h3Paragraph);
+
+								// document.add(new Paragraph(" " + h3,
+								// new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+							}
+							summaryPlaceHolderCountH3++;
+						}
+					} else {
+
+						// Now Added
+
+						Paragraph paragraph = new Paragraph(subheading,
+								new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+						paragraph.setIndentationLeft(20); // Indent from the left margin
+						paragraph.setIndentationRight(20); // Indent from the right margin
+						paragraph.setSpacingBefore(10); // Space before the paragraph
+						paragraph.setSpacingAfter(10); // Space after the paragraph
+						document.add(paragraph);
+
+						// document.add(new Paragraph(" " + subheading,
+						// new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL)));
+
+						for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
+							String content = h3Entry.getValue();
+							document.add(
+									new Paragraph("            " + content, new Font(Font.FontFamily.TIMES_ROMAN, 10)));
+						}
+					}
+					summaryPlaceHolderCountSub++;
+				}
+				if (heading.equals("Preface")) {
+					System.out.println("----------------Preface---------");
+					document.newPage();
+				}
+				document.add(new Paragraph("\n"));
 			} else {
 				document.add(new Paragraph("\n"));
 				// String heading = entry.getKey();
@@ -1620,215 +2442,167 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		}
 	}
 
-	//With New Page Paragraph..
-/*	public static void createSummary1(Document document, Map<String, Map<String, Map<String, String>>> data)
-	        throws DocumentException, MalformedURLException, IOException {
+	// With New Page Paragraph..
+	/*
+	 * public static void createSummary1(Document document, Map<String, Map<String,
+	 * Map<String, String>>> data) throws DocumentException, MalformedURLException,
+	 * IOException {
+	 * 
+	 * String imagePath = "src/Resources/Images/BellLogoRocket.png"; Image img =
+	 * Image.getInstance(imagePath); img.scaleAbsolute(2, 1); img.scalePercent(50);
+	 * img.setAlignment(Element.ALIGN_CENTER); document.add(img);
+	 * 
+	 * Paragraph preface = new Paragraph();
+	 * preface.setAlignment(Element.ALIGN_CENTER);
+	 * 
+	 * Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD,
+	 * BaseColor.BLACK); Paragraph titlePara = new Paragraph(title, titleFont); //
+	 * Assuming 'title' is a variable containing the title text
+	 * titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+	 * document.add(titlePara);
+	 * 
+	 * document.add(new Paragraph("\n")); document.add(new Paragraph("\n"));
+	 * 
+	 * // Tab Adding BaseColor textColor = new BaseColor(22, 28, 99); BaseColor
+	 * bcolor = new BaseColor(228, 239, 255); Font boldFont1 = new
+	 * Font(Font.FontFamily.HELVETICA, 13, Font.BOLD); Font boldFont4 = new
+	 * Font(Font.FontFamily.HELVETICA, 6, Font.BOLD); Font boldFont2 = new
+	 * Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL); Font boldFont3 = new
+	 * Font(Font.FontFamily.HELVETICA, 10, Font.BOLD); Font boldFont5 = new
+	 * Font(Font.FontFamily.COURIER, 8, Font.BOLD); PdfPTable table = new
+	 * PdfPTable(3); float[] columnWidths = {2, 2, 2}; // Adjust column widths as
+	 * necessary table.setWidths(columnWidths); PdfPCell cell1 = new PdfPCell(new
+	 * Phrase("Prepared By", boldFont3)); cell1.setRowspan(1); cell1.setColspan(3);
+	 * cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
+	 * cell1.setHorizontalAlignment(Element.ALIGN_CENTER); table.addCell(cell1);
+	 * 
+	 * PdfPCell cell2 = new PdfPCell(new Phrase( "\n" + "\n" + "\n" + "\n" + "\n" +
+	 * "\n" + "\n" + "\n" + "   BEL Testing –LCA-EWA", boldFont4));
+	 * cell2.setRowspan(2); cell2.setColspan(3); cell2.setFixedHeight(80f);
+	 * cell2.setVerticalAlignment(Element.ALIGN_BOTTOM);
+	 * cell2.setHorizontalAlignment(Element.ALIGN_CENTER); table.addCell(cell2);
+	 * 
+	 * PdfPCell cell3 = new PdfPCell( new Phrase("VerifiedBy" + "\n" + "\n" + "\n" +
+	 * "\n" + "\n" + "\n" + "\n" + "LCA-TS/EW&A", boldFont3));
+	 * 
+	 * cell3.setRowspan(3); cell3.setColspan(1); cell3.setFixedHeight(100f);
+	 * cell3.setVerticalAlignment(Element.ALIGN_BASELINE);
+	 * cell3.setHorizontalAlignment(Element.ALIGN_CENTER); table.addCell(cell3);
+	 * 
+	 * PdfPCell cell4 = new PdfPCell( new Phrase("ReviewedBy" + "\n" + "\n" + "\n" +
+	 * "\n" + "\n" + "\n" + "\n" + "QM-EW & A", boldFont3)); cell4.setRowspan(3);
+	 * cell4.setColspan(1); cell4.setFixedHeight(60f);
+	 * cell4.setVerticalAlignment(Element.ALIGN_BASELINE);
+	 * cell4.setHorizontalAlignment(Element.ALIGN_CENTER); table.addCell(cell4);
+	 * 
+	 * PdfPCell cell5 = new PdfPCell( new Phrase("ApporvedBy" + "\n" + "\n" + "\n" +
+	 * "\n" + "\n" + "\n" + "\n" + "OAQA-BEL", boldFont3)); cell5.setRowspan(3);
+	 * cell5.setColspan(1); cell5.setFixedHeight(60f);
+	 * cell5.setVerticalAlignment(Element.ALIGN_BASELINE);
+	 * cell5.setHorizontalAlignment(Element.ALIGN_CENTER); table.addCell(cell5);
+	 * 
+	 * document.add(table);
+	 * 
+	 * document.newPage();
+	 * 
+	 * int summaryPlaceHolderCount = 1; int summaryPlaceHolderCountSub; int
+	 * summaryPlaceHolderCountH3;
+	 * 
+	 * for (Map.Entry<String, Map<String, Map<String, String>>> entry :
+	 * data.entrySet()) { String heading = entry.getKey(); Map<String, Map<String,
+	 * String>> subheadings = entry.getValue();
+	 * 
+	 * if (heading.equalsIgnoreCase("Table Of Contents")) {
+	 * createTOCByRead1(document, data); document.newPage(); continue; }
+	 * 
+	 * heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
+	 * 
+	 * // Check available space for the heading if (writer.getVerticalPosition(true)
+	 * - 20 < document.bottomMargin()) { document.newPage(); }
+	 * 
+	 * document.add(new Paragraph(" " + heading, new
+	 * Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+	 * 
+	 * BaseFont baseFont1 = BaseFont.createFont(); String headingPageNum = "  " +
+	 * summaryPlaceHolderCount + " " + heading;
+	 * System.out.println("Summary headingPageNum---->" + headingPageNum); if
+	 * (tocPlaceholder.containsKey(headingPageNum)) { PdfTemplate template =
+	 * tocPlaceholder.get(headingPageNum); template.beginText();
+	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix(50 -
+	 * baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0); if
+	 * (writer.getPageNumber() - 1 < 10)
+	 * template.showText(String.valueOf(writer.getPageNumber() - 1));
+	 * template.endText(); }
+	 * 
+	 * if (!heading.contains("(TABLE)")) { summaryPlaceHolderCountSub = 1; for
+	 * (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
+	 * String subheading = subEntry.getKey(); Map<String, String> h3Map =
+	 * subEntry.getValue();
+	 * 
+	 * if (subheading.contains("(h2)")) { subheading = subheading.replaceAll("(h2)",
+	 * "");
+	 * 
+	 * // Check available space for the subheading if
+	 * (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	 * document.newPage(); }
+	 * 
+	 * document.add(new Paragraph("    " + subheading, new
+	 * Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+	 * 
+	 * String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." +
+	 * summaryPlaceHolderCountSub + " " + subheading;
+	 * System.out.println("Summary subHeadingPageNum" + subHeadingPageNum); if
+	 * (tocPlaceholder.containsKey(subHeadingPageNum)) { PdfTemplate template =
+	 * tocPlaceholder.get(subHeadingPageNum); template.beginText();
+	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix( 50 -
+	 * baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+	 * template.showText(String.valueOf(writer.getPageNumber() - 1));
+	 * template.endText(); }
+	 * 
+	 * summaryPlaceHolderCountH3 = 1;
+	 * 
+	 * for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) { String h3 =
+	 * h3Entry.getKey(); String content = h3Entry.getValue();
+	 * 
+	 * if (h3.contains("(h3)")) { h3 = h3.replaceAll("(h3)", "");
+	 * 
+	 * // Check available space for the h3 heading if
+	 * (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	 * document.newPage(); }
+	 * 
+	 * document.add(new Paragraph("        " + h3, new
+	 * Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+	 * 
+	 * String h3PageNum = "         " + summaryPlaceHolderCount + "." +
+	 * summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
+	 * System.out.println("Summary h3PageNum" + h3PageNum); if
+	 * (tocPlaceholder.containsKey(h3PageNum)) { PdfTemplate template =
+	 * tocPlaceholder.get(h3PageNum); template.beginText();
+	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix( 50 -
+	 * baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+	 * template.showText(String.valueOf(writer.getPageNumber() - 1));
+	 * template.endText(); }
+	 * 
+	 * Paragraph contentParagraph = new Paragraph(content, new
+	 * Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+	 * contentParagraph.setIndentationLeft(5); // Indent from the left margin
+	 * contentParagraph.setIndentationRight(5); // Indent from the right margin
+	 * document.add(contentParagraph);
+	 * 
+	 * } else { // Check available space for the h3 content if
+	 * (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
+	 * document.newPage(); }
+	 * 
+	 * Paragraph contentParagraph = new Paragraph(content, new
+	 * Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
+	 * contentParagraph.setIndentationLeft(10); // Further indent content under
+	 * subheading contentParagraph.setIndentationRight(5); // Indent from the right
+	 * margin document.add(contentParagraph); }
+	 * 
+	 * summaryPlaceHolderCountH3++; } summaryPlaceHolderCountSub++; } } }
+	 * summaryPlaceHolderCount++; } }
+	 */
 
-	    String imagePath = "src/Resources/Images/BellLogoRocket.png";
-	    Image img = Image.getInstance(imagePath);
-	    img.scaleAbsolute(2, 1);
-	    img.scalePercent(50);
-	    img.setAlignment(Element.ALIGN_CENTER);
-	    document.add(img);
-
-	    Paragraph preface = new Paragraph();
-	    preface.setAlignment(Element.ALIGN_CENTER);
-
-	    Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
-	    Paragraph titlePara = new Paragraph(title, titleFont); // Assuming 'title' is a variable containing the title text
-	    titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
-	    document.add(titlePara);
-
-	    document.add(new Paragraph("\n"));
-	    document.add(new Paragraph("\n"));
-
-	    // Tab Adding
-	    BaseColor textColor = new BaseColor(22, 28, 99);
-	    BaseColor bcolor = new BaseColor(228, 239, 255);
-	    Font boldFont1 = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD);
-	    Font boldFont4 = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD);
-	    Font boldFont2 = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL);
-	    Font boldFont3 = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
-	    Font boldFont5 = new Font(Font.FontFamily.COURIER, 8, Font.BOLD);
-	    PdfPTable table = new PdfPTable(3);
-	    float[] columnWidths = {2, 2, 2}; // Adjust column widths as necessary
-	    table.setWidths(columnWidths);
-	    PdfPCell cell1 = new PdfPCell(new Phrase("Prepared By", boldFont3));
-	    cell1.setRowspan(1);
-	    cell1.setColspan(3);
-	    cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
-	    cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    table.addCell(cell1);
-
-	    PdfPCell cell2 = new PdfPCell(new Phrase(
-	            "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "   BEL Testing –LCA-EWA", boldFont4));
-	    cell2.setRowspan(2);
-	    cell2.setColspan(3);
-	    cell2.setFixedHeight(80f);
-	    cell2.setVerticalAlignment(Element.ALIGN_BOTTOM);
-	    cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    table.addCell(cell2);
-
-	    PdfPCell cell3 = new PdfPCell(
-	            new Phrase("VerifiedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "LCA-TS/EW&A", boldFont3));
-
-	    cell3.setRowspan(3);
-	    cell3.setColspan(1);
-	    cell3.setFixedHeight(100f);
-	    cell3.setVerticalAlignment(Element.ALIGN_BASELINE);
-	    cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    table.addCell(cell3);
-
-	    PdfPCell cell4 = new PdfPCell(
-	            new Phrase("ReviewedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "QM-EW & A", boldFont3));
-	    cell4.setRowspan(3);
-	    cell4.setColspan(1);
-	    cell4.setFixedHeight(60f);
-	    cell4.setVerticalAlignment(Element.ALIGN_BASELINE);
-	    cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    table.addCell(cell4);
-
-	    PdfPCell cell5 = new PdfPCell(
-	            new Phrase("ApporvedBy" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "OAQA-BEL", boldFont3));
-	    cell5.setRowspan(3);
-	    cell5.setColspan(1);
-	    cell5.setFixedHeight(60f);
-	    cell5.setVerticalAlignment(Element.ALIGN_BASELINE);
-	    cell5.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    table.addCell(cell5);
-
-	    document.add(table);
-
-	    document.newPage();
-
-	    int summaryPlaceHolderCount = 1;
-	    int summaryPlaceHolderCountSub;
-	    int summaryPlaceHolderCountH3;
-
-	    for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
-	        String heading = entry.getKey();
-	        Map<String, Map<String, String>> subheadings = entry.getValue();
-
-	        if (heading.equalsIgnoreCase("Table Of Contents")) {
-	            createTOCByRead1(document, data);
-	            document.newPage();
-	            continue;
-	        }
-
-	        heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
-
-	        // Check available space for the heading
-	        if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
-	            document.newPage();
-	        }
-
-	        document.add(new Paragraph(" " + heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
-
-	        BaseFont baseFont1 = BaseFont.createFont();
-	        String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-	        System.out.println("Summary headingPageNum---->" + headingPageNum);
-	        if (tocPlaceholder.containsKey(headingPageNum)) {
-	            PdfTemplate template = tocPlaceholder.get(headingPageNum);
-	            template.beginText();
-	            template.setFontAndSize(baseFont1, 8);
-	            template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-	            if (writer.getPageNumber() - 1 < 10)
-	                template.showText(String.valueOf(writer.getPageNumber() - 1));
-	            template.endText();
-	        }
-
-	        if (!heading.contains("(TABLE)")) {
-	            summaryPlaceHolderCountSub = 1;
-	            for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
-	                String subheading = subEntry.getKey();
-	                Map<String, String> h3Map = subEntry.getValue();
-
-	                if (subheading.contains("(h2)")) {
-	                    subheading = subheading.replaceAll("(h2)", "");
-
-	                    // Check available space for the subheading
-	                    if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
-	                        document.newPage();
-	                    }
-
-	                    document.add(new Paragraph("    " + subheading,
-	                            new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
-
-	                    String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
-	                            + " " + subheading;
-	                    System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
-	                    if (tocPlaceholder.containsKey(subHeadingPageNum)) {
-	                        PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
-	                        template.beginText();
-	                        template.setFontAndSize(baseFont1, 8);
-	                        template.setTextMatrix(
-	                                50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-	                        template.showText(String.valueOf(writer.getPageNumber() - 1));
-	                        template.endText();
-	                    }
-
-	                    summaryPlaceHolderCountH3 = 1;
-
-	                    for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
-	                        String h3 = h3Entry.getKey();
-	                        String content = h3Entry.getValue();
-
-	                        if (h3.contains("(h3)")) {
-	                            h3 = h3.replaceAll("(h3)", "");
-
-	                            // Check available space for the h3 heading
-	                            if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
-	                                document.newPage();
-	                            }
-
-	                            document.add(new Paragraph("        " + h3,
-	                                    new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
-
-	                            String h3PageNum = "         " + summaryPlaceHolderCount + "."
-	                                    + summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-	                            System.out.println("Summary h3PageNum" + h3PageNum);
-	                            if (tocPlaceholder.containsKey(h3PageNum)) {
-	                                PdfTemplate template = tocPlaceholder.get(h3PageNum);
-	                                template.beginText();
-	                                template.setFontAndSize(baseFont1, 8);
-	                                template.setTextMatrix(
-	                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-	                                template.showText(String.valueOf(writer.getPageNumber() - 1));
-	                                template.endText();
-	                            }
-
-	                            Paragraph contentParagraph = new Paragraph(content,
-	                                    new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
-	                            contentParagraph.setIndentationLeft(5); // Indent from the left margin
-	                            contentParagraph.setIndentationRight(5); // Indent from the right margin
-	                            document.add(contentParagraph);
-
-	                        } else {
-	                            // Check available space for the h3 content
-	                            if (writer.getVerticalPosition(true) - 20 < document.bottomMargin()) {
-	                                document.newPage();
-	                            }
-
-	                            Paragraph contentParagraph = new Paragraph(content,
-	                                    new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
-	                            contentParagraph.setIndentationLeft(10); // Further indent content under subheading
-	                            contentParagraph.setIndentationRight(5); // Indent from the right margin
-	                            document.add(contentParagraph);
-	                        }
-
-	                        summaryPlaceHolderCountH3++;
-	                    }
-	                    summaryPlaceHolderCountSub++;
-	                }
-	            }
-	        }
-	        summaryPlaceHolderCount++;
-	    }
-	}*/
-
-	
-	
-	
 	public static void createSummary(Document document, Map<String, Map<String, Map<String, String>>> data)
 			throws DocumentException, MalformedURLException, IOException {
 		// Starting Page
@@ -2527,24 +3301,25 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		}
 
-		//Used
-		public void addParagraphWithPageCheck(PdfWriter writer, Document document, Paragraph paragraph) throws DocumentException {
-		    // Get the current vertical position (y-position) on the page
-		    float currentPosition = writer.getVerticalPosition(true);
+		// Used
+		public void addParagraphWithPageCheck(PdfWriter writer, Document document, Paragraph paragraph)
+				throws DocumentException {
+			// Get the current vertical position (y-position) on the page
+			float currentPosition = writer.getVerticalPosition(true);
 
-		    // Define the estimated height of your paragraph (adjust as necessary)
-		    float paragraphHeight = 100f; // You may need to adjust this value based on your content
+			// Define the estimated height of your paragraph (adjust as necessary)
+			float paragraphHeight = 100f; // You may need to adjust this value based on your content
 
-		    // Check if there is enough space on the current page for the paragraph
-		    if (currentPosition - paragraphHeight < document.bottomMargin()) {
-		        // If not enough space, force a page break
-		        document.newPage();
-		    }
+			// Check if there is enough space on the current page for the paragraph
+			if (currentPosition - paragraphHeight < document.bottomMargin()) {
+				// If not enough space, force a page break
+				document.newPage();
+			}
 
-		    // Add the paragraph after ensuring there's enough space
-		    document.add(paragraph);
+			// Add the paragraph after ensuring there's enough space
+			document.add(paragraph);
 		}
-		
+
 		public static void addTableOfContents(Document document) throws DocumentException {
 			document.newPage();
 			Paragraph tocTitle = new Paragraph("Table of Contents",

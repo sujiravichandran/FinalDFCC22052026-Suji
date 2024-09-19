@@ -27,10 +27,12 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
+import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
 
 public class ReportGeneration {
 
@@ -43,9 +45,12 @@ public class ReportGeneration {
         Document document = new Document(PageSize.A4);
         String fileName = "BriefReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-        String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-//      String filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/"+fileName;
-
+        String filePath ="";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "home/teclever_java_app/aitessreport/" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
@@ -65,9 +70,12 @@ public class ReportGeneration {
         // To Create Header
 
         // Add The BEL Logo
-        String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-     //   String imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
-       
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         Image img = Image.getInstance(imagePath);
         img.scaleAbsolute(2, 1);
@@ -113,13 +121,21 @@ public class ReportGeneration {
         canvas.stroke();
 
         // Add images and text inside the rectangular box
-        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+        String imagePath1 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 
-        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-       // String imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
+		String imagePath3 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+		} else {
+			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
+		}
 
         Image img1 = Image.getInstance(imagePath1);
         Image img3 = Image.getInstance(imagePath3);
@@ -248,7 +264,17 @@ public class ReportGeneration {
         String fileName = "DetailedReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
      //   String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-          String filePath = "home/teclever_java_app/aitessreport/"+fileName;
+          String filePath ="";
+          
+          if(!DFCCConstant.isJarBuild)
+          {
+        	  filePath = "home/teclever_java_app/aitessreport/"+fileName;
+          }
+          else
+          {
+        	  filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+          }
+          
 
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
@@ -269,9 +295,12 @@ public class ReportGeneration {
         // To Create Header
 
         // Add The BEL Logo
-        String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
-        
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         Image img = Image.getInstance(imagePath);
         img.scaleAbsolute(2, 1);
         img.scalePercent(100);
@@ -316,13 +345,22 @@ public class ReportGeneration {
         canvas.stroke();
 
         // Add images and text inside the rectangular box
-        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath1 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
-        
+		String imagePath1 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+
+			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 
-        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+		String imagePath3 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+		} else {
+			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
      //   String imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
         
         Image img1 = Image.getInstance(imagePath1);
@@ -369,14 +407,19 @@ public class ReportGeneration {
         Paragraph userNameDetails = new Paragraph(" User Name          :" + "      User Name", headerFont);
         userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
         document.add(userNameDetails);
-
-        ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+        
+        
+        
+        
+        ResultDetailedResponse resultDetailedResponse = new ResultDetailedResponse();
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages("");
+        resultDetailedResponse = resultExecutionManagement.getResultExecutionDetailedListForStages(sessionId);
 
 
         List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
-        for (int i = 0; i < 100; i++) {
+        resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+        
+     /*   for (int i = 0; i < 100; i++) {
             ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 
             resultDetailedDTO.setExpectedValue(i + ".00");
@@ -390,7 +433,7 @@ public class ReportGeneration {
             resultDetailedDTO.setUnit("UN-" + i);
             resultDetailedDTO.setTestName("TN-" + i);
             resultDetailedDTOList.add(resultDetailedDTO);
-        }
+        }*/
 
         // Create table
         PdfPTable table = new PdfPTable(10); // 10 columns
@@ -451,9 +494,12 @@ public class ReportGeneration {
         Document document = new Document(PageSize.A4);
         String fileName = "BriefReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance()) + ".pdf";
-        String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-//      String filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/"+fileName;
-
+        String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+		}
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
@@ -473,9 +519,12 @@ public class ReportGeneration {
         // To Create Header
 
         // Add The BEL Logo
-        String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-     //   String imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
-       
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         Image img = Image.getInstance(imagePath);
         img.scaleAbsolute(2, 1);
@@ -521,14 +570,20 @@ public class ReportGeneration {
         canvas.stroke();
 
         // Add images and text inside the rectangular box
-        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
-        
+		String imagePath1 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 
-        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-       // String imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
-
+		String imagePath3 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+		} else {
+			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
+		}
         Image img1 = Image.getInstance(imagePath1);
         Image img3 = Image.getInstance(imagePath3);
 
@@ -645,8 +700,12 @@ public class ReportGeneration {
         Document document = new Document(PageSize.A4);
         String fileName = "DetailedReport_" 
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-     //   String filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-          String filePath = "home/teclever_java_app/aitessreport/"+fileName;
+		String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+		} else {
+			filePath = "home/teclever_java_app/aitessreport/" + fileName;
+		}
 
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
@@ -667,8 +726,12 @@ public class ReportGeneration {
         // To Create Header
 
         // Add The BEL Logo
-        String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         Image img = Image.getInstance(imagePath);
         img.scaleAbsolute(2, 1);
@@ -713,15 +776,24 @@ public class ReportGeneration {
         canvas.rectangle(x, y, width, height);
         canvas.stroke();
 
-        // Add images and text inside the rectangular box
-        String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-      //  String imagePath1 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
         
+        // Add images and text inside the rectangular box
+		String imagePath1 = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		} else {
+			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		}
         
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
-
-        String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-     //   String imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+		  String imagePath3 = "";
+			if (!DFCCConstant.isJarBuild) {
+				imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+			}else
+			{
+				   imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
+				   
+			}
         
         Image img1 = Image.getInstance(imagePath1);
         Image img3 = Image.getInstance(imagePath3);

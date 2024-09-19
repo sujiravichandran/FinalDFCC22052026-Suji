@@ -14,6 +14,7 @@ import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.reportgeneration.ReportGenerationNew;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -51,8 +52,11 @@ extends Application {
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-
         Main.launch(args);
+        
+        ReportGenerationNew n = new ReportGenerationNew();
+        
+        
     }
 
     @Override
