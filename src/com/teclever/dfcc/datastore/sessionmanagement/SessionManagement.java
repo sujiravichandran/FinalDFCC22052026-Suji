@@ -13,6 +13,7 @@ import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
+import com.teclever.datastore.dto.SessionResponse;
 import com.teclever.datastore.dto.StageLevelResponse;
 import com.teclever.datastore.dto.TrailSessionDto;
 import com.teclever.datastore.dto.TrailSessionResponse;
@@ -61,6 +62,25 @@ import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionManagement {
 	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
+
+	// API:: GET ALL SESSION FOR HISTORY REPORTS
+	public List<SessionDto> getAllSessionInfo() {
+		SessionService service = new SessionService();
+		SessionResponse serviceResponse = service.getAllSession();
+		List<SessionDto> dtoList = new ArrayList<>();
+
+		if (serviceResponse.getResponse().getResponseCode() == 1) {
+			List<SessionDto> configurationList = serviceResponse.getListOfSession();
+			for (SessionDto configuration : configurationList) {
+				dtoList.add(configuration);
+			}
+		} else {
+			System.err.println(
+					"Failed to fetch All Session Details: " + serviceResponse.getResponse().getResponseMessage());
+		}
+
+		return dtoList;
+	}
 
 	// SESSION ENTITY : SAVE SESSION
 	public Response saveSession(SessionDTO sessionDTO) {
