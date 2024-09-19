@@ -24,8 +24,10 @@ import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.StagesRemarks;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
+import com.teclever.datastore.response.StagesRemarksResponse;
 import com.teclever.datastore.response.UUTMasterDetailsServiceResponse;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
 import com.teclever.datastore.service.LevelFiveMasterService;
@@ -36,6 +38,7 @@ import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.StagesRemarksService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.service.UUTMasterDetailsService;
@@ -54,6 +57,7 @@ import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
 import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
@@ -1524,4 +1528,56 @@ public class SessionManagement {
 		return res;
 
 	}
+
+	// STAGES REMARKS
+	// ADD
+	public StagesRemarksResponse addStagesRemarks(StagesRemarksDto stagesRemarksDto) {
+		StagesRemarksService service = new StagesRemarksService();
+
+		StagesRemarks stagesRemarks = new StagesRemarks();
+		stagesRemarks.setRemarksId(stagesRemarksDto.getRemarksId());
+		stagesRemarks.setLevelOneStageId(stagesRemarksDto.getLevelOneStageId());
+		stagesRemarks.setLevelTwoStageId(stagesRemarksDto.getLevelTwoStageId());
+		stagesRemarks.setLevelThreeStageId(stagesRemarksDto.getLevelThreeStageId());
+		stagesRemarks.setLevelFourStageId(stagesRemarksDto.getLevelFourStageId());
+		stagesRemarks.setLevelFiveStageId(stagesRemarksDto.getLevelFiveStageId());
+		stagesRemarks.setRemarks(stagesRemarksDto.getRemarks());
+		stagesRemarks.setSessionId(stagesRemarksDto.getSessionId());
+		stagesRemarks.setReportType(stagesRemarksDto.getReportType());
+
+		StagesRemarksResponse serviceResponse = service.addStagesRemarks(stagesRemarks);
+		return serviceResponse;
+	}
+
+	// GET
+	public List<StagesRemarksDto> getStagesRemarks(String sessionId, String reportType) {
+		StagesRemarksService service = new StagesRemarksService();
+		StagesRemarksResponse serviceResponse = service.getStagesRemarks(sessionId, reportType);
+
+		List<StagesRemarksDto> dtoList = new ArrayList<>();
+
+		if (serviceResponse.getResponseCode() == 1) {
+			List<StagesRemarks> remarksList = serviceResponse.getRemarks();
+
+			for (StagesRemarks remarks : remarksList) {
+				StagesRemarksDto dto = new StagesRemarksDto();
+				dto.setRemarksId(remarks.getRemarksId());
+				dto.setLevelOneStageId(remarks.getLevelOneStageId());
+				dto.setLevelTwoStageId(remarks.getLevelTwoStageId());
+				dto.setLevelThreeStageId(remarks.getLevelThreeStageId());
+				dto.setLevelFourStageId(remarks.getLevelFourStageId());
+				dto.setLevelFiveStageId(remarks.getLevelFiveStageId());
+				dto.setRemarks(remarks.getRemarks());
+				dto.setSessionId(remarks.getSessionId());
+				dto.setReportType(remarks.getReportType());
+
+				dtoList.add(dto);
+			}
+		} else {
+			System.err.println("Failed to fetch stages remarks Details: " + serviceResponse.getResponseMessage());
+		}
+
+		return dtoList;
+	}
+
 }
