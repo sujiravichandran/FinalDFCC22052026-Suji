@@ -6,6 +6,8 @@ public class ResultDetailedDTO {
 	private String tpgph;
     private String stepName;
     private String expectedValue;
+    private String expectedMinValue;
+    private String exceptedMaxValue;
     private String measuredValue;
     private String unit;
     private String tpfFileName;
@@ -74,7 +76,18 @@ public class ResultDetailedDTO {
 	public void setRdfName(String rdfName) {
 		this.rdfName = rdfName;
 	}
+	public String getExpectedMinValue() {
+		return expectedMinValue;
+	}
+	public void setExpectedMinValue(String expectedMinValue) {
+		this.expectedMinValue = expectedMinValue;
+	}
+	public String getExceptedMaxValue() {
+		return exceptedMaxValue;
+	}
+	public void setExceptedMaxValue(String exceptedMaxValue) {
+		this.exceptedMaxValue = exceptedMaxValue;
+	}
     
-    
-
+  
 }

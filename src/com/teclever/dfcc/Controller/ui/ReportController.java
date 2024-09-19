@@ -14,6 +14,7 @@ import com.teclever.dfcc.datastore.dto.SessionList;
 import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.reportgeneration.ReportGenerationNew;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -250,8 +251,9 @@ public class ReportController {
 		buttonBox.getChildren().add(downloadButton);
 
 		downloadButton.setOnAction(e -> {
-			if(UUT_ID != null && SESSION_ID != null) {				
-
+			if(UUT_ID != null && SESSION_ID != null) {	
+				ReportGenerationNew rep = new ReportGenerationNew();
+				rep.generatePQTReport("TSSN00001");
 			}else {
 				Notifications.showWarningAlert("Please select UUT type and session name.");
 			}
