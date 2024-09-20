@@ -1537,15 +1537,11 @@ public class SessionManagement {
 		StagesRemarks stagesRemarks = new StagesRemarks();
 		stagesRemarks.setRemarksId(stagesRemarksDto.getRemarksId());
 		stagesRemarks.setLevelOneStageId(stagesRemarksDto.getLevelOneStageId());
-		stagesRemarks.setLevelTwoStageId(stagesRemarksDto.getLevelTwoStageId());
-		stagesRemarks.setLevelThreeStageId(stagesRemarksDto.getLevelThreeStageId());
-		stagesRemarks.setLevelFourStageId(stagesRemarksDto.getLevelFourStageId());
-		stagesRemarks.setLevelFiveStageId(stagesRemarksDto.getLevelFiveStageId());
 		stagesRemarks.setRemarks(stagesRemarksDto.getRemarks());
 		stagesRemarks.setSessionId(stagesRemarksDto.getSessionId());
 		stagesRemarks.setReportType(stagesRemarksDto.getReportType());
 
-		StagesRemarksResponse serviceResponse = service.addStagesRemarks(stagesRemarks);
+		StagesRemarksResponse serviceResponse = service.addOrUpdateStagesRemarks(stagesRemarks);
 		return serviceResponse;
 	}
 
@@ -1563,10 +1559,6 @@ public class SessionManagement {
 				StagesRemarksDto dto = new StagesRemarksDto();
 				dto.setRemarksId(remarks.getRemarksId());
 				dto.setLevelOneStageId(remarks.getLevelOneStageId());
-				dto.setLevelTwoStageId(remarks.getLevelTwoStageId());
-				dto.setLevelThreeStageId(remarks.getLevelThreeStageId());
-				dto.setLevelFourStageId(remarks.getLevelFourStageId());
-				dto.setLevelFiveStageId(remarks.getLevelFiveStageId());
 				dto.setRemarks(remarks.getRemarks());
 				dto.setSessionId(remarks.getSessionId());
 				dto.setReportType(remarks.getReportType());

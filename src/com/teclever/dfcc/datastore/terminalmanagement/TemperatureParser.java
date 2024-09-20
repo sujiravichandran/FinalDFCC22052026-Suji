@@ -37,7 +37,7 @@ public class TemperatureParser {
 	
 
 	//MK1a MK2
-	public static Map<String, ChannelTemperature> parseFile(String filePath) throws IOException {
+	public Map<String, ChannelTemperature> parseFile(String filePath) throws IOException {
 	    Map<String, ChannelTemperature> boardTemperatureMap = new HashMap<>();
 	    List<String> boardNames = new ArrayList<>();
 	    Pattern boardNamePattern = Pattern.compile("!\\s*([\\w-]+)\\s*$");
