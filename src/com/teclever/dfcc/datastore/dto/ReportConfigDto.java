@@ -33,6 +33,17 @@ public class ReportConfigDto {
 	private String levelFiveId;
 
 	private String fileName;
+	
+	private String uploadDate;
+	
+	
+	public String getUploadDate() {
+		return uploadDate;
+	}
+
+	public void setUploadDate(String uploadDate) {
+		this.uploadDate = uploadDate;
+	}
 
 	public String getReportConfigId() {
 		return reportConfigId;

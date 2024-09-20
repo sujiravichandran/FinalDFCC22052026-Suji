@@ -35,6 +35,7 @@ public class UserCenterContentController {
 	private StackPane datapackReportStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
+	private StackPane reportsUploadStackPane = new StackPane();
 	
 	private TerminalController terminalController = new TerminalController();
 
@@ -283,6 +284,17 @@ public class UserCenterContentController {
 			
 			break;
 
+		case "Upload" :	
+			if (!centerStackPane.getChildren().contains(reportsUploadStackPane)) {
+				ReportsUploadController uploadController = new ReportsUploadController();
+				reportsUploadStackPane.getChildren().add(uploadController.createUploadReportGridPane(selectedMenu));
+				centerStackPane.getChildren().add(reportsUploadStackPane);
+			} else {
+				reportsUploadStackPane.toFront();
+			}
+			
+			break;
+			
 			
 		case "Configuration":
 			if (!centerStackPane.getChildren().contains(configurationStackPane)) {

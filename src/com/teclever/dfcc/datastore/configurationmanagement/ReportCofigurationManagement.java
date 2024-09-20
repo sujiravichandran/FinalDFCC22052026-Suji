@@ -73,6 +73,7 @@ public class ReportCofigurationManagement {
 				reportConfigDto.setReportConfigId(repoConfig.getReportConfigId());
 				reportConfigDto.setFileName(repoConfig.getFileNameWitFullPath());
 				reportConfigDto.setReportType(repoConfig.getReportType());
+				reportConfigDto.setUploadDate(repoConfig.getUploadDate());
 
 				// Check if levelOneId is not equal to "null"
 				if (repoConfig.getLevelOneId() != null) {

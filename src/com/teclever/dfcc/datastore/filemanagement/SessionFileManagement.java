@@ -463,5 +463,34 @@ public class SessionFileManagement {
 			}
 		}
 	}
+	
+	// upload
+				public void copyToUpload(List<ReportConfigDto> list) {
+//					String uploadPath="C:\\Suji\\New folder (3)\\2dy\\New folder";
+					String uploadPath = StateMachine.getHomelocation() + File.separator + currentSessionDetails.getUutType()
+							+ File.separator + currentSessionDetails.getDfccSerialNumber() + File.separator
+							+ currentSessionDetails.getSessionName() + File.separator + "upload";
+					System.out.println("UPLOAD FOLDER CHECK ----- :: " + uploadPath);
+					File targetDir = new File(uploadPath);
+					if (!targetDir.exists()) {
+						if (!targetDir.mkdirs()) {
+							System.err.println("Failed to create directory: " + targetDir.getAbsolutePath());
+							return;
+						}
+					}
+					for (ReportConfigDto item : list) {
+						String filePath = item.getFileName();
+						Path path = Paths.get(filePath);
+						String fileName = path.getFileName().toString();
+						File newFileLocation = new File(targetDir, fileName);
+						try {
+							Files.copy(Paths.get(filePath), Paths.get(newFileLocation.getAbsolutePath()),
+									StandardCopyOption.REPLACE_EXISTING);
+							System.out.println("File copied and renamed to: " + newFileLocation.getAbsolutePath());
+						} catch (IOException e) {
+							System.err.println("Failed to copy file: " + e.getMessage());
+						}
+					}
+				}
 
 }
