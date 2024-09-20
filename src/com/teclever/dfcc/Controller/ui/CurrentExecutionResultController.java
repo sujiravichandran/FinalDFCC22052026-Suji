@@ -366,7 +366,7 @@ public class CurrentExecutionResultController {
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID, STAGE_ID);
 		} else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+			response = resultExecutionManagement.getResultExecutionListBriefListForSession(SESSION_ID);
 		} else {
 			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
 		}
@@ -442,8 +442,7 @@ public class CurrentExecutionResultController {
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
 		} else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement
-					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
 		} else {
 			response = resultExecutionManagement
 					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
