@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -189,7 +190,7 @@ public class SessionManagement {
 					levels);
 
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
-
+			Set<String> setOfL1Ids = new LinkedHashSet<>();
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : dbSessionStages) {
 
 				// for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
@@ -208,6 +209,9 @@ public class SessionManagement {
 				sessionStagesMapping.setLevelFiveStageId(sessionToStagesMappingDTO.getLevelFiveStageId());
 				sessionStagesMapping.setPath(sessionToStagesMappingDTO.getPath());
 				sessionToStagesMappingList.add(sessionStagesMapping);
+				if (!setOfL1Ids.contains(sessionToStagesMappingDTO.getLevelOneStageId())) {
+					setOfL1Ids.add(sessionToStagesMappingDTO.getLevelOneStageId());
+				}
 			}
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 			// SESSION STAGE MAPPING : ADD
@@ -1531,21 +1535,34 @@ public class SessionManagement {
 	}
 
 	// STAGES REMARKS
-	// ADD
-	public StagesRemarksResponse addStagesRemarks(StagesRemarksDto stagesRemarksDto) {
+	// UPDATE
+	public StagesRemarksResponse updateStagesRemarks(List<StagesRemarksDto> stagesRemarksDto) {
 		StagesRemarksService service = new StagesRemarksService();
 
-		StagesRemarks stagesRemarks = new StagesRemarks();
-		stagesRemarks.setRemarksId(stagesRemarksDto.getRemarksId());
-		stagesRemarks.setLevelOneStageId(stagesRemarksDto.getLevelOneStageId());
-		stagesRemarks.setRemarks(stagesRemarksDto.getRemarks());
-		stagesRemarks.setSessionId(stagesRemarksDto.getSessionId());
-		stagesRemarks.setReportType(stagesRemarksDto.getReportType());
-
-		StagesRemarksResponse serviceResponse = service.addOrUpdateStagesRemarks(stagesRemarks);
+		List<StagesRemarks> remarkList = new ArrayList<>();
+		for (StagesRemarksDto newRemark : stagesRemarksDto) {
+			StagesRemarks stagesRemarks = new StagesRemarks();
+			stagesRemarks.setLevelOneStageId(newRemark.getLevelOneStageId());
+			stagesRemarks.setRemarks(newRemark.getRemarks());
+			stagesRemarks.setSessionId(newRemark.getSessionId());
+			remarkList.add(stagesRemarks);
+		}
+		StagesRemarksResponse serviceResponse = service.updateStagesRemarks(remarkList);
 		return serviceResponse;
 	}
-
+	
+	//SAVE
+	public void addStagesRemarks(Set<String> setOfL1Ids) {
+		StagesRemarksService service = new StagesRemarksService();
+		for (String s : setOfL1Ids) {
+			StagesRemarks stagesRemarks = new StagesRemarks();
+			stagesRemarks.setLevelOneStageId(s);
+			stagesRemarks.setSessionId(currentSessionDetails.getSessionId());
+			stagesRemarks.setReportType("ESS");
+			service.addOrUpdateStagesRemarks(stagesRemarks);
+		}
+	}
+	
 	// GET
 	public StageRemarksResponse getStagesRemarks(String sessionId, String reportType) {
 		StagesRemarksService service = new StagesRemarksService();
