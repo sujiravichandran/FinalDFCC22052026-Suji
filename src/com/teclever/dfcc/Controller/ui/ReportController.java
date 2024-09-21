@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +21,13 @@ import com.teclever.dfcc.utils.Notifications;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -34,6 +40,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class ReportController {
 
@@ -60,6 +70,7 @@ public class ReportController {
 	private String SESSION_ID;
 	
     private Button addOtherFiles = new Button("Add Other Files");
+    private Button addRemarks = new Button("Add Remarks");
 
 	private ListView<ReportConfigDto> listView = new ListView<>();;
 	private String REPORT_TYPE = null;
@@ -116,16 +127,21 @@ public class ReportController {
         secondColumn.setPercentWidth(20);
         ColumnConstraints thirdColumn = new ColumnConstraints();
         thirdColumn.setPercentWidth(20);
+        ColumnConstraints fourthColumn = new ColumnConstraints();
+        fourthColumn.setPercentWidth(20);
         
         RowConstraints firstRow = new RowConstraints();
         firstRow.setPercentHeight(100);
         
-        reportComboBoxGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+        reportComboBoxGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
         reportComboBoxGridPane.getRowConstraints().addAll(firstRow);
         
         reportComboBoxGridPane.add(createUutBox(), 0, 0);
         reportComboBoxGridPane.add(createSessionNameBox(), 1, 0);
         reportComboBoxGridPane.add(createAddFilesBox(), 2, 0);
+        if(REPORT_TYPE.equals("ESS")) {        	
+        	reportComboBoxGridPane.add(createAddRemarkBox(), 3, 0);
+        }
         
 		return reportComboBoxGridPane;
 	}
@@ -166,6 +182,23 @@ public class ReportController {
 		return addFilesHBox;
 	}
 	
+
+	private HBox createAddRemarkBox() {
+		HBox addRemarksHBox = new HBox(10);
+		addRemarksHBox.setAlignment(Pos.CENTER);
+		addRemarksHBox.getChildren().add(addRemarks);
+		
+		addRemarks.setOnAction(e ->{
+			if(UUT_ID != null && SESSION_ID != null) {	
+				handleRemarkPopup();
+			}else {
+				Notifications.showWarningAlert("Please select UUT type and session name...");
+			}
+		});
+		
+		return addRemarksHBox;
+	}
+
 	private void initializeUUTTypeComboBox() {
 		uutDataList = FXCollections.observableArrayList(aitessConfig.getAllUUT());
 		for (UUTMasterDetailsDto uut : uutDataList) {
@@ -252,8 +285,7 @@ public class ReportController {
 
 		downloadButton.setOnAction(e -> {
 			if(UUT_ID != null && SESSION_ID != null) {	
-				ReportGenerationNew rep = new ReportGenerationNew();
-				rep.generatePQTReport("TSSN00001");
+				
 			}else {
 				Notifications.showWarningAlert("Please select UUT type and session name.");
 			}
@@ -444,6 +476,32 @@ public class ReportController {
 
 		} else if (response.getResponse().getResponseCode() == 0) {
 //			Notifications.showErrorAlert(response.getResponse().getResponseMessage());
+		}
+	}
+	
+	
+	private void handleRemarkPopup() {
+		try {
+			FXMLLoader addRemarkPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/AddRemark.fxml"));
+			Parent root = addRemarkPopup.load();
+
+			AddRemarkController addRemarkController  = addRemarkPopup.getController();
+			addRemarkController.setSessionIdandReportType(SESSION_ID, REPORT_TYPE);
+
+			Stage stage = new Stage();
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.initStyle(StageStyle.UNDECORATED);
+
+			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
+		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+		    stage.setX(centerX);
+		    stage.setY(centerY);
+			
+			stage.setScene(new Scene(root));
+			stage.showAndWait();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
