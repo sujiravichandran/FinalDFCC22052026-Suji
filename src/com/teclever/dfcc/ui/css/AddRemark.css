@@ -1,0 +1,39 @@
+@import url("Global.css");
+
+#addRemarkMainPane{
+	 -fx-background-color:form-bg;
+}
+#headerLabel{
+	 -fx-font-size: 24.0px;
+	 -fx-font-weight: bold;
+	 -fx-text-fill: form-title;
+}
+
+.add-remark-table .table-cell {
+    -fx-font-size: 12px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.add-remark-table .column-header .label {
+    -fx-font-size: 14px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.button {
+	-fx-min-width: 150px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+    -fx-border-color: transparent; 
+    -fx-cursor:hand;
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}

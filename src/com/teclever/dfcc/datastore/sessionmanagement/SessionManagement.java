@@ -231,6 +231,8 @@ public class SessionManagement {
 			// LOGIN SESSION DETAILS : UPDATE (SESSION ID)
 			addCurrentlyUsingSessionId(sessionId);
 
+			addStagesRemarks(setOfL1Ids);
+			
 			res.setResponseCode(1);
 			res.setResponseMessage("Session Created Successfully..!");
 
@@ -1573,11 +1575,14 @@ public class SessionManagement {
 
 		if (serviceResponse.getResponseCode() == 1) {
 			List<StagesRemarks> remarksList = serviceResponse.getRemarks();
+			LevelOneMasterService levelOneService = new LevelOneMasterService();
+			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
 
 			for (StagesRemarks remarks : remarksList) {
 				StagesRemarksDto dto = new StagesRemarksDto();
 				dto.setRemarksId(remarks.getRemarksId());
 				dto.setLevelOneStageId(remarks.getLevelOneStageId());
+				dto.setLevelOneName(levelOneStage.get(remarks.getLevelOneStageId()));
 				dto.setRemarks(remarks.getRemarks());
 				dto.setSessionId(remarks.getSessionId());
 				dto.setReportType(remarks.getReportType());
