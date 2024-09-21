@@ -57,6 +57,7 @@ import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.StageRemarksResponse;
 import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
 import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
@@ -1546,9 +1547,10 @@ public class SessionManagement {
 	}
 
 	// GET
-	public List<StagesRemarksDto> getStagesRemarks(String sessionId, String reportType) {
+	public StageRemarksResponse getStagesRemarks(String sessionId, String reportType) {
 		StagesRemarksService service = new StagesRemarksService();
 		StagesRemarksResponse serviceResponse = service.getStagesRemarks(sessionId, reportType);
+		StageRemarksResponse response = new StageRemarksResponse();
 
 		List<StagesRemarksDto> dtoList = new ArrayList<>();
 
@@ -1564,12 +1566,18 @@ public class SessionManagement {
 				dto.setReportType(remarks.getReportType());
 
 				dtoList.add(dto);
+				response.setResponseCode(1);
+				response.setResponseMsg("SUCCESS");
+				response.setRemarks(dtoList);
 			}
 		} else {
+			response.setResponseCode(0);
+			response.setResponseMsg("FAILED TO FETCH");
+			response.setRemarks(null);
 			System.err.println("Failed to fetch stages remarks Details: " + serviceResponse.getResponseMessage());
 		}
 
-		return dtoList;
+		return response;
 	}
 
 }
