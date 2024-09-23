@@ -63,6 +63,7 @@ import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
 import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
@@ -1511,6 +1512,7 @@ public class SessionManagement {
 		Response res = new Response();
 
 		try {
+			AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
 			String sessionId = currentSessionDetails.getSessionId();
 			if (sessionId.substring(0, 4).equals("TSSN")) {
 				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();

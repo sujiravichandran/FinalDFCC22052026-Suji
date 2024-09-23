@@ -25,9 +25,7 @@ public class StateMachine {
 
 	private static TestState testState = TestState.PENDING;
 	private static RunningTestName runningTestName = RunningTestName.OTHER;
-	
 
-	
 	public static TestState getTestState() {
 		return testState;
 	}
@@ -136,7 +134,6 @@ public class StateMachine {
 		public static void setDfccSerialNumber(String dfccSerialNumber) {
 			currentSessionDetails.dfccSerialNumber = dfccSerialNumber;
 		}
-		
 
 	}
 
@@ -509,138 +506,136 @@ public class StateMachine {
 
 	}
 
-	// MK1 SC  TEMPERATURE
+	// MK1 SC TEMPERATURE
 	public static class channelSCTemp {
-	    private static StringProperty channel1Temperature = new SimpleStringProperty();
-	    private static StringProperty channel2Temperature = new SimpleStringProperty();
-	    private static StringProperty channel3Temperature = new SimpleStringProperty();
-	    private static StringProperty channel4Temperature = new SimpleStringProperty();
+		private static StringProperty channel1Temperature = new SimpleStringProperty();
+		private static StringProperty channel2Temperature = new SimpleStringProperty();
+		private static StringProperty channel3Temperature = new SimpleStringProperty();
+		private static StringProperty channel4Temperature = new SimpleStringProperty();
 
-	    public static StringProperty channel1TemperatureProperty() {
-	        return channel1Temperature;
-	    }
+		public static StringProperty channel1TemperatureProperty() {
+			return channel1Temperature;
+		}
 
-	    public static String getChannel1Temperature() {
-	        return channel1Temperature.get();
-	    }
+		public static String getChannel1Temperature() {
+			return channel1Temperature.get();
+		}
 
-	    public static void setChannel1Temperature(String channel1Temperature) {
-	        channelSCTemp.channel1Temperature.set(channel1Temperature);
-	    }
+		public static void setChannel1Temperature(String channel1Temperature) {
+			channelSCTemp.channel1Temperature.set(channel1Temperature);
+		}
 
-	    public static StringProperty channel2TemperatureProperty() {
-	        return channel2Temperature;
-	    }
+		public static StringProperty channel2TemperatureProperty() {
+			return channel2Temperature;
+		}
 
-	    public static String getChannel2Temperature() {
-	        return channel2Temperature.get();
-	    }
+		public static String getChannel2Temperature() {
+			return channel2Temperature.get();
+		}
 
-	    public static void setChannel2Temperature(String channel2Temperature) {
-	        channelSCTemp.channel2Temperature.set(channel2Temperature);
-	    }
+		public static void setChannel2Temperature(String channel2Temperature) {
+			channelSCTemp.channel2Temperature.set(channel2Temperature);
+		}
 
-	    public static StringProperty channel3TemperatureProperty() {
-	        return channel3Temperature;
-	    }
+		public static StringProperty channel3TemperatureProperty() {
+			return channel3Temperature;
+		}
 
-	    public static String getChannel3Temperature() {
-	        return channel3Temperature.get();
-	    }
+		public static String getChannel3Temperature() {
+			return channel3Temperature.get();
+		}
 
-	    public static void setChannel3Temperature(String channel3Temperature) {
-	        channelSCTemp.channel3Temperature.set(channel3Temperature);
-	    }
+		public static void setChannel3Temperature(String channel3Temperature) {
+			channelSCTemp.channel3Temperature.set(channel3Temperature);
+		}
 
-	    public static StringProperty channel4TemperatureProperty() {
-	        return channel4Temperature;
-	    }
+		public static StringProperty channel4TemperatureProperty() {
+			return channel4Temperature;
+		}
 
-	    public static String getChannel4Temperature() {
-	        return channel4Temperature.get();
-	    }
+		public static String getChannel4Temperature() {
+			return channel4Temperature.get();
+		}
 
-	    public static void setChannel4Temperature(String channel4Temperature) {
-	        channelSCTemp.channel4Temperature.set(channel4Temperature);
-	    }
+		public static void setChannel4Temperature(String channel4Temperature) {
+			channelSCTemp.channel4Temperature.set(channel4Temperature);
+		}
 	}
-	
 
 	// MK1 AEC TEMPERATURE
 	public static class channelAECTemp {
-		
-	    private static StringProperty channel1Temperature = new SimpleStringProperty();
-	    private static StringProperty channel2Temperature = new SimpleStringProperty();
-	    private static StringProperty channel3Temperature = new SimpleStringProperty();
-	    private static StringProperty channel4Temperature = new SimpleStringProperty();
 
-	    public static StringProperty channel1TemperatureProperty() {
-	        return channel1Temperature;
-	    }
+		private static StringProperty channel1Temperature = new SimpleStringProperty();
+		private static StringProperty channel2Temperature = new SimpleStringProperty();
+		private static StringProperty channel3Temperature = new SimpleStringProperty();
+		private static StringProperty channel4Temperature = new SimpleStringProperty();
 
-	    public static String getChannel1Temperature() {
-	        return channel1Temperature.get();
-	    }
+		public static StringProperty channel1TemperatureProperty() {
+			return channel1Temperature;
+		}
 
-	    public static void setChannel1Temperature(String channel1Temperature) {
-	        channelAECTemp.channel1Temperature.set(channel1Temperature);
-	    }
+		public static String getChannel1Temperature() {
+			return channel1Temperature.get();
+		}
 
-	    public static StringProperty channel2TemperatureProperty() {
-	        return channel2Temperature;
-	    }
+		public static void setChannel1Temperature(String channel1Temperature) {
+			channelAECTemp.channel1Temperature.set(channel1Temperature);
+		}
 
-	    public static String getChannel2Temperature() {
-	        return channel2Temperature.get();
-	    }
+		public static StringProperty channel2TemperatureProperty() {
+			return channel2Temperature;
+		}
 
-	    public static void setChannel2Temperature(String channel2Temperature) {
-	        channelAECTemp.channel2Temperature.set(channel2Temperature);
-	    }
+		public static String getChannel2Temperature() {
+			return channel2Temperature.get();
+		}
 
-	    public static StringProperty channel3TemperatureProperty() {
-	        return channel3Temperature;
-	    }
+		public static void setChannel2Temperature(String channel2Temperature) {
+			channelAECTemp.channel2Temperature.set(channel2Temperature);
+		}
 
-	    public static String getChannel3Temperature() {
-	        return channel3Temperature.get();
-	    }
+		public static StringProperty channel3TemperatureProperty() {
+			return channel3Temperature;
+		}
 
-	    public static void setChannel3Temperature(String channel3Temperature) {
-	        channelAECTemp.channel3Temperature.set(channel3Temperature);
-	    }
+		public static String getChannel3Temperature() {
+			return channel3Temperature.get();
+		}
 
-	    public static StringProperty channel4TemperatureProperty() {
-	        return channel4Temperature;
-	    }
+		public static void setChannel3Temperature(String channel3Temperature) {
+			channelAECTemp.channel3Temperature.set(channel3Temperature);
+		}
 
-	    public static String getChannel4Temperature() {
-	        return channel4Temperature.get();
-	    }
+		public static StringProperty channel4TemperatureProperty() {
+			return channel4Temperature;
+		}
 
-	    public static void setChannel4Temperature(String channel4Temperature) {
-	        channelAECTemp.channel4Temperature.set(channel4Temperature);
-	    }
+		public static String getChannel4Temperature() {
+			return channel4Temperature.get();
+		}
+
+		public static void setChannel4Temperature(String channel4Temperature) {
+			channelAECTemp.channel4Temperature.set(channel4Temperature);
+		}
 	}
-	
-	
-	
+
 	// MK1a MK2 TEMPERATURE
 	public static class boardChannelTemp {
 
-		public static ObservableMap<String, ChannelTemperature> boardTemperatureMap=FXCollections.observableMap(new HashMap<>());
+		public static ObservableMap<String, ChannelTemperature> boardTemperatureMap = FXCollections
+				.observableMap(new HashMap<>());
 
 		public static ObservableMap<String, ChannelTemperature> getBoardTemperatureMap() {
 			return boardTemperatureMap;
 		}
-		
+
 		public static void addBoardTemperatureMap(String key, ChannelTemperature value) {
 			boardTemperatureMap.put(key, value);
 		}
 
 		public static void setBoardTemperatureMap(ObservableMap<String, ChannelTemperature> boardTemperatureMap) {
-			 boardChannelTemp.boardTemperatureMap.clear();
-		     boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
+			boardChannelTemp.boardTemperatureMap.clear();
+			boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
 		}
 	}
 
@@ -758,76 +753,177 @@ public class StateMachine {
 	public static void setPreviousRunConfigId(String previousRunConfigId) {
 		StateMachine.previousRunConfigId = previousRunConfigId;
 	}
-	
-	//FOR SESSION FOLDERS
-			//homelocation
-			private static Path homelocation;
 
-			public static Path getHomelocation() {
-				return homelocation;
-			}
+	// FOR SESSION FOLDERS
+	// homelocation
+	private static Path homelocation;
 
-			public static void setHomelocation(Path homelocation) {
-				StateMachine.homelocation = homelocation;
-			}
-			
-			
-			//output
-			private static Path outputLocation;
+	public static Path getHomelocation() {
+		return homelocation;
+	}
 
-			public static Path getOutputLocation() {
-				return outputLocation;
-			}
+	public static void setHomelocation(Path homelocation) {
+		StateMachine.homelocation = homelocation;
+	}
 
-			public static void setOutputLocation(Path outputLocation) {
-				StateMachine.outputLocation = outputLocation;
-			}
+	// output
+	private static Path outputLocation;
 
-			//scriptFileLocation
-			private static String scriptFileLocation;
+	public static Path getOutputLocation() {
+		return outputLocation;
+	}
 
+	public static void setOutputLocation(Path outputLocation) {
+		StateMachine.outputLocation = outputLocation;
+	}
 
+	// scriptFileLocation
+	private static String scriptFileLocation;
 
-			public static String getScriptFileLocation() {
-				return scriptFileLocation;
-			}
+	public static String getScriptFileLocation() {
+		return scriptFileLocation;
+	}
 
-			public static void setScriptFileLocation(String scriptFileLocation) {
-				StateMachine.scriptFileLocation = scriptFileLocation;
-			}
-			
-			//current user
-			private static String currentUserLogin;
+	public static void setScriptFileLocation(String scriptFileLocation) {
+		StateMachine.scriptFileLocation = scriptFileLocation;
+	}
 
-			public static String getCurrentUserLogin() {
-				return currentUserLogin;
-			}
+	// current user
+	private static String currentUserLogin;
 
-			public static void setCurrentUserLogin(String currentUserLogin) {
-				StateMachine.currentUserLogin = currentUserLogin;
-			}
-			
-			//command
-			private static boolean runCommand = false;
-			private static volatile boolean aitess1CommandFinished = false;
+	public static String getCurrentUserLogin() {
+		return currentUserLogin;
+	}
 
-			public static synchronized boolean isAitess1CommandFinished() {
-				return aitess1CommandFinished;
-			}
+	public static void setCurrentUserLogin(String currentUserLogin) {
+		StateMachine.currentUserLogin = currentUserLogin;
+	}
 
-			public static synchronized void setAitess1CommandFinished(boolean aitess1CommandFinished) {
-				StateMachine.aitess1CommandFinished = aitess1CommandFinished;
-			}
+	// command
+	private static boolean runCommand = false;
+	private static volatile boolean aitess1CommandFinished = false;
 
-			public static boolean isRunCommand() {
-				return runCommand;
-			}
+	public static synchronized boolean isAitess1CommandFinished() {
+		return aitess1CommandFinished;
+	}
 
-			public static void setRunCommand(boolean runCommand) {
-				StateMachine.runCommand = runCommand;
-			}
-			
-			
-			
+	public static synchronized void setAitess1CommandFinished(boolean aitess1CommandFinished) {
+		StateMachine.aitess1CommandFinished = aitess1CommandFinished;
+	}
+
+	public static boolean isRunCommand() {
+		return runCommand;
+	}
+
+	public static void setRunCommand(boolean runCommand) {
+		StateMachine.runCommand = runCommand;
+	}
+
+	public static void resetStateMachine() {
+		// Reset TestState and RunningTestName
+		testState = TestState.PENDING;
+		runningTestName = RunningTestName.OTHER;
+
+		// Reset currentSessionDetails
+		currentSessionDetails.setUserId(null);
+		currentSessionDetails.setUutId(null);
+		currentSessionDetails.setUutType(null);
+		currentSessionDetails.setDfccSerialNumber(null);
+		currentSessionDetails.setSessionId(null);
+		currentSessionDetails.setSessionName(null);
+		currentSessionDetails.setSessionTypeID(null);
+		currentSessionDetails.setSessionTypeName(null);
+		currentSessionDetails.setRunConfigId(null);
+		currentSessionDetails.setLoginSessionId(0);
+
+		// Reset currentTestDetails
+		currentTestDetails.setRunningTestPageId(null);
+		currentTestDetails.setTestType(null);
+		currentTestDetails.setTestFileCount(0);
+		currentTestDetails.setRepeatCount(0);
+		currentTestDetails.setCompletionPercentage(0.0);
+
+		// Reset stageDatalist
+		stageDatalist = null;
+
+		// Reset user action and flags
+		userAction = null;
+		userExitError = null;
+		userActionFlag.set(false);
+
+		// Reset AITESS launch flags
+		aitess1Launched = false;
+		aitess2Launched = false;
+
+		// Reset text area flag
+		textArea = true;
+
+		// Reset dfccCheckStatus
+		dfccCheckStatus.setDfccPowerStatus(new SimpleBooleanProperty(false));
+		dfccCheckStatus.setDfccPowerOnCommand(null);
+		dfccCheckStatus.setDfccPowerOffCommand(null);
+		dfccCheckStatus.setOnlineStatusCommand(null);
+		dfccCheckStatus.setMk1ScTemperatureCommand(null);
+		dfccCheckStatus.setMk1AecTemperatureCommand(null);
+		dfccCheckStatus.setMk1aTemperatureCommand(null);
+		dfccCheckStatus.setMk2TemperatureCommand(null);
+		dfccCheckStatus.setOfpVersionStatusCommand(null);
+		dfccCheckStatus.setWdmStatusCommand(null);
+
+		// Reset OnlineStatus
+		OnlineStatus.channel1Status.set("");
+		OnlineStatus.channel2Status.set("");
+		OnlineStatus.channel3Status.set("");
+		OnlineStatus.channel4Status.set("");
+
+		// Reset WDMStatus
+		WDMStatus.channel1Status = "";
+		WDMStatus.channel2Status = "";
+		WDMStatus.channel3Status = "";
+		WDMStatus.channel4Status = "";
+
+		// Reset OFPversionStatus
+		OFPversionStatus.channel1Status = "";
+		OFPversionStatus.channel2Status = "";
+		OFPversionStatus.channel3Status = "";
+		OFPversionStatus.channel4Status = "";
+
+		// Reset Channel SC and AEC Temperatures
+		channelSCTemp.channel1Temperature.set("");
+		channelSCTemp.channel2Temperature.set("");
+		channelSCTemp.channel3Temperature.set("");
+		channelSCTemp.channel4Temperature.set("");
+
+		channelAECTemp.channel1Temperature.set("");
+		channelAECTemp.channel2Temperature.set("");
+		channelAECTemp.channel3Temperature.set("");
+		channelAECTemp.channel4Temperature.set("");
+
+		// Reset Board Channel Temperature Map
+		boardChannelTemp.boardTemperatureMap.clear();
+
+		// Reset RDF File Parser State
+		rdfFileParser.setDStarCount(0);
+		rdfFileParser.setDStarFound(false);
+		rdfFileParser.setParseFileError(false);
+
+		// Reset AITESS Running States
+		aitessRunning.setAitess1Exited(true);
+		aitessRunning.setAitess2Exited(true);
+		aitessRunning.setAitess1Switched(false);
+		aitessRunning.setAitess1SwitchedFailed(false);
+		aitessRunning.setAitess2Switched(false);
+		aitessRunning.setAitess2SwitchedFailed(false);
+		aitessRunning.setAitess1ReloadConfigured(false);
+
+		// Reset State Machine Data
+		previousRunConfigId = null;
+		homelocation = null;
+		outputLocation = null;
+		scriptFileLocation = null;
+		currentUserLogin = null;
+		runCommand = false;
+		aitess1CommandFinished = false;
+	}
 
 }

@@ -1,7 +1,13 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.LRUTestStateObject;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -38,6 +44,7 @@ public class UserCenterContentController {
 	private StackPane reportsUploadStackPane = new StackPane();
 	
 	private TerminalController terminalController = new TerminalController();
+	private SessionManagement sessionManagement = new SessionManagement();
 
 	public UserCenterContentController() {
 		TerminalPopupController terminalPopupController = new TerminalPopupController();
@@ -227,15 +234,7 @@ public class UserCenterContentController {
 			
 			break;
 			
-		case "PQT Report" :	
-//			ReportController reportControllerForPQT = new ReportController();
-//			if (centerStackPane.getChildren().contains(pqtReportStackPane)) {
-//				pqtReportStackPane.getChildren().clear();
-//				centerStackPane.getChildren().remove(pqtReportStackPane);
-//			}
-//			pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
-//			centerStackPane.getChildren().add(pqtReportStackPane);	
-			
+		case "PQT Report" :				
 			if (!centerStackPane.getChildren().contains(pqtReportStackPane)) {
 				ReportController reportControllerForPQT = new ReportController();
 				pqtReportStackPane.getChildren().add(reportControllerForPQT.createReportGridPane("PQT REPORT"));
@@ -246,15 +245,7 @@ public class UserCenterContentController {
 			
 			break;
 			
-		case "ESS Report" :	
-//			ReportController reportControllerForESS = new ReportController();
-//			if (centerStackPane.getChildren().contains(essReportStackPane)) {
-//				essReportStackPane.getChildren().clear();
-//				centerStackPane.getChildren().remove(essReportStackPane);
-//			}
-//			essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
-//			centerStackPane.getChildren().add(essReportStackPane);	
-			
+		case "ESS Report" :				
 			if (!centerStackPane.getChildren().contains(essReportStackPane)) {
 				ReportController reportControllerForESS = new ReportController();
 				essReportStackPane.getChildren().add(reportControllerForESS.createReportGridPane("ESS REPORT"));
@@ -265,15 +256,7 @@ public class UserCenterContentController {
 			
 			break;
 
-		case "Datapack Report" :	
-//			ReportController reportControllerForDatapack = new ReportController();
-//			if (centerStackPane.getChildren().contains(datapackReportStackPane)) {
-//				datapackReportStackPane.getChildren().clear();
-//				centerStackPane.getChildren().remove(datapackReportStackPane);
-//			}
-//			datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
-//			centerStackPane.getChildren().add(datapackReportStackPane);	
-			
+		case "Datapack Report" :			
 			if (!centerStackPane.getChildren().contains(datapackReportStackPane)) {
 				ReportController reportControllerForDatapack = new ReportController();
 				datapackReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("DATAPACK REPORT"));
@@ -322,7 +305,22 @@ public class UserCenterContentController {
 			terminalController.createTerminalPopup();
 			break;
 
+		case "End Session":
+			if(StateMachine.getTestState() == TestState.PENDING) {				
+				Response response = sessionManagement.endSession();
+				if(response.getResponseCode() == 1) {
+					clearAllData();
+				}else {
+					Notifications.showErrorAlert(response.getResponseMessage());
+				}
+			}else if(StateMachine.getTestState() == TestState.PAUSED){
+				Notifications.showWarningAlert("Please stop "+StateMachine.getRunningTestName()+" test before ending session");
+			}
+			break ;			
 		}
+		
+			
+		
 
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
@@ -334,6 +332,15 @@ public class UserCenterContentController {
         		StateMachine.getUserActionFlag().set(false);
         	}
         });
+	}
+	private void clearAllData() {
+		StateMachine.resetStateMachine();
+		SelfTestStateObject.resetSelfTestStateObject();
+		LRUTestStateObject.resetLRUTestStateObject();
+		SessionTestStateObject.resetSessionTestStateObject();
+		AdvancedTestStateObject.resetAdvancedTestStateObject();
+		
+		Platform.exit();
 	}
 
 }
