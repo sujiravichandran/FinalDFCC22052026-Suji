@@ -306,17 +306,20 @@ public class UserCenterContentController {
 			break;
 
 		case "End Session":
-			if(StateMachine.getTestState() == TestState.PENDING) {				
-				Response response = sessionManagement.endSession();
-				if(response.getResponseCode() == 1) {
-					clearAllData();
-				}else {
-					Notifications.showErrorAlert(response.getResponseMessage());
-				}
-			}else if(StateMachine.getTestState() == TestState.PAUSED){
-				Notifications.showWarningAlert("Please stop "+StateMachine.getRunningTestName()+" test before ending session");
-			}
-			break ;			
+		    if (StateMachine.getTestState() == TestState.PENDING) {
+		    	Notifications.showConfirmationDialog("Confirm End Session", "Are you sure you want to end the session?", () -> {
+		            Response response = sessionManagement.endSession();
+		            if (response.getResponseCode() == 1) {
+		                clearAllData();
+		            } else {
+		                Notifications.showErrorAlert(response.getResponseMessage());
+		            }
+		        });
+		    } else if (StateMachine.getTestState() == TestState.PAUSED) {
+		        Notifications.showWarningAlert("Please stop " + StateMachine.getRunningTestName() + " test before ending session");
+		    }
+		    break;
+		
 		}
 		
 			

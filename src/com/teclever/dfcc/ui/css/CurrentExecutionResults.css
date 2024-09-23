@@ -61,7 +61,17 @@
 	-fx-padding:5px;
 }
 
+.combo-box {
+	-fx-background-color: form-label;
+    -fx-font-size: 17.0px;
+    -fx-border-radius: 5.0px;
+    -fx-background-radius: 5.0px;
+    -fx-pref-width: 200px;
+}
 
+.combo-box .list-view .list-cell {
+    -fx-font-size: 12px;
+}
 
 
 .button {
