@@ -49,6 +49,7 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
+import com.teclever.dfcc.datastore.dto.HistoryReportResponse;
 import com.teclever.dfcc.datastore.dto.LevelOneDto;
 import com.teclever.dfcc.datastore.dto.SessionDTO;
 import com.teclever.dfcc.datastore.dto.SessionDTOResponse;
@@ -71,22 +72,29 @@ public class SessionManagement {
 	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
 
 	// API:: GET ALL SESSION FOR HISTORY REPORTS
-	public List<SessionDto> getAllSessionInfo() {
+	public HistoryReportResponse getAllSessionInfo() {
 		SessionService service = new SessionService();
 		SessionResponse serviceResponse = service.getAllSession();
+		HistoryReportResponse response = new HistoryReportResponse();
 		List<SessionDto> dtoList = new ArrayList<>();
 
 		if (serviceResponse.getResponse().getResponseCode() == 1) {
 			List<SessionDto> configurationList = serviceResponse.getListOfSession();
 			for (SessionDto configuration : configurationList) {
 				dtoList.add(configuration);
+				response.setResponseCode(1);
+				response.setResponseMsg("FETCHED SESSION DETAILS");
+				response.setListOfSession(dtoList);
 			}
 		} else {
+			response.setResponseCode(0);
+			response.setResponseMsg("FAILED TO FETCH SESSION DETAILS");
+			response.setListOfSession(null);
 			System.err.println(
 					"Failed to fetch All Session Details: " + serviceResponse.getResponse().getResponseMessage());
 		}
 
-		return dtoList;
+		return response;
 	}
 
 	// SESSION ENTITY : SAVE SESSION
