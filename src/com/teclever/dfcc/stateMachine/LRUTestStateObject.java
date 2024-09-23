@@ -289,4 +289,44 @@ public class LRUTestStateObject {
 		}
 	}
 	
+	public static void resetLRUTestStateObject() {
+	    // Clear Mandatory Test Card List
+	    clearLruMandatoryCardList();
+
+	    // Clear SRU Test Card List
+	    clearLruSruCardList();
+
+	    // Clear GO and NOGO Test Card List
+	    clearLruGoAndNogoCardList();
+
+	    // Clear Test Result List
+	    clearlruTestResultsList();
+
+	    // Reset Running Card Status
+	    lruTestRunningCard = LRUTestRunningCard.SPIL_LINK;
+
+	    // Reset Stage Status Properties
+	    isMandatoryFifthCardStatus.set(false);
+	    mandatoryTestStatus.set(false);
+
+	    // Reset Mandatory Each Card Status
+	    spilLinkStatus.set(true);
+	    pbitStatus.set(true);
+	    initializeLRUStatus.set(true);
+	    powerSupplyStatus.set(true);
+	    ad_daInterfaceStatus.set(true);
+
+	    // Reset GO NOGO Each Card Status
+	    completeTestStatus.set(true);
+	    ofpLoadingStatus.set(true);
+	    piCheckStatus.set(true);
+
+	    // Clear Selected SRU Test Sub Stage
+	    clearSRUSubCardList();
+
+	    // Clear Selected SRU Sub Stages List
+	    clearSelectedSubStagesList();
+	}
+
+	
 }

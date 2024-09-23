@@ -131,83 +131,96 @@ public class SessionTestStateObject {
 			}
 		}
 	}
-	
+
 	private static String currentRunningStageId;
 	private static String runningTestLeafId;
 	private static BooleanProperty runningTestLeafStatus = new SimpleBooleanProperty(false);
-	
+
 	public static String getCurrentRunningStageId() {
 		return currentRunningStageId;
 	}
+
 	public static void setCurrentRunningStageId(String currentRunningStageId) {
 		SessionTestStateObject.currentRunningStageId = currentRunningStageId;
 	}
+
 	public static String getRunningTestLeafId() {
 		return runningTestLeafId;
 	}
+
 	public static void setRunningTestLeafId(String runningTestLeafId) {
 		SessionTestStateObject.runningTestLeafId = runningTestLeafId;
 	}
+
 	public static BooleanProperty runningTestLeafStatusProperty() {
 		return runningTestLeafStatus;
 	}
+
 	public static BooleanProperty getRunningTestLeafStatus() {
 		return runningTestLeafStatus;
 	}
+
 	public static void setRunningTestLeafStatus(BooleanProperty runningTestLeafStatus) {
 		SessionTestStateObject.runningTestLeafStatus = runningTestLeafStatus;
 	}
-	
+
 //	Store EndLeaf Completed TestFile 
-	private static ObservableMap<String, ObservableSet<String>> stageIdWithFileIds = FXCollections.observableMap(new LinkedHashMap<>());
-	
+	private static ObservableMap<String, ObservableSet<String>> stageIdWithFileIds = FXCollections
+			.observableMap(new LinkedHashMap<>());
+
 	public static ObservableMap<String, ObservableSet<String>> getStageIdWithFileIds() {
 		return stageIdWithFileIds;
 	}
+
 	public static void setStageIdWithFileIds(String stageId, String fileId) {
-        if (stageIdWithFileIds.containsKey(stageId)) {
-            ObservableSet<String> setOfFileIds = stageIdWithFileIds.get(stageId);
-            setOfFileIds.add(fileId);
-            stageIdWithFileIds.remove(stageId);
-            stageIdWithFileIds.put(stageId, setOfFileIds);
-        } else {
-            ObservableSet<String> setOfFileIds = FXCollections.observableSet(new LinkedHashSet<>());
-            setOfFileIds.add(fileId);
-            stageIdWithFileIds.put(stageId, setOfFileIds);
-        }
-    }
+		if (stageIdWithFileIds.containsKey(stageId)) {
+			ObservableSet<String> setOfFileIds = stageIdWithFileIds.get(stageId);
+			setOfFileIds.add(fileId);
+			stageIdWithFileIds.remove(stageId);
+			stageIdWithFileIds.put(stageId, setOfFileIds);
+		} else {
+			ObservableSet<String> setOfFileIds = FXCollections.observableSet(new LinkedHashSet<>());
+			setOfFileIds.add(fileId);
+			stageIdWithFileIds.put(stageId, setOfFileIds);
+		}
+	}
+
 	public static void clearStageIdWithFileIds() {
 		stageIdWithFileIds.clear();
 	}
+
 	public static void removeFileId(String stageId, String testFileId) {
 		SessionTestStateObject.getStageIdWithFileIds().get(stageId).remove(testFileId);
-		
+
 	}
-	
-	
+
 // Self Test Files Results
 	public static class SessionTestResult {
 		private String fileName;
 		private String result;
-	
+
 		public SessionTestResult(String fileName, String result) {
 			super();
 			this.fileName = fileName;
 			this.result = result;
 		}
+
 		public String getFileName() {
 			return fileName;
 		}
+
 		public void setFileName(String fileName) {
 			this.fileName = fileName;
 		}
+
 		public String getResult() {
 			return result;
 		}
+
 		public void setResult(String result) {
 			this.result = result;
 		}
-	}	
+	}
 
 // Session Test Files Results List
 	private static ObservableList<SessionTestResult> sessionTestResults = FXCollections.observableArrayList();
@@ -215,14 +228,17 @@ public class SessionTestStateObject {
 	public static ObservableList<SessionTestResult> getSessionTestResults() {
 		return sessionTestResults;
 	}
+
 	public static void clearSessionTestResults() {
 		sessionTestResults.clear();
 
 	}
+
 	public static void addSessionTestResult(SessionTestResult newTestResult) {
 		sessionTestResults.add(newTestResult);
 	}
-	public static void updateSessionTestResultStatus( String fileName, String result) {
+
+	public static void updateSessionTestResultStatus(String fileName, String result) {
 		for (SessionTestResult testFile : sessionTestResults) {
 			if (testFile.getFileName().equals(fileName)) {
 				testFile.setResult(result);
@@ -230,8 +246,7 @@ public class SessionTestStateObject {
 			}
 		}
 	}
-	
-	
+
 //	Session Test Copying RDF File Popup Action
 //	SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 
@@ -240,16 +255,17 @@ public class SessionTestStateObject {
 	public static BooleanProperty isRdfFileCopyPopupStatusProperty() {
 		return isRdfFileCopyPopupStatus;
 	}
+
 	public static BooleanProperty getIsRdfFileCopyPopupStatus() {
 		return isRdfFileCopyPopupStatus;
 	}
+
 	public static void setIsRdfFileCopyPopupStatus(BooleanProperty isRdfFileCopyPopupStatus) {
 		SessionTestStateObject.isRdfFileCopyPopupStatus = isRdfFileCopyPopupStatus;
 	}
-	
 
 	private static String popupStageId;
-	
+
 	public static String getPopupStageId() {
 		return popupStageId;
 	}
@@ -257,8 +273,7 @@ public class SessionTestStateObject {
 	public static void setPopupStageId(String popupStageId) {
 		SessionTestStateObject.popupStageId = popupStageId;
 	}
-	
-	
+
 //	Progress Bar
 	private static int totalSelectedTestFileCount;
 	private static IntegerProperty runnedTestFileCount = new SimpleIntegerProperty(0);
@@ -271,13 +286,29 @@ public class SessionTestStateObject {
 		SessionTestStateObject.totalSelectedTestFileCount = totalSelectedTestFileCount;
 	}
 
-    public static IntegerProperty runnedTestFileCountProperty() {
-        return runnedTestFileCount;
-    }
+	public static IntegerProperty runnedTestFileCountProperty() {
+		return runnedTestFileCount;
+	}
 
-    public static IntegerProperty getRunnedTestFileCount() {
-        return runnedTestFileCount;
-    }
-    
+	public static IntegerProperty getRunnedTestFileCount() {
+		return runnedTestFileCount;
+	}
+
+	public static void resetSessionTestStateObject() {
+		clearStageMap();
+		l1MandatoryStatus.clear();
+		l1ContinueWithErrorStatus.clear();
+		l1StagesWithEndLeadId.clear();
+		endLeafMap.clear();
+		currentRunningStageId = null;
+		runningTestLeafId = null;
+		runningTestLeafStatus.set(false);
+		stageIdWithFileIds.clear();
+		sessionTestResults.clear();
+		isRdfFileCopyPopupStatus.set(false);
+		popupStageId = null;
+		totalSelectedTestFileCount = 0;
+		runnedTestFileCount.set(0);
+	}
 
 }

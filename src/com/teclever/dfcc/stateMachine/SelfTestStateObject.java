@@ -185,6 +185,33 @@ public class SelfTestStateObject {
 	public static void setrS422_2Status(BooleanProperty rs422_2Status) {
 		SelfTestStateObject.rs422_2Status = rs422_2Status;
 	}
+	
+	
+	public static void resetSelfTestStateObject() {
+	    // Reset Rack1 Details
+	    rack1StageId = null;
+	    rack1StageName = null;
+	    rack1TestTypeId = null;
+
+	    // Clear Self Test Rack-1 Card List
+	    clearSelfTestRack1Card();
+
+	    // Clear Self Test cPCI Card List
+	    clearSelfTestcPCICard();
+
+	    // Clear Self Test Files Results List
+	    clearselfTestResults();
+
+	    // Reset Running Card Status
+	    selfTestRunningCard = SelfTestRunningCard.RACK1;
+
+	    // Reset Card Status Properties
+	    rack1Status.set(true);
+	    b1553Status.set(true);
+	    rs422_1Status.set(true);
+	    rs422_2Status.set(true);
+	}
+
 
 	
 }

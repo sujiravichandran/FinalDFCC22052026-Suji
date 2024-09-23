@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
@@ -22,6 +23,7 @@ import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
@@ -109,7 +111,7 @@ public class UserDashboardController {
 			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
-	
+
 	private void getSessionTestData() {
 		List<StageObject> stageList = StateMachine.getStageDatalist();
 		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
@@ -244,7 +246,8 @@ public class UserDashboardController {
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 
 				if (selectedItem.getChildren().isEmpty()) {
-					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText(), null, null);
+					centerContentController.createUserCenterContent(bottomMidTopGridPane, selectedLabel.getText(), null,
+							null);
 				}
 
 				if (!selectedItem.getChildren().isEmpty()) {
@@ -270,7 +273,7 @@ public class UserDashboardController {
 
 			addTreeItemWithChildren(rootItem, "Results",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
-					new String[] {"Current Execution" ,"Unit Results"  , "Session Results" , "Stage Results"});
+					new String[] { "Current Execution", "Unit Results", "Session Results", "Stage Results" });
 			addTreeItemWithChildren(rootItem, "Data Analysis",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
@@ -414,15 +417,22 @@ public class UserDashboardController {
 		logoutLabel.getStyleClass().add("logout-text");
 
 		logoutBox.setOnMouseClicked(e -> {
-			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
-					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-					StateMachine.getCurrentUserLogin(), new Date(), StateMachine.getCurrentUserLogin() + " logged out");
-			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+			if (StateMachine.getTestState() == TestState.PENDING) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						StateMachine.getCurrentUserLogin() + " logged out");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+				AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
+						.getInstance();
 
-			aitessProcessControlManagement.endAllProcessOnLogout();
-			Platform.exit();
+				aitessProcessControlManagement.endAllProcessOnLogout();
+				Platform.exit();
+			} else if (StateMachine.getTestState() == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						"Please stop " + StateMachine.getRunningTestName() + " test before ending session");
+			}
 		});
 
 		bottomButtonGridPane.add(logoutBox, 0, 0);
@@ -600,8 +610,8 @@ public class UserDashboardController {
 		Label statusLabel = new Label("DFCC Power OFF");
 
 		secondRowBox.setOnMouseClicked(e -> {
-			if(!checkAitessStatus.isBothAitessOn()) {
-				return ;
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
 			}
 			if (statusLabel.getText().toLowerCase().contains("on")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -740,8 +750,8 @@ public class UserDashboardController {
 
 		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
-				if(!checkAitessStatus.isBothAitessOn()) {
-					return ;
+				if (!checkAitessStatus.isBothAitessOn()) {
+					return;
 				}
 				Platform.runLater(() -> {
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -1084,8 +1094,8 @@ public class UserDashboardController {
 
 				box.setOnMouseClicked(e -> {
 					if (!label.getUserData().toString().equals("<NOT SET>")) {
-						if(!checkAitessStatus.isBothAitessOn()) {
-							return ;
+						if (!checkAitessStatus.isBothAitessOn()) {
+							return;
 						}
 						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -1203,7 +1213,6 @@ public class UserDashboardController {
 
 	}
 }
-
 
 //package com.teclever.dfcc.Controller.ui;
 //

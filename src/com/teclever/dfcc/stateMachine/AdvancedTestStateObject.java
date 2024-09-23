@@ -237,4 +237,26 @@ public class AdvancedTestStateObject {
         return runnedInterfaceTestFileCount;
     }
     
+    public static void resetAdvancedTestStateObject() {
+        hwatpTestId = null;
+        interfaceTestId = null;
+        customTest1UserDefinedTestId = null;
+        customTest2UserDefinedTestId = null;
+        customTest2DownloadCodeTestId = null;
+
+        clearHwatpTestList();
+        clearInterfaceTestList();
+        advancedTestResultsList.clear();
+
+        hwatpTestStatus.set(true);
+        interfaceTestStatus.set(true);
+        customTest1Status.set(true);
+        customTest2Status.set(true);
+
+        totalHWATPSelectedTestFileCount = 0;
+        runnedHWATPTestFileCount.set(0);
+        totalInterfaceSelectedTestFileCount = 0;
+        runnedInterfaceTestFileCount.set(0);
+    }
+    
 }
