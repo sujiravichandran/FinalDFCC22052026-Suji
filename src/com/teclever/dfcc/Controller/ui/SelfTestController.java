@@ -690,26 +690,37 @@ public class SelfTestController {
 	        private final Button viewButton = new Button("View");
 
 	        {
-	            viewButton.setOnAction(e -> {
-	                SelfTestResult selfTestResult = getTableView().getItems().get(getIndex());
-	                File file = new File(selfTestResult.getFileName());
+	        	viewButton.setOnAction(e -> {
+	        	    SelfTestResult selfTestResult = getTableView().getItems().get(getIndex());
+	        	    File file = new File(selfTestResult.getFileName());
 
-	                // Check if the file exists before trying to open it
-	                if (file.exists()) {
-	                    try {
-	                        Desktop desktop = Desktop.getDesktop();
-	                        if (desktop.isSupported(Desktop.Action.OPEN)) {
-	                            desktop.open(file); // Open the file using the default associated application
-	                        } else {
-	                            System.out.println("Open action not supported on this platform.");
-	                        }
-	                    } catch (IOException ex) {
-	                        System.out.println("Error opening file: " + ex.getMessage());
-	                    }
-	                } else {
-	                    System.out.println("File does not exist: " + file.getAbsolutePath());
-	                }
-	            });
+	        	    // Check if the file exists before trying to open it
+	        	    if (file.exists()) {
+	        	        try {
+	        	            String os = System.getProperty("os.name").toLowerCase();
+	        	            if (os.contains("win")) {
+	        	                // Windows-specific code
+	        	                Desktop desktop = Desktop.getDesktop();
+	        	                if (desktop.isSupported(Desktop.Action.OPEN)) {
+	        	                    desktop.open(file);
+	        	                } else {
+	        	                    System.out.println("Open action not supported on this platform.");
+	        	                }
+	        	            } else if (os.contains("nix") || os.contains("nux")) {
+	        	                // Linux-specific code using xdg-open
+	        	                // Ensure the file path is absolute
+	        	                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+	        	                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+	        	            } else {
+	        	                System.out.println("Unsupported OS: " + os);
+	        	            }
+	        	        } catch (IOException ex) {
+	        	            System.out.println("Error opening file: " + ex.getMessage());
+	        	        }
+	        	    } else {
+	        	        System.out.println("File does not exist: " + file.getAbsolutePath());
+	        	    }
+	        	});
 	        }
 
 	        @Override
