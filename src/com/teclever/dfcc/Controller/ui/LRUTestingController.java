@@ -465,8 +465,8 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 		buttonBox.getChildren().addAll(okButton, cancelButton);
 
-		RadioButton option1 = new RadioButton("Option 1");
-		RadioButton option2 = new RadioButton("Option 2");
+		RadioButton option1 = new RadioButton("Execute PBIT without loading OFP");
+		RadioButton option2 = new RadioButton("Download OFP and Execute PBIT");
 
 		ToggleGroup group = new ToggleGroup();
 
