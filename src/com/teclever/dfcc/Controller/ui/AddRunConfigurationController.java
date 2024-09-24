@@ -37,10 +37,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
-
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -114,26 +110,12 @@ public class AddRunConfigurationController {
 		this.mainPageController = mainPageController;
 	}
 
-
 	@FXML
 	public void initialize() {
 
 		loadTestTypes(runuutTypeId);
 		loadAitessTypes(runuutTypeId);
 		setupDriverLabel();
-
-    @FXML
-    public void initialize() {
-    	Tooltip ofpTooltip = new Tooltip();
-        ofpTooltip.textProperty().bind(selectConfigfile.textProperty());
-        selectConfigfile.setTooltip(ofpTooltip);
-    	
-    	 System.out.println("Initialize method called");
-    	 
-    	loadTestTypes(runuutTypeId); 
-        loadAitessTypes(runuutTypeId); 
-        setupDriverLabel();
-
 		setupAddButton();
 		setupCancelButton();
 
