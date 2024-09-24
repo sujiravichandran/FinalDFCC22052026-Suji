@@ -23,6 +23,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -36,6 +37,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -143,6 +145,13 @@ public class AitessMasterController {
 			popupStage.initModality(Modality.APPLICATION_MODAL);
 			popupStage.initStyle(StageStyle.UNDECORATED);
 			Scene scene = new Scene(root);
+			
+			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
+		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+		    popupStage.setX(centerX);
+		    popupStage.setY(centerY);
+		    
 			popupStage.setScene(scene);
 			popupStage.showAndWait();
 		} catch (IOException e) {

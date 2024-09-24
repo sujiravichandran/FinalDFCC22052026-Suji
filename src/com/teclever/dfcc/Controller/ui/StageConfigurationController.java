@@ -177,6 +177,11 @@ public class StageConfigurationController {
 			initializeTreeView();
 			initializeListeners();
 			setSearchableTextField();
+
+
+			if (testMapingController.isInitialized()) {
+                testMapingController.refresh();
+            }
 		}
 	}
 
@@ -310,8 +315,36 @@ public class StageConfigurationController {
 		sessionTreeView.getStyleClass().add("tree-view");
 		sessionTreeView.setShowRoot(false);
 
+
 		sessionTreeView.getSelectionModel().selectedItemProperty().removeListener(selectionListener);
 		sessionTreeView.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+
+
+			if (newValue != null) {
+				Node selectedNode = newValue.getValue();
+				Map<String, String> testInfoMap = extractTestTypeInfoFromNode(selectedNode);
+				if (testInfoMap != null) {
+					String testTypeName = testInfoMap.get("testTypeName");
+					String stageId = testInfoMap.get("stageId");
+					String testTypeID = fetchTestTypeIdByName(testTypeName);
+					RUN_CONFIG_ID = fetchRunConfigID(testTypeID);
+					if (RUN_CONFIG_ID != null) {
+						 ObservableList<Node> children = stageConfigBottomGridPane.getChildren();
+						    children.removeIf(node -> GridPane.getRowIndex(node) == 0 && GridPane.getColumnIndex(node) == 1);
+						    
+						stageConfigBottomGridPane.setDisable(false);
+						stageConfigBottomGridPane.add(
+								testMapingController.TestMappingView(UUT_ID, RUN_CONFIG_ID, testTypeID, stageId), 1, 0);
+					}else {
+						if (testMapingController.isInitialized()) {
+	                        testMapingController.refresh();
+	                        notify.showWarningAlert("RUN CONFIG is null");
+	                    }
+						
+					}
+				}
+			}
+		});
 
 		sessionTreeView.setCellFactory(tv -> new TreeCell<Node>() {
 			@Override

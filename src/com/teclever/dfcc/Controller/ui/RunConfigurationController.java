@@ -270,14 +270,17 @@ public class RunConfigurationController {
 			popupStage.initModality(Modality.APPLICATION_MODAL);
 			popupStage.initStyle(StageStyle.UNDECORATED);
 			Scene scene = new Scene(root);
-			popupStage.setScene(scene);
-			popupStage.showAndWait();
-
+			
 			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 			double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 400) / 2;
 			double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 400) / 2;
 			popupStage.setX(centerX);
 			popupStage.setY(centerY);
+			
+			popupStage.setScene(scene);
+			popupStage.showAndWait();
+
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
