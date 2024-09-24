@@ -572,7 +572,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 							okButton.setOnAction(event -> {
 								dialog.setResult("Ok");
-
+								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								dialog.close();
 							});
 
@@ -587,8 +587,8 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 							buttonBox.getChildren().addAll(okButton, cancelButton);
 
-							RadioButton option1 = new RadioButton("Option 1");
-							RadioButton option2 = new RadioButton("Option 2");
+							RadioButton option1 = new RadioButton("Execute PBIT without loading OFP");
+							RadioButton option2 = new RadioButton("Download OFP and Execute PBIT");
 
 							ToggleGroup group = new ToggleGroup();
 
@@ -635,6 +635,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 							Optional<ButtonType> result = alert.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.OK) {
+								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 							}
 
@@ -648,12 +649,13 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 							Optional<ButtonType> result = alert.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.OK) {
+								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 							}
 						}
 
-						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+						
 					}else if(newButton.getText().toLowerCase().contains("initialize")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
 				    }else if(newButton.getText().toLowerCase().contains("power")) {
