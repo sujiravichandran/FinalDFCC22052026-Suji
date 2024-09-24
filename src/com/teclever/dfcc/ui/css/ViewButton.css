@@ -1,0 +1,137 @@
+@import url("Global.css");
+
+.selfTest-main-container{
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10px;	
+}
+
+.selfTest-top-container{
+	-fx-background-color:light-bg ;
+	-fx-background-radius: 10px;	
+}
+
+.selfTest-Container{
+	-fx-border-width: 1.0px;
+    -fx-border-radius: 10.0px;
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+}
+
+.selTest-label-right{
+	-fx-text-fill:button-text;
+	-fx-font-weight: bold;
+	-fx-border-width: 1.0px;
+	-fx-background-color:button-bg;
+	-fx-border-radius: 5.0px;
+	-fx-font-size: 17.0px;
+	-fx-background-radius: 5px;
+	-fx-alignment: center_right;
+}
+
+.selTest-label-left{
+	-fx-text-fill:button-text;
+	-fx-font-weight: bold;
+	-fx-border-width: 1.0px;
+	-fx-background-color: button-bg;
+	-fx-border-radius: 5.0px;
+	-fx-font-size: 17.0px;
+	-fx-background-radius: 5px;
+	-fx-alignment: center_right;
+}
+
+.selfTest-mid-Container{
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10px;
+}
+
+.selfTest-bottom-Container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+}
+
+.selfTest-Container{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+}
+
+.headerLabel{
+	-fx-text-fill:heading-text-color;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+}
+
+.racklabel{
+	-fx-text-fill:light-bg;
+	-fx-font-size: 25.0px;
+	-fx-font-weight: bold;
+
+}
+
+.rackVbox{
+	-fx-background-color:dark-bg ;
+	-fx-background-radius: 10px;
+}
+
+.selftest-sum-title{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-size: 24px; 
+	-fx-font-weight: bold;
+	-fx-padding: 5px;
+}
+
+.selftest-sum-data-box{
+	-fx-background-color: #222831;
+	-fx-border-radius: 10px;
+	-fx-background-radius: 10px;
+	-fx-padding: 5px 15px;
+}
+
+.rackhbox{
+
+	-fx-background-color:dark-bg;
+	-fx-background-radius: 10px;
+}
+
+.button {
+	-fx-min-width:90px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent; 
+	-fx-cursor:hand;
+}
+
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}
+
+
+.check-sum-table .table-cell {
+    -fx-font-size: 16px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
+
+.check-sum-table .column-header .label {
+    -fx-font-size: 18px; 
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
+
+
+.ok-status {
+    -fx-background-color: success-bg;
+}
+
+.not-ok-status {
+    -fx-background-color: failure-bg;
+}
+
+.default-status {
+    -fx-background-color: default-bg;
+}
