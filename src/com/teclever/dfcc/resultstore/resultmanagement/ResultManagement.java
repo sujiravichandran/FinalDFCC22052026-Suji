@@ -15,65 +15,95 @@ import com.teclever.dfcc.resultstore.dto.ResultDto;
 public class ResultManagement {
 
 	//GET API
-    public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId) {
+	public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId) {
 	    List<ResultDto> resultList = new ArrayList<>();
 	    MongoDatabase database = ResultStoreConnection.getDatabase();
 
 	    MongoCollection<Document> rdfFileInfoCollection = database.getCollection(sessionId);
-        Document rdfFileInfoDoc = rdfFileInfoCollection.find(and(eq("sessionId", sessionId), eq("_id", specificObjectId))).first();
+	    Document rdfFileInfoDoc = rdfFileInfoCollection.find(and(eq("sessionId", sessionId), eq("_id", specificObjectId))).first();
 
 	    if (rdfFileInfoDoc != null) {
 	        ObjectId refObjectId = rdfFileInfoDoc.getObjectId("RefObjectId");
-
 	        String refCollectionName = rdfFileInfoDoc.getString("RefCollectionName");
+
 	        String collectionName = getCollectionName(refCollectionName);
 
-	        // Query the collection with the retrieved collection name to find the corresponding document
 	        MongoCollection<Document> resultDataCollection = database.getCollection(collectionName);
 	        Document resultDataDoc = resultDataCollection.find(eq("_id", refObjectId)).first();
 
 	        if (resultDataDoc != null) {
-	            // Extract the resultDataFile and store it into fileName
-	        	
-	        	//extact filename with full location
-	            //String fileName = resultDataDoc.getString("resultDataFile");
-	            
-	        	//extract filename only
 	            String resultDataFile = resultDataDoc.getString("resultDataFile");
 	            String[] resultDataParts = resultDataFile.split("/");
-	            String fileName = resultDataParts[resultDataParts.length - 1]; 
-
+	            String fileName = resultDataParts[resultDataParts.length - 1];
 
 	            // Get the failedStep map
 	            Map<String, ObjectId> failedStepMap = resultDataDoc.get("failedStep", Map.class);
+	            
+	            // Check if failedStepMap is empty
+	            if (failedStepMap != null && !failedStepMap.isEmpty()) {
+	                // Iterate through each failedStep ObjectId and fetch details for each step
+	                for (Map.Entry<String, ObjectId> entry : failedStepMap.entrySet()) {
+	                    ObjectId stepObjectId = entry.getValue();
+	                    Document stepDoc = resultDataCollection.find(eq("_id", stepObjectId)).first();
+	                    if (stepDoc != null) {
+	                        String stepName = entry.getKey();
+	                        String measuredValue = null;
+	                        String faultyChannel = null;
 
-	            // Iterate through each failedStep ObjectId and fetch details for each step
-	            for (Map.Entry<String, ObjectId> entry : failedStepMap.entrySet()) {
-	                ObjectId stepObjectId = entry.getValue();
-	                Document stepDoc = resultDataCollection.find(eq("_id", stepObjectId)).first();
-	                if (stepDoc != null) {
-	                    String stepName = entry.getKey();
-	                    String measuredValue = null;
-	                    String faultyChannel = null;
-
-	                    // Extract faultyChannel and measuredValue
-	                    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
-	                    if (faultyChannels != null) {
-	                        for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
-	                            faultyChannel = faultyChannelEntry.getKey();
-	                            measuredValue = faultyChannelEntry.getValue();
+	                        // Extract faultyChannel and measuredValue
+	                        Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
+	                        if (faultyChannels != null) {
+	                            for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
+	                                faultyChannel = faultyChannelEntry.getKey();
+	                                measuredValue = faultyChannelEntry.getValue();
+	                            }
 	                        }
+
+	                        String tpgph = stepDoc.getString("tpgph");
+	                        String unit = stepDoc.getString("unit");
+	                        String signalName = stepDoc.getString("signalName");
+	                        String expectedValue = stepDoc.getString("expectedValue");
+
+	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannel, fileName);
+	                        resultList.add(resultDto);
 	                    }
-
-	                    String tpgph = stepDoc.getString("tpgph");
-	                    String unit = stepDoc.getString("unit");
-	                    String signalName = stepDoc.getString("signalName");
-	                    String expectedValue = stepDoc.getString("expectedValue");
-
-	                    ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannel, fileName);
-	                    resultList.add(resultDto);
 	                }
-	            }
+	            } else {
+	                    // If failedStepMap is empty, fetch all documents from resultDataCollection
+	                    List<Document> allSteps = resultDataCollection.find().into(new ArrayList<>());
+
+	                    // Flag to skip the first document
+	                    boolean skipFirstDocument = true;
+
+	                    for (Document stepDoc : allSteps) {
+	                        if (skipFirstDocument) {
+	                            skipFirstDocument = false; // Skip this iteration and move to the next document
+	                            continue;
+	                        }
+
+	                        String stepName = null; 
+	                        String measuredValue = null;
+	                        String faultyChannel = null;
+
+	                        // Extract faultyChannel and measuredValue
+	                        Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
+	                        if (faultyChannels != null) {
+	                            for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
+	                                faultyChannel = faultyChannelEntry.getKey();
+	                                measuredValue = faultyChannelEntry.getValue();
+	                            }
+	                        }
+
+	                        String tpgph = stepDoc.getString("tpgph");
+	                        String unit = stepDoc.getString("unit");
+	                        String signalName = stepDoc.getString("signalName");
+	                        String expectedValue = stepDoc.getString("expectedValue");
+
+	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannel, fileName);
+	                        resultList.add(resultDto);
+	                    }
+	                }
+
 	        } else {
 	            System.out.println("Document not found in collection: " + collectionName);
 	        }

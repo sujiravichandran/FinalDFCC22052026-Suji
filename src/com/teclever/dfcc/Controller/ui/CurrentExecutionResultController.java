@@ -147,26 +147,6 @@ public class CurrentExecutionResultController {
 		return currentExecutionResultHeadingGridPane;
 	}
 
-//	private HBox createDownloadButton() {
-//		buttonBox.setAlignment(Pos.CENTER_RIGHT);
-//		buttonBox.getChildren().add(downloadButton);
-//		
-//		downloadButton.setOnAction(e ->{
-//			if(currentTab.equals("tab1")) {
-//				downloadReport(currentSessionDetails.getSessionId(), true);
-//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-//			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Brief Data Download button");
-//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-//			}else {
-//				downloadReport(currentSessionDetails.getSessionId(), false);
-//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-//			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on Detailed Data Download button");
-//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-//			}
-//		});
-//		
-//		return buttonBox;
-//	}
 
 	private HBox createDownloadButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
@@ -302,8 +282,8 @@ public class CurrentExecutionResultController {
 		Tab tab1 = new Tab("Brief Data");
 		Tab tab2 = new Tab("Detailed Data");
 
-		StackPane tab1StackPane = createTab1Content();
 		StackPane tab2StackPane = createTab2Content();
+		StackPane tab1StackPane = createTab1Content();
 
 		tab1.setContent(tab1StackPane);
 		tab1.setClosable(false);
@@ -315,7 +295,7 @@ public class CurrentExecutionResultController {
 
 		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
 			if (newTab == tab2) {
-				showTab2Content();
+				createTab2Content();
 				currentTab = "tab2";
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -324,7 +304,7 @@ public class CurrentExecutionResultController {
 						"clicked on Detailed data button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			} else {
-				showTab1Content();
+				createTab1Content();
 				currentTab = "tab1";
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -335,33 +315,28 @@ public class CurrentExecutionResultController {
 			}
 		});
 
-		showTab1Content();
+//		createTab1Content();
 
 		return currentExecutionResultTabPane;
 	}
 
-	private void showTab1Content() {
-		briefDataStackPane.toFront();
-	}
-
-	private void showTab2Content() {
-		detailedDataStackPane.toFront();
-	}
-
 	private StackPane createTab1Content() {
 		briefDataStackPane.getStyleClass().add("tab-content-container");
+		briefDataStackPane.getChildren().clear();
 		briefDataStackPane.getChildren().add(createBriefDataTable());
 		return briefDataStackPane;
 	}
 
 	private StackPane createTab2Content() {
 		detailedDataStackPane.getStyleClass().add("tab-content-container");
+		detailedDataStackPane.getChildren().clear();
 		detailedDataStackPane.getChildren().add(createDetailedDataTable());
 		return detailedDataStackPane;
 	}
 
 	private ScrollPane createBriefDataTable() {
-		ResultExecutionResponse response = null;
+		briefDataList.clear();
+		ResultExecutionResponse response = new ResultExecutionResponse();
 		
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID, STAGE_ID);
@@ -396,13 +371,17 @@ public class CurrentExecutionResultController {
 		}
 
 		briefDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 14);
+			column.setMinWidth(column.getText().length() * 18);
 			updateBriefData((TableColumn<BriefData, String>) column);
 		});
 
 		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
 
-		tableScrollPane.setFitToWidth(true);
+
+		if(briefDataList.size() == 0) {
+			tableScrollPane.setFitToWidth(true);
+		}
+		
 		tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
 	}
@@ -427,9 +406,9 @@ public class CurrentExecutionResultController {
 					}
 					label.setText(item);
 					label.setStyle("-fx-text-fill: white; ");
-					label.setMinWidth(label.getText().length() * 14);
+					label.setMinWidth(label.getText().length() * 18);
 					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 14);
+					this.setMinWidth(label.getText().length() * 18);
 					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 				}
 			}
@@ -437,6 +416,7 @@ public class CurrentExecutionResultController {
 	}
 
 	public ScrollPane createDetailedDataTable() {
+		detailedDataList.clear();
 		ResultDetailedResponse response = null;
 		
 		if (STAGE_ID != null && SESSION_ID != null) {

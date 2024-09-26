@@ -97,7 +97,9 @@ public class LoadDriverController {
 	    });
 
 	    task.setOnRunning(evt -> {
-//	    	showProgressIndicator();
+	    	if(DFCCConstant.isJarBuild) {	    		
+	    		showProgressIndicator();
+	    	}
 	    });
 
 	    new Thread(task).start();
@@ -183,6 +185,7 @@ public class LoadDriverController {
 		setupStatusColumn(statusColumn);
 		tableView.getColumns().addAll(cardNameColumn, statusColumn);
 		
+		tableView.setPlaceholder(new Label(""));
 		tableView.setItems(loadDriverTableData);
 //		setTableData();
 		
