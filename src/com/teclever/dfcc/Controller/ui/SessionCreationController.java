@@ -102,12 +102,17 @@ public class SessionCreationController {
 	private GridPane sessionEntryGridPane = new GridPane();
 	private ComboBox<String> uutTypeField = new ComboBox<String>();
 	private TextField uutTypeTextField = new TextField();
-
-	// middleBox
 	private Label sessionTypeLabel = new Label("Session Type");
 	private GridPane sessionTypeGridPane = new GridPane();
 	private GridPane uutTypeGridPane = new GridPane();
 	private ComboBox<String> sessionTypeField = new ComboBox<>();
+	private Label modTypeLabel = new Label("Mod Selection");
+	private GridPane modTypeGridPane = new GridPane();
+	private ComboBox<String> modTypeComboBox = new ComboBox<>();
+	private TextField modTypeTextField = new TextField();
+	private ObservableList<String> modTypes = FXCollections.observableArrayList();
+
+	// middleBox
 	private Label selectStageLabel = new Label("Select Stages");
 	private TreeView<String> treeView = new TreeView<>();
 
@@ -239,15 +244,17 @@ public class SessionCreationController {
 			if (createButton.getText().equals("CREATE SESSION")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-						StateMachine.getCurrentUserLogin(), new Date(), "clicked on CREATE SESSION button");
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on CREATE SESSION button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				saveNewSession();
 			} else if (createButton.getText().equals("OPEN SESSION")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-						StateMachine.getCurrentUserLogin(), new Date(), "clicked on OPEN SESSION button");
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on OPEN SESSION button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				openExistingSession();
 			}
@@ -260,8 +267,8 @@ public class SessionCreationController {
 				Stage stage = (Stage) sessionCreationParentGridPane.getScene().getWindow();
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-						StateMachine.getCurrentUserLogin(), new Date(),
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
 						"clicked on EXIT button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				stage.close();
@@ -270,10 +277,9 @@ public class SessionCreationController {
 
 		backButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-					StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on BACK button");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on BACK button");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StackPane parent = (StackPane) sessionCreationParentGridPane.getParent();
 			parent.getChildren().clear();
@@ -301,6 +307,7 @@ public class SessionCreationController {
 	private VBox createLeftContainer() {
 		sessionNameLabel.getStyleClass().add("field-label");
 		uutTypeLabel.getStyleClass().add("field-label");
+		modTypeLabel.getStyleClass().add("field-label");
 		dfccSNoLabel.getStyleClass().add("field-label");
 		dfccPartNoLabel.getStyleClass().add("field-label");
 		startRemarksLabel.getStyleClass().add("field-label");
@@ -366,14 +373,56 @@ public class SessionCreationController {
 		sessionEntryGridPane.add(dfccPartNoField, 1, 1);
 		sessionEntryGridPane.setVgap(10);
 
+		ColumnConstraints modTypeLabelColumn = new ColumnConstraints();
+		modTypeLabelColumn.setPercentWidth(40);
+		ColumnConstraints modTypeComboBoxColumn = new ColumnConstraints();
+		modTypeComboBoxColumn.setPercentWidth(25);
+		ColumnConstraints modTypeGapColumn = new ColumnConstraints();
+		modTypeGapColumn.setPercentWidth(5);
+		ColumnConstraints modTypeTextFieldColumn = new ColumnConstraints();
+		modTypeTextFieldColumn.setPercentWidth(30);
+		RowConstraints modTypeRow = new RowConstraints();
+		modTypeRow.setPercentHeight(100);
+		modTypeGridPane.getColumnConstraints().addAll(modTypeLabelColumn, modTypeComboBoxColumn, modTypeGapColumn,
+				modTypeTextFieldColumn);
+		modTypeGridPane.getRowConstraints().add(modTypeRow);
+
+		for (char c = 'A'; c <= 'Z'; c++) {
+			modTypes.add("Mod-" + c);
+		}
+		modTypeComboBox.setItems(modTypes);
+		
+		modTypeComboBox.prefWidthProperty().bind(modTypeGridPane.widthProperty());
+		modTypeGridPane.add(modTypeLabel, 0, 0);
+		modTypeGridPane.add(modTypeComboBox, 1, 0);
+		modTypeGridPane.add(modTypeTextField, 3, 0);
+
+		modTypeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+		    if (newValue.length() > 20 || !newValue.matches("[A-Z0-9_-]*")) {
+		        String filtered = newValue.replaceAll("[^A-Z0-9_-]", "");
+		        modTypeTextField.setText(filtered.length() > 20 ? filtered.substring(0, 20) : filtered);
+		    }
+		});
+		
+		dfccSNoField.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue.length() > 15 || !newValue.matches("[A-Z0-9]*")) {
+		        String filtered = newValue.replaceAll("[^A-Z0-9]", "");
+		        dfccSNoField.setText(filtered.length() > 15 ? filtered.substring(0, 15) : filtered);
+		    }
+		});
+		
+		startRemarksTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+			startRemarksTextArea.setText(newValue.length() > 50 ? newValue.substring(0, 50) : newValue);    
+		});
+
 		if (newSession) {
 			if (ROLE_ID.equals("RL_ID_3")) {
 				leftContainer.getChildren().addAll(uutTypeGridPane, sessionTypeGridPane, sessionEntryGridPane,
-						startRemarksLabel, startRemarksTextArea);
+						modTypeGridPane, startRemarksLabel, startRemarksTextArea);
 				startRemarksTextArea.setPrefHeight(800);
 			} else if (ROLE_ID.equals("RL_ID_4")) {
-				leftContainer.getChildren().addAll(uutTypeGridPane, sessionEntryGridPane, startRemarksLabel,
-						startRemarksTextArea);
+				leftContainer.getChildren().addAll(uutTypeGridPane, sessionEntryGridPane, modTypeGridPane,
+						startRemarksLabel, startRemarksTextArea);
 				startRemarksTextArea.setPrefHeight(800);
 			}
 
@@ -538,7 +587,7 @@ public class SessionCreationController {
 		}
 		sessionTypeField.setItems(sessionTypeList);
 		sessionTypeField.setOnAction((event) -> {
-			if(sessionTypeField.getValue() != null && !sessionTypeField.getValue().isEmpty()) {				
+			if (sessionTypeField.getValue() != null && !sessionTypeField.getValue().isEmpty()) {
 				handleSessionTypeSelection();
 			}
 		});
@@ -547,17 +596,18 @@ public class SessionCreationController {
 	private void handleSessionTypeSelection() {
 		refreshFaultCode();
 		SESSION_TYPE_ID = fetchSessionTypeId(sessionTypeField.getValue());
-		
+
 		if (SESSION_TYPE_ID.equals("ST4")) {
 			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
-			if(trailsActiveStatus) {
-				Notifications.showWarningAlert("The existing trail session is still active, so a new trail session cannot be created.");
+			if (trailsActiveStatus) {
+				Notifications.showWarningAlert(
+						"The existing trail session is still active, so a new trail session cannot be created.");
 				Platform.runLater(() -> {
-				    sessionTypeField.setValue(null);
+					sessionTypeField.setValue(null);
 				});
 			}
 		}
-		
+
 		session_l1Data = getStageOneFromDb(SESSION_TYPE_ID);
 
 		treeView = createTreeViewWithCheckBoxes(session_l1Data);
@@ -644,7 +694,7 @@ public class SessionCreationController {
 					stage.setMandatory(levelOneDto.isMandatoryStatus());
 					stage.setContinueWithError(levelOneDto.isContinueWithErrorStatus());
 					stage.setAdvancedTest(levelOneDto.isAdvanceTestStatus());
-					if(!sessionTypeId.equals("ST4")) {
+					if (!sessionTypeId.equals("ST4")) {
 						stageList.add(stage);
 					}
 				}
@@ -807,7 +857,7 @@ public class SessionCreationController {
 			if (!ROLE_ID.equals("RL_ID_4")) {
 				errorMessage.append("Please Select Session Type...\n");
 			}
-		}else {
+		} else {
 			if (sessionTypeField.getValue().toLowerCase().trim().contains("fru")) {
 				if (selectedFaultCodeList.size() == 0) {
 					errorMessage.append("Please add fault code for FRU session...\n");
@@ -816,6 +866,9 @@ public class SessionCreationController {
 		}
 		if (dfccSNoField.getText().trim() == null || dfccSNoField.getText().trim().isEmpty()) {
 			errorMessage.append("Please add DFCC serial number...\n");
+		}
+		if (modTypeComboBox.getValue() == null || modTypeComboBox.getValue().isEmpty()) {
+				errorMessage.append("Please Select Mod Type...\n");
 		}
 		if (dfccPartNoField.getText().trim() == null || dfccPartNoField.getText().trim().isEmpty()) {
 			errorMessage.append("Please add DFCC part number...\n");
@@ -864,12 +917,19 @@ public class SessionCreationController {
 		String formattedDateTime = currentDateTime.format(formatter);
 		String sessionName = null;
 
+		
 		if (ROLE_ID.equals("RL_ID_4")) {
-			sessionName = uutTypeField.getValue().trim() + "_" + dfccSNoField.getText().trim() + "_"
-					+ formattedDateTime;
+			String modTypePart = modTypeTextField.getText().trim();
+			sessionName = uutTypeField.getValue().trim() + "_" + dfccSNoField.getText().trim() + "_" + 
+			               modTypeComboBox.getValue().trim() + "_" + 
+			               (modTypePart.isEmpty() ? "" : modTypePart + "_") + formattedDateTime;
+
 		} else {
-			sessionName = uutTypeField.getValue().trim() + "_" + sessionTypeField.getValue().trim() + "_"
-					+ dfccSNoField.getText().trim() + "_" + formattedDateTime;
+			String modTypePart = modTypeTextField.getText().trim();
+			sessionName = uutTypeField.getValue().trim() + "_" + sessionTypeField.getValue().trim() + "_" +
+			              dfccSNoField.getText().trim() + "_" + modTypeComboBox.getValue().trim() + "_" + 
+			              (modTypePart.isEmpty() ? "" : modTypePart + "_") + formattedDateTime;
+
 		}
 
 		SessionDTO sessionDTO = new SessionDTO();
@@ -884,16 +944,16 @@ public class SessionCreationController {
 		sessionDTO.setOfpConfigId(OFP_CONFIG_ID);
 		sessionDTO.setFaultCodeMappingList(selectedFaultCodeList);
 
-		Response response ;
+		Response response;
 		GetObjResponse trailResponse;
-		String msg ="";
+		String msg = "";
 		int code = 0;
-		
-		if(!SESSION_TYPE_ID.equals("ST4")) {
-			response = sessionManagement.saveSession(sessionDTO);	
+
+		if (!SESSION_TYPE_ID.equals("ST4")) {
+			response = sessionManagement.saveSession(sessionDTO);
 			code = response.getResponseCode();
 			msg = response.getResponseMessage();
-		}else {
+		} else {
 			trailResponse = sessionManagement.saveTrailSessionEntity(sessionDTO);
 			code = trailResponse.getResponse().getResponseCode();
 			msg = trailResponse.getResponse().getResponseMessage();
@@ -908,19 +968,18 @@ public class SessionCreationController {
 			currentSessionDetails.setSessionName(sessionNameField.getText());
 			currentSessionDetails.setDfccSerialNumber(dfccSNoField.getText().trim());
 
-
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"session " + sessionName + " created");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "session " + sessionName + " created");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 
 			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"session " + sessionName + " created");
+			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "session " + sessionName + " created");
 			uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-			
+
 			StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 			parent1.getChildren().clear();
 			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
@@ -976,9 +1035,10 @@ public class SessionCreationController {
 		currentSessionDetails.setDfccSerialNumber(dfccSNoField.getText().trim());
 
 		UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),
-				currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-				"session "+ currentSessionDetails.getSessionName() + " opened");
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(),
+				"session " + currentSessionDetails.getSessionName() + " opened");
 		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 
 		StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
@@ -989,7 +1049,7 @@ public class SessionCreationController {
 
 	private void retriveSessionDetailsUsingSessionID() {
 		SessionDTOResponse sessionListResponse = sessionManagement.getSessionDetailById(SESSION_ID);
-		
+
 		if (sessionListResponse.getResponse().getResponseCode() == 1) {
 
 			uutTypeTextField.setText(fetchUUTNameById(sessionListResponse.getUutId()));
@@ -1016,10 +1076,8 @@ public class SessionCreationController {
 			Map<String, StageIdName> l3StageMap = new LinkedHashMap<>();
 			Map<String, StageIdName> l4StageMap = new LinkedHashMap<>();
 			Map<String, StageIdName> l5StageMap = new LinkedHashMap<>();
-			
 
-
-			if(stageObjList != null) {				
+			if (stageObjList != null) {
 				for (StageObject stageObject : stageObjList) {
 					if (!stageObject.isDefaultStatus() && !stageObject.isAdvanceStatus()) {
 						l1StageMap.put(stageObject.getL1StageId(), stageObject.getL1StageName());

@@ -339,8 +339,10 @@ public class RdfFileDetailsParser {
     }
 
     private static String getCollectionNameFromFilePath(String filePath) {
-        String[] parts = filePath.split("\\\\");
+        // Split using both forward slash (for Linux) and backslash (for Windows)
+        String[] parts = filePath.split("[/\\\\]");
         String fileName = parts[parts.length - 1];
-        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        return fileName.replaceAll("[\\\\/:*?\"<>|;]", "_");
     }
+
 }
