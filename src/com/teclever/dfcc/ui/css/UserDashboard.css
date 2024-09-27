@@ -113,6 +113,10 @@
 	-fx-font-size: 18px;
 	-fx-font-weight: bold;
 } 
+.session-name-label{
+	-fx-font-size: 16px;
+	-fx-font-weight: bold;
+}
 .online-card-box{	
     -fx-background-color: #DBFFDB;
     -fx-font-size: 18px;
