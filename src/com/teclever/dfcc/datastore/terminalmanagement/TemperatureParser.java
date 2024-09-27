@@ -20,7 +20,7 @@ public class TemperatureParser {
 	
 	//MK1
 	public ChannelTemperature getChannelTemperature(String line){
-		 Pattern channelTempPattern = Pattern.compile("<\\s*\\d+>\\s*\\(([^,]+),([^,]+),([^,]+),([^\\)]+)\\)\\s*DEGC");
+		 Pattern channelTempPattern = Pattern.compile("<.*>\\s*\\(([^,]+),([^,]+),([^,]+),([^\\)]+)\\)\\s*DEGC");
 	     Matcher channelTempMatcher = channelTempPattern.matcher(line);
 		
 	     if(channelTempMatcher.find()) {
