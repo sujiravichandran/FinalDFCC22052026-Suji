@@ -40,7 +40,7 @@ public class ReportGeneration {
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
     	//dd-MM-yyyy
-    
+    System.out.println("ENTERED INTO Report generateBreifReportForCurrentExecution");
         Response res = new Response();
         Document document = new Document(PageSize.A4);
         String fileName = "BriefReport_" 
@@ -162,6 +162,7 @@ public class ReportGeneration {
         resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);    
         List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
         resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+        System.out.println("PDF GENERATE LIST SIZE"+resultExecutionDTOList.size());
         
         Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
         // Add text in place of the second image
