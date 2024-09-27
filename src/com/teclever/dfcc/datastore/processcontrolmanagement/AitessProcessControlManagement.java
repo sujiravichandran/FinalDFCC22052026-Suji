@@ -224,8 +224,8 @@ public class AitessProcessControlManagement {
 				});
 
 			}
-
 			StateMachine.setPreviousRunConfigId(currentRunConfigId);
+			sortOutputFolder();
 			System.out.println(
 					"BOTH AITESS LAUNCHED launch() after that currentRunConfig set to SM-->>" + currentRunConfigId);
 
@@ -1106,16 +1106,16 @@ public class AitessProcessControlManagement {
 					File dateFolder = new File(directory, dateFolderName);
 					if (!dateFolder.exists()) {
 						if (dateFolder.mkdir()) {
-							System.out.println("Folder created: " + dateFolder.getAbsolutePath());
+							//System.out.println("Folder created: " + dateFolder.getAbsolutePath());
 						} else {
-							System.out.println("Failed to create folder: " + dateFolder.getAbsolutePath());
+							//System.out.println("Failed to create folder: " + dateFolder.getAbsolutePath());
 							continue;
 						}
 					}
 					try {
 						Path targetPath = dateFolder.toPath().resolve(file.getName());
 						Files.move(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-						System.out.println("Moved: " + file.getName() + " to " + dateFolder.getAbsolutePath());
+						//System.out.println("Moved: " + file.getName() + " to " + dateFolder.getAbsolutePath());
 					} catch (IOException e) {
 						System.out.println("Failed to move file: " + file.getName() + " - " + e.getMessage());
 					}
