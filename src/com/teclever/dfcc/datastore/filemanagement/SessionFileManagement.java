@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -463,34 +466,85 @@ public class SessionFileManagement {
 			}
 		}
 	}
-	
+
 	// upload
-				public void copyToUpload(List<ReportConfigDto> list) {
+	public void copyToUpload(List<ReportConfigDto> list) {
 //					String uploadPath="C:\\Suji\\New folder (3)\\2dy\\New folder";
-					String uploadPath = StateMachine.getHomelocation() + File.separator + currentSessionDetails.getUutType()
-							+ File.separator + currentSessionDetails.getDfccSerialNumber() + File.separator
-							+ currentSessionDetails.getSessionName() + File.separator + "upload";
-					System.out.println("UPLOAD FOLDER CHECK ----- :: " + uploadPath);
-					File targetDir = new File(uploadPath);
-					if (!targetDir.exists()) {
-						if (!targetDir.mkdirs()) {
-							System.err.println("Failed to create directory: " + targetDir.getAbsolutePath());
-							return;
+		String uploadPath = StateMachine.getHomelocation() + File.separator + currentSessionDetails.getUutType()
+				+ File.separator + currentSessionDetails.getDfccSerialNumber() + File.separator
+				+ currentSessionDetails.getSessionName() + File.separator + "upload";
+		System.out.println("UPLOAD FOLDER CHECK ----- :: " + uploadPath);
+		File targetDir = new File(uploadPath);
+		if (!targetDir.exists()) {
+			if (!targetDir.mkdirs()) {
+				System.err.println("Failed to create directory: " + targetDir.getAbsolutePath());
+				return;
+			}
+		}
+		for (ReportConfigDto item : list) {
+			String filePath = item.getFileName();
+			Path path = Paths.get(filePath);
+			String fileName = path.getFileName().toString();
+			File newFileLocation = new File(targetDir, fileName);
+			try {
+				Files.copy(Paths.get(filePath), Paths.get(newFileLocation.getAbsolutePath()),
+						StandardCopyOption.REPLACE_EXISTING);
+				System.out.println("File copied and renamed to: " + newFileLocation.getAbsolutePath());
+			} catch (IOException e) {
+				System.err.println("Failed to copy file: " + e.getMessage());
+			}
+		}
+	}
+
+	// ORDER OUTPUT FOLDER COPYING AS PER LAST DATE MODIFIED
+	public void sortOutputFolder() {
+		String outputFolderPath = StateMachine.getHomelocation() + File.separator + "aitess" + File.separator
+				+ "output";
+		System.out.println("------ OUTPUT FOLDER CHECK : " + outputFolderPath);
+		File directory = new File(outputFolderPath);
+		// Check if the path is a directory
+		if (!directory.isDirectory()) {
+			System.out.println("The specified path is not a directory.");
+			return;
+		}
+		File[] files = directory.listFiles();
+		if (files == null || files.length == 0) {
+			System.out.println("No files found in the directory.");
+			return;
+		}
+		// Get today's date
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat todayFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String todayDate = todayFormat.format(calendar.getTime());
+		// Move files into date-specific folders
+		for (File file : files) {
+			if (file.isFile()) {
+				long lastModifiedTime = file.lastModified();
+				Date lastModifiedDate = new Date(lastModifiedTime);
+				String dateFolderName = todayFormat.format(lastModifiedDate);
+				// Only create a folder and move files if the last modified date is not today
+				if (!todayDate.equals(dateFolderName)) {
+					File dateFolder = new File(directory, dateFolderName);
+					if (!dateFolder.exists()) {
+						if (dateFolder.mkdir()) {
+							// System.out.println("Folder created: " + dateFolder.getAbsolutePath());
+						} else {
+							// System.out.println("Failed to create folder: " +
+							// dateFolder.getAbsolutePath());
+							continue;
 						}
 					}
-					for (ReportConfigDto item : list) {
-						String filePath = item.getFileName();
-						Path path = Paths.get(filePath);
-						String fileName = path.getFileName().toString();
-						File newFileLocation = new File(targetDir, fileName);
-						try {
-							Files.copy(Paths.get(filePath), Paths.get(newFileLocation.getAbsolutePath()),
-									StandardCopyOption.REPLACE_EXISTING);
-							System.out.println("File copied and renamed to: " + newFileLocation.getAbsolutePath());
-						} catch (IOException e) {
-							System.err.println("Failed to copy file: " + e.getMessage());
-						}
+					try {
+						Path targetPath = dateFolder.toPath().resolve(file.getName());
+						Files.move(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+						// System.out.println("Moved: " + file.getName() + " to " +
+						// dateFolder.getAbsolutePath());
+					} catch (IOException e) {
+						System.out.println("Failed to move file: " + file.getName() + " - " + e.getMessage());
 					}
 				}
+			}
+		}
+	}
 
 }
