@@ -477,7 +477,7 @@ public class UserDashboardController {
 		bottomRightTopBox.setAlignment(Pos.CENTER_LEFT);
 		bottomRightTopBox.getStyleClass().add("right-first-container");
 
-		Label titleLabel = new Label("SC Card Status");
+		Label titleLabel = new Label("Session Details");
 		titleLabel.getStyleClass().add("right-top-title");
 
 		GridPane bottomRightTopGridPane = new GridPane();
@@ -488,60 +488,78 @@ public class UserDashboardController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
-
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		firstRow.setPercentHeight(100);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(50);
 
 		bottomRightTopGridPane.getColumnConstraints().addAll(firstColumn);
-		bottomRightTopGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		bottomRightTopGridPane.getRowConstraints().addAll(firstRow);
 
-		GridPane onlineGridPane = new GridPane();
-		onlineGridPane.getStyleClass().add("online-card-box");
-		ColumnConstraints onlineFirstColumn = new ColumnConstraints();
-		onlineFirstColumn.setPercentWidth(80);
-		ColumnConstraints onlineSecondColumn = new ColumnConstraints();
-		onlineSecondColumn.setPercentWidth(20);
-		RowConstraints onlineFirstRow = new RowConstraints();
-		onlineFirstRow.setPercentHeight(100);
+//		GridPane onlineGridPane = new GridPane();
+//		onlineGridPane.getStyleClass().add("online-card-box");
+//		ColumnConstraints onlineFirstColumn = new ColumnConstraints();
+//		onlineFirstColumn.setPercentWidth(80);
+//		ColumnConstraints onlineSecondColumn = new ColumnConstraints();
+//		onlineSecondColumn.setPercentWidth(20);
+//		RowConstraints onlineFirstRow = new RowConstraints();
+//		onlineFirstRow.setPercentHeight(100);
+//
+//		onlineGridPane.getColumnConstraints().addAll(onlineFirstColumn, onlineSecondColumn);
+//		onlineGridPane.getRowConstraints().addAll(onlineFirstRow);
+//
+//		Label onlineCard = new Label("Card Online");
+//		onlineCard.getStyleClass().add("online-card-name");
+//
+//		Label onlineCardCount = new Label("10");
+//		onlineCardCount.getStyleClass().add("card-count");
+//
+//		onlineGridPane.add(onlineCard, 0, 0);
+//		onlineGridPane.add(onlineCardCount, 1, 0);
+//
+//		GridPane offlineGridPane = new GridPane();
+//		offlineGridPane.getStyleClass().add("offline-card-box");
+//		ColumnConstraints offlineFirstColumn = new ColumnConstraints();
+//		offlineFirstColumn.setPercentWidth(80);
+//		ColumnConstraints offlineSecondColumn = new ColumnConstraints();
+//		offlineSecondColumn.setPercentWidth(20);
+//		RowConstraints offlineFirstRow = new RowConstraints();
+//		offlineFirstRow.setPercentHeight(100);
+//
+//		offlineGridPane.getColumnConstraints().addAll(offlineFirstColumn, offlineSecondColumn);
+//		offlineGridPane.getRowConstraints().addAll(offlineFirstRow);
+//
+//		Label offlineCard = new Label("Card Offline");
+//		offlineCard.getStyleClass().add("offline-card-name");
+//
+//		Label offlineCardCount = new Label("5");
+//		offlineCardCount.getStyleClass().add("card-count");
+//
+//		offlineGridPane.add(offlineCard, 0, 0);
+//		offlineGridPane.add(offlineCardCount, 1, 0);
+//
+//		bottomRightTopGridPane.add(onlineGridPane, 0, 0);
+//		bottomRightTopGridPane.add(offlineGridPane, 0, 1);
 
-		onlineGridPane.getColumnConstraints().addAll(onlineFirstColumn, onlineSecondColumn);
-		onlineGridPane.getRowConstraints().addAll(onlineFirstRow);
+//		bottomRightTopBox.getChildren().addAll(titleLabel, bottomRightTopGridPane);
+		
+		GridPane labelsGridPane = new GridPane();
+		ColumnConstraints labelFirstColumn = new ColumnConstraints();
+		labelFirstColumn.setPercentWidth(80);
+		
+		RowConstraints labelFirstRow = new RowConstraints();
+		labelFirstRow.setPercentHeight(100);
 
-		Label onlineCard = new Label("Card Online");
-		onlineCard.getStyleClass().add("online-card-name");
-
-		Label onlineCardCount = new Label("10");
-		onlineCardCount.getStyleClass().add("card-count");
-
-		onlineGridPane.add(onlineCard, 0, 0);
-		onlineGridPane.add(onlineCardCount, 1, 0);
-
-		GridPane offlineGridPane = new GridPane();
-		offlineGridPane.getStyleClass().add("offline-card-box");
-		ColumnConstraints offlineFirstColumn = new ColumnConstraints();
-		offlineFirstColumn.setPercentWidth(80);
-		ColumnConstraints offlineSecondColumn = new ColumnConstraints();
-		offlineSecondColumn.setPercentWidth(20);
-		RowConstraints offlineFirstRow = new RowConstraints();
-		offlineFirstRow.setPercentHeight(100);
-
-		offlineGridPane.getColumnConstraints().addAll(offlineFirstColumn, offlineSecondColumn);
-		offlineGridPane.getRowConstraints().addAll(offlineFirstRow);
-
-		Label offlineCard = new Label("Card Offline");
-		offlineCard.getStyleClass().add("offline-card-name");
-
-		Label offlineCardCount = new Label("5");
-		offlineCardCount.getStyleClass().add("card-count");
-
-		offlineGridPane.add(offlineCard, 0, 0);
-		offlineGridPane.add(offlineCardCount, 1, 0);
-
-		bottomRightTopGridPane.add(onlineGridPane, 0, 0);
-		bottomRightTopGridPane.add(offlineGridPane, 0, 1);
-
-		bottomRightTopBox.getChildren().addAll(titleLabel, bottomRightTopGridPane);
+		Label newLabel = new Label();
+		String str = currentSessionDetails.getSessionName();
+	    int underscoreCount = str.length() - str.replace("_", "").length();
+	    
+	    newLabel.setText(currentSessionDetails.getSessionName());
+		newLabel.setPrefWidth(250);
+		newLabel.setWrapText(true);
+		newLabel.setPadding(new Insets(0,0,0,5));
+		newLabel.getStyleClass().add("session-name-label");
+		
+		bottomRightTopBox.getChildren().addAll(titleLabel, newLabel);
 
 		return bottomRightTopBox;
 	}

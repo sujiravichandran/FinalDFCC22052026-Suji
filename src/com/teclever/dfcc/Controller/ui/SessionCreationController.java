@@ -124,7 +124,7 @@ public class SessionCreationController {
 	private ComboBox<String> ofpVersionField = new ComboBox<>();
 	private TextField ofpVersionTextField = new TextField();
 
-	private Button addFaultCodeButton = new Button("ADD FAULT CODE");
+	private Button addFaultCodeButton = new Button("Add/Remove Fault Code");
 	private Label selectedFaultCodeLabel = new Label("Selected Fault Code");
 	private TextArea faultCodeTextArea = new TextArea();
 
@@ -371,6 +371,7 @@ public class SessionCreationController {
 		sessionEntryGridPane.add(dfccSNoField, 1, 0);
 		sessionEntryGridPane.add(dfccPartNoLabel, 0, 1);
 		sessionEntryGridPane.add(dfccPartNoField, 1, 1);
+		dfccPartNoField.setEditable(false);
 		sessionEntryGridPane.setVgap(10);
 
 		ColumnConstraints modTypeLabelColumn = new ColumnConstraints();
@@ -523,6 +524,13 @@ public class SessionCreationController {
 			refreshSessionTypeComboBox();
 			if (ROLE_ID.equals("RL_ID_4")) {
 				setDefaultSessionTypeSelection();
+			}
+			if("UUT1".equals(UUT_ID)) {
+				dfccPartNoField.setText("1160 000 395 75");
+			}else if("UUT2".equals(UUT_ID)) {
+				dfccPartNoField.setText("1104 001 333 85");
+			}else if("UUT3".equals(UUT_ID)) {
+				dfccPartNoField.setText("1100 025 954 72");
 			}
 		});
 	}
@@ -1343,8 +1351,8 @@ public class SessionCreationController {
 		ofpVersionField.prefWidthProperty().bind(ofpVersionGridPane.widthProperty());
 
 		rightContainer.getStyleClass().add("session-creation-container");
-		rightContainer.getChildren().addAll(ofpVersionGridPane, faultCodeTableView, addFaultCodeButton,
-				selectedFaultCodeLabel, faultCodeTextArea);
+		rightContainer.getChildren().addAll(ofpVersionGridPane, faultCodeTableView, 
+				selectedFaultCodeLabel, faultCodeTextArea, addFaultCodeButton);
 		return rightContainer;
 	}
 
