@@ -47,7 +47,7 @@ public class ReportGeneration {
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
         String filePath ="";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "home/teclever_java_app/aitessreport/" + fileName;
+			filePath = "C:\\Users\\manik\\Downloads\\" + fileName;
 		} else {
 			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
@@ -72,7 +72,7 @@ public class ReportGeneration {
         // Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -123,7 +123,7 @@ public class ReportGeneration {
         // Add images and text inside the rectangular box
         String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -132,7 +132,7 @@ public class ReportGeneration {
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+			imagePath3 = "C:\\Users\\manik\\Downloads\\TECLEVER_logo.png";
 		} else {
 			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
 		}
@@ -225,25 +225,26 @@ public class ReportGeneration {
  
 
         // Add rows from list
-		for (ResultExecutionDTO dto : resultExecutionDTOList) {
-			Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
-			Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
+		if (resultExecutionDTOList != null) {
+			for (ResultExecutionDTO dto : resultExecutionDTOList) {
+				Font greenFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GREEN);
+				Font redFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.RED);
 
-			table.addCell(new Phrase(dto.getTestFileName()));
-			table.addCell(new Phrase(dto.getRdfFilePath() + dto.getRdfFile()));
-			table.addCell(new Phrase(dto.getDStarCount()));
-			table.addCell(new Phrase(dto.getEndTime()));
-			table.addCell(new Phrase(dto.getStatus()));
+				table.addCell(new Phrase(dto.getTestFileName()));
+				table.addCell(new Phrase(dto.getRdfFilePath() + dto.getRdfFile()));
+				table.addCell(new Phrase(dto.getDStarCount()));
+				table.addCell(new Phrase(dto.getEndTime()));
+				table.addCell(new Phrase(dto.getStatus()));
 
-			/*
-			 * if (!dto.getStatus().equals("SUCCESS")) { table.addCell(new
-			 * Phrase(dto.getStatus(),greenFont)); } else { table.addCell(new
-			 * Phrase(dto.getStatus(),redFont));
-			 * 
-			 * }
-			 */
+				/*
+				 * if (!dto.getStatus().equals("SUCCESS")) { table.addCell(new
+				 * Phrase(dto.getStatus(),greenFont)); } else { table.addCell(new
+				 * Phrase(dto.getStatus(),redFont));
+				 * 
+				 * }
+				 */
+			}
 		}
-
 		// Add table to document
 		document.add(table);
 
@@ -268,7 +269,7 @@ public class ReportGeneration {
           
           if(!DFCCConstant.isJarBuild)
           {
-        	  filePath = "home/teclever_java_app/aitessreport/"+fileName;
+        	  filePath = "C:\\Users\\manik\\Downloads\\"+fileName;
           }
           else
           {
@@ -297,7 +298,7 @@ public class ReportGeneration {
         // Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -347,7 +348,7 @@ public class ReportGeneration {
         // Add images and text inside the rectangular box
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 
 			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
@@ -357,7 +358,7 @@ public class ReportGeneration {
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+			imagePath3 = "C:\\Users\\manik\\Downloads\\TECLEVER_logo.png";
 		} else {
 			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -461,18 +462,20 @@ public class ReportGeneration {
         table.setHeaderRows(1);
 
         // Add rows from list
-        for (ResultDetailedDTO dto : resultDetailedDTOList) {
-            table.addCell(new Phrase(dto.getTestName()));
-            table.addCell(new Phrase(dto.getTpgph()));
-            table.addCell(new Phrase(dto.getStepName()));
-            table.addCell(new Phrase(dto.getExpectedValue()));
-            table.addCell(new Phrase(dto.getMeasuredValue()));
-            table.addCell(new Phrase(dto.getUnit()));
-            table.addCell(new Phrase(dto.getTpfFileName()));
-            table.addCell(new Phrase(dto.getSignalName()));
-            table.addCell(new Phrase(dto.getFaultyChannel()));
-            table.addCell(new Phrase(dto.getRdfName()));
-        }
+		if (resultDetailedDTOList != null) {
+			for (ResultDetailedDTO dto : resultDetailedDTOList) {
+				table.addCell(new Phrase(dto.getTestName()));
+				table.addCell(new Phrase(dto.getTpgph()));
+				table.addCell(new Phrase(dto.getStepName()));
+				table.addCell(new Phrase(dto.getExpectedValue()));
+				table.addCell(new Phrase(dto.getMeasuredValue()));
+				table.addCell(new Phrase(dto.getUnit()));
+				table.addCell(new Phrase(dto.getTpfFileName()));
+				table.addCell(new Phrase(dto.getSignalName()));
+				table.addCell(new Phrase(dto.getFaultyChannel()));
+				table.addCell(new Phrase(dto.getRdfName()));
+			}
+		}
 
         // Add table to document
         document.add(table);
@@ -492,11 +495,13 @@ public class ReportGeneration {
     	//dd-MM-yyyy
         Response res = new Response();
         Document document = new Document(PageSize.A4);
+        
         String fileName = "BriefReport_" 
-                + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance()) + ".pdf";
+                + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+    
         String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\manik\\Downloads\\" + fileName;
 		} else {
 			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
@@ -521,7 +526,7 @@ public class ReportGeneration {
         // Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -572,7 +577,7 @@ public class ReportGeneration {
         // Add images and text inside the rectangular box
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -580,7 +585,7 @@ public class ReportGeneration {
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+			imagePath3 = "C:\\Users\\manik\\Downloads\\TECLEVER_logo.png";
 		} else {
 			imagePath3 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/TECLEVER_logo.png";
 		}
@@ -644,14 +649,14 @@ public class ReportGeneration {
        
        
         // Create table
-        PdfPTable table = new PdfPTable(5); // 10 columns
-        table.setWidthPercentage(100); // Width 100%
-        table.setSpacingBefore(10f); // Space before table
-        table.setSpacingAfter(10f); // Space after table
+        PdfPTable table = new PdfPTable(5); 
+        table.setWidthPercentage(100); 
+        table.setSpacingBefore(10f); 
+        table.setSpacingAfter(10f); 
 
 
         // Set Column widths
-        float[] columnWidths = {1.5f, 2.5f, 1f, 2f,1f,1f};
+        float[] columnWidths = {1.5f, 2.5f, 0.5f, 2f ,1f};
         table.setWidths(columnWidths);
 
 
@@ -667,20 +672,17 @@ public class ReportGeneration {
 
         // Set the number of header rows
         table.setHeaderRows(1);
-
-        
- 
-
         // Add rows from list
-        for (ResultExecutionDTO dto : resultExecutionDTOList) {
-            table.addCell(new Phrase(dto.getTestFileName()));
-            table.addCell(new Phrase(dto.getRdfFilePath()+dto.getRdfFile()));
-            table.addCell(new Phrase(dto.getDStarCount()));
-            table.addCell(new Phrase(dto.getEndTime()));
-            table.addCell(new Phrase(dto.getStageId()));
-            table.addCell(new Phrase(dto.getStatus()));
-        }
-
+		if (resultExecutionDTOList != null) {
+			for (ResultExecutionDTO dto : resultExecutionDTOList) {
+				table.addCell(new Phrase(dto.getTestFileName()));
+				table.addCell(new Phrase(dto.getRdfFilePath() + dto.getRdfFile()));
+				table.addCell(new Phrase(dto.getDStarCount()));
+				table.addCell(new Phrase(dto.getEndTime()));
+				table.addCell(new Phrase(dto.getStageId()));
+				table.addCell(new Phrase(dto.getStatus()));
+			}
+		}
         // Add table to document
         document.add(table);
 
@@ -692,7 +694,7 @@ public class ReportGeneration {
         return res;
     }
     
-    public Response generateDetailedReportForCurrentSession(String uutTypeId)
+    public Response generateDetailedReportForCurrentSession(String sessionId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
     	//dd-MM-yyyy
@@ -702,9 +704,9 @@ public class ReportGeneration {
                 + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\manik\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/aitessreport/" + fileName;
+			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -728,7 +730,7 @@ public class ReportGeneration {
         // Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -780,7 +782,7 @@ public class ReportGeneration {
         // Add images and text inside the rectangular box
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\manik\\Downloads\\BEL.jpeg";
 		} else {
 			imagePath1 = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 		}
@@ -788,7 +790,7 @@ public class ReportGeneration {
         // String imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_LOGO1.png";
 		  String imagePath3 = "";
 			if (!DFCCConstant.isJarBuild) {
-				imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+				imagePath3 = "C:\\Users\\manik\\Downloads\\TECLEVER_logo.png";
 			}else
 			{
 				   imagePath3 =  "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
@@ -840,13 +842,14 @@ public class ReportGeneration {
         userNameDetails.setAlignment(Element.ALIGN_LEFT); // Center align the heading
         document.add(userNameDetails);
 
-        ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+        ResultDetailedResponse resultDetailedResponse = new ResultDetailedResponse();
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages("");
+        resultDetailedResponse = resultExecutionManagement.getResultExecutionListDetailedListForSession(sessionId);
 
 
         List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
-        for (int i = 0; i < 100; i++) {
+        resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+      /*  for (int i = 0; i < 100; i++) {
             ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 
             resultDetailedDTO.setExpectedValue(i + ".00");
@@ -860,7 +863,7 @@ public class ReportGeneration {
             resultDetailedDTO.setUnit("UN-" + i);
             resultDetailedDTO.setTestName("TN-" + i);
             resultDetailedDTOList.add(resultDetailedDTO);
-        }
+        }*/
 
         // Create table
         PdfPTable table = new PdfPTable(10); // 10 columns
@@ -888,19 +891,20 @@ public class ReportGeneration {
         table.setHeaderRows(1);
 
         // Add rows from list
-        for (ResultDetailedDTO dto : resultDetailedDTOList) {
-            table.addCell(new Phrase(dto.getTestName()));
-            table.addCell(new Phrase(dto.getTpgph()));
-            table.addCell(new Phrase(dto.getStepName()));
-            table.addCell(new Phrase(dto.getExpectedValue()));
-            table.addCell(new Phrase(dto.getMeasuredValue()));
-            table.addCell(new Phrase(dto.getUnit()));
-            table.addCell(new Phrase(dto.getTpfFileName()));
-            table.addCell(new Phrase(dto.getSignalName()));
-            table.addCell(new Phrase(dto.getFaultyChannel()));
-            table.addCell(new Phrase(dto.getRdfName()));
-        }
-
+		if (resultDetailedDTOList != null) {
+			for (ResultDetailedDTO dto : resultDetailedDTOList) {
+				table.addCell(new Phrase(dto.getTestName()));
+				table.addCell(new Phrase(dto.getTpgph()));
+				table.addCell(new Phrase(dto.getStepName()));
+				table.addCell(new Phrase(dto.getExpectedValue()));
+				table.addCell(new Phrase(dto.getMeasuredValue()));
+				table.addCell(new Phrase(dto.getUnit()));
+				table.addCell(new Phrase(dto.getTpfFileName()));
+				table.addCell(new Phrase(dto.getSignalName()));
+				table.addCell(new Phrase(dto.getFaultyChannel()));
+				table.addCell(new Phrase(dto.getRdfName()));
+			}
+		}
         // Add table to document
         document.add(table);
 
