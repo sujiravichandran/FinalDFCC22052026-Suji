@@ -929,23 +929,20 @@ public class AitessProcessControlManagement {
 			// unloadDriver
 			RunConfigurationService runConfigurationService = new RunConfigurationService();
 			String currentRunConfigId = currentSessionDetails.getRunConfigId();
+			System.out.println("AT LOGOUT runConfigId: " + currentRunConfigId);
 			AitessConfigurationDetails currentAitess = runConfigurationService
 					.getAitessDetailsByRunConfigId(currentRunConfigId);
-
+			System.out.println("AT LOGOUT aitess: " + currentAitess.getAitessName());
 			LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
 			pcm.loadDriver(null, currentAitess.getUnloadDriverCommand(), 0,
 					LoadDriverProcessControlManagement.LoadMode.LOGOUT);
-			System.out.println("DRIVER <<< " + currentAitess.getDriverName() + " >>> UNLOADED");
-
+			System.out.println("AT LOGOUT driver -> " + currentAitess.getDriverName() + " >>> UNLOADED");
 			// kill pty process
 			exitAitess1Command();
 			exitAitess2Command();
-
 			// aitess2thread stop
 			shutdownScheduler();
-
 		}
-
 	}
 
 	public void shutdownScheduler() {

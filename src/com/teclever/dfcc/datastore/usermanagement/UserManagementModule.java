@@ -20,6 +20,7 @@ import com.teclever.dfcc.datastore.dto.UserGetAllResponse;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.dto.UserRoleMasterDto;
 import com.teclever.dfcc.datastore.dto.UserRoleResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -165,6 +166,9 @@ public class UserManagementModule {
 				loginResponse.setUserId(userLoginDto.getUserId());
 				saveLoginInfo(userLoginDto.getUserId());	
 				StateMachine.setCurrentUserLogin(userLoginDto.getLoginName());
+				//Sorting Output Folder based on last modified date
+				SessionFileManagement s = new SessionFileManagement();
+				s.sortOutputFolder();
 
 			} else {
 				Response res = new Response();
