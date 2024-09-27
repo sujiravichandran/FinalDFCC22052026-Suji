@@ -1,10 +1,14 @@
 package com.teclever.dfcc.datastore.processcontrolmanagement;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -934,6 +938,7 @@ public class AitessProcessControlManagement {
 					.getAitessDetailsByRunConfigId(currentRunConfigId);
 			System.out.println("AT LOGOUT aitess: " + currentAitess.getAitessName());
 			LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
+			System.out.println("Unload Driver Command : " + currentAitess.getUnloadDriverCommand());
 			pcm.loadDriver(null, currentAitess.getUnloadDriverCommand(), 0,
 					LoadDriverProcessControlManagement.LoadMode.LOGOUT);
 			System.out.println("AT LOGOUT driver -> " + currentAitess.getDriverName() + " >>> UNLOADED");
@@ -997,15 +1002,16 @@ public class AitessProcessControlManagement {
 		}
 
 		String expectedWDMStatus = "0xfffe6020";
-		
-		if("UUT1".equals(currentSessionDetails.getUutId())) {
+
+		if ("UUT1".equals(currentSessionDetails.getUutId())) {
 			expectedWDMStatus = "0xffff6000";
 		}
-		
-		
+
 		// Check if all WDM statuses are "online"
-		if (expectedWDMStatus.equals(WDMStatus.getChannel1Status()) && expectedWDMStatus.equals(WDMStatus.getChannel2Status())
-				&& expectedWDMStatus.equals(WDMStatus.getChannel3Status()) && expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
+		if (expectedWDMStatus.equals(WDMStatus.getChannel1Status())
+				&& expectedWDMStatus.equals(WDMStatus.getChannel2Status())
+				&& expectedWDMStatus.equals(WDMStatus.getChannel3Status())
+				&& expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
 
 			// WDM Status OK
 			wdmMatch = true;
@@ -1068,6 +1074,54 @@ public class AitessProcessControlManagement {
 		StateMachine.setPreviousRunConfigId(currentRunConfigId);
 		System.out.println("UPDATED previous runConfig before pbit ::------" + StateMachine.getPreviousRunConfigId());
 
+	}
+
+	// ORDER OUTPUT FOLDER COPYING AS PER LAST DATE MODIFIED
+	public void sortOutputFolder() {
+		String outputFolderPath = aitessDir + File.separator + "output";
+		System.out.println("------ OUTPUT FOLDER CHECK : " + outputFolderPath);
+		File directory = new File(outputFolderPath);
+		// Check if the path is a directory
+		if (!directory.isDirectory()) {
+			System.out.println("The specified path is not a directory.");
+			return;
+		}
+		File[] files = directory.listFiles();
+		if (files == null || files.length == 0) {
+			System.out.println("No files found in the directory.");
+			return;
+		}
+		// Get today's date
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat todayFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String todayDate = todayFormat.format(calendar.getTime());
+		// Move files into date-specific folders
+		for (File file : files) {
+			if (file.isFile()) {
+				long lastModifiedTime = file.lastModified();
+				Date lastModifiedDate = new Date(lastModifiedTime);
+				String dateFolderName = todayFormat.format(lastModifiedDate);
+				// Only create a folder and move files if the last modified date is not today
+				if (!todayDate.equals(dateFolderName)) {
+					File dateFolder = new File(directory, dateFolderName);
+					if (!dateFolder.exists()) {
+						if (dateFolder.mkdir()) {
+							System.out.println("Folder created: " + dateFolder.getAbsolutePath());
+						} else {
+							System.out.println("Failed to create folder: " + dateFolder.getAbsolutePath());
+							continue;
+						}
+					}
+					try {
+						Path targetPath = dateFolder.toPath().resolve(file.getName());
+						Files.move(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+						System.out.println("Moved: " + file.getName() + " to " + dateFolder.getAbsolutePath());
+					} catch (IOException e) {
+						System.out.println("Failed to move file: " + file.getName() + " - " + e.getMessage());
+					}
+				}
+			}
+		}
 	}
 
 }

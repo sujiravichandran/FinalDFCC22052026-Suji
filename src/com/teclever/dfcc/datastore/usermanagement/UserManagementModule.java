@@ -23,6 +23,7 @@ import com.teclever.dfcc.datastore.dto.UserRoleResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
@@ -166,10 +167,6 @@ public class UserManagementModule {
 				loginResponse.setUserId(userLoginDto.getUserId());
 				saveLoginInfo(userLoginDto.getUserId());	
 				StateMachine.setCurrentUserLogin(userLoginDto.getLoginName());
-				//Sorting Output Folder based on last modified date
-				SessionFileManagement s = new SessionFileManagement();
-				s.sortOutputFolder();
-
 			} else {
 				Response res = new Response();
 				res.setResponseCode(0);
