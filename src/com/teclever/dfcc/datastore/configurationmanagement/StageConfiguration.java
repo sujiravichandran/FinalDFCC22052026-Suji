@@ -487,7 +487,7 @@ e.printStackTrace();
 							.checkIsStageFromLRU(levelFourStageMaster.getLevelThreeRefernce());
 					if (checkLRUStage) {
 						Map<String, String> advanceTestingStageNameId = new HashMap<String, String>();
-						advanceTestingStageNameId = advanceInterfaceTestingManagement.getAdvanceStageNameStageId("UUT1");
+						advanceTestingStageNameId = advanceInterfaceTestingManagement.getAdvanceStageNameStageId(UUTtypeId);
 
 						String advanceStageLevelId = advanceTestingStageNameId.get(levelName);
 						System.out.println("advanceStageLevelId"+advanceStageLevelId);
