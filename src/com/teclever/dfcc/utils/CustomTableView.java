@@ -112,7 +112,7 @@ public class CustomTableView<T> extends TableView<T> {
 							} else {
 								setText(item.toString());
 								setGraphic(null);
-								setStyle("-fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 150px;");
+								setStyle("-fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 30px;");
 							}
 						}
 					});
@@ -246,8 +246,8 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 	private Button createButton(String iconPath, EventType<Event> eventType) {
 		Image image = new Image(getClass().getResourceAsStream(iconPath));
 		ImageView imageView = new ImageView(image);
-		imageView.setFitWidth(20);
-		imageView.setFitHeight(20);
+		imageView.setFitWidth(30);
+		imageView.setFitHeight(30);
 		Button button = new Button();
 		button.setGraphic(imageView);
 		button.setStyle(

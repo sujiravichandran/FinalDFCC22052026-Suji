@@ -1,11 +1,11 @@
 @import url("Global.css");
 
 #aitessMacroPopupMainContainer{
-	 -fx-background-color:dark-bg;
+	 -fx-background-color:form-bg;
 }
 
 #headerLabel{
-    -fx-text-fill:heading-text-color; 
+   -fx-text-fill:form-title; 
     -fx-font-size: 24.0px;
 	-fx-font-weight: bold;
 }
@@ -13,6 +13,19 @@
 .label {
    -fx-font-size: 16.0px;
     -fx-text-fill:primary-color;
+}
+
+.macro-table .table-cell {
+    -fx-font-size: 12px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.macro-table .column-header .label {
+    -fx-font-size: 14px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+    -fx-text-fill:secondary-text-color; 
 }
 
 .button {

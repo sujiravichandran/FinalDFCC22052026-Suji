@@ -1,7 +1,7 @@
 @import url("Global.css");
 
 #aitessSymbolPopupMainContainer{
-	 -fx-background-color:dark-bg;
+	 -fx-background-color:form-bg;
 }
 
 #headerLabel{
@@ -15,6 +15,18 @@
     -fx-text-fill:form-label;
 }
 
+.symbol-table .table-cell {
+    -fx-font-size: 12px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+}
+
+.symbol-table .column-header .label {
+    -fx-font-size: 14px; 
+    -fx-font-weight: bold;
+    -fx-padding: 2px;
+    -fx-text-fill:secondary-text-color; 
+}
 
 .button {
 	-fx-min-width:90px;
@@ -31,3 +43,5 @@
 	-fx-text-fill:button-bg; 
     -fx-background-color:button-text; 
 }
+
+

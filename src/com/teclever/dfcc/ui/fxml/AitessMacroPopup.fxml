@@ -8,12 +8,12 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="aitessMacroPopupMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/AitessMacroPopup.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AitessMacroPopupController">
+<AnchorPane fx:id="aitessMacroPopupMainContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/AitessMacroPopup.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.AitessMacroPopupController">
 	<children>
 		<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="10.0">
 			<children>
 				<Label fx:id="headerLabel" text="MACRO DETAILS" />
-				<TableView fx:id="macroTableView" prefHeight="300.0" prefWidth="600.0">
+				<TableView fx:id="macroTableView" prefHeight="289.0" prefWidth="580.0">
 					<columns>
 						<TableColumn fx:id="macroNameColumn" prefWidth="149.0" text="Macro Name" />
 

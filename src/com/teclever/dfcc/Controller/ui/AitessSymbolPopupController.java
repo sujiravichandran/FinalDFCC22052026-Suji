@@ -2,20 +2,18 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.model.AitessSymbolFiles.AitessSymbolDetails;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class AitessSymbolPopupController {
 
@@ -39,6 +37,9 @@ public class AitessSymbolPopupController {
 
 	@FXML
 	public void initialize() {
+		aitessSymbolPopupMainContainer.getStylesheets()
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessSymbolPopup.css").toExternalForm());
+		symbolTableView.getStyleClass().add("symbol-table");
 		symbolNameColumn.setCellValueFactory(new PropertyValueFactory<>("symbolName"));
 		symbolNameColumn.setReorderable(false);
 		symbolNameColumn.setSortable(false);

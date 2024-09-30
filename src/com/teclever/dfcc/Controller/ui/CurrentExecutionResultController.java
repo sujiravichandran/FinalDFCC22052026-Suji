@@ -440,7 +440,7 @@ public class CurrentExecutionResultController {
 				newDetailedData.setTpgphNo(data.getTpgph());
 				newDetailedData.setStepNo(data.getStepName());
 				newDetailedData.setExpectedValue(data.getExpectedValue());
-				newDetailedData.setMoniterdOutput(data.getMeasuredValue());
+				newDetailedData.setMeasuredValueCh1Ch2Ch3Ch4(data.getMeasuredValue());
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
 				newDetailedData.setFaultyChannel(data.getFaultyChannel());

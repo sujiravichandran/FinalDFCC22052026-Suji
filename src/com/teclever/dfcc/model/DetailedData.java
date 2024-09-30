@@ -8,11 +8,11 @@ public class DetailedData {
 	private String rdfName;
 	private String tpgphNo;
 	private String stepNo;
-	private String expectedValue;
-	private String moniterdOutput;
-	private String unit;
 	private String signalName;
+	private String expectedValue;
+	private String measuredValueCh1_Ch2_Ch3_Ch4;
 	private String faultyChannel;
+	private String unit;
 	
 	public int getId() {
 		return id;
@@ -50,35 +50,35 @@ public class DetailedData {
 	public void setStepNo(String stepNo) {
 		this.stepNo = stepNo;
 	}
-	public String getExpectedValue() {
-		return expectedValue;
-	}
-	public void setExpectedValue(String expectedValue) {
-		this.expectedValue = expectedValue;
-	}
-	public String getMoniterdOutput() {
-		return moniterdOutput;
-	}
-	public void setMoniterdOutput(String moniterdOutput) {
-		this.moniterdOutput = moniterdOutput;
-	}
-	public String getUnit() {
-		return unit;
-	}
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
 	public String getSignalName() {
 		return signalName;
 	}
 	public void setSignalName(String signalName) {
 		this.signalName = signalName;
 	}
+	public String getExpectedValue() {
+		return expectedValue;
+	}
+	public void setExpectedValue(String expectedValue) {
+		this.expectedValue = expectedValue;
+	}
+	public String getMeasuredValueCh1Ch2Ch3Ch4() {
+		return measuredValueCh1_Ch2_Ch3_Ch4;
+	}
+	public void setMeasuredValueCh1Ch2Ch3Ch4(String measuredValueCh1_Ch2_Ch3_Ch4) {
+		this.measuredValueCh1_Ch2_Ch3_Ch4 = measuredValueCh1_Ch2_Ch3_Ch4;
+	}
 	public String getFaultyChannel() {
 		return faultyChannel;
 	}
 	public void setFaultyChannel(String faultyChannel) {
 		this.faultyChannel = faultyChannel;
+	}
+	public String getUnit() {
+		return unit;
+	}
+	public void setUnit(String unit) {
+		this.unit = unit;
 	}
 	
 	
