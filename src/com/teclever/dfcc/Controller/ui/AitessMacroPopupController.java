@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.model.AitessMacroFiles.AitessMacroDetails;
 
 import javafx.collections.FXCollections;
@@ -31,6 +32,9 @@ public class AitessMacroPopupController {
 
 	@FXML
 	public void initialize() {
+		aitessMacroPopupMainContainer.getStylesheets()
+		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/AitessMacroPopup.css").toExternalForm());
+		macroTableView.getStyleClass().add("macro-table");
 		macroNameColumn.setCellValueFactory(new PropertyValueFactory<>("macroName"));
 		macroNameColumn.setReorderable(false);
 		macroNameColumn.setSortable(false);
