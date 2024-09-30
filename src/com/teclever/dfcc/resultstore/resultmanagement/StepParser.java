@@ -229,24 +229,30 @@ public class StepParser {
     }
     
     private static String extractSignalName(String line) {
-
-    	line = line.substring(3);
+        line = line.substring(3).trim();
 
         int symbolIndex = line.indexOf('<');
-        if (symbolIndex == -1)
-            symbolIndex = line.indexOf('>');
-        if (symbolIndex == -1)
-            symbolIndex = line.indexOf("<=");
-        if (symbolIndex == -1)
-            symbolIndex = line.indexOf(">=");
-        if (symbolIndex == -1)
-            symbolIndex = line.indexOf("=");
+        if (symbolIndex == -1) symbolIndex = line.indexOf('>');
+        if (symbolIndex == -1) symbolIndex = line.indexOf("<=");
+        if (symbolIndex == -1) symbolIndex = line.indexOf(">=");
+        if (symbolIndex == -1) symbolIndex = line.indexOf("=");
 
+        String signalName = null;
         if (symbolIndex != -1) {
-            return line.substring(0, symbolIndex).trim();
+            signalName = line.substring(0, symbolIndex).trim();
         }
-        return null;
+
+        int exclamationIndex = line.indexOf('!');
+        if (exclamationIndex != -1) {
+            String additionalName = line.substring(exclamationIndex + 1).trim();
+            if (!additionalName.isEmpty()) {
+                signalName = additionalName;
+            }
+        }
+
+        return signalName;
     }
+
 
 
     
