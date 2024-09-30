@@ -132,13 +132,13 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -286,14 +286,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_ESS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_ESS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_ESS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -319,14 +319,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_PQT.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_PQT.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_PQT.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -356,8 +356,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
-			contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			contentFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
 		}
 		List<String> pdfFiles = new ArrayList<String>();
 		pdfFiles.add(contentFilePath);
@@ -428,8 +428,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
-			contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			contentFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
 		}
 
 		List<String> pdfFiles = new ArrayList<String>();
@@ -484,6 +484,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
+			res.setResponseMessage(e.getLocalizedMessage());
 		}
 		return res;
 	}
@@ -502,14 +503,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -661,14 +662,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -805,14 +806,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -964,14 +965,14 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 		}
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS.xlsx";
 		} else {
-			excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
+			excelPath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS.xlsx";
 		}
 
 		Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
