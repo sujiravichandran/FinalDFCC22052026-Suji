@@ -417,7 +417,7 @@ public class UserDashboardController {
 		logoutLabel.getStyleClass().add("logout-text");
 
 		logoutBox.setOnMouseClicked(e -> {
-			if (StateMachine.getTestState() == TestState.PENDING) {
+			if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.STOPPED || StateMachine.getTestState() == TestState.COMPLETED) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -429,7 +429,7 @@ public class UserDashboardController {
 
 				aitessProcessControlManagement.endAllProcessOnLogout();
 				Platform.exit();
-			} else if (StateMachine.getTestState() == TestState.PAUSED) {
+			} else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
 				Notifications.showWarningAlert(
 						"Please stop " + StateMachine.getRunningTestName() + " test before ending session");
 			}
