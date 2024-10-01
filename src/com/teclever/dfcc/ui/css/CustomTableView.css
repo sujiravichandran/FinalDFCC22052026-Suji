@@ -7,7 +7,7 @@
 }
 
 .table-view .column-header {
-    -fx-font-size: 18.0px;
+    -fx-font-size: 17.0px;
     -fx-pref-height: 40.0px;
     -fx-alignment: CENTER;
     -fx-background-color: button-bg; /* Bright complementary color for the header */
