@@ -436,7 +436,7 @@ public class SessionManagement {
 		return sessionListResponse;
 	}
 
-	// BASED ON ROLE ID AND UUT ID GET LIST OF SESSION, WHICH DONT HAVE END TIME
+	// BASED ON ROLE ID AND UUT ID GET LIST OF SESSION
 	public SessionListResponse getSessionDataByUUTId(String uutId) {
 		SessionListResponse sessionListResponse = new SessionListResponse();
 		Response res = new Response();
@@ -447,7 +447,7 @@ public class SessionManagement {
 			// To Picking Trail Sessions...
 			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
 			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-			trailSessionResponse = trailSessionEntityService.getDeActiveTrailSessionId();
+			trailSessionResponse = trailSessionEntityService.getAllSession();
 //
 			List<SessionList> listOfSession = new ArrayList<>();
 //
