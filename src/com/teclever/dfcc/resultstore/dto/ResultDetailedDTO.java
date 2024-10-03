@@ -14,8 +14,23 @@ public class ResultDetailedDTO {
     private String signalName;
     private String faultyChannel;
     private String rdfName;
+    private String stageId;
+    private String stageName;
     
     
+    
+	public String getStageId() {
+		return stageId;
+	}
+	public void setStageId(String stageId) {
+		this.stageId = stageId;
+	}
+	public String getStageName() {
+		return stageName;
+	}
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
+	}
 	public String getTpfFileName() {
 		return tpfFileName;
 	}

@@ -765,6 +765,7 @@ public class ResultExecutionManagement {
 					resultDetailedDTO.setTpgph(resultDto.getTpgph());
 					resultDetailedDTO.setUnit(resultDto.getUnit());
 					System.out.println("ResultDto--->" + resultDto.getFileName());
+					resultDetailedDTO.setStageId(objectIdstageId.get(systemInfoId));
 					resultDetailedList.add(resultDetailedDTO);
 				}
 			}
