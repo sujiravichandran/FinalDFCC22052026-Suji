@@ -1,5 +1,7 @@
 package com.teclever.dfcc.resultstore.dto;
 
+import java.util.Map;
+
 public class ResultDto {
 
     private String tpgph;
@@ -8,10 +10,8 @@ public class ResultDto {
     private String measuredValue;
     private String unit;
     private String signalName;
-    private String faultyChannel;
+    private Map<String,String> faultyChannel;
     private String fileName;
-    
-    
 	public String getTpgph() {
 		return tpgph;
 	}
@@ -48,13 +48,12 @@ public class ResultDto {
 	public void setSignalName(String signalName) {
 		this.signalName = signalName;
 	}
-	public String getFaultyChannel() {
+	public Map<String, String> getFaultyChannel() {
 		return faultyChannel;
 	}
-	public void setFaultyChannel(String faultyChannel) {
+	public void setFaultyChannel(Map<String, String> faultyChannel) {
 		this.faultyChannel = faultyChannel;
 	}
-	
 	public String getFileName() {
 		return fileName;
 	}
@@ -63,9 +62,10 @@ public class ResultDto {
 	}
 	public ResultDto() {
 		super();
+		// TODO Auto-generated constructor stub
 	}
 	public ResultDto(String tpgph, String stepName, String expectedValue, String measuredValue, String unit,
-			String signalName, String faultyChannel,String fileName) {
+			String signalName, Map<String, String> faultyChannel, String fileName) {
 		super();
 		this.tpgph = tpgph;
 		this.stepName = stepName;
@@ -77,6 +77,6 @@ public class ResultDto {
 		this.fileName = fileName;
 	}
     
-    
+
     
 }
