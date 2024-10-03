@@ -231,8 +231,10 @@ public class CurrentExecutionResultController {
 						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
 					}else if(sessionId != null && stageId != null) {
 						System.out.println("stage brief");
+						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
 					}else if(sessionId != null && stageId == null ) {
 						System.out.println("all session brief");
+						response = reportGeneration.generateBreifReportForCurrentSession(sessionId);
 					}
 				} else {
 					if(isCurrentSession) {
@@ -240,8 +242,12 @@ public class CurrentExecutionResultController {
 						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
 					}else if(sessionId != null && stageId != null) {
 						System.out.println("stage detail");
+						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
+						
 					}else if(sessionId != null && stageId == null ) {
 						System.out.println("all session detail");
+						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
+						
 					}
 				}
 

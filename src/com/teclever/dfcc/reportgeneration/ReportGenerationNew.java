@@ -1495,7 +1495,12 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			throws DocumentException, MalformedURLException, IOException {
 		// Starting Page
 
-		String imagePath = "src/Resources/Images/BellLogoRocket.png";
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "src/Resources/Images/BellLogoRocket.png";
+		} else {
+			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BellLogoRocket.png";
+		}
 		Image img = Image.getInstance(imagePath);
 		img.scaleAbsolute(2, 1);
 		img.scalePercent(50);
@@ -1809,7 +1814,13 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			throws DocumentException, MalformedURLException, IOException {
 		// Starting Page
 
-		String imagePath = "src/Resources/Images/BellLogoRocket.png";
+		String imagePath = "";
+
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "src/Resources/Images/BellLogoRocket.png";
+		} else {
+			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BellLogoRocket.png";
+		}
 		Image img = Image.getInstance(imagePath);
 		img.scaleAbsolute(2, 1);
 		img.scalePercent(50);
@@ -2134,7 +2145,12 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			throws DocumentException, MalformedURLException, IOException {
 		// Starting Page
 
-		String imagePath = "src/Resources/Images/BellLogoRocket.png";
+		String imagePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "src/Resources/Images/BellLogoRocket.png";
+		} else {
+			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BellLogoRocket.png";
+		}
 		Image img = Image.getInstance(imagePath);
 		img.scaleAbsolute(2, 1);
 		img.scalePercent(50);
@@ -2609,6 +2625,13 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		// Starting Page
 
 		String imagePath = "src/main/java/Resources/Images/BellLogoRocket.png";
+		
+		if (!DFCCConstant.isJarBuild) {
+			imagePath = "src/Resources/Images/BellLogoRocket.png";
+		} else {
+			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BellLogoRocket.png";
+		}
+		
 		Image img = Image.getInstance(imagePath);
 		img.scaleAbsolute(2, 1);
 		img.scalePercent(50);
@@ -2893,7 +2916,15 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			// table.setLockedWidth(true);
 
 			// \src\main\java\Resources\Images
-			String imagePath = "src/Resources/Images/BELLOGO.png";
+			String imagePath = "";
+			
+			if (!DFCCConstant.isJarBuild) {
+				imagePath = "src/Resources/Images/BELLOGO.png";
+			} else {
+				imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BELLOGO.png";
+			}
+			
+			
 			Image img = Image.getInstance(imagePath);
 			img.scaleAbsolute(2f, 5f);
 			img.scalePercent(100);
