@@ -515,7 +515,15 @@ public class ResultExecutionManagement {
 
 				for (ResultDto resultDto : lstInterResults) {
 					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-					resultDetailedDTO.setFaultyChannel(resultDto.getFaultyChannel());
+					
+					Map<String,String>fac =  resultDto.getFaultyChannel();
+					String channelValues ="";
+					for(String s :fac.keySet())
+					{
+						channelValues = s + "-"+ fac.get(s)+";";
+					}
+					
+					resultDetailedDTO.setFaultyChannel(channelValues);
 					System.out.println(resultDto.getFaultyChannel());
 					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					System.out.println(resultDto.getExpectedValue());
@@ -635,8 +643,15 @@ public class ResultExecutionManagement {
 
 				for (ResultDto resultDto : lstInterResults) {
 					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-					resultDetailedDTO.setFaultyChannel(resultDto.getFaultyChannel());
-					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					Map<String,String>fac =  resultDto.getFaultyChannel();
+					String channelValues ="";
+					for(String s :fac.keySet())
+					{
+						channelValues = s + "-"+ fac.get(s)+";";
+					}
+					
+					resultDetailedDTO.setFaultyChannel(channelValues);
+						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 					resultDetailedDTO.setRdfName(resultDto.getFileName());
 					resultDetailedDTO.setSignalName(resultDto.getSignalName());
@@ -732,8 +747,15 @@ public class ResultExecutionManagement {
 
 				for (ResultDto resultDto : lstInterResults) {
 					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-					resultDetailedDTO.setFaultyChannel(resultDto.getFaultyChannel());
-					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					Map<String,String>fac =  resultDto.getFaultyChannel();
+					String channelValues ="";
+					for(String s :fac.keySet())
+					{
+						channelValues = s + "-"+ fac.get(s)+";";
+					}
+					
+					resultDetailedDTO.setFaultyChannel(channelValues);
+						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 					resultDetailedDTO.setRdfName(resultDto.getFileName());
 					resultDetailedDTO.setSignalName(resultDto.getSignalName());
@@ -847,8 +869,15 @@ public class ResultExecutionManagement {
 
 					for (ResultDto resultDto : lstInterResults) {
 						ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-						resultDetailedDTO.setFaultyChannel(resultDto.getFaultyChannel());
-						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+						Map<String,String>fac =  resultDto.getFaultyChannel();
+						String channelValues ="";
+						for(String s1 :fac.keySet())
+						{
+							channelValues = s1 + "-"+ fac.get(s1)+";";
+						}
+						
+						resultDetailedDTO.setFaultyChannel(channelValues);
+							resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 						resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 						resultDetailedDTO.setRdfName(resultDto.getFileName());
 						resultDetailedDTO.setSignalName(resultDto.getSignalName());
