@@ -973,7 +973,7 @@ public class SessionCreationController {
 			currentSessionDetails.setUutType(uutTypeField.getValue());
 			currentSessionDetails.setSessionTypeID(SESSION_TYPE_ID);
 			currentSessionDetails.setSessionTypeName(sessionTypeField.getValue());
-			currentSessionDetails.setSessionName(sessionNameField.getText());
+			currentSessionDetails.setSessionName(sessionName);
 			currentSessionDetails.setDfccSerialNumber(dfccSNoField.getText().trim());
 
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();

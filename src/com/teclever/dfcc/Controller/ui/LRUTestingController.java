@@ -212,7 +212,9 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 					}
 
 				});
-
+		if(LRUTestStateObject.getLruMandatoryCardList().size() > 4){
+			LRUTestStateObject.getIsMandatoryFifthCardStatus().set(true);
+		}
 	}
 
 	public GridPane lruheadingGridPane() {
@@ -436,69 +438,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 	ComboBox<String> OFPVersion = new ComboBox<>();
 
-	private void dialogBox() {
-		String ofpConfig;
-		OFPVersion.setPromptText("select OFP Version");
-		OFPVersion.setVisible(false);
-
-		Dialog<String> dialog = new Dialog<>();
-		dialog.setWidth(500);
-		dialog.setTitle("Check Status");
-
-		Button okButton = new Button("OK");
-		Button cancelButton = new Button("Cancel");
-
-		okButton.setOnAction(event -> {
-			dialog.setResult("Ok");
-
-			dialog.close();
-		});
-
-		cancelButton.setOnAction(event -> {
-			dialog.setResult("Cancel");
-			dialog.close();
-		});
-
-		HBox buttonBox = new HBox();
-		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.setSpacing(10);
-
-		buttonBox.getChildren().addAll(okButton, cancelButton);
-
-		RadioButton option1 = new RadioButton("Execute PBIT without loading OFP");
-		RadioButton option2 = new RadioButton("Download OFP and Execute the PBIT");
-
-		ToggleGroup group = new ToggleGroup();
-
-		option1.setToggleGroup(group);
-		option2.setToggleGroup(group);
-
-		HBox ofpSelection = new HBox();
-		ofpSelection.setAlignment(Pos.CENTER_LEFT);
-		ofpSelection.setSpacing(30);
-
-		ofpSelection.getChildren().addAll(option2, OFPVersion);
-
-		VBox vbox = new VBox(option1, ofpSelection, buttonBox);
-		vbox.setSpacing(10);
-		dialog.getDialogPane().setContent(vbox);
-
-		option2.setOnAction(event -> {
-			OFPVersion.setVisible(true);
-			initializeOfpVersionComboBox();
-
-		});
-
-		option1.setOnAction(event -> OFPVersion.setVisible(false));
-
-		dialog.showAndWait().ifPresent(result -> {
-			System.out.println("Dialog result: " + result);
-		});
-	}
-	
-	
-	
-	
+		
 	
 	
 	private VBox createLruTestCardButton() {
@@ -512,13 +452,12 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
-			System.out.println();
 			if(!firstButton) {
 				newButton.setDisable(true);	
 			}
 			firstButton =false;
-
-			newButton.setOnAction(e ->{
+	
+			newButton.setOnAction(e ->{	
 				if(!checkAitessStatus.isBothAitessOn()) {
 					return ;
 				}
@@ -535,20 +474,6 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				        startTest.setDisable(false);
 				        return;
 				    }
-//				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
-				    
-
-//				    if(newButton.getText().trim().equalsIgnoreCase("SPIL LINK")) {
-//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
-//				    }else if(newButton.getText().trim().equalsIgnoreCase("POWER SUPPLY")) {
-//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
-//				    }else if(newButton.getText().trim().equalsIgnoreCase("PBIT TEST")) {
-//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-//				    }else if(newButton.getText().trim().equalsIgnoreCase("A/D-D/A INTERFACE TEST")) {
-//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
-//				    }else if(newButton.getText().trim().equalsIgnoreCase("INITIALIZE LRU")) {
-//				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
-//				    }
 				    
 				    
 				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
@@ -559,7 +484,6 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 
 						if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 300) {
 
-							String ofpConfig;
 							OFPVersion.setPromptText("select OFP Version");
 							OFPVersion.setVisible(false);
 
