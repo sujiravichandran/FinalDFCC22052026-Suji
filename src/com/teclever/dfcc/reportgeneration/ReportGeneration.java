@@ -512,6 +512,7 @@ public class ReportGeneration {
 
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
 		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+		System.out.println("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
 
 		/*
 		 * for (int i = 0; i < 100; i++) { ResultDetailedDTO resultDetailedDTO = new
