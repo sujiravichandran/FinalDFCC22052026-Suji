@@ -549,6 +549,8 @@ public class ResultExecutionManagement {
 			response.setCode(1);
 			response.setResultDetailedList(resultDetailedList);
 			response.setMsg("Fetched Successfully");
+			
+			System.out.println("Detail List Size"+resultDetailedList.size());
 
 		} catch (Exception ex) {
 			response.setCode(1);
@@ -670,6 +672,7 @@ public class ResultExecutionManagement {
 			response.setCode(1);
 			response.setResultDetailedList(resultDetailedList);
 			response.setMsg("Fetched Successfully");
+			System.out.println("Fetched Successfully       :" +"Detail List Size          :s"+resultDetailedList.size());
 
 		} catch (Exception ex) {
 			response.setCode(0);
@@ -773,6 +776,7 @@ public class ResultExecutionManagement {
 			response.setCode(1);
 			response.setResultDetailedList(resultDetailedList);
 			response.setMsg("Fetched Successfully");
+			System.out.println("Fetched Successfully" + "SIZE"+resultDetailedList.size());
 
 		} catch (Exception ex) {
 			response.setCode(0);

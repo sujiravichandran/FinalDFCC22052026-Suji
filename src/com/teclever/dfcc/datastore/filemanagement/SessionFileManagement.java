@@ -163,9 +163,13 @@ public class SessionFileManagement {
 	public boolean getTestFilesRunnedSuccess(String sessionId, String stageId) {
 		boolean popupShowed = false;
 		try {
+			
+		//	System.out.println("Enter Into getTestFilesRunnedSuccess");
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+			
+		
 			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
 			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
 			List<String> fileIdsRunnedInStages = new ArrayList<String>();
@@ -173,9 +177,13 @@ public class SessionFileManagement {
 			if (getResponseStageTestFileResult.getCode() != 0) {
 				sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
 						.getResponseList();
-				for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultServiceList) {
-					fileIdsRunnedInStages.add(sessionStagesTestFilesResult.getSelectedtestFileId());
+				if (sessionStagesTestFilesResultServiceList != null) {
+										
+					System.out.println("sessionStagesTestFilesResultServiceList Size"+sessionStagesTestFilesResultServiceList.size());
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultServiceList) {
+						fileIdsRunnedInStages.add(sessionStagesTestFilesResult.getSelectedtestFileId());
 
+					}
 				}
 
 			}
@@ -186,7 +194,10 @@ public class SessionFileManagement {
 			session = (SessionStagesMapping) getObject.getObject();
 			String sessionStagesMappingId = session.getSessionStagesMappingId();
 			String stagePath = session.getPath();
-
+			System.out.println("sessionStagesMappingId"+sessionStagesMappingId);
+			System.out.println("stagePath"+stagePath);
+			
+			
 			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
 			GetResponse resStagesMap = sessionStagesSelectedTestFilesService
 					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
@@ -196,6 +207,7 @@ public class SessionFileManagement {
 			for (SessionStagesSelectedTestFiles sssTestFiles : sessionStagesSelectedTestFilesList) {
 				sessionStagesSelectedTestFilesIdAndTestFileId.put(sssTestFiles.getSessionStagesSelectedTestFilesId(),
 						sssTestFiles.getTestFilesId());
+				System.out.println("sessionStagesSelectedTestFilesList" + sessionStagesSelectedTestFilesList.size());
 			}
 
 			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
@@ -206,8 +218,11 @@ public class SessionFileManagement {
 			List<String> filesMappingIds = new ArrayList<String>();
 			if (getResponseFileMapping.getCode() != 0) {
 				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
-				for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
-					filesMappingIds.add(testFilesStagesMapping.getTestFileId());
+				if (testFilesStagesMappingList != null) {
+					System.out.println("testFilesStagesMappingList Size"+testFilesStagesMappingList.size());
+					for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+						filesMappingIds.add(testFilesStagesMapping.getTestFileId());
+					}
 				}
 
 			}
@@ -226,6 +241,7 @@ public class SessionFileManagement {
 						// ArrayList<SessionStagesTestFilesResult>();
 
 						for (String key : keys) {
+							System.out.println("Entered KEYS  ==");
 							List<SessionStagesTestFilesResult> lst = sessionStagesTestFilesResultServiceList.stream()
 									.filter(stage -> stage.getSelectedtestFileId().equals(key))
 									.collect(Collectors.toList());
@@ -242,7 +258,7 @@ public class SessionFileManagement {
 							 * .collect(Collectors.toList()); if(lstFilter!=null) { runnedAllSuccess =
 							 * false; }
 							 */
-
+							System.out.println("lstByKeys -"+lstByKeys.size());
 							for (SessionStagesTestFilesResult s : lstByKeys) {
 								{
 									/*
@@ -252,13 +268,14 @@ public class SessionFileManagement {
 									 */
 									String testStatus = s.getTestStatus();
 									if (testStatus != null && !testStatus.equals("")
-											&& testStatus.equalsIgnoreCase("failure")) {
+											&& !testStatus.equalsIgnoreCase("SUCCESS")) {
 										runnedAllSuccess = false;
 									}
 								}
 
 							}
-						} /*
+						}
+							/*
 							 * else { notRunnedAll = true; }
 							 */
 
@@ -273,6 +290,7 @@ public class SessionFileManagement {
 				System.out.println("STAGE PATH..." + stagePath);
 				Path outputPath = Path.of(stagePath);
 				List<Path> listOfPath = new ArrayList<Path>();
+				System.out.println("lstByKeys...:"+lstByKeys.size());
 				for (SessionStagesTestFilesResult service : lstByKeys) {
 					String pathString = service.getRdfPath() + service.getRdfFileName();
 					Path path = Path.of(pathString);
@@ -282,11 +300,17 @@ public class SessionFileManagement {
 
 				copyFilesToOutputFolder(listOfPath, outputPath);
 			}
-
+			
+			System.out.println("notRunnedAll----FLAG"+notRunnedAll);			
+			System.out.println("runnedAllSuccess----FLAG"+runnedAllSuccess);
+	
 			if (!notRunnedAll && !runnedAllSuccess) {
 				popupShowed = true;
 			}
-
+			
+			
+			
+		
 		} catch (Exception ex) {
 			System.out.println(ex.getLocalizedMessage());
 		}
@@ -376,12 +400,13 @@ public class SessionFileManagement {
 			session = (SessionStagesMapping) getObject.getObject();
 			String sessionStagesMappingId = session.getSessionStagesMappingId();
 			String stagePath = session.getPath();
+			response.setLst(lst);
 			response.setCode(1);
 			response.setCodeMsg("Fetched Succesfully..");
 			response.setFromPath(fromPath);
 			response.setToPath(stagePath);
 		} catch (Exception ex) {
-			response.setCode(1);
+			response.setCode(0);
 			response.setCodeMsg("Un Fetched Succesfully.." + ex.getLocalizedMessage());
 
 		}

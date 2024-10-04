@@ -114,17 +114,13 @@ public class TestProcessManagement {
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
 
-			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
-
-			if (popupflag) {
-				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
-				SessionTestStateObject.setPopupStageId(stageId);
-			}
+			
 		} catch (Exception e) {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 
 		}
+		
+	
 		return res;
 	}
 
@@ -863,9 +859,21 @@ public class TestProcessManagement {
 					updateProgressBar(stageName);
 				}
 			} // Outer loop
+			
+			
+			
 
 			// Update state machine card status
 			updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
+			
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
+
+			if (popupflag) {
+				System.out.println("Pop-UP Flag True");
+				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+				SessionTestStateObject.setPopupStageId(stageId);
+			}
 
 			// Determine stage result
 			String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
@@ -880,6 +888,16 @@ public class TestProcessManagement {
 
 			// update Stage Result : Session StageMapping
 			updateSessionStageMapStatus(sessionStageMapId, stageResult);
+			
+			
+			/*SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
+
+			if (popupflag) {
+				System.out.println("Test Process Management");
+				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+				SessionTestStateObject.setPopupStageId(stageId);
+			}*/
 
 		} catch (Exception e) {
 			e.printStackTrace();
