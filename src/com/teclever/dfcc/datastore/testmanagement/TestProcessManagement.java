@@ -398,6 +398,7 @@ public class TestProcessManagement {
 			case "SRU":
 				LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 				LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
+				StateMachine.setTestState(TestState.COMPLETED);
 				System.out
 						.println("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
 				break;
@@ -975,21 +976,22 @@ public class TestProcessManagement {
 		}
 	}
 
-	public Response runCommand(String command, String testTypeId) {
+	public Response runCommand(String command, String testTypeId , String testName) {
 		Response res = new Response();
 		try {
-
 			// If AETS process failed to launch, return failure response
 			if (checkAndUpdateAetsProcessStatus(testTypeId, null)) {
 				resetAitessFailureStates();
 				return createErrorResponse("AETS Failed to launch");
 			}
-
 			resetAitessFailureStates();
-
+			if (testName.equals("CUSTOM ONE")) {
+				StateMachine.setRunCommand(true);
+			} else {
+				
+			}
 			// Call writing command to Terminal
 			AitessProcessControlManagement.getInstance().WriteAitess1Command(command + "\n");
-
 		} catch (Exception e) {
 			return createErrorResponse("Test Failled  " + e.getLocalizedMessage());
 		}

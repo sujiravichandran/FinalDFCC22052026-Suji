@@ -109,17 +109,25 @@ public class AdvanceCustom1TestingManagement {
 	}
 
 	// Running Single Symbol And Macro Command
-	public String customOneRun(String runCommand, String testTypeId) {
-
-		try {
-			TestProcessManagement testProcess = new TestProcessManagement();
-			testProcess.runCommand(runCommand, testTypeId);
-		} catch (Exception e) {
-			return "NOT OK";
+		public String customOneRun(String runCommand, String testTypeId) {
+			try {
+				TestProcessManagement testProcess = new TestProcessManagement();
+				testProcess.runCommand(runCommand, testTypeId , "CUSTOM ONE");
+			} catch (Exception e) {
+				return "NOT OK";
+			}
+			return "OK";
 		}
-		return "OK";
-
-	}
+		// Not Using
+		public String customTwoRun(String runCommand, String testTypeId) {
+			try {
+				TestProcessManagement testProcess = new TestProcessManagement();
+				testProcess.runCommand(runCommand, testTypeId ,"CUSTOM TWO");
+			} catch (Exception e) {
+				return "NOT OK";
+			}
+			return "OK";
+		}
 
 	// Creating Text File To Run Test
 	public Response customOneRunTestFile(String stageId, String fileName, List<String> symbolMacroTextFormate,

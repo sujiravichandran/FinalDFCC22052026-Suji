@@ -29,6 +29,7 @@ import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
 import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
+import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
@@ -279,6 +280,7 @@ public class AitessProcessControlManagement {
 								System.out.println("command end line founded . . . . . . . . . ");
 								StateMachine.setAitess1CommandFinished(true);
 								StateMachine.setRunCommand(false);
+								AdvancedTestStateObject.getCustomTest1Status().set(false);
 							}
 						}
 

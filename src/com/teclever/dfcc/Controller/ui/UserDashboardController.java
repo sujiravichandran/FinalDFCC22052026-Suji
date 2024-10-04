@@ -2,9 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 
-import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
@@ -43,6 +41,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -54,6 +53,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class UserDashboardController {
 
@@ -193,10 +193,10 @@ public class UserDashboardController {
 		bottomLeftColumn.setPercentWidth(100);
 
 		RowConstraints bottomLeftTopRow = new RowConstraints();
-		bottomLeftTopRow.setPercentHeight(63);
+		bottomLeftTopRow.setPercentHeight(69);
 
 		RowConstraints bottomLeftMidRow = new RowConstraints();
-		bottomLeftMidRow.setPercentHeight(30);
+		bottomLeftMidRow.setPercentHeight(24);
 
 		RowConstraints bottomLeftBottomRow = new RowConstraints();
 		bottomLeftBottomRow.setPercentHeight(7);
@@ -348,7 +348,7 @@ public class UserDashboardController {
 		middleMenuBox.setAlignment(Pos.CENTER);
 		middleMenuBox.getStyleClass().add("middle-menu");
 
-		String[] labelsText = { "Configuration", "Utility", "End Session", "Close Session", "Log Book" };
+		String[] labelsText = { "Configuration", "Utility", "End Session", "Log Book" };
 
 		for (String labelText : labelsText) {
 			Label label = new Label(labelText);
@@ -542,19 +542,16 @@ public class UserDashboardController {
 
 //		bottomRightTopBox.getChildren().addAll(titleLabel, bottomRightTopGridPane);
 		
-		GridPane labelsGridPane = new GridPane();
-		ColumnConstraints labelFirstColumn = new ColumnConstraints();
-		labelFirstColumn.setPercentWidth(80);
 		
-		RowConstraints labelFirstRow = new RowConstraints();
-		labelFirstRow.setPercentHeight(100);
-
 		Label newLabel = new Label();
-		String str = currentSessionDetails.getSessionName();
-	    int underscoreCount = str.length() - str.replace("_", "").length();
+		
+		Tooltip tooltip = new Tooltip(currentSessionDetails.getSessionName());
+        Tooltip.install(newLabel, tooltip);
+        tooltip.setShowDelay(Duration.ZERO);
+        tooltip.setHideDelay(Duration.ZERO);
 	    
 	    newLabel.setText(currentSessionDetails.getSessionName());
-		newLabel.setPrefWidth(250);
+		newLabel.setPrefWidth(290);
 		newLabel.setWrapText(true);
 		newLabel.setPadding(new Insets(0,0,0,5));
 		newLabel.getStyleClass().add("session-name-label");
@@ -1106,6 +1103,12 @@ public class UserDashboardController {
 			for (int col = 0; col < 2; col++) {
 				VBox box = new VBox();
 				box.setAlignment(Pos.CENTER);
+				
+				Tooltip tooltip = new Tooltip(macroButtonList.get(i).getButtonName());
+		        Tooltip.install(box, tooltip);
+		        tooltip.setShowDelay(Duration.ZERO);
+		        tooltip.setHideDelay(Duration.ZERO);
+				
 				final int x = i;
 				Label label = new Label(macroButtonList.get(i).getButtonName());
 				label.setUserData(macroButtonList.get(i).getCommand());

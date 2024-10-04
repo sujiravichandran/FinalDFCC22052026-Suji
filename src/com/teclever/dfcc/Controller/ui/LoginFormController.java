@@ -782,6 +782,11 @@ public class LoginFormController {
 		buttonBox.getChildren().add(okButton);
 
 		okButton.setOnAction(e -> {
+			for(CheckSumList checksum : checkSumTableData) {
+				if(!"ok".equalsIgnoreCase(checksum.getStatus())) {
+					checkSumFinalResult = false ;
+				}
+			}
 			if (checkSumFinalResult) {
 				Parent parent = checkSumDataBox.getParent();
 				if (parent instanceof GridPane) {
@@ -822,6 +827,11 @@ public class LoginFormController {
 		buttonBox.getChildren().add(okButton);
 
 		okButton.setOnAction(e -> {
+			for(CheckSumList checksum : checkSumTableData) {
+				if(!"ok".equalsIgnoreCase(checksum.getStatus())) {
+					checkSumFinalResult = false ;
+				}
+			}
 			if (checkSumFinalResult) {
 				Parent parent = checkSumDataBox.getParent();
 				if (parent instanceof GridPane) {
