@@ -192,11 +192,11 @@ public class RdfFileCopyPopupController {
 				copyDirPath.setText("- " + response.getToPath());
 				tableView.setItems(tableData);
 			} else {
-				Notifications.showErrorAlert("RDF files are empty");
+				Platform.runLater(() -> Notifications.showErrorAlert("RDF files are empty"));
 			}
 
 		} else if (response.getCode() == 0) {
-			Notifications.showErrorAlert(response.getCodeMsg());
+			Platform.runLater(() -> Notifications.showErrorAlert(response.getCodeMsg()));
 		}
 	}
 

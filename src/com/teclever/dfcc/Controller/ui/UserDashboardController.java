@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.Date;
 import java.util.List;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
@@ -428,10 +429,12 @@ public class UserDashboardController {
 						.getInstance();
 
 				aitessProcessControlManagement.endAllProcessOnLogout();
-				Platform.exit();
+				Notifications.showConfirmationDialog("Logout Confirmation", "Are you sure you want to log out and close the application?", () -> {
+		            Platform.exit();
+		        });
 			} else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
 				Notifications.showWarningAlert(
-						"Please stop " + StateMachine.getRunningTestName() + " test before ending session");
+						"Please stop " + StateMachine.getRunningTestName() + " test before log out and close the application");
 			}
 		});
 

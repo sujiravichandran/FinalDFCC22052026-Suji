@@ -307,7 +307,7 @@ public class UserCenterContentController {
 
 		case "End Session":
 		    if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.COMPLETED || StateMachine.getTestState() == TestState.STOPPED) {
-		    	Notifications.showConfirmationDialog("Confirm End Session", "Are you sure you want to end the session?", () -> {
+		    	Notifications.showConfirmationDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
 		            Response response = sessionManagement.endSession();
 		            if (response.getResponseCode() == 1) {
 		                clearAllData();
@@ -316,7 +316,7 @@ public class UserCenterContentController {
 		            }
 		        });
 		    } else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
-		        Notifications.showWarningAlert("Please stop " + StateMachine.getRunningTestName() + " test before ending session");
+		        Notifications.showWarningAlert("Please stop the" + StateMachine.getRunningTestName() + " test before ending the current session");
 		    }
 		    break;
 		
