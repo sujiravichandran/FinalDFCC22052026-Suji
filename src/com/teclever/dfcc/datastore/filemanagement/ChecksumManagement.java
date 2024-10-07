@@ -381,12 +381,16 @@ public class ChecksumManagement {
 	        String filePath = scriptFileParentPath+File.separator+"filesum.txt";
 	        System.out.println("USER LOGIN TIME filesumPath:: --- " + filePath);
 	        String fileChecksum = getFileChecksum(Paths.get(filePath).toFile());
+	        CheckSum filesum = new CheckSum();
+	        filesum.setFile(filePath);
+	        filesum.setChecksumValue(fileChecksum);
+	        filesum.setMsg("OK");
 
 	        if (checksumValue.contains(fileChecksum)) {
 	        	response.setResponseCode(1);
 	        	response.setResponseMessage("CHECKSUM MATCHED");
 	            validateResponse.setResponse(response);
-	            checkSumList.addAll(performDetailedComparison(dbFileChecksumDetails, Paths.get(filePath)));
+	            checkSumList.add(filesum);
 	        } else {
 	        	response.setResponseCode(1);
 	        	response.setResponseMessage("CHECKSUM NOT MATCHED");
@@ -425,9 +429,10 @@ public class ChecksumManagement {
 	            checkSumList.add(new CheckSum(filePathKey,"", "Extra File"));
 	        } else if (!fileSumMap.get(filePathKey).equals(dbChecksumMap.get(filePathKey))) {
 	            checkSumList.add(new CheckSum(filePathKey,fileSumMap.get(filePathKey) ,"NOT OK"));
-	        } else {
-	            checkSumList.add(new CheckSum(filePathKey,fileSumMap.get(filePathKey), "OK"));
-	        }
+	        } 
+//	        else {
+//	            checkSumList.add(new CheckSum(filePathKey,fileSumMap.get(filePathKey), "OK"));
+//	        }
 	    }
 
 	    for (String filePathKey : dbChecksumMap.keySet()) {
