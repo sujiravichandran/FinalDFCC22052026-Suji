@@ -540,6 +540,8 @@ public class ResultExecutionManagement {
 							.get(selectedTestFileIdTestFileId.get(objectIdSelectedTestFileId.get(systemInfoId))));
 					resultDetailedDTO.setTpgph(resultDto.getTpgph());
 					resultDetailedDTO.setUnit(resultDto.getUnit());
+					resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+					System.out.println(resultDto.getFaultySRU());
 					System.out.println("ResultDto--->" + resultDto.getFileName());
 					resultDetailedList.add(resultDetailedDTO);
 				}
@@ -665,6 +667,7 @@ public class ResultExecutionManagement {
 					resultDetailedDTO.setTpgph(resultDto.getTpgph());
 					resultDetailedDTO.setUnit(resultDto.getUnit());
 					System.out.println("ResultDto--->" + resultDto.getFileName());
+					resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 					resultDetailedList.add(resultDetailedDTO);
 				}
 			}
@@ -767,6 +770,7 @@ public class ResultExecutionManagement {
 					resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
 					resultDetailedDTO.setTpgph(resultDto.getTpgph());
 					resultDetailedDTO.setUnit(resultDto.getUnit());
+					resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 					System.out.println("ResultDto--->" + resultDto.getFileName());
 					resultDetailedDTO.setStageId(objectIdstageId.get(systemInfoId));
 					resultDetailedList.add(resultDetailedDTO);
@@ -891,6 +895,7 @@ public class ResultExecutionManagement {
 						resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
 						resultDetailedDTO.setTpgph(resultDto.getTpgph());
 						resultDetailedDTO.setUnit(resultDto.getUnit());
+						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 						System.out.println("ResultDto--->" + resultDto.getFileName());
 						resultDetailedList.add(resultDetailedDTO);
 					}

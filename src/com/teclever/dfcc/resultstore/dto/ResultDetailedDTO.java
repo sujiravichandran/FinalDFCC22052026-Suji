@@ -16,6 +16,7 @@ public class ResultDetailedDTO {
     private String rdfName;
     private String stageId;
     private String stageName;
+    private String faultySRU;
     
     
     
@@ -102,6 +103,12 @@ public class ResultDetailedDTO {
 	}
 	public void setExceptedMaxValue(String exceptedMaxValue) {
 		this.exceptedMaxValue = exceptedMaxValue;
+	}
+	public String getFaultySRU() {
+		return faultySRU;
+	}
+	public void setFaultySRU(String faultySRU) {
+		this.faultySRU = faultySRU;
 	}
     
   

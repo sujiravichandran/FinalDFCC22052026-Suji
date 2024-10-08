@@ -2,6 +2,7 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +79,57 @@ public class FaultySRUManagement {
 
         return faultySRUResponse;
     }
+	
+	public FaultSRUResponse getFaultySRUsByUutIdNEW(String uutId, String rdfFilePath) {
+	    FaultSRUResponse faultySRUResponse = new FaultSRUResponse();
+	    List<FaultySRUDto> faultySRUDtoList = new ArrayList<>();
+
+	    // Extracting the RDF file name from the provided path
+	    String rdfFileName = Paths.get(rdfFilePath).getFileName().toString();
+	    int rdfIndex = rdfFileName.indexOf(".rdf");
+
+	    if (rdfIndex != -1) {
+	        rdfFileName = rdfFileName.substring(0, rdfIndex + 4);
+	    }
+
+	    try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+	        // Creating the query to fetch FaultySRU entries
+	        Query<FaultySRU> query = session.createQuery("FROM FaultySRU WHERE uutId = :uutId AND rdfFileName = :rdfFileName", FaultySRU.class);
+	        query.setParameter("uutId", uutId);
+	        query.setParameter("rdfFileName", rdfFileName);
+
+	        List<FaultySRU> faultySRUList = query.list();
+
+	        if (faultySRUList==null) {
+	            faultySRUResponse.setResponseCode(0);
+	            faultySRUResponse.setResponseMessage("No FaultySRU data found for UUT ID: " + uutId + " and RDF File Name: " + rdfFileName);
+	        } else {
+	            for (FaultySRU faultySRU : faultySRUList) {
+	                FaultySRUDto dto = new FaultySRUDto();
+	                dto.setRdfFileName(faultySRU.getRdfFileName());
+	                dto.setTpgph(faultySRU.getTpgph());
+	                dto.setStep(faultySRU.getStep());
+	                dto.setSignalName(faultySRU.getSignalName());
+	                dto.setFaultySRU(faultySRU.getFaultySRU());
+
+	                faultySRUDtoList.add(dto);
+	            }
+
+	            faultySRUResponse.setResponseCode(1);
+	            faultySRUResponse.setResponseMessage("Data fetched successfully");
+	            faultySRUResponse.setFaultySRUs(faultySRUDtoList);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        faultySRUResponse.setResponseCode(0);
+	        faultySRUResponse.setResponseMessage("Error fetching data: " + e.getMessage());
+	    }
+
+	    return faultySRUResponse;
+	}
+
+	
 
 	public List<FaultySRU> readFaultySRUFromExcel(String excelFilePath) {
         List<FaultySRU> faultySRUList = new ArrayList<>();

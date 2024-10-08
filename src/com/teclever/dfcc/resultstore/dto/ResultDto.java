@@ -12,6 +12,7 @@ public class ResultDto {
     private String signalName;
     private Map<String,String> faultyChannel;
     private String fileName;
+    private String faultySRU;
 	public String getTpgph() {
 		return tpgph;
 	}
@@ -60,12 +61,19 @@ public class ResultDto {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
+	public String getFaultySRU() {
+		return faultySRU;
+	}
+	public void setFaultySRU(String faultySRU) {
+		this.faultySRU = faultySRU;
+	}
 	public ResultDto() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	public ResultDto(String tpgph, String stepName, String expectedValue, String measuredValue, String unit,
-			String signalName, Map<String, String> faultyChannel, String fileName) {
+			String signalName, Map<String, String> faultyChannel, String fileName,String faultySRU) {
 		super();
 		this.tpgph = tpgph;
 		this.stepName = stepName;
@@ -75,6 +83,7 @@ public class ResultDto {
 		this.signalName = signalName;
 		this.faultyChannel = faultyChannel;
 		this.fileName = fileName;
+		this.faultySRU = faultySRU;
 	}
     
 
