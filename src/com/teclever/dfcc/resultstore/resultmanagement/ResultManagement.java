@@ -63,8 +63,9 @@ public class ResultManagement {
 	                        String unit = stepDoc.getString("unit");
 	                        String signalName = stepDoc.getString("signalName");
 	                        String expectedValue = stepDoc.getString("expectedValue");
+	                        String faultySRU = stepDoc.getString("faultySRU");
 
-	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName);
+	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);
 	                        resultList.add(resultDto);
 	                    }
 	                }
@@ -98,8 +99,9 @@ public class ResultManagement {
 	                        String unit = stepDoc.getString("unit");
 	                        String signalName = stepDoc.getString("signalName");
 	                        String expectedValue = stepDoc.getString("expectedValue");
+	                        String faultySRU = stepDoc.getString("faultySRU");
 
-	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName);
+	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);
 	                        resultList.add(resultDto);
 	                    }
 	                }

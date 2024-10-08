@@ -27,7 +27,7 @@ public class RdfFileDetailsParser {
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
 	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
 	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
-	    List<StepDto> stepDtoList = StepParser.parseStepContext(filePath);
+	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
 
 	    MongoCollection<Document> collection1 = ResultStoreConnection.getDatabase().getCollection(sessionId);
 	    ObjectId rdfFileInfoObjectId = null; // Variable to store the ObjectId
@@ -87,6 +87,11 @@ public class RdfFileDetailsParser {
 	            if (stepDto.getExpectedValue() != null) {
 	                doc.append("expectedValue", stepDto.getExpectedValue());
 	            }
+	        }
+	        if (stepDto.getFaultySRU() == null) {
+	           doc.append("faultySRU", "No Data Found");
+	        }else {
+	        	 doc.append("faultySRU", stepDto.getFaultySRU());
 	        }
 	        collection.insertOne(doc);
 

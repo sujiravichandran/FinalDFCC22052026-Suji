@@ -19,6 +19,7 @@ public class StepDto {
     private List<String> lowerLimit;
     private Map<String,String> faultyChannel;
     private List<String> measuredValue;
+    private String faultySRU;
     
     
 	public StepDto() {
@@ -108,6 +109,14 @@ public class StepDto {
 	}
 	public void setMeasuredValue(List<String> measuredValue) {
 		this.measuredValue = measuredValue;
+	}
+
+	public String getFaultySRU() {
+		return faultySRU;
+	}
+
+	public void setFaultySRU(String faultySRU) {
+		this.faultySRU = faultySRU;
 	}
     
     
