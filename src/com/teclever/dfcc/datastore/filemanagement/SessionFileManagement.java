@@ -6,12 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,10 @@ import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.CopyingListDTO;
+import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
+import com.teclever.dfcc.datastore.dto.SessionStagesFileCopyingDTO;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
@@ -367,6 +367,7 @@ public class SessionFileManagement {
 			e.printStackTrace();
 		}
 	}
+	
 
 	public void copyFilesToOutputFolder(Path sourceFile) {
 		try {
@@ -559,6 +560,254 @@ public class SessionFileManagement {
 		}
 	}
 
+	//Log Out Calling To Session Checking....
+	public LogOutFileCopyResponse copyingFileWhileLogOut(String sessionId) {
+		LogOutFileCopyResponse res = new LogOutFileCopyResponse();
+		try {
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetResponse getResponse = sessionSelectedStagesService.getAllSessionStagesMappingBySessionId(sessionId);
+			List<SessionStagesMapping> sessionMappingList = new ArrayList<SessionStagesMapping>();
+			Map<String,String> sessionMapIdStagePath = new HashMap<String,String>();
+			Map<String,String> selectedTFIdSessionMapId = new HashMap<String,String>();
+			Map<String,String> testFileResultIdSelectedTFId = new HashMap<String,String>();
+			sessionMappingList = (List<SessionStagesMapping>) getResponse.getResponseList();
+			List<String> completedStageIds = new ArrayList<String>();
+			
+			List<SessionStagesFileCopyingDTO> sessionStagesDTOList = new ArrayList<SessionStagesFileCopyingDTO>();
+			for (SessionStagesMapping sessionStagesMapping : sessionMappingList) {
+
+				if (sessionStagesMapping.getRunCount() > 0 ) {
+					SessionStagesFileCopyingDTO sessionStagesFileCopyingDTO = new SessionStagesFileCopyingDTO();
+					String stageId = "";
+
+					// Level Stage Five Id
+					if (sessionStagesMapping.getLevelTwoStageId() != null
+							&& sessionStagesMapping.getLevelThreeStageId() != null
+							&& sessionStagesMapping.getLevelFourStageId() != null
+							&& sessionStagesMapping.getLevelFiveStageId() != null) {
+						stageId = sessionStagesMapping.getLevelFiveStageId();
+
+					}
+
+					// Level Stage Four Id
+					if (sessionStagesMapping.getLevelTwoStageId() != null
+							&& sessionStagesMapping.getLevelThreeStageId() != null
+							&& sessionStagesMapping.getLevelFourStageId() != null
+							&& sessionStagesMapping.getLevelFiveStageId() == null) {
+						stageId = sessionStagesMapping.getLevelFourStageId();
+
+					}
+
+					// Level Stage Three Id
+					if (sessionStagesMapping.getLevelTwoStageId() != null
+							&& sessionStagesMapping.getLevelThreeStageId() != null
+							&& sessionStagesMapping.getLevelFourStageId() == null
+							&& sessionStagesMapping.getLevelFiveStageId() == null) {
+						stageId = sessionStagesMapping.getLevelThreeStageId();
+
+					}
+
+					// Level Stage Two Id
+					if (sessionStagesMapping.getLevelTwoStageId() != null
+							&& sessionStagesMapping.getLevelThreeStageId() == null
+							&& sessionStagesMapping.getLevelFourStageId() == null
+							&& sessionStagesMapping.getLevelFiveStageId() == null) {
+						stageId = sessionStagesMapping.getLevelTwoStageId();
+
+					}
+					// Level Stage Two Id
+					if (sessionStagesMapping.getLevelTwoStageId() == null
+							&& sessionStagesMapping.getLevelThreeStageId() == null
+							&& sessionStagesMapping.getLevelFourStageId() == null
+							&& sessionStagesMapping.getLevelFiveStageId() == null) {
+						stageId = sessionStagesMapping.getLevelOneStageId();
+
+					}
+					
+					sessionStagesFileCopyingDTO.setStageId(stageId);
+					sessionStagesFileCopyingDTO.setLevel1StageId(sessionStagesMapping.getLevelOneStageId());
+					sessionStagesFileCopyingDTO.setLevel2StageId(sessionStagesMapping.getLevelTwoStageId());
+					sessionStagesFileCopyingDTO.setLevel3StageId(sessionStagesMapping.getLevelThreeStageId());
+					sessionStagesFileCopyingDTO.setLevel4StageId(sessionStagesMapping.getLevelFourStageId());
+					sessionStagesFileCopyingDTO.setLevel5StageId(sessionStagesMapping.getLevelFiveStageId());
+					sessionStagesFileCopyingDTO.setRunCount(sessionStagesMapping.getRunCount());
+					sessionStagesFileCopyingDTO.setStatus(sessionStagesMapping.getStatus());
+					if(sessionStagesMapping.getStatus().equalsIgnoreCase("Completed with Success") || sessionStagesMapping.getStatus().equalsIgnoreCase("Completed with Failure"))
+					{
+						completedStageIds.add(stageId);
+						System.out.println("Completed Stage Id"+stageId);
+					}
+							
+					System.out.println("Stage Id"+  stageId);
+					
+					sessionMapIdStagePath.put(sessionStagesMapping.getSessionStagesMappingId(), sessionStagesMapping.getPath());
+					sessionStagesDTOList.add(sessionStagesFileCopyingDTO);
+				}
+
+			}	
+			
+			
+					
+			//For Filter the Completed Stages..
+			List<SessionStagesFileCopyingDTO> filteredSessionStagesFileCopyingDTOList = sessionStagesDTOList.stream()
+		            .filter(dto -> !completedStageIds.contains(dto.getStageId()))
+		            .collect(Collectors.toList());
+			
+			
+			System.out.println("List Size"+sessionStagesDTOList.size());
+		
+			System.out.println("Fileter List Size"+filteredSessionStagesFileCopyingDTOList.size());
+			List<String> sessionMappingIds = new ArrayList<String>();
+			
+			for(SessionStagesFileCopyingDTO filteredObj:filteredSessionStagesFileCopyingDTOList)
+			{
+				sessionMappingIds.add(filteredObj.getSessionMapId());
+					}
+		
+			if (filteredSessionStagesFileCopyingDTOList == null) {
+				res.setCode(1);
+				res.setMsg("Already All Are Copied");
+				return res;
+			}
+			
+			SessionStagesSelectedTestFilesService  sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			
+			GetResponse  getResponsetestFiles =new GetResponse();
+			getResponsetestFiles = sessionStagesSelectedTestFilesService.getAllSelectedTestFileListBySessionStageMapIds(sessionMappingIds);
+			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList= new ArrayList<SessionStagesSelectedTestFiles>();
+			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) getResponsetestFiles.getResponseList();
+			
+			Map<String,String> sessionSelectedTestFileIdSessionMappingId = new HashMap<String,String>();
+			List<String> selectedTestFilesIds = new ArrayList<String>();
+			if(sessionStagesSelectedTestFilesList!=null)
+			{
+				for(SessionStagesSelectedTestFiles sessionTF:sessionStagesSelectedTestFilesList)
+				{
+					sessionSelectedTestFileIdSessionMappingId.put(sessionTF.getSessionStagesSelectedTestFilesId(), sessionTF.getSessionstageMapsId());
+					selectedTestFilesIds.add(sessionTF.getSessionStagesSelectedTestFilesId());
+					selectedTFIdSessionMapId.put(sessionTF.getSessionStagesSelectedTestFilesId(), sessionTF.getSessionstageMapsId());
+					
+				}
+				
+			}
+			
+			//
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse testFileResultsGetResponse =  new GetResponse();
+			
+			testFileResultsGetResponse =sessionStagesTestFilesResultService.getTestFileResultListByselectTestFileIds(selectedTestFilesIds);
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = new ArrayList< SessionStagesTestFilesResult>();
+			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) testFileResultsGetResponse.getResponseList();
+			
+			//Checking The Condition Wheather All TPF File Passed Or Failed..
+			if(sessionStagesTestFilesResultList!=null)
+			{
+				List<SessionStagesTestFilesResult> filteredFailedSessionStagesTestFilesResult = sessionStagesTestFilesResultList
+						.stream().filter(dto -> dto.getStageId().equalsIgnoreCase("FAILURE"))
+						.collect(Collectors.toList());
+				
+				Map<String, String> stageIdName = new HashMap<String, String>();
+				SessionManagement sessionManagament = new SessionManagement();
+				stageIdName = sessionManagament.getAllStageIdName();
+				
+
+				if (filteredFailedSessionStagesTestFilesResult != null) {
+					// Get Flag Enabling
+					List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
+					for (SessionStagesTestFilesResult ses : sessionStagesTestFilesResultList) {
+						CopyFileDTO copyFileDTO = new CopyFileDTO();
+						copyFileDTO.setRdfFiledName(ses.getRdfFileName());
+						copyFileDTO.setRdfFileNamewithPath(ses.getRdfPath() + ses.getRdfFileName());
+						copyFileDTO.setRdfFilePath(ses.getRdfPath());
+						copyFileDTO.setStageName(stageIdName.get(ses.getStageId()));
+						String sessionMapId = selectedTFIdSessionMapId.get(ses.getSelectedtestFileId());
+						copyFileDTO.setStagePath(sessionMapIdStagePath.get(sessionMapId));
+						copyFileDTOList.add(copyFileDTO);
+					}
+					res.setCode(1);
+					res.setMsg("User Action Needs");
+					res.setFlag(true);
+					res.setCopyFileDTOList(copyFileDTOList);
+					
+
+				} else {
+					List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
+
+					for (SessionStagesTestFilesResult ses : sessionStagesTestFilesResultList) {
+						/*
+						 * CopyFileDTO copyFileDTO = new CopyFileDTO();
+						 * copyFileDTO.setRdfFiledName(ses.getRdfFileName());
+						 * copyFileDTO.setRdfFileNamewithPath(ses.getRdfPath() + ses.getRdfFileName());
+						 * copyFileDTO.setRdfFilePath(ses.getRdfPath());
+						 * copyFileDTO.setStageName(stageIdName.get(ses.getStageId())); String
+						 * sessionMapId = selectedTFIdSessionMapId.get(ses.getSelectedtestFileId());
+						 * copyFileDTO.setStagePath(sessionMapIdStagePath.get(sessionMapId));
+						 * copyFileDTOList.add(copyFileDTO);
+						 */
+						Path sourceFile = Paths.get(ses.getRdfPath() + ses.getRdfFileName());
+						String sessionMapId = selectedTFIdSessionMapId.get(ses.getSelectedtestFileId());
+						Path destination = Paths.get(sessionMapIdStagePath.get(sessionMapId));
+						copyFilesToOutputFolder(sourceFile, destination);
+
+					}
+					res.setCode(1);
+					res.seteMsg("Copied Internally All Files Are Passed");
+					
+				}
+
+			}			
+			
+		} catch (Exception ex) {
+			res.setCode(0);
+			res.seteMsg("Error"+ex.getMessage());
+			res.setMsg("Some Issues");
+		}
+		return res;
+	}
+	
 	
 
+
+	public void copyFilesToOutputFolder(Path sourceFile, Path outputFolder) {
+		try {
+			System.out.println("Enter To the Method copyFilesToOutputFolder");
+
+			LocalDateTime currentDateTime = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String dateFolder = currentDateTime.format(formatter);
+
+			Path newFolderPath = outputFolder.resolve(dateFolder);
+
+			if (!Files.exists(newFolderPath)) {
+				Files.createDirectories(newFolderPath);
+				System.out.println("Folder created at: " + newFolderPath.toString());
+
+			} else {
+				System.out.println("Folder Already Exits On : " + newFolderPath.toString());
+			}
+
+			if (newFolderPath != null && Files.exists(newFolderPath)) {
+
+				Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
+				Files.copy(sourceFile, destinationFile);
+				System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+
+			} else {
+				System.out.println("Output folder does not exist for the current session.");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void copyFilesToOutputFolder(List<CopyFileDTO>selectedFileCoyingList) {
+		
+		
+		
+	}
+	
+	
+	
+	
 }
