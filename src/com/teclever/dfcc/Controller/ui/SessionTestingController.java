@@ -752,8 +752,9 @@ public class SessionTestingController {
 		Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 
 		for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-			String test = entry.getValue();
-			CheckBox newCheckBox = new CheckBox(test);
+			String filePath = entry.getValue();
+			File file = new File(filePath);
+			CheckBox newCheckBox = new CheckBox(file.getName());
 			newCheckBox.setId(entry.getKey());
 			newCheckBox.getStyleClass().add("session-testing-checkbox");
 			newCheckBox.setWrapText(true);
@@ -892,32 +893,34 @@ public class SessionTestingController {
 	                    if (empty || filePath == null) {
 	                        setText(null);
 	                    } else {
-	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
-	                        double availableWidth = getTableColumn().getWidth();
-	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
-	                        setText(displayText);
+//	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
+//	                        double availableWidth = getTableColumn().getWidth();
+//	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
+//	                        setText(displayText);
+	                    	File file = new File(filePath);
+	                    	setText(file.getName());
 	                    }
 	                }
 
-	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
-	                	
-	                    double padding = 35; // Adjust based on styling, padding, and alignment
-	                    double approxCharWidth = 7; // Estimated average width of a character
-
-	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
-
-	                    if (filePath.length() <= totalAvailableChars) {
-	                        return filePath;
-	                    }
-
-	                    int fileNameLength = fileName.length();
-	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
-
-	                    if (availableForPath > 0) {
-	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
-	                    } 
-						return fileName;
-	                }
+//	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
+//	                	
+//	                    double padding = 35; // Adjust based on styling, padding, and alignment
+//	                    double approxCharWidth = 7; // Estimated average width of a character
+//
+//	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
+//
+//	                    if (filePath.length() <= totalAvailableChars) {
+//	                        return filePath;
+//	                    }
+//
+//	                    int fileNameLength = fileName.length();
+//	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
+//
+//	                    if (availableForPath > 0) {
+//	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
+//	                    } 
+//						return fileName;
+//	                }
 	            };
 	        }
 	    });
@@ -1022,13 +1025,13 @@ public class SessionTestingController {
 				} else {
 					if ("OK".equalsIgnoreCase(item)) {
 						setText("Passed");
-						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;-fx-text-fill:white");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
-						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;-fx-text-fill:white");
 					} else {
 						setText(item);
-						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;-fx-text-fill:white");
 					}
 				}
 			}

@@ -1035,9 +1035,9 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		        }
 		        
 		        if(allCardsStatusOk) {
-			        goLabel.setStyle("-fx-background-color:green;");	
+			        goLabel.setStyle("-fx-background-color:green;-fx-text-fill:white;");	
 		        }else {
-		        	noGoLabel.setStyle("-fx-background-color:red;");
+		        	noGoLabel.setStyle("-fx-background-color:red;-fx-text-fill:white;");
 		        }
 
 		    });
@@ -1118,37 +1118,36 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 								if (empty || filePath == null) {
 									setText(null);
 								} else {
-									String fileName = filePath.substring(
-											Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract
-																													// the
-																													// file
-																													// name
-									double availableWidth = getTableColumn().getWidth();
-									String displayText = getEllipsizedText(filePath, fileName, availableWidth);
-									setText(displayText);
+//									String fileName = filePath.substring(
+//											Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1);
+//									double availableWidth = getTableColumn().getWidth();
+//									String displayText = getEllipsizedText(filePath, fileName, availableWidth);
+//									setText(displayText);
+									File file = new File(filePath);
+			                    	setText(file.getName());
 								}
 							}
 
-							private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
-
-								double padding = 15; // Adjust based on styling, padding, and alignment
-								double approxCharWidth = 7; // Estimated average width of a character
-
-								int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
-								System.out.println("totalAvailableChars" + totalAvailableChars);
-
-								if (filePath.length() <= totalAvailableChars) {
-									return filePath;
-								}
-
-								int fileNameLength = fileName.length();
-								int availableForPath = totalAvailableChars - fileNameLength - 3;
-
-								if (availableForPath > 0) {
-									return "..." + filePath.substring(filePath.length() - availableForPath);
-								}
-								return fileName;
-							}
+//							private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
+//
+//								double padding = 15; // Adjust based on styling, padding, and alignment
+//								double approxCharWidth = 7; // Estimated average width of a character
+//
+//								int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
+//								System.out.println("totalAvailableChars" + totalAvailableChars);
+//
+//								if (filePath.length() <= totalAvailableChars) {
+//									return filePath;
+//								}
+//
+//								int fileNameLength = fileName.length();
+//								int availableForPath = totalAvailableChars - fileNameLength - 3;
+//
+//								if (availableForPath > 0) {
+//									return "..." + filePath.substring(filePath.length() - availableForPath);
+//								}
+//								return fileName;
+//							}
 						};
 					}
 				});
@@ -1265,13 +1264,13 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				} else {
 					if ("OK".equalsIgnoreCase(item)) {
 						setText("Passed");
-						setStyle("-fx-background-color: green;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: green;-fx-alignment: CENTER;-fx-text-fill:white");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
-						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;-fx-text-fill:white");
 					}else {
 						setText(item);
-						setStyle("-fx-background-color: red;-fx-alignment: CENTER;");
+						setStyle("-fx-background-color: red;-fx-alignment: CENTER;-fx-text-fill:white");
 					}
 				}
 			}

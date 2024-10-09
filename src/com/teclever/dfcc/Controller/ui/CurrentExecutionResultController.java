@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
 import java.util.Date;
 
 import com.teclever.datastore.dto.Response;
@@ -28,6 +29,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -360,7 +362,9 @@ public class CurrentExecutionResultController {
 
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
-				newBriefData.setExecutedFileName(data.getTestFileName());
+				String filePath =data.getTestFileName();
+				File file = new File(filePath);
+				newBriefData.setExecutedFileName(file.getName());
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
 
@@ -446,10 +450,10 @@ public class CurrentExecutionResultController {
 				newDetailedData.setTpgphNo(data.getTpgph());
 				newDetailedData.setStepNo(data.getStepName());
 				newDetailedData.setExpectedValue(data.getExpectedValue());
-				newDetailedData.setMeasuredValueCh1Ch2Ch3Ch4(data.getMeasuredValue());
+				newDetailedData.setMeasuredValueCh1_Ch2_Ch3_Ch4(data.getMeasuredValue());
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
-				newDetailedData.setFaultyChannel(data.getFaultyChannel());
+				newDetailedData.setFaultySru(data.getFaultySRU());
 
 				detailedDataList.add(newDetailedData);
 
