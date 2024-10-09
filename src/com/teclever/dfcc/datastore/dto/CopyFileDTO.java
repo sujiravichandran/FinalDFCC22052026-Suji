@@ -3,11 +3,14 @@ package com.teclever.dfcc.datastore.dto;
 public class CopyFileDTO {
 	
 	private String copyingFileId;
+	private String stagePath;
 	private String rdfFiledName;
 	private String rdfFileNamewithPath;
 	private String rdfFilePath;
 	private String copyingId;
 	private String status;
+	private String stageName;
+	
 	
 	public String getCopyingFileId() {
 		return copyingFileId;
@@ -44,6 +47,18 @@ public class CopyFileDTO {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getStagePath() {
+		return stagePath;
+	}
+	public void setStagePath(String stagePath) {
+		this.stagePath = stagePath;
+	}
+	public String getStageName() {
+		return stageName;
+	}
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
 	}
 	
 	
