@@ -54,8 +54,6 @@ extends Application {
 		}
         Main.launch(args);
         
-        ReportGenerationNew n = new ReportGenerationNew();
-        
         
     }
 

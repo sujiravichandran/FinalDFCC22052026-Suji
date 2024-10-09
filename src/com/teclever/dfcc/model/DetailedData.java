@@ -11,7 +11,7 @@ public class DetailedData {
 	private String signalName;
 	private String expectedValue;
 	private String measuredValueCh1_Ch2_Ch3_Ch4;
-	private String faultyChannel;
+	private String faultySru;
 	private String unit;
 	
 	public int getId() {
@@ -62,17 +62,17 @@ public class DetailedData {
 	public void setExpectedValue(String expectedValue) {
 		this.expectedValue = expectedValue;
 	}
-	public String getMeasuredValueCh1Ch2Ch3Ch4() {
+	public String getMeasuredValueCh1_Ch2_Ch3_Ch4() {
 		return measuredValueCh1_Ch2_Ch3_Ch4;
 	}
-	public void setMeasuredValueCh1Ch2Ch3Ch4(String measuredValueCh1_Ch2_Ch3_Ch4) {
+	public void setMeasuredValueCh1_Ch2_Ch3_Ch4(String measuredValueCh1_Ch2_Ch3_Ch4) {
 		this.measuredValueCh1_Ch2_Ch3_Ch4 = measuredValueCh1_Ch2_Ch3_Ch4;
 	}
-	public String getFaultyChannel() {
-		return faultyChannel;
+	public String getFaultySru() {
+		return faultySru;
 	}
-	public void setFaultyChannel(String faultyChannel) {
-		this.faultyChannel = faultyChannel;
+	public void setFaultySru(String faultySru) {
+		this.faultySru = faultySru;
 	}
 	public String getUnit() {
 		return unit;

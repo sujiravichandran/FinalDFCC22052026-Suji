@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -175,8 +176,9 @@ public class AdvancedTestingInterfaceTesting {
 		checkBoxes.clear();
 
 		for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-			String test = entry.getValue();
-			CheckBox newCheckBox = new CheckBox(test);
+			String filePath = entry.getValue();
+			File file = new File(filePath);
+			CheckBox newCheckBox = new CheckBox(file.getName());
 			newCheckBox.setId(entry.getKey());
 			newCheckBox.getStyleClass().add("advanced-testing-checkbox");
 			newCheckBox.setWrapText(true);
