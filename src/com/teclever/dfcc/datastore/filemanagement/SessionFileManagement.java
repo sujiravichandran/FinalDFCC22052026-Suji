@@ -702,8 +702,9 @@ public class SessionFileManagement {
 			//Checking The Condition Wheather All TPF File Passed Or Failed..
 			if(sessionStagesTestFilesResultList!=null)
 			{
+				System.out.println("List Test Result Size "+sessionStagesTestFilesResultList);
 				List<SessionStagesTestFilesResult> filteredFailedSessionStagesTestFilesResult = sessionStagesTestFilesResultList
-						.stream().filter(dto -> dto.getStageId().equalsIgnoreCase("FAILURE"))
+						.stream().filter(dto -> dto.getTestStatus().equalsIgnoreCase("FAILURE"))
 						.collect(Collectors.toList());
 				
 				Map<String, String> stageIdName = new HashMap<String, String>();
@@ -713,6 +714,8 @@ public class SessionFileManagement {
 
 				if (filteredFailedSessionStagesTestFilesResult != null) {
 					// Get Flag Enabling
+					System.out.println("User Action Need");
+					
 					List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
 					for (SessionStagesTestFilesResult ses : sessionStagesTestFilesResultList) {
 						CopyFileDTO copyFileDTO = new CopyFileDTO();
@@ -731,6 +734,8 @@ public class SessionFileManagement {
 					
 
 				} else {
+					System.out.println("Inside Direct Copying ");
+					
 					List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
 
 					for (SessionStagesTestFilesResult ses : sessionStagesTestFilesResultList) {

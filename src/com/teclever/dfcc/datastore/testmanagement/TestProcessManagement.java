@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -849,6 +851,24 @@ public class TestProcessManagement {
 								(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 								String.valueOf(testProcessRes.getdStarCount()), startTime, endTime,
 								sessionStageSelectedTestFileId);
+						//File Copying
+						if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
+							
+							SessionFileManagement sessionFileManagement = new SessionFileManagement();
+							String rdfFile = rdfFileLocation + rdfFileName;
+							
+							
+							SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
+							GetObjResponse sessionStages= sessionStagesSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+							SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+							sessionStagesMapping = (SessionStagesMapping) sessionStages.getObject();
+							String stagePath = sessionStagesMapping.getPath();
+							 
+							Path sourcePath = Paths.get(rdfFile);
+							Path destinationPath = Paths.get(stagePath);
+							sessionFileManagement.copyFilesToOutputFolder(sourcePath, destinationPath);
+							
+						}
 
 						// Update State Machine to Set TextArea to TRUE.
 						StateMachine.setTextArea(true);
@@ -866,21 +886,33 @@ public class TestProcessManagement {
 			// Update state machine card status
 			updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
 			
-			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			/*SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 
 			if (popupflag) {
 				System.out.println("Pop-UP Flag True");
 				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 				SessionTestStateObject.setPopupStageId(stageId);
-			}
+			}*/
 
 			// Determine stage result
 			String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
 					: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
+			
+			
 
 			if (stageName.equals("SESSION TEST")) {
 				stageResult = getStageResult(stageId, keysSet);
+				//Session Test Popup 
+				SessionFileManagement sessionFileManagement = new SessionFileManagement();
+				boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
+
+				if (popupflag) {
+					System.out.println("Pop-UP Flag True");
+					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+					SessionTestStateObject.setPopupStageId(stageId);
+				}
+				
 			}
 			if (testState != null && testState.equals("STOPED")) {
 				stageResult = "STOPED";
