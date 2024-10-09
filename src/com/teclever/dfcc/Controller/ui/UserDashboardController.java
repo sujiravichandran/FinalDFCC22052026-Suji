@@ -3,7 +3,6 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.Date;
 import java.util.List;
 
-import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
@@ -14,6 +13,7 @@ import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
@@ -430,7 +430,9 @@ public class UserDashboardController {
 
 				aitessProcessControlManagement.endAllProcessOnLogout();
 				Notifications.showConfirmationDialog("Logout Confirmation", "Are you sure you want to log out and close the application?", () -> {
-		            Platform.exit();
+		         SessionFileManagement session = new SessionFileManagement();
+		         session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+					Platform.exit();
 		        });
 			} else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
 				Notifications.showWarningAlert(
