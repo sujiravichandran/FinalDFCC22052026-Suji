@@ -362,9 +362,7 @@ public class CurrentExecutionResultController {
 
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
-				String filePath =data.getTestFileName();
-				File file = new File(filePath);
-				newBriefData.setExecutedFileName(file.getName());
+				newBriefData.setExecutedFileName(data.getTestFileName());
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
 
@@ -444,17 +442,15 @@ public class CurrentExecutionResultController {
 
 				DetailedData newDetailedData = new DetailedData();
 
-				newDetailedData.setSlNo(String.valueOf(i));
 				newDetailedData.setTestName(data.getTestName());
 				newDetailedData.setRdfName(data.getRdfName());
 				newDetailedData.setTpgphNo(data.getTpgph());
 				newDetailedData.setStepNo(data.getStepName());
 				newDetailedData.setExpectedValue(data.getExpectedValue());
-				newDetailedData.setMeasuredValueCh1_Ch2_Ch3_Ch4(data.getMeasuredValue());
+				newDetailedData.setMeasuredValueCh1_Ch2_Ch3_Ch4(data.getFaultyChannel());
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
 				newDetailedData.setFaultySru(data.getFaultySRU());
-
 				detailedDataList.add(newDetailedData);
 
 				i++;
