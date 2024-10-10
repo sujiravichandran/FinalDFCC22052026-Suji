@@ -32,6 +32,7 @@ import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.SessionStagesFileCopyingDTO;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class SessionFileManagement {
@@ -564,12 +565,23 @@ public class SessionFileManagement {
 	public LogOutFileCopyResponse copyingFileWhileLogOut(String sessionId) {
 		LogOutFileCopyResponse res = new LogOutFileCopyResponse();
 		try {
+			
+			TestState currentState = StateMachine.getTestState();
+			if (currentState == TestState.PENDING ) {
+				System.out.println("Any Test Not Runned....System Log Out");
+				res.setCode(1);
+				res.seteMsg("Any Test Not Runned");
+			return res;
+			
+			}
+
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 			GetResponse getResponse = sessionSelectedStagesService.getAllSessionStagesMappingBySessionId(sessionId);
 			List<SessionStagesMapping> sessionMappingList = new ArrayList<SessionStagesMapping>();
 			Map<String,String> sessionMapIdStagePath = new HashMap<String,String>();
 			Map<String,String> selectedTFIdSessionMapId = new HashMap<String,String>();
 			Map<String,String> testFileResultIdSelectedTFId = new HashMap<String,String>();
+			Map<String,String> sessionMapIdStageId = new HashMap<String,String>();
 			sessionMappingList = (List<SessionStagesMapping>) getResponse.getResponseList();
 			List<String> completedStageIds = new ArrayList<String>();
 			
@@ -625,6 +637,7 @@ public class SessionFileManagement {
 					}
 					
 					sessionStagesFileCopyingDTO.setStageId(stageId);
+					sessionStagesFileCopyingDTO.setSessionMapId(sessionStagesMapping.getSessionStagesMappingId());
 					sessionStagesFileCopyingDTO.setLevel1StageId(sessionStagesMapping.getLevelOneStageId());
 					sessionStagesFileCopyingDTO.setLevel2StageId(sessionStagesMapping.getLevelTwoStageId());
 					sessionStagesFileCopyingDTO.setLevel3StageId(sessionStagesMapping.getLevelThreeStageId());
@@ -639,7 +652,7 @@ public class SessionFileManagement {
 					}
 							
 					System.out.println("Stage Id"+  stageId);
-					
+					sessionMapIdStageId.put(sessionStagesMapping.getSessionStagesMappingId(),stageId);
 					sessionMapIdStagePath.put(sessionStagesMapping.getSessionStagesMappingId(), sessionStagesMapping.getPath());
 					sessionStagesDTOList.add(sessionStagesFileCopyingDTO);
 				}
@@ -658,24 +671,25 @@ public class SessionFileManagement {
 		
 			System.out.println("Fileter List Size"+filteredSessionStagesFileCopyingDTOList.size());
 			List<String> sessionMappingIds = new ArrayList<String>();
-			
-			for(SessionStagesFileCopyingDTO filteredObj:filteredSessionStagesFileCopyingDTOList)
-			{
+
+			for (SessionStagesFileCopyingDTO filteredObj : filteredSessionStagesFileCopyingDTOList) {
 				sessionMappingIds.add(filteredObj.getSessionMapId());
-					}
-		
+				System.out.println(filteredObj.getSessionMapId());
+			}
+
 			if (filteredSessionStagesFileCopyingDTOList == null) {
 				res.setCode(1);
 				res.setMsg("Already All Are Copied");
 				return res;
 			}
-			
+//
 			SessionStagesSelectedTestFilesService  sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
 			
 			GetResponse  getResponsetestFiles =new GetResponse();
 			getResponsetestFiles = sessionStagesSelectedTestFilesService.getAllSelectedTestFileListBySessionStageMapIds(sessionMappingIds);
 			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList= new ArrayList<SessionStagesSelectedTestFiles>();
 			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) getResponsetestFiles.getResponseList();
+			System.out.println("Selected Test Files List"+sessionStagesSelectedTestFilesList.size());
 			
 			Map<String,String> sessionSelectedTestFileIdSessionMappingId = new HashMap<String,String>();
 			List<String> selectedTestFilesIds = new ArrayList<String>();
@@ -686,7 +700,7 @@ public class SessionFileManagement {
 					sessionSelectedTestFileIdSessionMappingId.put(sessionTF.getSessionStagesSelectedTestFilesId(), sessionTF.getSessionstageMapsId());
 					selectedTestFilesIds.add(sessionTF.getSessionStagesSelectedTestFilesId());
 					selectedTFIdSessionMapId.put(sessionTF.getSessionStagesSelectedTestFilesId(), sessionTF.getSessionstageMapsId());
-					
+					System.out.println("Selected Test File Ids"+sessionTF.getSessionStagesSelectedTestFilesId()   +"MappingId :"+sessionTF.getSessionstageMapsId());
 				}
 				
 			}
@@ -694,13 +708,14 @@ public class SessionFileManagement {
 			//
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse testFileResultsGetResponse =  new GetResponse();
-			
+			List<String>stageIds = new ArrayList<String>();
+		    System.out.println();
 			testFileResultsGetResponse =sessionStagesTestFilesResultService.getTestFileResultListByselectTestFileIds(selectedTestFilesIds);
 			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = new ArrayList< SessionStagesTestFilesResult>();
 			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) testFileResultsGetResponse.getResponseList();
-			
+			System.out.println("Test FileResults Size"+sessionStagesTestFilesResultList.size());
 			//Checking The Condition Wheather All TPF File Passed Or Failed..
-			if(sessionStagesTestFilesResultList!=null)
+			if(sessionStagesTestFilesResultList.size()>0)
 			{
 				System.out.println("List Test Result Size "+sessionStagesTestFilesResultList);
 				List<SessionStagesTestFilesResult> filteredFailedSessionStagesTestFilesResult = sessionStagesTestFilesResultList
@@ -710,9 +725,12 @@ public class SessionFileManagement {
 				Map<String, String> stageIdName = new HashMap<String, String>();
 				SessionManagement sessionManagament = new SessionManagement();
 				stageIdName = sessionManagament.getAllStageIdName();
-				
+			
+			
 
-				if (filteredFailedSessionStagesTestFilesResult != null) {
+				if (filteredFailedSessionStagesTestFilesResult.size()>0) {
+					System.out.println("Filtered Failed Session Stages Test Files Result"+filteredFailedSessionStagesTestFilesResult.size());
+					
 					// Get Flag Enabling
 					System.out.println("User Action Need");
 					
@@ -726,8 +744,10 @@ public class SessionFileManagement {
 						String sessionMapId = selectedTFIdSessionMapId.get(ses.getSelectedtestFileId());
 						copyFileDTO.setStagePath(sessionMapIdStagePath.get(sessionMapId));
 						copyFileDTOList.add(copyFileDTO);
+						System.out.println("StagePath"+sessionMapIdStagePath.get(sessionMapId));
+
 					}
-					res.setCode(1);
+					res.setCode(100);
 					res.setMsg("User Action Needs");
 					res.setFlag(true);
 					res.setCopyFileDTOList(copyFileDTOList);
@@ -753,7 +773,7 @@ public class SessionFileManagement {
 						String sessionMapId = selectedTFIdSessionMapId.get(ses.getSelectedtestFileId());
 						Path destination = Paths.get(sessionMapIdStagePath.get(sessionMapId));
 						copyFilesToOutputFolder(sourceFile, destination);
-
+						
 					}
 					res.setCode(1);
 					res.seteMsg("Copied Internally All Files Are Passed");

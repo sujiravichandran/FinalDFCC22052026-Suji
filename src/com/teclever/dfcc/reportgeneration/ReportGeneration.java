@@ -134,7 +134,7 @@ public class ReportGeneration {
 		if (!DFCCConstant.isJarBuild) {
 			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
 		} else {
-			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 		}
 
 		Image img1 = Image.getInstance(imagePath1);
@@ -161,10 +161,10 @@ public class ReportGeneration {
 		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);
 		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
-	   // resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
 	
-		for (int i = 1; i <= 100; i++) {
+	/*	for (int i = 1; i <= 100; i++) {
 			ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
 //        	"Test Name", "Rdf File Detials", "D*Count", "End At", "Stage Name" ,"Status"
 			resultExecutionDTO.setTestFileName("Test Name -" + i);
@@ -175,7 +175,7 @@ public class ReportGeneration {
 			resultExecutionDTO.setStatus("Status - " + i);
 			resultExecutionDTOList.add(resultExecutionDTO);
 
-		}
+		}*/
 	  
 
 		System.out.println(resultExecutionDTOList.size());
@@ -395,7 +395,7 @@ public class ReportGeneration {
 		if (!DFCCConstant.isJarBuild) {
 			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
 		} else {
-			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 		}
 
 		Image img1 = Image.getInstance(imagePath1);
@@ -673,7 +673,7 @@ public class ReportGeneration {
 		if (!DFCCConstant.isJarBuild) {
 			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
 		} else {
-			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 		}
 
 		Image img1 = Image.getInstance(imagePath1);
@@ -700,10 +700,10 @@ public class ReportGeneration {
 		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
 		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
-	   // resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
 	
-		for (int i = 1; i <= 100; i++) {
+		/*for (int i = 1; i <= 100; i++) {
 			ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
 //        	"Test Name", "Rdf File Detials", "D*Count", "End At", "Stage Name" ,"Status"
 			resultExecutionDTO.setTestFileName("Test Name -" + i);
@@ -714,7 +714,7 @@ public class ReportGeneration {
 			resultExecutionDTO.setStatus("Status - " + i);
 			resultExecutionDTOList.add(resultExecutionDTO);
 
-		}
+		}*/
 	  
 
 		System.out.println(resultExecutionDTOList.size());
@@ -938,7 +938,7 @@ public class ReportGeneration {
 		if (!DFCCConstant.isJarBuild) {
 			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
 		} else {
-			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 		}
 
 		Image img1 = Image.getInstance(imagePath1);
@@ -1067,9 +1067,9 @@ public class ReportGeneration {
         stageIdName = resultExecutionManagement.getStageIdName(); 
 
         List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
-       // resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+       resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
         
-      for (int i = 0; i < 100; i++) {
+   /*   for (int i = 0; i < 100; i++) {
             ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 
             resultDetailedDTO.setExpectedValue(i + ".00");
@@ -1083,7 +1083,7 @@ public class ReportGeneration {
             resultDetailedDTO.setUnit("UN-" + i);
             resultDetailedDTO.setTestName("TN-" + i);
             resultDetailedDTOList.add(resultDetailedDTO);
-        }
+        }*/
 
         // Create table
         PdfPTable table = new PdfPTable(10); // 10 columns
@@ -1493,7 +1493,7 @@ public class ReportGeneration {
         if (!DFCCConstant.isJarBuild) {
             imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
         } else {
-            imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+            imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
         }
 
         Image img1 = Image.getInstance(imagePath1);
@@ -1537,7 +1537,7 @@ public class ReportGeneration {
         	
         }*/
         
-        System.out.println(resultExecutionDTOList.size());
+     //   System.out.println(resultExecutionDTOList.size());
         Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -1861,7 +1861,7 @@ public class ReportGeneration {
         if (!DFCCConstant.isJarBuild) {
             imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
         } else {
-            imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+            imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
         }
 
         Image img1 = Image.getInstance(imagePath1);
@@ -1944,9 +1944,9 @@ public class ReportGeneration {
 
 
         List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
-      //  resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+        resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
 	
-        for (int i = 0; i < 100; i++) {
+      /*  for (int i = 0; i < 100; i++) {
 
 			ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 			
@@ -1982,7 +1982,7 @@ public class ReportGeneration {
 			resultDetailedDTO.setUnit("UN-" + i);
 			resultDetailedDTO.setTestName("TN-" + i);
 			resultDetailedDTOList.add(resultDetailedDTO);
-		}
+		}*/
 
         // Create table
     /*    PdfPTable table = new PdfPTable(10); // 10 columns
@@ -2540,7 +2540,6 @@ public class ReportGeneration {
 
         // Close the document
         document.close();
-
         System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }

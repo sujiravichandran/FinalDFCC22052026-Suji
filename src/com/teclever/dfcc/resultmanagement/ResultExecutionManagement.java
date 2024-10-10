@@ -520,7 +520,9 @@ public class ResultExecutionManagement {
 					String channelValues ="";
 					for(String s :fac.keySet())
 					{
-						channelValues = s + "-"+ fac.get(s)+";";
+						System.out.println("S="+s);
+						s = s.replaceAll("Channel", "CH");
+						channelValues = channelValues+s + "="+ fac.get(s)+";";
 					}
 					
 					resultDetailedDTO.setFaultyChannel(channelValues);
@@ -651,7 +653,10 @@ public class ResultExecutionManagement {
 					String channelValues ="";
 					for(String s :fac.keySet())
 					{
-						channelValues = s + "-"+ fac.get(s)+";";
+						System.out.println("S="+s);
+						s = s.replaceAll("Channel", "CH");
+						channelValues = channelValues+s + "="+ fac.get(s)+";";
+		
 					}
 					
 					resultDetailedDTO.setFaultyChannel(channelValues);
@@ -757,11 +762,14 @@ public class ResultExecutionManagement {
 					String channelValues ="";
 					for(String s :fac.keySet())
 					{
-						channelValues = s + "-"+ fac.get(s)+";";
+						System.out.println("S="+s);
+						s = s.replaceAll("Channel", "CH");
+						channelValues = channelValues+s + "="+ fac.get(s)+";";
+		
 					}
 					
 					resultDetailedDTO.setFaultyChannel(channelValues);
-						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 					resultDetailedDTO.setRdfName(resultDto.getFileName());
 					resultDetailedDTO.setSignalName(resultDto.getSignalName());
