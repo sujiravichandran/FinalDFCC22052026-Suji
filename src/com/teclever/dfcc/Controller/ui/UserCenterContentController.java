@@ -1,6 +1,9 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.IOException;
+
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
@@ -11,13 +14,21 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class UserCenterContentController {
 
@@ -50,6 +61,7 @@ public class UserCenterContentController {
 		TerminalPopupController terminalPopupController = new TerminalPopupController();
 		centerStackPane.getChildren().addAll(dashboardStackPane);
 		terminalController.launchTerminal();
+		initializeRdfFileCopyPopup();
 	}
 	public static UserCenterContentController getInstance() {
 		if (instance == null) {
@@ -344,6 +356,38 @@ public class UserCenterContentController {
 		AdvancedTestStateObject.resetAdvancedTestStateObject();
 		
 		Platform.exit();
+	}
+	
+	private void initializeRdfFileCopyPopup() {
+		SessionTestStateObject.isRdfFileCopyPopupStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				try {
+					FXMLLoader rdfFileCopyPopup = new FXMLLoader(getClass()
+							.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/RdfFileCopy.fxml"));
+					Parent root = rdfFileCopyPopup.load();
+
+					Stage stage = new Stage();
+					stage.initModality(Modality.APPLICATION_MODAL);
+					stage.initStyle(StageStyle.UNDECORATED);
+					stage.centerOnScreen();
+
+					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
+
+					Rectangle2D screenBounds = Screen.getPrimary()
+							.getVisualBounds();
+					double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
+					double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
+					stage.setX(centerX);
+					stage.setY(centerY);
+
+					stage.setScene(new Scene(root));
+					stage.showAndWait();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 }

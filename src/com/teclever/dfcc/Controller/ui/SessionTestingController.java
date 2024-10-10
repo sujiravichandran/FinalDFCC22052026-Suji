@@ -124,7 +124,6 @@ public class SessionTestingController {
 		}
 //		getSessionTestData();
 		setStateMachineCurrentL1StageId();
-		initializeRdfFileCopyPopup();
 		sessionTestingMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SessionTesting.css").toExternalForm());
 		sessionTestingMainGridPane.getStyleClass().add("session-testing-container");
@@ -266,6 +265,7 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 
 		runAllButton.setOnAction(e -> {
+			SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -1037,37 +1037,4 @@ public class SessionTestingController {
 			}
 		});
 	}
-
-	private void initializeRdfFileCopyPopup() {
-		SessionTestStateObject.isRdfFileCopyPopupStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue) {
-				try {
-					FXMLLoader rdfFileCopyPopup = new FXMLLoader(getClass()
-							.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/RdfFileCopy.fxml"));
-					Parent root = rdfFileCopyPopup.load();
-
-					Stage stage = new Stage();
-					stage.initModality(Modality.APPLICATION_MODAL);
-					stage.initStyle(StageStyle.UNDECORATED);
-					stage.centerOnScreen();
-
-					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(false);
-
-					Rectangle2D screenBounds = Screen.getPrimary()
-							.getVisualBounds();
-					double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 1000) / 2;
-					double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 500) / 2;
-					stage.setX(centerX);
-					stage.setY(centerY);
-
-					stage.setScene(new Scene(root));
-					stage.showAndWait();
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
 }

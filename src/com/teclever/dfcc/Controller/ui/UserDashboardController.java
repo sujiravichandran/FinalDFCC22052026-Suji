@@ -8,6 +8,7 @@ import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.MacroConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
+import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
@@ -431,8 +432,18 @@ public class UserDashboardController {
 				aitessProcessControlManagement.endAllProcessOnLogout();
 				Notifications.showConfirmationDialog("Logout Confirmation", "Are you sure you want to log out and close the application?", () -> {
 		         SessionFileManagement session = new SessionFileManagement();
-		         session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
-					Platform.exit();
+		         LogOutFileCopyResponse response = session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+		         if(response.getCode() == 1) {
+		        	 Platform.exit();
+		         }else if(response.getCode() == 100) {		        	 
+		        	 SessionTestStateObject.isLogoutFileCopyPopupOpenedProperty().addListener((observable, oldValue, newValue) ->{
+		        		 if(!newValue) {
+		        			 Platform.exit();
+		        		 }
+		        	 });
+		        	 SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
+		        	 SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+		         }
 		        });
 			} else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
 				Notifications.showWarningAlert(
