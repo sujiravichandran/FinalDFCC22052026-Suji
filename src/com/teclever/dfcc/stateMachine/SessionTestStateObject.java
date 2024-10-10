@@ -251,30 +251,35 @@ public class SessionTestStateObject {
 //	SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 
 	private static BooleanProperty isRdfFileCopyPopupStatus = new SimpleBooleanProperty(false);
-
+	private static String popupStageId;
+	private static BooleanProperty isLogoutFileCopyPopupOpened = new SimpleBooleanProperty(false);
+	
 	public static BooleanProperty isRdfFileCopyPopupStatusProperty() {
 		return isRdfFileCopyPopupStatus;
 	}
-
 	public static BooleanProperty getIsRdfFileCopyPopupStatus() {
 		return isRdfFileCopyPopupStatus;
 	}
-
 	public static void setIsRdfFileCopyPopupStatus(BooleanProperty isRdfFileCopyPopupStatus) {
 		SessionTestStateObject.isRdfFileCopyPopupStatus = isRdfFileCopyPopupStatus;
 	}
-
-	private static String popupStageId;
-
 	public static String getPopupStageId() {
 		return popupStageId;
 	}
-
 	public static void setPopupStageId(String popupStageId) {
 		SessionTestStateObject.popupStageId = popupStageId;
 	}
+	public static BooleanProperty isLogoutFileCopyPopupOpenedProperty() {
+		return isLogoutFileCopyPopupOpened;
+	}
+	public static BooleanProperty getIsLogoutFileCopyPopupOpened() {
+		return isLogoutFileCopyPopupOpened;
+	}
+	public static void setIsLogoutFileCopyPopupOpened(BooleanProperty isLogoutFileCopyPopupOpened) {
+		SessionTestStateObject.isLogoutFileCopyPopupOpened = isLogoutFileCopyPopupOpened;
+	}
 
-//	Progress Bar
+	//	Progress Bar
 	private static int totalSelectedTestFileCount;
 	private static IntegerProperty runnedTestFileCount = new SimpleIntegerProperty(0);
 

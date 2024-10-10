@@ -153,7 +153,7 @@ public class RdfFileCopyPopupController {
 		buttonHBox.getChildren().addAll(copyButton, closeButton);
 
 		closeButton.setOnAction(e -> {
-			handleClosePopup();
+			handleClosePopup(true);
 		});
 
 		copyButton.setOnAction(e -> {
@@ -171,9 +171,19 @@ public class RdfFileCopyPopupController {
 		return buttonHBox;
 	}
 
-	private void handleClosePopup() {
-		Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
-		stage.close();
+	private void handleClosePopup(boolean showAlert) {
+		if(showAlert) {			
+			Notifications.showConfirmationDialog("Confirmation Window", "Some RDF files have failed, close the window without copying them?", ()->{
+				if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+					SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
+				}
+				Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+				stage.close();
+			});
+		}else {
+			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+			stage.close();
+		}
 	}
 
 	private void getRdfFileDetails() {
@@ -209,10 +219,13 @@ public class RdfFileCopyPopupController {
 			        Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
 			        
 			        if (response.getResponseCode() == 1) {
-			        	handleClosePopup();		           
+			        	handleClosePopup(false);		           
 			        	Platform.runLater(() -> Notifications.showSuccessAlert("RDF files have been copied successfully."));
 			        } else if (response.getResponseCode() == 0) {
 			            Platform.runLater(() -> Notifications.showErrorAlert(response.getResponseMessage()));
+			            if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+			    			SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
+			    		}
 			        }
 			        
 			        return null;

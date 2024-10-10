@@ -743,6 +743,7 @@ public class SessionCreationController {
 				continue;
 			}
 			CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
+			item.setSelected(true);
 			rootItem.getChildren().add(item);
 			addSubStages(item, stage.getId(), subStageMap);
 		}
@@ -779,6 +780,7 @@ public class SessionCreationController {
 		for (SubStage subStage : subStages) {
 			CustomCheckBoxTreeItem<String> subItem = new CustomCheckBoxTreeItem<>(subStage.getL_name(),
 					subStage.getId());
+			subItem.setSelected(true);
 			subItem.setParentId(parentId);
 			if (!subStage.isHasNext()) {
 				subItem.setTestType(subStage.getTestType());
