@@ -265,7 +265,6 @@ public class SessionTestingController {
 		pauseButton.setDisable(true);
 
 		runAllButton.setOnAction(e -> {
-			SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
