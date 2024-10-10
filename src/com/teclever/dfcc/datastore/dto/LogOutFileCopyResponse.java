@@ -11,6 +11,17 @@ public class LogOutFileCopyResponse {
 	private List<CopyFileDTO> copyFileDTOList;
 	private String sessionName;
 	private String sessionPath;
+	private List<String>stageIds;
+	
+
+	
+	public List<String> getStageIds() {
+		return stageIds;
+	}
+
+	public void setStageIds(List<String> stageIds) {
+		this.stageIds = stageIds;
+	}
 
 	public int getCode() {
 		return code;
