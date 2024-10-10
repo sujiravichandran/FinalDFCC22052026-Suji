@@ -294,6 +294,8 @@ public class ReportGeneration {
 		}
 
 		document.close();
+
+        res.setResponseCode(1);
 		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
 	}
@@ -572,6 +574,7 @@ public class ReportGeneration {
 		document.add(table);
 		document.close();
 
+        res.setResponseCode(1);
 		System.out.println("Detailed Report Generated For Session Last Stage" + filePath);
 		return res;
 	}
@@ -833,6 +836,8 @@ public class ReportGeneration {
 		}
 
 		document.close();
+
+        res.setResponseCode(1);
 		System.out.println("Breif Report For Selected Stage On Selected Session PDF saved to  :" + filePath);
 		return res;
 	}
@@ -1136,6 +1141,7 @@ public class ReportGeneration {
 		document.add(table);
         document.close();
 
+        res.setResponseCode(1);
         System.out.println("Detailed Report Generated On Selected Session Stages" + filePath);
         return res;
     }
@@ -1709,7 +1715,7 @@ public class ReportGeneration {
 
         document.close();
 
-
+        res.setResponseCode(1);
         System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }
@@ -2150,7 +2156,7 @@ public class ReportGeneration {
 
         // Close the document
         document.close();
-
+        res.setResponseCode(1);
         System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
@@ -2336,7 +2342,7 @@ public class ReportGeneration {
 
         // Close the document
         document.close();
-
+        res.setResponseCode(1);
         System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
@@ -2540,6 +2546,7 @@ public class ReportGeneration {
 
         // Close the document
         document.close();
+        res.setResponseCode(1);
         System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
