@@ -403,8 +403,8 @@ public class SessionFileManagement {
 		return keys; // Return list of keys with matching value
 	}
 
-	// To Vignesh Implement
-	public CopyingListDTO getShowPopupContent(String sessionId, String stageId) {
+	// Not Use
+	public CopyingListDTO getShowPopupContentAllOfFilesFromStage(String sessionId, String stageId) {
 		CopyingListDTO response = new CopyingListDTO();
 		try {
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
@@ -447,6 +447,68 @@ public class SessionFileManagement {
 		}
 		return response;
 	}
+	
+	//Last SessionMap Id Test File Results...Only
+	public CopyingListDTO getShowPopupContent(String sessionId, String stageId) {
+		CopyingListDTO response = new CopyingListDTO();
+		try {
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping sessionStageMapObj = new SessionStagesMapping();
+			sessionStageMapObj = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = sessionStageMapObj.getSessionStagesMappingId();
+			response.setToPath(sessionStageMapObj.getPath());
+			
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse getResponsetestFiles = new GetResponse();
+			getResponsetestFiles = sessionStagesSelectedTestFilesService
+					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList = new ArrayList<SessionStagesSelectedTestFiles>();
+			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) getResponsetestFiles
+					.getResponseList();
+			List<String>selectedTestFileIds = new ArrayList<String>();
+			for(SessionStagesSelectedTestFiles sessionSelectedTFFiles:sessionStagesSelectedTestFilesList)
+			{
+				selectedTestFileIds.add(sessionSelectedTFFiles.getSessionStagesSelectedTestFilesId());
+			}
+			List<CopyFileDTO> copyingList = new ArrayList<CopyFileDTO>();
+			String fromPath = "";
+			if(selectedTestFileIds.size()>0)
+			{
+				
+				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+				GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+						.getTestFileResultListByselectTestFileIds(selectedTestFileIds);
+				List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+				sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+						.getResponseList();
+				
+				for (SessionStagesTestFilesResult sesStageTFR : sessionStagesTestFilesResultServiceList) {
+					CopyFileDTO copyFileDTO = new CopyFileDTO();
+					copyFileDTO.setCopyingFileId(sesStageTFR.getSessionStagesTestFilesResultId());
+					copyFileDTO.setRdfFiledName(sesStageTFR.getRdfFileName());
+					copyFileDTO.setRdfFileNamewithPath(sesStageTFR.getRdfPath() + sesStageTFR.getRdfFileName());
+					copyFileDTO.setRdfFilePath(sesStageTFR.getRdfPath());
+					copyFileDTO.setCopyingFileId(sesStageTFR.getSessionStagesTestFilesResultId());
+					copyFileDTO.setStatus(sesStageTFR.getTestStatus());
+					fromPath = sesStageTFR.getRdfPath();
+					copyingList.add(copyFileDTO);
+				}
+					
+			}
+			response.setLst(copyingList);
+			response.setFromPath(fromPath);
+			response.setCode(1);
+			response.setCodeMsg("Fetched");
+	//		System.out.println("Selected Test Files List" + sessionStagesSelectedTestFilesList.size());
+		} catch (Exception ex) {
+			response.setCode(0);
+			response.setCodeMsg("Un Fetched Succesfully.." + ex.getLocalizedMessage());
+
+		}
+		return response;
+	}	
 
 	// To Vignesh Implement
 	// Selected File Copying Method..
