@@ -31,6 +31,7 @@ import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.SessionStagesFileCopyingDTO;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -777,6 +778,7 @@ public class SessionFileManagement {
 			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) testFileResultsGetResponse.getResponseList();
 			System.out.println("Test FileResults Size"+sessionStagesTestFilesResultList.size());
 			//Checking The Condition Wheather All TPF File Passed Or Failed..
+			String stageId = "";
 			if(sessionStagesTestFilesResultList.size()>0)
 			{
 				System.out.println("List Test Result Size "+sessionStagesTestFilesResultList);
@@ -796,7 +798,7 @@ public class SessionFileManagement {
 					// Get Flag Enabling
 					System.out.println("User Action Need");
 					
-					List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
+				/*	List<CopyFileDTO> copyFileDTOList = new ArrayList<CopyFileDTO>();
 					for (SessionStagesTestFilesResult ses : sessionStagesTestFilesResultList) {
 						CopyFileDTO copyFileDTO = new CopyFileDTO();
 						copyFileDTO.setRdfFiledName(ses.getRdfFileName());
@@ -808,11 +810,14 @@ public class SessionFileManagement {
 						copyFileDTOList.add(copyFileDTO);
 						System.out.println("StagePath"+sessionMapIdStagePath.get(sessionMapId));
 
-					}
+					}*/
+					stageId = sessionStagesTestFilesResultList.get(0).getStageId();
+					
 					res.setCode(100);
+					SessionTestStateObject.setPopupStageId(stageId);
 					res.setMsg("User Action Needs");
 					res.setFlag(true);
-					res.setCopyFileDTOList(copyFileDTOList);
+				//	res.setCopyFileDTOList(copyFileDTOList);
 					
 
 				} else {
