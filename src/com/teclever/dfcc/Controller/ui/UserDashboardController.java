@@ -40,6 +40,8 @@ import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -435,6 +437,17 @@ public class UserDashboardController {
 		         LogOutFileCopyResponse response = session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
 		         if(response.getCode() == 1) {
 		        	 Platform.exit();
+		         }else if(response.getCode() == 0) {
+		        	 Alert alert = new Alert(AlertType.ERROR);
+		             alert.setTitle("Error Dialog");
+		             alert.setHeaderText(null);
+		             alert.setContentText("Something went wrong! The application will now close.");
+		             
+		             alert.setOnCloseRequest(event -> {
+		                Platform.exit();
+		             });
+
+		             alert.showAndWait();
 		         }else if(response.getCode() == 100) {		        	 
 		        	 SessionTestStateObject.isLogoutFileCopyPopupOpenedProperty().addListener((observable, oldValue, newValue) ->{
 		        		 if(!newValue) {
