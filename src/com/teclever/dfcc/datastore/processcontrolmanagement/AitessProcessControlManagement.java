@@ -80,6 +80,10 @@ public class AitessProcessControlManagement {
 	private boolean switchAitess1Method = false;
 	private boolean checkMethod = false;
 
+	
+	private boolean launchAitess = false;
+	private boolean launchAitess1 = false;
+	
 	boolean flag;
 
 	private ScheduledExecutorService scheduler;
@@ -134,7 +138,8 @@ public class AitessProcessControlManagement {
 	}
 
 	public void launchAitess(String testTypeId, TextArea textArea) {
-
+		launchAitess=true;
+		launchAitess1=true;
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 		String uutId = StateMachine.currentSessionDetails.getUutId();
@@ -261,6 +266,14 @@ public class AitessProcessControlManagement {
 
 						if (!aitessRunning.isAitess1Exited()) {
 							aitessRunning.setAitess1Exited(true);
+						}
+						
+						if(launchAitess == true) {
+							if (s1.contains(">>>")) {
+								System.out.println("Launch time aitess 1 end founded");
+								StateMachine.setAitess1Launched(true);
+								launchAitess = false;
+							}
 						}
 
 						if (switchAitessMethod == true) {
@@ -392,7 +405,6 @@ public class AitessProcessControlManagement {
 			});
 			outputProcessingThread1.start();
 		});
-		StateMachine.setAitess1Launched(true);
 
 	}
 
@@ -413,6 +425,15 @@ public class AitessProcessControlManagement {
 					while (true) {
 						String output = aitess2ReadQ.take();
 						System.out.println("aitess2 :: " + output);
+						
+						
+						if(launchAitess1 == true) {
+							if (output.contains(">>>")) {
+								System.out.println("Launch time aitess 2 end founded");
+								StateMachine.setAitess2Launched(true);
+								launchAitess1 = false;
+							}
+						}
 
 						if (switchAitess1Method == true) {
 							if (output.contains(">>>")) {
@@ -477,7 +498,6 @@ public class AitessProcessControlManagement {
 			});
 			outputProcessingThread2.start();
 		});
-		StateMachine.setAitess2Launched(true);
 
 	}
 
@@ -534,9 +554,10 @@ public class AitessProcessControlManagement {
 			Thread.sleep(500);
 			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n"));
 			System.out.println("EXECUTED gse_conn=1");
-
-			launcherFuture2.thenRun(
-					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+			if ("UUT1".equals(currentSessionDetails.getUutId())) {
+				launcherFuture2.thenRun(
+						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -550,10 +571,12 @@ public class AitessProcessControlManagement {
 	// check before any test is get started
 	public void checkChannelStatus() {
 		dfccCheckStstusStarted.set(true);
-		launcherFuture2
-				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
-		dfccCheckStstusStarted.set(false);
-
+		if ("UUT1".equals(currentSessionDetails.getUutId())) {
+			launcherFuture2.thenRun(
+					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+			dfccCheckStstusStarted.set(false);
+		}
+		// -------------- here for mk1a and mk2 what to do?
 		if (OnlineStatus.getChannel1Status() == "offline" || OnlineStatus.getChannel2Status() == "offline"
 				|| OnlineStatus.getChannel3Status() == "offline" || OnlineStatus.getChannel4Status() == "offline") {
 
@@ -605,11 +628,13 @@ public class AitessProcessControlManagement {
 				StateMachine.setTextArea(false);
 				dfccCheckStstusStarted.set(true);
 
-				// ONLINE STATUS
-				launcherFuture2.thenRun(
-						() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
-				currentCommand.set("OnlineStatusCommand");
-				Thread.sleep(2000);
+				// ONLINE STATUS -- FOR MK1 ONLY
+				if ("UUT1".equals(currentSessionDetails.getUutId())) {
+					launcherFuture2.thenRun(() -> aitess2ProcessControl
+							.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
+					currentCommand.set("OnlineStatusCommand");
+					Thread.sleep(2000);
+				}
 
 				// SC TEMPERATURE
 				launcherFuture2.thenRun(() -> aitess2ProcessControl
@@ -1009,20 +1034,38 @@ public class AitessProcessControlManagement {
 			expectedWDMStatus = "0xffff6000";
 		}
 
-		// Check if all WDM statuses are "online"
-		if (expectedWDMStatus.equals(WDMStatus.getChannel1Status())
-				&& expectedWDMStatus.equals(WDMStatus.getChannel2Status())
-				&& expectedWDMStatus.equals(WDMStatus.getChannel3Status())
-				&& expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
+		if ("UUT1".equals(currentSessionDetails.getUutId())) {
+			// Check if all WDM statuses are "online"
+			if (expectedWDMStatus.equals(WDMStatus.getChannel1Status())
+					&& expectedWDMStatus.equals(WDMStatus.getChannel2Status())
+					&& expectedWDMStatus.equals(WDMStatus.getChannel3Status())
+					&& expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
 
-			// WDM Status OK
-			wdmMatch = true;
-			System.out.println("All channels WDM status are UP.");
+				// WDM Status OK
+				wdmMatch = true;
+				System.out.println("All channels WDM status are UP.");
 
+			} else {
+				// NOT OK
+				wdmMatch = false;
+				System.out.println("All channels WDM status are not UP.");
+			}
 		} else {
-			// NOT OK
-			wdmMatch = false;
-			System.out.println("All channels WDM status are not UP.");
+			// mk1 and mk2
+			if (!WDMStatus.getChannel1Status().equals("offline") || !WDMStatus.getChannel2Status().equals("offline")
+					|| !WDMStatus.getChannel3Status().equals("offline")
+					|| !WDMStatus.getChannel4Status().equals("offline")) {
+
+				// WDM Status OK
+				wdmMatch = true;
+				System.out.println("All channels WDM status are UP.");
+
+			} else {
+				// NOT OK
+				wdmMatch = false;
+				System.out.println("All channels WDM status are not UP.");
+			}
+
 		}
 
 		if (ofpMatch && wdmMatch) {
@@ -1108,16 +1151,18 @@ public class AitessProcessControlManagement {
 					File dateFolder = new File(directory, dateFolderName);
 					if (!dateFolder.exists()) {
 						if (dateFolder.mkdir()) {
-							//System.out.println("Folder created: " + dateFolder.getAbsolutePath());
+							// System.out.println("Folder created: " + dateFolder.getAbsolutePath());
 						} else {
-							//System.out.println("Failed to create folder: " + dateFolder.getAbsolutePath());
+							// System.out.println("Failed to create folder: " +
+							// dateFolder.getAbsolutePath());
 							continue;
 						}
 					}
 					try {
 						Path targetPath = dateFolder.toPath().resolve(file.getName());
 						Files.move(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-						//System.out.println("Moved: " + file.getName() + " to " + dateFolder.getAbsolutePath());
+						// System.out.println("Moved: " + file.getName() + " to " +
+						// dateFolder.getAbsolutePath());
 					} catch (IOException e) {
 						System.out.println("Failed to move file: " + file.getName() + " - " + e.getMessage());
 					}
