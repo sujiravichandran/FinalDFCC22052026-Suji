@@ -85,12 +85,12 @@ public class TerminalPopupController {
 	
 	@FXML
 	void onClickYesButton(ActionEvent event) {
-		handleSendCommand("Y");
+		handleSendCommand("Y" + "\n");
 	}
 	
 	@FXML
 	void onClickNoButton(ActionEvent event) {
-		handleSendCommand("N");
+		handleSendCommand("N" + "\n");
 	}
 
 	private void handleSendCommand(String command) {
