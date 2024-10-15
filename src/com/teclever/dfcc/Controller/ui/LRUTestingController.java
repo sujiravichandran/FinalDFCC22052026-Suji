@@ -476,9 +476,13 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				    }
 				    
 				    
-				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 				    if (newButton.getText().toLowerCase().contains("spil")) {
-
+				    	
+			            Dialog<ButtonType> dialog = new Dialog<>();
+			            dialog.setTitle("Confirmation Dialog");
+			            dialog.setContentText("Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
+			            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+			            dialog.showAndWait();
 						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 					} else if (newButton.getText().toLowerCase().contains("pbit")) {
 
@@ -588,6 +592,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
 				    }
 				    
+				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 			});
 					
 	
