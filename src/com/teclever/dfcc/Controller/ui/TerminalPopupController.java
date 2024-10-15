@@ -22,12 +22,16 @@ import javafx.stage.Stage;
 
 public class TerminalPopupController {
 
-	@FXML
-	private Button enterButton;
 
 	@FXML
 	private Label headerLabel;
 
+	@FXML
+	private Button enterButton;
+	@FXML
+	private Button yesButton;
+	@FXML
+	private Button noButton;
 	@FXML
 	private Button minimizeButton;
 
@@ -52,18 +56,22 @@ public class TerminalPopupController {
 	@FXML
 	void initialize() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(70);
+		firstColumn.setPercentWidth(56);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(15);
+		secondColumn.setPercentWidth(12);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(15);
+		thirdColumn.setPercentWidth(10);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(10);
+		ColumnConstraints fifthColumn = new ColumnConstraints();
+		fifthColumn.setPercentWidth(12);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
 		textArea.setFont(Font.font("verdana", FontWeight.SEMI_BOLD, FontPosture.REGULAR, 14)); 
 		
-		terminalOperationsGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+		terminalOperationsGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn, fifthColumn);
 		terminalOperationsGridPane.getRowConstraints().addAll(firstRow);
 
 		aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);
@@ -71,13 +79,26 @@ public class TerminalPopupController {
 
 	@FXML
 	void onClickEnter(ActionEvent event) {
+	    String inputCommand = terminalTextField.getText() + "\n";
+		handleSendCommand(inputCommand);
+	}
+	
+	@FXML
+	void onClickYesButton(ActionEvent event) {
+		handleSendCommand("Y");
+	}
+	
+	@FXML
+	void onClickNoButton(ActionEvent event) {
+		handleSendCommand("N");
+	}
+
+	private void handleSendCommand(String command) {
 		if(!checkAitessStatus.isBothAitessOn()) {
 			return ;
 		}
-        String inputCommand = terminalTextField.getText() + "\n";
-		aitessProcessControlManagement.WriteAitess1Command(inputCommand);		
+		aitessProcessControlManagement.WriteAitess1Command(command);		
         terminalTextField.clear();
-
 	}
 
 	@FXML
