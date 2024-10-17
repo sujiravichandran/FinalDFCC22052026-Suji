@@ -10,7 +10,6 @@ import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
-import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.model.AitessTestFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -43,8 +42,20 @@ public class OFPTestFilesController {
 	private CustomTableView<AitessTestFiles> customTableView_testFiles;
 	private ObservableList<AitessTestFiles> tableData = FXCollections.observableArrayList();
 	private String RUN_CONFIG_ID;
+	
+	private static OFPTestFilesController instance;
+	public static OFPTestFilesController getInstance() {
+		if (instance == null) {
+			synchronized (OFPTestFilesController.class) {
+				if (instance == null) {
+					instance = new OFPTestFilesController();
+				}
+			}
+		}
+		return instance;
+	}
 
-	public OFPTestFilesController() {
+	private OFPTestFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
@@ -204,6 +215,10 @@ public class OFPTestFilesController {
 		} else if (response.getResponseCode() == 0) {
 			Notifications.showErrorAlert(response.getResponseMessage());
 		}
+	}
+	
+	public void updateData() {
+		configHeader.updatOfpNameComboBox();
 	}
 
 }

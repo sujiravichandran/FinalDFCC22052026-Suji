@@ -10,69 +10,28 @@ public class AdminCenterContentController {
 	private StackPane VDDConfigStackPane = new StackPane();
 	private StackPane faultCodeConfigStackPane = new StackPane();
 	private StackPane stageConfigStackPane = new StackPane();
-	
+
 	private StackPane aitessMasterStackPane = new StackPane();
 	private StackPane runConfigurationStackPane = new StackPane();
 	private StackPane aitessTestFileStackPane = new StackPane();
 	private StackPane aitessSymbolFilesStackPane = new StackPane();
 	private StackPane aitessMacroFilesStackPane = new StackPane();
 	private StackPane aitessDownloadCodeStackPane = new StackPane();
-	
+
 	private StackPane ofpMasterStackPane = new StackPane();
 	private StackPane ofpTestFilesStackPane = new StackPane();
 	private StackPane ofpSymbolFilesStackPane = new StackPane();
 	private StackPane ofpMacroFilesStackPane = new StackPane();
 	private StackPane ofpDownloadCodeStackPane = new StackPane();
-	
+
 	private StackPane cpciCardStackPane = new StackPane();
 	private StackPane macroButtonsStackPane = new StackPane();
-	
-	UserManagementController userManagementController = new UserManagementController();
-	StageConfigurationController stageConfig = new StageConfigurationController();
-	VDDConfigurationController vddConfigurationController = new VDDConfigurationController();
-	FaultCodeConfigurationController faultCodeConfigurationController = new FaultCodeConfigurationController();
-	
-	AitessMasterController aitessMasterController = new AitessMasterController();
-	RunConfigurationController runConfigurationController = new RunConfigurationController();
-	AitessTestFilesController testFilesController = new AitessTestFilesController();
-	AitessSymbolFilesController symbolFilesConfig = new AitessSymbolFilesController();
-	AitessMacroFilesController macroFilesConfig = new AitessMacroFilesController();
-	AitessDownloadCodeController downloadCodeConfig = new AitessDownloadCodeController();
-	
-	OFPMasterController ofpMasterController = new OFPMasterController();
-	OFPTestFilesController ofpTestFilesController = new OFPTestFilesController();
-	OFPSymbolFilesController ofpSymbolFilesController=new OFPSymbolFilesController();
-	OFPMacroFilesController ofpMacroFilesController=new OFPMacroFilesController();
-	OFPDownloadCodeController ofpDownloadCodeController=new OFPDownloadCodeController();
-	
-	MacroButtonsController macroButtonsController = new MacroButtonsController();
-	CPCICardController cpciCardController = new CPCICardController();
+
 	
 	public AdminCenterContentController() {
+		UserManagementController userManagementController = new UserManagementController();
 		userManagementStackPane.getChildren().add(userManagementController.createUserManagemenGridPane());
-		stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
-		VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
-		faultCodeConfigStackPane.getChildren().add(faultCodeConfigurationController.createFaultCodeConfigGridPane());
-		
-		aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
-		runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
-		aitessTestFileStackPane.getChildren().add(testFilesController.testFilesConfigParentGrid());
-		aitessSymbolFilesStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
-		aitessMacroFilesStackPane.getChildren().add(macroFilesConfig.macroFilesConfigParentGrid());
-		aitessDownloadCodeStackPane.getChildren().add(downloadCodeConfig.downloadCodeConfigParentGrid());
-		
-		ofpMasterStackPane.getChildren().add(ofpMasterController.ofpMasterConfigParentGrid());
-		ofpTestFilesStackPane.getChildren().add(ofpTestFilesController.ofpTestFileParentGrid());
-		ofpSymbolFilesStackPane.getChildren().add(ofpSymbolFilesController.ofpSymbolFileParentGrid());
-		ofpMacroFilesStackPane.getChildren().add(ofpMacroFilesController.ofpMacroFileParentGrid());
-		ofpDownloadCodeStackPane.getChildren().add(ofpDownloadCodeController.ofpDownloadCodeParentGrid());
-		
-		macroButtonsStackPane.getChildren().add(macroButtonsController.createMacroButtonsMainGridPane());
-		cpciCardStackPane.getChildren().add(cpciCardController.createcpciCardConfigGridPane());
-		
-		centerStackPane.getChildren().addAll(userManagementStackPane, stageConfigStackPane, VDDConfigStackPane,faultCodeConfigStackPane,
-				aitessMasterStackPane, runConfigurationStackPane, aitessTestFileStackPane, aitessSymbolFilesStackPane,
-				aitessMacroFilesStackPane, aitessDownloadCodeStackPane,ofpMasterStackPane,ofpTestFilesStackPane,ofpSymbolFilesStackPane,ofpMacroFilesStackPane,ofpDownloadCodeStackPane,macroButtonsStackPane,cpciCardStackPane);
+		centerStackPane.getChildren().addAll(userManagementStackPane);
 	}
 
 	public void createAdminCenterContent(GridPane bottomMidTopGridPane, String selectedMenu) {
@@ -81,72 +40,173 @@ public class AdminCenterContentController {
 			userManagementStackPane.toFront();
 			break;
 		case "Stage Config":
-			stageConfigStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(stageConfigStackPane)) {
+				StageConfigurationController stageConfig = new StageConfigurationController();
+				stageConfigStackPane.getChildren().add(stageConfig.stageConfigParentGrid());
+				centerStackPane.getChildren().add(stageConfigStackPane);
+			} else {
+				stageConfigStackPane.toFront();
+			}
 			break;
 		case "VDD Config":
-			VDDConfigStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(VDDConfigStackPane)) {
+				VDDConfigurationController vddConfigurationController = new VDDConfigurationController();
+				VDDConfigStackPane.getChildren().add(vddConfigurationController.createVddConfigGridPane());
+				centerStackPane.getChildren().add(VDDConfigStackPane);
+			} else {
+				VDDConfigStackPane.toFront();
+			}
 			break;
 		case "Fault Code Config":
-			faultCodeConfigStackPane.toFront();
+			FaultCodeConfigurationController faultCodeConfigurationController = FaultCodeConfigurationController.getInstance();
+			if (!centerStackPane.getChildren().contains(faultCodeConfigStackPane)) {
+				faultCodeConfigStackPane.getChildren()
+						.add(faultCodeConfigurationController.createFaultCodeConfigGridPane());
+				centerStackPane.getChildren().add(faultCodeConfigStackPane);
+			} else {
+				faultCodeConfigStackPane.toFront();
+				faultCodeConfigurationController.updateData();
+			}
 			break;
 		case "AITESS Version":
-			aitessMasterStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(aitessMasterStackPane)) {
+				AitessMasterController aitessMasterController = new AitessMasterController();
+				aitessMasterStackPane.getChildren().add(aitessMasterController.aitessMasterGridPane());
+				centerStackPane.getChildren().add(aitessMasterStackPane);
+			} else {
+				aitessMasterStackPane.toFront();
+			}
 			break;
 		case "Run Config":
-			runConfigurationStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(runConfigurationStackPane)) {
+				RunConfigurationController runConfigurationController = new RunConfigurationController();
+				runConfigurationStackPane.getChildren().add(runConfigurationController.runconfigurationGridPane());
+				centerStackPane.getChildren().add(runConfigurationStackPane);
+			} else {
+				runConfigurationStackPane.toFront();
+			}
 			break;
 		case "Test Files":
-			aitessTestFileStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(aitessTestFileStackPane)) {
+				AitessTestFilesController testFilesController = new AitessTestFilesController();
+				aitessTestFileStackPane.getChildren().add(testFilesController.testFilesConfigParentGrid());
+				centerStackPane.getChildren().add(aitessTestFileStackPane);
+			} else {
+				aitessTestFileStackPane.toFront();
+			}
 			break;
 		case "Symbol Files":
-			aitessSymbolFilesStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(aitessSymbolFilesStackPane)) {
+				AitessSymbolFilesController symbolFilesConfig = new AitessSymbolFilesController();
+				aitessSymbolFilesStackPane.getChildren().add(symbolFilesConfig.symbolFilesConfigParentGrid());
+				centerStackPane.getChildren().add(aitessSymbolFilesStackPane);
+			} else {
+				aitessSymbolFilesStackPane.toFront();
+			}
 			break;
 		case "Macro Files":
-			aitessMacroFilesStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(aitessMacroFilesStackPane)) {
+				AitessMacroFilesController macroFilesConfig = new AitessMacroFilesController();
+				aitessMacroFilesStackPane.getChildren().add(macroFilesConfig.macroFilesConfigParentGrid());
+				centerStackPane.getChildren().add(aitessMacroFilesStackPane);
+			} else {
+				aitessMacroFilesStackPane.toFront();
+			}
 			break;
 		case "Download Code":
-			aitessDownloadCodeStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(aitessDownloadCodeStackPane)) {
+				AitessDownloadCodeController downloadCodeConfig = new AitessDownloadCodeController();
+				aitessDownloadCodeStackPane.getChildren().add(downloadCodeConfig.downloadCodeConfigParentGrid());
+				centerStackPane.getChildren().add(aitessDownloadCodeStackPane);
+			} else {
+				aitessDownloadCodeStackPane.toFront();
+			}
 			break;
 		case "OFP Version":
-			ofpMasterStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(ofpMasterStackPane)) {
+				OFPMasterController ofpMasterController = new OFPMasterController();
+				ofpMasterStackPane.getChildren().add(ofpMasterController.ofpMasterConfigParentGrid());
+				centerStackPane.getChildren().add(ofpMasterStackPane);
+			} else {
+				ofpMasterStackPane.toFront();
+			}
 			break;
 		case "Test Files-OFP":
-			ofpTestFilesStackPane.toFront();
+			OFPTestFilesController ofpTestFilesController = OFPTestFilesController.getInstance();
+			if (!centerStackPane.getChildren().contains(ofpTestFilesStackPane)) {
+				ofpTestFilesStackPane.getChildren().add(ofpTestFilesController.ofpTestFileParentGrid());
+				centerStackPane.getChildren().add(ofpTestFilesStackPane);
+			} else {
+				ofpTestFilesStackPane.toFront();
+				ofpTestFilesController.updateData();
+			}
 			break;
 		case "Symbol Files-OFP":
-			ofpSymbolFilesStackPane.toFront();
+			OFPSymbolFilesController ofpSymbolFilesController = OFPSymbolFilesController.getInstance();
+			if (!centerStackPane.getChildren().contains(ofpSymbolFilesStackPane)) {
+				ofpSymbolFilesStackPane.getChildren().add(ofpSymbolFilesController.ofpSymbolFileParentGrid());
+				centerStackPane.getChildren().add(ofpSymbolFilesStackPane);
+			} else {
+				ofpSymbolFilesStackPane.toFront();
+				ofpSymbolFilesController.updateData();
+			}
 			break;
 		case "Macro Files-OFP":
-			ofpMacroFilesStackPane.toFront();
+			OFPMacroFilesController ofpMacroFilesController = OFPMacroFilesController.getInstance();
+			if (!centerStackPane.getChildren().contains(ofpMacroFilesStackPane)) {
+				ofpMacroFilesStackPane.getChildren().add(ofpMacroFilesController.ofpMacroFileParentGrid());
+				centerStackPane.getChildren().add(ofpMacroFilesStackPane);
+			} else {
+				ofpMacroFilesStackPane.toFront();
+				ofpMacroFilesController.updateData();
+			}
 			break;
 		case "Download Plan":
-			ofpDownloadCodeStackPane.toFront();
+			OFPDownloadCodeController ofpDownloadCodeController = OFPDownloadCodeController.getInstance();
+			if (!centerStackPane.getChildren().contains(ofpDownloadCodeStackPane)) {
+				ofpDownloadCodeStackPane.getChildren().add(ofpDownloadCodeController.ofpDownloadCodeParentGrid());
+				centerStackPane.getChildren().add(ofpDownloadCodeStackPane);
+			} else {
+				ofpDownloadCodeStackPane.toFront();
+				ofpDownloadCodeController.updateData();
+			}
 			break;
 		case "MACRO Buttons":
-			macroButtonsStackPane.toFront();
+			if (!centerStackPane.getChildren().contains(macroButtonsStackPane)) {
+				MacroButtonsController macroButtonsController = new MacroButtonsController();
+				macroButtonsStackPane.getChildren().add(macroButtonsController.createMacroButtonsMainGridPane());
+				centerStackPane.getChildren().add(macroButtonsStackPane);
+			} else {
+				macroButtonsStackPane.toFront();
+			}
 			break;
 		case "cPCI card's Details":
-			cpciCardStackPane.toFront();
+			CPCICardController cpciCardController = CPCICardController.getInstance();
+			if (!centerStackPane.getChildren().contains(cpciCardStackPane)) {
+				cpciCardStackPane.getChildren().add(cpciCardController.createcpciCardConfigGridPane());
+				centerStackPane.getChildren().add(cpciCardStackPane);
+			} else {
+				cpciCardStackPane.toFront();
+				cpciCardController.updateData();
+			}
 			break;
 		case "Launch type":
 			LaunchTypeController launchTypeController = new LaunchTypeController();
 			launchTypeController.createLaunchTypePopup();
 			break;
-			
+
 		case "Admin Password":
 			AdminPasswordController adminPasswordController = new AdminPasswordController();
 			adminPasswordController.createAdminPasswordPopup();
 			break;
-			
+
 		case "CheckSum Data":
 			CheckSumController checkSumController = new CheckSumController();
 			checkSumController.createCheckSumDataPopup();
 			break;
-		case "Results":
-			faultCodeConfigStackPane.toFront();
-			break;
 		}
 
+	        
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
 		}
