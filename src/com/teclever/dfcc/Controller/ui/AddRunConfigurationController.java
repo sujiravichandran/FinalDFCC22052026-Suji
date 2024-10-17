@@ -219,7 +219,6 @@ public class AddRunConfigurationController {
 		runaitessConfigurationDTO.setAitess(aitessTypeValue);
 		runaitessConfigurationDTO.setConfigFile(fileConfigName);
 		runaitessConfigurationDTO.setAitess2ConfigFile(fileConfigName2);
-		System.out.println("Aitess 2 Config File"+fileConfigName2);
 		runaitessConfigurationDTO.setTestTypeId(TestTypeNameId.get(testTypeValue));
 		runaitessConfigurationDTO.setDriver(driverName);
 		runaitessConfigurationDTO.setUutId(uutId);

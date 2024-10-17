@@ -444,34 +444,6 @@ public class AdvancedTestingCustomTesting1 {
 		return userTestHBox;
 	}
 
-//	private void getDataByUUTandTestId() {
-//
-//		clearFiledValues();
-//
-//		SymbolListResponse symbolResponse = advanceCustom1TestingManagement.getAllSymbolsForAdavanceTest(UUT_ID,
-//				TEST_TYPE_ID);
-//		if (symbolResponse.getResponse().getResponseCode() == 1) {
-//			symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
-//			for (SymbolDto symbol : symbolDataList) {
-//				symbolList.add(symbol.getSymbolName());
-//			}
-//		} else if (symbolResponse.getResponse().getResponseCode() == 0) {
-//			Notifications.showErrorAlert(symbolResponse.getResponse().getResponseMessage());
-//		}
-//
-//		MacroListResponse macroResponse = advanceCustom1TestingManagement.getAllMacrosForAdavanceTest(UUT_ID,
-//				TEST_TYPE_ID);
-//		if (macroResponse.getResponse().getResponseCode() == 1) {
-//			macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
-//			for (MacroDto macro : macroDataList) {
-//				macroList.add(macro.getMacroName());
-//			}
-//		} else if (macroResponse.getResponse().getResponseCode() == 0) {
-//			Notifications.showErrorAlert(macroResponse.getResponse().getResponseMessage());
-//		}
-//
-//	}
-
 	private void getDataByUUTandTestId() {
 		clearFiledValues();
 		 Platform.runLater(() -> {

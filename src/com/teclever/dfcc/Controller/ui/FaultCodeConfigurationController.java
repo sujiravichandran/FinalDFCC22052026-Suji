@@ -297,9 +297,6 @@ public class FaultCodeConfigurationController {
         if (selectedFile != null) {
             String filePath = selectedFile.getAbsolutePath();
             FaultCodeResponse response = faultCodeConfiguration.faultCodeFile(filePath, UUT_ID, ofpConfigId);
-            System.out.println("OFP" + ofpConfigId);
-            System.out.println("UUT" + UUT_ID);
-            System.out.println(response.getResponse().getResponseCode() + "   " + response.getResponse().getResponseMessage());
             if (response.getResponse().getResponseCode() == 1) {
                 Notifications.showSuccessAlert("File Uploaded Successfully");
                 refreshFaultCodeConfigList();

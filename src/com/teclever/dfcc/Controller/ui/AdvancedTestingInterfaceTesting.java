@@ -422,7 +422,6 @@ public class AdvancedTestingInterfaceTesting {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-//		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
 		
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");

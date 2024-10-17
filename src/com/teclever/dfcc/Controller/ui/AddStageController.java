@@ -122,10 +122,6 @@ public class AddStageController implements Initializable {
 		// Set fixed size for the stage after the scene is fully initialized
         Platform.runLater(() -> {
             Stage stage = (Stage) addStageMainContainer.getScene().getWindow();
-//            stage.setMinWidth(400); // Set your desired width
-//            stage.setMaxWidth(400);
-//            stage.setMinHeight(430); // Set your desired height
-//            stage.setMaxHeight(430);
             stage.setResizable(false);
         });
 	}

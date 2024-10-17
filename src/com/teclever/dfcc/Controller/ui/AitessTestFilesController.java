@@ -11,7 +11,6 @@ import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.model.AitessTestFiles;
-import com.teclever.dfcc.model.RunAitessConfiguration;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -168,7 +167,6 @@ public class AitessTestFilesController {
 	}
 
 	private void setAitessTestFilesTableData(String runConfigId) {
-		System.out.println("Aitess Run Config Id");
 		List<TestFileDto> testFileList = testPlanFileManagement.getAllTestFiles(runConfigId);
 		
 		if (testFileList.size() > 0) {

@@ -55,12 +55,6 @@ public class AdvancedTestingCustomTesting2 {
 	private Label selectedDownloadCodeName = new Label();
 	private Button downloadCodeRunButton = new Button("Run");
 
-//	private HBox baseFileHBox = new HBox(10);
-//	private Label baseFileLabel = new Label("Base File");
-//	private Label addBaseFileLabel = new Label("+");
-//	private HBox selectedBaseFileHBox = new HBox(10);
-//	private Label selectedBaseFileName = new Label();
-
 	private HBox checkSumFileHBox = new HBox(10);
 	private Label checkSumFileLabel = new Label("CheckSum File");
 	private Label addCheckSumFileLabel = new Label("+");
@@ -219,20 +213,6 @@ public class AdvancedTestingCustomTesting2 {
 		selectedDownloadCodeHBox.getChildren().add(selectedDownloadCodeName);
 		downloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
 		selectedDownloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
-
-//		Base File
-//		baseFileLabel.getStyleClass().add("form-label");
-//		addBaseFileLabel.getStyleClass().add("form-label-add-button");
-//		selectedBaseFileName.getStyleClass().add("form-label-selected-text");
-//
-//		baseFileLabel.setPrefWidth(150);
-//		selectedBaseFileName.setPrefWidth(480);
-//		selectedBaseFileName.setWrapText(true);
-//
-//		baseFileHBox.getChildren().addAll(baseFileLabel, addBaseFileLabel);
-//		selectedBaseFileHBox.getChildren().add(selectedBaseFileName);
-//		baseFileHBox.setAlignment(Pos.CENTER_LEFT);
-//		selectedBaseFileHBox.setAlignment(Pos.CENTER_LEFT);
 		
 //		End File
 		checkSumFileLabel.getStyleClass().add("form-label");
@@ -248,8 +228,6 @@ public class AdvancedTestingCustomTesting2 {
 		checkSumFileHBox.setAlignment(Pos.CENTER_LEFT);
 		selectedCheckSumFileHBox.setAlignment(Pos.CENTER_LEFT);
 
-//		downloadCodeVBox.getChildren().addAll(baseFileHBox, selectedBaseFileHBox, downloadCodeHBox,
-//				selectedDownloadCodeHBox, endFileHBox, selectedEndFileHBox);
 		downloadCodeVBox.getChildren().addAll(downloadCodeHBox,
 				selectedDownloadCodeHBox, checkSumFileHBox, selectedCheckSumFileHBox);
 
@@ -404,8 +382,6 @@ public class AdvancedTestingCustomTesting2 {
 		if (isTestFile) {
 			if (selectedTestFilePath != null) {
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
-//				System.out.println("TEST FILE");
-//				System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedTestFilePath + " " + stageId);
 				if(checkAndSetTestState()) {					
 					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId, selectedTestFilePath, TEST_TYPE_ID);
 				}
@@ -416,10 +392,6 @@ public class AdvancedTestingCustomTesting2 {
 			if (selectedDownloadCodeFilePath != null) {
 				if(selectedCheckSumFilePath != null) {					
 					String stageId = AdvancedTestStateObject.getCustomTest2DownloadCodeTestId();
-//					System.out.println("DOWNLOAD CODE");
-//					System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedDownloadCodeFilePath + " " + stageId);
-//					System.out.println("CheckSum File");
-//					System.out.println(UUT_ID + "  " + TEST_TYPE_ID + "  " + selectedCheckSumFilePath + " " + stageId);
 					if(checkAndSetTestState()) {
 						Response response = advanceCustom1TestingManagement.customTwoRunDownloadFile(stageId, selectedDownloadCodeFilePath, selectedCheckSumFilePath, TEST_TYPE_ID);
 					}

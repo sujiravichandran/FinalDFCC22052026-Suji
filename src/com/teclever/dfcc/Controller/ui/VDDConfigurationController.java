@@ -6,8 +6,6 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ChecksumDto;
 import com.teclever.dfcc.datastore.dto.ChecksumResponse;
-import com.teclever.dfcc.datastore.dto.VDDDto;
-import com.teclever.dfcc.datastore.dto.VDDResponse;
 import com.teclever.dfcc.datastore.filemanagement.ChecksumManagement;
 import com.teclever.dfcc.datastore.filemanagement.VDDManagement;
 import com.teclever.dfcc.model.VDDConfiguraion;

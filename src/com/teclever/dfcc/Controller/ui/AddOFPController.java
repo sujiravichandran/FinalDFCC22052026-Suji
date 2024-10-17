@@ -1,11 +1,12 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+
 import com.teclever.datastore.response.OfpConfigurationResponse;
-import com.teclever.datastore.response.RunConfigurationResponse;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.utils.Notifications;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -92,7 +93,6 @@ public class AddOFPController {
                 @Override
                 protected OfpConfigurationResponse call() throws Exception {
                 	OfpConfigurationResponse res = ofpConfig.addOfpConfig(ofpConfigurationDto, UUT_ID);
-                	System.out.println(res.getResponseMessage()+"--");
                     return res;
                 }
             };

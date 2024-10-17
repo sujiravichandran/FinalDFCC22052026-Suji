@@ -4,7 +4,6 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.model.SessionData;
-import com.teclever.dfcc.model.UnitData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;

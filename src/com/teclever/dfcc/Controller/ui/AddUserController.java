@@ -138,10 +138,8 @@ public class AddUserController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Initializing AddUserController..."); // Debugging line
         userNameTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             if (!isAllowedCharacter(event.getCharacter())) {
-                System.out.println("Filtered out: " + event.getCharacter()); // Debugging line
                 event.consume();
             }
         });
