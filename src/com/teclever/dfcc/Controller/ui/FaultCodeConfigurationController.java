@@ -64,6 +64,18 @@ public class FaultCodeConfigurationController {
     private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
     private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
     private FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
+    
+    private static FaultCodeConfigurationController instance;
+	public static FaultCodeConfigurationController getInstance() {
+		if (instance == null) {
+			synchronized (FaultCodeConfigurationController.class) {
+				if (instance == null) {
+					instance = new FaultCodeConfigurationController();
+				}
+			}
+		}
+		return instance;
+	}
 
     public void refreshFaultCodeConfigList() {
         setTableData();
@@ -195,10 +207,19 @@ public class FaultCodeConfigurationController {
     }
 
     private void initializeOfpVersionComboBox() {
-        ofpVersionList.clear();
         ofpVersionDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
-        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
-            ofpVersionList.add(ofpVersion.getOfpVersion());
+        for (OfpConfigurationDto ofp : ofpVersionDataList) {
+            boolean exists = false;
+			if(ofpVersionField.getItems().size() >0) {
+				for(String ofpVersion : ofpVersionField.getItems()) {
+					if(ofpVersion.equals(ofp.getOfpVersion())) {
+						exists = true ;
+					}
+				}
+			}
+			if(!exists) {				
+	            ofpVersionList.add(ofp.getOfpVersion());
+			}
         }
         ofpVersionField.setItems(ofpVersionList);
         ofpVersionField.setOnAction((event) -> {
@@ -286,5 +307,9 @@ public class FaultCodeConfigurationController {
                 Notifications.showErrorAlert(response.getResponse().getResponseMessage());
             }
         }
+    }
+    
+    public void updateData() {
+    	initializeOfpVersionComboBox();
     }
 }

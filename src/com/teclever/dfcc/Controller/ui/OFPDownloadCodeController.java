@@ -44,7 +44,19 @@ public class OFPDownloadCodeController {
 	private ObservableList<AitessDownloadCode> tableData = FXCollections.observableArrayList();
 	private String RUN_CONFIG_ID;
 	
-	public OFPDownloadCodeController() {
+	private static OFPDownloadCodeController instance;
+	public static OFPDownloadCodeController getInstance() {
+		if (instance == null) {
+			synchronized (OFPDownloadCodeController.class) {
+				if (instance == null) {
+					instance = new OFPDownloadCodeController();
+				}
+			}
+		}
+		return instance;
+	}
+	
+	private OFPDownloadCodeController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
@@ -205,6 +217,10 @@ public class OFPDownloadCodeController {
 		}else if(response.getResponseCode() == 0) {
 			Notifications.showErrorAlert(response.getResponseMessage());
 		}
+	}
+	
+	public void updateData() {
+		configHeader.updatOfpNameComboBox();
 	}
 
 }

@@ -52,8 +52,20 @@ public class OFPSymbolFilesController {
 	private ObservableList<AitessSymbolFiles> tableData = FXCollections.observableArrayList();
 
 	private String RUN_CONFIG_ID;
+	
+	private static OFPSymbolFilesController instance;
+	public static OFPSymbolFilesController getInstance() {
+		if (instance == null) {
+			synchronized (OFPSymbolFilesController.class) {
+				if (instance == null) {
+					instance = new OFPSymbolFilesController();
+				}
+			}
+		}
+		return instance;
+	}
 
-	public OFPSymbolFilesController() {
+	private OFPSymbolFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
@@ -256,6 +268,10 @@ public class OFPSymbolFilesController {
 		} else if (response.getResponseCode() == 0) {
 			Notifications.showErrorAlert(response.getResponseMessage());
 		}
+	}
+	
+	public void updateData() {
+		configHeader.updatOfpNameComboBox();
 	}
 
 }

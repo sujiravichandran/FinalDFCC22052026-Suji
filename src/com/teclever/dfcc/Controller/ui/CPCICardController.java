@@ -8,7 +8,6 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.CardDetailsDTO;
 import com.teclever.dfcc.datastore.dto.CardDetailsResponseDTO;
-import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.CPCICard;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -47,6 +46,7 @@ class CPCICardTableViewFactory implements TableViewFactory<CPCICard> {
 }
 
 public class CPCICardController {
+	
 	private GridPane cpciCardMainGridPane = new GridPane();
 	private GridPane cpciCardTitleGridPane = new GridPane();
 	private GridPane cpciCardTableGridPane = new GridPane();
@@ -60,7 +60,7 @@ public class CPCICardController {
 //	private String UUT_ID;
 	private int AITESS_ID;
 
-	private ComboBox<String> driver_type_field ;
+	private ComboBox<String> driver_type_field = new ComboBox<>() ;
 	private ObservableList<AitessConfigurationDto> driverDataList = FXCollections.observableArrayList();
 	private ObservableList<String> driverNameList = FXCollections.observableArrayList();
 		
@@ -69,19 +69,20 @@ public class CPCICardController {
 	private TableViewFactory<CPCICard> cpciCardFactory = new CPCICardTableViewFactory();
 	private CustomTableView<CPCICard> customTableView_cpciCard;
 	
-	AitessConfigurationManagement aitessConfigurationManagement = new AitessConfigurationManagement();
+	private AitessConfigurationManagement aitessConfigurationManagement = new AitessConfigurationManagement();
 	
-	
-	
-	
-	public CPCICardController() {
-//		uut_type_field = new ComboBox<>();
-		driver_type_field = new ComboBox<>();
-		initializeDriverTypeComboBox();
-//		initializeUUTTypeComboBox();
-//		initializeCpciCardTable();
+	private static CPCICardController instance;
+	public static CPCICardController getInstance() {
+		if (instance == null) {
+			synchronized (CPCICardController.class) {
+				if (instance == null) {
+					instance = new CPCICardController();
+				}
+			}
+		}
+		return instance;
 	}
-	
+		
 	public void refreshCpciCardList() {
 		getCpciCardTableData();
 	}
@@ -109,8 +110,10 @@ public class CPCICardController {
 			cpciCardMainGridPane.add(createCpciCardTitleGridPane(), 0, 0);
 			cpciCardMainGridPane.add(createCpciCardOptionPane(), 0, 1);
 			cpciCardMainGridPane.add(createCpciCardTable(), 0, 2);
-
-		return cpciCardMainGridPane;
+			
+			initializeDriverTypeComboBox();
+	
+			return cpciCardMainGridPane;
 	}
 		private GridPane createCpciCardTitleGridPane() {
 			ColumnConstraints firstColumn = new ColumnConstraints();
@@ -137,6 +140,7 @@ public class CPCICardController {
 			addUserBox.getChildren().add(addUserBtn);
 
 			addUserBtn.setOnAction(e -> {
+				updateData();
 				handleAddEditButtonClicked(null);
 			});
 
@@ -255,11 +259,22 @@ public class CPCICardController {
 			driverDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAitessConfig());
 			
 			for(AitessConfigurationDto driver : driverDataList) {
-				driverNameList.add(driver.getDriverName());
+				boolean exists = false;
+				if(driver_type_field.getItems().size() >0) {
+					for(String driverName : driver_type_field.getItems()) {
+						if(driverName.equals(driver.getDriverName())) {
+							exists = true ;
+						}
+					}
+				}
+				if(!exists) {					
+					driverNameList.add(driver.getDriverName());
+				}
 			}
 			driver_type_field.setItems(driverNameList);
 			driver_type_field.setOnAction(e -> { 
 				fetchAitessIdAndDriverVersion();
+				updateData();
 			});
 		}
 
@@ -270,6 +285,7 @@ public class CPCICardController {
 					this.AITESS_ID = driver.getAitessId();
 					addUserBtn.setDisable(false);
 					getCpciCardTableData();
+					return ;
 				}
 			}
 		}
@@ -369,5 +385,8 @@ public class CPCICardController {
 			}
 		}
 
+		public void updateData() {
+			initializeDriverTypeComboBox();			
+		}
 	
 }

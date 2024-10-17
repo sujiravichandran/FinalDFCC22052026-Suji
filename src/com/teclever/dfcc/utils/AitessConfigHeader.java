@@ -280,8 +280,19 @@ public class AitessConfigHeader {
 
     private void initializeOfpNameComboBox() {
         ofpNameDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_id));
-        for (OfpConfigurationDto ofpName : ofpNameDataList) {
-            ofpNameList.add(ofpName.getOfpName());
+        for (OfpConfigurationDto ofp : ofpNameDataList) {
+            
+        	boolean exists = false;
+			if(ofpNameComboBox.getItems().size() >0) {
+				for(String ofpName : ofpNameComboBox.getItems()) {
+					if(ofpName.equals(ofp.getOfpName())) {
+						exists = true ;
+					}
+				}
+			}
+			if(!exists) {				
+				ofpNameList.add(ofp.getOfpName());
+			}
         }
         ofpNameComboBox.setItems(ofpNameList);
         ofpNameComboBox.setOnAction((event) -> fetchingOfpData());
@@ -364,6 +375,10 @@ public class AitessConfigHeader {
     private void resetOfpLabel() {
     	ofpVersionLabel.setText("OFP VERSION");
     	configFileLabel.setText("CONFIG FILE");
+    }
+    
+    public void updatOfpNameComboBox() {
+    	initializeOfpNameComboBox();
     }
    
 }

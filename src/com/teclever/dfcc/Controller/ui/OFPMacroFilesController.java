@@ -13,7 +13,6 @@ import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.filemanagement.CustomFileAddManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.model.AitessMacroFiles;
-import com.teclever.dfcc.model.AitessSymbolFiles;
 import com.teclever.dfcc.utils.AitessConfigHeader;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -52,7 +51,20 @@ public class OFPMacroFilesController {
 	private ObservableList<AitessMacroFiles> tableData = FXCollections.observableArrayList();
 	
 	private String RUN_CONFIG_ID;
-	public OFPMacroFilesController() {
+	
+	private static OFPMacroFilesController instance;
+	public static OFPMacroFilesController getInstance() {
+		if (instance == null) {
+			synchronized (OFPMacroFilesController.class) {
+				if (instance == null) {
+					instance = new OFPMacroFilesController();
+				}
+			}
+		}
+		return instance;
+	}
+	
+	private OFPMacroFilesController() {
 		configHeader.runConfigIdProperty().addListener((obs, oldRunConfigId, newRunConfigId) -> {
 			if (newRunConfigId != null) {
 				this.RUN_CONFIG_ID = newRunConfigId;
@@ -255,6 +267,10 @@ public class OFPMacroFilesController {
 		}else if(response.getResponseCode() == 0) {
 			Notifications.showErrorAlert(response.getResponseMessage());
 		}
+	}
+	
+	public void updateData() {
+		configHeader.updatOfpNameComboBox();
 	}
 
 }
