@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,15 +16,14 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
-import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -40,12 +38,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -65,10 +59,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 public class SessionTestingController {
@@ -442,8 +432,6 @@ public class SessionTestingController {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-//		buttonHBox.getChildren().addAll(repeatCountVBox, runAllButton, startButton, pauseButton, stopButton);
-		
 
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
@@ -487,83 +475,6 @@ public class SessionTestingController {
 		return sessionTestingResultsGridPane;
 	}
 
-//	private void getSessionTestData() {
-//		List<StageObject> stageList = StateMachine.getStageDatalist();
-//		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
-//
-//		observableStageList.stream().filter(stage -> {
-//			return !(stage.isDefaultStatus() || stage.isAdvanceStatus());
-//		}).forEach(stage -> {
-//			String l1StageId = stage.getL1StageId();
-//			SessionTestStateObject.addL1StageMap(l1StageId, stage);
-//			SessionTestStateObject.addL1MandatoryStatus(l1StageId, stage.isMandatoryStatus());
-//			SessionTestStateObject.addL1ContinueWithErrorStatus(l1StageId, stage.isContinueWithErrorStatus());
-//		});
-//
-//		observableStageList.stream().forEach(stage -> {
-//			String l1StageId = stage.getL1StageId();
-//			String l2StageId = stage.getL2StageId();
-//			String l3StageId = stage.getL3StageId();
-//			String l4StageId = stage.getL4StageId();
-//			String l5StageId = stage.getL5StageId();
-//			if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
-//				StageIdName l2StageObject = new StageIdName();
-//				l2StageObject.setParentId(l1StageId);
-//				l2StageObject.setStageId(l2StageId);
-//				l2StageObject.setStageName(stage.getL2StageName());
-//				if (l3StageId == null && stage.getTestTypeId() != null) {
-//					l2StageObject.setTestTypeId(stage.getTestTypeId());
-//					SessionTestStateObject.getEndLeafMap().put(l2StageObject, stage.getStatus());
-//					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l2StageId);
-//				}
-//				SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
-//			}
-//
-//			if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
-//				StageIdName l3StageObject = new StageIdName();
-//				l3StageObject.setParentId(l2StageId);
-//				l3StageObject.setStageId(l3StageId);
-//				l3StageObject.setStageName(stage.getL3StageName());
-//				if (l4StageId == null && stage.getTestTypeId() != null) {
-//					l3StageObject.setTestTypeId(stage.getTestTypeId());
-//					SessionTestStateObject.getEndLeafMap().put(l3StageObject, stage.getStatus());
-//					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l3StageId);
-//				}
-//				SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
-//			}
-//
-//			if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
-//				StageIdName l4StageObject = new StageIdName();
-//				l4StageObject.setParentId(l3StageId);
-//				l4StageObject.setStageId(l4StageId);
-//				l4StageObject.setStageName(stage.getL4StageName());
-//				if (l5StageId == null && stage.getTestTypeId() != null) {
-//					l4StageObject.setTestTypeId(stage.getTestTypeId());
-//					SessionTestStateObject.getEndLeafMap().put(l4StageObject, stage.getStatus());
-//					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l4StageId);
-//				}
-//				SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
-//			}
-//
-//			if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
-//				StageIdName l5StageObject = new StageIdName();
-//				l5StageObject.setParentId(l4StageId);
-//				l5StageObject.setStageId(l5StageId);
-//				l5StageObject.setStageName(stage.getL5StageName());
-//				if (stage.getTestTypeId() != null) {
-//					l5StageObject.setTestTypeId(stage.getTestTypeId());
-//					SessionTestStateObject.getEndLeafMap().put(l5StageObject, stage.getStatus());
-//					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l5StageId);
-//				}
-//				SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
-//			}
-//		});
-//
-//		for (Entry<StageIdName, String> status : SessionTestStateObject.getEndLeafMap().entrySet()) {
-//
-//		}
-//		setStateMachineCurrentL1StageId();
-//	}
 
 	private TreeView<Label> createTreeView() {
 		TreeItem<Label> rootItem = new TreeItem<>();
@@ -655,13 +566,9 @@ public class SessionTestingController {
 	}
 
 	private void getTestListByStageId(String stageId, String testTypeId) {
-//		System.out.println("STAGE ID : "+stageId+"  TEST TYPE ID : "+testTypeId);
-//		System.out.println("Running End Leaf Id : "+ SessionTestStateObject.getRunningTestLeafId());
-
 		SessionTestStateObject.getStageIdWithFileIds()
 				.addListener((MapChangeListener.Change<? extends String, ? extends ObservableSet<String>> change) -> {
 					if (change.wasAdded()) {
-//				System.out.println("Added: " + change.getKey() + " -> " + change.getValueAdded());
 						disableCheckBox(change.getKey());
 					}
 
@@ -892,34 +799,11 @@ public class SessionTestingController {
 	                    if (empty || filePath == null) {
 	                        setText(null);
 	                    } else {
-//	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
-//	                        double availableWidth = getTableColumn().getWidth();
-//	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
-//	                        setText(displayText);
 	                    	File file = new File(filePath);
 	                    	setText(file.getName());
 	                    }
 	                }
 
-//	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
-//	                	
-//	                    double padding = 35; // Adjust based on styling, padding, and alignment
-//	                    double approxCharWidth = 7; // Estimated average width of a character
-//
-//	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
-//
-//	                    if (filePath.length() <= totalAvailableChars) {
-//	                        return filePath;
-//	                    }
-//
-//	                    int fileNameLength = fileName.length();
-//	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
-//
-//	                    if (availableForPath > 0) {
-//	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
-//	                    } 
-//						return fileName;
-//	                }
 	            };
 	        }
 	    });

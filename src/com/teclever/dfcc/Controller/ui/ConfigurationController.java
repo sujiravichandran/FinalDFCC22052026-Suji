@@ -136,16 +136,10 @@ public class ConfigurationController {
 			testingStackPane.getStyleClass().add("tab-content-container");
 			testingStackPane.getChildren().add(configurationTestController.createConfigurationTestGridPane());
 			return testingStackPane;
-//		    hwatpTestStackPane.getStyleClass().add("tab-content-container");
-//		    hwatpTestStackPane.getChildren().add(advancedTestingHWATPTesting.createAdvancedTestingTab1GridPane());
-//		    return hwatpTestStackPane;
 		}
 		private StackPane createTab2Content() {
 			faultCodeStackPane.getStyleClass().add("tab-content-container");
 			faultCodeStackPane.getChildren().add(faultCodeController.createFaultCodeConfigGridPane());
 			return faultCodeStackPane;
-//		    hwatpTestStackPane.getStyleClass().add("tab-content-container");
-//		    hwatpTestStackPane.getChildren().add(advancedTestingHWATPTesting.createAdvancedTestingTab1GridPane());
-//		    return hwatpTestStackPane;
 		}
 	}

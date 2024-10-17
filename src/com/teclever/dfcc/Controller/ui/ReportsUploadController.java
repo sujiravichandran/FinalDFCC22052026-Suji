@@ -1,24 +1,14 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
-import com.teclever.datastore.dto.SessionDto;
-import com.teclever.datastore.response.AitessConfigurationResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.ReportCofigurationManagement;
-import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
 import com.teclever.dfcc.datastore.dto.SessionList;
@@ -26,34 +16,23 @@ import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
-import com.teclever.dfcc.model.Aitess;
 import com.teclever.dfcc.model.Upload;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
-import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 
 class UploadTableViewFactory implements TableViewFactory<Upload> {
 
@@ -239,10 +218,8 @@ public class ReportsUploadController {
 			sessionNameField.setItems(sessionNameList);
 			sessionNameField.setOnAction((event) -> {
 				SESSION_ID = fetchSessionId(sessionNameField.getValue());
-				System.out.println("Entered Session to ID :" + SESSION_ID);
 				if (SESSION_ID != null) {
 					setupDisplayTable();
-					System.out.println("Enterd into Session Combobox");
 				}
 			});
 		}
@@ -290,7 +267,6 @@ public class ReportsUploadController {
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-//			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.mac"));
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(reportsUploadMainGridPane.getScene().getWindow());
 
 		if (selectedFiles != null) {
@@ -302,7 +278,6 @@ public class ReportsUploadController {
 				upload.setFileName(fileName);
 				filesList.add(fileName);
 				upload.setFileNameWitFullPath(filesList);
-//				upload.setuploadDate(uploadDateAndTime);
 				upload.setReportType("UPLOAD");
 				upload.setSessionId(SESSION_ID);
 				uploadFile.add(upload);
@@ -323,7 +298,6 @@ public class ReportsUploadController {
 		ReportCofigurationManagement reportConfig = new ReportCofigurationManagement();
 		ReportConfigResponse response = reportConfig.getAllReportConfig(SESSION_ID, REPORT_TYPE);
 		List<ReportConfigDto> uploadFile = response.getListOfReportConfigDto();
-		System.out.println("assfsdfhdjhdsgfdhgdhfhjfdfhdjf---" + uploadFile.size());
 
 		ObservableList<Upload> uploads = FXCollections.observableArrayList();
 
@@ -334,7 +308,6 @@ public class ReportsUploadController {
 			uploadData.setFileName(fileName);
 			uploadData.setUploadDateAndTime(reportconfig.getUploadDate());
 			uploadData.setId(reportconfig.getReportConfigId());
-			System.out.println(reportconfig.getReportConfigId());
 			uploads.add(uploadData);
 		}
 

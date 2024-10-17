@@ -54,10 +54,6 @@ public class CPCICardController {
 	
 	private Button addUserBtn = new Button();
 	
-//	private ComboBox<String> uut_type_field;
-//	private ObservableList<UUTMasterDetailsDto> uutDataList;
-	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
-//	private String UUT_ID;
 	private int AITESS_ID;
 
 	private ComboBox<String> driver_type_field = new ComboBox<>() ;
@@ -166,23 +162,11 @@ public class CPCICardController {
 			cpciCardOptionGridPane.setAlignment(Pos.CENTER);
 			cpciCardOptionGridPane.setPadding(new Insets(10));
 
-//			cpciCardOptionGridPane.add(createUutTypeField(), 0, 0);
 			cpciCardOptionGridPane.add(createDriverTypeField(), 0, 0);
-//			cpciCardOptionGridPane.add(createDriverVersion(), 2, 0);
-
 
 			cpciCardOptionGridPane.getStyleClass().add("cpci-card-option-container");
 			return cpciCardOptionGridPane;
 		}
-	/*	private HBox createUutTypeField() {
-//			uut_type_field.setPromptText("UUT TYPE");
-
-			HBox uutTypeHBox = new HBox(10);
-			uutTypeHBox.setAlignment(Pos.CENTER);
-//			uutTypeHBox.getChildren().add(uut_type_field);
-
-			return uutTypeHBox;
-		}*/
 		
 		private HBox createDriverTypeField() {
 			driver_type_field.setPromptText("DRIVER TYPE");
@@ -193,23 +177,7 @@ public class CPCICardController {
 
 			return testTypeHBox;
 		}
-		
-		private HBox createDriverVersion() {
-			driverVersionLabel.setPrefWidth(600);
-			driverVersionLabel.setAlignment(Pos.CENTER);
-
-			Tooltip aitessTooltip = new Tooltip();
-			aitessTooltip.textProperty().bind(driverVersionLabel.textProperty());
-			driverVersionLabel.setTooltip(aitessTooltip);
-
-			HBox aitessTypeHBox = new HBox(10);
-			aitessTypeHBox.setAlignment(Pos.CENTER_LEFT);
-			aitessTypeHBox.getChildren().add(driverVersionLabel);
-			driverVersionLabel.getStyleClass().add("label_field");
-
-			return aitessTypeHBox;
-		}
-		
+				
 		private GridPane createCpciCardTable() {
 			cpciCardTableGridPane.getStyleClass().add("cpci-card-table-container");
 			ColumnConstraints firstColumn = new ColumnConstraints();
@@ -225,36 +193,7 @@ public class CPCICardController {
 		}
 		
 		
-	/*	private void initializeUUTTypeComboBox() {
-			uutDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAllUUT());
-			for (UUTMasterDetailsDto uut : uutDataList) {
-				uutTypeList.add(uut.getUutType());
-			}
-			uut_type_field.setItems(uutTypeList);
-			uut_type_field.setOnAction((event) -> {
-				if(driverDataList.size() >0) {
-					driverDataList.clear();
-					AITESS_ID = 0;
-					driver_type_field.getItems().clear();
-					addUserBtn.setDisable(true);
-					initializeCpciCardTable();
-				}
-				this.UUT_ID = fetchUutId(uut_type_field.getValue());
-				initializeDriverTypeComboBox();
-			});
-			
-		}*/
-
-		/*private String fetchUutId(String uutType) {
-			for (UUTMasterDetailsDto uut : uutDataList) {
-				if (uut.getUutType().equals(uutType)) {
-					return uut.getUutId();
-				}
-			}
-			return null;
-		}*/
-		
-
+	
 		private void initializeDriverTypeComboBox() {
 			driverDataList = FXCollections.observableArrayList(aitessConfigurationManagement.getAitessConfig());
 			
@@ -289,13 +228,7 @@ public class CPCICardController {
 				}
 			}
 		}
-		
-	    private void initializeCpciCardTable() {
-	        ObservableList<CPCICard> tableData = FXCollections.observableArrayList();
-	        customTableView_cpciCard = cpciCardFactory.createTableView(tableData, true, false);
-	        cpciCardTableGridPane.add(customTableView_cpciCard, 0, 0);
-	    }
-
+	
 		private void getCpciCardTableData() {
 			CardDetailsResponseDTO cpciCardList = aitessConfigurationManagement.getCardDetailsByAitessId(AITESS_ID);
 			ObservableList<CPCICard> tableData = FXCollections.observableArrayList();

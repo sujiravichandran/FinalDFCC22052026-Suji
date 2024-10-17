@@ -2,8 +2,6 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.List;
 
-import org.hibernate.internal.build.AllowSysOut;
-
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.SingleChecksum;
 import com.teclever.datastore.response.SingleChecksumResponse;
@@ -287,9 +285,6 @@ public class LoginFormController {
 					} else if (loginResponse.getRoleId().equals("RL_ID_3")
 							|| loginResponse.getRoleId().equals("RL_ID_4")) {
 
-//						SessionCreationController sessionCreationController=new SessionCreationController();
-//						parent1.getChildren().add(sessionCreationController.createSession());			
-
 						/* To Run the Script File please uncomment below */
 
 						// running script File
@@ -301,12 +296,6 @@ public class LoginFormController {
 							}
 							checksumManagement.selectUserScriptFile(StateMachine.getScriptFileLocation());
 						}
-//						SingleChecksumService a = new SingleChecksumService();
-//						SingleChecksumResponse res = a.getData();
-//						for (SingleChecksum s : res.getSingleChecksums()) {
-//							StateMachine.setScriptFileLocation(s.getScriptFileLocation());
-//						}
-//						checksumManagement.selectUserScriptFile(StateMachine.getScriptFileLocation());
 
 						parent1.getChildren().add(getCheckSumDataUserLogin());
 
@@ -495,127 +484,6 @@ public class LoginFormController {
 		return passwordChangePage;
 	}
 
-	private GridPane createPasswordChangePage1() {
-		GridPane passwordChangePage = new GridPane();
-
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(35);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(30);
-		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(35);
-
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(30);
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(40);
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(30);
-
-		passwordChangePage.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
-		passwordChangePage.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
-
-		VBox changeAdminPasswordBVBox = new VBox(10);
-		changeAdminPasswordBVBox.getStyleClass().add("admin-password-change-popup");
-		changeAdminPasswordBVBox.getStylesheets().add(getClass()
-				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LoginForm.css").toExternalForm());
-
-		HBox titleHBox = new HBox(5);
-		titleHBox.setAlignment(Pos.CENTER);
-		Label titleLabel = new Label("Change Password");
-		titleLabel.getStyleClass().add("popup-title");
-		titleHBox.getChildren().add(titleLabel);
-
-		VBox newPasswordVBox = new VBox(10);
-		newPasswordVBox.setAlignment(Pos.CENTER_LEFT);
-		Label newPasswordLabel = new Label("New Password");
-		newPasswordLabel.getStyleClass().add("popup-label");
-		TextField newPasswordTextField = new TextField();
-		newPasswordTextField.getStyleClass().add("popup-input");
-		newPasswordVBox.getChildren().addAll(newPasswordLabel, newPasswordTextField);
-
-		VBox confirmPasswordVBox = new VBox(10);
-		confirmPasswordVBox.setAlignment(Pos.CENTER_LEFT);
-		Label confirmPasswordLabel = new Label("Confirm Password");
-		confirmPasswordLabel.getStyleClass().add("popup-label");
-		TextField confirmPasswordTextField = new TextField();
-		confirmPasswordTextField.getStyleClass().add("popup-input");
-		newPasswordVBox.getChildren().addAll(confirmPasswordLabel, confirmPasswordTextField);
-
-		HBox buttomBox = new HBox(20);
-		buttomBox.setAlignment(Pos.CENTER);
-		Button exitButton = new Button("Exit");
-		Button updateButton = new Button("Update Password");
-		exitButton.getStyleClass().add("popup-btn");
-		updateButton.getStyleClass().add("popup-btn");
-		buttomBox.getChildren().addAll(exitButton, updateButton);
-
-		changeAdminPasswordBVBox.getChildren().addAll(titleHBox, newPasswordVBox, confirmPasswordVBox, buttomBox);
-
-		exitButton.setOnAction(e -> Platform.exit());
-		updateButton.setOnAction(e -> {
-			String newPassword = newPasswordTextField.getText();
-			String confirmPassword = confirmPasswordTextField.getText();
-
-			if (newPassword.isEmpty()) {
-				Notifications.showWarningAlert("Please Enter New Password...");
-				return;
-			} else if (confirmPassword.isEmpty()) {
-				Notifications.showWarningAlert("Please Enter Confirm Password...");
-				return;
-			} else if (!newPassword.equals(confirmPassword)) {
-				Notifications.showErrorAlert("Password and Confirm Password Mismatched...");
-				return;
-			} else if (confirmPassword.length() < 8) {
-				Notifications.showErrorAlert("Password must be at least 8 characters long...");
-				return;
-			} else if (!confirmPassword.matches(".*[a-z].*")) {
-				Notifications.showErrorAlert("Password must contain at least one lowercase letter...");
-				return;
-			} else if (!confirmPassword.matches(".*[A-Z].*")) {
-				Notifications.showErrorAlert("Password must contain at least one uppercase letter...");
-				return;
-			} else if (!confirmPassword.matches(".*\\d.*")) {
-				Notifications.showErrorAlert("Password must contain at least one digit...");
-				return;
-			} else if (!confirmPassword.matches(".*[!@#$%^&*()].*")) {
-				Notifications.showErrorAlert("Password must contain at least one special character...");
-				return;
-			} else {
-				Response response = userManagementModule.changePasswordForBellAdmin(confirmPassword);
-				if (response.getResponseCode() == 1) {
-
-					GridPane mainContainerGridPane = (GridPane) loginGridPane.getParent().getParent().getParent();
-					mainContainerGridPane.getRowConstraints().get(0).setPercentHeight(10);
-					mainContainerGridPane.getRowConstraints().get(1).setPercentHeight(90);
-
-					ObservableList<Node> childrenToRemove = FXCollections.observableArrayList();
-					for (Node child : mainContainerGridPane.getChildren()) {
-						Integer rowIndex = GridPane.getRowIndex(child);
-						if (rowIndex != null && rowIndex == 0) {
-							childrenToRemove.add(child);
-						}
-					}
-
-					mainContainerGridPane.getChildren().removeAll(childrenToRemove);
-					mainContainerGridPane.add(topContainerAfterLoginController.createTopGridPane(), 0, 0);
-					Parent parent = loginGridPane.getParent();
-					if (parent instanceof GridPane) {
-						StackPane parent1 = (StackPane) parent.getParent();
-						parent1.getChildren().clear();
-						UserData.setRoleId("RL_ID_1");
-						AdminDashboardController adminDashboardController = new AdminDashboardController();
-						parent1.getChildren().add(adminDashboardController.createAdminDashboard());
-					}
-				}
-			}
-		});
-
-		passwordChangePage.add(changeAdminPasswordBVBox, 1, 1);
-
-		return passwordChangePage;
-	}
-
 	public GridPane getCheckSumData() {
 		ValidateResponse checkSumData = systemConfigManagement.validateConfig();
 		List<CheckSum> checkSumDataList = checkSumData.getCheckSumList();
@@ -709,36 +577,6 @@ public class LoginFormController {
 
 		}
 
-		/* To Run the Script File please uncomment below */
-
-//		ValidateResponse response = checksumManagement.compare();
-//
-//		
-//		ObservableList<CheckSumList> checkSumTableData = FXCollections.observableArrayList();
-//
-//		if (response.getResponse().getResponseCode() == 0) {
-//			Notifications.showErrorAlert(response.getResponse().getResponseMessage());
-//			Platform.exit();
-//		} else if (response.getResponse().getResponseCode() == 1) {
-//			for (CheckSum data : response.getCheckSumList()) {
-//				CheckSumList checkSumUiDto = new CheckSumList();
-//				checkSumUiDto.setFileName(data.getFile());
-//				checkSumUiDto.setCheckSumValue(data.getChecksumValue());
-//				checkSumUiDto.setStatus(data.getMsg());
-//				checkSumTableData.add(checkSumUiDto);
-//			}
-//		}
-//
-//		GridPane newGridPane = new GridPane();
-//		newGridPane.setStyle(
-//				"-fx-background-color: rgba(0, 0, 0, 0.7);-fx-border-radius: 10px;-fx-background-radius: 10px;");
-//		setupGridPane(newGridPane);
-//
-//		VBox checkSumDataBox = createCheckSumDataBoxUserLogin(checkSumTableData);
-//
-//		newGridPane.add(checkSumDataBox, 1, 1);
-//
-//		return newGridPane;
 	}
 
 	private void setupGridPane(GridPane gridPane) {

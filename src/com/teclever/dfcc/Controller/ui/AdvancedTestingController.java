@@ -5,21 +5,16 @@ import java.io.File;
 import java.io.IOException;
 
 import com.teclever.dfcc.DFCCConstant;
-
 import com.teclever.dfcc.datastore.dto.StageObject;
-import com.teclever.dfcc.model.TestSummary;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
-import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
-import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
-import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
-import javafx.scene.control.Button;
-import javafx.application.Platform;
+import com.teclever.dfcc.stateMachine.StateMachine;
+
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -276,35 +271,10 @@ public class AdvancedTestingController {
 	                    if (empty || filePath == null) {
 	                        setText(null);
 	                    } else {
-//	                        String fileName = filePath.substring(Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\")) + 1); // Extract the file name
-//	                        double availableWidth = getTableColumn().getWidth();
-//	                        String displayText = getEllipsizedText(filePath, fileName, availableWidth);
-//	                        setText(displayText);
 	                    	File file = new File(filePath);
 	                    	setText(file.getName());
 	                    }
 	                }
-
-//	                private String getEllipsizedText(String filePath, String fileName, double columnWidth) {
-//	                	
-//	                    double padding = 15; // Adjust based on styling, padding, and alignment
-//	                    double approxCharWidth = 7; // Estimated average width of a character
-//
-//	                    int totalAvailableChars = (int) ((columnWidth - padding) / approxCharWidth);
-//	                    System.out.println("totalAvailableChars" + totalAvailableChars);
-//
-//	                    if (filePath.length() <= totalAvailableChars) {
-//	                        return filePath;
-//	                    }
-//
-//	                    int fileNameLength = fileName.length();
-//	                    int availableForPath = totalAvailableChars - fileNameLength - 3; 
-//
-//	                    if (availableForPath > 0) {
-//	                        return  "..."+filePath.substring(filePath.length() - availableForPath) ;
-//	                    } 
-//						return fileName;
-//	                }
 	            };
 	        }
 	    });

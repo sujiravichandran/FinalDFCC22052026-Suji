@@ -1,6 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.File;
 import java.util.Date;
 
 import com.teclever.datastore.dto.Response;
@@ -29,7 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -229,25 +227,19 @@ public class CurrentExecutionResultController {
 				Response response = null;
 				if (isBrief) {
 					if(isCurrentSession) {
-						System.out.println("current session brief");
 						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
 					}else if(sessionId != null && stageId != null) {
-						System.out.println("stage brief");
 						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
 					}else if(sessionId != null && stageId == null ) {
-						System.out.println("all session brief");
 						response = reportGeneration.generateBreifReportForCurrentSession(sessionId);
 					}
 				} else {
 					if(isCurrentSession) {
-						System.out.println("current session detail");
 						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
 					}else if(sessionId != null && stageId != null) {
-						System.out.println("stage detail");
 						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
 						
 					}else if(sessionId != null && stageId == null ) {
-						System.out.println("all session detail");
 						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
 						
 					}
@@ -504,213 +496,3 @@ public class CurrentExecutionResultController {
 		});
 	}
 }
-
-// change column width
-
-//private ScrollPane createBriefDataTable() {
-//	briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
-//
-//	briefDataTableView.getColumns().forEach(column -> {     	
-//    	double minWidth = column.getText().length()*13;
-//    	column.setMinWidth(minWidth);
-//    });
-//	
-//    
-//    ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
-//    tableScrollPane.setFitToWidth(true);
-//    tableScrollPane.setFitToHeight(true);
-//	return tableScrollPane;
-//}
-
-// wrapping table data text
-
-//	public ScrollPane createDetailedDataTable() {
-//        DetailedData newData = new DetailedData();
-//
-//        newData.setExpectedValue("setExpectedValuesetExpectedValue");
-//        newData.setFaultyChannel("setFaultyChannelsetFaultyChannel");
-//        newData.setMoniterdOutput("setMoniterdOutputsetMoniterdOutput");
-//        newData.setRdfName("afvdsbhfsanasdbfvdsafdsanmfdsafbdsafjabfdsa");
-//        newData.setSignalName("fcvghjlkmajkfdslafsda");
-//        newData.setStepNo("asdf");
-//        newData.setTestName("asdfdsafdsafdsafsadfdsafdsafdsaF");
-//        newData.setTpgphNo("avsdhgjdbv");
-//        newData.setUnit("safdsafds");
-//
-//        detailedDataList.add(newData);
-//
-//        detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
-//
-//        // Custom cell factory to wrap text
-//        detailedDataTableView.getColumns().forEach(column -> {
-//            // Cast the column to TableColumn<DetailedData, String> and update it
-//            update((TableColumn<DetailedData, String>) column);
-//
-//            // Calculate minimum width based on content
-//            column.setMinWidth(column.getText().length() * 13);
-//        });
-//
-//        ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
-//        tableScrollPane.setFitToHeight(true);
-//        return tableScrollPane;
-//    }
-//
-//    private void update(TableColumn<DetailedData, String> column) {
-//        column.setCellFactory(col -> new TableCell<DetailedData, String>() {
-//            private Text text;
-//
-//            @Override
-//            protected void updateItem(String item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (item == null || empty) {
-//                    setText(null);
-//                    setGraphic(null);
-//                } else {
-//                    if (text == null) {
-//                        text = new Text();
-//                        text.wrappingWidthProperty().bind(col.widthProperty().subtract(10));
-//                    }
-//                    text.setText(item);
-//                    setGraphic(text);
-//                }
-//            }
-//        });
-//    }
-
-//package com.teclever.dfcc.Controller.ui;
-//
-//import com.teclever.dfcc.model.Aitess;
-//import com.teclever.dfcc.utils.CustomTableView;
-//
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.geometry.Insets;
-//import javafx.scene.control.ScrollPane;
-//import javafx.scene.layout.ColumnConstraints;
-//import javafx.scene.layout.GridPane;
-//import javafx.scene.layout.RowConstraints;
-//
-//
-//
-//
-//public class CurrentExecutionResultController {
-//
-//    private GridPane currentExecutionResultGridPane = new GridPane();
-//    
-//    
-//    AitessTableViewFactory driverFactory = new AitessTableViewFactory();
-//	
-//	
-//    public GridPane createCurrentExecutionResultGridPane() {
-//        currentExecutionResultGridPane.setStyle("-fx-background-color:red;");
-//
-//        // Setting up GridPane constraints
-//        ColumnConstraints firstColumn = new ColumnConstraints();
-//        firstColumn.setPercentWidth(200);
-//
-//        RowConstraints firstRow = new RowConstraints();
-//        firstRow.setPercentHeight(200);
-//
-//        currentExecutionResultGridPane.setPadding(new Insets(5));
-//        currentExecutionResultGridPane.getColumnConstraints().addAll(firstColumn);
-//        currentExecutionResultGridPane.getRowConstraints().addAll(firstRow);
-//
-//        
-//		ObservableList<Aitess> driverData = FXCollections.observableArrayList();
-//		CustomTableView<Aitess> customTableView = driverFactory.createTableView(driverData, false, false);
-//
-//        customTableView.getColumns().forEach(column -> {     	
-//        	double minWidth = column.getText().length()*13;
-//        	column.setMinWidth(minWidth);
-//        });
-//        
-// 
-//        ScrollPane tableScrollPane = new ScrollPane(customTableView);
-//        tableScrollPane.setFitToHeight(true);
-//
-//        currentExecutionResultGridPane.add(tableScrollPane, 0, 0);
-//
-//        return currentExecutionResultGridPane;
-//    }
-//}
-
-//package com.teclever.dfcc.Controller.ui;
-//
-//import javafx.geometry.Insets;
-//import javafx.scene.control.ScrollPane;
-//import javafx.scene.control.TableColumn;
-//import javafx.scene.control.TableView;
-//import javafx.scene.layout.ColumnConstraints;
-//import javafx.scene.layout.GridPane;
-//import javafx.scene.layout.RowConstraints;
-//
-//public class CurrentExecutionResultController {
-//
-//    private GridPane currentExecutionResultGridPane = new GridPane();
-//
-//    public GridPane createCurrentExecutionResultGridPane() {
-//        currentExecutionResultGridPane.setStyle("-fx-background-color:red;");
-//
-//        // Setting up GridPane constraints
-//        ColumnConstraints firstColumn = new ColumnConstraints();
-//        firstColumn.setPercentWidth(200);
-//
-//        RowConstraints firstRow = new RowConstraints();
-//        firstRow.setPercentHeight(200);
-//
-//        currentExecutionResultGridPane.setPadding(new Insets(5));
-//        currentExecutionResultGridPane.getColumnConstraints().addAll(firstColumn);
-//        currentExecutionResultGridPane.getRowConstraints().addAll(firstRow);
-//
-//        // Creating TableView
-//        TableView<String> tableView = new TableView<>();
-//
-//        // Define multiple columns
-//        TableColumn<String, String> column1 = new TableColumn<>("Column 1");
-//        column1.setCellValueFactory(data -> {
-//            return null; // Replace with your actual cell value factory
-//        });
-//
-//        TableColumn<String, String> column2 = new TableColumn<>("Column 2");
-//        column2.setCellValueFactory(data -> {
-//            return null; // Replace with your actual cell value factory
-//        });
-//
-//        TableColumn<String, String> column3 = new TableColumn<>("Column 3");
-//        column3.setCellValueFactory(data -> {
-//            return null; // Replace with your actual cell value factory
-//        });
-//        TableColumn<String, String> column4 = new TableColumn<>("Columnafdsasad 4");
-//        TableColumn<String, String> column5 = new TableColumn<>("Columnsadfvcxb 5");
-//        TableColumn<String, String> column6 = new TableColumn<>("Columnvxzcvxzcvxczv 6");
-//        TableColumn<String, String> column7 = new TableColumn<>("Columnxzcvxzcvcxz 7");
-//        TableColumn<String, String> column8 = new TableColumn<>("Columnzxcvxczvxcz 8");
-//        TableColumn<String, String> column9 = new TableColumn<>("Columnxzvcxzcvxczv 9");
-//        TableColumn<String, String> column10 = new TableColumn<>("Columncxvcxzvcxzvxz 10");
-//        
-//        column1.setMinWidth(200);
-//        column2.setMinWidth(200);
-//        column3.setMinWidth(200);
-//        column4.setMinWidth(200);
-//        column5.setMinWidth(200);
-//        column6.setMinWidth(200);
-//        column7.setMinWidth(200);
-//        column8.setMinWidth(200);
-//        column9.setMinWidth(200);
-//        column10.setMinWidth(200);
-//        
-//        tableView.getColumns().addAll(column1, column2, column3,column4,column5,column6,column7,column8,column9,column10);
-//
-//        ScrollPane scrollPane = new ScrollPane(tableView);
-////        scrollPane.setFitToWidth(true);
-//        scrollPane.setFitToHeight(true);
-//
-//        // Enable horizontal scrolling
-//        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-//
-//        // Adding ScrollPane to GridPane
-//        currentExecutionResultGridPane.add(scrollPane, 0, 0);
-//
-//        return currentExecutionResultGridPane;
-//    }
-//}

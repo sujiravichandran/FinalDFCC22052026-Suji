@@ -45,7 +45,6 @@ public class BottomContainerController {
 	    bottomSubPane.prefWidthProperty().bind(columnMid.prefWidthProperty());
 	    bottomSubPane.prefHeightProperty().bind(rowMid.prefHeightProperty());
 	
-//	    bottomSubPane.setStyle("-fx-background-color: #31363F;-fx-border-radius:10px;-fx-background-radius:10px");
 	    bottomSubPane.getStyleClass().add("bottom-sub-container");
 		bottomStackPane.getStylesheets()
 		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/BottomContainer.css").toExternalForm());

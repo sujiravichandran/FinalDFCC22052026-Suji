@@ -1,7 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import com.teclever.dfcc.DFCCConstant;
@@ -9,7 +8,6 @@ import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManag
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
 import com.teclever.dfcc.datastore.dto.LevelOneAddResponse;
 import com.teclever.dfcc.datastore.dto.LevelsAddResponse;
-import com.teclever.dfcc.datastore.dto.SessionMasterDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.utils.Notifications;
@@ -20,7 +18,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;

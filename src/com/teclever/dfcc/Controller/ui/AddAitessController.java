@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.HashMap;
+
 import com.teclever.datastore.response.AitessConfigurationResponse;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.AitessConfigurationDto;
@@ -7,18 +9,14 @@ import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.utils.CustomButton;
 import com.teclever.dfcc.utils.Notifications;
 
-import java.util.HashMap;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 

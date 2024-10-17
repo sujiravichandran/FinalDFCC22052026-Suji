@@ -77,29 +77,11 @@ public class AdminDashboardController {
 		menuTreeView.getStyleClass().add("menu-container");
 		menuTreeView.setShowRoot(false);
 
-//		menuTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//			if (newValue != null) {
-//				Label selectedLabel = newValue.getValue();
-//				System.out.println("Selected Label: " + selectedLabel.getText());
-//
-//				if (newValue.getChildren().isEmpty()) {
-//					adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane,selectedLabel.getText());
-//				}
-//
-//				
-//				if (!newValue.getChildren().isEmpty()) {
-//					newValue.getChildren().forEach(subMenuItem -> {
-////						Label subMenuLabel = subMenuItem.getValue();
-////		            	System.out.println("- " + subMenuLabel.getText());
-//					});
-//				}
-//			}
-//		});
+
 		menuTreeView.setOnMouseClicked(event -> {
 		    TreeItem<Label> selectedItem = menuTreeView.getSelectionModel().getSelectedItem();
 		    if (selectedItem != null) {
 		        Label selectedLabel = selectedItem.getValue();		        
-//		        System.out.println("Selected Label: " + selectedLabel.getText());
 
 		        if (selectedItem.getChildren().isEmpty()) {
 		            adminCenterContentController.createAdminCenterContent(bottomMidTopGridPane, selectedLabel.getText());
@@ -128,19 +110,6 @@ public class AdminDashboardController {
 		}else if (UserData.getRoleId().equals("RL_ID_2")) {
 			addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
 		}
-		
-//		addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
-//		addTreeItemWithChildren(rootItem, "VDD Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/testing.png", null);
-//		addTreeItemWithChildren(rootItem, "Fault Code Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/results.png", null);
-//		addTreeItemWithChildren(rootItem, "AITESS Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/advance_testing.png",
-//				new String[] { "AITESS Master", "Run Config", "Test Files", "Symbol Files", "Macro Files", "Download Code"});
-//		addTreeItemWithChildren(rootItem, "OFP Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/reports.png",
-//				new String[] { "OFP Master", "Test Plan", "Symbol Plan", "Macro Plan", "Download Plan" });
-//		addTreeItemWithChildren(rootItem, "Stage Config", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/self_test.png", null);
-//		addTreeItemWithChildren(rootItem, "MACRO Buttons", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/lru_test.png", null);
-//		addTreeItemWithChildren(rootItem, "cPCI card's Details", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/test_summary.png", null);
-//		addTreeItemWithChildren(rootItem, "Utility", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
-//				new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
 

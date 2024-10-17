@@ -118,16 +118,6 @@ public class RdfFileCopyPopupController {
 
 		tableView.getColumns().addAll(selectColumn, fileNameColumn, statusColumn);
 
-//		 ObservableList<RdfFileCopy> data = FXCollections.observableArrayList(
-//			        new RdfFileCopy("C:/path/to/File1.txt", "Valid", false),
-//			        new RdfFileCopy("C:/path/to/File2.txt", "Invalid", false),
-//			        new RdfFileCopy("C:/path/to/File3.txt", "Valid", false),
-//			        new RdfFileCopy("C:/path/to/File4.txt", "Unknown", false),
-//			        new RdfFileCopy("C:/path/to/File5.txt", "Valid", false)
-//				 );
-
-//	    tableView.setItems(data);
-
 		rdfFileCopyMidVBox.getChildren().addAll(tableView, createLabelBox(), createButtonBox());
 	}
 

@@ -3,7 +3,6 @@ package com.teclever.dfcc.Controller.ui;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ConfigDatResponse;
-import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -12,18 +11,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Map;
 
 public class ConfigurationTestController {
 
