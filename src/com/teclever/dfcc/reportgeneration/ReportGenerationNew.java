@@ -272,6 +272,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			}
 
 			document.close();
+			res.setResponseCode(1);
+			res.setResponseMessage("Download Successfully..");
 			System.out.println("PDFs merged successfully!");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -349,6 +351,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			}
 
 			document.close();
+			res.setResponseCode(1);
+			res.setResponseMessage("Download Successfully..");
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -274,7 +274,9 @@ public class ReportController {
 		titleBox.getChildren().add(title);
 
 		reportHeadingGridPane.add(titleBox, 0, 0);
-		reportHeadingGridPane.add(createDownloadButton(), 1, 0);
+		if(!REPORT_TYPE.equals("DataPack")) {			
+			reportHeadingGridPane.add(createDownloadButton(), 1, 0);
+		}
 
 		return reportHeadingGridPane;
 	}
@@ -285,7 +287,19 @@ public class ReportController {
 
 		downloadButton.setOnAction(e -> {
 			if(UUT_ID != null && SESSION_ID != null) {	
-				
+				Response response = null;
+				if (REPORT_TYPE.equals("PQT")) {
+					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
+					response = reportGenerationNew.generatePQTReport(SESSION_ID);
+				} else if (REPORT_TYPE.equals("ESS")) {
+					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
+					response = reportGenerationNew.generateEssReport(SESSION_ID);
+				} 
+				if(response.getResponseCode() == 1) {
+					Notifications.showSuccessAlert(response.getResponseMessage());
+				}else if(response.getResponseCode() == 0) {
+					Notifications.showErrorAlert(response.getResponseMessage());
+				}
 			}else {
 				Notifications.showWarningAlert("Please select UUT type and session name.");
 			}
