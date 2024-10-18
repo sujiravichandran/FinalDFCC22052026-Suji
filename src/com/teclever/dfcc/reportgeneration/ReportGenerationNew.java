@@ -87,11 +87,11 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 	private static List<TOCEntry> tocEntries = new ArrayList<>(); // List to store TOC entries
 	// table to store placeholder for all chapters and sections
-	private final static Map<String, PdfTemplate> tocPlaceholder = new HashMap<String, PdfTemplate>();
+	private  static Map<String, PdfTemplate> tocPlaceholder = new HashMap<String, PdfTemplate>();
 //	private final static Map<String,Map<String,PdfTemplate>> tocSubPlaceHolder = new HashMap<String,Map<String,PdfTemplate>>();
 
 	// store the chapters and sections with their title here.
-	private final static Map<String, Integer> pageByTitle = new HashMap<>();
+	private  static Map<String, Integer> pageByTitle = new HashMap<>();
 	static Font tocFont = new Font(FontFamily.HELVETICA, 10, Font.BOLD);
 
 	static Map<String, Map<String, Map<String, String>>> data1 = null;
@@ -130,13 +130,17 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		Response res = new Response();
 		Document document = new Document(PageSize.A4);
+		
+		String fileName = "ESSContent"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
-			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
-			
-		    filePath = currentDirectory + File.separator + "Reports"+File.separator+"ESSContent.pdf";
+		//	filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
+			  filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
+				
 		}
 
 		String excelPath = "";
@@ -144,8 +148,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_ESS.xlsx";
 		} else {
 			//excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_ESS.xlsx";
+			
 			excelPath = currentDirectory +File.separator+"REPORT_FIELDS_ESS.xlsx";
-				
 			
 		}
 
@@ -157,9 +161,9 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
 		writer.setPageEvent(event);
 		document.open();
-		essReportSummary(document, data,sessionId);
+		essReportSummary(document,data,sessionId);
 		document.close();
-
+		res.setResponseMessage(fileName);
 		return res;
 	}
 
@@ -168,12 +172,16 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		Response res = new Response();
 		Document document = new Document(PageSize.A4);
+		
+		String fileName = "PQTContent"
+				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
+			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
 		} else {
 		//	filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
-			  filePath = currentDirectory + File.separator + "Reports"+File.separator+"PQTContent.pdf";
+			  filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
 				
 		}
 
@@ -197,32 +205,50 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.open();
 		pqtReportSummary(document, data,sessionId);
 		document.close();
-
+		res.setResponseMessage(fileName);
 		return res;
 	}
 
 	//// Generation Of ESS Report Content
 	public Response generateEssReport(String sessionId) {
-
+		
+		currentPageNumber = 1;
+		tocPlaceholder = new HashMap<String, PdfTemplate>();
+		pageByTitle = new HashMap<>();
+		tocPlaceHolderCount = 1;
+		summaryPlaceHolderCount = 2;
+		tocPlaceHolderCountSub = 1;
+		summaryPlaceHolderCountSub = 1;
+		tocPlaceHolderCountH3 = 1;
+		summaryPlaceHolderCountH3 = 1;
+		
 		Response res = new Response();
-
-		String fileName = "Ess_Report"
+		Response res1 = new Response();
+		try {
+		res1=	generateEssReportContent(sessionId);
+		} catch (DocumentException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String fileName = "ESS_Report"
 				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-		String contentFilePath = "";
 		String filePath = "";
+		String contentFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "ESSContent.pdf";
+			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + res1.getResponseMessage() ;
 		} else {
-			
+			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+
 			filePath = currentDirectory + File.separator +"Reports" +File.separator+ fileName;
-		//	filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
-		//	contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
-			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+"ESSContent.pdf";
+		//	contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
+			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+res1.getResponseMessage();
 			
 			
 		}
+
 		List<String> pdfFiles = new ArrayList<String>();
+		Map<String, String> filesPathStageFullPath = new HashMap<String, String>();
 		pdfFiles.add(contentFilePath);
 		ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
 		ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
@@ -255,10 +281,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			 */
 		}
 
-
-
 		try {
-			generateEssReportContent(sessionId);
+			
 			Document document = new Document();
 			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
 			document.open();
@@ -274,30 +298,47 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			document.close();
 			res.setResponseCode(1);
 			res.setResponseMessage("Download Successfully..");
-			System.out.println("PDFs merged successfully!");
+			System.out.println("PDFs Created successfully In Path...!" + filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return res;
-
 	}
 
 	// Generate PQT Report..
 	public Response generatePQTReport(String sessionId) {
+		
+		currentPageNumber = 1;
+		tocPlaceholder = new HashMap<String, PdfTemplate>();
+		pageByTitle = new HashMap<>();
+		tocPlaceHolderCount = 1;
+		summaryPlaceHolderCount = 2;
+		tocPlaceHolderCountSub = 1;
+		summaryPlaceHolderCountSub = 1;
+		tocPlaceHolderCountH3 = 1;
+		summaryPlaceHolderCountH3 = 1;
+		
 		Response res = new Response();
+		Response res1 = new Response();
+		try {
+		res1=	generatePQTReportContent(sessionId);
+		} catch (DocumentException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		String fileName = "PQT_Report"
 				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
 		String filePath = "";
 		String contentFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + "PQTContent.pdf";
+			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + res1.getResponseMessage() ;
 		} else {
 			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 
 			filePath = currentDirectory + File.separator +"Reports" +File.separator+ fileName;
 		//	contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
-			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+"PQTContent.pdf";
+			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+res1.getResponseMessage();
 			
 			
 		}
@@ -337,7 +378,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		}
 
 		try {
-			generatePQTReportContent(sessionId);
+			
 			Document document = new Document();
 			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
 			document.open();
