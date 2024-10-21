@@ -138,7 +138,7 @@ public class LoadDriverProcessControlManagement {
 
 				DriverCardDetailsResponse response = new DriverCardDetailsResponse();
 				while (flag) {
-					Debug.printDebug("- ");
+					System.out.print("- ");
 				}
 
 				response.setDriverCardDetails(responseDriverCards);
@@ -190,7 +190,7 @@ public class LoadDriverProcessControlManagement {
 				DriverCardDetailsResponse response1 = new DriverCardDetailsResponse();
 
 				while (aimFlag) {
-					Debug.printDebug("- ");
+					System.out.print("- ");
 				}
 				Debug.printDebug("End of CARD ");
 				response1.setDriverCardDetails(responseDriverCards);
@@ -331,7 +331,7 @@ public class LoadDriverProcessControlManagement {
 
 				DriverCardDetailsResponse response2 = new DriverCardDetailsResponse();
 				while (auxflag) {
-					Debug.printDebug("- ");
+					System.out.print("- ");
 				}
 
 				response2.setProcessIds(pidList);
