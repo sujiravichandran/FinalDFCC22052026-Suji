@@ -51,6 +51,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
+import com.teclever.dfcc.utils.Debug;
 
 public class TestProcessManagement {
 
@@ -73,7 +74,7 @@ public class TestProcessManagement {
 
 		Response res = new Response();
 		try {
-
+			Debug.printDebug("Test Proces Controll Entty point : "+sessionId+" Stage Id : "+stageId+" repeatCount : "+repeatCount+" ListOfFile "+ listOfFileId+" ContinueWithError "+ continueWithError+" StageName "+stageName+" TestTypeID "+ testTypeId+" ofpConfig "+ofpConfig);
 			// Retrieve Highest RunCount Session Stage Mapping Data.
 			SessionStagesMapping sessionStagesMapping = getSessionStageMapping(sessionId, stageId);
 
@@ -208,14 +209,14 @@ public class TestProcessManagement {
 		TestProcessResponse testProcessRes = new TestProcessResponse();
 		try {
 			if (stageName.equals("RACK1")) {
-				System.out.println("   ->  rack1TestFileTest()  ");
+				Debug.printDebug("   ->  rack1TestFileTest()  ");
 				testProcessRes = rack1TestFileTest(rdfFileLocation, rdfFileName, oneFileName);
 
 			} else if (stageName.equals("CPCI") || stageName.equals("MANDATORY") || stageName.equals("GO NOGO")
 					|| stageName.equals("SRU") || stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
 					|| stageName.equals("INTERFACE TEST") || stageName.equals("CUSTOM ONE")
 					|| stageName.equals("CUSTOM TWO")) {
-				System.out.println("   ->  7  parseTestFileTest()  ");
+				Debug.printDebug("   ->  7  parseTestFileTest()  ");
 
 				testProcessRes = parseTestFileTest(rdfFileLocation, rdfFileName, stageId, stageName, oneFileName,
 						sessionId);
@@ -343,29 +344,29 @@ public class TestProcessManagement {
 				break;
 
 			case "MANDATORY":
-				System.out.println("----- Mandatory ----");
+				Debug.printDebug("----- Mandatory ----");
 				LRUTestStateObject.updateLruMandatoryCardstatus(stageId, rdfFileResult);
 
 				switch (LRUTestStateObject.getLRUTestRunningCard()) {
 
 				case SPIL_LINK:
-					System.out.println("----- SPIL_LINK ----");
+					Debug.printDebug("----- SPIL_LINK ----");
 					LRUTestStateObject.getSpilLinkStatus().set(false);
 					break;
 				case POWER_SUPPLY:
-					System.out.println("----- POWER_SUPPLY ----");
+					Debug.printDebug("----- POWER_SUPPLY ----");
 					LRUTestStateObject.getPowerSupplyStatus().set(false);
 					break;
 				case PBIT:
-					System.out.println("----- PBIT ----");
+					Debug.printDebug("----- PBIT ----");
 					LRUTestStateObject.getPbitStatus().set(false);
 					break;
 				case AD_DA_INTERFACE:
-					System.out.println("----- AD_DA_INTERFACE ----");
+					Debug.printDebug("----- AD_DA_INTERFACE ----");
 					LRUTestStateObject.getAd_daInterfaceStatus().set(false);
 					break;
 				case INITIALIZE_LRU:
-					System.out.println("----- INITIALIZE_LRU ----");
+					Debug.printDebug("----- INITIALIZE_LRU ----");
 					LRUTestStateObject.getInitializeLRUStatus().set(false);
 					break;
 
@@ -404,7 +405,7 @@ public class TestProcessManagement {
 
 				SessionTestStateObject.updateEndLeafMapStatus(stageId, getStageResult(stageId, keysSet));
 
-				// System.out.println("CASE : SESSION TEST");
+				// Debug.printDebug("CASE : SESSION TEST");
 //				SessionTestStateObject.updateEndLeafMapStatus(stageId, "COMPLETED");
 				SessionTestStateObject.getRunningTestLeafStatus().set(true);
 				StateMachine.setTestState(TestState.COMPLETED);
@@ -413,24 +414,24 @@ public class TestProcessManagement {
 
 			case "HWATP TEST":
 
-				System.out.println("CASE : HWATP TEST");
+				Debug.printDebug("CASE : HWATP TEST");
 				AdvancedTestStateObject.getHwatpTestStatus().set(false);
 				break;
 			case "INTERFACE TEST":
-				System.out.println("CASE : INTERFACE TEST");
+				Debug.printDebug("CASE : INTERFACE TEST");
 				AdvancedTestStateObject.getInterfaceTestStatus().set(false);
 				break;
 
 			case "CUSTOM ONE":
-				System.out.println("CASE : CUSTOM ONE");
+				Debug.printDebug("CASE : CUSTOM ONE");
 				AdvancedTestStateObject.getCustomTest1Status().set(false);
 				break;
 			case "CUSTOM TWO":
-				System.out.println("CASE : CUSTOM TWO");
+				Debug.printDebug("CASE : CUSTOM TWO");
 				AdvancedTestStateObject.getCustomTest2Status().set(false);
 				break;
 			default:
-				System.out.println("INVALID TEST TYPE ID ");
+				Debug.printDebug("INVALID TEST TYPE ID ");
 				break;
 			}
 
@@ -514,19 +515,19 @@ public class TestProcessManagement {
 			}
 
 			File file = new File(rdfFileLocation + rdfFileName);
-			System.out.println("FILE LENGTH  " + file.length());
+			Debug.printDebug("FILE LENGTH  " + file.length());
 
 			while (true) { // Infinite loop
-				System.out.println("FILE LENGTH " + file.length()); // Print the file length
+				Debug.printDebug("FILE LENGTH " + file.length()); // Print the file length
 				if (file.length() == 0) { // Check if the file length is 0
 					try {
-						System.out.println("File is empty, waiting for 1 second...");
+						Debug.printDebug("File is empty, waiting for 1 second...");
 						Thread.sleep(1000); // Wait for 1 second
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				} else { // If the file is not empty, exit the loop
-					System.out.println("File is not empty.");
+					Debug.printDebug("File is not empty.");
 					break;
 				}
 			}
@@ -538,9 +539,9 @@ public class TestProcessManagement {
 				String brdResult = null;
 				res.setResponseCode(1);
 				int dStartCount = 0;
-				System.out.println("RDF File Name  :" + (rdfFileLocation + rdfFileName));
+				Debug.printDebug("RDF File Name  :" + (rdfFileLocation + rdfFileName));
 				while ((line = reader.readLine()) != null) {
-					System.out.println("LINE  " + line);
+					Debug.printDebug("LINE  " + line);
 					if (line.startsWith("S> brd")) {
 
 						brdNumber = line.substring(line.indexOf(" "), line.indexOf("_"));
@@ -565,11 +566,11 @@ public class TestProcessManagement {
 							brdResult = "BRD";
 						}
 					}
-					System.out.println(
+					Debug.printDebug(
 							"  RACK 1 -------- dStartCount: " + dStartCount + " res.get " + res.getResponseCode());
 				}
 
-				System.out.println("  RACK 1 -------- brdResult " + brdResult);
+				Debug.printDebug("  RACK 1 -------- brdResult " + brdResult);
 				if (brdResult != null && brdResult.equals("BRD")) {
 					for (int i = 1; i <= 19; i++) {
 						SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
@@ -684,7 +685,7 @@ public class TestProcessManagement {
 				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, rdfFileStatus);
 
 				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
-				System.out.println("--------------CPCI UPDATE --------  " + filePath + "   " + rdfFileStatus);
+				Debug.printDebug("--------------CPCI UPDATE --------  " + filePath + "   " + rdfFileStatus);
 			}
 
 			else if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
@@ -731,7 +732,7 @@ public class TestProcessManagement {
 		try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-//				System.out.println(line+"  -- "+(!line.isEmpty())+"   "+(line != ""));
+//				Debug.printDebug(line+"  -- "+(!line.isEmpty())+"   "+(line != ""));
 				if ((!line.isEmpty())) {
 					if (line.startsWith("@")) {
 						line = line.substring(1);
@@ -741,7 +742,7 @@ public class TestProcessManagement {
 				}
 			}
 			for (String line1 : listOfFileNames) {
-				System.out.println("Line -->  " + line1);
+				Debug.printDebug("Line -->  " + line1);
 			}
 
 		} catch (IOException e) {
@@ -890,7 +891,7 @@ public class TestProcessManagement {
 			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 
 			if (popupflag) {
-				System.out.println("Pop-UP Flag True");
+				Debug.printDebug("Pop-UP Flag True");
 				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 				SessionTestStateObject.setPopupStageId(stageId);
 			}*/
@@ -908,7 +909,7 @@ public class TestProcessManagement {
 				boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 
 				if (popupflag) {
-					System.out.println("Pop-UP Flag True");
+					Debug.printDebug("Pop-UP Flag True");
 					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 					SessionTestStateObject.setPopupStageId(stageId);
 				}
@@ -926,7 +927,7 @@ public class TestProcessManagement {
 			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 
 			if (popupflag) {
-				System.out.println("Test Process Management");
+				Debug.printDebug("Test Process Management");
 				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 				SessionTestStateObject.setPopupStageId(stageId);
 			}*/
@@ -979,7 +980,7 @@ public class TestProcessManagement {
 		if (StateMachine.getTestState() == TestState.PAUSED) {
 			boolean loopFlag = true;
 			while (loopFlag) {
-				System.out.println(StateMachine.getTestState());
+				Debug.printDebug(StateMachine.getTestState());
 
 				if (StateMachine.getTestState() == TestState.RUNNING) {
 
@@ -1017,7 +1018,7 @@ public class TestProcessManagement {
 				break;
 
 			default:
-				System.out.println("INVALID Stage Name : " + stageName);
+				Debug.printDebug("INVALID Stage Name : " + stageName);
 				break;
 			}
 

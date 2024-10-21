@@ -26,6 +26,7 @@ import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.beans.value.ChangeListener;
@@ -230,7 +231,7 @@ public class TrialsConfigurationController {
 		if (data.getResponse().getResponseCode() == 1) {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
 		} else {
-			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
+			Debug.printDebug("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
 

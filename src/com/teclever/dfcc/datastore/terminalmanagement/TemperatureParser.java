@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
+import com.teclever.dfcc.utils.Debug;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 
 public class TemperatureParser {
 	
@@ -104,7 +105,7 @@ public class TemperatureParser {
 	    }
 
 	    boardChannelTemp.setBoardTemperatureMap(FXCollections.observableMap(boardTemperatureMap));
-	    System.out.println("---->>>>  "+ boardChannelTemp.getBoardTemperatureMap());
+	    Debug.printDebug("---->>>>  "+ boardChannelTemp.getBoardTemperatureMap());
 	    return boardTemperatureMap;
 	}
 

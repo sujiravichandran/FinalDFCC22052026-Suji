@@ -28,6 +28,7 @@ import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class ValidateChecksum {
 
@@ -64,7 +65,7 @@ public class ValidateChecksum {
 	 * (MacroDto macro : macroDto) { // // Putting into Set //
 	 * fileNamewithPath.add(macro.getFileName()); // } // break; // case "download":
 	 * //// Get List of DOWNLOAD Table Data By RunPathMasterId //
-	 * System.out.println(runPathMaster.getRunPathMasterId()); //
+	 * Debug.printDebug(runPathMaster.getRunPathMasterId()); //
 	 * List<DownloadFileDto> listOfDownloadFile = DownloadFileManagement //
 	 * .getAllDownloadFilesByRunPathId(runPathMaster.getRunPathMasterId()); // for
 	 * (DownloadFileDto macro : listOfDownloadFile) { // // Putting into Set //
@@ -75,7 +76,7 @@ public class ValidateChecksum {
 	 * vddResponse.getvDDList(); // Map<String, String> vddMap = new HashMap<>(); //
 	 * // List<CheckSum> listOfCheckSum = new ArrayList<>(); // for (VDDDto vddDto :
 	 * listOfVdd) { // // putting into vddMap key:fileName with path, value: file
-	 * checksum //// System.out.println(vddDto.getFilePath()+"   "+
+	 * checksum //// Debug.printDebug(vddDto.getFilePath()+"   "+
 	 * vddDto.getFileName()+"   "+ vddDto.getFileCheckSum()); //
 	 * vddMap.put(vddDto.getFilePath() + vddDto.getFileName(),
 	 * vddDto.getFileCheckSum()); // // Checking All VDD File present in
@@ -164,7 +165,7 @@ public class ValidateChecksum {
 				responseCheckSum.setFile(fullFileName);
 				responseCheckSum.setChecksumValue("");
 				responseCheckSum.setMsg("No File");
-//				System.out.println("File Name  ::  " + fullFileName);
+//				Debug.printDebug("File Name  ::  " + fullFileName);
 
 			} else if (fileCheckSum.equals(fileCalcCheckSum)) {
 				responseCheckSum.setChecksumValue(fileCalcCheckSum);
@@ -254,7 +255,7 @@ public class ValidateChecksum {
 						}
 						break;
 					case "download":
-						System.out.println(runPathMaster.getRunPathMasterId());
+						Debug.printDebug(runPathMaster.getRunPathMasterId());
 						List<DownloadFileDto> listOfDownloadFile = DownloadFileManagement
 								.getAllDownloadFilesByRunPathId(runPathMaster.getRunPathMasterId());
 						for (DownloadFileDto macro : listOfDownloadFile) {

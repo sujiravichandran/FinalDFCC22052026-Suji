@@ -38,6 +38,7 @@ import com.teclever.dfcc.datastore.dto.StageMasterLevelsResponse;
 import com.teclever.dfcc.datastore.dto.StagesFilesDTO;
 import com.teclever.dfcc.datastore.dto.StagesFilesResponseDTO;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.utils.Debug;
 
 public class StageConfiguration {
 
@@ -137,7 +138,7 @@ public class StageConfiguration {
 		try {
 			StageLevelResponse serviceResponse = new StageLevelResponse();
 			String levelType = parentId.substring(0, 2);
-//			System.out.println("Level Type  " + levelType);
+//			Debug.printDebug("Level Type  " + levelType);
 			switch (levelType) {
 			case "L1":
 				LevelTwoMasterService levelTwo = new LevelTwoMasterService();
@@ -465,7 +466,7 @@ e.printStackTrace();
 	}
 
 	public Response addTestFilesToStage(List<String> fileIds, String stageLevel,String UUTtypeId) {
-		System.out.println("Stage Level From LRU"+ stageLevel);
+		Debug.printDebug("Stage Level From LRU"+ stageLevel);
 		Response response = new Response();
 		try {
 			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
@@ -490,7 +491,7 @@ e.printStackTrace();
 						advanceTestingStageNameId = advanceInterfaceTestingManagement.getAdvanceStageNameStageId(UUTtypeId);
 
 						String advanceStageLevelId = advanceTestingStageNameId.get(levelName);
-						System.out.println("advanceStageLevelId"+advanceStageLevelId);
+						Debug.printDebug("advanceStageLevelId"+advanceStageLevelId);
 						
 						if (!advanceStageLevelId.equals("") && advanceStageLevelId != null) {
 							response = testFilesStagesMappingService.addTestFilesStagesMapping(advanceStageLevelId, fileIds);
@@ -561,7 +562,7 @@ e.printStackTrace();
 			}
 
 		} catch (Exception ex) {
-			System.out.println("Error" + ex.getLocalizedMessage());
+			Debug.printDebug("Error" + ex.getLocalizedMessage());
 		}
 		return lst;
 	}

@@ -34,6 +34,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -362,7 +363,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
 								ofpConfigId);
 
-						System.out.println("File Name of test file" + testFileList);
+						Debug.printDebug("File Name of test file" + testFileList);
 					}
 				} catch (Exception e) {
 					e.printStackTrace(); // Optionally handle/log the exception
@@ -549,7 +550,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 							option1.setOnAction(event -> OFPVersion.setVisible(false));
 
 							dialog.showAndWait().ifPresent(result -> {
-								System.out.println("Dialog result: " + result);
+								Debug.printDebug("Dialog result: " + result);
 							});
 
 						}
@@ -647,7 +648,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		});
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if(!newValue) {
-				System.out.println("insid-----");
+				Debug.printDebug("insid-----");
 				LRUTestStateObject.getAd_daInterfaceStatus().set(true);
 			}
 			boolean allCardsStatusOk = true;
@@ -661,7 +662,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 	            }
 	        }
 	        
-	        System.out.println("allCardsStatusOk--------"+allCardsStatusOk);
+	       Debug.printDebug("allCardsStatusOk--------"+allCardsStatusOk);
 
 	        StateMachine.setTestState(TestState.COMPLETED);
 	        startTest.setDisable(false);
@@ -1123,7 +1124,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				                if (desktop.isSupported(Desktop.Action.OPEN)) {
 				                    desktop.open(file);
 				                } else {
-				                    System.out.println("Open action not supported on this platform.");
+				                   Debug.printDebug("Open action not supported on this platform.");
 				                }
 				            } else if (os.contains("nix") || os.contains("nux")) {
 				                // Linux-specific code using xdg-open
@@ -1131,13 +1132,13 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
 				                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
 				            } else {
-				                System.out.println("Unsupported OS: " + os);
+				               Debug.printDebug("Unsupported OS: " + os);
 				            }
 				        } catch (IOException ex) {
-				            System.out.println("Error opening file: " + ex.getMessage());
+				           Debug.printDebug("Error opening file: " + ex.getMessage());
 				        }
 				    } else {
-				        System.out.println("File does not exist: " + file.getAbsolutePath());
+				       Debug.printDebug("File does not exist: " + file.getAbsolutePath());
 				    }
 				});
 			}

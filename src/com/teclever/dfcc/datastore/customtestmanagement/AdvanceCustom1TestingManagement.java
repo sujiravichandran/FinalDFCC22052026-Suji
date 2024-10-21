@@ -42,6 +42,7 @@ import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 
 public class AdvanceCustom1TestingManagement {
 
@@ -70,7 +71,7 @@ public class AdvanceCustom1TestingManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 			macroListResponse.setListOfMacroDto(null);
 			res.setResponseCode(0);
 			res.setResponseMessage("Error while Fetching Macro ");
@@ -99,7 +100,7 @@ public class AdvanceCustom1TestingManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 			symbolListResponse.setListOfSymbolDto(null);
 			res.setResponseCode(0);
 			res.setResponseMessage("Symbol Data is Empty ");
@@ -143,7 +144,7 @@ public class AdvanceCustom1TestingManagement {
 						+ File.separator;
 
 				break;
-			case "Mk-1A":
+			case "MK-1A":
 				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + "MK-1A" 
 						+ File.separator;
 				break;
@@ -158,7 +159,7 @@ public class AdvanceCustom1TestingManagement {
 			String fileNamewithFullPath = customFileDir + fileName;
 			;
 
-			// System.out.println("fileNamewithFullPath " + fileNamewithFullPath);
+			// Debug.printDebug("fileNamewithFullPath " + fileNamewithFullPath);
 			createDirectoryIfNotExists(customFileDir);
 			if (directoryExist(customFileDir)) {
 				if (!createFileIfNotExists(fileNamewithFullPath)) {
@@ -175,7 +176,7 @@ public class AdvanceCustom1TestingManagement {
 				addTestFiletoStageAndStartTest(testTypeId, fileNamewithFullPath, stageId, "CUSTOM ONE");
 
 			} else {
-				System.out.println("CustomTesting1Files Directory Not Present,Please Create");
+				Debug.printDebug("CustomTesting1Files Directory Not Present,Please Create");
 				res.setResponseCode(0);
 				res.setResponseMessage("Test Not Started : CustomTesting1Files Directory Not Present, Create It");
 			}
@@ -283,16 +284,16 @@ public class AdvanceCustom1TestingManagement {
 						if (f.isFile() && !f.getName().equals(fileDir)) {
 							// Delete each file except the .tst file
 							if (f.delete()) {
-								System.out.println(f.getName() + " deleted.");
+								Debug.printDebug(f.getName() + " deleted.");
 							} else {
-								System.out.println("Failed to delete " + f.getName());
+								Debug.printDebug("Failed to delete " + f.getName());
 							}
 						}
 					}
 				}
 				returnFlag = true;
 			} else {
-				System.out.println("Directory does not exist.");
+				Debug.printDebug("Directory does not exist.");
 				returnFlag = false;
 			}
 		} catch (Exception e) {
@@ -320,8 +321,8 @@ public class AdvanceCustom1TestingManagement {
 			String filePath = path.getParent().toString();
 
 			// Print results
-			System.out.println("File Name: " + fileName);
-			System.out.println("Directory Path: " + filePath);
+			Debug.printDebug("File Name: " + fileName);
+			Debug.printDebug("Directory Path: " + filePath);
 
 			addCustomTest(fileName, filePath, file, "C2");
 
@@ -349,7 +350,7 @@ public class AdvanceCustom1TestingManagement {
 				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1"
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
-			case "Mk-1A":
+			case "MK-1A":
 				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
 						+ File.separator + "basefile" + File.separator + "external_flash.tst";
 				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
@@ -369,7 +370,7 @@ public class AdvanceCustom1TestingManagement {
 
 			// Check base File directory and file Exists.
 			if (!testFile.exists()) {
-//				System.out.println("Please Check File paths - " + basetestFilePath);
+//				Debug.printDebug("Please Check File paths - " + basetestFilePath);
 				res.setResponseCode(0);
 				res.setResponseMessage("Please Check Base File path - " + basetestFilePath);
 				return res;
@@ -415,7 +416,7 @@ public class AdvanceCustom1TestingManagement {
 			String downloadFilePath, String downloadFileName, String fileLocationToCopy) {
 
 		File modifiedFile = new File(fileLocationToCopy + File.separator + baseTestFile.getName());
-		System.out.println(modifiedFile);
+		
 		// Define the regex pattern to match the path and file name
 		Pattern pathFinePattern = Pattern.compile("DOWNLOAD =\\s*(.+/)([^/]+)$");
 		Pattern downloadPathPattern = Pattern.compile("download=\\s*(.+/)([^/]+)$");
@@ -477,9 +478,9 @@ public class AdvanceCustom1TestingManagement {
 			// Replace the original file with the temporary file
 //		if (downloadFile.delete()) {
 //			tempFile.renameTo(downloadFile);
-//			System.out.println("File Deleted Succesfull  "+tempFile.getAbsolutePath()+"  "+downloadFile.getAbsolutePath());
+//			Debug.printDebug("File Deleted Succesfull  "+tempFile.getAbsolutePath()+"  "+downloadFile.getAbsolutePath());
 //		} else {
-//			System.out.println("Could not delete the original file.");
+//			Debug.printDebug("Could not delete the original file.");
 //		}
 
 		} catch (IOException e) {
@@ -537,7 +538,7 @@ public class AdvanceCustom1TestingManagement {
 			listOfFileData.addAll(Arrays.asList(lines));
 
 			for (String l : listOfFileData) {
-				System.out.println("Line data --  " + l);
+				Debug.printDebug("Line data --  " + l);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -594,7 +595,7 @@ public class AdvanceCustom1TestingManagement {
 			// Copy the file to the new location with the new name
 			Files.copy(sourcePath, destinationPath);
 
-			System.out.println("File copied successfully to " + destinationPath.toString());
+			Debug.printDebug("File copied successfully to " + destinationPath.toString());
 		} catch (IOException e) {
 			System.err.println("An error occurred while copying the file: " + e.getMessage());
 		}
@@ -613,7 +614,7 @@ public class AdvanceCustom1TestingManagement {
 			// Copy the file to the new location with the new name
 			Files.copy(sourcePath, destinationPath);
 
-			System.out.println("File copied successfully to " + destinationPath.toString());
+			Debug.printDebug("File copied successfully to " + destinationPath.toString());
 		} catch (IOException e) {
 			System.err.println("An error occurred while copying the file: " + e.getMessage());
 		}

@@ -17,7 +17,7 @@ public class ResultStoreConnection {
 
 //	    public ResultStoreConnection() {
 //	        dbConnection = new DBConnection(DEFAULT_USERNAME, DEFAULT_PASSWORD, DEFAULT_HOST, DEFAULT_PORT, DEFAULT_AUTH_SOURCE, DEFAULT_DATABASE_NAME);
-//	        System.out.println(dbConnection.getClass());
+//	        Debug.printDebug(dbConnection.getClass());
 //	    }
 
 	    public static MongoDatabase getDatabase() {

@@ -36,6 +36,7 @@ import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class ReportGeneration {
 	
@@ -189,7 +190,7 @@ public class ReportGeneration {
 		}*/
 	  
 
-		System.out.println(resultExecutionDTOList.size());
+		Debug.printDebug(String.valueOf(resultExecutionDTOList.size()));
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -307,7 +308,7 @@ public class ReportGeneration {
 		document.close();
 
         res.setResponseCode(1);
-		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
+		Debug.printDebug("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
 	}
     
@@ -529,7 +530,7 @@ public class ReportGeneration {
 
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
 		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
-	//	System.out.println("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
+	//	Debug.printDebug("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
 
 		/*
 		 * for (int i = 0; i < 100; i++) { ResultDetailedDTO resultDetailedDTO = new
@@ -590,7 +591,7 @@ public class ReportGeneration {
 		document.close();
 
         res.setResponseCode(1);
-		System.out.println("Detailed Report Generated For Session Last Stage" + filePath);
+		Debug.printDebug("Detailed Report Generated For Session Last Stage" + filePath);
 		return res;
 	}
     
@@ -743,7 +744,7 @@ public class ReportGeneration {
 		}*/
 	  
 
-		System.out.println(resultExecutionDTOList.size());
+		Debug.printDebug(String.valueOf(resultExecutionDTOList.size()));
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -861,7 +862,7 @@ public class ReportGeneration {
 		document.close();
 
         res.setResponseCode(1);
-		System.out.println("Breif Report For Selected Stage On Selected Session PDF saved to  :" + filePath);
+		Debug.printDebug("Breif Report For Selected Stage On Selected Session PDF saved to  :" + filePath);
 		return res;
 	}
     
@@ -1170,7 +1171,7 @@ public class ReportGeneration {
         document.close();
 
         res.setResponseCode(1);
-        System.out.println("Detailed Report Generated On Selected Session Stages" + filePath);
+       Debug.printDebug("Detailed Report Generated On Selected Session Stages" + filePath);
         return res;
     }
     
@@ -1426,7 +1427,7 @@ public class ReportGeneration {
         document.add(table);
         document.close();
 
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
+       Debug.printDebug("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }*/
     
@@ -1577,7 +1578,7 @@ public class ReportGeneration {
         	
         }*/
         
-     //   System.out.println(resultExecutionDTOList.size());
+     //   Debug.printDebug("resultExecutionDTOList.size());
         Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -1750,7 +1751,7 @@ public class ReportGeneration {
         document.close();
 
         res.setResponseCode(1);
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
+       Debug.printDebug("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }
     
@@ -2077,7 +2078,7 @@ public class ReportGeneration {
 		
 		if (resultDetailedDTOList != null) {
 			stageName = resultDetailedDTOList.get(0).getStageId();
-			System.out.println("Result Detailed List"+resultDetailedDTOList.size() );
+			Debug.printDebug("Result Detailed List"+resultDetailedDTOList.size() );
 		}
 		if (resultDetailedDTOList != null) {
 			PdfPTable table = new PdfPTable(10); // 10 columns
@@ -2197,7 +2198,7 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
     
@@ -2383,7 +2384,7 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
     
@@ -2587,7 +2588,7 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
 

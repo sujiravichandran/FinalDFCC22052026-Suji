@@ -12,6 +12,7 @@ import javax.sql.rowset.serial.SerialBlob;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.service.CustomTestService;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.utils.Debug;
 
 public class AdvanceCustom2TestingManagement {
 
@@ -42,7 +43,7 @@ public class AdvanceCustom2TestingManagement {
 //					null/* testTypeId */);
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return res;
 
@@ -77,7 +78,7 @@ public class AdvanceCustom2TestingManagement {
 //					null/* testTypeId */);
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return res;
 

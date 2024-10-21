@@ -8,6 +8,7 @@ import com.teclever.dfcc.datastore.processcontrolmanagement.LoadDriverProcessCon
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
+import com.teclever.dfcc.utils.Debug;
 
 
 public class TestManagerManagement {
@@ -20,7 +21,7 @@ public class TestManagerManagement {
 		
 		String testTypeId = mng.getTestTypeIdForSelfTestByUUT(uutId);
 		currentTestDetails.setTestType(testTypeId);
-		System.out.println("At time of Load Driver TEST TYPE ID :: "+ currentTestDetails.getTestType() + "--" + testTypeId);
+		Debug.printDebug("At time of Load Driver TEST TYPE ID :: "+ currentTestDetails.getTestType() + "--" + testTypeId);
 
 				
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
@@ -28,7 +29,7 @@ public class TestManagerManagement {
 		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 		
 		currentSessionDetails.setRunConfigId(runConfigId);
-		System.out.println("At time of Load Driver RUN CONFIG :: "+ currentSessionDetails.getRunConfigId() + "--" + runConfigId);
+		Debug.printDebug("At time of Load Driver RUN CONFIG :: "+ currentSessionDetails.getRunConfigId() + "--" + runConfigId);
 
 
 		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);

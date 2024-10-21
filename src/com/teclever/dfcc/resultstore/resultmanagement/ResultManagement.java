@@ -1,16 +1,20 @@
 package com.teclever.dfcc.resultstore.resultmanagement;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.and;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.teclever.dfcc.resultstore.configuration.ResultStoreConnection;
 import com.teclever.dfcc.resultstore.dto.ResultDto;
+import com.teclever.dfcc.utils.Debug;
 
 public class ResultManagement {
 
@@ -107,10 +111,10 @@ public class ResultManagement {
 	                }
 
 	        } else {
-	            System.out.println("Document not found in collection: " + collectionName);
+	            Debug.printDebug("Document not found in collection: " + collectionName);
 	        }
 	    } else {
-	        System.out.println("No documents found in rdf_file_info collection for testRunId: " + sessionId);
+	        Debug.printDebug("No documents found in rdf_file_info collection for testRunId: " + sessionId);
 	    }
 
 	    return resultList;

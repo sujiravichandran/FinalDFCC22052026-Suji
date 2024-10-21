@@ -15,6 +15,7 @@ import com.teclever.dfcc.datastore.dto.DriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCardDetailsResponse;
 import com.teclever.dfcc.datastore.terminalmanagement.DriverManagement;
 import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.utils.ProcessControl;
 
 public class LoadDriverProcessControlManagement {
@@ -69,8 +70,8 @@ public class LoadDriverProcessControlManagement {
 
 		for (DbDriverCard d : dbDriverCards) {
 			dbMap.put(d.getCardName(), d.getTotalNumberOfCards());
-			System.out.println(" DB CardName :: " + d.getCardName());
-			System.out.println(" DB Count :: " + d.getTotalNumberOfCards());
+			Debug.printDebug(" DB CardName :: " + d.getCardName());
+			Debug.printDebug(" DB Count :: " + d.getTotalNumberOfCards());
 		}
 
 		try {
@@ -91,7 +92,7 @@ public class LoadDriverProcessControlManagement {
 			                
 			                while (flag) {
 			                    String output = loadDriverBQueue.take();
-			                    System.out.println("loadDriver:: " + output);
+			                    Debug.printDebug("loadDriver:: " + output);
 			                    
 			                    for (DbDriverCard d : dbDriverCards) {
 			                        String cardIdentificationText = d.getCardIdentificationText();
@@ -110,7 +111,7 @@ public class LoadDriverProcessControlManagement {
 			                    }
 			                    
 			                    if (output.contains("Starting AETS RT Scheduler") || output.contains("Staring AETS RT Scheduler")) {
-			                        System.out.println("LAST LINE :  " + output);
+			                        Debug.printDebug("LAST LINE :  " + output);
 			                        flag = false;
 			                    }
 			                }
@@ -135,7 +136,7 @@ public class LoadDriverProcessControlManagement {
 				}
 
 			    response.setDriverCardDetails(responseDriverCards);
-			    System.out.println("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
+			    Debug.printDebug("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
 			    return response;
 
 
@@ -149,7 +150,7 @@ public class LoadDriverProcessControlManagement {
 							aimFlag = true;
 							while (aimFlag) {
 								String output = aimMilBQueue.take();
-								System.out.println("aimMil :: " + output);
+								Debug.printDebug("aimMil :: " + output);
 
 								DriverCard aimMil = dm.parseLineAIM(output);
 								if (aimMil.getResponse().getResponseCode() == 1) {
@@ -158,7 +159,7 @@ public class LoadDriverProcessControlManagement {
 									responseDriverCards.add(aimMil);
 								}
 
-								System.out.println(output);
+								Debug.printDebug(output);
 								if (output.contains("aim_mil")) {
 									aimFlag = false;
 								}
@@ -184,7 +185,7 @@ public class LoadDriverProcessControlManagement {
 				}
 
 				response1.setDriverCardDetails(responseDriverCards);
-				System.out.println("---- RESPONSE LIST SIZE AIM_MIL ----" + response1.getDriverCardDetails().size());
+				Debug.printDebug("---- RESPONSE LIST SIZE AIM_MIL ----" + response1.getDriverCardDetails().size());
 				return response1;
 
 			case SWITCH:
@@ -195,7 +196,7 @@ public class LoadDriverProcessControlManagement {
 							flag = true;
 							while (flag) {
 								String output = loadDriverBQueue.take();
-								System.out.println("loadDriver:: " + output);
+								Debug.printDebug("loadDriver:: " + output);
 
 //								if (getCloseLoadDriverEndMatchingLine(output) != null) {
 //									closeCommandExecuted = true;
@@ -203,7 +204,7 @@ public class LoadDriverProcessControlManagement {
 
 								if (output.contains("Starting AETS RT Scheduler")
 										|| output.contains("Staring AETS RT Scheduler")) {
-									System.out.println("LAST LINE :  " + output.contains("Starting AETS RT Scheduler")
+									Debug.printDebug("LAST LINE :  " + output.contains("Starting AETS RT Scheduler")
 											+ output.contains("Staring AETS RT Scheduler"));
 									endOfLoadDriverCommand = true;
 								}
@@ -274,7 +275,7 @@ public class LoadDriverProcessControlManagement {
 		Matcher exitLineMatcher = exitLinePattern.matcher(line);
 
 		if (exitLineMatcher.find()) {
-			System.out.println("END LINE:: " + line);
+			Debug.printDebug("END LINE:: " + line);
 			return line;
 		}
 		return null;

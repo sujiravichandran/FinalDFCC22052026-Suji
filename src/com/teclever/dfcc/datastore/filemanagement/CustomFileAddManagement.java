@@ -22,6 +22,7 @@ import com.teclever.datastore.service.TestFileService;
 import com.teclever.dfcc.datastore.dto.AddCustomFileResponse;
 import com.teclever.dfcc.datastore.dto.AddFilesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.VDDDto;
+import com.teclever.dfcc.utils.Debug;
 
 public class CustomFileAddManagement {
 
@@ -38,7 +39,7 @@ public class CustomFileAddManagement {
 
 		// Validate if source directory exists
 		if (Files.notExists(currentDir)) {
-			System.out.println("Source directory does not exist: " + currentDir);
+			Debug.printDebug("Source directory does not exist: " + currentDir);
 			return null;
 		}
 
@@ -50,14 +51,14 @@ public class CustomFileAddManagement {
 
 				// Validate if the source file exists
 				if (Files.notExists(currentFile)) {
-					System.out.println("File does not exist: " + currentFile);
+					Debug.printDebug("File does not exist: " + currentFile);
 					continue;
 				}
 
 				// Skip if the target file already exists
 				if (Files.exists(targetFile)) {
 					// FileNamesmsg.put(fileName, "Already Exist");
-					System.out.println("Already Exist" + "File Name :" + fileName);
+					Debug.printDebug("Already Exist" + "File Name :" + fileName);
 					continue;
 				}
 
@@ -68,7 +69,7 @@ public class CustomFileAddManagement {
 
 				// Copy the file
 				Files.copy(currentFile, targetFile);
-				System.out.println(targetFile.toString() + "File Copied");
+				Debug.printDebug(targetFile.toString() + "File Copied");
 				FileNamesmsg.put(fileName, "File Copied");
 
 			}
@@ -87,8 +88,8 @@ public class CustomFileAddManagement {
 			String fileName = path.getFileName().toString();
 			fileNames.add(fileName);
 			String basePath = path.getParent().toString();
-			System.out.println("Base Path: " + basePath);
-			System.out.println("File Name: " + fileName);
+			Debug.printDebug("Base Path: " + basePath);
+			Debug.printDebug("File Name: " + fileName);
 		}
 
 	}
@@ -135,7 +136,7 @@ public class CustomFileAddManagement {
 					// masterpath
 					availbleFilePaths.add(pathFile);
 					String checksum = calculateChecksum(path);
-					System.out.println("File Path: " + pathFile + "File Name: " + path.getFileName().toString()
+					Debug.printDebug("File Path: " + pathFile + "File Name: " + path.getFileName().toString()
 							+ " Checksum: " + checksum);
 					filePathCheckSumValues.put(pathFile, checksum);
 				}
@@ -150,10 +151,10 @@ public class CustomFileAddManagement {
 					v1.setFileCheckSum(filePathCheckSumValues.get(filePath));
 					Path path = Paths.get(filePath);
 					String fileName = path.getFileName().toString();
-					System.out.println("fileName---------"+fileName);
+					Debug.printDebug("fileName---------"+fileName);
 					v1.setFileName(fileName);
 					v1.setBaseFileName("Custom Added File's");
-					System.out.println("File Name  :" + fileName + "CheckSum :" + filePathCheckSumValues.get(filePath));
+					Debug.printDebug("File Name  :" + fileName + "CheckSum :" + filePathCheckSumValues.get(filePath));
 					vDDDtoList.add(v1);
 				}
 			}
@@ -178,7 +179,7 @@ public class CustomFileAddManagement {
 				 * TestPlanFileManagement.saveTestFilesToDatabase(availbleFilePaths,
 				 * runMaster.getRunPathMasterId()); case "macro":
 				 * MacroFileManagement.saveMacroNames(availbleFilePaths,
-				 * runMaster.getRunPathMasterId()); default: System.out.println("Default"); }
+				 * runMaster.getRunPathMasterId()); default: Debug.printDebug("Default"); }
 				 */
 
 				if (fileType.equalsIgnoreCase("symbols")) {
@@ -194,7 +195,7 @@ public class CustomFileAddManagement {
 				}
 				
 				else {
-					System.out.println("File Type is Invalid..");
+					Debug.printDebug("File Type is Invalid..");
 				}
 				List<AddFilesDetailsDTO> addedFileList = new ArrayList<AddFilesDetailsDTO>();
 				List<AddFilesDetailsDTO> existFileList = new ArrayList<AddFilesDetailsDTO>();
@@ -287,7 +288,7 @@ public class CustomFileAddManagement {
 			}
 			else
 			{
-				System.out.println("Error");
+				Debug.printDebug("Error");
 			}
 			res.setResponseCode(1);
 			res.setResponseMessage("Deleted");
@@ -307,7 +308,7 @@ public class CustomFileAddManagement {
      try {
          // Delete the file
          Files.delete(filePath);
-         System.out.println("File deleted successfully.");
+         Debug.printDebug("File deleted successfully.");
      } catch (Exception e) {
          System.err.println("File Not deleted");
      }

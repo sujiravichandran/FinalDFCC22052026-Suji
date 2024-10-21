@@ -22,6 +22,7 @@ import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.utils.Debug;
 
 public class OfpConfigurationManagement {
 
@@ -39,7 +40,7 @@ public class OfpConfigurationManagement {
 			serviceResponse = service.addOfpConfiguration(ofpConfiguration, uutId);
 			if (serviceResponse.getResponseCode() == 1) {
 				String ofpConfigId = ofpConfiguration.getOfpConfigId();
-				System.out.println(ofpConfigId);
+				Debug.printDebug(ofpConfigId);
 
 				// updating run path master table
 				updatePathsInDatabase(ofpConfiguration);
@@ -52,7 +53,7 @@ public class OfpConfigurationManagement {
 
 				// symbol
 				String runPathMasterId1 = fetchRunPathMasterIdForSymbol(ofpConfigId);
-				System.out.println(runPathMasterId1);
+				Debug.printDebug(runPathMasterId1);
 				List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
 				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
@@ -61,14 +62,14 @@ public class OfpConfigurationManagement {
 				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(ofpConfigId);
 				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
 				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,runPathMasterId2);
-				System.out.println(testFileLocation);
+				Debug.printDebug(testFileLocation);
 				
 				
 				// download file
 				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(ofpConfigId);
 				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
 				List<String> downloadFilesPaths = DownloadFileManagement.saveDownloadFilesToDatabase(downloadFileLocation,runPathMasterId3);
-				System.out.println(downloadFileLocation);
+				Debug.printDebug(downloadFileLocation);
 				
 
 			} else {

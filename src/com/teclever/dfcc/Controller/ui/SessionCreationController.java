@@ -50,6 +50,7 @@ import com.teclever.dfcc.model.StageOne;
 import com.teclever.dfcc.model.SubStage;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -783,11 +784,11 @@ public class SessionCreationController {
 				if (newValue) {
 					filteredHierarchies = displaySelectedHierarchy(allParentIdsIncludingSelf, subItem.getTestType());
 //					filteredHierarchies
-//							.forEach(hierarchy -> System.out.println("Selected Node Hierarchy: " + hierarchy));
+//							.forEach(hierarchy ->Debug.printDebug("Selected Node Hierarchy: " + hierarchy));
 				} else {
 					removeHierarchy(allParentIdsIncludingSelf, subItem.getTestType());
 //					filteredHierarchies
-//							.forEach(hierarchy -> System.out.println("DE-Selected Node Hierarchy: " + hierarchy));
+//							.forEach(hierarchy ->Debug.printDebug("DE-Selected Node Hierarchy: " + hierarchy));
 				}
 			});
 			if (subStage.isHasNext()) {
@@ -884,7 +885,7 @@ public class SessionCreationController {
 		}
 		List<SessionToStagesMappingDTO> sessionStagesList = new ArrayList<>();
 		for (List<String> hierarchy : selectedStagesList) {
-//			System.out.println();
+//			Debug.printDebug(");
 			SessionToStagesMappingDTO mappingDTO = new SessionToStagesMappingDTO();
 			if (hierarchy.size() > 0) {
 				if (hierarchy.get(0).equals("0")) {
@@ -893,7 +894,7 @@ public class SessionCreationController {
 				mappingDTO.setTestTypeId(hierarchy.get(0));
 			}
 
-//			System.out.println(hierarchy);
+//			Debug.printDebug("hierarchy);
 			if (hierarchy.size() > 1) {
 				mappingDTO.setLevelOneStageId(hierarchy.get(1));
 			}
@@ -985,7 +986,7 @@ public class SessionCreationController {
 			parent1.getChildren().clear();
 			parent1.getChildren().add(loadDriverController.createLoadDriverPage());
 		} else {
-			System.out.println("Session Not Created " + msg);
+			Debug.printDebug("Session Not Created " + msg);
 		}
 
 	}

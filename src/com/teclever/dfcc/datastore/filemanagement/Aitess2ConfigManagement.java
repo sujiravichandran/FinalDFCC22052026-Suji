@@ -20,6 +20,7 @@ import com.teclever.dfcc.datastore.dto.DfccStatusCommandDto;
 import com.teclever.dfcc.datastore.dto.DfccStatusCommandResponse;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
+import com.teclever.dfcc.utils.Debug;
 
 public class Aitess2ConfigManagement {
 
@@ -59,7 +60,7 @@ public class Aitess2ConfigManagement {
 			response.setResponseMessage("Config file not found at " + configFilePath);
 
 		} else {
-			System.out.println("Config file found at " + configFilePath);
+			Debug.printDebug("Config file found at " + configFilePath);
 			response.setResponseCode(1);
 			response.setResponseMessage("Config file found " + configFilePath);
 			parseConfigFile(configFilePath);
@@ -98,25 +99,25 @@ public class Aitess2ConfigManagement {
 
 				if (line.startsWith("#dfccPowerOn:")) {
 					dfccCheckStatus.setDfccPowerOnCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getDfccPowerOnCommand());
+					Debug.printDebug(dfccCheckStatus.getDfccPowerOnCommand());
 				} else if (line.startsWith("#dfccPowerOff:")) {
 					dfccCheckStatus.setDfccPowerOffCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getDfccPowerOffCommand());
+					Debug.printDebug(dfccCheckStatus.getDfccPowerOffCommand());
 				} else if (line.startsWith("#onlineStatus:")) {
 					dfccCheckStatus.setOnlineStatusCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getOnlineStatusCommand());
+					Debug.printDebug(dfccCheckStatus.getOnlineStatusCommand());
 				} else if (line.startsWith("#mk1 SC temperature:")) {
 					dfccCheckStatus.setMk1ScTemperatureCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getMk1ScTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1ScTemperatureCommand());
 				} else if (line.startsWith("#mk1 AEC temperature:")) {
 					dfccCheckStatus.setMk1AecTemperatureCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getMk1AecTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1AecTemperatureCommand());
 				} else if (line.startsWith("#mk1a temperature:")) {
 					dfccCheckStatus.setMk1aTemperatureCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getMk1aTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1aTemperatureCommand());
 				} else if (line.startsWith("#mk2 temperature:")) {
 					dfccCheckStatus.setMk2TemperatureCommand(line.split(":", 2)[1].trim());
-					System.out.println(dfccCheckStatus.getMk2TemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk2TemperatureCommand());
 				}
 			}
 			br.close();
@@ -143,43 +144,43 @@ public class Aitess2ConfigManagement {
 
 				case "dfccPowerOn":
 					dfccCheckStatus.setDfccPowerOnCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getDfccPowerOnCommand());
+					Debug.printDebug(dfccCheckStatus.getDfccPowerOnCommand());
 					break;
 
 				case "dfccPowerOff":
 					dfccCheckStatus.setDfccPowerOffCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getDfccPowerOffCommand());
+					Debug.printDebug(dfccCheckStatus.getDfccPowerOffCommand());
 					break;
 				case "onlineStatus":
 					dfccCheckStatus.setOnlineStatusCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getOnlineStatusCommand());
+					Debug.printDebug(dfccCheckStatus.getOnlineStatusCommand());
 					break;
 				case "mk1 SC temperature":
 					dfccCheckStatus.setMk1ScTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk1ScTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1ScTemperatureCommand());
 					break;
 				case "mk1 AEC temperature":
 					dfccCheckStatus.setMk1AecTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk1AecTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1AecTemperatureCommand());
 					break;
 				case "mk1a temperature":
 					dfccCheckStatus.setMk1aTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk1aTemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk1aTemperatureCommand());
 					break;
 				case "mk2 temperature":
 					dfccCheckStatus.setMk2TemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk2TemperatureCommand());
+					Debug.printDebug(dfccCheckStatus.getMk2TemperatureCommand());
 					break;
 
 				case "OFPversion":
 					dfccCheckStatus.setOfpVersionStatusCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getOfpVersionStatusCommand());
+					Debug.printDebug(dfccCheckStatus.getOfpVersionStatusCommand());
 					break;
 				case "WDMversion":
 					dfccCheckStatus.setWdmStatusCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getWdmStatusCommand());
+					Debug.printDebug(dfccCheckStatus.getWdmStatusCommand());
 					break;
-				default: System.out.println("Invalid Name ");
+				default: Debug.printDebug("Invalid Name ");
 					break;
 				}
 
@@ -220,42 +221,42 @@ public class Aitess2ConfigManagement {
 
 			case "dfccPowerOn":
 				dfccCheckStatus.setDfccPowerOnCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getDfccPowerOnCommand());
+				Debug.printDebug(dfccCheckStatus.getDfccPowerOnCommand());
 				break;
 
 			case "dfccPowerOff":
 				dfccCheckStatus.setDfccPowerOffCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getDfccPowerOffCommand());
+				Debug.printDebug(dfccCheckStatus.getDfccPowerOffCommand());
 				break;
 			case "onlineStatus":
 				dfccCheckStatus.setOnlineStatusCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getOnlineStatusCommand());
+				Debug.printDebug(dfccCheckStatus.getOnlineStatusCommand());
 				break;
 			case "mk1 SC temperature":
 				dfccCheckStatus.setMk1ScTemperatureCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getMk1ScTemperatureCommand());
+				Debug.printDebug(dfccCheckStatus.getMk1ScTemperatureCommand());
 				break;
 			case "mk1 AEC temperature":
 				dfccCheckStatus.setMk1AecTemperatureCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getMk1AecTemperatureCommand());
+				Debug.printDebug(dfccCheckStatus.getMk1AecTemperatureCommand());
 				break;
 			case "mk1a temperature":
 				dfccCheckStatus.setMk1aTemperatureCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getMk1aTemperatureCommand());
+				Debug.printDebug(dfccCheckStatus.getMk1aTemperatureCommand());
 				break;
 			case "mk2 temperature":
 				dfccCheckStatus.setMk2TemperatureCommand(responseObj.getCommand());
-				System.out.println(dfccCheckStatus.getMk2TemperatureCommand());
+				Debug.printDebug(dfccCheckStatus.getMk2TemperatureCommand());
 				break;
 			case "OFPversion":
 				dfccCheckStatus.setOfpVersionStatusCommand(dfccStatusCommand.getCommand());
-				System.out.println(dfccCheckStatus.getOfpVersionStatusCommand());
+				Debug.printDebug(dfccCheckStatus.getOfpVersionStatusCommand());
 				break;
 			case "WDMversion":
 				dfccCheckStatus.setWdmStatusCommand(dfccStatusCommand.getCommand());
-				System.out.println(dfccCheckStatus.getWdmStatusCommand());
+				Debug.printDebug(dfccCheckStatus.getWdmStatusCommand());
 				break;
-			default: System.out.println("Invalid Name ");
+			default: Debug.printDebug("Invalid Name ");
 				break;
 
 			}

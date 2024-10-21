@@ -30,6 +30,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -112,7 +113,7 @@ public class UserDashboardController {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
 			getSessionTestData();
 		} else {
-			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
+			Debug.printDebug("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
 

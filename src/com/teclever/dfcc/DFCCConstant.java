@@ -6,10 +6,10 @@ import java.util.Map;
 public class DFCCConstant {
     private static Map uutIdNameMap;
     private static Map uutNameIdMap;
-    public static boolean isJarBuild = false;
+    public static boolean isJarBuild = true;
     public static String JARSTRING = "";
     public static String filePath = "";
-    
+    public static boolean isDebug = false;
 
     public static Map getUutIdNameMap() {
         return uutIdNameMap;
@@ -26,4 +26,9 @@ public class DFCCConstant {
     public static void setUutNameIdMap(Map uutNameIdMap) {
         DFCCConstant.uutNameIdMap = uutNameIdMap;
     }
+
+	public static void setDebug(boolean isDebug) {
+		DFCCConstant.isDebug = isDebug;
+	}
+    
 }
