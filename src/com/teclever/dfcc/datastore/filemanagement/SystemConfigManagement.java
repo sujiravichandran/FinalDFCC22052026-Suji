@@ -30,6 +30,7 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class SystemConfigManagement {
 	private static final String SECRET_KEY = "Te6lever@2024.bel";
@@ -106,8 +107,8 @@ public class SystemConfigManagement {
 			validateResponse.setCheckSumList(checkSumList);
 			return validateResponse;
 		}
-		System.out.println("Current Directory: " + currentDirectory);
-		System.out.println("Jar File Name: " + parentJarFile);
+		Debug.printDebug("Current Directory: " + currentDirectory);
+		Debug.printDebug("Jar File Name: " + parentJarFile);
 
 		try {
 			File dir = new File(configFileName);
@@ -246,7 +247,7 @@ public class SystemConfigManagement {
 		ValidateResponse validateResponse = new ValidateResponse();
 
 		if (!config.getpJarFile().equals(jarFileName)) {
-			System.out.println(config.getpJarFile());
+			Debug.printDebug(config.getpJarFile());
 			response.setResponseCode(0);
 			response.setResponseMessage("Jar File Name Mismatch");
 		} else {
@@ -346,16 +347,16 @@ public class SystemConfigManagement {
 			if (!file.exists()) {
 				responseCheckSum.setChecksumValue("");
 				responseCheckSum.setMsg("NOT OK");
-				System.out.println("FileName NOT OK " + fullFileName + "::::::");
+				Debug.printDebug("FileName NOT OK " + fullFileName + "::::::");
 
 			} else if (fileCheckSum.equals(fileCalcCheckSum)) {
 				responseCheckSum.setChecksumValue(fileCalcCheckSum);
 				responseCheckSum.setMsg("OK");
-				System.out.println("FileName " + fullFileName + "::::::" + fileCalcCheckSum);
+				Debug.printDebug("FileName " + fullFileName + "::::::" + fileCalcCheckSum);
 			} else {
 				responseCheckSum.setChecksumValue(fileCalcCheckSum);
 				responseCheckSum.setMsg("NOT OK");
-				System.out.println("FileName NOT OK " + fullFileName + "::::::" + fileCalcCheckSum);
+				Debug.printDebug("FileName NOT OK " + fullFileName + "::::::" + fileCalcCheckSum);
 
 			}
 		} catch (IOException e) {

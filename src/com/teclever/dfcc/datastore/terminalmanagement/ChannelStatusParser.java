@@ -2,11 +2,12 @@ package com.teclever.dfcc.datastore.terminalmanagement;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
-import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.WDMStatus;
+import com.teclever.dfcc.utils.Debug;
 
 public class ChannelStatusParser {
 	
@@ -25,10 +26,10 @@ public class ChannelStatusParser {
 					String channel3 = values[2].trim();
 					String channel4 = values[3].trim();
 
-					System.out.println("State Machine CH1 Online Status:: " + channel1);
-					System.out.println("State Machine CH2 Online Status:: " + channel2);
-					System.out.println("State Machine CH3 Online Status:: " + channel3);
-					System.out.println("State Machine CH4 Online Status:: " + channel4);
+					Debug.printDebug("State Machine CH1 Online Status:: " + channel1);
+					Debug.printDebug("State Machine CH2 Online Status:: " + channel2);
+					Debug.printDebug("State Machine CH3 Online Status:: " + channel3);
+					Debug.printDebug("State Machine CH4 Online Status:: " + channel4);
 					OnlineStatus.setChannel1Status(channel1);
 					OnlineStatus.setChannel2Status(channel2);
 					OnlineStatus.setChannel3Status(channel3);
@@ -36,13 +37,13 @@ public class ChannelStatusParser {
 					return new ChannelStatus(channel1, channel2, channel3, channel4);
 
 				} else {
-					System.out.println("Invalid format: Expected 4 values.");
+					Debug.printDebug("Invalid format: Expected 4 values.");
 				}
 			} else {
-				System.out.println("Invalid format: Missing values part.");
+				Debug.printDebug("Invalid format: Missing values part.");
 			}
 		} else {
-			System.out.println("LINE NOT FOUND");
+			Debug.printDebug("LINE NOT FOUND");
 		}
 		return null;
 
@@ -64,10 +65,10 @@ public class ChannelStatusParser {
 					String written3 = values[2].trim();
 					String written4 = values[3].trim();
 
-					System.out.println("StateMachine OFP CH1 version :: " + written1);
-					System.out.println("StateMachine OFP CH2 version :: " + written2);
-					System.out.println("StateMachine OFP CH3 version :: " + written3);
-					System.out.println("StateMachine OFP CH4 version :: " + written4);
+					Debug.printDebug("StateMachine OFP CH1 version :: " + written1);
+					Debug.printDebug("StateMachine OFP CH2 version :: " + written2);
+					Debug.printDebug("StateMachine OFP CH3 version :: " + written3);
+					Debug.printDebug("StateMachine OFP CH4 version :: " + written4);
 					OFPversionStatus.setChannel1Status(written1);
 					OFPversionStatus.setChannel2Status(written2);
 					OFPversionStatus.setChannel3Status(written3);
@@ -76,13 +77,13 @@ public class ChannelStatusParser {
 					return new ChannelStatus(written1, written2, written3, written4);
 
 				} else {
-					System.out.println("Invalid format: Expected 4 values.");
+					Debug.printDebug("Invalid format: Expected 4 values.");
 				}
 			} else {
-				System.out.println("Invalid format: Missing values part.");
+				Debug.printDebug("Invalid format: Missing values part.");
 			}
 		} else {
-			System.out.println("LINE NOT FOUND");
+			Debug.printDebug("LINE NOT FOUND");
 		}
 		return null;
 
@@ -102,10 +103,10 @@ public class ChannelStatusParser {
             String channel4 = channelMatcher.group(4);
             
             
-            System.out.println("StateMachine WDM status CH1 :: " + channel1);
-            System.out.println("StateMachine WDM status CH2 :: " + channel2);
-            System.out.println("StateMachine WDM status CH3 :: " + channel3);
-            System.out.println("StateMachine WDM status CH4 :: " + channel4);
+            Debug.printDebug("StateMachine WDM status CH1 :: " + channel1);
+            Debug.printDebug("StateMachine WDM status CH2 :: " + channel2);
+            Debug.printDebug("StateMachine WDM status CH3 :: " + channel3);
+            Debug.printDebug("StateMachine WDM status CH4 :: " + channel4);
             WDMStatus.setChannel1Status(channel1);
             WDMStatus.setChannel2Status(channel2);
             WDMStatus.setChannel3Status(channel3);

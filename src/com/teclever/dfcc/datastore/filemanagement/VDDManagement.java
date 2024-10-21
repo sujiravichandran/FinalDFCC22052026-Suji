@@ -2,7 +2,6 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import com.teclever.datastore.service.VDDService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.VDDDto;
 import com.teclever.dfcc.datastore.dto.VDDResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class VDDManagement {
 
@@ -34,7 +34,7 @@ public class VDDManagement {
 			}
 
 			List<VDDDto> listofVDDDto = new ArrayList<>();
-			System.out.println(vDDServiceResponse.getCode());
+			Debug.printDebug(String.valueOf(vDDServiceResponse.getCode()));
 			for (Object object : vDDServiceResponse.getResponseList()) {
 				VDD vdd = (VDD) object;
 				VDDDto vDDDto = new VDDDto(vdd.getvDDFileCheckSum(), vdd.getvDDFIlePath(), vdd.getVDDfileName(),
@@ -83,7 +83,7 @@ public class VDDManagement {
 
 					listofVDD.add(vdd);
 				} else {
-					System.out.println(" File Name " + vDDDto.getFileName() + "File path " + vDDDto.getFilePath());
+					Debug.printDebug(" File Name " + vDDDto.getFileName() + "File path " + vDDDto.getFilePath());
 				}
 			}
 			res = vDDService.addListOfVDD(listofVDD);
@@ -122,7 +122,7 @@ public class VDDManagement {
 		Response res = new Response();
 		try {
 			String baseFileName = path.substring(path.lastIndexOf("/") + 1);
-			System.out.println("Reading file: " + baseFileName + "  " + path.lastIndexOf("/"));
+			Debug.printDebug("Reading file: " + baseFileName + "  " + path.lastIndexOf("/"));
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
 			String line/* = reader.readLine() */;

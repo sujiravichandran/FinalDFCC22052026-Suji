@@ -28,6 +28,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -594,7 +595,7 @@ public class SessionTestingController {
 
 		if (!L1StageId.equals(SessionTestStateObject.getCurrentRunningStageId())) {
 			checkboxDisable = true;
-			System.out.println("---------Disable---------");
+			Debug.printDebug("---------Disable---------");
 		} else if (L1StageId.equals(SessionTestStateObject.getCurrentRunningStageId())) {
 			if (mandatoryStatus) {
 				boolean breakForLoop = false;
@@ -701,7 +702,7 @@ public class SessionTestingController {
 	}
 
 	private void disableCheckBox(String stageId) {
-//		System.out.println(stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
+//		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
 		if (selectedStageId.equals(stageId)) {
 			checkBoxes.forEach(e -> {
 				String fileId = e.getId();
@@ -854,7 +855,7 @@ public class SessionTestingController {
 				                if (desktop.isSupported(Desktop.Action.OPEN)) {
 				                    desktop.open(file);
 				                } else {
-				                    System.out.println("Open action not supported on this platform.");
+				                   Debug.printDebug("Open action not supported on this platform.");
 				                }
 				            } else if (os.contains("nix") || os.contains("nux")) {
 				                // Linux-specific code using xdg-open
@@ -862,13 +863,13 @@ public class SessionTestingController {
 				                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
 				                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
 				            } else {
-				                System.out.println("Unsupported OS: " + os);
+				               Debug.printDebug("Unsupported OS: " + os);
 				            }
 				        } catch (IOException ex) {
-				            System.out.println("Error opening file: " + ex.getMessage());
+				           Debug.printDebug("Error opening file: " + ex.getMessage());
 				        }
 				    } else {
-				        System.out.println("File does not exist: " + file.getAbsolutePath());
+				       Debug.printDebug("File does not exist: " + file.getAbsolutePath());
 				    }
 				});
 	        }

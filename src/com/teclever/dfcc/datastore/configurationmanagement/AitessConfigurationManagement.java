@@ -23,6 +23,7 @@ import com.teclever.dfcc.datastore.dto.AitessDriverDto;
 import com.teclever.dfcc.datastore.dto.CardDetailsDTO;
 import com.teclever.dfcc.datastore.dto.CardDetailsResponseDTO;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.utils.Debug;
 
 public class AitessConfigurationManagement {
 
@@ -123,7 +124,7 @@ public class AitessConfigurationManagement {
 	    
 	   serviceResponse = service.removeAitessConfiguration(aitessId);
 	    if (serviceResponse.getResponseCode() == 1) {
-	        System.out.println("Aitess configuration deleted successfully.");
+	        Debug.printDebug("Aitess configuration deleted successfully.");
 	    } else {
 	        System.err.println("Failed to remove Aitess configuration: " + serviceResponse.getResponseMessage());
 	    }

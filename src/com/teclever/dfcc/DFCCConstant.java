@@ -9,7 +9,7 @@ public class DFCCConstant {
     public static boolean isJarBuild = false;
     public static String JARSTRING = "";
     public static String filePath = "";
-    
+    public static boolean isDebug = false;
 
     public static Map getUutIdNameMap() {
         return uutIdNameMap;
@@ -26,4 +26,9 @@ public class DFCCConstant {
     public static void setUutNameIdMap(Map uutNameIdMap) {
         DFCCConstant.uutNameIdMap = uutNameIdMap;
     }
+
+	public static void setDebug(boolean isDebug) {
+		DFCCConstant.isDebug = isDebug;
+	}
+    
 }

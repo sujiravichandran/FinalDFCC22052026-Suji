@@ -14,6 +14,7 @@ import com.teclever.datastore.response.ButtonNamesResponse;
 import com.teclever.datastore.response.MacroButtonMapResponse;
 import com.teclever.datastore.service.MacroButtonMapService;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
+import com.teclever.dfcc.utils.Debug;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -39,7 +40,7 @@ public class MacroConfigurationManagement {
                 buttonDtoList.add(buttonDto);
             }
         } else {
-            System.out.println("Error: " + response.getResponseMessage());
+            Debug.printDebug("Error: " + response.getResponseMessage());
         }
         return buttonDtoList;
     }

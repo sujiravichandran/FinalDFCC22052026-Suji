@@ -7,6 +7,7 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.utils.Debug;
 
 public class ImageToPdfConverter {
 	public String pdfConvertor(String imagePath) {
@@ -26,7 +27,7 @@ public class ImageToPdfConverter {
 			document.add(img);
 			// document.newPage();
 			document.close();
-			System.out.println("PDF with images created successfully!");
+			Debug.printDebug("PDF with images created successfully!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

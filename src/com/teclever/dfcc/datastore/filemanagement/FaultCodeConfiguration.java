@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -31,8 +32,7 @@ import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.FaultCodeAddResponse;
 import com.teclever.dfcc.datastore.dto.FaultCodeDTO;
 import com.teclever.dfcc.datastore.dto.FaultCodeResponse;
-
-import org.apache.commons.lang3.StringUtils;
+import com.teclever.dfcc.utils.Debug;
 
 public class FaultCodeConfiguration {
 	public static String[] headers = { "FaultCodeId", "FaultCodeDescription" };
@@ -101,7 +101,7 @@ public class FaultCodeConfiguration {
 					faultCodeMaster.setUutId(uutType);
 					listofFaultCodeMaster.add(faultCodeMaster);
 				} else {
-					System.out.println(" Repeted Fault Code " + faultCodeDTO.getFaultCode() + " Description "
+					Debug.printDebug(" Repeted Fault Code " + faultCodeDTO.getFaultCode() + " Description "
 							+ faultCodeDTO.getFaultCodeDescription());
 				}
 			}
@@ -314,7 +314,7 @@ public class FaultCodeConfiguration {
 			workbook.close();
 
 		} catch (ConstraintViolationException ex) {
-			System.out.println("Exception is handled.............");
+			Debug.printDebug("Exception is handled.............");
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Error while importing " + e.getLocalizedMessage());

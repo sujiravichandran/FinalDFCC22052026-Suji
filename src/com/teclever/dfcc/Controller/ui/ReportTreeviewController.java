@@ -9,6 +9,7 @@ import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.model.StageIdName;
+import com.teclever.dfcc.utils.Debug;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -200,7 +201,7 @@ public class ReportTreeviewController {
 			List<StageObject> stageList = data.getListOfStageObject();
 			getSessionTestData(stageList);
 		} else {
-			System.out.println("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
+			Debug.printDebug("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
 		}
 	}
 

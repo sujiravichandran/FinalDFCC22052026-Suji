@@ -1,6 +1,5 @@
 package com.teclever.dfcc.resultstore.resultmanagement;
 
-import static com.mongodb.client.model.Filters.eq;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,13 +9,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.teclever.dfcc.resultstore.configuration.ResultStoreConnection;
 import com.teclever.dfcc.resultstore.dto.RdfFileDetailsDto;
 import com.teclever.dfcc.resultstore.dto.StepDto;
+import com.teclever.dfcc.utils.Debug;
 
 
 public class RdfFileDetailsParser {
@@ -130,7 +132,7 @@ public class RdfFileDetailsParser {
 	                    new Document("$set", new Document("step", stepObjectIdMap).append("failedStep", failedStepObjectIdMap))
 	            );
 	        }
-	    System.out.println("Returned Object Id------>>>>>    " + rdfFileInfoObjectId );
+	    Debug.printDebug("Returned Object Id------>>>>>    " + rdfFileInfoObjectId );
 	    return rdfFileInfoObjectId; // Return the ObjectId
 
 	    }

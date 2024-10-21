@@ -201,7 +201,7 @@ public class TerminalPopupController {
 //                );
 //            }
 //        });
-//		System.out.println("HANDLER 1 anuj");
+//		Debug.printDebug("HANDLER 1 anuj");
 //		handler1 = new ProcessControl(queue);
 //	}
 //	@FXML
@@ -211,7 +211,7 @@ public class TerminalPopupController {
 //		if (!processLaunched) {
 //			CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
 //			handler1.LaunchingProcess(inputCommand, launcherFuture1);
-//			System.out.println("On Click Enter");
+//			Debug.printDebug("On Click Enter");
 //			launcherFuture1.thenRun(() -> {
 //				//JUN-03
 //				//handler1.ReadingProcess(null,true,webEngine);
@@ -220,7 +220,7 @@ public class TerminalPopupController {
 //					try {
 //						while (true) {
 //							String output = queue.take();
-//							System.out.println(output);
+//							Debug.printDebug("output);
 //							final String htmlContent = ansiToHtml(output);
 //							Platform.runLater(() -> {
 //								String safeOutput = htmlContent.replace("\\", "\\\\").replace("'", "\\'")
@@ -237,10 +237,10 @@ public class TerminalPopupController {
 //			
 //		} else {
 //			handler1.WritingProcess(inputCommand);
-//			System.out.println("Calling preLoad Drive KMAN:::");
+//			Debug.printDebug("Calling preLoad Drive KMAN:::");
 //			
 ////			handler1.WritingProcess("cd /home/teclever/Documents/load_data");
-////			System.out.println("Calling Path Command:::");
+////			Debug.printDebug("Calling Path Command:::");
 //			
 //			
 ////			TestManagerManagement tm = new TestManagerManagement();

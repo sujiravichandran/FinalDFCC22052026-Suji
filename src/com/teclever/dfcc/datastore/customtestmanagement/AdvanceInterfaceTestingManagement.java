@@ -15,6 +15,7 @@ import com.teclever.datastore.service.LevelFourMasterSevice;
 import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
+import com.teclever.dfcc.utils.Debug;
 
 public class AdvanceInterfaceTestingManagement {
 
@@ -40,7 +41,7 @@ public class AdvanceInterfaceTestingManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 			return false;
 		}
 		return notFromLRU;
@@ -59,7 +60,7 @@ public class AdvanceInterfaceTestingManagement {
 				}
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return advanceStageNameStageId;
 	}
@@ -83,14 +84,14 @@ public class AdvanceInterfaceTestingManagement {
 				Map<String, List<LevelThreeStageMaster>> levelTwoIdListof3Obj = new HashMap<String, List<LevelThreeStageMaster>>();
 				levelTwoIdListof3Obj = levelThreeService.getListOfEntityWithParentId();
 
-				System.out.println(level2StageMasterList.size());
+				Debug.printDebug(String.valueOf(level2StageMasterList.size()));
 
 				for (SubLevelResponseDto l2Master : level2StageMasterList) {
-					System.out.println("L2 Master Id" + l2Master.getLevelId());
+					Debug.printDebug("L2 Master Id" + l2Master.getLevelId());
 
 					List<LevelThreeStageMaster> level3Masters = new ArrayList<LevelThreeStageMaster>();
 					level3Masters=		levelTwoIdListof3Obj.get(l2Master.getLevelId());
-				//	System.out.println(level3Masters.size());
+				//	Debug.printDebug(level3Masters.size());
 					if (level3Masters !=null) {
 						level3StageMasterList.addAll(level3Masters);
 					}
@@ -111,7 +112,7 @@ public class AdvanceInterfaceTestingManagement {
 
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return level4StageMasterList;
 	}

@@ -56,6 +56,7 @@ import com.teclever.dfcc.reportgeneration.l.TOCEntry;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class ReportGenerationNew extends PdfPageEventHelper {
 	
@@ -121,8 +122,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 	 * } catch (IOException e) { // TODO Auto-generated catch block
 	 * e.printStackTrace(); } finally { // Close the document document.close(); }
 	 * 
-	 * System.out.println("PDF saved to 1 PdfMarginsExample " + pdfFilePath);
-	 * System.out.println(); }
+	 *Debug.printDebug("PDF saved to 1 PdfMarginsExample " + pdfFilePath);
+	 * Debug.printDebug("); }
 	 */
 
 	// Generation Of Content For Ess Report..
@@ -298,7 +299,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			document.close();
 			res.setResponseCode(1);
 			res.setResponseMessage("Download Successfully..");
-			System.out.println("PDFs Created successfully In Path...!" + filePath);
+			Debug.printDebug("PDFs Created successfully In Path...!" + filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -394,7 +395,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			document.close();
 			res.setResponseCode(1);
 			res.setResponseMessage("Download Successfully..");
-			System.out.println("PDFs Created successfully In Path...!" + filePath);
+			Debug.printDebug("PDFs Created successfully In Path...!" + filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -556,7 +557,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(table);
 		document.close();
 
-		System.out.println("Breif Report For Selected Stage Current Execution " + filePath);
+		Debug.printDebug("Breif Report For Selected Stage Current Execution " + filePath);
 		return res;
 	}
 
@@ -700,7 +701,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(table);
 		document.close();
 
-		System.out.println("Breif Report For Current Execution " + filePath);
+		Debug.printDebug("Breif Report For Current Execution " + filePath);
 		return res;
 	}
 
@@ -859,7 +860,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(table);
 		document.close();
 
-		System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
+		Debug.printDebug("Detailed Report For Selected Stage Current Execution " + filePath);
 		return res;
 	}
 
@@ -1017,7 +1018,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(table);
 		document.close();
 
-		System.out.println("Detailed Report For Selected Stage Current Execution " + filePath);
+		Debug.printDebug("Detailed Report For Selected Stage Current Execution " + filePath);
 		return res;
 	}
 
@@ -1051,7 +1052,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					final PdfTemplate createTemplate = canvas.createTemplate(50, 50);
 					if (!title.equals("Table of Contents")) {
 						tocPlaceholder.put("  " + tocPlaceHolderCount + " " + title, createTemplate);
-						System.out.println("Heading For Place Holder--->" + "  " + tocPlaceHolderCount + " " + title);
+						Debug.printDebug("Heading For Place Holder--->" + "  " + tocPlaceHolderCount + " " + title);
 						canvas.addTemplate(createTemplate, urx - 55, y);
 					}
 				}
@@ -1081,7 +1082,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 								final float ury, final float y) {
 							final PdfTemplate createTemplate = canvas.createTemplate(50, 50);
 							String subheading = subTitle.replaceAll("(h2)", "");
-							System.out.println("PlaceHolderSubHeading" + "     " + tocPlaceHolderCount + "."
+							Debug.printDebug("PlaceHolderSubHeading" + "     " + tocPlaceHolderCount + "."
 									+ tocPlaceHolderCountSub + " " + subheading);
 							tocPlaceholder.put(
 									"     " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + " " + subheading,
@@ -1113,7 +1114,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 										final float urx, final float ury, final float y) {
 									final PdfTemplate createTemplate = canvas.createTemplate(50, 50);
 									String h3 = h3Title.replaceAll("(h3)", "");
-									System.out.println("PlaceHolderH3" + "         " + tocPlaceHolderCount + "."
+									Debug.printDebug("PlaceHolderH3" + "         " + tocPlaceHolderCount + "."
 											+ tocPlaceHolderCountSub + "." + tocPlaceHolderCountH3 + " " + h3);
 									tocPlaceholder.put("         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub
 											+ "." + tocPlaceHolderCountH3 + " " + h3, createTemplate);
@@ -1188,57 +1189,57 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Report Type")) {
 					reportType = secondCell.toString();
-					// System.out.println("Report Type" + reportType);
+					//Debug.printDebug("Report Type" + reportType);
 
 				}
 
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Part No")) {
 					partNo = secondCell.toString();
-					// System.out.println("Part No" + partNo);
+					//Debug.printDebug("Part No" + partNo);
 
 				}
 
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Title")) {
 					title = secondCell.toString();
-					System.out.println("Title----->" + title);
+					Debug.printDebug("Title----->" + title);
 
 				}
 
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Preface")) {
 					preface = secondCell.toString();
-					// System.out.println("Preface" + preface);
+					//Debug.printDebug("Preface" + preface);
 
 				}
 
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Report Title")) {
 					reportTitle = secondCell.toString();
-					// System.out.println("Report Title" + reportTitle);
+					//Debug.printDebug("Report Title" + reportTitle);
 
 				}
 
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Prepared Date")) {
 					preparedDate = secondCell.toString();
-					// System.out.println("Prepared Date" + preparedDate);
+					//Debug.printDebug("Prepared Date" + preparedDate);
 
 				}
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Verified Date")) {
 					verifiedDate = secondCell.toString();
-					// System.out.println("Verfied Date" + preface);
+					//Debug.printDebug("Verfied Date" + preface);
 
 				}
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Prepared By")) {
 					preparedBy = secondCell.toString();
-					// System.out.println("Prepared By" + preparedBy);
+					//Debug.printDebug("Prepared By" + preparedBy);
 
 				}
 				if (firstCell != null && !firstCell.toString().equals("")
 						&& firstCell.toString().equals("Verified By")) {
 					verifiedBy = secondCell.toString();
-					// System.out.println("Verified By" + verifiedBy);
+					//Debug.printDebug("Verified By" + verifiedBy);
 
 				}
 
@@ -1294,7 +1295,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		} else {
 			//imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BellLogoRocket.png";
 			 imagePath = currentDirectory + File.separator + "Images"+File.separator+"BellLogoRocket.png";
-			System.out.println("CURRENT DIRECTORY"+currentDirectory);
+			Debug.printDebug("CURRENT DIRECTORY"+currentDirectory);
 
 		}
 		Image img = Image.getInstance(imagePath);
@@ -1395,7 +1396,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 			BaseFont baseFont1 = BaseFont.createFont();
 			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			Debug.printDebug("Summary headingPageNum---->" + headingPageNum);
 
 			if (tocPlaceholder.containsKey(headingPageNum)) {
 				PdfTemplate template = tocPlaceholder.get(headingPageNum);
@@ -1422,24 +1423,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String subheading = subEntry.getKey();
 					String content = subEntry.getKey();
 
-					// System.out.println("Content In Table:" + content);
+					//Debug.printDebug("Content In Table:" + content);
 					String sep = content;
-					// System.out.println("sub Heading :" + subheading);
+					//Debug.printDebug("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
-					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
-					// System.out.println("subheadinglines Length" + subheadinglines.length);
+					//Debug.printDebug("Content Spilt :"+Arrays.toString(contentSpilt));
+					//Debug.printDebug("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
-					// System.out.println("Lines " + lines);
+					//Debug.printDebug("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
-					// System.out.println("Line Array Length" + lineArray.length);
+					//Debug.printDebug("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
-						// System.out.println("Line Separting Length" + lineSeparting.length);
-						// System.out.println("subheadinglines---> Index" + i + "---" +
+						//Debug.printDebug("Line Separting Length" + lineSeparting.length);
+						//Debug.printDebug("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 
@@ -1495,7 +1496,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						}
 						document.add(table1);
-						// System.out.println("");
+						//Debug.printDebug(");
 
 					}
 
@@ -1562,7 +1563,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				}
 
 			} /*else if (heading.contains("Session Details Summary")) {
-				System.out.println("Session Details Summary---For PQT Report");
+				Debug.printDebug("Session Details Summary---For PQT Report");
 
 			}*/
 
@@ -1580,7 +1581,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
 								+ " " + subheading;
-						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						Debug.printDebug("Summary subHeadingPageNum" + subHeadingPageNum);
 						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
 							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
 							template.beginText();
@@ -1610,7 +1611,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 								String h3PageNum = "         " + summaryPlaceHolderCount + "."
 										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-								System.out.println("Summary h3PageNum" + h3PageNum);
+								Debug.printDebug("Summary h3PageNum" + h3PageNum);
 								if (tocPlaceholder.containsKey(h3PageNum)) {
 									PdfTemplate template = tocPlaceholder.get(h3PageNum);
 									template.beginText();
@@ -1784,7 +1785,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 						// Calculate the height of the paragraph
 						float paragraphHeight = document.top() - ct.getYLine();
 
-						System.out.println("Heading   :" + heading + "    " + "-->" + paragraphHeight);
+						Debug.printDebug("Heading   :" + heading + "    " + "-->" + paragraphHeight);
 
 						if (paragraphHeight < 700) {
 							if (remainingSpace >= paragraphHeight) {
@@ -1830,7 +1831,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					summaryPlaceHolderCountSub++;
 				}
 				if (heading.equals("Preface")) {
-					System.out.println("----------------Preface---------");
+					Debug.printDebug("----------------Preface---------");
 					document.newPage();
 				}
 				document.add(new Paragraph("\n"));
@@ -1955,7 +1956,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 			BaseFont baseFont1 = BaseFont.createFont();
 			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			Debug.printDebug("Summary headingPageNum---->" + headingPageNum);
 
 			if (tocPlaceholder.containsKey(headingPageNum)) {
 				PdfTemplate template = tocPlaceholder.get(headingPageNum);
@@ -1982,24 +1983,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String subheading = subEntry.getKey();
 					String content = subEntry.getKey();
 
-					// System.out.println("Content In Table:" + content);
+					//Debug.printDebug("Content In Table:" + content);
 					String sep = content;
-					// System.out.println("sub Heading :" + subheading);
+					//Debug.printDebug("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
-					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
-					// System.out.println("subheadinglines Length" + subheadinglines.length);
+					//Debug.printDebug("Content Spilt :"+Arrays.toString(contentSpilt));
+					//Debug.printDebug("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
-					// System.out.println("Lines " + lines);
+					//Debug.printDebug("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
-					// System.out.println("Line Array Length" + lineArray.length);
+					//Debug.printDebug("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
-						// System.out.println("Line Separting Length" + lineSeparting.length);
-						// System.out.println("subheadinglines---> Index" + i + "---" +
+						//Debug.printDebug("Line Separting Length" + lineSeparting.length);
+						//Debug.printDebug("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 
@@ -2055,7 +2056,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						}
 						document.add(table1);
-						// System.out.println("");
+						//Debug.printDebug(");
 
 					}
 
@@ -2117,7 +2118,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				}
 
 			} else if (heading.contains("Session Details Summary")) {
-				System.out.println("Session Details Summary - - - For PQT Report");
+				Debug.printDebug("Session Details Summary - - - For PQT Report");
 				
 				PdfPTable tableStageResult= new PdfPTable(4); // 4 columns
 				// tableAppendix.setWidthPercentage(100); // Width 100%
@@ -2181,7 +2182,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
 								+ " " + subheading;
-						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						Debug.printDebug("Summary subHeadingPageNum" + subHeadingPageNum);
 						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
 							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
 							template.beginText();
@@ -2211,7 +2212,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 								String h3PageNum = "         " + summaryPlaceHolderCount + "."
 										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-								System.out.println("Summary h3PageNum" + h3PageNum);
+								Debug.printDebug("Summary h3PageNum" + h3PageNum);
 								if (tocPlaceholder.containsKey(h3PageNum)) {
 									PdfTemplate template = tocPlaceholder.get(h3PageNum);
 									template.beginText();
@@ -2385,7 +2386,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 						// Calculate the height of the paragraph
 						float paragraphHeight = document.top() - ct.getYLine();
 
-						System.out.println("Heading   :" + heading + "    " + "-->" + paragraphHeight);
+						Debug.printDebug("Heading   :" + heading + "    " + "-->" + paragraphHeight);
 
 						if (paragraphHeight < 700) {
 							if (remainingSpace >= paragraphHeight) {
@@ -2431,7 +2432,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					summaryPlaceHolderCountSub++;
 				}
 				if (heading.equals("Preface")) {
-					System.out.println("----------------Preface---------");
+					Debug.printDebug("----------------Preface---------");
 					document.newPage();
 				}
 				document.add(new Paragraph("\n"));
@@ -2546,7 +2547,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 			BaseFont baseFont1 = BaseFont.createFont();
 			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			Debug.printDebug("Summary headingPageNum---->" + headingPageNum);
 			if (tocPlaceholder.containsKey(headingPageNum)) {
 				PdfTemplate template = tocPlaceholder.get(headingPageNum);
 				template.beginText();
@@ -2570,7 +2571,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
 								+ " " + subheading;
-						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						Debug.printDebug("Summary subHeadingPageNum" + subHeadingPageNum);
 						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
 							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
 							template.beginText();
@@ -2594,7 +2595,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 								String h3PageNum = "         " + summaryPlaceHolderCount + "."
 										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-								System.out.println("Summary h3PageNum" + h3PageNum);
+								Debug.printDebug("Summary h3PageNum" + h3PageNum);
 								if (tocPlaceholder.containsKey(h3PageNum)) {
 									PdfTemplate template = tocPlaceholder.get(h3PageNum);
 									template.beginText();
@@ -2657,7 +2658,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					summaryPlaceHolderCountSub++;
 				}
 				if (heading.equals("Preface")) {
-					System.out.println("----------------Preface---------");
+					Debug.printDebug("----------------Preface---------");
 					document.newPage();
 				}
 				document.add(new Paragraph("\n"));
@@ -2669,24 +2670,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String subheading = subEntry.getKey();
 					String content = subEntry.getKey();
 
-					// System.out.println("Content In Table:" + content);
+					//Debug.printDebug("Content In Table:" + content);
 					String sep = content;
-					// System.out.println("sub Heading :" + subheading);
+					//Debug.printDebug("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
-					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
-					// System.out.println("subheadinglines Length" + subheadinglines.length);
+					//Debug.printDebug("Content Spilt :"+Arrays.toString(contentSpilt));
+					//Debug.printDebug("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
-					// System.out.println("Lines " + lines);
+					//Debug.printDebug("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
-					// System.out.println("Line Array Length" + lineArray.length);
+					//Debug.printDebug("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
-						// System.out.println("Line Separting Length" + lineSeparting.length);
-						// System.out.println("subheadinglines---> Index" + i + "---" +
+						//Debug.printDebug("Line Separting Length" + lineSeparting.length);
+						//Debug.printDebug("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 
@@ -2742,7 +2743,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						}
 						document.add(table1);
-						// System.out.println("");
+						//Debug.printDebug(");
 
 					}
 
@@ -2863,7 +2864,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 			BaseFont baseFont1 = BaseFont.createFont();
 			String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-			System.out.println("Summary headingPageNum---->" + headingPageNum);
+			Debug.printDebug("Summary headingPageNum---->" + headingPageNum);
 			if (tocPlaceholder.containsKey(headingPageNum)) {
 				PdfTemplate template = tocPlaceholder.get(headingPageNum);
 				template.beginText();
@@ -2887,7 +2888,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
 								+ " " + subheading;
-						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
+						Debug.printDebug("Summary subHeadingPageNum" + subHeadingPageNum);
 						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
 							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
 							template.beginText();
@@ -2911,7 +2912,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 								String h3PageNum = "         " + summaryPlaceHolderCount + "."
 										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-								System.out.println("Summary h3PageNum" + h3PageNum);
+								Debug.printDebug("Summary h3PageNum" + h3PageNum);
 								if (tocPlaceholder.containsKey(h3PageNum)) {
 									PdfTemplate template = tocPlaceholder.get(h3PageNum);
 									template.beginText();
@@ -2974,7 +2975,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					summaryPlaceHolderCountSub++;
 				}
 				if (heading.equals("Preface")) {
-					System.out.println("----------------Preface---------");
+					Debug.printDebug("----------------Preface---------");
 					document.newPage();
 				}
 				document.add(new Paragraph("\n"));
@@ -2985,24 +2986,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String subheading = subEntry.getKey();
 					String content = subEntry.getKey();
 
-					// System.out.println("Content In Table:" + content);
+					//Debug.printDebug("Content In Table:" + content);
 					String sep = content;
-					// System.out.println("sub Heading :" + subheading);
+					//Debug.printDebug("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
-					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
-					// System.out.println("subheadinglines Length" + subheadinglines.length);
+					//Debug.printDebug("Content Spilt :"+Arrays.toString(contentSpilt));
+					//Debug.printDebug("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
-					// System.out.println("Lines " + lines);
+					//Debug.printDebug("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
-					// System.out.println("Line Array Length" + lineArray.length);
+					//Debug.printDebug("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
-						// System.out.println("Line Separting Length" + lineSeparting.length);
-						// System.out.println("subheadinglines---> Index" + i + "---" +
+						//Debug.printDebug("Line Separting Length" + lineSeparting.length);
+						//Debug.printDebug("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 
@@ -3058,7 +3059,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 						}
 						document.add(table1);
-						// System.out.println("");
+						//Debug.printDebug(");
 
 					}
 
@@ -3156,7 +3157,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 	 * 
 	 * BaseFont baseFont1 = BaseFont.createFont(); String headingPageNum = "  " +
 	 * summaryPlaceHolderCount + " " + heading;
-	 * System.out.println("Summary headingPageNum---->" + headingPageNum); if
+	 *Debug.printDebug("Summary headingPageNum---->" + headingPageNum); if
 	 * (tocPlaceholder.containsKey(headingPageNum)) { PdfTemplate template =
 	 * tocPlaceholder.get(headingPageNum); template.beginText();
 	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix(50 -
@@ -3182,7 +3183,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 	 * 
 	 * String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." +
 	 * summaryPlaceHolderCountSub + " " + subheading;
-	 * System.out.println("Summary subHeadingPageNum" + subHeadingPageNum); if
+	 *Debug.printDebug("Summary subHeadingPageNum" + subHeadingPageNum); if
 	 * (tocPlaceholder.containsKey(subHeadingPageNum)) { PdfTemplate template =
 	 * tocPlaceholder.get(subHeadingPageNum); template.beginText();
 	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix( 50 -
@@ -3206,7 +3207,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 	 * 
 	 * String h3PageNum = "         " + summaryPlaceHolderCount + "." +
 	 * summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
-	 * System.out.println("Summary h3PageNum" + h3PageNum); if
+	 *Debug.printDebug("Summary h3PageNum" + h3PageNum); if
 	 * (tocPlaceholder.containsKey(h3PageNum)) { PdfTemplate template =
 	 * tocPlaceholder.get(h3PageNum); template.beginText();
 	 * template.setFontAndSize(baseFont1, 8); template.setTextMatrix( 50 -
@@ -3389,7 +3390,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		document.add(table);
 		document.close();
 
-		System.out.println("Breif Report For Current Execution " + filePath);
+		Debug.printDebug("Breif Report For Current Execution " + filePath);
 		return res;
 	}
 	
@@ -3409,7 +3410,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Paragraph titlePara = new Paragraph(title, titleFont);
-		System.out.println(title + "Title Here");
+		Debug.printDebug(title + "Title Here");
 		titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
 		document.add(titlePara);
 
@@ -3505,18 +3506,18 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				template.showText(String.valueOf(writer.getPageNumber() - 1));
 				template.endText();
 			}
-			System.out.println("Table Heading" + heading);
+			Debug.printDebug("Table Heading" + heading);
 			if (heading.contains("(TABLE)")) {
 
 				Map<String, Map<String, String>> tablemap = new HashMap<String, Map<String, String>>();
 				tablemap = data.get(heading);
-				System.out.println("Table Map--->" + tablemap);
+				Debug.printDebug("Table Map--->" + tablemap);
 
 			} else {
 				summaryPlaceHolderCountSub = 1;
 				for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
 					String subheading = subEntry.getKey();
-					System.out.println("subheading ---->" + subheading);
+					Debug.printDebug("subheading ---->" + subheading);
 					Map<String, String> h3Map = subEntry.getValue();
 
 					if (subheading.contains("(h2)")) {
@@ -3546,7 +3547,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 							if (h3.contains("(h3)")) {
 								h3 = h3.replaceAll("(h3)", "");
-								System.out.println("heading --->" + h3);
+								Debug.printDebug("heading --->" + h3);
 								document.add(new Paragraph("        " + h3,
 										new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL)));
 
@@ -3567,10 +3568,10 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 								document.add(new Paragraph("            " + content,
 										new Font(Font.FontFamily.TIMES_ROMAN, 10)));
-								System.out.println("content---->" + content);
+								Debug.printDebug("content---->" + content);
 								summaryPlaceHolderCountH3++;
 							} else {
-								System.out.println("content---->" + content);
+								Debug.printDebug("content---->" + content);
 								document.add(new Paragraph("            " + content,
 										new Font(Font.FontFamily.TIMES_ROMAN, 10)));
 
@@ -3584,7 +3585,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 								new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
 
 						if (heading.equals("Preface")) {
-							System.out.println("----------------Preface---------");
+							Debug.printDebug("----------------Preface---------");
 							document.newPage();
 						}
 						summaryPlaceHolderCountSub++;
@@ -3619,7 +3620,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				addborder(writer); // adding Margins
 				currentPageNumber++;
 			} catch (Exception  e) {
-				System.out.println(e.getLocalizedMessage());
+				Debug.printDebug(e.getLocalizedMessage());
 			}
 		}
 

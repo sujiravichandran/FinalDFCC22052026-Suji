@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.utils.Debug;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -115,7 +116,7 @@ public class StateMachine {
 		}
 
 		public static void setRunConfigId(String runConfigId) {
-			System.out.println(runConfigId);
+			Debug.printDebug(runConfigId);
 			currentSessionDetails.runConfigId = runConfigId;
 		}
 
@@ -705,7 +706,7 @@ public class StateMachine {
 		}
 
 		public static synchronized void setAitess1Switched(boolean aitess1Switched) {
-			System.out.println("aitess1 flag:: " + aitess1Switched);
+			Debug.printDebug("aitess1 flag:: " + aitess1Switched);
 			aitessRunning.aitess1Switched = aitess1Switched;
 		}
 
@@ -714,7 +715,7 @@ public class StateMachine {
 		}
 
 		public static synchronized void setAitess2Switched(boolean aitess2Switched) {
-			System.out.println("aitess2 flag:: " + aitess2Switched);
+			Debug.printDebug("aitess2 flag:: " + aitess2Switched);
 			aitessRunning.aitess2Switched = aitess2Switched;
 		}
 

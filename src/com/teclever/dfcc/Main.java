@@ -12,10 +12,10 @@ import java.util.HashMap;
 
 import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
+import com.teclever.datastore.utils.DfccConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
-import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
-import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.utils.Debug;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -40,7 +40,6 @@ extends Application {
     }
 
     public static void main(String[] args) throws MalformedURLException, DocumentException, IOException {
-        System.out.println("Hello World!");
         String driverClass = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/dfcc";
         String username = "root";
@@ -115,13 +114,15 @@ extends Application {
         int n2 = 0;
         while (n2 < n) {
             UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-//            System.out.println("UUT Type--------   " + uutType.getUutType());
+//            Debug.printDebug("UUT Type--------   " + uutType.getUutType());
             nameIdMap.put(uutType.getUutType(), uutType.getUutId());
             idNameMap.put(uutType.getUutId(), uutType.getUutType());
             ++n2;
         }
         DFCCConstant.setUutIdNameMap(idNameMap);
         DFCCConstant.setUutNameIdMap(nameIdMap);
+        DFCCConstant.setDebug(setisDebug());
+		System.out.println("DEBUG Mode :: " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
     }
 
     @Override
@@ -134,5 +135,17 @@ extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private boolean setisDebug() {
+    	boolean flag = false;
+    	try {
+    		String isDebug = System.getenv("isdebug");
+        	if(isDebug!=null &&!isDebug.equals("")&&isDebug.equalsIgnoreCase("true")) {
+    			flag = true;		
+        	}
+		} catch (Exception e) {
+			System.out.println("Error :: "+e.getLocalizedMessage());
+		}
+    	return flag;
     }
 }

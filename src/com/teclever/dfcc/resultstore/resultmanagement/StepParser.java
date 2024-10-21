@@ -17,6 +17,7 @@ import com.teclever.dfcc.datastore.filemanagement.FaultySRUManagement;
 import com.teclever.dfcc.resultstore.dto.StepDto;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
+import com.teclever.dfcc.utils.Debug;
 
 
 public class StepParser {
@@ -162,7 +163,7 @@ public class StepParser {
 	            }
 	        }
 
-	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+	        Debug.printDebug("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 
 	        return stepList;
 
@@ -307,7 +308,7 @@ public class StepParser {
 //	            }
 //	        }
 //
-//	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+//	        Debug.printDebug("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 //
 //	        return stepList;
 //

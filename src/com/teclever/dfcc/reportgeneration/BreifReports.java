@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -24,10 +23,10 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.teclever.datastore.dto.Response;
-import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
+import com.teclever.dfcc.utils.Debug;
 
 public class BreifReports {
 	
@@ -252,7 +251,7 @@ public class BreifReports {
         // Close the document
         document.close();
 
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+        Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
 

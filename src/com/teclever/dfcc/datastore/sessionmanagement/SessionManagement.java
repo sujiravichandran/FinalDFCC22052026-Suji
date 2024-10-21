@@ -67,6 +67,7 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 
 public class SessionManagement {
 	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
@@ -736,9 +737,9 @@ public class SessionManagement {
 	 * (l2.getStageName().startsWith("SRU")) { lruLevelTwoId =
 	 * l2.getLevelTwoStageId(); } }
 	 * 
-	 * // System.out.println("advanceLevelOne  " + advanceLevelOne +
+	 * // Debug.printDebug("advanceLevelOne  " + advanceLevelOne +
 	 * "   lruLevelOneId " + lruLevelOneId); //
-	 * System.out.println("advanceLevelTwo  " + advanceLevelTwo +
+	 * Debug.printDebug("advanceLevelTwo  " + advanceLevelTwo +
 	 * "   lruLevelTwoId " + lruLevelTwoId);
 	 * 
 	 * LevelThreeService levelThreeService = new LevelThreeService(); Map<String,
@@ -933,7 +934,7 @@ public class SessionManagement {
 			Map<String, String> levelFiveStage = levelFiveService.getAllLevelIdAndLevelName();
 			allStageIdName.putAll(levelFiveStage);
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return allStageIdName;
 	}
@@ -947,7 +948,7 @@ public class SessionManagement {
 			sessionEntity = (TrailSessionEntity) objRes.getObject();
 			isConfig = sessionEntity.isRunned();
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return isConfig;
 	}
@@ -965,7 +966,7 @@ public class SessionManagement {
 			Map<String, String> uutIdName = DFCCConstant.getUutIdNameMap();
 			sessionDto.setCreationDate(sqlDate);
 			sessionDto.setDfccPartNo(sessionDTO.getDfccPartNo());
-			System.out.println(sessionDTO.getDfccSNo() + " Checking");
+			Debug.printDebug(sessionDTO.getDfccSNo() + " Checking");
 			sessionDto.setDfccSNo(sessionDTO.getDfccSNo());
 			sessionDto.setSessionName(sessionDTO.getSessionName());
 			sessionDto.setSessionTypeMasterId(sessionDTO.getSessionTypeMasterId());
@@ -983,7 +984,7 @@ public class SessionManagement {
 			res = sessionService.addSession(sessionDto);
 
 			TrailSessionEntity s = (TrailSessionEntity) res.getObject();
-			System.out.println("Trail Session Id" + s.getTrailSessionId());
+			Debug.printDebug("Trail Session Id" + s.getTrailSessionId());
 			StateMachine.currentSessionDetails.setSessionId(s.getTrailSessionId());
 
 		} catch (Exception ex) {
@@ -1004,10 +1005,10 @@ public class SessionManagement {
 			GetObjResponse obj = sessionService.getSessionDetailBySessionId(trailSessionId);
 			TrailSessionEntity trailEntitySession = (TrailSessionEntity) obj.getObject();
 			String sessionPath = trailEntitySession.getPath();
-			System.out.println("Trail Session path" + sessionPath);
+			Debug.printDebug("Trail Session path" + sessionPath);
 			List<String> leafIds = getStagesMappingLeafIdForTrails(trailEntitySession.getUutTypeId());
 			Map<String, String> stageNameMsg = validateIsAllLeafHavingTestFiles(leafIds);
-			System.out.println("Leaf Ids" + leafIds);
+			Debug.printDebug("Leaf Ids" + leafIds);
 			// SessionId Update to StateMachine
 			// StateMachine.currentSessionDetails.setSessionId(trailEntitySession.getTrailSessionId());
 			// Validate the Leafs Having Test Files..
@@ -1085,14 +1086,14 @@ public class SessionManagement {
 					String value = uutIdName[i][1];
 					uutIdNameMap.put(key, value);
 				} else {
-					System.out.println("Invalid entry at row " + i);
+					Debug.printDebug("Invalid entry at row " + i);
 				}
 			}
 
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			System.out.println();
+			Debug.printDebug();
 			String uutName = uutIdNameMap.get(trailEntitySession.getUutTypeId());
-			System.out.println("uutName" + uutName);
+			Debug.printDebug("uutName" + uutName);
 			sessionFileManagement.createSessionFolders(uutName, trailEntitySession.getDfccPartNo(),
 					trailEntitySession.getTrailSessionName(), levels);
 
@@ -1173,7 +1174,7 @@ public class SessionManagement {
 
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return StageNameValidateMessage;
 	}
@@ -1256,7 +1257,7 @@ public class SessionManagement {
 
 		} catch (Exception ex) {
 
-			System.out.println("Errro On Fetching" + ex.getLocalizedMessage());
+			Debug.printDebug("Errro On Fetching" + ex.getLocalizedMessage());
 		}
 		return msg;
 	}
@@ -1363,7 +1364,7 @@ public class SessionManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return finalLeafIds;
 	}

@@ -84,7 +84,7 @@ public class AitessConfigHeader {
 
     public AitessConfigHeader(String boxType) {
         this.boxType = boxType;
-//        System.out.println("BOXTYPE: " + boxType);
+//       Debug.printDebug("BOXTYPE: " + boxType);
         initializeUUTTypeComboBox();
         initializeTestTypeComboBox();
         

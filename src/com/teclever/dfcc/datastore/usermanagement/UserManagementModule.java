@@ -20,12 +20,11 @@ import com.teclever.dfcc.datastore.dto.UserGetAllResponse;
 import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.dto.UserRoleMasterDto;
 import com.teclever.dfcc.datastore.dto.UserRoleResponse;
-import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 
 public class UserManagementModule {
 	
@@ -175,7 +174,7 @@ public class UserManagementModule {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Exception in User Management ");
+			Debug.printDebug("Exception in User Management ");
 			e.printStackTrace();
 		}
 		ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -191,7 +190,7 @@ public class UserManagementModule {
 			UserLoginDetailsService userLogin = new UserLoginDetailsService();
 			response = userLogin.removeUser(userId);
 		} catch (Exception e) {
-			System.out.println("Delete User Error " + e.getLocalizedMessage());
+			Debug.printDebug("Delete User Error " + e.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -231,7 +230,7 @@ public class UserManagementModule {
 			response.setResponse(res);
 			return response;
 		} catch (Exception e) {
-			System.out.println("Delete User Error " + e.getLocalizedMessage());
+			Debug.printDebug("Delete User Error " + e.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -270,7 +269,7 @@ public class UserManagementModule {
 			return response;
 
 		} catch (Exception e) {
-			System.out.println("Adding User Error " + e.getLocalizedMessage());
+			Debug.printDebug("Adding User Error " + e.getLocalizedMessage());
 		}
 		return response;
 
@@ -294,7 +293,7 @@ public class UserManagementModule {
 			return res;
 
 		} catch (Exception e) {
-			System.out.println("Update User Error " + e.getLocalizedMessage());
+			Debug.printDebug("Update User Error " + e.getLocalizedMessage());
 			throw e;
 		}
 	}
@@ -321,7 +320,7 @@ public class UserManagementModule {
 			UserLoginDetailsService user = new UserLoginDetailsService();
 			res = user.changePassword(userId, newPassword);
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return res;
 	}
@@ -347,7 +346,7 @@ public class UserManagementModule {
 			}
 
 		} catch (Exception e) {
-			System.out.println(e.getLocalizedMessage());
+			Debug.printDebug(e.getLocalizedMessage());
 		}
 		return userLoginDetailresponse;
 	}

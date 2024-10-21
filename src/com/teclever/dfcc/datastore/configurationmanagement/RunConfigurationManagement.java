@@ -36,6 +36,7 @@ import com.teclever.dfcc.datastore.filemanagement.DownloadFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
+import com.teclever.dfcc.utils.Debug;
 
 public class RunConfigurationManagement {
 
@@ -74,15 +75,15 @@ public class RunConfigurationManagement {
 	    runConfiguration.setAitess(runConfigurationDto.getAitess());
 	    runConfiguration.setDriver(runConfigurationDto.getDriver());
 	    runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
-	    System.out.println("Aites  2" + runConfiguration.getAitees2ConfigFile());
+	    Debug.printDebug("Aites  2" + runConfiguration.getAitees2ConfigFile());
 
 	    RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
 	    try {
 	        serviceResponse = service.addRunConfiguration(runConfiguration, uutId);
 	        if (serviceResponse.getResponseCode() == 1) {
 	            String runConfigId = runConfiguration.getRunConfigId();
-	            System.out.println(runConfigId);
-	            System.out.println("Run Config Id With TestType Id" + runConfigurationDto.getTestTypeId());
+	            Debug.printDebug(runConfigId);
+	            Debug.printDebug("Run Config Id With TestType Id" + runConfigurationDto.getTestTypeId());
 
 	            // updating run path master table
 	            Response pathsResponse = updatePathsInDatabase(runConfiguration);
@@ -100,14 +101,14 @@ public class RunConfigurationManagement {
 				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
 				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,
 						runPathMasterId2);
-				System.out.println(testFileLocation);
+				Debug.printDebug(testFileLocation);
 
 				// download file
 				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(runConfigId);
 				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
 				List<String> downloadFilesPaths = DownloadFileManagement
 						.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
-				System.out.println(downloadFileLocation);
+				Debug.printDebug(downloadFileLocation);
 
 				// macro
 				String runPathMasterId = fetchRunPathMasterIdForMacro(runConfigId);
@@ -117,7 +118,7 @@ public class RunConfigurationManagement {
 
 				// symbol
 				String runPathMasterId1 = fetchRunPathMasterIdForSymbol(runConfigId);
-				System.out.println(runPathMasterId1);
+				Debug.printDebug(runPathMasterId1);
 				List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
 				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
@@ -209,7 +210,7 @@ public class RunConfigurationManagement {
 
 	// API To Delete New
 	public Response deleteRunConfigById(String runConfigId) {
-		System.out.println("Run Config Id" + runConfigId);
+		Debug.printDebug("Run Config Id" + runConfigId);
 		Response res = new Response();
 		try {
 			RunConfigurationService service = new RunConfigurationService();
@@ -221,11 +222,11 @@ public class RunConfigurationManagement {
 			String macroPathMasterId = map.get("macros");
 			String symbolPathMasterId = map.get("symbols");
 			String downloadPathMasterId = map.get("download");
-			System.out.println("RunPathIds Below");
-			System.out.println("testPathMasterId" + testPathMasterId);
-			System.out.println("macroPathMasterId" + macroPathMasterId);
-			System.out.println("symbolPathMasterId" + symbolPathMasterId);
-			System.out.println("downloadPathMasterId" + downloadPathMasterId);
+			Debug.printDebug("RunPathIds Below");
+			Debug.printDebug("testPathMasterId" + testPathMasterId);
+			Debug.printDebug("macroPathMasterId" + macroPathMasterId);
+			Debug.printDebug("symbolPathMasterId" + symbolPathMasterId);
+			Debug.printDebug("downloadPathMasterId" + downloadPathMasterId);
 			// Test File Delete From TestFiles List
 			TestFileService testFileService = new TestFileService();
 			Response testFileResponse = testFileService.deleteTestFiles(testPathMasterId);

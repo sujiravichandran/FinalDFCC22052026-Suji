@@ -30,6 +30,7 @@ import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.ChecksumDto;
 import com.teclever.dfcc.datastore.dto.ChecksumResponse;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
+import com.teclever.dfcc.utils.Debug;
 
 public class ChecksumManagement {
 
@@ -50,7 +51,7 @@ public class ChecksumManagement {
 			}
 
 			List<ChecksumDto> listofVDDDto = new ArrayList<>();
-			System.out.println(vDDServiceResponse.getCode());
+			Debug.printDebug(String.valueOf(vDDServiceResponse.getCode()));
 			for (Object object : vDDServiceResponse.getResponseList()) {
 				VDDChecksum vdd = (VDDChecksum) object;
 				ChecksumDto vDDDto = new ChecksumDto(vdd.getFileName(), vdd.getFilePath(), vdd.getChecksum());
@@ -97,7 +98,7 @@ public class ChecksumManagement {
 					listofVDD.add(vdd);
 					fileNamesAndPaths.add(fileNameAndPath); // Avoid adding duplicate entries
 				} else {
-					System.out.println("File Name " + vDDDto.getFileName() + " File path " + vDDDto.getFilePath());
+					Debug.printDebug("File Name " + vDDDto.getFileName() + " File path " + vDDDto.getFilePath());
 				}
 			}
 
@@ -236,7 +237,7 @@ public class ChecksumManagement {
 		
 		File scriptFileObj = new File(scriptFile);
 		String scriptFileDir = scriptFileObj.getParent();
-		System.out.println("SCRIPT FILE ------" + scriptFileDir);
+		Debug.printDebug("SCRIPT FILE ------" + scriptFileDir);
 		scriptFileParentPath = scriptFileDir;
 		
 		List<String> command = new ArrayList<>();
@@ -254,7 +255,7 @@ public class ChecksumManagement {
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 				String line;
 				while ((line = reader.readLine()) != null) {
-					System.out.println(line);
+					Debug.printDebug(line);
 				}
 			}
 
@@ -266,7 +267,7 @@ public class ChecksumManagement {
 			}
 
 			int exitCode = process.waitFor();
-			System.out.println("\nExited with error code: " + exitCode);
+			Debug.printDebug("\nExited with error code: " + exitCode);
 
 
 
@@ -321,7 +322,7 @@ public class ChecksumManagement {
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 					String line;
 					while ((line = reader.readLine()) != null) {
-						System.out.println(line);
+						Debug.printDebug(line);
 					}
 				}
 
@@ -333,7 +334,7 @@ public class ChecksumManagement {
 				}
 
 				int exitCode = process.waitFor();
-				System.out.println("\nExited with error code: " + exitCode);
+				Debug.printDebug("\nExited with error code: " + exitCode);
 
 
 				res.setResponseCode(1);
@@ -379,7 +380,7 @@ public class ChecksumManagement {
 	    try {
 	    	//Path filePath = Paths.get(scriptFileParentPath, "filesum.txt");
 	        String filePath = scriptFileParentPath+File.separator+"filesum.txt";
-	        System.out.println("USER LOGIN TIME filesumPath:: --- " + filePath);
+	        Debug.printDebug("USER LOGIN TIME filesumPath:: --- " + filePath);
 	        String fileChecksum = getFileChecksum(Paths.get(filePath).toFile());
 	        CheckSum filesum = new CheckSum();
 	        filesum.setFile(filePath);

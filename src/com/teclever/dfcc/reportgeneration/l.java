@@ -35,6 +35,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.teclever.dfcc.utils.Debug;
 
 public class l {
 
@@ -79,7 +80,7 @@ public class l {
 			document.close();
 		}
 
-		System.out.println("PDF saved to PdfMarginsExample " + pdfFilePath);
+		Debug.printDebug("PDF saved to PdfMarginsExample " + pdfFilePath);
 	}
 
 	public static void addborder(PdfWriter writer) {
@@ -106,39 +107,39 @@ public class l {
 
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Report Type")) {
 					reportType = secondCell.toString();
-					System.out.println("Report Type: " + reportType);
+					Debug.printDebug("Report Type: " + reportType);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Part No")) {
 					partNo = secondCell.toString();
-					System.out.println("Part No: " + partNo);
+					Debug.printDebug("Part No: " + partNo);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Title")) {
 					title = secondCell.toString();
-					System.out.println("Title: " + title);
+					Debug.printDebug("Title: " + title);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Preface")) {
 					preface = secondCell.toString();
-					System.out.println("Preface: " + preface);
+					Debug.printDebug("Preface: " + preface);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Report Title")) {
 					reportTitle = secondCell.toString();
-					System.out.println("Report Title: " + reportTitle);
+					Debug.printDebug("Report Title: " + reportTitle);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Prepared Date")) {
 					preparedDate = secondCell.toString();
-					System.out.println("Prepared Date: " + preparedDate);
+					Debug.printDebug("Prepared Date: " + preparedDate);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Verified Date")) {
 					verifiedDate = secondCell.toString();
-					System.out.println("Verified Date: " + verifiedDate);
+					Debug.printDebug("Verified Date: " + verifiedDate);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Prepared By")) {
 					preparedBy = secondCell.toString();
-					System.out.println("Prepared By: " + preparedBy);
+					Debug.printDebug("Prepared By: " + preparedBy);
 				}
 				if (firstCell != null && !firstCell.toString().equals("") && firstCell.toString().equals("Verified By")) {
 					verifiedBy = secondCell.toString();
-					System.out.println("Verified By: " + verifiedBy);
+					Debug.printDebug("Verified By: " + verifiedBy);
 				}
 			} else {
 				Cell firstCell = row.getCell(0);
