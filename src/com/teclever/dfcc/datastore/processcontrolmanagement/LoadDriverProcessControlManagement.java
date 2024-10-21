@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
@@ -23,32 +21,42 @@ public class LoadDriverProcessControlManagement {
 	private static LoadDriverProcessControlManagement instance;
 
 	public enum LoadMode {
-		STARTUP, SWITCH, LOGOUT, CARD
+		STARTUP, SWITCH, LOGOUT, CARD, AUX, KILL
 	}
 
 	private BlockingQueue<String> loadDriverBQueue = new ArrayBlockingQueue<>(10000);
 	private BlockingQueue<String> aimMilBQueue = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> auxBQueue = new ArrayBlockingQueue<>(10000);
+	private BlockingQueue<String> killBQueue = new ArrayBlockingQueue<>(10000);
 
 	private Thread loadDriverLaunchingThread;
 
 	private Thread outputProcessingThread;
 	private Thread aimMilOutputProcessingThread;
+	private Thread killProcessingThread;
+	private Thread auxProcessingThread;
 
 	boolean flag = true;
 	boolean aimFlag = true;
-	private String currentLoadedDriver = null;
-	private boolean closeCommandExecuted = false;
+	boolean auxflag = true;
+	boolean killflag = true;
 	private boolean endOfLoadDriverCommand = false;
 
 	private ProcessControl loadDriverProcessController;
 	private ProcessControl aimMil;
+	private ProcessControl kill;
+	private ProcessControl aux;
 
 	CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
 	CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
+	CompletableFuture<Void> killFuture = new CompletableFuture<>();
+	CompletableFuture<Void> auxFuture = new CompletableFuture<>();
 
 	private LoadDriverProcessControlManagement() {
 		loadDriverProcessController = new ProcessControl(loadDriverBQueue);
 		aimMil = new ProcessControl(aimMilBQueue);
+		kill = new ProcessControl(killBQueue);
+		aux = new ProcessControl(auxBQueue);
 	}
 
 	public static synchronized LoadDriverProcessControlManagement getInstance() {
@@ -59,7 +67,6 @@ public class LoadDriverProcessControlManagement {
 	}
 
 	public DriverCardDetailsResponse loadDriver(String command, String unloadCommand, int aitessId, LoadMode mode) {
-
 		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 		DriverManagement dm = new DriverManagement();
 		List<DbDriverCard> dbDriverCards = dm.getDriverCardDetailsBasedOnAitess(aitessId);
@@ -70,87 +77,87 @@ public class LoadDriverProcessControlManagement {
 
 		for (DbDriverCard d : dbDriverCards) {
 			dbMap.put(d.getCardName(), d.getTotalNumberOfCards());
-			Debug.printDebug(" DB CardName :: " + d.getCardName());
-			Debug.printDebug(" DB Count :: " + d.getTotalNumberOfCards());
+			Debug.printDebug("DB CardName :: " + d.getCardName());
 		}
 
 		try {
 			switch (mode) {
 			case STARTUP:
-			    loadDriverProcessController.LaunchingProcess(command, launcherFuture);
+				loadDriverProcessController.LaunchingProcess(command, launcherFuture);
+				Debug.printDebug("Entering into START UP");
+				launcherFuture.thenRun(() -> {
+					loadDriverProcessController.ReadingProcess();
+					outputProcessingThread = new Thread(() -> {
+						try {
+							flag = true;
+							Map<String, Boolean> cardStatusMap = new HashMap<>();
+							for (DbDriverCard d : dbDriverCards) {
+								cardStatusMap.put(d.getCardName(), false);
+							}
 
-			    launcherFuture.thenRun(() -> {
-			        loadDriverProcessController.ReadingProcess();
-			        outputProcessingThread = new Thread(() -> {
-			            try {
-			                flag = true;
-			                // Initialize a map to track card match status
-			                Map<String, Boolean> cardStatusMap = new HashMap<>();
-			                for (DbDriverCard d : dbDriverCards) {
-			                    cardStatusMap.put(d.getCardName(), false); // Default to false (not OK)
-			                }
-			                
-			                while (flag) {
-			                    String output = loadDriverBQueue.take();
-			                    Debug.printDebug("loadDriver:: " + output);
-			                    
-			                    for (DbDriverCard d : dbDriverCards) {
-			                        String cardIdentificationText = d.getCardIdentificationText();
-			                        DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText);
-			                        
-			                        if (parsedCards.getResponse().getResponseCode() == 1) {
-			                            if (dbMap.get(parsedCards.getCardName()) != null) {
-			                                cardStatusMap.put(parsedCards.getCardName(), true); // Mark as OK
-			                                parsedCards.setMsg("OK");
-			                                responseDriverCards.add(parsedCards);
-			                            }else {
-				                            parsedCards.setMsg("NOT OK");
-				                            responseDriverCards.add(parsedCards);
-				                        }
-			                        } 
-			                    }
-			                    
-			                    if (output.contains("Starting AETS RT Scheduler") || output.contains("Staring AETS RT Scheduler")) {
-			                        Debug.printDebug("LAST LINE :  " + output);
-			                        flag = false;
-			                    }
-			                }
-			                
-			            } catch (InterruptedException e1) {
-			                e1.printStackTrace();
-			                Thread.currentThread().interrupt();
-			            }
-			            outputProcessingThread.interrupt();
-			        });
-			        outputProcessingThread.start();
-			    });
+							while (flag) {
+								String output = loadDriverBQueue.take();
+								Debug.printDebug("loadDriver:: " + output);
 
-			    launcherFuture.join();
-			    if (outputProcessingThread != null) {
-			        outputProcessingThread.join();
-			    }
-			    
-			    DriverCardDetailsResponse response = new DriverCardDetailsResponse();
-				while (flag) {
-					System.out.print("- ");
+								for (DbDriverCard d : dbDriverCards) {
+									String cardIdentificationText = d.getCardIdentificationText();
+									DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText);
+
+									if (parsedCards.getResponse().getResponseCode() == 1) {
+										if (dbMap.get(parsedCards.getCardName()) != null) {
+											cardStatusMap.put(parsedCards.getCardName(), true);
+											parsedCards.setMsg("OK");
+											responseDriverCards.add(parsedCards);
+										} else {
+											parsedCards.setMsg("NOT OK");
+											responseDriverCards.add(parsedCards);
+										}
+									}
+								}
+
+								if (output.contains("Starting AETS RT Scheduler")
+										|| output.contains("Staring AETS RT Scheduler")) {
+									Debug.printDebug("LAST LINE :  " + output);
+									flag = false;
+								}
+							}
+
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+							Thread.currentThread().interrupt();
+						}
+						outputProcessingThread.interrupt();
+					});
+					outputProcessingThread.start();
+				});
+
+				launcherFuture.join();
+				if (outputProcessingThread != null) {
+					outputProcessingThread.join();
 				}
 
-			    response.setDriverCardDetails(responseDriverCards);
-			    Debug.printDebug("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
-			    return response;
+				DriverCardDetailsResponse response = new DriverCardDetailsResponse();
+				while (flag) {
+					Debug.printDebug("- ");
+				}
 
+				response.setDriverCardDetails(responseDriverCards);
+				System.out.println("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
+				return response;
 
 			case CARD:
+				Debug.printDebug("Enter into CARD ");
 				aimMil.LaunchingProcess(command, launcherFuture1);
 
 				launcherFuture1.thenRun(() -> {
 					aimMil.ReadingProcess();
 					aimMilOutputProcessingThread = new Thread(() -> {
 						try {
+							System.out.println("Start of CARD Thread");
 							aimFlag = true;
 							while (aimFlag) {
 								String output = aimMilBQueue.take();
-								Debug.printDebug("aimMil :: " + output);
+//								System.out.println("aimMil :: " + output);
 
 								DriverCard aimMil = dm.parseLineAIM(output);
 								if (aimMil.getResponse().getResponseCode() == 1) {
@@ -159,7 +166,7 @@ public class LoadDriverProcessControlManagement {
 									responseDriverCards.add(aimMil);
 								}
 
-								Debug.printDebug(output);
+//								System.out.println(output);
 								if (output.contains("aim_mil")) {
 									aimFlag = false;
 								}
@@ -169,6 +176,8 @@ public class LoadDriverProcessControlManagement {
 							Thread.currentThread().interrupt();
 						}
 						aimMilOutputProcessingThread.interrupt();
+						System.out.println("End of CARD Thread ");
+
 					});
 					aimMilOutputProcessingThread.start();
 
@@ -181,26 +190,24 @@ public class LoadDriverProcessControlManagement {
 				DriverCardDetailsResponse response1 = new DriverCardDetailsResponse();
 
 				while (aimFlag) {
-					System.out.print("- ");
+					Debug.printDebug("- ");
 				}
-
+				Debug.printDebug("End of CARD ");
 				response1.setDriverCardDetails(responseDriverCards);
 				Debug.printDebug("---- RESPONSE LIST SIZE AIM_MIL ----" + response1.getDriverCardDetails().size());
 				return response1;
 
 			case SWITCH:
+				Debug.printDebug("Start of SWITCH ");
 				launcherFuture.thenRun(() -> {
 					loadDriverProcessController.ReadingProcess();
 					outputProcessingThread = new Thread(() -> {
+						Debug.printDebug("Start of SWITCH Thread");
 						try {
 							flag = true;
 							while (flag) {
 								String output = loadDriverBQueue.take();
 								Debug.printDebug("loadDriver:: " + output);
-
-//								if (getCloseLoadDriverEndMatchingLine(output) != null) {
-//									closeCommandExecuted = true;
-//								}
 
 								if (output.contains("Starting AETS RT Scheduler")
 										|| output.contains("Staring AETS RT Scheduler")) {
@@ -218,6 +225,7 @@ public class LoadDriverProcessControlManagement {
 							Thread.currentThread().interrupt();
 						}
 						outputProcessingThread.interrupt();
+						Debug.printDebug("End of SWITCH Thread");
 					});
 					outputProcessingThread.start();
 				});
@@ -230,17 +238,9 @@ public class LoadDriverProcessControlManagement {
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
 				Thread.sleep(2000);
-				
-				launcherFuture.thenRun(
-						() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-				
-//				if (closeCommandExecuted == true) {
-//					if (unloadCommand != null && !unloadCommand.isEmpty()) {
-//						launcherFuture.thenRun(
-//								() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-//					}
-//					closeCommandExecuted = false;
-//				}
+
+				launcherFuture
+						.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
 
@@ -250,10 +250,14 @@ public class LoadDriverProcessControlManagement {
 				}
 				if (endOfLoadDriverCommand == true) {
 					endOfLoadDriverCommand = false;
+					System.out.println("End of SWITCH ");
+
 					break;
 				}
+				Debug.printDebug("End of SWITCH ");
 
 			case LOGOUT:
+				System.out.println("Start of LOGOUT ");
 				aitessProcessControlManagement.exitAitess1Command();
 				aitessProcessControlManagement.exitAitess2Command();
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
@@ -261,6 +265,112 @@ public class LoadDriverProcessControlManagement {
 						.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
 
 				stopLoadDriverLaunchingThread();
+				Debug.printDebug("End of LOGOUT ");
+				break;
+
+			case AUX:
+				aux.LaunchingProcess(command, auxFuture);
+				Debug.printDebug("Entering into AUX");
+
+				// Use a list to hold extracted PIDs
+				List<String> pidList = new ArrayList<>();
+				auxFuture.thenRun(() -> {
+					aux.ReadingProcess();
+					auxProcessingThread = new Thread(() -> {
+						try {
+							auxflag = true;
+							boolean isFirstCommand = true;
+							int count = 0;
+
+							while (auxflag) {
+								String output = auxBQueue.take();
+								Debug.printDebug("aux:: " + output);
+
+								if (output.contains("rt_integrated") || output.endsWith("rt_integrated")) {
+									Debug.printDebug("rt_integrated FOUND-------: " + output.contains("rt_integrated"));
+									String[] parts = output.split("\\s+");
+
+									for (int i = 0; i < parts.length; i++) {
+										if (parts[i].equals("root") && i + 1 < parts.length) {
+											String pid = parts[i + 1];
+											pidList.add(pid);
+											Debug.printDebug("Pid extracted ---: " + pid);
+											auxflag = false;
+										}
+									}
+								} else if (output.contains(command.trim())) {
+									Debug.printDebug(" PID --- : " + pidList);
+									if (count > 0) {
+										isFirstCommand = false;
+									}
+									count++;
+								}
+
+								if (auxBQueue.size() == 0) {
+									if (!isFirstCommand) {
+										auxflag = false;
+									}
+								}
+							}
+							Debug.printDebug("Exit from AUX while Loop ");
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+							Thread.currentThread().interrupt();
+						} finally {
+							auxProcessingThread.interrupt();
+						}
+						Debug.printDebug("End of Aux Process");
+					});
+					auxProcessingThread.start();
+				});
+
+				auxFuture.join();
+				if (auxProcessingThread != null) {
+					auxProcessingThread.join();
+				}
+
+				DriverCardDetailsResponse response2 = new DriverCardDetailsResponse();
+				while (auxflag) {
+					Debug.printDebug("- ");
+				}
+
+				response2.setProcessIds(pidList);
+				Debug.printDebug("---- PROCESS IDs LIST SIZE----" + response2.getProcessIds());
+				return response2;
+
+			case KILL:
+				kill.LaunchingProcess(command, killFuture);
+				Debug.printDebug("Entering into KILL");
+
+				killFuture.thenRun(() -> {
+					kill.ReadingProcess();
+					killProcessingThread = new Thread(() -> {
+						try {
+							killflag = true;
+							while (killflag) {
+								String output = killBQueue.take();
+								Debug.printDebug("kill:: " + output);
+
+								killflag = false;
+							}
+							Debug.printDebug("Exit from KILL while Loop ");
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+							Thread.currentThread().interrupt();
+						} finally {
+							auxProcessingThread.interrupt();
+						}
+						Debug.printDebug("End of Kill Process");
+					});
+					killProcessingThread.start();
+				});
+
+				killFuture.thenRun(() -> kill.WritingProcess("sudo " + unloadCommand + "\n"));
+
+				killFuture.join();
+				if (killProcessingThread != null) {
+					killProcessingThread.join();
+				}
 
 			}
 		} catch (Exception e) {
@@ -270,29 +380,10 @@ public class LoadDriverProcessControlManagement {
 		return null;
 	}
 
-	private String getCloseLoadDriverEndMatchingLine(String line) {
-		Pattern exitLinePattern = Pattern.compile("\\*{71}");
-		Matcher exitLineMatcher = exitLinePattern.matcher(line);
-
-		if (exitLineMatcher.find()) {
-			Debug.printDebug("END LINE:: " + line);
-			return line;
-		}
-		return null;
-	}
-
 	private void stopLoadDriverLaunchingThread() {
 		if (loadDriverLaunchingThread != null) {
 			loadDriverLaunchingThread.interrupt();
 		}
-	}
-
-	private boolean isCurrentDriver(String driverCommand) {
-		return driverCommand.equals(currentLoadedDriver);
-	}
-
-	private void setCurrentLoadedDriver(String driverCommand) {
-		this.currentLoadedDriver = driverCommand;
 	}
 
 }

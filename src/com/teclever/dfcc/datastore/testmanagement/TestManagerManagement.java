@@ -13,7 +13,7 @@ import com.teclever.dfcc.utils.Debug;
 
 public class TestManagerManagement {
 	
-	public DriverCardDetailsResponse preLoadDriver() {
+	public DriverCardDetailsResponse preLoadDriver() throws Exception {
 
 		String uutId =  StateMachine.currentSessionDetails.getUutId();
 		
@@ -35,7 +35,20 @@ public class TestManagerManagement {
 		AitessConfigurationDetails aitess = runConfigurationService.getAitessDetailsByRunConfigId(runConfigId);
 
 		LoadDriverProcessControlManagement pc = LoadDriverProcessControlManagement.getInstance();
-		DriverCardDetailsResponse response = pc.loadDriver("sudo " + aitess.getLoadDriverCommand() + "\n", null,
+		
+		
+		DriverCardDetailsResponse responseList =pc.loadDriver("ps -aux"+"\n", null, 0,
+				LoadDriverProcessControlManagement.LoadMode.AUX);
+		if(!responseList.getProcessIds().isEmpty()) {
+			for(String s:responseList.getProcessIds()) {
+				Debug.printDebug("KILL COMMAND GOING TO EXECUTED:--------->>>>>"+ "sudo kill -9 "+s);
+				pc.loadDriver("sudo kill -9 "+s+"\n", aitess.getUnloadDriverCommand(), 0, LoadDriverProcessControlManagement.LoadMode.KILL);
+			}
+			Thread.sleep(3000);	
+
+		}
+				
+		DriverCardDetailsResponse response = pc.loadDriver("sudo "+aitess.getLoadDriverCommand()+"\n", null,
 				aitess.getAitessId(), LoadDriverProcessControlManagement.LoadMode.STARTUP);
 		
 		//aim card response
