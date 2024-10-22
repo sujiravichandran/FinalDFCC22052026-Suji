@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,14 +30,17 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionEntity;
+import com.teclever.datastore.service.SessionService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
-import com.teclever.dfcc.utils.Debug;
 
 public class ReportGeneration {
 	
@@ -190,7 +194,7 @@ public class ReportGeneration {
 		}*/
 	  
 
-		Debug.printDebug(String.valueOf(resultExecutionDTOList.size()));
+	//	System.out.println(resultExecutionDTOList.size());
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -306,12 +310,23 @@ public class ReportGeneration {
 		}
 
 		document.close();
+		
+		SessionService  sessionService = new SessionService();
+		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+		String sessionPathString = sessionentity.getPath()+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);			
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		res.setResponseMessage("Brief Results Report Download Successfully...!");
 
         res.setResponseCode(1);
-		Debug.printDebug("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
+		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
 	}
     
+	//Details Report For Last Stage
 	public Response generateDetailedReportForCurrentExecution(String sessionId)
 			throws DocumentException, MalformedURLException, IOException {
 		// yyyyMMdd_HHmmss
@@ -530,7 +545,7 @@ public class ReportGeneration {
 
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
 		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
-	//	Debug.printDebug("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
+	//	System.out.println("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
 
 		/*
 		 * for (int i = 0; i < 100; i++) { ResultDetailedDTO resultDetailedDTO = new
@@ -591,11 +606,11 @@ public class ReportGeneration {
 		document.close();
 
         res.setResponseCode(1);
-		Debug.printDebug("Detailed Report Generated For Session Last Stage" + filePath);
+		System.out.println("Detailed Report Generated For Session Last Stage" + filePath);
 		return res;
 	}
     
-    
+    //Brief Report for Selected Stages
     public Response generateBreifReportForCurrentExecution(String sessionId,String stageId)
             throws DocumentException, MalformedURLException, IOException {
 		// yyyyMMdd_HHmmss
@@ -744,7 +759,7 @@ public class ReportGeneration {
 		}*/
 	  
 
-		Debug.printDebug(String.valueOf(resultExecutionDTOList.size()));
+	//	System.out.println(resultExecutionDTOList.size());
 		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -860,12 +875,23 @@ public class ReportGeneration {
 		}
 
 		document.close();
+		
+		SessionService  sessionService = new SessionService();
+		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+		String sessionPathString = sessionentity.getPath()+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);			
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		res.setResponseMessage("Breif Results Download Successfully...!");
 
         res.setResponseCode(1);
-		Debug.printDebug("Breif Report For Selected Stage On Selected Session PDF saved to  :" + filePath);
+		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
 	}
     
+    //Selected Stages Detailed Report
     public Response generateDetailedReportForCurrentExecution(String sessionId,String stageId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
@@ -1169,9 +1195,21 @@ public class ReportGeneration {
 		
 		document.add(table);
         document.close();
+        
+        
+        SessionService  sessionService = new SessionService();
+		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+		String sessionPathString = sessionentity.getPath()+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);			
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		res.setResponseMessage("Detailed Results Report Download Successfully...!");
+
 
         res.setResponseCode(1);
-       Debug.printDebug("Detailed Report Generated On Selected Session Stages" + filePath);
+        System.out.println("Detailed Report Generated On Selected Session Stages" + filePath);
         return res;
     }
     
@@ -1427,11 +1465,11 @@ public class ReportGeneration {
         document.add(table);
         document.close();
 
-       Debug.printDebug("Breif Report For Session PDF saved to  :" + filePath);
+        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }*/
     
-    
+    //Session Brief Report
     public Response generateBreifReportForCurrentSession(String sessionId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
@@ -1578,7 +1616,7 @@ public class ReportGeneration {
         	
         }*/
         
-     //   Debug.printDebug("resultExecutionDTOList.size());
+     //   System.out.println(resultExecutionDTOList.size());
         Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
@@ -1749,12 +1787,24 @@ public class ReportGeneration {
        
 
         document.close();
+        
+        SessionService  sessionService = new SessionService();
+		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+		String sessionPathString = sessionentity.getPath()+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);			
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		res.setResponseMessage("Brief Session Results Download Successfully...!");
 
+		
         res.setResponseCode(1);
-       Debug.printDebug("Breif Report For Session PDF saved to  :" + filePath);
+        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }
     
+    //Session Detailed Results
     public Response generateDetailedReportForCurrentSession(String sessionId)
             throws DocumentException, MalformedURLException, IOException {
     	//yyyyMMdd_HHmmss
@@ -2078,7 +2128,7 @@ public class ReportGeneration {
 		
 		if (resultDetailedDTOList != null) {
 			stageName = resultDetailedDTOList.get(0).getStageId();
-			Debug.printDebug("Result Detailed List"+resultDetailedDTOList.size() );
+			System.out.println("Result Detailed List"+resultDetailedDTOList.size() );
 		}
 		if (resultDetailedDTOList != null) {
 			PdfPTable table = new PdfPTable(10); // 10 columns
@@ -2197,8 +2247,21 @@ public class ReportGeneration {
 
         // Close the document
         document.close();
+        
+        SessionService  sessionService = new SessionService();
+		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+		String sessionPathString = sessionentity.getPath()+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);			
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		res.setResponseMessage("Details Session Results Download Successfully...!");
+
+        
+        
         res.setResponseCode(1);
-       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
+        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
     
@@ -2384,7 +2447,7 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
+        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
     
@@ -2588,7 +2651,7 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-       Debug.printDebug("PDF saved to  PdfMarginsExample " + filePath);
+        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
 

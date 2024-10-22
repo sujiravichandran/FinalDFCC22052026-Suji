@@ -2,6 +2,7 @@ package com.teclever.dfcc.datastore.filemanagement;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -900,7 +901,31 @@ public class SessionFileManagement {
 		
 	}
 	
+
+	public void deleteAllFilesInDirectory(String directoryPath) throws IOException {
+		Path dir = Paths.get(directoryPath);
+
+		if (!Files.exists(dir)) {
+			System.out.println("Directory does not exist: " + directoryPath);
+			return;
+		}
+
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+			for (Path path : stream) {
+				if (Files.isRegularFile(path)) {
+					Files.delete(path);
+					System.out.println("Deleted: " + path.getFileName());
 	
-	
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("Error deleting files: " + e.getMessage());
+			throw e;
+		}
+
+	}
 	
 }
+
+
+
