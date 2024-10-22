@@ -111,6 +111,8 @@ public class CurrentUnitResultController {
 				newUnitData.setEndTime(data.getEndTime());
 				newUnitData.setSessionStatus(data.getSessionStatus());
 				newUnitData.setSessionResult(data.getSessionResults());
+				newUnitData.setStartRemarks(data.getStratRemarks());
+				newUnitData.setEndRemarks(data.getEndRemarks());
 				i++;
 				unitDataList.add(newUnitData);
 			}

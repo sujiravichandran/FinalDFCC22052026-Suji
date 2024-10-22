@@ -119,6 +119,7 @@ public class SessionManagement {
 			sessionDto.setUutId(sessionDTO.getUutId());
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
+			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
 			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
 					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
@@ -1517,7 +1518,7 @@ public class SessionManagement {
 	}
 
 	// ADD SESSION END TIME
-	public Response endSession() {
+	public Response endSession(String endRemarks) {
 		Response res = new Response();
 
 		try {
@@ -1525,7 +1526,7 @@ public class SessionManagement {
 			String sessionId = currentSessionDetails.getSessionId();
 			if (sessionId.substring(0, 4).equals("TSSN")) {
 				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-				res = trailSessionEntityService.updateStatus(sessionId);
+				res = trailSessionEntityService.updateStatus(sessionId, endRemarks);
 			} else {
 				SessionService sessionService = new SessionService();
 				GetObjResponse s = sessionService.getSessionDetailBySessionStageId(sessionId);
@@ -1536,6 +1537,7 @@ public class SessionManagement {
 				Date utilDate = new Date();
 				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 				ss.setEndDate(sqlDate);
+				ss.setEndRemarks(endRemarks);
 				res = sessionService.updateSession(ss);
 			}
 

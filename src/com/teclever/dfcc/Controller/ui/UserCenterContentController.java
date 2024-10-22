@@ -1,7 +1,10 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
-
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -53,6 +56,7 @@ public class UserCenterContentController {
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	private StackPane reportsUploadStackPane = new StackPane();
+	private static String userInput;
 	
 	private TerminalController terminalController = new TerminalController();
 	private SessionManagement sessionManagement = new SessionManagement();
@@ -319,8 +323,8 @@ public class UserCenterContentController {
 
 		case "End Session":
 		    if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.COMPLETED || StateMachine.getTestState() == TestState.STOPPED) {
-		    	Notifications.showConfirmationDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
-		            Response response = sessionManagement.endSession();
+		    	showEndRemarksDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
+		            Response response = sessionManagement.endSession(userInput);
 		            if (response.getResponseCode() == 1) {
 		                clearAllData();
 		            } else {
@@ -388,6 +392,47 @@ public class UserCenterContentController {
 				}
 			}
 		});
+	}
+	
+	public static void showEndRemarksDialog(String title, String contentText, Runnable onConfirm) {
+		Platform.runLater(() -> {
+			 Alert alert = new Alert(AlertType.CONFIRMATION);
+		        alert.setTitle(title);
+		        alert.setHeaderText(null);
+		        alert.setHeight(300);
+		        alert.setWidth(500);
+		        alert.setContentText(contentText);
+		
+			TextField endRemarksTextArea = new TextField();
+			endRemarksTextArea.setPromptText("Enter End Remarks");
+			endRemarksTextArea.setPrefHeight(300);
+			endRemarksTextArea.setPrefWidth(500);
+			
+			
+			
+			VBox inputDialouge = new VBox();
+			inputDialouge.getChildren().add(endRemarksTextArea);
+			alert.getDialogPane().setContent(inputDialouge);
+			
+			ButtonType buttonTypeSave = new ButtonType("Save");
+			ButtonType buttonTypeCancel = new ButtonType("Cancel");
+			
+			alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeCancel);
+			
+			alert.showAndWait().ifPresent(response->{
+			if(response==buttonTypeSave)
+			{
+				 userInput = endRemarksTextArea.getText();
+				System.out.println("userInput" + userInput);
+				onConfirm.run();
+			}
+			else {
+				alert.close();
+			}
+			
+			});	
+	});
+		
 	}
 
 }

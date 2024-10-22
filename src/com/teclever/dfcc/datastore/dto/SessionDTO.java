@@ -17,6 +17,17 @@ public class SessionDTO {
 	private Date endDate;
 	private String ofpConfigId;
 	private String startRemarks;
+	private String endRemarks;
+	
+	
+	public String getEndRemarks() {
+		return endRemarks;
+	}
+
+	public void setEndRemarks(String endRemarks) {
+		this.endRemarks = endRemarks;
+	}
+
 	private List<SessionToStagesMappingDTO> sessionStagesList;
 	private List<String> faultCodeMappingList;
 

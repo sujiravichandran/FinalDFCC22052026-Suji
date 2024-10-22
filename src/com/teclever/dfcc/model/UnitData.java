@@ -10,8 +10,22 @@ public class UnitData {
 	private String endTime;
 	private String sessionStatus;
 	private String sessionResult;
+	private String startRemarks;
+	private String endRemarks;
 	
 	
+	public String getStartRemarks() {
+		return startRemarks;
+	}
+	public void setStartRemarks(String startRemarks) {
+		this.startRemarks = startRemarks;
+	}
+	public String getEndRemarks() {
+		return endRemarks;
+	}
+	public void setEndRemarks(String endRemarks) {
+		this.endRemarks = endRemarks;
+	}
 	public String getId() {
 		return id;
 	}
