@@ -237,7 +237,7 @@ public class CurrentExecutionResultController {
 					if(isCurrentSession) {
 						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
 					}else if(sessionId != null && stageId != null) {
-						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
+						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId);
 						
 					}else if(sessionId != null && stageId == null ) {
 						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
