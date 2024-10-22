@@ -824,6 +824,7 @@ public class ResultExecutionManagement {
 				inObj.put("dfccPartNo", sessionDto.getDfccPartNo());
 				inObj.put("sessionName", sessionDto.getSessionName());
 				inObj.put("startRemarks", sessionDto.getStartRemarks());
+				inObj.put("endRemarks", sessionDto.getEndRemarks());
 				inObj.put("uUtId", sessionDto.getUutId());
 				sessionObjMap.put(sessionDto.getSessionId(), inObj);
 				sessionIds.add(sessionDto.getSessionId());
@@ -947,6 +948,7 @@ public class ResultExecutionManagement {
 				inObj.put("dfccPartNo", sessionDto.getDfccPartNo());
 				inObj.put("sessionName", sessionDto.getSessionName());
 				inObj.put("startRemarks", sessionDto.getStartRemarks());
+				inObj.put("endRemarks", sessionDto.getEndRemarks());
 				inObj.put("uUtId", sessionDto.getUutId());
 				sessionObjMap.put(sessionDto.getSessionId(), inObj);
 				sessionIds.add(sessionDto.getSessionId());
@@ -1176,6 +1178,7 @@ public class ResultExecutionManagement {
 			sessionDetailsMap.put("sessionName", sessionDto.getSessionName());
 			sessionDetailsMap.put("uUtID", sessionDto.getUutId());
 			sessionDetailsMap.put("startRemarks", sessionDto.getStartRemarks());
+			sessionDetailsMap.put("startRemarks", sessionDto.getEndRemarks());
 			UserLoginDetailsService userDetailsService = new UserLoginDetailsService();
 			UserLoginDetails userDetails = userDetailsService.getUserByUserId(sessionDto.getUserId());
 			if (userDetails != null) {
@@ -1270,6 +1273,8 @@ public class ResultExecutionManagement {
 					resultUnitSessionDetailsDTO.setSessionResults(results);
 					resultUnitSessionDetailsDTO
 							.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
+					resultUnitSessionDetailsDTO.setStratRemarks(sessionDetails.getStartRemarks());
+					resultUnitSessionDetailsDTO.setEndRemarks(sessionDetails.getEndRemarks());
 					// resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
 					resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
 				}

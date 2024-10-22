@@ -10,7 +10,21 @@ public class ResultUnitSessionDetailsDTO {
 	private String endTime;
 	private String sessionStatus;
 	private String sessionResults;
+	private String stratRemarks;
+	private String endRemarks;
 	
+	public String getStratRemarks() {
+		return stratRemarks;
+	}
+	public void setStratRemarks(String stratRemarks) {
+		this.stratRemarks = stratRemarks;
+	}
+	public String getEndRemarks() {
+		return endRemarks;
+	}
+	public void setEndRemarks(String endRemarks) {
+		this.endRemarks = endRemarks;
+	}
 	public int getsNo() {
 		return sNo;
 	}
