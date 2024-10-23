@@ -62,9 +62,7 @@ public class UserCenterContentController {
 	private SessionManagement sessionManagement = new SessionManagement();
 
 	public UserCenterContentController() {
-		TerminalPopupController terminalPopupController = new TerminalPopupController();
 		centerStackPane.getChildren().addAll(dashboardStackPane);
-		terminalController.launchTerminal();
 		initializeRdfFileCopyPopup();
 	}
 	public static UserCenterContentController getInstance() {
@@ -316,10 +314,6 @@ public class UserCenterContentController {
 			}
 			
 			break;
-			
-		case "Show Terminal":
-			terminalController.createTerminalPopup();
-			break;
 
 		case "End Session":
 		    if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.COMPLETED || StateMachine.getTestState() == TestState.STOPPED) {
@@ -344,13 +338,6 @@ public class UserCenterContentController {
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
 		}
-		
-        StateMachine.userActionFlagProperty().addListener((observable, oldValue, newValue) ->{
-        	if(newValue) {
-        		Platform.runLater(() -> terminalController.createTerminalPopup());
-        		StateMachine.getUserActionFlag().set(false);
-        	}
-        });
 	}
 	private void clearAllData() {
 		StateMachine.resetStateMachine();
