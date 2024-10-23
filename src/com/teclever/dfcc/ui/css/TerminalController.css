@@ -1,0 +1,50 @@
+@import url("Global.css");
+
+
+.terminal-main-container{
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+.terminal-bottom-container{
+	-fx-background-color: secondary-color ;
+	 -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+	-fx-padding:0px 15px 0px 15px;
+}
+.terminal-textarea-container{
+	-fx-background-color: button-bg ;
+	-fx-padding: 10px;
+	-fx-border-radius: 15px; 
+    -fx-background-radius: 15px; 
+}
+.terminal-textarea{
+	-fx-font-size:18px;
+	-fx-font-weight:bold;
+}
+.terminal-input{
+	-fx-font-size:20px;
+	    -fx-font-weight: bold;
+	 -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+}
+.terminal-image{
+	-fx-effect: innershadow(gaussian, white, 10, 1.0, 0, 0);
+	-fx-cursor:hand;
+}
+
+.button {
+	-fx-min-width:90px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+    -fx-cursor:hand;
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}

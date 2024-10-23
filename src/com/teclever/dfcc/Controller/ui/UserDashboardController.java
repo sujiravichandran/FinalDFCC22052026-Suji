@@ -33,6 +33,10 @@ import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -46,17 +50,20 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -75,6 +82,18 @@ public class UserDashboardController {
 	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 	Aitess2ConfigManagement aitess2ConfigManagement = new Aitess2ConfigManagement();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	
+	private GridPane terminalGridPane = new GridPane();
+	private TextField terminaTextField = new TextField();
+	private Button enterButton = new Button("ENTER");
+	private Button yesButton = new Button("YES");
+	private Button noButton = new Button("NO");
+	private StackPane terminalStackPane;
+	TerminalController terminalController1 = new TerminalController();
+	
+    public UserDashboardController() {
+    	terminalStackPane = terminalController1.createTerminalStackPane();
+    }
 
 	public GridPane createUserDashboard() {
 		getAllStagesData();
@@ -399,12 +418,13 @@ public class UserDashboardController {
 				AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
 						.getInstance();
 
-				aitessProcessControlManagement.endAllProcessOnLogout();
 				Notifications.showConfirmationDialog("Logout Confirmation", "Are you sure you want to log out and close the application?", () -> {
 		         SessionFileManagement session = new SessionFileManagement();
 		         LogOutFileCopyResponse response = session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
 		         if(response.getCode() == 1) {
+		        	 aitessProcessControlManagement.endAllProcessOnLogout();
 		        	 Platform.exit();
+		        	 System.exit(0);
 		         }else if(response.getCode() == 0) {
 		        	 Alert alert = new Alert(AlertType.ERROR);
 		             alert.setTitle("Error Dialog");
@@ -412,14 +432,18 @@ public class UserDashboardController {
 		             alert.setContentText("Something went wrong! The application will now close.");
 		             
 		             alert.setOnCloseRequest(event -> {
+		            	aitessProcessControlManagement.endAllProcessOnLogout();
 		                Platform.exit();
+		                System.exit(0);
 		             });
 
 		             alert.showAndWait();
 		         }else if(response.getCode() == 100) {		        	 
 		        	 SessionTestStateObject.isLogoutFileCopyPopupOpenedProperty().addListener((observable, oldValue, newValue) ->{
 		        		 if(!newValue) {
+		        			 aitessProcessControlManagement.endAllProcessOnLogout();
 		        			 Platform.exit();
+		        			 System.exit(0);
 		        		 }
 		        	 });
 		        	 SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
@@ -1089,11 +1113,139 @@ public class UserDashboardController {
 		});
 
 		bottomGridPane.add(createBottomMidContentArea(), 0, 0);
-		bottomGridPane.add(showTerminalButton, 0, 1);
+		bottomGridPane.add(createTerminalContainer(), 0, 1);
 
 		return bottomGridPane;
 	}
+		
+	
+	private GridPane createTerminalContainer() {
+		terminalGridPane.getStyleClass().add("terminal-bottom-container");
+		terminaTextField.getStyleClass().add("terminal-input");
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(71);
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(8);
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(8);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(8);
+		ColumnConstraints fifthColumn = new ColumnConstraints();
+		fifthColumn.setPercentWidth(5);
 
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+				
+		terminalGridPane.setHgap(20);
+		terminalGridPane.getColumnConstraints().addAll(firstColumn,secondColumn,thirdColumn,fourthColumn,fifthColumn);
+		terminalGridPane.getRowConstraints().addAll(firstRow);
+		
+		terminaTextField.setDisable(true);
+		enterButton.setDisable(true);
+		yesButton.setDisable(true);
+		noButton.setDisable(true);
+		
+		Image minImage = new Image(DFCCConstant.JARSTRING+"/Resources/Images/up-arrow1.png");
+	    ImageView minImageView = new ImageView(minImage);
+	    minImageView.getStyleClass().add("terminal-image");
+	    
+	    minImageView.setFitWidth(50);
+	    minImageView.setFitHeight(50);
+	    
+	    minImageView.setOnMouseClicked((MouseEvent event) -> {
+	        handleOpenTerminal();
+	    });
+	    
+      StateMachine.userActionFlagProperty().addListener((observable, oldValue, newValue) ->{
+	    	if(newValue) {
+	    		handleOpenTerminal();
+	    		StateMachine.getUserActionFlag().set(false);
+	    	}
+	    });
+
+	    
+		terminalGridPane.add(terminaTextField, 0, 0);
+		terminalGridPane.add(enterButton, 1, 0);
+		terminalGridPane.add(yesButton, 2, 0);
+		terminalGridPane.add(noButton, 3, 0);
+		terminalGridPane.add(minImageView, 4, 0);
+		
+		return terminalGridPane;
+	}
+	
+	private void handleOpenTerminal() {
+		bottomMainGridPane.setOpacity(0.5);
+		
+		StackPane parentStackPane = (StackPane) bottomMainGridPane.getParent();
+        if (!parentStackPane.getChildren().contains(terminalStackPane)) {
+            parentStackPane.getChildren().add(terminalStackPane);
+        }
+        
+        animateNewStackPaneToFront();
+	}
+
+//	public void animateNewStackPaneToFront() {
+//	    terminalStackPane.toFront();
+//	    
+//	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), terminalStackPane);
+//	    fadeTransition.setFromValue(0); 
+//	    fadeTransition.setToValue(1); 
+//	    
+//	    TranslateTransition translateTransition = new TranslateTransition(Duration.millis(500), terminalStackPane);
+//	    translateTransition.setFromY(terminalStackPane.getHeight());
+//	    translateTransition.setToY(0);
+//	    
+//	    ParallelTransition parallelTransition = new ParallelTransition(fadeTransition, translateTransition);
+//	    
+//	    parallelTransition.play();
+//	}
+	
+//	public void animateNewStackPaneToFront() {
+//	    terminalStackPane.toFront();
+//	    GridPane newGridPane = (GridPane) terminalStackPane.getChildren().get(0);
+//	    GridPane newGridPane1 = (GridPane) newGridPane.getChildren().get(0);
+//	    GridPane newGridPane2 = (GridPane) newGridPane1.getChildren().get(0);
+//	    
+////	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), newGridPane2);
+////	    fadeTransition.setFromValue(0); 
+////	    fadeTransition.setToValue(1); 
+////	    fadeTransition.setInterpolator(Interpolator.EASE_IN);
+////	    
+////	    fadeTransition.play();
+//	    
+////	    TranslateTransition translateTransition = new TranslateTransition(Duration.millis(300), newGridPane2);
+////	    translateTransition.setFromY(newGridPane2.getHeight());
+////	    translateTransition.setToY(0);
+////	    
+////	    translateTransition.play();
+//	    	    
+//	}
+	
+	public void animateNewStackPaneToFront() {
+	    terminalStackPane.toFront();
+	    GridPane newGridPane = (GridPane) terminalStackPane.getChildren().get(0);
+	    GridPane newGridPane1 = (GridPane) newGridPane.getChildren().get(0);
+	    GridPane newGridPane2 = (GridPane) newGridPane1.getChildren().get(0);
+	    
+	    newGridPane2.setScaleY(0.0);  
+
+	    ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(300), newGridPane2);
+	    scaleTransition.setFromY(0.0); 
+	    scaleTransition.setToY(1.0);   
+
+	    TranslateTransition translateTransition = new TranslateTransition(Duration.millis(300), newGridPane2);
+	    translateTransition.setFromY(newGridPane2.getHeight() / 2); 
+	    translateTransition.setToY(0); 
+
+	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), newGridPane2);
+	    fadeTransition.setFromValue(0.0); 
+	    fadeTransition.setToValue(1.0);
+
+	    ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, translateTransition, fadeTransition);
+	    parallelTransition.play();
+	}
+
+	
 	private GridPane createBottomMidContentArea() {
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
