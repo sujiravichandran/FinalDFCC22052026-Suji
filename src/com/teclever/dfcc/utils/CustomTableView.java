@@ -19,6 +19,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Label;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -55,72 +56,79 @@ public class CustomTableView<T> extends TableView<T> {
 		}
 	}
 	private void initializeColumns(Class<T> clazz) {
-		for (Field field : clazz.getDeclaredFields()) {
-			String name = field.getName();
-			name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
-			TableColumn<T, Object> column;
-			
-			if(field.getName().equals("id")) {
-				continue;
-			}
-			if (field.getType() == Blob.class) {
-				column = new TableColumn<>(name.toUpperCase());
-				column.setCellValueFactory(cellData -> {
-					T value = cellData.getValue();
-					try {
-						Blob blob = (Blob) field.get(value);
-						if (blob != null) {
-							InputStream inputStream = blob.getBinaryStream();
-							Image image = new Image(inputStream);
-							return new SimpleObjectProperty<>(image);
-						} else {
-							return new SimpleObjectProperty<>(null);
-						}
-					} catch (SQLException | IllegalAccessException e) {
-						e.printStackTrace();
-						return new SimpleObjectProperty<>(null);
-					}
-				});
-				column.setCellFactory(e -> new TableCell<T, Object>() {
-					private final ImageView imageView = new ImageView();
-					@Override
-					protected void updateItem(Object item, boolean empty) {
-						super.updateItem(item, empty);
-						if (empty || item == null) {
-							setGraphic(null);
-						} else {
-							Image image = (Image) item;
-							imageView.setImage(image);
-							imageView.setFitWidth(100);
-							imageView.setFitHeight(60);
-							setGraphic(imageView);
-						}
-					}
-				});
-			} else {
-				column = new TableColumn<>(name.toUpperCase());
-				column.setReorderable(false);
-				column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-				if (field.getName().equals("fileName") || field.getName().equals("path")) {
-					column.setCellFactory(e -> new TableCell<T, Object>() {
-						@Override
-						protected void updateItem(Object item, boolean empty) {
-							super.updateItem(item, empty);
-							if (empty || item == null) {
-								setText(null);
-								setGraphic(null);
-							} else {
-								setText(item.toString());
-								setGraphic(null);
-								setStyle("-fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 30px;");
-							}
-						}
-					});
-				}
-			}
-			getColumns().add(column);
-		}
-		resizeColumnsToFitContent();
+	    for (Field field : clazz.getDeclaredFields()) {
+	        String name = field.getName();
+	        name = name.replaceAll("([a-z])([A-Z])", "$1 $2");
+	        TableColumn<T, Object> column;
+
+	        if (field.getName().equals("id")) {
+	            continue;
+	        }
+
+	        if (field.getType() == Blob.class) {
+	            column = new TableColumn<>(name.toUpperCase());
+	            column.setCellValueFactory(cellData -> {
+	                T value = cellData.getValue();
+	                try {
+	                    Blob blob = (Blob) field.get(value);
+	                    if (blob != null) {
+	                        InputStream inputStream = blob.getBinaryStream();
+	                        Image image = new Image(inputStream);
+	                        return new SimpleObjectProperty<>(image);
+	                    } else {
+	                        return new SimpleObjectProperty<>(null);
+	                    }
+	                } catch (SQLException | IllegalAccessException e) {
+	                    e.printStackTrace();
+	                    return new SimpleObjectProperty<>(null);
+	                }
+	            });
+	            column.setCellFactory(e -> new TableCell<T, Object>() {
+	                private final ImageView imageView = new ImageView();
+
+	                @Override
+	                protected void updateItem(Object item, boolean empty) {
+	                    super.updateItem(item, empty);
+	                    if (empty || item == null) {
+	                        setGraphic(null);
+	                    } else {
+	                        Image image = (Image) item;
+	                        imageView.setImage(image);
+	                        imageView.setFitWidth(100);
+	                        imageView.setFitHeight(60);
+	                        setGraphic(imageView);
+	                    }
+	                }
+	            });
+	        } else {
+	            column = new TableColumn<>(name.toUpperCase());
+	            column.setReorderable(false);
+	            column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
+
+	            column.setCellFactory(e -> new TableCell<T, Object>() {
+	                private final Label label = new Label();
+
+	                {
+	                    label.setWrapText(true);
+	                    label.setMaxWidth(Double.MAX_VALUE); 
+	                }
+
+	                @Override
+	                protected void updateItem(Object item, boolean empty) {
+	                    super.updateItem(item, empty);
+	                    if (empty || item == null) {
+	                        setText(null);
+	                        setGraphic(null);
+	                    } else {
+	                        label.setText(item.toString());
+	                        setGraphic(label);
+	                    }
+	                }
+	            });
+	        }
+	        getColumns().add(column);
+	    }
+	    resizeColumnsToFitContent();
 	}
 	   public void hideColumn(String headerText) {
 	        TableColumn<T, ?> columnToRemove = null;

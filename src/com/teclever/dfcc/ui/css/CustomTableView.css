@@ -68,3 +68,8 @@
 .button-cell .button:hover {
     -fx-background-color: secondary-color-2; /* Change button background on hover */
 }
+
+.label {
+	 -fx-text-fill: button-text;
+    -fx-alignment: CENTER;
+}
