@@ -220,7 +220,7 @@ public class CurrentUnitResultController {
 		unitDataTableView.getColumns().forEach(column -> {
 			if (!column.getText().isEmpty()) {
 				column.setMinWidth(column.getText().length() * 12);
-				updateUnitData((TableColumn<UnitData, String>) column);
+//				updateUnitData((TableColumn<UnitData, String>) column);
 			}
 		});
 
@@ -242,33 +242,33 @@ public class CurrentUnitResultController {
 		return tableScrollPane;
 	}
 
-	private void updateUnitData(TableColumn<UnitData, String> column) {
-		column.setCellFactory(col -> new TableCell<UnitData, String>() {
-			private Label label;
-
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item == null || empty) {
-					setText(null);
-					setGraphic(null);
-				} else {
-					if (label == null) {
-						label = new Label();
-						label.setWrapText(false);
-						label.setAlignment(Pos.CENTER);
-						setStyle("-fx-alignment: CENTER;");
-						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-					}
-					label.setText(item);
-					label.setStyle("-fx-text-fill: white;");
-					label.setMinWidth(label.getText().length() * 12);
-					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 12);
-					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-				}
-			}
-		});
-	}
+//	private void updateUnitData(TableColumn<UnitData, String> column) {
+//		column.setCellFactory(col -> new TableCell<UnitData, String>() {
+//			private Label label;
+//
+//			@Override
+//			protected void updateItem(String item, boolean empty) {
+//				super.updateItem(item, empty);
+//				if (item == null || empty) {
+//					setText(null);
+//					setGraphic(null);
+//				} else {
+//					if (label == null) {
+//						label = new Label();
+//						label.setWrapText(false);
+//						label.setAlignment(Pos.CENTER);
+//						setStyle("-fx-alignment: CENTER;");
+//						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//					}
+//					label.setText(item);
+//					label.setStyle("-fx-text-fill: white;");
+//					label.setMinWidth(label.getText().length() * 12);
+//					setGraphic(label);
+//					this.setMinWidth(label.getText().length() * 12);
+//					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+//				}
+//			}
+//		});
+//	}
 
 }

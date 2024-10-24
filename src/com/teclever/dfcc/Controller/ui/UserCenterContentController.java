@@ -5,6 +5,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -17,6 +19,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -383,43 +386,57 @@ public class UserCenterContentController {
 	
 	public static void showEndRemarksDialog(String title, String contentText, Runnable onConfirm) {
 		Platform.runLater(() -> {
-			 Alert alert = new Alert(AlertType.CONFIRMATION);
-		        alert.setTitle(title);
-		        alert.setHeaderText(null);
-		        alert.setHeight(300);
-		        alert.setWidth(500);
-		        alert.setContentText(contentText);
-		
-			TextField endRemarksTextArea = new TextField();
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle(title);
+			alert.setHeaderText(null);
+			alert.setHeight(300);
+			alert.setWidth(500);
+			alert.setContentText(contentText);
+
+			TextArea endRemarksTextArea = new TextArea();
 			endRemarksTextArea.setPromptText("Enter End Remarks");
 			endRemarksTextArea.setPrefHeight(300);
 			endRemarksTextArea.setPrefWidth(500);
+			endRemarksTextArea.setWrapText(true);
 			
-			
-			
-			VBox inputDialouge = new VBox();
-			inputDialouge.getChildren().add(endRemarksTextArea);
-			alert.getDialogPane().setContent(inputDialouge);
-			
+
+			VBox inputDialog = new VBox();
+			inputDialog.getChildren().add(endRemarksTextArea);
+			alert.getDialogPane().setContent(inputDialog);
+
+			endRemarksTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+			endRemarksTextArea.setText(newValue.length() > 50 ? newValue.substring(0, 50) : newValue);
+			});
+
 			ButtonType buttonTypeSave = new ButtonType("Save");
 			ButtonType buttonTypeCancel = new ButtonType("Cancel");
-			
+
 			alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeCancel);
-			
-			alert.showAndWait().ifPresent(response->{
-			if(response==buttonTypeSave)
-			{
-				 userInput = endRemarksTextArea.getText();
-				System.out.println("userInput" + userInput);
-				onConfirm.run();
-			}
-			else {
-				alert.close();
-			}
-			
-			});	
-	});
-		
+
+			Button saveButton = (Button) alert.getDialogPane().lookupButton(buttonTypeSave);
+
+			saveButton.addEventFilter(ActionEvent.ACTION, event -> {
+				userInput = endRemarksTextArea.getText();
+
+				if (userInput == null || userInput.trim().isEmpty()) {
+					Alert alertText = new Alert(AlertType.INFORMATION);
+					alertText.setHeaderText(null);
+					alertText.setContentText("Please Enter END REMARKS");
+					alertText.showAndWait();
+
+					event.consume();
+				} else {
+					System.out.println("userInput: " + userInput);
+					onConfirm.run();
+				}
+			});
+
+			alert.showAndWait().ifPresent(response -> {
+				if (response == buttonTypeCancel) {
+					alert.close();
+				}
+			});
+		});
 	}
 
 }
