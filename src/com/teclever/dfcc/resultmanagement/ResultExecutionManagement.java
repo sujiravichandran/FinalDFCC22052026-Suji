@@ -522,12 +522,14 @@ public class ResultExecutionManagement {
 					for(String s :fac.keySet())
 					{
 						Debug.printDebug("S="+s);
-						s = s.replaceAll("Channel", "CH");
 						channelValues = channelValues+s + "="+ fac.get(s)+";";
 					}
-					
+					System.out.println("Before Replace All Channels" +channelValues);
 					resultDetailedDTO.setFaultyChannel(channelValues);
-					Debug.printDebug(resultDto.getFaultyChannel());
+					channelValues = channelValues.replaceAll("Channel", "CH");
+					System.out.println("After Replace All CH" +channelValues);
+					resultDetailedDTO.setFaultyChannel(channelValues);
+			     	Debug.printDebug(resultDto.getFaultyChannel());
 					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					Debug.printDebug(resultDto.getExpectedValue());
 					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
@@ -655,13 +657,15 @@ public class ResultExecutionManagement {
 					for(String s :fac.keySet())
 					{
 						Debug.printDebug("S="+s);
-						s = s.replaceAll("Channel", "CH");
 						channelValues = channelValues+s + "="+ fac.get(s)+";";
 		
 					}
-					
+					System.out.println("Before Replace All Channels" +channelValues);
 					resultDetailedDTO.setFaultyChannel(channelValues);
-						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					channelValues = channelValues.replaceAll("Channel", "CH");
+					System.out.println("After Replace All CH" +channelValues);
+					resultDetailedDTO.setFaultyChannel(channelValues);
+				    resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 					resultDetailedDTO.setRdfName(resultDto.getFileName());
 					resultDetailedDTO.setSignalName(resultDto.getSignalName());
@@ -760,14 +764,18 @@ public class ResultExecutionManagement {
 				for (ResultDto resultDto : lstInterResults) {
 					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 					Map<String,String>fac =  resultDto.getFaultyChannel();
-					String channelValues ="";
-					for(String s :fac.keySet())
-					{
-						Debug.printDebug("S="+s);
-						s = s.replaceAll("Channel", "CH");
-						channelValues = channelValues+s + "="+ fac.get(s)+";";
-		
+					String channelValues = "";
+					for (String s : fac.keySet()) {
+						Debug.printDebug("S=" + s);
+						channelValues = channelValues + s + "=" + fac.get(s) + ";";
+
 					}
+					resultDetailedDTO.setFaultyChannel(channelValues);
+					
+					System.out.println("Before Replace All Channels" +channelValues);
+					channelValues = channelValues.replaceAll("Channel", "CH");
+					System.out.println("After Replace All  CH" +channelValues);
+					
 					
 					resultDetailedDTO.setFaultyChannel(channelValues);
 					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
@@ -894,9 +902,14 @@ public class ResultExecutionManagement {
 						{
 							channelValues = s1 + "-"+ fac.get(s1)+";";
 						}
+						System.out.println("Before Replace All Channels" +channelValues);
 						
 						resultDetailedDTO.setFaultyChannel(channelValues);
-							resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+						channelValues = channelValues.replaceAll("Channel", "CH");
+						System.out.println("After Replace All CH" +channelValues);
+						
+						resultDetailedDTO.setFaultyChannel(channelValues);
+						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
 						resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
 						resultDetailedDTO.setRdfName(resultDto.getFileName());
 						resultDetailedDTO.setSignalName(resultDto.getSignalName());

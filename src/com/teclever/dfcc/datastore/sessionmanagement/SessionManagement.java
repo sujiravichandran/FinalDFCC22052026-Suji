@@ -1272,6 +1272,11 @@ public class SessionManagement {
 			StageLevelResponse stagelevelResponse = levelOneService.getLevelTOneMasterBySessionId(uutId, "ST4");
 
 			List<LevelOneResponseDto> lst = (List<LevelOneResponseDto>) stagelevelResponse.getStageLevelList();
+			
+			//Filter the Advance Flag and Mandatory Flag
+
+			lst = lst.stream().filter(filterObj -> filterObj.isAdvanceTestStatus()==false && filterObj.isDefaultStatus()==false )
+					.collect(Collectors.toList());
 
 			Map<String, List<String>> firstLevelIdFinLeaf = new HashMap<String, List<String>>();
 
