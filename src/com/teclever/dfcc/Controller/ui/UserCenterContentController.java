@@ -61,7 +61,6 @@ public class UserCenterContentController {
 	private StackPane reportsUploadStackPane = new StackPane();
 	private static String userInput;
 	
-	private TerminalController terminalController = new TerminalController();
 	private SessionManagement sessionManagement = new SessionManagement();
 
 	public UserCenterContentController() {

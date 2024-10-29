@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 
 import javafx.animation.FadeTransition;
@@ -46,7 +47,7 @@ public class TerminalController {
 		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 		Platform.runLater(() -> {
 			textArea.setEditable(false);
-            aitessProcessControlManagement.launchAitess("TT1", textArea);           
+            aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);           
         });		
 		
 		terminalStackPane.setOnMouseClicked(event -> {
