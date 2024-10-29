@@ -1,46 +1,75 @@
 @import url("Global.css");
+
 .table-view {
-	-fx-background-radius: 10.0px;
+    -fx-background-radius: 10.0px;
+    -fx-background-color: dark-bg; 
+    -fx-border-width: 2px;
 }
-.table-view .column-header{
-    -fx-font-size: 18.0px;
+
+.table-view .column-header {
+    -fx-font-size: 17.0px;
     -fx-pref-height: 40.0px;
     -fx-alignment: CENTER;
-	-fx-background-color: table-header-bg;
-	
+    -fx-background-color: button-bg; /* Bright complementary color for the header */
+    -fx-border-color: button-bg;
+    -fx-border-width: 0 0 2px 0;
+    -fx-background-radius: 5.0px;
 }
-.table-view .column-header .label{
-	-fx-text-fill: primary-text-color;
-	
+
+.table-view .column-header .label {
+    -fx-text-fill: primary-text-color; /* White text color for header labels */
 }
+
 .table-row-cell .table-cell {
-	-fx-border-color:transparent;
-    -fx-font-size: 18.0px;
-    -fx-text-fill: primary-text-color;
+    -fx-border-color: secondary-color-2; /* Add a border color to each cell */
+    -fx-border-width: 1px 1px 1px 1px; /* Border for all sides */
+    -fx-border-style: solid;
+    -fx-border-radius: 5px; /* Optional: Rounded borders for each cell */
+    -fx-font-size: 16.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill: primary-text-color; /* Darker text for readability */
     -fx-alignment: CENTER;
+    -fx-background-color: secondary-color; /* Background color for the cells */
 }
+
 .table-row-cell:empty {
-    -fx-background-color: table-row-bg;
+    -fx-background-color: light-bg; /* Light background for empty rows */
 }
-.table-row-cell:empty .table-cell {
-    -fx-border-width: 0px;
-}
+
 .table-row-cell {
-	-fx-border-color: primary-text-color;
-	-fx-border-width: 2px;
-	-fx-border-style: solid;
-	-fx-border-radius: 10.0px;
-	-fx-background-color: table-row-bg;
-	-fx-background-radius: 20.0px;
+    -fx-border-color: secondary-color-2; /* Bright border color */
+    -fx-border-width: 0 0 0 2px ;
+    -fx-border-style: solid;
+    -fx-border-radius: 10.0px;
+    -fx-background-color: secondary-color; /* Use a secondary color for rows */
+    -fx-background-radius: 10.0px;
     -fx-pref-height: 60px;
     -fx-alignment: CENTER;
 }
+
+.table-row-cell:selected {
+    -fx-background-color: complementary-color; /* Highlight selected row with complementary color */
+}
+
 .button-cell {
     -fx-font-size: 16.0px;
     -fx-background-color: transparent;
-    -fx-text-fill: white;
+    -fx-text-fill: button-text; /* White text for buttons */
 }
 
+.button-cell .button {
+    -fx-background-color: button-bg; /* Dark background for buttons */
+    -fx-text-fill: button-text; /* White text for buttons */
+    -fx-padding: 5px 10px;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+}
 
+.button-cell .button:hover {
+    -fx-background-color: secondary-color-2; /* Change button background on hover */
+}
 
-
+.label {
+	 -fx-text-fill: button-text;
+    -fx-alignment: CENTER;
+}

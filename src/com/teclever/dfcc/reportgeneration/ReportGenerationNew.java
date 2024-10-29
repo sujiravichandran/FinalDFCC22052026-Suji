@@ -48,7 +48,9 @@ import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.SessionEntity;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.ReportCofigurationManagement;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
@@ -379,9 +381,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			}
 
 			document.close();
-			res.setResponseCode(1);
-			
-			SessionService  sessionService = new SessionService();
+			/*SessionService  sessionService = new SessionService();
 			GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 			SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 			String sessionPathString = sessionentity.getPath()+File.separator+"report";
@@ -389,9 +389,39 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			Path sessionPath =Path.of(sessionPathString) ;
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
+			
+			
+			GetObjResponse sessionRes = new GetObjResponse();
+			String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+			
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				SessionService sessionService = new SessionService();
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionPathString = sessionEntity.getPath();
+			} else {
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionPathString = trailSessionEntity.getPath();
+			}
+			
+			sessionPathString = sessionPathString+File.separator+"report";
+			Path fileFullPath = Path.of(filePath);
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath =Path.of(sessionPathString) ;
 			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+		
+			
+			
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
+				
+		
 			//Deleting the Content PDF and Updated PDF
+			res.setResponseCode(1);
 			res.setResponseMessage("Ess Report Download Successfully!");
 				
 		} catch (Exception e) {
@@ -489,7 +519,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			document.close();
 			
 			
-			SessionService  sessionService = new SessionService();
+			
+			/*SessionService  sessionService = new SessionService();
 			GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 			SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 			String sessionPathString = sessionentity.getPath()+File.separator+"report";
@@ -497,9 +528,32 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			Path sessionPath =Path.of(sessionPathString) ;
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
+			
+			
+			GetObjResponse sessionRes = new GetObjResponse();
+			String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+			
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				SessionService sessionService = new SessionService();
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionPathString = sessionEntity.getPath();
+			} else {
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionPathString = trailSessionEntity.getPath();
+			}
+			
+			sessionPathString = sessionPathString+File.separator+"report";
+			Path fileFullPath = Path.of(filePath);
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath =Path.of(sessionPathString) ;
 			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
-			System.out.println("PDFs Created successfully In Path...!" + filePath);
-				
+		
 			res.setResponseCode(1);
 			res.setResponseMessage("PQT Report Download Successfully...!");
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
