@@ -1177,9 +1177,16 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					final String subTitle = subheading;
 					final Chunk subChunk = new Chunk(subTitle).setLocalGoto(subTitle);
 
+					subheading = subTitle.replaceAll("(h2)", "");
+					System.out.println("PlaceHolderSubHeading" + "     " + tocPlaceHolderCount + "."
+							+ tocPlaceHolderCountSub + " " + subheading);
+					String subSubHeading = subheading.substring(0, subheading.length()-2);
+			
+					
+					
 					Paragraph subheadingParagraph = new Paragraph(
 							"      " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + " "
-									+ subheading.replaceAll("(h2)", ""),
+									+ subSubHeading,
 							new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.ITALIC, BaseColor.BLACK));
 					subheadingParagraph.setAlignment(Element.ALIGN_LEFT);
 					document.add(subheadingParagraph);
@@ -1192,8 +1199,15 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 							String subheading = subTitle.replaceAll("(h2)", "");
 							System.out.println("PlaceHolderSubHeading" + "     " + tocPlaceHolderCount + "."
 									+ tocPlaceHolderCountSub + " " + subheading);
+							String subSubHeading = subheading.substring(0, subheading.length()-2);
+							System.out.println("subSubHeading  Sub String"+ subSubHeading);
+							System.out.println("SubString  PlaceHolderSubHeading" + "     " + tocPlaceHolderCount + "."
+									+ tocPlaceHolderCountSub + " " + subSubHeading);
+						
+							
+							
 							tocPlaceholder.put(
-									"     " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + " " + subheading,
+									"     " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + " " + subSubHeading,
 									createTemplate);
 							canvas.addTemplate(createTemplate, urx - 55, y);
 						}
@@ -1205,13 +1219,20 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 						String h3 = h3Entry.getKey();
 						String content = h3Entry.getValue();
 
+						
+						
+						
 						if (h3.contains("(h3)")) {
 							final String h3Title = h3;
 							final Chunk h3Chunk = new Chunk(h3Title).setLocalGoto(h3Title);
+							
+							h3 = h3.replaceAll("(h3)", "");
+							String subSubHeadingh3 = h3.substring(0, h3.length()-2);
+							
 
 							Paragraph h3Paragraph = new Paragraph(
 									"         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + "."
-											+ tocPlaceHolderCountH3 + " " + h3.replaceAll("(h3)", ""),
+											+ tocPlaceHolderCountH3 + " " + subSubHeadingh3,
 									new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.ITALIC, BaseColor.BLACK));
 							h3Paragraph.setAlignment(Element.ALIGN_LEFT);
 							document.add(h3Paragraph);
@@ -1222,10 +1243,11 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 										final float urx, final float ury, final float y) {
 									final PdfTemplate createTemplate = canvas.createTemplate(50, 50);
 									String h3 = h3Title.replaceAll("(h3)", "");
+									String subHeadingh3 = h3.substring(0, h3.length()-2);
 									System.out.println("PlaceHolderH3" + "         " + tocPlaceHolderCount + "."
 											+ tocPlaceHolderCountSub + "." + tocPlaceHolderCountH3 + " " + h3);
 									tocPlaceholder.put("         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub
-											+ "." + tocPlaceHolderCountH3 + " " + h3, createTemplate);
+											+ "." + tocPlaceHolderCountH3 + " " + subHeadingh3, createTemplate);
 									canvas.addTemplate(createTemplate, urx - 55, y);
 								}
 							});
@@ -1683,12 +1705,17 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					Map<String, String> h3Map = subEntry.getValue();
 
 					if (subheading.contains("(h2)")) {
+						
+						
+						
 						subheading = subheading.replaceAll("(h2)", "");
+						String subSubHeading = subheading.substring(0, subheading.length()-2);
+						
 						// subheading = subheading.replaceAll("(h2)", "");
 						// subheading = subheading.replace("()", "");
 
 						String subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
-								+ " " + subheading;
+								+ " " + subSubHeading;
 						System.out.println("Summary subHeadingPageNum" + subHeadingPageNum);
 						if (tocPlaceholder.containsKey(subHeadingPageNum)) {
 							PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
@@ -1716,7 +1743,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 							if (h3.contains("(h3)")) {
 								h3 = h3.replaceAll("(h3)", "");
-
+								h3 = h3.substring(0,h3.length()-2);
+								
 								String h3PageNum = "         " + summaryPlaceHolderCount + "."
 										+ summaryPlaceHolderCountSub + "." + summaryPlaceHolderCountH3 + " " + h3;
 								System.out.println("Summary h3PageNum" + h3PageNum);
