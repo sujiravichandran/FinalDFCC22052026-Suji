@@ -37,7 +37,7 @@ public class TestManagerManagement {
 		LoadDriverProcessControlManagement pc = LoadDriverProcessControlManagement.getInstance();
 		
 		
-		DriverCardDetailsResponse responseList =pc.loadDriver("ps -aux"+"\n", null, 0,
+		DriverCardDetailsResponse responseList =pc.loadDriver("ps -aux --cols=200"+"\n", null, 0,
 				LoadDriverProcessControlManagement.LoadMode.AUX);
 		if(!responseList.getProcessIds().isEmpty()) {
 			for(String s:responseList.getProcessIds()) {

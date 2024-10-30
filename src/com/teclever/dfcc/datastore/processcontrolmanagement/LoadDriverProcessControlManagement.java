@@ -358,7 +358,7 @@ public class LoadDriverProcessControlManagement {
 							e1.printStackTrace();
 							Thread.currentThread().interrupt();
 						} finally {
-							auxProcessingThread.interrupt();
+							killProcessingThread.interrupt();
 						}
 						Debug.printDebug("End of Kill Process");
 					});
