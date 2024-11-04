@@ -33,7 +33,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.SessionEntity;
+import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
@@ -179,6 +181,8 @@ public class ReportGeneration {
 		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
 	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
+
+		System.out.println("Line No 185");		
 	
 	/*	for (int i = 1; i <= 100; i++) {
 			ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
@@ -222,6 +226,8 @@ public class ReportGeneration {
 		 * heading document.add(SessionDetails); document.add(new Paragraph("\n" ));
 		 */
 
+		System.out.println("Line No 227");		
+	
 		Chunk sessionNameChunk = new Chunk("Session Name             ", headerFont);
 		Chunk sessionDetailsChunk = new Chunk(sessionDetailsMap.get("sessionName"), highlightCementFont);
 		Paragraph sessionNameDetailsParagraph = new Paragraph();
@@ -243,6 +249,7 @@ public class ReportGeneration {
 		dfccPartNoDetailsParagraph.add(dfccPartNoDetailsChunk);
 		document.add(dfccPartNoDetailsParagraph);
 
+		System.out.println("Line No 248");		
 		String stageName = "";
 		if (resultExecutionDTOList != null) {
 			stageName = resultExecutionDTOList.get(0).getStageName();
@@ -310,17 +317,44 @@ public class ReportGeneration {
 		}
 
 		document.close();
+		System.out.println("Document Closed....");
 		
-		SessionService  sessionService = new SessionService();
+		
+		GetObjResponse sessionRes = new GetObjResponse();
+		String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+		
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			SessionService sessionService = new SessionService();
+			sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity = new SessionEntity();
+			sessionEntity = (SessionEntity) sessionRes.getObject();
+			sessionPathString = sessionEntity.getPath();
+		} else {
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+			TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+			trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+			sessionPathString = trailSessionEntity.getPath();
+		}
+		
+		sessionPathString = sessionPathString+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+	
+		
+		
+		/*SessionService  sessionService = new SessionService();
 		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 		String sessionPathString = sessionentity.getPath()+File.separator+"report";
 		Path fileFullPath = Path.of(filePath);			
 		SessionFileManagement sessionFileManagement = new SessionFileManagement();
 		Path sessionPath =Path.of(sessionPathString) ;
-		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
+		
 		res.setResponseMessage("Brief Results Report Download Successfully...!");
-
         res.setResponseCode(1);
 		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
@@ -544,38 +578,49 @@ public class ReportGeneration {
 		resultDetailedResponse = resultExecutionManagement.getResultExecutionDetailedListForStages(sessionId);
 
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
-		resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
+	    resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
 	//	System.out.println("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
+	
+/*	for (int i = 0; i < 100; i++) {
+		ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 
-		/*
-		 * for (int i = 0; i < 100; i++) { ResultDetailedDTO resultDetailedDTO = new
-		 * ResultDetailedDTO();
-		 * 
-		 * resultDetailedDTO.setExpectedValue(i + ".00");
-		 * resultDetailedDTO.setFaultyChannel("CH" + i);
-		 * resultDetailedDTO.setMeasuredValue(i + "80");
-		 * resultDetailedDTO.setRdfName("rdf" + i); resultDetailedDTO.setStepName("" +
-		 * i); resultDetailedDTO.setSignalName("SN_" + i);
-		 * resultDetailedDTO.setTpfFileName("TPF_" + i);
-		 * resultDetailedDTO.setTpgph("TPGH" + i); resultDetailedDTO.setUnit("UN-" + i);
-		 * resultDetailedDTO.setTestName("TN-" + i);
-		 * resultDetailedDTOList.add(resultDetailedDTO); }
-		 */
+		resultDetailedDTO.setExpectedValue(i + ".00");
+		resultDetailedDTO.setFaultyChannel("CH" + i);
+		resultDetailedDTO.setMeasuredValue(i + "80");
+		resultDetailedDTO.setRdfName("rdf" + i);
+		resultDetailedDTO.setStepName("" + i);
+		resultDetailedDTO.setSignalName("SN_" + i);
+		resultDetailedDTO.setTpfFileName("TPF_" + i);
+		resultDetailedDTO.setTpgph("TPGH" + i);
+		resultDetailedDTO.setUnit("UN-" + i);
+		resultDetailedDTO.setTestName("TN-" + i);
+		resultDetailedDTOList.add(resultDetailedDTO);
+	}*/
 
 		// Create table
-		PdfPTable table = new PdfPTable(10); // 10 columns
+		PdfPTable table = new PdfPTable(8); // 8 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
 		table.setSpacingAfter(10f); // Space after table
 
 		// Set Column widths
-		float[] columnWidths = { 1f, 1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f, 1f };
+		float[] columnWidths = {1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
 		table.setWidths(columnWidths);
 
+			
 		// Add table header
 		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-		String[] headers = { "Test Name", "TPGPH", "Step Name", "Expected Value", "Measured Value", "Unit",
-				"TPF File Name", "Signal Name", "Faulty Channel", "RDF Name" };
+		String[] headers = {"File Name","TPGPH NO","STEP NO","SIGNAL NAME","Expected Value","Measured Value","FAULTY SRU","UNIT"};
+		
+		PdfPCell mergedCell = new PdfPCell(new Paragraph("STAGE NAME"));
+		mergedCell.setColspan(8);
+		mergedCell.setFixedHeight(20);
+		mergedCell.setBackgroundColor(skyBlueColor);
+		mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(mergedCell);
+
+		
+		
 		for (String header : headers) {
 			PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
 			cell.setBackgroundColor(BaseColor.GRAY);
@@ -585,11 +630,11 @@ public class ReportGeneration {
 
 		// Set the number of header rows
 		table.setHeaderRows(1);
-
+		
 		// Add rows from list
 		if (resultDetailedDTOList != null) {
 			for (ResultDetailedDTO dto : resultDetailedDTOList) {
-				table.addCell(new Phrase(dto.getTestName()));
+			/*	table.addCell(new Phrase(dto.getTestName()));
 				table.addCell(new Phrase(dto.getTpgph()));
 				table.addCell(new Phrase(dto.getStepName()));
 				table.addCell(new Phrase(dto.getExpectedValue()));
@@ -598,7 +643,17 @@ public class ReportGeneration {
 				table.addCell(new Phrase(dto.getTpfFileName()));
 				table.addCell(new Phrase(dto.getSignalName()));
 				table.addCell(new Phrase(dto.getFaultyChannel()));
-				table.addCell(new Phrase(dto.getRdfName()));
+				table.addCell(new Phrase(dto.getRdfName()));*/
+				
+				table.addCell(new Phrase(dto.getTpfFileName()));//1
+				table.addCell(new Phrase(dto.getTpgph()));//2
+				table.addCell(new Phrase(dto.getStepName()));//3
+				table.addCell(new Phrase(dto.getSignalName()));//4
+				table.addCell(new Phrase(dto.getExpectedValue()));//5
+				table.addCell(new Phrase(dto.getMeasuredValue()));//6
+				table.addCell(new Phrase(dto.getFaultyChannel()));//7
+				table.addCell(new Phrase(dto.getUnit()));//8
+						
 			}
 		}
 
@@ -1146,7 +1201,7 @@ public class ReportGeneration {
         }*/
 
         // Create table
-        PdfPTable table = new PdfPTable(10); // 10 columns
+      /*  PdfPTable table = new PdfPTable(10); // 10 columns
         table.setWidthPercentage(100); // Width 100%
         table.setSpacingBefore(10f); // Space before table
         table.setSpacingAfter(10f); // Space after table
@@ -1191,8 +1246,68 @@ public class ReportGeneration {
 				table.addCell(new Phrase(dto.getFaultyChannel()));
 				table.addCell(new Phrase(dto.getRdfName()));
 			}
-		}
+		}*/
+       
+       // Create table
+        PdfPTable table = new PdfPTable(8); // 8 columns
+		table.setWidthPercentage(100); // Width 100%
+		table.setSpacingBefore(10f); // Space before table
+		table.setSpacingAfter(10f); // Space after table
+
+		// Set Column widths
+		float[] columnWidths = {1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
+		table.setWidths(columnWidths);
+
+			
+		// Add table header
+		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+		String[] headers = {"File Name","TPGPH NO","STEP NO","SIGNAL NAME","Expected Value","Measured Value","FAULTY SRU","UNIT"};
 		
+		   
+    	PdfPCell mergedCell = new PdfPCell(new Paragraph(stageIdName.get(stageId)));
+		mergedCell.setColspan(8);
+		mergedCell.setFixedHeight(20);
+		mergedCell.setBackgroundColor(skyBlueColor);
+		mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(mergedCell);
+
+		
+		
+		for (String header : headers) {
+			PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+			cell.setBackgroundColor(BaseColor.GRAY);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			table.addCell(cell);
+		}
+
+		// Set the number of header rows
+		table.setHeaderRows(1);
+		
+		// Add rows from list
+		if (resultDetailedDTOList != null) {
+			for (ResultDetailedDTO dto : resultDetailedDTOList) {
+			/*	table.addCell(new Phrase(dto.getTestName()));
+				table.addCell(new Phrase(dto.getTpgph()));
+				table.addCell(new Phrase(dto.getStepName()));
+				table.addCell(new Phrase(dto.getExpectedValue()));
+				table.addCell(new Phrase(dto.getMeasuredValue()));
+				table.addCell(new Phrase(dto.getUnit()));
+				table.addCell(new Phrase(dto.getTpfFileName()));
+				table.addCell(new Phrase(dto.getSignalName()));
+				table.addCell(new Phrase(dto.getFaultyChannel()));
+				table.addCell(new Phrase(dto.getRdfName()));*/
+				
+				table.addCell(new Phrase(dto.getTpfFileName()));//1
+				table.addCell(new Phrase(dto.getTpgph()));//2
+				table.addCell(new Phrase(dto.getStepName()));//3
+				table.addCell(new Phrase(dto.getSignalName()));//4
+				table.addCell(new Phrase(dto.getExpectedValue()));//5
+				table.addCell(new Phrase(dto.getMeasuredValue()));//6
+				table.addCell(new Phrase(dto.getFaultyChannel()));//7
+				table.addCell(new Phrase(dto.getUnit()));//8
+						
+			}
+		}
 		document.add(table);
         document.close();
         
