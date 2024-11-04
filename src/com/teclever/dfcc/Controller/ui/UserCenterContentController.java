@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
+import java.util.List;
+
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert;
@@ -9,16 +11,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
+import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -64,6 +73,7 @@ public class UserCenterContentController {
 	private SessionManagement sessionManagement = new SessionManagement();
 
 	public UserCenterContentController() {
+		getAllStagesData();
 		centerStackPane.getChildren().addAll(dashboardStackPane);
 		initializeRdfFileCopyPopup();
 	}
@@ -189,6 +199,7 @@ public class UserCenterContentController {
 					Notifications.showWarningAlert("Please finalize the trials configuration on the trials config page if you want to run trials testing..");
 					return;
 				}
+				getAllStagesData();
 				sessionTestingStackPane.getChildren().add(sessionTestingController.createSessionTestingGridPane(true));
 				centerStackPane.getChildren().add(sessionTestingStackPane);
 			} else {
@@ -437,5 +448,92 @@ public class UserCenterContentController {
 			});
 		});
 	}
+	
+	
+
+	private void getAllStagesData() {
+		SessionStageMapResponse data = sessionManagement
+				.getAllSessionStageMapping(currentSessionDetails.getSessionId());
+		if (data.getResponse().getResponseCode() == 1) {
+			StateMachine.setStageDatalist(data.getListOfStageObject());
+			getSessionTestData();
+		} else {
+			Debug.printDebug("Error in getAllStagesData : " + data.getResponse().getResponseMessage());
+		}
+	}
+
+	private void getSessionTestData() {
+		List<StageObject> stageList = StateMachine.getStageDatalist();
+		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+
+		observableStageList.stream().filter(stage -> {
+			return !(stage.isDefaultStatus() || stage.isAdvanceStatus());
+		}).forEach(stage -> {
+			String l1StageId = stage.getL1StageId();
+			SessionTestStateObject.addL1StageMap(l1StageId, stage);
+			SessionTestStateObject.addL1MandatoryStatus(l1StageId, stage.isMandatoryStatus());
+			SessionTestStateObject.addL1ContinueWithErrorStatus(l1StageId, stage.isContinueWithErrorStatus());
+		});
+
+		observableStageList.stream().forEach(stage -> {
+			String l1StageId = stage.getL1StageId();
+			String l2StageId = stage.getL2StageId();
+			String l3StageId = stage.getL3StageId();
+			String l4StageId = stage.getL4StageId();
+			String l5StageId = stage.getL5StageId();
+			if (l2StageId != null && SessionTestStateObject.getL1StageMap().containsKey(l1StageId)) {
+				StageIdName l2StageObject = new StageIdName();
+				l2StageObject.setParentId(l1StageId);
+				l2StageObject.setStageId(l2StageId);
+				l2StageObject.setStageName(stage.getL2StageName());
+				if (l3StageId == null && stage.getTestTypeId() != null) {
+					l2StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l2StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l2StageId);
+				}
+				SessionTestStateObject.addL2StageMap(l2StageId, l2StageObject);
+			}
+
+			if (l3StageId != null && SessionTestStateObject.getL2StageMap().containsKey(l2StageId)) {
+				StageIdName l3StageObject = new StageIdName();
+				l3StageObject.setParentId(l2StageId);
+				l3StageObject.setStageId(l3StageId);
+				l3StageObject.setStageName(stage.getL3StageName());
+				if (l4StageId == null && stage.getTestTypeId() != null) {
+					l3StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l3StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l3StageId);
+				}
+				SessionTestStateObject.addL3StageMap(l3StageId, l3StageObject);
+			}
+
+			if (l4StageId != null && SessionTestStateObject.getL3StageMap().containsKey(l3StageId)) {
+				StageIdName l4StageObject = new StageIdName();
+				l4StageObject.setParentId(l3StageId);
+				l4StageObject.setStageId(l4StageId);
+				l4StageObject.setStageName(stage.getL4StageName());
+				if (l5StageId == null && stage.getTestTypeId() != null) {
+					l4StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l4StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l4StageId);
+				}
+				SessionTestStateObject.addL4StageMap(l4StageId, l4StageObject);
+			}
+
+			if (l5StageId != null && SessionTestStateObject.getL4StageMap().containsKey(l4StageId)) {
+				StageIdName l5StageObject = new StageIdName();
+				l5StageObject.setParentId(l4StageId);
+				l5StageObject.setStageId(l5StageId);
+				l5StageObject.setStageName(stage.getL5StageName());
+				if (stage.getTestTypeId() != null) {
+					l5StageObject.setTestTypeId(stage.getTestTypeId());
+					SessionTestStateObject.getEndLeafMap().put(l5StageObject, stage.getStatus());
+					SessionTestStateObject.addEndLeafToL1StagesWithEndLeadId(l1StageId, l5StageId);
+				}
+				SessionTestStateObject.addL5StageMap(l5StageId, l5StageObject);
+			}
+		});
+	}
+
 
 }
