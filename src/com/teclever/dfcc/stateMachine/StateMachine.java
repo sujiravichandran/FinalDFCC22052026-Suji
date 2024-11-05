@@ -272,11 +272,23 @@ public class StateMachine {
 		private static String mk1ScTemperatureCommand;
 		private static String mk1AecTemperatureCommand;
 
-		private static String mk1aTemperatureCommand;
-		private static String mk2TemperatureCommand;
+		private static String scTemperatureCommand;
+		private static String aecTemperatureCommand;
 
 		private static String ofpVersionStatusCommand;
 		private static String wdmStatusCommand;
+		
+		private static String dfccPowerOnStatus;
+		
+		
+
+		public static String getDfccPowerOnStatus() {
+			return dfccPowerOnStatus;
+		}
+
+		public static void setDfccPowerOnStatus(String dfccPowerOnStatus) {
+			dfccCheckStatus.dfccPowerOnStatus = dfccPowerOnStatus;
+		}
 
 		public static BooleanProperty dfccPowerStatusProperty() {
 			return dfccPowerStatus;
@@ -330,20 +342,20 @@ public class StateMachine {
 			dfccCheckStatus.mk1AecTemperatureCommand = mk1AecTemperatureCommand;
 		}
 
-		public static String getMk1aTemperatureCommand() {
-			return mk1aTemperatureCommand;
+		public static String getScTemperatureCommand() {
+			return scTemperatureCommand;
 		}
 
-		public static void setMk1aTemperatureCommand(String mk1aTemperatureCommand) {
-			dfccCheckStatus.mk1aTemperatureCommand = mk1aTemperatureCommand;
+		public static void setScTemperatureCommand(String scTemperatureCommand) {
+			dfccCheckStatus.scTemperatureCommand = scTemperatureCommand;
 		}
 
-		public static String getMk2TemperatureCommand() {
-			return mk2TemperatureCommand;
+		public static String getAecTemperatureCommand() {
+			return aecTemperatureCommand;
 		}
 
-		public static void setMk2TemperatureCommand(String mk2TemperatureCommand) {
-			dfccCheckStatus.mk2TemperatureCommand = mk2TemperatureCommand;
+		public static void setAecTemperatureCommand(String aecTemperatureCommand) {
+			dfccCheckStatus.aecTemperatureCommand = aecTemperatureCommand;
 		}
 
 		public static String getOfpVersionStatusCommand() {
@@ -366,6 +378,89 @@ public class StateMachine {
 
 	// STORING DATA FOR DFCC STATUS CHECK AITESS 2
 
+	// POWER ON STATUS
+	public static class powerOnStatus{
+
+		private static StringProperty channel1Status = new SimpleStringProperty();
+		private static StringProperty channel2Status = new SimpleStringProperty();
+		private static StringProperty channel3Status = new SimpleStringProperty();
+		private static StringProperty channel4Status = new SimpleStringProperty();
+		
+		
+		private static String minValue;
+		private static String maxValue;
+		
+		
+		public static String getMinValue() {
+			return minValue;
+		}
+
+		public static void setMinValue(String minValue) {
+			powerOnStatus.minValue = minValue;
+		}
+
+		public static String getMaxValue() {
+			return maxValue;
+		}
+
+		public static void setMaxValue(String maxValue) {
+			powerOnStatus.maxValue = maxValue;
+		}
+
+		public static StringProperty channel1StatusProperty() {
+			return channel1Status;
+		}
+		
+		public static String getChannel1Status() {
+			return channel1Status.get();
+		}
+		
+		public static void setChannel1Status(String channel1Status) {
+			powerOnStatus.channel1Status.set(channel1Status);
+		}
+		
+		
+		public static StringProperty channel2StatusProperty() {
+			return channel2Status;
+		}
+		
+		public static String getChannel2Status() {
+			return channel2Status.get();
+		}
+		
+		public static void setChannel2Status(String channel2Status) {
+			powerOnStatus.channel2Status.set(channel2Status);
+		}
+		
+		
+		public static StringProperty channel3StatusProperty() {
+			return channel3Status;
+		}
+		
+		public static String getChannel3Status() {
+			return channel3Status.get();
+		}
+		
+		public static void setChannel3Status(String channel3Status) {
+			powerOnStatus.channel3Status.set(channel3Status);
+		}
+		
+		public static StringProperty channel4StatusProperty() {
+			return channel4Status;
+		}
+		
+		public static String getChannel4Status() {
+			return channel4Status.get();
+		}
+		
+		public static void setChannel4Status(String channel4Status) {
+			powerOnStatus.channel4Status.set(channel4Status);
+		}
+		
+
+	}
+	
+	
 	// ONLINE STATUS
 	public static class OnlineStatus {
 
@@ -639,6 +734,30 @@ public class StateMachine {
 			boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
 		}
 	}
+	
+	public static class boardChannelTempAEC {
+
+		public static ObservableMap<String, ChannelTemperature> boardTemperatureMap = FXCollections
+				.observableMap(new HashMap<>());
+
+		public static ObservableMap<String, ChannelTemperature> getBoardTemperatureMap() {
+			return boardTemperatureMap;
+		}
+
+		public static void addBoardTemperatureMap(String key, ChannelTemperature value) {
+			boardTemperatureMap.put(key, value);
+		}
+
+		public static void setBoardTemperatureMap(ObservableMap<String, ChannelTemperature> boardTemperatureMap) {
+			boardChannelTempAEC.boardTemperatureMap.clear();
+			boardChannelTempAEC.boardTemperatureMap.putAll(boardTemperatureMap);
+		}
+	}
+	
+	
+	
+	
+	
 
 	// FOR RDF FILE PARSER
 	public static class rdfFileParser {
@@ -866,8 +985,8 @@ public class StateMachine {
 		dfccCheckStatus.setOnlineStatusCommand(null);
 		dfccCheckStatus.setMk1ScTemperatureCommand(null);
 		dfccCheckStatus.setMk1AecTemperatureCommand(null);
-		dfccCheckStatus.setMk1aTemperatureCommand(null);
-		dfccCheckStatus.setMk2TemperatureCommand(null);
+		dfccCheckStatus.setScTemperatureCommand(null);
+		dfccCheckStatus.setAecTemperatureCommand(null);
 		dfccCheckStatus.setOfpVersionStatusCommand(null);
 		dfccCheckStatus.setWdmStatusCommand(null);
 
