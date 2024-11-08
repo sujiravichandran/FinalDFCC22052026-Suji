@@ -46,9 +46,15 @@ import com.teclever.dfcc.utils.Debug;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
 
 public class AitessProcessControlManagement {
+	
+	private StringBuilder textBuffer = new StringBuilder();
+	private static  int MAX_TOTAL_LINES = 5000;
+	private static  int MAX_LINES = 10;
+	private int LINES_COUNT;
 
 	private static AitessProcessControlManagement instance;
 
@@ -91,6 +97,8 @@ public class AitessProcessControlManagement {
 	private boolean launchAitess = false;
 	private boolean launchAitess1 = false;
 	boolean bothLaunched = false;
+	public boolean runCommands = false;
+
 
 	boolean flag;
 	static boolean allChannelsOnline = false;
@@ -241,11 +249,13 @@ public class AitessProcessControlManagement {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			textArea.appendText("Failed to create directories or copy config.dat file.\n");
+//			textArea.appendText("Failed to create directories or copy config.dat file.\n");
+			appendText(textArea, "Failed to create directories or copy config.dat file.\n");
 			Debug.printDebug("1");
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
-			textArea.appendText("Failed to retrieve the username.\n");
+//			textArea.appendText("Failed to retrieve the username.\n");
+			appendText(textArea, "Failed to retrieve the username.\\n");
 			Debug.printDebug("2");
 		}
 	}
@@ -308,6 +318,15 @@ public class AitessProcessControlManagement {
 								checkMethod = false;
 							}
 						}
+						if (runCommands == true) {
+							System.out.println("runcommand is True");
+							if (s1.contains(">>>")) {
+								System.out.println("END LINE FOR PASSED COMMAND FOUNDED - ");
+								runCommands = false;
+								System.out.println(" runCommands : "+AitessProcessControlManagement.getInstance().runCommands);
+
+							}
+						}
 
 						cleanText = cleanOutput(s1);
 						cleanText = cleanText.replaceAll("\\(B", "");
@@ -323,18 +342,21 @@ public class AitessProcessControlManagement {
 //									Debug.printDebug("-------------------------------------------------");
 //									Debug.printDebug();
 //									Debug.printDebug("--Before Appending TextArea--"+textArea.getText());
-									textArea.appendText(cleanContent);
-									textArea.requestFocus();
-									textArea.setScrollTop(Double.MAX_VALUE);
+//									textArea.appendText(cleanContent);
+//									textArea.requestFocus();
+//									textArea.setScrollTop(Double.MAX_VALUE);
+									appendText(textArea, cleanContent);
+//									Debug.printDebug("--After Appending TextArea--"+textArea.getText());
 //									Debug.printDebug("--After Appending TextArea--"+textArea.getText());
 //									Debug.printDebug();
 //									Debug.printDebug("-------------------------------------------------");
 								}
 							} else if (oldString[0] == null) {
 //						    	Debug.printDebug("-----firstTime----");
-								textArea.appendText(newString);
-								textArea.requestFocus();
-								textArea.setScrollTop(Double.MAX_VALUE);
+//								textArea.appendText(newString);
+//								textArea.requestFocus();
+//								textArea.setScrollTop(Double.MAX_VALUE);
+								appendText(textArea, newString);
 							}
 							oldString[0] = newString;
 						});
@@ -789,13 +811,26 @@ public class AitessProcessControlManagement {
 		String aets1QResponse = null;
 		try {
 			testStarted = true;
+			long startTime = System.currentTimeMillis();
+			final String fileName;
+			 System.out.println("Perform test() Start -- "+tpfFileName);
+			if (tpfFileName.contains("\\") || tpfFileName.contains("/")) {
+				// If the string contains a path separator, split it into path and file name
+				File file = new File(tpfFileName);
+				
+				  fileName = file.getName();
+	        } else {
+	            fileName = tpfFileName;
+	        }
 
-			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + tpfFileName + "\n"));
+			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + fileName + "\n"));
 			boolean flag = true;
 			while (flag) {
+				
 				if (aitess1ResultQ != null && aitess1ResultQ.peek() != null) {
 					aets1QResponse = aitess1ResultQ.take();
-					Debug.printDebug(" --> AETS 1 Q Data : " + aets1QResponse);
+					System.out.println(" --> AETS 1 Q Data : " + aets1QResponse);
+					
 					if (aets1QResponse.equals("PARSE ERROR")) {
 						aets1QResponse = null;
 					} else if (aets1QResponse.equals("USER EXIT")) {
@@ -804,12 +839,21 @@ public class AitessProcessControlManagement {
 						aets1QResponse = "RUN TIME ERROR";
 					}
 					flag = false;
+				}else {
+					  long currentTime = System.currentTimeMillis();
+			            long elapsedTime = currentTime - startTime;
+
+					 if (elapsedTime >= 60000) {
+							System.out.println("Test is Running..");
+			                startTime = currentTime;  // Reset the start time
+			            }
 				}
+				Thread.sleep(100);
 
 			}
 
 			testStarted = false;
-			Debug.printDebug("Perform Test() Return : " + aets1QResponse);
+			System.out.println("Perform Test() Return : " + aets1QResponse);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1563,5 +1607,47 @@ public class AitessProcessControlManagement {
 			}
 		}
 	}
+	
+	private void appendText(TextArea textArea, String content) {
+	    Task<Void> appendTask = new Task<Void>() {
+	        @Override
+	        protected Void call() throws Exception {
+	                Platform.runLater(() -> {
+	                	
+	                	textBuffer.append(content);
+	                	LINES_COUNT++;
+	                	
+	                	if ((LINES_COUNT == MAX_LINES) || content.contains(">>>") || content.contains("@") || content.contains("macname") || content.contains("wait") || content.contains("Y/N")) {
+//	                	    textArea.setText(textBuffer.toString()); // Replace entire content with text buffer
+	                	    textArea.appendText(textBuffer.toString()); // append content with text buffer
 
+	                	    textArea.setScrollTop(Double.MAX_VALUE); // Scroll to bottom
+
+	                	    textBuffer.setLength(0); // Clear buffer
+	                	    LINES_COUNT = 0;
+	                	    
+	                	    int maxTextLine = textArea.getParagraphs().size();
+  	                	    
+	                	    if (maxTextLine >= MAX_TOTAL_LINES) {
+	                         textArea.deleteText(0, maxTextLine - MAX_TOTAL_LINES);
+	                     }
+	                	    
+	                	}
+//	                	 if (textArea.getParagraphs().size() >= 2500) {
+////	                         int firstLineEndIndex = textArea.getText().indexOf("\n") + 1;
+//	                         int maxTextLine = textArea.getParagraphs().size();
+//	                         int DeleteLinendex = maxTextLine - 2500;
+//	                         textArea.deleteText(0, DeleteLinendex);
+//	                     }
+//	                	 textArea.appendText(content);
+//	                	 textArea.requestFocus();
+//	                	 textArea.setScrollTop(Double.MAX_VALUE);
+	                });	
+	                Thread.sleep(10);
+	            return null;
+	        }
+	    };
+	    new Thread(appendTask).start();
+	}
+	
 }

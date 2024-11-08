@@ -2,6 +2,7 @@ package com.teclever.dfcc.datastore.testmanagement;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,6 +31,7 @@ import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.dto.TestProcessDto;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -56,7 +58,9 @@ import com.teclever.dfcc.utils.Debug;
 public class TestProcessManagement {
 
 	ObjectId mongoUniqueIdentifier;
-
+	private String tempRdfFileResult="OK";
+	
+	private String tempDotComFileResult="OK";
 	/**
 	 * Main method to start the test process.
 	 * 
@@ -117,13 +121,17 @@ public class TestProcessManagement {
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
 
-			
+//			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+//			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
+//
+//			if (popupflag) {
+//				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+//				SessionTestStateObject.setPopupStageId(stageId);
+//			}
 		} catch (Exception e) {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 
 		}
-		
-	
 		return res;
 	}
 
@@ -398,8 +406,7 @@ public class TestProcessManagement {
 				LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 				LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
 				StateMachine.setTestState(TestState.COMPLETED);
-				System.out
-						.println("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
+				Debug.printDebug("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
 				break;
 			case "SESSION TEST":
 
@@ -741,9 +748,6 @@ public class TestProcessManagement {
 
 				}
 			}
-			for (String line1 : listOfFileNames) {
-				Debug.printDebug("Line -->  " + line1);
-			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -759,12 +763,6 @@ public class TestProcessManagement {
 			Set<String> keysSet) {
 		try {
 
-			String startTime;
-			String endTime;
-			String rdfFileName = null;
-			String rdfFileResult = "OK";
-			String testState = null;
-
 			// For generating unique test file IDs
 			SessionStagesTestFilesResultService sessionStageTestFileResult = new SessionStagesTestFilesResultService();
 
@@ -776,131 +774,74 @@ public class TestProcessManagement {
 			// Populate list of file IDs for repetition
 			List<String> listOfFileIds = generateFileIdsList(repeatCount, listOfFileId);
 
-			List<String> listOfTestFileNames = new ArrayList<>();
-			String sessionStageSelectedTestFileId;
+			String rdfFileResult = "OK";
+			String testState = null;
 			int incrementNum = 0;
+			boolean lastCount = false;
 
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
 				incrementNum++;
+				
+				// Initial : Dot com File Result 
 				String dotComFileResult = "OK";
+
 				// Check if file ID has a corresponding name
 				if (testFilesIdName.get(testFileId) != null) {
-					listOfTestFileNames.clear();
 
-					listOfTestFileNames = getTestFileNames(testFilesIdName.get(testFileId));
+					String testFileName = testFilesIdName.get(testFileId);
+					
+					if (incrementNum > (listOfFileIds.size() - listOfFileId.size())) {
+						lastCount = true;
+					}
+					TestProcessDto testProcessDto;
+					
+					if (testFileName.endsWith(".com")) {
 
-					// Inner loop for file names
-					for (String tpfFileName : listOfTestFileNames) {
+						// Read files if .com extension is found
+						 testProcessDto =	processDotComFile(testFileName, stageName,
+								 rdfFileLocation, stageId,  sessionId, rdfFileResult,  dotComFileResult,
+								 continueWithError,  testFileId,  sessionStageMapId,  lastCount,
+									sessionStageTestFileResult);
+			
+					} else {
 
-						// Wait if text area is not ready
-						checkTestisRunning();
+						 testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId,
+								sessionId, rdfFileResult, dotComFileResult, continueWithError, testFileId,
+								sessionStageMapId, lastCount,
+								sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
+					}
+					// check TestState From Response if it stop then exit from the loop.
+					if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
+						testState = "STOPED";
+						break outerLoop;
+					}
+					// update RdfFileResult
+					if (testProcessDto.getRdfFileResult() != null
+							&& testProcessDto.getRdfFileResult().equals("NOT OK")) {
+						rdfFileResult = testProcessDto.getRdfFileResult();
 
-						// Update State Machine : Set TextArea to FALSE.
-						StateMachine.setTextArea(false);
+					}
+					// update dotComFileResult.
+					if (testProcessDto.getDotComFileResult() != null
+							&& testProcessDto.getDotComFileResult().equals("NOT OK")) {
+						dotComFileResult = testProcessDto.getDotComFileResult();
+					}
 
-						// Handle PAUSED or STOPPED states
-						if (handleTestState() == true) {
-							testState = "STOPED";
-							break outerLoop;
-						}
-
-						// Test Started Time
-						startTime = String.valueOf(new Date());
-
-						// Getting RDF file Name from PerformTest()
-						rdfFileName = AitessProcessControlManagement.getInstance().performTest(tpfFileName);
-
-						TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName,
-								tpfFileName, stageId, sessionId);
-
-						if (incrementNum > (listOfFileIds.size() - listOfFileId.size())) {
-
-							// Handle test result
-							if (testProcessRes.getResponse().getResponseCode() == 111) {
-								if (rdfFileResult.equals("OK")) {
-									rdfFileResult = "NOT OK";
-								}
-
-								if (dotComFileResult.equals("OK")) {
-									dotComFileResult = "NOT OK";
-								}
-
-								// check continue With Error
-								if (continueWithError) {
-									SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
-									// break outerLoop;
-								}
-							} else {
-								if (dotComFileResult.equals("OK")) {
-									SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
-								}
-							}
-						}
-
-						// Test Ended Time
-						endTime = String.valueOf(new Date());
-
-						// ADD File ID to SESSION STAGE SELECTED TEST FILES
-						sessionStageSelectedTestFileId = addSelectedTestFile(testFileId, sessionStageMapId);
-
-						// Save test file result.
-						addTestFileResult(sessionStageTestFileResult.generateUniqueTestFilesResultIdId(), sessionId,
-								stageId, testFileId, String.valueOf(mongoUniqueIdentifier), rdfFileLocation,
-								(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
-										: "RDF NOT GENERATED",
-								(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
-								String.valueOf(testProcessRes.getdStarCount()), startTime, endTime,
-								sessionStageSelectedTestFileId);
-						//File Copying
-						if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
-							
-							SessionFileManagement sessionFileManagement = new SessionFileManagement();
-							String rdfFile = rdfFileLocation + rdfFileName;
-							
-							
-							SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
-							GetObjResponse sessionStages= sessionStagesSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
-							SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
-							sessionStagesMapping = (SessionStagesMapping) sessionStages.getObject();
-							String stagePath = sessionStagesMapping.getPath();
-							 
-							Path sourcePath = Paths.get(rdfFile);
-							Path destinationPath = Paths.get(stagePath);
-							sessionFileManagement.copyFilesToOutputFolder(sourcePath, destinationPath);
-							
-						}
-
-						// Update State Machine to Set TextArea to TRUE.
-						StateMachine.setTextArea(true);
-					} // Inner loop
 				}
+				// SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);
 				if (stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
 						|| stageName.equals("INTERFACE TEST")) {
 					updateProgressBar(stageName);
 				}
 			} // Outer loop
-			
-			
-			
 
 			// Update state machine card status
 			updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
-			
-			/*SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
-
-			if (popupflag) {
-				Debug.printDebug("Pop-UP Flag True");
-				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
-				SessionTestStateObject.setPopupStageId(stageId);
-			}*/
 
 			// Determine stage result
 			String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
 					: rdfFileResult.equals("NOT OK") ? "COMPLETED with Failure" : null;
-			
-			
 
 			if (stageName.equals("SESSION TEST")) {
 				stageResult = getStageResult(stageId, keysSet);
@@ -931,10 +872,184 @@ public class TestProcessManagement {
 				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 				SessionTestStateObject.setPopupStageId(stageId);
 			}*/
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private TestProcessDto processDotComFile(String fileName,String stageName,
+			String rdfFileLocation, String stageId, String sessionId,String rdfFileResult, String dotComFileResult,
+			boolean continueWithError, String testFileId, String sessionStageMapId, boolean lastCount,
+			SessionStagesTestFilesResultService sessionStageTestFileResult) {
+		TestProcessDto responsetestProcessDto = new TestProcessDto();
+		int lineCount =0;
+		System.out.println("-----  START  ---------");
+		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				lineCount++;
+				if ((!line.isEmpty())) {
+					System.out.println("Line Number : "+lineCount + " , Line is : "+line);
+					if (line.startsWith("@")) {
+						line = line.substring(1);
+
+						if (line.endsWith(".com")) {
+							
+							//Extracting File Path. To Fetch founded Dot Com File
+							File file = new File(fileName);
+				            fileName = file.getName();
+				            String path = file.getParent();
+				            System.out.println("Dot Com File "+line);
+				            //Calling itself with Same Parameter (fileName only Change)
+							processDotComFile(path+File.separator+line, stageName,
+									rdfFileLocation, stageId, sessionId, rdfFileResult, dotComFileResult,
+									continueWithError, testFileId, sessionStageMapId, lastCount,sessionStageTestFileResult);
+
+						}
+						System.out.println("TPF File "+line);
+						TestProcessDto testProcessDto = runTestFile(line, stageName,
+								rdfFileLocation, stageId, sessionId, rdfFileResult, dotComFileResult,
+								continueWithError, testFileId, sessionStageMapId, lastCount,sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
+
+						// check TestState From Response if it stop then exit from the loop.
+						if (testProcessDto.getTestState() != null
+								&& testProcessDto.getTestState().equals("STOPED")) {
+							return testProcessDto;
+						}
+						// update RdfFileResult
+						if (testProcessDto.getRdfFileResult() != null
+								&& testProcessDto.getRdfFileResult().equals("NOT OK")) {
+							tempRdfFileResult = testProcessDto.getRdfFileResult();
+
+						}
+						// update dotComFileResult.
+						if (testProcessDto.getDotComFileResult() != null
+								&& testProcessDto.getDotComFileResult().equals("NOT OK")) {
+							tempDotComFileResult = testProcessDto.getDotComFileResult();
+						}
+
+					} else {
+						System.out.println("Command is  "+line +" , runCommands : "+AitessProcessControlManagement.getInstance().runCommands);
+						// Call writing command to Terminal
+						AitessProcessControlManagement.getInstance().runCommands = true;
+						
+						AitessProcessControlManagement.getInstance().WriteAitess1Command(line + "\n");
+						
+						
+						while (AitessProcessControlManagement.getInstance().runCommands) {
+							System.out.println(" --> Waiting For Completing Command : " );
+								Thread.sleep(900);
+							}
+
+						}
+//						// Wait for 5 sec to Complete.
+//						Thread.sleep(5000);
+					}
+
+				}
+			} // Reading While loop.
+		 catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("------- COMPLETED --------");
+		responsetestProcessDto.setRdfFileResult(tempRdfFileResult);
+		responsetestProcessDto.setDotComFileResult(tempDotComFileResult);
+		return responsetestProcessDto;
+	}
+	private TestProcessDto runTestFile(String testFileName, String stageName, String rdfFileLocation, String stageId,
+			String sessionId, String rdfFileResult, String dotComFileResult, boolean continueWithError,
+			String testFileId, String sessionStageMapId, boolean lastCount, String uniqueTestFilesResultIdId) {
+
+		TestProcessDto testProcessDto = new TestProcessDto();
+
+		try {
+
+			// Wait if text area is not ready
+			checkTestisRunning();
+
+			// Update State Machine : Set TextArea to FALSE.
+			StateMachine.setTextArea(false);
+
+			// Handle PAUSED or STOPPED states
+			if (handleTestState() == true) {
+				testProcessDto.setTestState("STOPED");
+				return testProcessDto;
+			}
+
+			// Test Started Time
+			String startTime = String.valueOf(new Date());
+
+			// Getting RDF file Name from PerformTest()
+			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
+
+			TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName, testFileName,
+					stageId, sessionId);
+
+			if (lastCount) {
+				// Handle test result
+				if (testProcessRes.getResponse().getResponseCode() == 111) {
+					if (rdfFileResult.equals("OK")) {
+						testProcessDto.setRdfFileResult("NOT OK");
+
+					}
+
+					if (dotComFileResult.equals("OK")) {
+						testProcessDto.setDotComFileResult("NOT OK");
+					}
+
+					// check continue With Error
+					if (continueWithError) {
+						SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+
+					}
+				} else {
+					if (dotComFileResult.equals("OK")) {
+						SessionTestStateObject.setStageIdWithFileIds(stageId, testFileId);
+					}
+				}
+			}
+
+			// Test Ended Time
+			String endTime = String.valueOf(new Date());
+
+			// ADD File ID to SESSION STAGE SELECTED TEST FILES
+			String sessionStageSelectedTestFileId = addSelectedTestFile(testFileId, sessionStageMapId);
+
+			// Save test file result.
+			addTestFileResult(uniqueTestFilesResultIdId, sessionId, stageId, testFileId,
+					String.valueOf(mongoUniqueIdentifier), rdfFileLocation,
+					(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
+							: "RDF NOT GENERATED",
+					(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
+					String.valueOf(testProcessRes.getdStarCount()), startTime, endTime, sessionStageSelectedTestFileId);
+			//File Copying
+			if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
+				
+				SessionFileManagement sessionFileManagement = new SessionFileManagement();
+				String rdfFile = rdfFileLocation + rdfFileName;
+				
+				
+				SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
+				GetObjResponse sessionStages= sessionStagesSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+				sessionStagesMapping = (SessionStagesMapping) sessionStages.getObject();
+				String stagePath = sessionStagesMapping.getPath();
+				 
+				Path sourcePath = Paths.get(rdfFile);
+				Path destinationPath = Paths.get(stagePath);
+				sessionFileManagement.copyFilesToOutputFolder(sourcePath, destinationPath);
+				
+			}
+			// Update State Machine to Set TextArea to TRUE.
+			StateMachine.setTextArea(true);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return testProcessDto;
+
 	}
 
 	private List<String> generateFileIdsList(int repeatCount, List<String> listOfFileId) {
@@ -1027,22 +1142,26 @@ public class TestProcessManagement {
 		}
 	}
 
-	public Response runCommand(String command, String testTypeId , String testName) {
+	public Response runCommand(String command, String testTypeId, String testName) {
 		Response res = new Response();
 		try {
+
 			// If AETS process failed to launch, return failure response
 			if (checkAndUpdateAetsProcessStatus(testTypeId, null)) {
 				resetAitessFailureStates();
 				return createErrorResponse("AETS Failed to launch");
 			}
+
 			resetAitessFailureStates();
 			if (testName.equals("CUSTOM ONE")) {
+
 				StateMachine.setRunCommand(true);
 			} else {
-				
+
 			}
 			// Call writing command to Terminal
 			AitessProcessControlManagement.getInstance().WriteAitess1Command(command + "\n");
+
 		} catch (Exception e) {
 			return createErrorResponse("Test Failled  " + e.getLocalizedMessage());
 		}

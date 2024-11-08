@@ -130,7 +130,10 @@ public class ResultExecutionManagement {
 			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 
-			if (sessionStagesMappingId != null) {
+			
+			
+			//For Last Set Runned By Stage
+			/*if (sessionStagesMappingId != null) {
 				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
 				GetResponse getResponse = sessionStagesSelectedTestFilesService
 						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
@@ -142,10 +145,28 @@ public class ResultExecutionManagement {
 								selectedTestFile.getTestFilesId());
 					}
 				}
+			}*/
+			
+			//For Fetching All The SelectedTestFileId
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse getResponse = sessionStagesSelectedTestFilesService
+					.getAllSelectedTestFiles();
+			List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+			selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+			if (selectedTestFileInStages != null) {
+				for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+					selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+							selectedTestFile.getTestFilesId());
+				}
 			}
+		
 
+			
+			
 			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
 					.collect(Collectors.toList());
+			
+			
 
 			List<ResultExecutionDTO> resultList = new ArrayList();
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
@@ -247,7 +268,7 @@ public class ResultExecutionManagement {
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
 
-			if (sessionStagesMappingId != null) {
+		/*	if (sessionStagesMappingId != null) {
 				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
 				GetResponse getResponse = sessionStagesSelectedTestFilesService
 						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
@@ -259,7 +280,20 @@ public class ResultExecutionManagement {
 								selectedTestFile.getTestFilesId());
 					}
 				}
+			}*/
+			
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse getResponse = sessionStagesSelectedTestFilesService
+					.getAllSelectedTestFiles();
+			List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+			selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+			if (selectedTestFileInStages != null) {
+				for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+					selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+							selectedTestFile.getTestFilesId());
+				}
 			}
+			
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse resTestFiles = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
@@ -366,8 +400,21 @@ public class ResultExecutionManagement {
 								response.setCode(0);
 								return response;
 							}
+							
+							
+							SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+							GetResponse getResponse = sessionStagesSelectedTestFilesService
+									.getAllSelectedTestFiles();
+							List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+							selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+							if (selectedTestFileInStages != null) {
+								for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+									selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+											selectedTestFile.getTestFilesId());
+								}
+							}
 						
-							SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+						/*	SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 							GetResponse getRes = sessionSelectedStagesService.getAllSessionStagesBySessionStageId(sessionId);
 							List<SessionStagesMapping> sessionStagesMappingList = new ArrayList<SessionStagesMapping>();
 							sessionStagesMappingList = (List<SessionStagesMapping>) getRes.getResponseList();
@@ -389,7 +436,7 @@ public class ResultExecutionManagement {
 										}
 									}
 								}
-							}
+							}*/
 				
 
 				/*SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
