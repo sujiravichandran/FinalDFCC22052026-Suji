@@ -50,10 +50,10 @@ import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
 
 public class AitessProcessControlManagement {
-	
+
 	private StringBuilder textBuffer = new StringBuilder();
-	private static  int MAX_TOTAL_LINES = 5000;
-	private static  int MAX_LINES = 10;
+	private static int MAX_TOTAL_LINES = 5000;
+	private static int MAX_LINES = 10;
 	private int LINES_COUNT;
 
 	private static AitessProcessControlManagement instance;
@@ -98,7 +98,6 @@ public class AitessProcessControlManagement {
 	private boolean launchAitess1 = false;
 	boolean bothLaunched = false;
 	public boolean runCommands = false;
-
 
 	boolean flag;
 	static boolean allChannelsOnline = false;
@@ -237,7 +236,7 @@ public class AitessProcessControlManagement {
 				launchAitess2("cd " + aitess1Dir.toString() + "\n");
 				launcherFuture2.thenRun(() -> {
 					aitess2ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n");
-					System.out.println("AITESS 2 LAUNCHED COMMAND executed");
+					Debug.printDebug("AITESS 2 LAUNCHED COMMAND executed");
 
 				});
 
@@ -319,11 +318,11 @@ public class AitessProcessControlManagement {
 							}
 						}
 						if (runCommands == true) {
-							System.out.println("runcommand is True");
 							if (s1.contains(">>>")) {
 								System.out.println("END LINE FOR PASSED COMMAND FOUNDED - ");
 								runCommands = false;
-								System.out.println(" runCommands : "+AitessProcessControlManagement.getInstance().runCommands);
+								System.out.println(
+										" runCommands : " + AitessProcessControlManagement.getInstance().runCommands);
 
 							}
 						}
@@ -411,13 +410,27 @@ public class AitessProcessControlManagement {
 								}
 							}
 							// rdf file name
-							if (getRdfFileName(finalLine) != null) {
-								result = getRdfFileName(finalLine);
+							String tmp = getRdfFileName(finalLine);
+							if (tmp != null) {
+								result = tmp;
 							}
 
 							String endLine = getEndMatchingLine(finalLine);
 							if (endLine != null) {
 								if (result != null) {
+									aitess1ResultQ.put(result);
+									result = "";
+								}
+							} else if (finalLine.contains("Execution of TPF") && finalLine.endsWith("completed.")) {
+								Debug.printDebug("END LINE:: " + finalLine);
+								if (result != null) {
+									aitess1ResultQ.put(result);
+									result = "";
+								}
+							}
+
+							if (finalLine.contains(">>>")) {
+								if (result != null && !result.isEmpty()) {
 									aitess1ResultQ.put(result);
 									result = "";
 								}
@@ -463,7 +476,7 @@ public class AitessProcessControlManagement {
 
 					while (true) {
 						String output = aitess2ReadQ.take();
-						System.out.println("aitess2 :: " + output);
+						Debug.printDebug("aitess2 :: " + output);
 
 						if (launchAitess1 == true) {
 							if (output.contains(">>>")) {
@@ -603,7 +616,7 @@ public class AitessProcessControlManagement {
 						if (powerOnStatus.get()) {
 
 							if (cleanText.contains("pwronstsend")) {
-								System.out.println(" -- -- -- END OF MACRO -- -- -- ");
+								Debug.printDebug(" -- -- -- END OF MACRO -- -- -- ");
 								powerOnStatus.set(false);
 							}
 
@@ -702,7 +715,7 @@ public class AitessProcessControlManagement {
 						// SC TEMPERATURE MONITORING
 						if (SCtemperatureMonitoring.get() == true) {
 							if (cleanText.contains("sctempend")) {
-								System.out.println("End of SC Temprature Monitoring found.");
+								Debug.printDebug("End of SC Temprature Monitoring found.");
 								AECtemperatureMonitoring.set(true);
 								SCtemperatureMonitoring.set(false);
 							}
@@ -739,7 +752,7 @@ public class AitessProcessControlManagement {
 									// Update to STATE MACHINE
 									boardChannelTemp.addBoardTemperatureMap(bName, c);
 
-									System.out.println("STATE MACHINE SC TEMP::    " + bName + ": " + "CH 1: " + temp1
+									Debug.printDebug("STATE MACHINE SC TEMP::    " + bName + ": " + "CH 1: " + temp1
 											+ ", CH 2: " + temp2 + ", CH 3: " + temp3 + ", CH 4: " + temp4);
 								}
 								bName = null;
@@ -750,7 +763,7 @@ public class AitessProcessControlManagement {
 						// AEC monitoring
 						if (AECtemperatureMonitoring.get() == true) {
 							if (cleanText.contains("aectempend")) {
-								System.out.println("End of AEC Temprature Monitoring found.");
+								Debug.printDebug("End of AEC Temprature Monitoring found.");
 								AECtemperatureMonitoring.set(false);
 							}
 
@@ -786,7 +799,7 @@ public class AitessProcessControlManagement {
 									// Update to STATE MACHINE
 									boardChannelTempAEC.addBoardTemperatureMap(boardAECName, cc);
 
-									System.out.println("STATE MACHINE AEC TEMP::    " + boardAECName + ": " + "CH 1: "
+									Debug.printDebug("STATE MACHINE AEC TEMP::    " + boardAECName + ": " + "CH 1: "
 											+ temp1 + ", CH 2: " + temp2 + ", CH 3: " + temp3 + ", CH 4: " + temp4);
 								}
 								boardAECName = null;
@@ -811,45 +824,36 @@ public class AitessProcessControlManagement {
 		String aets1QResponse = null;
 		try {
 			testStarted = true;
-			long startTime = System.currentTimeMillis();
 			final String fileName;
-			 System.out.println("Perform test() Start -- "+tpfFileName);
+			System.out.println("Perform test() Start -- " + tpfFileName);
 			if (tpfFileName.contains("\\") || tpfFileName.contains("/")) {
-				// If the string contains a path separator, split it into path and file name
 				File file = new File(tpfFileName);
-				
-				  fileName = file.getName();
-	        } else {
-	            fileName = tpfFileName;
-	        }
+				fileName = file.getName();
+			} else {
+				fileName = tpfFileName;
+			}
 
 			launcherFuture1.thenRun(() -> aitess1ProcessControl.WritingProcess("@ " + fileName + "\n"));
 			boolean flag = true;
 			while (flag) {
-				
+
 				if (aitess1ResultQ != null && aitess1ResultQ.peek() != null) {
 					aets1QResponse = aitess1ResultQ.take();
 					System.out.println(" --> AETS 1 Q Data : " + aets1QResponse);
-					
-					if (aets1QResponse.equals("PARSE ERROR")) {
-						aets1QResponse = null;
-					} else if (aets1QResponse.equals("USER EXIT")) {
-						aets1QResponse = "USER EXIT";
-					} else if (aets1QResponse.equals("RUN TIME ERROR")) {
-						aets1QResponse = "RUN TIME ERROR";
+
+					if (aets1QResponse != null && !aets1QResponse.isEmpty()) {
+
+						if (aets1QResponse.equals("PARSE ERROR")) {
+							aets1QResponse = null;
+						} else if (aets1QResponse.equals("USER EXIT")) {
+							aets1QResponse = "USER EXIT";
+						} else if (aets1QResponse.equals("RUN TIME ERROR")) {
+							aets1QResponse = "RUN TIME ERROR";
+						}
+						flag = false;
+
 					}
-					flag = false;
-				}else {
-					  long currentTime = System.currentTimeMillis();
-			            long elapsedTime = currentTime - startTime;
-
-					 if (elapsedTime >= 60000) {
-							System.out.println("Test is Running..");
-			                startTime = currentTime;  // Reset the start time
-			            }
 				}
-				Thread.sleep(100);
-
 			}
 
 			testStarted = false;
@@ -1248,7 +1252,7 @@ public class AitessProcessControlManagement {
 		Matcher tpfLineMatcher = tpfLinePattern.matcher(line);
 
 		if (tpfLineMatcher.find()) {
-			Debug.printDebug("END LINE:: " + line);
+			//System.out.println("END LINE*:: " + line);
 			return line;
 		}
 		return null;
@@ -1607,32 +1611,33 @@ public class AitessProcessControlManagement {
 			}
 		}
 	}
-	
+
 	private void appendText(TextArea textArea, String content) {
-	    Task<Void> appendTask = new Task<Void>() {
-	        @Override
-	        protected Void call() throws Exception {
-	                Platform.runLater(() -> {
-	                	
-	                	textBuffer.append(content);
-	                	LINES_COUNT++;
-	                	
-	                	if ((LINES_COUNT == MAX_LINES) || content.contains(">>>") || content.contains("@") || content.contains("macname") || content.contains("wait") || content.contains("Y/N")) {
+		Task<Void> appendTask = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(() -> {
+
+					textBuffer.append(content);
+					LINES_COUNT++;
+
+					if ((LINES_COUNT == MAX_LINES) || content.contains(">>>") || content.contains("@")
+							|| content.contains("macname") || content.contains("wait") || content.contains("Y/N")) {
 //	                	    textArea.setText(textBuffer.toString()); // Replace entire content with text buffer
-	                	    textArea.appendText(textBuffer.toString()); // append content with text buffer
+						textArea.appendText(textBuffer.toString()); // append content with text buffer
 
-	                	    textArea.setScrollTop(Double.MAX_VALUE); // Scroll to bottom
+						textArea.setScrollTop(Double.MAX_VALUE); // Scroll to bottom
 
-	                	    textBuffer.setLength(0); // Clear buffer
-	                	    LINES_COUNT = 0;
-	                	    
-	                	    int maxTextLine = textArea.getParagraphs().size();
-  	                	    
-	                	    if (maxTextLine >= MAX_TOTAL_LINES) {
-	                         textArea.deleteText(0, maxTextLine - MAX_TOTAL_LINES);
-	                     }
-	                	    
-	                	}
+						textBuffer.setLength(0); // Clear buffer
+						LINES_COUNT = 0;
+
+						int maxTextLine = textArea.getParagraphs().size();
+
+						if (maxTextLine >= MAX_TOTAL_LINES) {
+							textArea.deleteText(0, maxTextLine - MAX_TOTAL_LINES);
+						}
+
+					}
 //	                	 if (textArea.getParagraphs().size() >= 2500) {
 ////	                         int firstLineEndIndex = textArea.getText().indexOf("\n") + 1;
 //	                         int maxTextLine = textArea.getParagraphs().size();
@@ -1642,12 +1647,12 @@ public class AitessProcessControlManagement {
 //	                	 textArea.appendText(content);
 //	                	 textArea.requestFocus();
 //	                	 textArea.setScrollTop(Double.MAX_VALUE);
-	                });	
-	                Thread.sleep(10);
-	            return null;
-	        }
-	    };
-	    new Thread(appendTask).start();
+				});
+				Thread.sleep(10);
+				return null;
+			}
+		};
+		new Thread(appendTask).start();
 	}
-	
+
 }
