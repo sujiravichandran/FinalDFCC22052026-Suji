@@ -938,8 +938,8 @@ public class TestProcessManagement {
 						
 						
 						while (AitessProcessControlManagement.getInstance().runCommands) {
-							System.out.println(" --> Waiting For Completing Command : " );
-								Thread.sleep(900);
+							System.out.print("* " );
+								Thread.sleep(10);
 							}
 
 						}
