@@ -434,6 +434,7 @@ public class CurrentExecutionResultController {
 
 				DetailedData newDetailedData = new DetailedData();
 
+				newDetailedData.setSlNo(String.valueOf(i));
 				newDetailedData.setTestName(data.getTestName());
 				newDetailedData.setRdfName(data.getRdfName());
 				newDetailedData.setTpgphNo(data.getTpgph());
@@ -447,6 +448,8 @@ public class CurrentExecutionResultController {
 
 				i++;
 			}
+		}else if(response.getCode() == 0) {
+			Notifications.showErrorAlert(response.getMsg());
 		}
 
 		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
