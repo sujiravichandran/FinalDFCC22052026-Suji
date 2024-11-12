@@ -533,7 +533,7 @@ public class ResultExecutionManagement {
 			}
 
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
-					.filter(stage -> stage.getStageId().equals(stageId)).collect(Collectors.toList());
+					.filter(stage -> stage.getStageId().equals(stageId) && !stage.getSystemResultInfoId().equalsIgnoreCase("null")).collect(Collectors.toList());
 			Map<String, String> objectIdTestFileId = new HashMap<String, String>();
 			Map<String, String> objectIdstageId = new HashMap<String, String>();
 			Map<String, String> objectIdSelectedTestFileId = new HashMap<String, String>();
@@ -545,7 +545,6 @@ public class ResultExecutionManagement {
 						sessionStagesTestFilesResult.getStageId());
 				objectIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
 						sessionStagesTestFilesResult.getSelectedtestFileId());
-
 			}
 			Debug.printDebug("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
 			List<ResultDto> lstResults = new ArrayList<ResultDto>();
@@ -571,10 +570,10 @@ public class ResultExecutionManagement {
 						Debug.printDebug("S="+s);
 						channelValues = channelValues+s + "="+ fac.get(s)+";";
 					}
-					System.out.println("Before Replace All Channels" +channelValues);
+//					System.out.println("Before Replace All Channels" +channelValues);
 					resultDetailedDTO.setFaultyChannel(channelValues);
 					channelValues = channelValues.replaceAll("Channel", "CH");
-					System.out.println("After Replace All CH" +channelValues);
+//					System.out.println("After Replace All CH" +channelValues);
 					resultDetailedDTO.setFaultyChannel(channelValues);
 			     	Debug.printDebug(resultDto.getFaultyChannel());
 					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());

@@ -376,9 +376,11 @@ public class StepParser {
         return null;
     }
     
-    private static Map<String, String> extractFaultyChannels(String dStarInfo) {
+    public static Map<String, String> extractFaultyChannels(String dStarInfo) {
         Map<String, String> failedChannels = new LinkedHashMap<>();
+
         if (dStarInfo != null) {
+            // First check for the pattern "(some content)"
             Pattern pattern = Pattern.compile("\\((.*?)\\)");
             Matcher matcher = pattern.matcher(dStarInfo);
             if (matcher.find()) {
@@ -389,6 +391,19 @@ public class StepParser {
                     if (trimmedValue.startsWith("*") || trimmedValue.contains("down") || trimmedValue.contains("offline")) {
                         String valueWithoutAsterisk = trimmedValue.replace("*", "").trim();
                         failedChannels.put("Channel" + (i + 1), valueWithoutAsterisk);
+                    }
+                }
+            }
+
+            // If no faulty channels found, look for the "diff(s)" pattern
+            if (failedChannels.isEmpty()) {
+                Pattern diffPattern = Pattern.compile("\\(\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*\\)");
+                Matcher diffMatcher = diffPattern.matcher(dStarInfo);
+
+                if (diffMatcher.find()) {
+                    for (int i = 0; i < 4; i++) {
+                        String diffValue = diffMatcher.group(i + 1);
+                        failedChannels.put("Channel" + (i + 1), diffValue);
                     }
                 }
             }

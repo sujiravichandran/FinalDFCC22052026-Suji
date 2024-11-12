@@ -1023,6 +1023,8 @@ public class TestProcessManagement {
 							: "RDF NOT GENERATED",
 					(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 					String.valueOf(testProcessRes.getdStarCount()), startTime, endTime, sessionStageSelectedTestFileId);
+			mongoUniqueIdentifier=null;
+
 			//File Copying
 			if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 				
