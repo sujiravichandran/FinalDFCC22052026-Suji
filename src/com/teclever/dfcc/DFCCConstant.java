@@ -6,10 +6,11 @@ import java.util.Map;
 public class DFCCConstant {
     private static Map uutIdNameMap;
     private static Map uutNameIdMap;
-    public static boolean isJarBuild = false;
+    public static boolean isJarBuild = true;
     public static String JARSTRING = "";
     public static String filePath = "";
     public static boolean isDebug = false;
+    public static long tempDelayTime = 120000; //2mins
 
     public static Map getUutIdNameMap() {
         return uutIdNameMap;
