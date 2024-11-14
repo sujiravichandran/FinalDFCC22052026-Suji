@@ -982,7 +982,7 @@ public class TestProcessManagement {
 
 			// Getting RDF file Name from PerformTest()
 			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
-
+			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
 			TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName, testFileName,
 					stageId, sessionId);
 
