@@ -726,6 +726,7 @@ public class StateMachine {
 		}
 
 		public static void addBoardTemperatureMap(String key, ChannelTemperature value) {
+			System.out.println(key+"   "+value);
 			boardTemperatureMap.put(key, value);
 		}
 
