@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
@@ -10,8 +11,6 @@ import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
-import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
-import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
@@ -19,31 +18,33 @@ import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagemen
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
-import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
+import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTempAEC;
 import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus;
 import com.teclever.dfcc.utils.CheckAitessStatus;
-import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -65,6 +66,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public class UserDashboardController {
@@ -73,7 +77,8 @@ public class UserDashboardController {
 	private GridPane bottomGridPane = new GridPane();
 	private GridPane bottomMidTopGridPane = new GridPane();
 
-	private ObservableMap<String, ChannelTemperature> boardTemperatureMap;
+	private ObservableMap<String, ChannelTemperature> scBoardTemperatureMap;
+	private ObservableMap<String, ChannelTemperature> aecBoardTemperatureMap;
 	private List<MacroButtonMapDto> macroButtonList;
 
 	UserCenterContentController centerContentController = UserCenterContentController.getInstance();
@@ -90,6 +95,9 @@ public class UserDashboardController {
 	private Button noButton = new Button("NO");
 	private StackPane terminalStackPane;
 	TerminalController terminalController1 = new TerminalController();
+	
+	private MapChangeListener<String, ChannelTemperature> scListener;
+	private MapChangeListener<String, ChannelTemperature> aecListener;
 	
     public UserDashboardController() {
     	terminalStackPane = terminalController1.createTerminalStackPane();
@@ -211,7 +219,8 @@ public class UserDashboardController {
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/testing.png",
 					new String[] { "Self Test", "SRU/LRU Test" });
 			addTreeItemWithChildren(rootItem, "Results",
-					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png",
+					new String[] { "Current Execution", "Unit Results", "Session Results", "Stage Results" });
 			addTreeItemWithChildren(rootItem, "Test Summary",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
@@ -460,10 +469,10 @@ public class UserDashboardController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(20);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(28);
+		secondRow.setPercentHeight(38);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(26);
@@ -484,118 +493,334 @@ public class UserDashboardController {
 	}
 
 	private GridPane createBottomRightMidFirst() {
+//		GridPane bottomRightMidFirstGridPane = new GridPane();
+//
+//		ColumnConstraints firstColumn = new ColumnConstraints();
+//		firstColumn.setPercentWidth(100);
+//
+//		RowConstraints firstRow = new RowConstraints();
+//		firstRow.setPercentHeight(40);
+//
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(60);
+//
+//		bottomRightMidFirstGridPane.getColumnConstraints().add(firstColumn);
+//		bottomRightMidFirstGridPane.getRowConstraints().addAll(firstRow, secondRow);
+//
+//		VBox firstRowBox = new VBox(10);
+//		firstRowBox.setAlignment(Pos.CENTER_LEFT);
+//		firstRowBox.prefWidthProperty().bind(firstColumn.prefWidthProperty());
+//		firstRowBox.prefHeightProperty().bind(firstRow.prefHeightProperty());
+//		Label titleLabel = new Label("DFCC");
+//		titleLabel.getStyleClass().add("dfcc-title");
+//		firstRowBox.getChildren().add(titleLabel);
+//
+//		VBox secondRowBox = new VBox(10);
+//		secondRowBox.setAlignment(Pos.CENTER_LEFT);
+//		secondRowBox.prefWidthProperty().bind(firstColumn.prefWidthProperty());
+//		secondRowBox.prefHeightProperty().bind(secondRow.prefHeightProperty());
+//		Label statusLabel = new Label("DFCC Power OFF");
+//
+//		secondRowBox.setOnMouseClicked(e -> {
+//			if (!checkAitessStatus.isBothAitessOn()) {
+//				return;
+//			}
+//			if (statusLabel.getText().toLowerCase().contains("on")) {
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on DFCC power ON button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//
+//				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+//				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+//						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+//						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered OFF");
+//				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+//				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
+//
+//				Platform.runLater(() -> {
+//					statusLabel.setText("DFCC Power OFF");
+//					dfccCheckStatus.getDfccPowerStatus().set(false);
+//				});
+//
+//			} else if (statusLabel.getText().toLowerCase().contains("off")) {
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on DFCC power OFF button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//
+//				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+//				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+//						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+//						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered ON");
+//				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+//				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+//
+//				Platform.runLater(() -> {
+//					statusLabel.setText("DFCC Power ON");
+//					dfccCheckStatus.getDfccPowerStatus().set(true);
+//				});
+//
+//			}
+//		});
+//
+//		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue) {
+//				secondRowBox.getStyleClass().remove("dfcc-status-box-off");
+//				secondRowBox.getStyleClass().add("dfcc-status-box-on");
+//			} else {
+//				secondRowBox.getStyleClass().remove("dfcc-status-box-on");
+//				secondRowBox.getStyleClass().add("dfcc-status-box-off");
+//			}
+//		});
+//		secondRowBox.getStyleClass().addAll("dfcc-status-box", "dfcc-status-box-off");
+//		statusLabel.getStyleClass().add("dfcc-status");
+//		secondRowBox.getChildren().add(statusLabel);
+//
+//		bottomRightMidFirstGridPane.add(firstRowBox, 0, 0);
+//		bottomRightMidFirstGridPane.add(secondRowBox, 0, 1);
+//
+//		return bottomRightMidFirstGridPane;
+		
+		
 		GridPane bottomRightMidFirstGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(40);
-
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(60);
-
+		firstRow.setPercentHeight(100);
+		
 		bottomRightMidFirstGridPane.getColumnConstraints().add(firstColumn);
-		bottomRightMidFirstGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		bottomRightMidFirstGridPane.getRowConstraints().addAll(firstRow);
 
-		VBox firstRowBox = new VBox(10);
+		HBox firstRowBox = new HBox(10);
 		firstRowBox.setAlignment(Pos.CENTER_LEFT);
+		
 		firstRowBox.prefWidthProperty().bind(firstColumn.prefWidthProperty());
 		firstRowBox.prefHeightProperty().bind(firstRow.prefHeightProperty());
-		Label titleLabel = new Label("DFCC");
+		
+		Label titleLabel = new Label("DFCC Power");
 		titleLabel.getStyleClass().add("dfcc-title");
-		firstRowBox.getChildren().add(titleLabel);
-
-		VBox secondRowBox = new VBox(10);
-		secondRowBox.setAlignment(Pos.CENTER_LEFT);
-		secondRowBox.prefWidthProperty().bind(firstColumn.prefWidthProperty());
-		secondRowBox.prefHeightProperty().bind(secondRow.prefHeightProperty());
-		Label statusLabel = new Label("DFCC Power OFF");
-
-		secondRowBox.setOnMouseClicked(e -> {
-			if (!checkAitessStatus.isBothAitessOn()) {
-				return;
-			}
-			if (statusLabel.getText().toLowerCase().contains("on")) {
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on DFCC power ON button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-
-				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
-						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered OFF");
-				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
-
-				Platform.runLater(() -> {
-					statusLabel.setText("DFCC Power OFF");
-					dfccCheckStatus.getDfccPowerStatus().set(false);
-				});
-
-			} else if (statusLabel.getText().toLowerCase().contains("off")) {
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on DFCC power OFF button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-
-				UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-				UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
-						currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-						StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered ON");
-				uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
-
-				Platform.runLater(() -> {
-					statusLabel.setText("DFCC Power ON");
-					dfccCheckStatus.getDfccPowerStatus().set(true);
-				});
-
-			}
-		});
-
-		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue) {
-				secondRowBox.getStyleClass().remove("dfcc-status-box-off");
-				secondRowBox.getStyleClass().add("dfcc-status-box-on");
-			} else {
-				secondRowBox.getStyleClass().remove("dfcc-status-box-on");
-				secondRowBox.getStyleClass().add("dfcc-status-box-off");
-			}
-		});
-		secondRowBox.getStyleClass().addAll("dfcc-status-box", "dfcc-status-box-off");
-		statusLabel.getStyleClass().add("dfcc-status");
-		secondRowBox.getChildren().add(statusLabel);
-
+		
+		  HBox toggleSwitch = createToggleSwitch();
+       
+			
+		firstRowBox.getChildren().addAll(titleLabel, toggleSwitch);
 		bottomRightMidFirstGridPane.add(firstRowBox, 0, 0);
-		bottomRightMidFirstGridPane.add(secondRowBox, 0, 1);
 
 		return bottomRightMidFirstGridPane;
 	}
+	
+	private boolean isOn = false;  // Track toggle state
+
+	private HBox createToggleSwitch() {
+	    // Background for the toggle (Rectangle)
+	    Rectangle background = new Rectangle(80, 30, Color.RED);
+	    background.setArcWidth(30);
+	    background.setArcHeight(30);
+
+	    // Circle that will move
+	    Circle toggleButton = new Circle(12, Color.WHITE);
+	    toggleButton.setTranslateX(-26); // Start from the left side of the rectangle
+
+	    // Label for "ON" and "OFF"
+	    Label toggleLabel = new Label("OFF");
+	    toggleLabel.setTextFill(Color.WHITE);
+	    toggleLabel.setStyle("-fx-font-size:16px; -fx-font-weight: bold; -fx-padding:0px 5px");
+
+	    // StackPane to hold the background, circle, and label
+	    StackPane stack = new StackPane();
+	    stack.getChildren().addAll(background, toggleLabel, toggleButton);
+
+	    HBox toggleSwitch = new HBox();
+	    toggleSwitch.setSpacing(0);
+	    toggleSwitch.getChildren().add(stack);
+
+	    // Set the initial alignment of the label
+	    StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+
+	    toggleButton.setOnMouseClicked(event -> toggle(background, toggleButton, toggleLabel));
+	    toggleButton.setCursor(Cursor.HAND);
+	    
+	    dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				toggle(background, toggleButton, toggleLabel);
+			}
+		});
+	    
+	    return toggleSwitch;
+	}
+
+	private void toggle(Rectangle background, Circle toggleButton, Label toggleLabel) {
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return;
+		}
+		TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+		
+	    if (isOn) {
+	        transition.setToX(-26);
+	        background.setFill(Color.RED);
+	        toggleLabel.setText("OFF");
+	        StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+	    } else {
+	        transition.setToX(26);
+	        background.setFill(Color.GREEN);
+	        toggleLabel.setText("ON");
+	        StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+	    }
+
+	    transition.play();
+
+	    isOn = !isOn;
+	    
+	    System.out.println("DFCC Power : "+(isOn?"ON":"OFF"));
+	    
+		if (isOn) {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on DFCC power ON button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered OFF");
+			uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+			aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+
+			Platform.runLater(() -> {
+				dfccCheckStatus.getDfccPowerStatus().set(false);
+			});
+
+		} else {
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on DFCC power OFF button");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "DFCC gets powered ON");
+			uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+			aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
+
+			Platform.runLater(() -> {
+				dfccCheckStatus.getDfccPowerStatus().set(true);
+			});
+
+		}
+	}
+	private final Random random = new Random();
+	 private void generateData() {
+	        int n = random.nextInt(100);
+	        ChannelTemperature a = new ChannelTemperature();
+			a.setChannel1Temp("a"+n);
+			a.setChannel2Temp("a"+n);
+			a.setChannel3Temp("a"+n);
+			a.setChannel4Temp("a"+n);
+			ChannelTemperature b = new ChannelTemperature();
+			b.setChannel1Temp("b"+n);
+			b.setChannel2Temp("b"+n);
+			b.setChannel3Temp("b"+n);
+			b.setChannel4Temp("b"+n);
+			ChannelTemperature c = new ChannelTemperature();
+			c.setChannel1Temp("c"+n);
+			c.setChannel2Temp("c"+n);
+			c.setChannel3Temp("c"+n);
+			c.setChannel4Temp("c"+n);
+			ChannelTemperature d = new ChannelTemperature();
+			d.setChannel1Temp("d"+n);
+			d.setChannel2Temp("d"+n);
+			d.setChannel3Temp("d"+n);
+			d.setChannel4Temp("d"+n);
+			
+	        boardChannelTemp.addBoardTemperatureMap("DFCC_TEMP_AN2", a);
+	        boardChannelTemp.addBoardTemperatureMap("AN1L_BRD_TEMP", b);
+	        boardChannelTemp.addBoardTemperatureMap("AN1R_BRD_TEMP", c);
+	        boardChannelTemp.addBoardTemperatureMap("DM_BRD_TEMP", d);
+	        
+	        ChannelTemperature a1 = new ChannelTemperature();
+	        a1.setChannel1Temp("aa"+n);
+	        a1.setChannel2Temp("aa"+n);
+	        a1.setChannel3Temp("aa"+n);
+	        a1.setChannel4Temp("aa"+n);
+	        ChannelTemperature b1 = new ChannelTemperature();
+	        b1.setChannel1Temp("bb"+n);
+	        b1.setChannel2Temp("bb"+n);
+	        b1.setChannel3Temp("bb"+n);
+	        b1.setChannel4Temp("bb"+n);
+	        ChannelTemperature c1= new ChannelTemperature();
+	        c1.setChannel1Temp("cc"+n);
+	        c1.setChannel2Temp("cc"+n);
+	        c1.setChannel3Temp("cc"+n);
+	        c1.setChannel4Temp("cc"+n);
+	        ChannelTemperature d1 = new ChannelTemperature();
+	        d1.setChannel1Temp("dd"+n);
+	        d1.setChannel2Temp("dd"+n);
+	        d1.setChannel3Temp("dd"+n);
+	        d1.setChannel4Temp("dd"+n);
+	        
+	        boardChannelTempAEC.addBoardTemperatureMap("DFCC_TEMP_AN2", a1);
+	        boardChannelTempAEC.addBoardTemperatureMap("AN1L_BRD_TEMP", b1);
+	        boardChannelTempAEC.addBoardTemperatureMap("AN1R_BRD_TEMP", c1);
+	        boardChannelTempAEC.addBoardTemperatureMap("DM_BRD_TEMP", d1);
+	        
+	        channelSCTemp.setChannel1Temperature("1S"+n);
+	        channelSCTemp.setChannel2Temperature("2S"+n);
+	        channelSCTemp.setChannel3Temperature("3S"+n);
+	        channelSCTemp.setChannel4Temperature("4S"+n);
+	        
+	        channelAECTemp.setChannel1Temperature("1A"+n);
+	        channelAECTemp.setChannel2Temperature("2A"+n);
+	        channelAECTemp.setChannel3Temperature("3A"+n);
+	        channelAECTemp.setChannel4Temperature("4A"+n);
+	    }
+
 
 	private VBox createBottomRightMidSecond() {
-		boardTemperatureMap = boardChannelTemp.getBoardTemperatureMap();
 
+//		Timeline timeline = new Timeline(
+//	            new KeyFrame(Duration.seconds(5), event -> generateData())
+//	        );
+//		timeline.setCycleCount(Timeline.INDEFINITE); // Repeat indefinitely
+//        timeline.play();
+		
 		VBox bottomRightMidSecondBox = new VBox(10);
 		bottomRightMidSecondBox.setAlignment(Pos.CENTER_LEFT);
 
+//		Temperature Combo Box
 		Label titleLabel = new Label("Temperature");
 		titleLabel.getStyleClass().add("right-common-title");
 
 		ComboBox<String> temperatureComboBox = new ComboBox<String>();
-		if (currentSessionDetails.getUutId().equals("UUT1")) {
-			temperatureComboBox.getItems().addAll("SC", "AEC");
-		}
-
+		temperatureComboBox.getItems().addAll("SC", "AEC");	
+		
 		HBox temperatureTitleHBox = new HBox(5);
 		HBox.setHgrow(temperatureComboBox, Priority.ALWAYS);
 		temperatureComboBox.setMaxWidth(Double.MAX_VALUE);
 		temperatureTitleHBox.getChildren().addAll(titleLabel, temperatureComboBox);
+
+//		Board Combo Box
+		Label boardLabel = new Label("Board Name");
+		boardLabel.getStyleClass().add("right-common-title");
+
+		ComboBox<String> boardComboBox = new ComboBox<String>();
+		boardComboBox.getItems().addAll("DFCC_TEMP_AN2","AN1L_BRD_TEMP","AN1R_BRD_TEMP","DM_BRD_TEMP");
+		
+		HBox boardTitleHBox = new HBox(5);
+		HBox.setHgrow(boardComboBox, Priority.ALWAYS);
+		boardComboBox.setMaxWidth(Double.MAX_VALUE);
+		boardTitleHBox.getChildren().addAll(boardLabel, boardComboBox);
 
 		GridPane bottomRightMidSecondGridPane = new GridPane();
 		bottomRightMidSecondGridPane.setVgap(5);
@@ -645,57 +870,116 @@ public class UserDashboardController {
 		bottomRightMidSecondGridPane.add(box4, 1, 1);
 
 
-		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null && currentSessionDetails.getUutId().equals("UUT1")) {
-				if (!checkAitessStatus.isBothAitessOn()) {
-					return;
+		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {		
+//			if (!checkAitessStatus.isBothAitessOn()) {
+//				return;
+//			}
+			Platform.runLater(() -> {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on " + newValue + " temperature");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+				if (currentSessionDetails.getUutId().equals("UUT1")) {
+					setMK1Temp(newValue, box1, box2, box3, box4);
+				}else {
+					getMK1AandMk2TempData(temperatureComboBox.getValue(), boardComboBox.getValue() , box1, box2, box3, box4);
 				}
+			});
+		});
+
+		boardComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			if (!currentSessionDetails.getUutId().equals("UUT1")) {		
+//				if (!checkAitessStatus.isBothAitessOn()) {
+//					return;
+//				}
 				Platform.runLater(() -> {
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 					ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 							currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
 							currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-							"clicked on " + newValue + " temperature");
+							"clicked on " + newValue + " temperature board");
 					appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-
-					setMK1Temp(newValue, box1, box2, box3, box4);
+	
+					getMK1AandMk2TempData(temperatureComboBox.getValue(), newValue, box1, box2, box3, box4);
 				});
 			}
 		});
+				
+		temperatureComboBox.setValue("SC");
+		boardComboBox.setValue("DFCC_TEMP_AN2");
 
-		boardTemperatureMap.addListener((MapChangeListener<String, ChannelTemperature>) change -> {
-			populateTemperatureComboBox(temperatureComboBox, change.getKey());
-			if (temperatureComboBox.getValue() != null) {
-				if (temperatureComboBox.getValue().equals(change.getKey())) {
-					Platform.runLater(() -> {
-						setMk1AandMk2Temp(change.getValueAdded(), box1, box2, box3, box4);
-					});
-				}
-			}
-		});
-
-		bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, bottomRightMidSecondGridPane);
-
+		if (currentSessionDetails.getUutId().equals("UUT1")) {			
+			bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, bottomRightMidSecondGridPane);
+		}else {
+			bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, boardTitleHBox, bottomRightMidSecondGridPane);
+		}
+		
 		return bottomRightMidSecondBox;
 
 	}
 
-	private void populateTemperatureComboBox(ComboBox<String> temperatureComboBox, String key) {
-		if (!currentSessionDetails.getUutId().equals("UUT1")) {
-			if (!temperatureComboBox.getItems().contains(key)) {
-				Platform.runLater(() -> {
-					temperatureComboBox.getItems().add(key);
-				});
-			}
+	private void getMK1AandMk2TempData(String temp, String board, VBox box1, VBox box2, VBox box3, VBox box4) {	
+		Label label1 = (Label) box1.getChildren().get(0);
+		Label label2 = (Label) box2.getChildren().get(0);
+		Label label3 = (Label) box3.getChildren().get(0);
+		Label label4 = (Label) box4.getChildren().get(0);
+		
+		label1.textProperty().unbind();
+		label2.textProperty().unbind();
+		label3.textProperty().unbind();
+		label4.textProperty().unbind();
+		
+		if(temp.equalsIgnoreCase("sc") && boardChannelTemp.getBoardTemperatureMap().get(board) != null ) {
+			label1.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel1Temp());
+			label2.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel2Temp());
+			label3.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel3Temp());
+			label4.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel4Temp());
+		}else if(temp.equalsIgnoreCase("aec") && boardChannelTempAEC.getBoardTemperatureMap().get(board) != null ) {
+			label1.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel1Temp());
+			label2.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel2Temp());
+			label3.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel3Temp());
+			label4.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel4Temp());
 		}
+	    scBoardTemperatureMap = boardChannelTemp.getBoardTemperatureMap();
+	    aecBoardTemperatureMap = boardChannelTempAEC.getBoardTemperatureMap();
+	    
+	    if (scListener != null) {
+	        scBoardTemperatureMap.removeListener(scListener);
+	    }
+	    if (aecListener != null) {
+	        aecBoardTemperatureMap.removeListener(aecListener);
+	    }
+	    
+	    if (temp.equalsIgnoreCase("sc")) {
+	        scListener = change -> {
+	            if (board.equals(change.getKey())) {
+	                Platform.runLater(() -> {
+	                    setMk1AandMk2Temp(change.getValueAdded(), box1, box2, box3, box4);
+	                });
+	            }
+	        };
+	        scBoardTemperatureMap.addListener(scListener);
+	    } else if (temp.equalsIgnoreCase("aec")) {
+	        aecListener = change -> {
+	            if (board.equals(change.getKey())) {
+	                Platform.runLater(() -> {
+	                    setMk1AandMk2Temp(change.getValueAdded(), box1, box2, box3, box4);
+	                });
+	            }
+	        };
+	        aecBoardTemperatureMap.addListener(aecListener);
+	    }
 	}
+
 
 	private void setMk1AandMk2Temp(ChannelTemperature valueAdded, VBox box1, VBox box2, VBox box3, VBox box4) {
 		Label label1 = (Label) box1.getChildren().get(0);
 		Label label2 = (Label) box2.getChildren().get(0);
 		Label label3 = (Label) box3.getChildren().get(0);
 		Label label4 = (Label) box4.getChildren().get(0);
-
+				
 		label1.textProperty().bind(valueAdded.channel1TempProperty());
 		label2.textProperty().bind(valueAdded.channel2TempProperty());
 		label3.textProperty().bind(valueAdded.channel3TempProperty());
@@ -778,6 +1062,46 @@ public class UserDashboardController {
 		Label label4 = new Label("CH-4");
 		box4.getChildren().add(label4);
 		box4.getStyleClass().addAll("power-status-box", "power-status-box-off");
+		
+		powerOnStatus.channel1StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box1.getStyleClass().remove("power-status-box-off");
+				box1.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box1.getStyleClass().remove("power-status-box-on");
+				box1.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		powerOnStatus.channel2StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box2.getStyleClass().remove("power-status-box-off");
+				box2.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box2.getStyleClass().remove("power-status-box-on");
+				box2.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		powerOnStatus.channel3StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box3.getStyleClass().remove("power-status-box-off");
+				box3.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box3.getStyleClass().remove("power-status-box-on");
+				box3.getStyleClass().add("power-status-box-off");
+			}
+		});
+
+		powerOnStatus.channel4StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && newValue.equalsIgnoreCase("online")) {
+				box4.getStyleClass().remove("power-status-box-off");
+				box4.getStyleClass().add("power-status-box-on");
+			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
+				box4.getStyleClass().remove("power-status-box-on");
+				box4.getStyleClass().add("power-status-box-off");
+			}
+		});
 
 		bottomRightMidThirdGridPane.add(box1, 0, 0);
 		bottomRightMidThirdGridPane.add(box2, 1, 0);
@@ -1176,5 +1500,60 @@ public class UserDashboardController {
 
 		return bottomMidTopGridPane;
 
+	}
+}
+
+class ToggleSwitch extends HBox {
+	
+	private final Label label = new Label();
+	private final Button button = new Button();
+	
+	private SimpleBooleanProperty switchedOn = new SimpleBooleanProperty(false);
+	public SimpleBooleanProperty switchOnProperty() { return switchedOn; }
+	
+	private void init() {
+		
+		label.setText("OFF");
+		
+		getChildren().addAll(label, button);	
+		button.setOnAction((e) -> {
+			switchedOn.set(!switchedOn.get());
+		});
+		label.setOnMouseClicked((e) -> {
+			switchedOn.set(!switchedOn.get());
+		});
+		setStyle();
+		bindProperties();
+	}
+	
+	private void setStyle() {
+		//Default Width
+		setWidth(50);
+		label.setAlignment(Pos.CENTER);
+		label.setStyle("-fx-background-color: red; -fx-text-fill:black; -fx-background-radius: 10px;");
+		setAlignment(Pos.CENTER_LEFT);
+	}
+	
+	private void bindProperties() {
+		label.prefWidthProperty().bind(widthProperty().divide(2));
+		label.prefHeightProperty().bind(heightProperty());
+		button.prefWidthProperty().bind(widthProperty().divide(2));
+		button.prefHeightProperty().bind(heightProperty());
+	}
+	
+	public ToggleSwitch() {
+		init();
+		switchedOn.addListener((a,b,c) -> {
+			if (c) {
+                		label.setText("ON");
+                		setStyle("-fx-background-color: green;");
+                		label.toFront();
+            		}
+            		else {
+            			label.setText("OFF");
+        			setStyle("-fx-background-color: red;");
+                		button.toFront();
+            		}
+		});
 	}
 }
