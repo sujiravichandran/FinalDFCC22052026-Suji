@@ -199,7 +199,15 @@ public class ReportGeneration {
 	  
 
 	//	System.out.println(resultExecutionDTOList.size());
-		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+	
+		//Fetching The Session Details
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
 		// Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
@@ -329,6 +337,7 @@ public class ReportGeneration {
 			SessionEntity sessionEntity = new SessionEntity();
 			sessionEntity = (SessionEntity) sessionRes.getObject();
 			sessionPathString = sessionEntity.getPath();
+			
 		} else {
 			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
 			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
@@ -532,7 +541,17 @@ public class ReportGeneration {
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
 		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+
+		
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		// Fetching The Session Details
+
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
 
 		String text = "DFCC High Level Testing";
 		ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, new Phrase(text, font),
@@ -659,6 +678,44 @@ public class ReportGeneration {
 
 		document.add(table);
 		document.close();
+		
+		
+		 /*  SessionService  sessionService = new SessionService();
+			GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
+			String sessionPathString = sessionentity.getPath()+File.separator+"report";
+			Path fileFullPath = Path.of(filePath);			
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath =Path.of(sessionPathString) ;
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);	*/	GetObjResponse sessionRes = new GetObjResponse();
+			String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+			
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				SessionService sessionService = new SessionService();
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionPathString = sessionEntity.getPath();
+				
+			} else {
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionPathString = trailSessionEntity.getPath();
+			}
+			
+			sessionPathString = sessionPathString+File.separator+"report";
+			Path fileFullPath = Path.of(filePath);
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath =Path.of(sessionPathString) ;
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+			
+			res.setResponseMessage("Details Session Results Download Successfully...!");
+	        res.setResponseCode(1);
+	        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+	        System.out.println("PDF Copied to  PdfMarginsExample " + sessionPath.toString());
+	  
 
         res.setResponseCode(1);
 		System.out.println("Detailed Report Generated For Session Last Stage" + filePath);
@@ -815,8 +872,18 @@ public class ReportGeneration {
 	  
 
 	//	System.out.println(resultExecutionDTOList.size());
-		Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
-		// Add text in place of the second image
+	//	Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+	    
+	    //Session Details Fetching
+	    Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
+	    
+	    // Add text in place of the second image
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
 
@@ -931,18 +998,44 @@ public class ReportGeneration {
 
 		document.close();
 		
-		SessionService  sessionService = new SessionService();
+	/*	SessionService  sessionService = new SessionService();
 		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 		String sessionPathString = sessionentity.getPath()+File.separator+"report";
 		Path fileFullPath = Path.of(filePath);			
 		SessionFileManagement sessionFileManagement = new SessionFileManagement();
 		Path sessionPath =Path.of(sessionPathString) ;
-		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
+		
+		GetObjResponse sessionRes = new GetObjResponse();
+		String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			SessionService sessionService = new SessionService();
+			sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity = new SessionEntity();
+			sessionEntity = (SessionEntity) sessionRes.getObject();
+			sessionPathString = sessionEntity.getPath();
+			
+		} else {
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+			TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+			trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+			sessionPathString = trailSessionEntity.getPath();
+		}
+		
+		sessionPathString = sessionPathString+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+	
+		
+		
 		res.setResponseMessage("Breif Results Download Successfully...!");
-
         res.setResponseCode(1);
 		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
+		System.out.println("Brief Report For Last Stage Copied On Session Path   :" + sessionPath.toString());
 		return res;
 	}
     
@@ -1132,8 +1225,17 @@ public class ReportGeneration {
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
         Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-    	Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+    	//Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
     	
+        //Session Details Fetching
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
+        
         String text = "DFCC High Level Testing";
         ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, new Phrase(text, font),
                 x + imgWidth + 20 + imgWidth / 2, imgY + imgHeight / 2, 0);
@@ -1312,7 +1414,7 @@ public class ReportGeneration {
         document.close();
         
         
-        SessionService  sessionService = new SessionService();
+    /*    SessionService  sessionService = new SessionService();
 		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 		String sessionPathString = sessionentity.getPath()+File.separator+"report";
@@ -1320,11 +1422,38 @@ public class ReportGeneration {
 		SessionFileManagement sessionFileManagement = new SessionFileManagement();
 		Path sessionPath =Path.of(sessionPathString) ;
 		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
-		res.setResponseMessage("Detailed Results Report Download Successfully...!");
+		res.setResponseMessage("Detailed Results Report Download Successfully...!");*/
+        
+    	GetObjResponse sessionRes = new GetObjResponse();
+		String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+		
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			SessionService sessionService = new SessionService();
+			sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity = new SessionEntity();
+			sessionEntity = (SessionEntity) sessionRes.getObject();
+			sessionPathString = sessionEntity.getPath();
+			
+		} else {
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+			TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+			trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+			sessionPathString = trailSessionEntity.getPath();
+		}
+		
+		sessionPathString = sessionPathString+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+	
 
 
         res.setResponseCode(1);
         System.out.println("Detailed Report Generated On Selected Session Stages" + filePath);
+        System.out.println("Detailed Report Copied On Selected Session Stages On Session"+sessionPath.toString());
+        
         return res;
     }
     
@@ -1732,7 +1861,16 @@ public class ReportGeneration {
         }*/
         
      //   System.out.println(resultExecutionDTOList.size());
-        Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+   //     Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+     
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
+
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
         Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
@@ -1903,19 +2041,45 @@ public class ReportGeneration {
 
         document.close();
         
-        SessionService  sessionService = new SessionService();
+      /*  SessionService  sessionService = new SessionService();
 		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 		String sessionPathString = sessionentity.getPath()+File.separator+"report";
 		Path fileFullPath = Path.of(filePath);			
 		SessionFileManagement sessionFileManagement = new SessionFileManagement();
 		Path sessionPath =Path.of(sessionPathString) ;
-		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
-		res.setResponseMessage("Brief Session Results Download Successfully...!");
-
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);	*/
+        
+        
+    	GetObjResponse sessionRes = new GetObjResponse();
+		String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
 		
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			SessionService sessionService = new SessionService();
+			sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity = new SessionEntity();
+			sessionEntity = (SessionEntity) sessionRes.getObject();
+			sessionPathString = sessionEntity.getPath();
+			
+		} else {
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+			TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+			trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+			sessionPathString = trailSessionEntity.getPath();
+		}
+		
+		sessionPathString = sessionPathString+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+	
+        
+		res.setResponseMessage("Brief Session Results Download Successfully...!");
         res.setResponseCode(1);
         System.out.println("Breif Report For Session PDF saved to  :" + filePath);
+        System.out.println("Brief Report Copied to SessionPath"+sessionPathString);
         return res;
     }
     
@@ -2095,10 +2259,21 @@ public class ReportGeneration {
         document.add(img1);
         document.add(img3);
 
-        // Add text in place of the second image
-        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        Map<String,String>stageIdName =   resultExecutionManagement.getStageIdName();
-        Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		// Add text in place of the second image
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		Map<String, String> stageIdName = resultExecutionManagement.getStageIdName();
+		// Map<String,String> sessionDetailsMap =
+		// resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+
+		//Session Details Fetching
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
+        
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
         Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
@@ -2363,20 +2538,48 @@ public class ReportGeneration {
         // Close the document
         document.close();
         
-        SessionService  sessionService = new SessionService();
+     /*   SessionService  sessionService = new SessionService();
 		GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
 		SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
 		String sessionPathString = sessionentity.getPath()+File.separator+"report";
 		Path fileFullPath = Path.of(filePath);			
 		SessionFileManagement sessionFileManagement = new SessionFileManagement();
 		Path sessionPath =Path.of(sessionPathString) ;
-		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);		
-		res.setResponseMessage("Details Session Results Download Successfully...!");
-
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
         
-        
+    	GetObjResponse sessionRes = new GetObjResponse();
+		String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
+		
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			SessionService sessionService = new SessionService();
+			sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionEntity = new SessionEntity();
+			sessionEntity = (SessionEntity) sessionRes.getObject();
+			sessionPathString = sessionEntity.getPath();
+			
+		} else {
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+			TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+			trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+			sessionPathString = trailSessionEntity.getPath();
+		}
+		
+		sessionPathString = sessionPathString+File.separator+"report";
+		Path fileFullPath = Path.of(filePath);
+		SessionFileManagement sessionFileManagement = new SessionFileManagement();
+		Path sessionPath =Path.of(sessionPathString) ;
+		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+	
+		
+		
+		
+		
+		res.setResponseMessage("Details Session Results Download Successfully...!"); 
         res.setResponseCode(1);
         System.out.println("PDF saved to  PdfMarginsExample " + filePath);
+        System.out.println("PDF Copied to  PdfMarginsExample " + sessionPath.toString());
+        
         return res;
     }
     

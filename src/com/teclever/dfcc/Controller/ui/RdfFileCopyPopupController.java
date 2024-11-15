@@ -71,6 +71,7 @@ public class RdfFileCopyPopupController {
 	}
 
 	private void createMidContainer() {
+//		System.out.println("Creating RDF File Copy Popup....");
 		tableView.getStyleClass().add("rdf-file-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -171,13 +172,19 @@ public class RdfFileCopyPopupController {
 				stage.close();
 			});
 		}else {
+//			System.out.println("Closing Popup........");
 			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
 			stage.close();
+//			System.out.println("Closed...........");
+			if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+				SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
+			}
 		}
 	}
 
 	private void getRdfFileDetails() {
 
+//		System.out.println("SessionId : "+sessionId+"   "+"StageId : "+stageId);
 		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
 
 		if (response.getCode() == 1) {
@@ -208,9 +215,10 @@ public class RdfFileCopyPopupController {
 			    protected Void call() throws Exception {
 			        Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
 			        
+//			        System.out.println("Response code after copying rdf files : "+ response.getResponseCode());
+			        
 			        if (response.getResponseCode() == 1) {
-			        	handleClosePopup(false);		           
-			        	Platform.runLater(() -> Notifications.showSuccessAlert("RDF files have been copied successfully."));
+			        	Platform.runLater(() -> handleClosePopup(false));	           
 			        } else if (response.getResponseCode() == 0) {
 			            Platform.runLater(() -> Notifications.showErrorAlert(response.getResponseMessage()));
 			            if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {

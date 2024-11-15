@@ -52,7 +52,9 @@ public class TerminalController {
 		
 		terminalStackPane.setOnMouseClicked(event -> {
             if (event.getTarget() instanceof GridPane) {
-            	animateStackPaneToBack();
+            	Platform.runLater(()->{            		
+            		animateStackPaneToBack();
+            	});
             }
         });
 	}
