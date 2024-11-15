@@ -167,6 +167,8 @@ public class SessionFileManagement {
 
 	// checking the is All Are TestFiles Runned
 	public boolean getTestFilesRunnedSuccess(String sessionId, String stageId) {
+		
+		System.out.println("getTestFilesRunnedSuccess StageId"+ stageId);
 		boolean popupShowed = false;
 		try {
 
@@ -197,11 +199,15 @@ public class SessionFileManagement {
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
 			SessionStagesMapping session = new SessionStagesMapping();
+
 			session = (SessionStagesMapping) getObject.getObject();
+			System.out.println("Popup--->sessionStagesMappingId" +  session.getSessionStagesMappingId());
 			String sessionStagesMappingId = session.getSessionStagesMappingId();
 			String stagePath = session.getPath();
 			Debug.printDebug("sessionStagesMappingId" + sessionStagesMappingId);
 			Debug.printDebug("stagePath" + stagePath);
+			System.out.println("Popup--->sessionStagesMappingId" + sessionStagesMappingId);
+			
 
 			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
 			GetResponse resStagesMap = sessionStagesSelectedTestFilesService
@@ -926,6 +932,5 @@ public class SessionFileManagement {
 	}
 	
 }
-
 
 

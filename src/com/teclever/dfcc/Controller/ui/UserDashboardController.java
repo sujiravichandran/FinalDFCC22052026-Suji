@@ -33,10 +33,8 @@ import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
-import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -345,6 +343,7 @@ public class UserDashboardController {
 				Notifications.showConfirmationDialog("Logout Confirmation", "Are you sure you want to log out and close the application?", () -> {
 		         SessionFileManagement session = new SessionFileManagement();
 		         LogOutFileCopyResponse response = session.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+//		         System.out.println("Response code for copied or not : "+response.getCode() );
 		         if(response.getCode() == 1) {
 		        	 aitessProcessControlManagement.endAllProcessOnLogout();
 		        	 Platform.exit();
@@ -647,11 +646,11 @@ public class UserDashboardController {
 	    toggleButton.setOnMouseClicked(event -> toggle(background, toggleButton, toggleLabel));
 	    toggleButton.setCursor(Cursor.HAND);
 	    
-	    dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue) {
-				toggle(background, toggleButton, toggleLabel);
-			}
-		});
+//	    dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue) {
+//				toggle(background, toggleButton, toggleLabel);
+//			}
+//		});
 	    
 	    return toggleSwitch;
 	}
@@ -1420,7 +1419,9 @@ public class UserDashboardController {
             parentStackPane.getChildren().add(terminalStackPane);
         }
         
-        animateNewStackPaneToFront();
+        Platform.runLater(()->{        	
+        	animateNewStackPaneToFront();
+        });
 	}
 
 //	public void animateNewStackPaneToFront() {

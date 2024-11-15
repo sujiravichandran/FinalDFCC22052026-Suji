@@ -1249,6 +1249,35 @@ public class ResultExecutionManagement {
 		}
 		return sessionDetailsMap;
 	}
+	
+	//TrailSession Fetching
+	public Map<String, String> getTrailSessionDetailsBySessionId(String sessionId) {
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		try {
+			TrailSessionEntityService sessionService = new TrailSessionEntityService();
+
+			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionId(sessionId);
+			SessionEntity sessionDto = new SessionEntity();
+			sessionDto = (SessionEntity) sessionRes.getObject();
+			sessionDetailsMap.put("sessionId", sessionId);
+			sessionDetailsMap.put("dfccPartNo", sessionDto.getDfccPartNo());
+			sessionDetailsMap.put("dfccSNo", sessionDto.getDfccSNo());
+			sessionDetailsMap.put("userId", sessionDto.getUserId());
+			sessionDetailsMap.put("sessionName", sessionDto.getSessionName());
+			sessionDetailsMap.put("uUtID", sessionDto.getUutId());
+			sessionDetailsMap.put("startRemarks", sessionDto.getStartRemarks());
+			sessionDetailsMap.put("startRemarks", sessionDto.getEndRemarks());
+			UserLoginDetailsService userDetailsService = new UserLoginDetailsService();
+			UserLoginDetails userDetails = userDetailsService.getUserByUserId(sessionDto.getUserId());
+			if (userDetails != null) {
+				sessionDetailsMap.put("userName", userDetails.getLoginName());
+			}
+
+		} catch (Exception ex) {
+			Debug.printDebug(ex.getLocalizedMessage());
+		}
+		return sessionDetailsMap;
+	}
 
 	// For Getting Unit Sessions..
 	public ResultUnitSessionDetailsResponse getSessionDetailsForResultsByUnit(String uutTypeId) {
