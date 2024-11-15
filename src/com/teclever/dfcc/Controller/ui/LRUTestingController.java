@@ -486,7 +486,13 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 			            dialog.showAndWait();
 						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 					} else if (newButton.getText().toLowerCase().contains("pbit")) {
+						UUT_ID = StateMachine.currentSessionDetails.getUutId();
 
+						if("UUT2".equals(StateMachine.currentSessionDetails.getUutId()) || "UUT3".equals(StateMachine.currentSessionDetails.getUutId())) {
+							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+							
+						}
+						else {
 						if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 300) {
 
 							OFPVersion.setPromptText("select OFP Version");
@@ -582,7 +588,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 								ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 							}
-						}
+						}}
 
 						
 					}else if(newButton.getText().toLowerCase().contains("initialize")) {
