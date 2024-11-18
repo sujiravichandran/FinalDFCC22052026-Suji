@@ -206,30 +206,35 @@ public class ChecksumManagement {
 	}
 
 	public Response exportVDDDetails(String filePathFileName) {
-		Response res = new Response();
+	    Response res = new Response();
 
-		java.io.File file = new java.io.File(filePathFileName);
-		file.getParentFile().mkdirs();
+	    java.io.File file = new java.io.File(filePathFileName);
+	    file.getParentFile().mkdirs();
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePathFileName))) {
-			ChecksumResponse vDDResponse = getListOfVDD();
-			List<ChecksumDto> vDDList = vDDResponse.getvDDList();
+	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePathFileName))) {
+	        ChecksumResponse vDDResponse = getListOfVDD();
+	        List<ChecksumDto> vDDList = vDDResponse.getvDDList();
 
-			for (ChecksumDto vDDDto : vDDList) {
-				writer.write(vDDDto.getFilePath() + " " + vDDDto.getChecksum());
-				writer.newLine();
-			}
+	        writer.write("checksum,filePath,fileName");
+	        writer.newLine();
 
-			res.setResponseCode(1);
-			res.setResponseMessage("VDD File Generated Successfully");
-		} catch (Exception ex) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Error generating VDD file: " + ex.getMessage());
-			ex.printStackTrace();
-		}
+	        for (ChecksumDto vDDDto : vDDList) {
+	            writer.write(vDDDto.getChecksum() + "," + vDDDto.getFilePath() + "," + vDDDto.getFileName());
+	            writer.newLine();
+	        }
 
-		return res;
+	        res.setResponseCode(1);
+	        res.setResponseMessage("VDD File Generated Successfully in CSV format");
+	    } catch (Exception ex) {
+	        res.setResponseCode(0);
+	        res.setResponseMessage("Error generating VDD file: " + ex.getMessage());
+	        ex.printStackTrace();
+	    }
+
+	    return res;
 	}
+
+
 
 	// used in ADMIN page
 	public Response selectScriptFile(String scriptFile) {

@@ -23,6 +23,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 class VDDConfiguraionTableViewFactory implements TableViewFactory<VDDConfiguraion> {
@@ -88,13 +89,19 @@ public class VDDConfigurationController {
 		title.getStyleClass().add("vdd-config-title");
 		titleBox.getChildren().add(title);
 
-		HBox addUserBox = new HBox();
+		HBox addUserBox = new HBox(10);
 		addUserBox.setAlignment(Pos.CENTER_RIGHT);
 		Button addUserBtn = new Button("ADD FILE");
-		addUserBox.getChildren().add(addUserBtn);
-
+		Button downloadBtn = new Button("DOWNLOAD");
+		
+		addUserBox.getChildren().addAll(addUserBtn, downloadBtn);
+		
 		addUserBtn.setOnAction(e -> {
 			uploadfile();
+		});
+		
+		downloadBtn.setOnAction(e -> {
+			downloadfile();
 		});
 
 		vddConfigTitleGridPane.add(titleBox, 0, 0);
@@ -157,4 +164,34 @@ public class VDDConfigurationController {
 	            }
 	      }		
 	}
+	
+	private void downloadfile() {
+	    FileChooser fileChooser = new FileChooser();
+	    fileChooser.setTitle("Save Checksum File");
+	    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+	    File initialDirectory = new File(System.getProperty("user.home"));
+	    fileChooser.setInitialDirectory(initialDirectory);
+
+	    fileChooser.setInitialFileName("vddChecksum.csv");
+
+	    File selectedFile = fileChooser.showSaveDialog(vddConfigMainGridPane.getScene().getWindow());
+
+	    if (selectedFile != null) {
+	        String filePath = selectedFile.getAbsolutePath();
+	        if (!filePath.toLowerCase().endsWith(".csv")) {
+	            filePath += ".csv";
+	        }
+
+	        Response response = checksumManagement.exportVDDDetails(filePath);
+
+	        if (response.getResponseCode() == 1) {
+	            Notifications.showSuccessAlert("Checksum values uploaded successfully.");
+	        } else {
+	            Notifications.showErrorAlert("Error: " + response.getResponseMessage());
+	        }
+	    }
+	}
+
+
+	
 }

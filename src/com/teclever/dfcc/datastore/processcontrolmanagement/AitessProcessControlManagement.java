@@ -7,8 +7,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -21,12 +23,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
-import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
+import com.teclever.dfcc.datastore.dto.PbitResponse;
 import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
 import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
@@ -568,11 +570,11 @@ public class AitessProcessControlManagement {
 									System.out.println(
 											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel1Status());
 									System.out.println(
-											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel2Status());
+											"State Machine OFPversion CH2:: " + OFPversionStatus.getChannel2Status());
 									System.out.println(
-											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel3Status());
+											"State Machine OFPversion CH3:: " + OFPversionStatus.getChannel3Status());
 									System.out.println(
-											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel4Status());
+											"State Machine OFPversion CH4:: " + OFPversionStatus.getChannel4Status());
 								}
 
 								break;
@@ -594,11 +596,11 @@ public class AitessProcessControlManagement {
 									System.out.println(
 											"State Machine OnlineStatus CH1:: " + OnlineStatus.getChannel1Status());
 									System.out.println(
-											"State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel1Status());
+											"State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel2Status());
 									System.out.println(
-											"State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel1Status());
+											"State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
 									System.out.println(
-											"State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel1Status());
+											"State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
 								}
 								break;
 
@@ -1424,8 +1426,8 @@ public class AitessProcessControlManagement {
 		}
 	}
 
-	public Response pbitCheck() {
-		Response response = new Response();
+	public PbitResponse pbitCheck() {
+		PbitResponse response = new PbitResponse();
 
 		boolean ofpMatch = false;
 		boolean wdmMatch = false;
@@ -1434,15 +1436,15 @@ public class AitessProcessControlManagement {
 			dfccCheckStstusStarted.set(true);
 
 			// Write OFP version command
+			currentCommand.set("OFPversion");
 			launcherFuture2.thenRun(
 					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
-			currentCommand.set("OFPversion");
 			Thread.sleep(500);
-
+			currentCommand.set("");
 			// Write WDM version command
+			currentCommand.set("WDMversion");
 			launcherFuture2
 					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
-			currentCommand.set("WDMversion");
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -1454,6 +1456,20 @@ public class AitessProcessControlManagement {
 
 		dfccCheckStstusStarted.set(false);
 
+	    List<String> ofpStatusList = new ArrayList<>();
+	    List<String> wdmStatusList = new ArrayList<>();
+	    
+	    ofpStatusList.add(OFPversionStatus.getChannel1Status());
+	    ofpStatusList.add(OFPversionStatus.getChannel2Status());
+	    ofpStatusList.add(OFPversionStatus.getChannel3Status());
+	    ofpStatusList.add(OFPversionStatus.getChannel4Status());
+
+	    wdmStatusList.add(WDMStatus.getChannel1Status());
+	    wdmStatusList.add(WDMStatus.getChannel2Status());
+	    wdmStatusList.add(WDMStatus.getChannel3Status());
+	    wdmStatusList.add(WDMStatus.getChannel4Status());
+
+	    
 		// Check if all OFP versions are equal
 		if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status())
 				&& OFPversionStatus.getChannel2Status().equals(OFPversionStatus.getChannel3Status())
@@ -1461,12 +1477,12 @@ public class AitessProcessControlManagement {
 
 			// OFP Present OK
 			ofpMatch = true;
-			Debug.printDebug("All channels have the same OFP version.");
+			System.out.println("All channels have the same OFP version.");
 
 		} else {
 			// NOT OK
 			ofpMatch = false;
-			Debug.printDebug("Channels have different OFP versions.");
+			System.out.println("Channels have different OFP versions.");
 		}
 
 		String expectedWDMStatus = "0xfffe6020";
@@ -1484,12 +1500,12 @@ public class AitessProcessControlManagement {
 
 				// WDM Status OK
 				wdmMatch = true;
-				Debug.printDebug("All channels WDM status are UP.");
+				System.out.println("All channels WDM status are UP.");
 
 			} else {
 				// NOT OK
 				wdmMatch = false;
-				Debug.printDebug("All channels WDM status are not UP.");
+				System.out.println("All channels WDM status are not UP.");
 			}
 		} else {
 			// mk1 and mk2
@@ -1499,12 +1515,12 @@ public class AitessProcessControlManagement {
 
 				// WDM Status OK
 				wdmMatch = true;
-				Debug.printDebug("All channels WDM status are UP.");
+				System.out.println("All channels WDM status are UP.");
 
 			} else {
 				// NOT OK
 				wdmMatch = false;
-				Debug.printDebug("All channels WDM status are not UP.");
+				System.out.println("All channels WDM status are not UP.");
 			}
 
 		}
@@ -1519,7 +1535,10 @@ public class AitessProcessControlManagement {
 			response.setResponseCode(400);
 			response.setResponseMessage("Channels have different OFP versions but all WDM channels are UP.");
 		}
-
+		
+		response.setOfpStatus(ofpStatusList);
+		response.setWdmStatus(wdmStatusList);
+		System.out.println("responseId while pbit Test:-> " + response.getResponseCode());
 		return response;
 	}
 

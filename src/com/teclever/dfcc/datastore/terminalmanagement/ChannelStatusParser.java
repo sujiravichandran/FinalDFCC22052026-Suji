@@ -17,10 +17,10 @@ public class ChannelStatusParser {
 		Matcher channelMatcher = channelPattern.matcher(outputLine);
 
 		if (channelMatcher.find()) {
-			String channel1 = channelMatcher.group(1);
-			String channel2 = channelMatcher.group(2);
-			String channel3 = channelMatcher.group(3);
-			String channel4 = channelMatcher.group(4);
+			String channel1 = channelMatcher.group(1).trim();
+			String channel2 = channelMatcher.group(2).trim();
+			String channel3 = channelMatcher.group(3).trim();
+			String channel4 = channelMatcher.group(4).trim();
 
 			WDMStatus.setChannel1Status(channel1);
 			WDMStatus.setChannel2Status(channel2);
@@ -58,6 +58,31 @@ public class ChannelStatusParser {
 		}
 
 	}
+	
+	//OFP for all
+	public ChannelStatus getOFPstatus(String outputLine) {
+		Pattern channelPattern = Pattern.compile("<.*>\\s*\\(([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^,]+)\\)");
+		Matcher channelMatcher = channelPattern.matcher(outputLine);
+
+		if (channelMatcher.find()) {
+			String channel1 = channelMatcher.group(1).trim();
+			String channel2 = channelMatcher.group(2).trim();
+			String channel3 = channelMatcher.group(3).trim();
+			String channel4 = channelMatcher.group(4).trim();
+
+			OFPversionStatus.setChannel1Status(channel1);
+			OFPversionStatus.setChannel2Status(channel2);
+			OFPversionStatus.setChannel3Status(channel3);
+			OFPversionStatus.setChannel4Status(channel4);
+			
+			return new ChannelStatus(channel1, channel2, channel3, channel4);
+		} else {
+			return null;
+		}
+
+	}
+	
+	
 
 	// OFPversion
 	public ChannelStatus getOFPversionStatus(String outputLine) {

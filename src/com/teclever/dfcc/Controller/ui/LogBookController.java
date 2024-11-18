@@ -76,7 +76,7 @@ public class LogBookController {
 	private DatePicker fromDate = new DatePicker();
 	private DatePicker toDate = new DatePicker();
 	private DatePicker userInputDate = new DatePicker();
-	
+
 	private TextArea aitessTextArea = new TextArea();
 	private TextArea uutTextArea = new TextArea();
 	private TextArea userInputTextArea = new TextArea();
@@ -84,7 +84,7 @@ public class LogBookController {
 	public ComboBox<String> uutTypeField = new ComboBox<>();
 	public ComboBox<String> uutSerialNoField = new ComboBox<>();
 	public ComboBox<String> sessionField = new ComboBox<>();
-	
+
 	private ComboBox<String> fromTimePicker = new ComboBox<>();
 	private ComboBox<String> toTimePicker = new ComboBox<>();
 	private ComboBox<String> userInputTimePicker = new ComboBox<>();
@@ -106,26 +106,26 @@ public class LogBookController {
 	Date selectedToDate;
 	String seclectFromTime;
 	String seclectToTime;
-	
-	
+
 	String uutLogData = null;
+	String timestamp = null;
 	String sessionLogData = null;
 	String dfccSNLogData = null;
 	String fromDateLogData = null;
 	String toDateLogData = null;
-	
+
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 
 	public LogBookController() {
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
-		
+
 		for (SessionDto session : sessionList) {
 			sessionNameId.put(session.getSessionName(), session.getSessionId());
 			sessionDfccId.put(session.getSessionName(), session.getDfccSNo());
-			
-	    }
-		
+
+		}
+
 		populateAllDataAitess();
 		populateAllDataUUT();
 	}
@@ -221,51 +221,40 @@ public class LogBookController {
 	}
 
 	private void populateAllDataAitess() {
-
 		ApplicationLogbookManagement app = new ApplicationLogbookManagement();
 
-		List<ApplicationLogBookDto> logBookEntries = app.getApplicationLogBooksByDate(null, null, null, null, null,null);
+		List<ApplicationLogBookDto> logBookEntries = app.getApplicationLogBooksByDate(null, null, null, null, null,
+				null);
 		ObservableList<String> fileData = FXCollections.observableArrayList();
-		for (ApplicationLogBookDto s : logBookEntries) {
-			uutLogData = s.getDetails();
-			fileData.add(uutLogData);
-		}
 
 		StringBuilder text = new StringBuilder();
-        for (String item : fileData) {
-            text.append(item).append("\n");
-        }
 
-        // Set the text to the TextArea
-        aitessTextArea.setText(text.toString());
+		for (ApplicationLogBookDto entry : logBookEntries) {
+			String timestamp = entry.getTimestamp().toString();
+			String details = entry.getDetails();
 
-        // Optional: Set the TextArea to be non-editable
-        aitessTextArea.setEditable(false);
+			text.append(String.format("%-25s %s%n", timestamp, details));
+		}
 
+		aitessTextArea.setText(text.toString());
+		aitessTextArea.setEditable(false);
 	}
-	
-	private void populateAllDataUUT() {
 
+	private void populateAllDataUUT() {
 		UUTLogbookManagement app = new UUTLogbookManagement();
 
 		List<UUTLogBookDto> logBookEntries = app.getUUTLogBooksByDate(null, null, null, null, null, null);
-		ObservableList<String> fileData = FXCollections.observableArrayList();
-		for (UUTLogBookDto s : logBookEntries) {
-			uutLogData = s.getDetails();
-			fileData.add(uutLogData);
-		}
 
 		StringBuilder text = new StringBuilder();
-        for (String item : fileData) {
-            text.append(item).append("\n");
-        }
+		for (UUTLogBookDto entry : logBookEntries) {
+			String timestamp = entry.getTimestamp().toString(); // Assume `getTimestamp` returns a String
+			String details = entry.getDetails();
 
-        // Set the text to the TextArea
-        uutTextArea.setText(text.toString());
+			text.append(String.format("%-25s %s%n", timestamp, details));
+		}
 
-        // Optional: Set the TextArea to be non-editable
-        uutTextArea.setEditable(false);
-
+		uutTextArea.setText(text.toString());
+		uutTextArea.setEditable(false);
 	}
 
 	private HBox createFromTimePicker() {
@@ -297,13 +286,13 @@ public class LogBookController {
 	}
 
 	private ObservableList<String> generateTimeOptions() {
-	    ObservableList<String> timeOptions = FXCollections.observableArrayList();
-	    for (int hour = 0; hour < 24; hour++) {
-	        for (int minute = 0; minute < 60; minute += 15) { // Interval of 15 minutes
-	            timeOptions.add(String.format("%02d:%02d:00", hour, minute)); // Seconds are always "00"
-	        }
-	    }
-	    return timeOptions;
+		ObservableList<String> timeOptions = FXCollections.observableArrayList();
+		for (int hour = 0; hour < 24; hour++) {
+			for (int minute = 0; minute < 60; minute += 15) { // Interval of 15 minutes
+				timeOptions.add(String.format("%02d:%02d:00", hour, minute)); // Seconds are always "00"
+			}
+		}
+		return timeOptions;
 	}
 
 	// UUT TYPE FIELD
@@ -334,29 +323,25 @@ public class LogBookController {
 
 			ApplicationLogbookManagement app = new ApplicationLogbookManagement();
 
-			List<ApplicationLogBookDto> logBookEntries = app.getApplicationLogBooksByDate(selectedUUTType, selectedDfccSN, selectedSessionType,
-					selectedFromDate, selectedToDate,StateMachine.getCurrentUserLogin());
-			ObservableList<String> fileData = FXCollections.observableArrayList();
-			for (ApplicationLogBookDto s : logBookEntries) {
-				uutLogData = s.getDetails();
-				fileData.add(uutLogData);
-			}
+			List<ApplicationLogBookDto> logBookEntries = app.getApplicationLogBooksByDate(selectedUUTType,
+					selectedDfccSN, selectedSessionType, selectedFromDate, selectedToDate,
+					StateMachine.getCurrentUserLogin());
+
 			StringBuilder text = new StringBuilder();
-	        for (String item : fileData) {
-	            text.append(item).append("\n");
-	        }
+			for (ApplicationLogBookDto entry : logBookEntries) {
+				String timestamp = entry.getTimestamp().toString();
+				String details = entry.getDetails();
 
-	        // Set the text to the TextArea
-	        aitessTextArea.setText(text.toString());
+				text.append(String.format("%-25s %s%n", timestamp, details));
+			}
 
-	        // Optional: Set the TextArea to be non-editable
-	        aitessTextArea.setEditable(false);
-		} 
+			aitessTextArea.setText(text.toString());
+			aitessTextArea.setEditable(false);
+		}
+
 		return selectedUUTType;
 	}
-	
 
-	
 	private String createUutLogData(String uutType) {
 
 		String selectedUUTType = fetchUutId(uutType);
@@ -364,28 +349,24 @@ public class LogBookController {
 
 			UUTLogbookManagement app = new UUTLogbookManagement();
 
-			List<UUTLogBookDto> logBookEntries = app.getUUTLogBooksByDate(selectedUUTType, selectedDfccSN, selectedSessionType, selectedFromDate, selectedToDate, StateMachine.getCurrentUserLogin());
-			ObservableList<String> fileData = FXCollections.observableArrayList();
-			for (UUTLogBookDto s : logBookEntries) {
-				uutLogData = s.getDetails();
-				fileData.add(uutLogData);
-			}
-			
+			List<UUTLogBookDto> logBookEntries = app.getUUTLogBooksByDate(selectedUUTType, selectedDfccSN,
+					selectedSessionType, selectedFromDate, selectedToDate, StateMachine.getCurrentUserLogin());
+
 			StringBuilder text = new StringBuilder();
-	        for (String item : fileData) {
-	            text.append(item).append("\n");
-	        }
 
-	        // Set the text to the TextArea
-	        uutTextArea.setText(text.toString());
+			for (UUTLogBookDto entry : logBookEntries) {
+				String timestamp = entry.getTimestamp().toString();
+				String details = entry.getDetails();
 
-	        // Optional: Set the TextArea to be non-editable
-	        uutTextArea.setEditable(false);
+				text.append(String.format("%-25s %s%n", timestamp, details));
+			}
 
+			uutTextArea.setText(text.toString());
+			uutTextArea.setEditable(false);
 		}
+
 		return selectedUUTType;
 	}
-
 
 	private String fetchUutId(String uutType) {
 		for (UUTMasterDetailsDto uut : uutDataList) {
@@ -438,14 +419,13 @@ public class LogBookController {
 		sessionField.setItems(sessionTypeList);
 	}
 
-	
 //  // UUT SESSION DFCC S/N FIELD
 	private void initializeDfccSNComboBox(String uutTypeId) {
 		dfccSNList.clear();
 
 		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
 				.collect(Collectors.toList());
-		
+
 		for (SessionDto dfccSn : filterSessionList) {
 			dfccSNList.add(dfccSn.getDfccSNo());
 		}
@@ -453,10 +433,6 @@ public class LogBookController {
 		uutSerialNoField.setItems(dfccSNList);
 	}
 
-	
-
-	
-	
 	// DATE PICKER - FROM
 	private HBox createFromDatePickerComboBox() {
 		fromDate.setPromptText("FROM DATE");
@@ -479,61 +455,58 @@ public class LogBookController {
 
 	private HBox createRefreshButton() {
 		refreshButton.getStyleClass().add("logBook-container");
-	    refreshButtonHBox.setAlignment(Pos.CENTER);
-	    refreshButtonHBox.getChildren().add(refreshButton);
-	    refreshButton.setOnAction(e -> {
-	    refreshButton();
-	    });
-	    return refreshButtonHBox;
+		refreshButtonHBox.setAlignment(Pos.CENTER);
+		refreshButtonHBox.getChildren().add(refreshButton);
+		refreshButton.setOnAction(e -> {
+			refreshButton();
+		});
+		return refreshButtonHBox;
 	}
 
 	private void refreshButton() {
-		
-	        // Get selected UUT type, serial number, and session type
-	        selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
-	        selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
-	        selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
 
-	        // Handle date selection
-	        LocalDate localFromDate = fromDate.getValue();
-	        LocalDate localToDate = toDate.getValue();
-	        
-	        
+		// Get selected UUT type, serial number, and session type
+		selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+		selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
+		selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
 
-	        // Handle time selection from ComboBox
-	        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	        LocalTime selectedFromTime = null;
-	        LocalTime selectedToTime = null;
+		// Handle date selection
+		LocalDate localFromDate = fromDate.getValue();
+		LocalDate localToDate = toDate.getValue();
 
-	        if (fromTimePicker.getSelectionModel().getSelectedItem() != null) {
-	            selectedFromTime = LocalTime.parse(fromTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
-	        }
-	        if (toTimePicker.getSelectionModel().getSelectedItem() != null) {
-	            selectedToTime = LocalTime.parse(toTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
-	        }
+		// Handle time selection from ComboBox
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		LocalTime selectedFromTime = null;
+		LocalTime selectedToTime = null;
 
-	        // Combine date and time into Date objects
-	        if (localFromDate != null && selectedFromTime != null) {
-	            selectedFromDate = Date.from(LocalDateTime.of(localFromDate, selectedFromTime)
-	                    .atZone(ZoneId.systemDefault()).toInstant());
-	            
-	        } else if (localFromDate != null) { // If time is not selected, use start of the day
-	            selectedFromDate = Date.from(localFromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-	        }
+		if (fromTimePicker.getSelectionModel().getSelectedItem() != null) {
+			selectedFromTime = LocalTime.parse(fromTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
+		}
+		if (toTimePicker.getSelectionModel().getSelectedItem() != null) {
+			selectedToTime = LocalTime.parse(toTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
+		}
 
-	        if (localToDate != null && selectedToTime != null) {
-	            selectedToDate = Date.from(LocalDateTime.of(localToDate, selectedToTime)
-	                    .atZone(ZoneId.systemDefault()).toInstant());
-	        } else if (localToDate != null) { // If time is not selected, use end of the day
-	            selectedToDate = Date.from(localToDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-	        }
+		// Combine date and time into Date objects
+		if (localFromDate != null && selectedFromTime != null) {
+			selectedFromDate = Date
+					.from(LocalDateTime.of(localFromDate, selectedFromTime).atZone(ZoneId.systemDefault()).toInstant());
 
-	        // Process log data based on selected UUT type
-	        if (selectedUUTType != null) {
-	            createAitessLogData(selectedUUTType);
-	            createUutLogData(selectedUUTType);
-	        }
-	  
+		} else if (localFromDate != null) { // If time is not selected, use start of the day
+			selectedFromDate = Date.from(localFromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		}
+
+		if (localToDate != null && selectedToTime != null) {
+			selectedToDate = Date
+					.from(LocalDateTime.of(localToDate, selectedToTime).atZone(ZoneId.systemDefault()).toInstant());
+		} else if (localToDate != null) { // If time is not selected, use end of the day
+			selectedToDate = Date.from(localToDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		}
+
+		// Process log data based on selected UUT type
+		if (selectedUUTType != null) {
+			createAitessLogData(selectedUUTType);
+			createUutLogData(selectedUUTType);
+		}
 
 	}
 
@@ -621,7 +594,6 @@ public class LogBookController {
 		ColumnConstraints fourthColumn = new ColumnConstraints();
 		fourthColumn.setPercentWidth(25);
 
-
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(20);
 		RowConstraints secondRow = new RowConstraints();
@@ -638,9 +610,6 @@ public class LogBookController {
 		logBookBottomGridPane.add(createBottomButton(), 3, 0);
 		logBookBottomGridPane.add(createUserDatePickerComboBox(), 1, 0);
 		logBookBottomGridPane.add(userInputTimePicker(), 2, 0);
-		
-		
-		
 
 		return logBookBottomGridPane;
 	}
@@ -666,7 +635,7 @@ public class LogBookController {
 
 		return logBookUserInputTextAreaGridPane;
 	}
-	
+
 	private HBox userInputTimePicker() {
 		userInputTimePicker.setPromptText("USER TIME");
 
@@ -682,13 +651,13 @@ public class LogBookController {
 	}
 
 	private ObservableList<String> generateUserInputTimeOptions() {
-	    ObservableList<String> timeOptions = FXCollections.observableArrayList();
-	    for (int hour = 0; hour < 24; hour++) {
-	        for (int minute = 0; minute < 60; minute += 15) { // Interval of 15 minutes
-	            timeOptions.add(String.format("%02d:%02d:00", hour, minute)); // Seconds are always "00"
-	        }
-	    }
-	    return timeOptions;
+		ObservableList<String> timeOptions = FXCollections.observableArrayList();
+		for (int hour = 0; hour < 24; hour++) {
+			for (int minute = 0; minute < 60; minute += 15) { // Interval of 15 minutes
+				timeOptions.add(String.format("%02d:%02d:00", hour, minute)); // Seconds are always "00"
+			}
+		}
+		return timeOptions;
 	}
 
 	private HBox createUserDatePickerComboBox() {
@@ -699,84 +668,81 @@ public class LogBookController {
 
 		return userInputDatePickerToHBox;
 	}
-	
 
 	private HBox createBottomButton() {
-		
-	    bottomSubmitButton.getStyleClass().add("logBook-container");
-	    bottomButtonHBox.setAlignment(Pos.CENTER_RIGHT);
-	    bottomButtonHBox.getChildren().add(bottomSubmitButton);
 
-	    bottomSubmitButton.setOnAction(e -> {
-	        String userInput = userInputTextArea.getText();
-	        
-	        
-	        
-	        selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
-	       String uutId = fetchUutId(selectedUUTType);
-	        selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
-	        selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
-	        
-	        if (userInput.isEmpty()) {
-	            Notifications.showErrorAlert("Please enter the user data.");
-	            return; // Stop execution if the input is empty
-	        }
-	        
-	        if (uutTypeField.getSelectionModel().getSelectedItem() == null) {
-	            Notifications.showErrorAlert("Please select UUT.");
-	            return;
-	        }
-	        
-	        if (uutSerialNoField.getSelectionModel().getSelectedItem() == null) {
-	            Notifications.showErrorAlert("Please select UUT Serial No.");
-	            return;
-	        }
-	        
-	        if (sessionField.getSelectionModel().getSelectedItem() == null) {
-	            Notifications.showErrorAlert("Please select Session Name.");
-	            return;
-	        }
+		bottomSubmitButton.getStyleClass().add("logBook-container");
+		bottomButtonHBox.setAlignment(Pos.CENTER_RIGHT);
+		bottomButtonHBox.getChildren().add(bottomSubmitButton);
 
-	        LocalDate localUserInputDate = userInputDate.getValue();
-	        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	        LocalTime selectedUserInputTime = null;
-	        
-	        if (userInputTimePicker.getSelectionModel().getSelectedItem() != null) {
-	        	selectedUserInputTime = LocalTime.parse(userInputTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
-	        }
-	        if (localUserInputDate != null && selectedUserInputTime != null) {
-	        	selectedUserInputDate = Date.from(LocalDateTime.of(localUserInputDate, selectedUserInputTime)
-	                    .atZone(ZoneId.systemDefault()).toInstant());
-	        }
-	        // If all checks pass, proceed with the submission
-	        UUTLogbookManagement uutLogBookManagement = new UUTLogbookManagement();
-	        UUTLogBookDto uutDto = new UUTLogBookDto();
-	        uutDto.setSessionId(selectedSessionType);
-	        uutDto.setUutId(uutId);
-	        
-	        if(selectedUserInputDate!=null) {
-	        uutDto.setTimestamp(selectedUserInputDate);
-	       
-	        }else {
-	        	uutDto.setTimestamp(new Date());
-	        }
-	        uutDto.setUsername(StateMachine.getCurrentUserLogin());
-	        uutDto.setUutSerialNumber(selectedDfccSN);
-	        uutDto.setDetails(userInput);
-	        
-	        userInputDate.setValue(null);
-	        userInputTimePicker.setValue(null);
-            
-	        userInputTextArea.clear();
-            
-            // Add UUT logbook entry and get the response
-	        UUTLogBookResponse response = uutLogBookManagement.addUUTLogBook(uutDto);
+		bottomSubmitButton.setOnAction(e -> {
+			String userInput = userInputTextArea.getText();
 
-	        refreshButton(); 
-	    });
-	   
-	    return bottomButtonHBox;
+			selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+			String uutId = fetchUutId(selectedUUTType);
+			selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
+			selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
+
+			if (userInput.isEmpty()) {
+				Notifications.showErrorAlert("Please enter the user data.");
+				return; // Stop execution if the input is empty
+			}
+
+			if (uutTypeField.getSelectionModel().getSelectedItem() == null) {
+				Notifications.showErrorAlert("Please select UUT.");
+				return;
+			}
+
+			if (uutSerialNoField.getSelectionModel().getSelectedItem() == null) {
+				Notifications.showErrorAlert("Please select UUT Serial No.");
+				return;
+			}
+
+			if (sessionField.getSelectionModel().getSelectedItem() == null) {
+				Notifications.showErrorAlert("Please select Session Name.");
+				return;
+			}
+
+			LocalDate localUserInputDate = userInputDate.getValue();
+			DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+			LocalTime selectedUserInputTime = null;
+
+			if (userInputTimePicker.getSelectionModel().getSelectedItem() != null) {
+				selectedUserInputTime = LocalTime.parse(userInputTimePicker.getSelectionModel().getSelectedItem(),
+						timeFormatter);
+			}
+			if (localUserInputDate != null && selectedUserInputTime != null) {
+				selectedUserInputDate = Date.from(LocalDateTime.of(localUserInputDate, selectedUserInputTime)
+						.atZone(ZoneId.systemDefault()).toInstant());
+			}
+			// If all checks pass, proceed with the submission
+			UUTLogbookManagement uutLogBookManagement = new UUTLogbookManagement();
+			UUTLogBookDto uutDto = new UUTLogBookDto();
+			uutDto.setSessionId(selectedSessionType);
+			uutDto.setUutId(uutId);
+
+			if (selectedUserInputDate != null) {
+				uutDto.setTimestamp(selectedUserInputDate);
+
+			} else {
+				uutDto.setTimestamp(new Date());
+			}
+			uutDto.setUsername(StateMachine.getCurrentUserLogin());
+			uutDto.setUutSerialNumber(selectedDfccSN);
+			uutDto.setDetails(userInput);
+
+			userInputDate.setValue(null);
+			userInputTimePicker.setValue(null);
+
+			userInputTextArea.clear();
+
+			// Add UUT logbook entry and get the response
+			UUTLogBookResponse response = uutLogBookManagement.addUUTLogBook(uutDto);
+
+			refreshButton();
+		});
+
+		return bottomButtonHBox;
 	}
 
 }
-
