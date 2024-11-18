@@ -831,7 +831,7 @@ public class TestProcessManagement {
 				}
 				// SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);
 				if (stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
-						|| stageName.equals("INTERFACE TEST")) {
+						|| stageName.equals("INTERFACE TEST") || stageName.equals("SRU")) {
 					updateProgressBar(stageName);
 				}
 			} // Outer loop
@@ -1119,6 +1119,11 @@ public class TestProcessManagement {
 		try {
 
 			switch (stageName) {
+			
+			case "SRU":
+				LRUTestStateObject.getRunnedLRUTestFileCount()
+					.set(LRUTestStateObject.getRunnedLRUTestFileCount().get() + 1);
+				break;
 
 			case "SESSION TEST":
 				SessionTestStateObject.getRunnedTestFileCount()

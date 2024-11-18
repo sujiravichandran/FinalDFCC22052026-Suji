@@ -47,7 +47,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -209,7 +211,7 @@ public class UserDashboardController {
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/advance_testing.png", null);
 			addTreeItemWithChildren(rootItem, "Reports",
 					DFCCConstant.JARSTRING + "/Resources/Images/menuImages/reports.png",
-					new String[] { "PQT Report", "ESS Report", "Datapack Report", "Upload" });
+					new String[] { "PQT Report", "ESS Report", "Datapack Report", "Upload", "Data Backup" });
 
 		} else if (UserData.getRoleId().equals("RL_ID_4")) {
 
@@ -667,6 +669,11 @@ public class UserDashboardController {
 	        toggleLabel.setText("OFF");
 	        StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
 	    } else {
+	    	Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Confirmation Dialog");
+            dialog.setContentText("Please ensure the cooler switch is turned ON.");
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+            dialog.showAndWait();
 	        transition.setToX(26);
 	        background.setFill(Color.GREEN);
 	        toggleLabel.setText("ON");

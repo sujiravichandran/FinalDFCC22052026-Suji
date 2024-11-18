@@ -14,14 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.service.SessionSelectedStagesService;
+import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
@@ -58,7 +62,14 @@ public class SessionFileManagement {
 			String currentDirectory = new File(
 					SessionFileManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
 					.getParent();
-
+			
+			currentDirectory = currentDirectory+File.separator+".output";
+			if (Files.isDirectory(Paths.get(currentDirectory))) {
+                // Create the directory in the destination
+                if (!Files.exists(Paths.get(currentDirectory))) {
+                    Files.createDirectories(Paths.get(currentDirectory));
+                }
+			}
 			// StateMachine.setHomelocation(Paths.get("C:\\testingSession"));
 			StateMachine.setHomelocation(Paths.get(currentDirectory));
 
@@ -68,13 +79,13 @@ public class SessionFileManagement {
 			mark2Directory = StateMachine.getHomelocation().resolve("MK-2");
 
 			if (Files.notExists(mark1Directory)) {
-				Files.createDirectory(mark1Directory);
+				Files.createDirectories(mark1Directory);
 			}
 			if (Files.notExists(mark1aDirectory)) {
-				Files.createDirectory(mark1aDirectory);
+				Files.createDirectories(mark1aDirectory);
 			}
 			if (Files.notExists(mark2Directory)) {
-				Files.createDirectory(mark2Directory);
+				Files.createDirectories(mark2Directory);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -929,6 +940,68 @@ public class SessionFileManagement {
 			throw e;
 		}
 
+	}
+	public Response backupData(String sessionId, String destination) {
+		Response res = new Response();
+		try {
+			SessionService sessionService = new SessionService();
+			GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionStageId(sessionId);
+			if (getObjResponse.getResponse().getResponseCode() == 0) {
+				res.setResponseCode(0);
+				res.setResponseMessage(getObjResponse.getResponse().getResponseMessage());
+			}
+			
+			SessionEntity sessionEntity = (SessionEntity) getObjResponse.getObject();
+			res = copyFolder(sessionEntity.getPath(), destination,sessionEntity.getSessionName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
+	//NOT Using 
+	private Response copyFolder(String sourceFolder, String destinationFolder, String sessionName) throws IOException {
+	    Response res = new Response();
+	    try {
+	        Path source = Paths.get(sourceFolder);
+	        Path zipFilePath = Paths.get(destinationFolder + File.separator + sessionName + ".zip");
+	        System.out.println(zipFilePath);
+
+	        // Create parent directories if they don't exist
+	        if (!Files.exists(zipFilePath.getParent())) {
+	            Files.createDirectories(zipFilePath.getParent());
+	        }
+
+	        // Create the ZIP file
+	        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
+	            Files.walk(source).forEach(sourcePath -> {
+	                try {
+	                    String zipEntryName = source.relativize(sourcePath).toString();
+	                    if (Files.isDirectory(sourcePath)) {
+	                        // Add a directory entry to the ZIP file
+	                        if (!zipEntryName.isEmpty()) {
+	                            zipOut.putNextEntry(new ZipEntry(zipEntryName + "/"));
+	                            zipOut.closeEntry();
+	                        }
+	                    } else {
+	                        // Add a file entry to the ZIP file
+	                        zipOut.putNextEntry(new ZipEntry(zipEntryName));
+	                        Files.copy(sourcePath, zipOut);
+	                        zipOut.closeEntry();
+	                    }
+	                } catch (IOException e) {
+	                    throw new RuntimeException("Error zipping file: " + sourcePath, e);
+	                }
+	            });
+	        }
+
+	        res.setResponseCode(1);
+	        res.setResponseMessage("Folder successfully zipped to: " + zipFilePath.toString());
+	    } catch (Exception e) {
+	        res.setResponseCode(0);
+	        res.setResponseMessage("Error occurred while zipping folder: " + e.getMessage());
+	    }
+	    return res;
 	}
 	
 }

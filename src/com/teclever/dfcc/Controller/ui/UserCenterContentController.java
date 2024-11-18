@@ -304,6 +304,10 @@ public class UserCenterContentController {
 			
 			break;
 			
+		case "Data Backup" :	
+			openDataBackupPopup();			
+			break;
+			
 			
 		case "Configuration":
 			if (!centerStackPane.getChildren().contains(configurationStackPane)) {
@@ -351,6 +355,7 @@ public class UserCenterContentController {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);
 		}
 	}
+
 	private void clearAllData() {
 		StateMachine.resetStateMachine();
 		SelfTestStateObject.resetSelfTestStateObject();
@@ -451,6 +456,27 @@ public class UserCenterContentController {
 		});
 	}
 	
+	private void openDataBackupPopup() {
+		try {
+			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/DataBackup.fxml"));
+			Parent root = addUserPopup.load();
+			Stage stage = new Stage();
+			stage.setTitle("Session Data Backup");
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.initStyle(StageStyle.UNDECORATED);
+
+			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+		    double centerX = screenBounds.getMinX() + (screenBounds.getWidth() - 750) / 2;
+		    double centerY = screenBounds.getMinY() + (screenBounds.getHeight() - 200) / 2;
+		    stage.setX(centerX);
+		    stage.setY(centerY);
+			
+			stage.setScene(new Scene(root));
+			stage.showAndWait();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 	private void getAllStagesData() {

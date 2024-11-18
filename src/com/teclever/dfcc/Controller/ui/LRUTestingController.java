@@ -24,7 +24,6 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
-import com.teclever.dfcc.model.LRUTest;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
@@ -55,13 +54,17 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -95,24 +98,23 @@ public class LRUTestingController {
 	private GridPane subTestGridPane = new GridPane();
 
 	private HBox goNoGoLabel = new HBox(10);
-	private HBox startTestHBox = new HBox();
+	private HBox startButtonHBox = new HBox();
 
 	private VBox goNoGoVBox = new VBox(25);
 	private Label goLabel= new Label("GO");
 	private Label noGoLabel = new Label("NOGO");
 
-	private Button startTest = new Button("Start Test");
+	private HBox buttonHBox = new HBox(5);
+	private Button startButton = new Button("Start");
+	private Button stopButton = new Button("Stop");
+	private Button pauseButton = new Button("Pause");
+	private Button runAllButton = new Button("Run All");
 	
 	private GridPane sruTestCheckBoxList = new GridPane();
-	private VBox selectAllVBox = new VBox();
-	private CheckBox selectAllCheckBox = new CheckBox("Select All");
 	private VBox selectedListVBox = new VBox(5);
 
 	private GridPane bottomGridPane = new GridPane();
 	
-	private ObservableList<LRUTest> lruTestTableData = FXCollections.observableArrayList();
-	
-	private String selectedSRUCard;
 	private int currentIndex = 0;
 
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
@@ -131,9 +133,14 @@ public class LRUTestingController {
     
     private OfpConfigurationManagement ofpConfig = new OfpConfigurationManagement();
     FaultCodeConfiguration faultCodeConfiguration = new FaultCodeConfiguration();
-
-AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+    AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 	
+	private VBox buttonMainVBox = new VBox(15);
+	private HBox allButtonHBox = new HBox(5);
+	private HBox progressBarHBox = new HBox(5);
+	private ProgressBar testProgressBar = new ProgressBar();
+	private Label percentageLabel = new Label("0%");
+    
 	public String getRUN_CONFIG_ID() {
         return RUN_CONFIG_ID.get();
     }
@@ -161,10 +168,10 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		firstRow.setPercentHeight(7);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		secondRow.setPercentHeight(53);
 
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(43);
+		thirdRow.setPercentHeight(40);
 
 		lruTestMainContainerGridPane.setVgap(5);
 
@@ -459,12 +466,41 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 			firstButton =false;
 	
 			newButton.setOnAction(e ->{	
+				
+//				if(newButton.getText().toLowerCase().contains("spil")) {
+//					LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+//					LRUTestStateObject.updateLruMandatoryCardstatus(newButton.getId(), "OK");
+//					LRUTestStateObject.getSpilLinkStatus().set(false);
+//					
+//				}else if(newButton.getText().toLowerCase().contains("pbit")) {
+//					LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//					LRUTestStateObject.updateLruMandatoryCardstatus(newButton.getId(), "OK");
+//					LRUTestStateObject.getPbitStatus().set(false);
+//					
+//				}else if(newButton.getText().toLowerCase().contains("initialize")) {
+//			    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+//			    	LRUTestStateObject.updateLruMandatoryCardstatus(newButton.getId(), "OK");
+//			    	LRUTestStateObject.getInitializeLRUStatus().set(false);
+//			    	
+//			    }else if(newButton.getText().toLowerCase().contains("power")) {
+//			    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
+//			    	LRUTestStateObject.updateLruMandatoryCardstatus(newButton.getId(), "OK");
+//			    	LRUTestStateObject.getPowerSupplyStatus().set(false);
+//			    	
+//			    }else if(newButton.getText().toLowerCase().contains("interface")) {
+//			    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
+//			    	LRUTestStateObject.updateLruMandatoryCardstatus(newButton.getId(), "OK");
+//			    	LRUTestStateObject.getAd_daInterfaceStatus().set(false);
+//			    	
+//			    }
+				
+				
 				if(!checkAitessStatus.isBothAitessOn()) {
 					return ;
 				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-				    	startTest.setDisable(true);
+				    	startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 				    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -472,7 +508,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				        startTest.setDisable(false);
+				        startButton.setDisable(false);
 				        return;
 				    }
 				    
@@ -599,7 +635,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
 				    }
 				    
-				    callStartTest(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
+				    callstartButton(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 			});
 					
 	
@@ -670,8 +706,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 	        
 	       Debug.printDebug("allCardsStatusOk--------"+allCardsStatusOk);
 
-	        StateMachine.setTestState(TestState.COMPLETED);
-	        startTest.setDisable(false);
+	        StateMachine.setTestState(TestState.COMPLETED);	
 	        
 	        if(allCardsStatusOk) {
 	        	for(TestCardData card : LRUTestStateObject.getLruSruCardList()) {
@@ -719,17 +754,17 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		secondColumn.setPercentWidth(60);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(10);
+		firstRow.setPercentHeight(8);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(18);
+		secondRow.setPercentHeight(17);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(18);
+		thirdRow.setPercentHeight(17);
 		RowConstraints fourthRow = new RowConstraints();
-		fourthRow.setPercentHeight(18);
+		fourthRow.setPercentHeight(17);
 		RowConstraints fivthRow = new RowConstraints();
-		fivthRow.setPercentHeight(18);
+		fivthRow.setPercentHeight(17);
 		RowConstraints SixthRow = new RowConstraints();
-		SixthRow.setPercentHeight(18);
+		SixthRow.setPercentHeight(24);
 
 		sruSubTestGridPane.setHgap(20);
 		sruSubTestGridPane.setPadding(new Insets(5, 10, 10, 10));
@@ -742,7 +777,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		sruSubTestGridPane.add(createSruTestVBox(), 0, 1, 1, 4);
 
 		sruSubTestGridPane.add(subTestGridPane(), 1, 1, 1, 4);
-		sruSubTestGridPane.add(startTestHBox(), 0, 5, 2, 1);
+		sruSubTestGridPane.add(createButtonBox(), 0, 5, 2, 1);
 
 		return sruSubTestGridPane;
 
@@ -771,11 +806,17 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 			newButton.setDisable(true);
 			
 			newButton.setOnAction(e ->{
-				getSRUSubStage(newButton.getId(), newButton.getText());
-				selectedSRUCard = newButton.getText();
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on "+ newButton.getText());
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+				TestState currentState = StateMachine.getTestState();            
+			    if (currentState != TestState.RUNNING && currentState != TestState.PAUSED) {			    	
+			    	getSRUSubStage(newButton.getId(), newButton.getText());
+			    	startButton.setDisable(false);
+			    	runAllButton.setDisable(false);
+			    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			    	ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on "+ newButton.getText());
+			    	appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			    }else {
+			    	Notifications.showWarningAlert("SRU test is currently in progress. Please try again once the test is complete.");
+			    }
 			});
 			sruCardVBox.getChildren().add(newButton);
 		}
@@ -789,15 +830,12 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(12);
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(88);
+		firstRow.setPercentHeight(100);
 		
 		sruTestCheckBoxList.getColumnConstraints().addAll(firstColumn);
-		sruTestCheckBoxList.getRowConstraints().addAll(firstRow, secondRow);
+		sruTestCheckBoxList.getRowConstraints().addAll(firstRow);
 		
-		sruTestCheckBoxList.add(createSelectAllCheckbox(),0,0);
-		sruTestCheckBoxList.add(createListOfSubStage1(),0,1);
+		sruTestCheckBoxList.add(createListOfSubStage(),0,0);
 		return sruTestCheckBoxList;
 	}
 	
@@ -806,83 +844,303 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
     private ListView<CheckBox> testListView = new ListView<>();
 	
 
-	private Node createListOfSubStage1() {
+	private Node createListOfSubStage() {
 	   	testListView.getStyleClass().add("session-testing-list-view");
 	    selectedListVBox.getChildren().add(testListView);
 	    selectedListVBox.getStyleClass().add("session-testing-right-container");
 	    return selectedListVBox;
 	}
 
-	private VBox createSelectAllCheckbox() {
-		 selectAllCheckBox.getStyleClass().addAll("lru-testing-checkbox","lru-select-all-checkbox");
-		 	   
-		 selectAllCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-		   for (CheckBox checkBox : checkBoxes) {
-		        checkBox.setSelected(newValue);
-		     }
-		  });
-		selectAllVBox.getChildren().add(selectAllCheckBox);	
-		return selectAllVBox;
-	}
 	
 
-	private HBox startTestHBox() {
+	private HBox createButtonBox() {
+		buttonHBox.setPadding(new Insets(10,0,0,0));
 		
-		startTest.setPrefWidth(200);
-		startTest.setDisable(true);
+		Image playImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/play.png"));
+		Image stopImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/stop.png"));
+		Image pauseImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/pause.png"));
+
+		ImageView playImageView = new ImageView(playImage);
+		playImageView.getStyleClass().add("button-image");
+		playImageView.setFitHeight(25);
+		playImageView.setFitWidth(25);
+		playImageView.setPreserveRatio(true);
+		playImageView.setSmooth(true);
+
+		ImageView stopImageView = new ImageView(stopImage);
+		stopImageView.getStyleClass().add("button-image");
+		stopImageView.setFitHeight(25);
+		stopImageView.setFitWidth(25);
+		stopImageView.setPreserveRatio(true);
+		stopImageView.setSmooth(true);
+
+		ImageView pauseImageView = new ImageView(pauseImage);
+		pauseImageView.getStyleClass().add("button-image");
+		pauseImageView.setFitHeight(25);
+		pauseImageView.setFitWidth(25);
+		pauseImageView.setPreserveRatio(true);
+		pauseImageView.setSmooth(true);
 		
-		startTest.setOnAction(e ->{
+		startButton.setGraphic(playImageView);
+		startButton.setGraphicTextGap(10);
+		stopButton.setGraphic(stopImageView);
+		stopButton.setGraphicTextGap(10);
+		pauseButton.setGraphic(pauseImageView);
+		pauseButton.setGraphicTextGap(10);
+
+		runAllButton.setDisable(true);
+		startButton.setDisable(true);
+		stopButton.setDisable(true);
+		pauseButton.setDisable(true);
+		
+		initializeButtons();
+		
+		
+		buttonHBox.setAlignment(Pos.CENTER);
+
+		testProgressBar.setProgress(0);
+		testProgressBar.getStyleClass().add("progress-bar");
+		percentageLabel.getStyleClass().add("progress-label");
+
+		progressBarHBox.setAlignment(Pos.CENTER);
+		
+		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
+		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
+		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+
+		buttonHBox.getChildren().addAll(buttonMainVBox);
+		
+		LRUTestStateObject.runnedLRUTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null ) {
+				double percentage = (double) LRUTestStateObject.getRunnedLRUTestFileCount().get() / LRUTestStateObject.getTotalLRUSelectedTestFileCount();
+				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+				Platform.runLater(() -> {
+					testProgressBar.setProgress(roundedPercentage);
+					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+				});
+			}
+		});
+		
+		return buttonHBox;
+	}
+
+
+	private void initializeButtons() {
+		runAllButton.setOnAction(e -> {
 			if(!checkAitessStatus.isBothAitessOn()) {
 				return ;
 			}
+			
 			TestState currentState = StateMachine.getTestState();            
-		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
-		    	startTest.setDisable(true);
-		    	StateMachine.setTestState(TestState.RUNNING);
-		    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
+		    	for (CheckBox checkBox : checkBoxes) {
+			        checkBox.setSelected(true);
+			     }
+				
+				
+				List<String> fileIdList = getAllTestFilesForSelectedSubStages();
+				
+				if(fileIdList == null){	
+					return ;
+				}
+				
+				int totalTestFileCount = fileIdList.size() ;
+				LRUTestStateObject.setTotalLRUSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(()->{
+					percentageLabel.setText("0%");
+				});
+				LRUTestStateObject.getRunnedLRUTestFileCount().set(0);
+	
+//				Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> generateData()));
+//				timeline.setCycleCount(Timeline.INDEFINITE); // Repeat indefinitely
+//				timeline.play();
+				
+				sendSelectedSubStageData();
+			    startSruTest();
+		    	
+		    	startButton.setDisable(true);
+		    	runAllButton.setDisable(true);
+				stopButton.setDisable(false);
+				pauseButton.setDisable(false);
+				StateMachine.setTestState(TestState.RUNNING);
+				sruTestCheckBoxList.setDisable(true);
+				
+		    } else if (currentState == TestState.RUNNING) {
+				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			} else if (currentState == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			}
+		});
+		
+		startButton.setOnAction(e ->{
+			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setTestState(TestState.RUNNING);
+				startButton.setText("Start");
+				startButton.setDisable(true);
+				pauseButton.setDisable(false);
+				stopButton.setDisable(false);
+				return;
+			}
+			if(!checkAitessStatus.isBothAitessOn()) {
+				return ;
+			}
+			
+			boolean selected = false;
+			for(CheckBox checkBox : checkBoxes) {
+				if(checkBox.isSelected()) {
+					selected = true;
+				}
+			}
+			if(!selected) {
+				Notifications.showWarningAlert("Please select any checkbox for start test.");
+				return ;
+			}
+			
+			TestState currentState = StateMachine.getTestState();            
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
+		
+				List<String> fileIdList = getAllTestFilesForSelectedSubStages();
+				
+				if(fileIdList == null){	
+					return ;
+				}
+				
+				int totalTestFileCount = fileIdList.size() ;
+				LRUTestStateObject.setTotalLRUSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(()->{
+					percentageLabel.setText("0%");
+				});
+				LRUTestStateObject.getRunnedLRUTestFileCount().set(0);
+	
+//				Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> generateData()));
+//				timeline.setCycleCount(Timeline.INDEFINITE); // Repeat indefinitely
+//				timeline.play();
+				
+				
+				sendSelectedSubStageData();
+		    	startSruTest();
+				
+				startButton.setDisable(true);
+				runAllButton.setDisable(true);
+				stopButton.setDisable(false);
+				pauseButton.setDisable(false);
+				StateMachine.setTestState(TestState.RUNNING);
+				StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
+				sruTestCheckBoxList.setDisable(true);
 		    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			    ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),currentSessionDetails.getDfccSerialNumber(),currentSessionDetails.getSessionId(),StateMachine.getCurrentUserLogin(),new Date(),"clicked on SRU test START button");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-		    } else if(currentState == TestState.RUNNING) {
-		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-		        startTest.setDisable(false);
-		        return;
-		    }
-		    sendSelectedSubStageData1();
-		    startTest();
+		    } else if (currentState == TestState.RUNNING) {
+				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			} else if (currentState == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			}
 		});
 		
-		startTestHBox.setAlignment(Pos.CENTER);
-		startTestHBox.getChildren().add(startTest);
-
-		return startTestHBox;
+		pauseButton.setOnAction(e -> {
+			StateMachine.setTestState(TestState.PAUSED);
+			startButton.setText("Resume");
+			pauseButton.setDisable(true);
+			startButton.setDisable(false);
+			stopButton.setDisable(false);
+		});
+		
+		stopButton.setOnAction(e -> {
+			StateMachine.setTestState(TestState.STOPPED);
+			startButton.setText("Start");
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			startButton.setDisable(false);
+			runAllButton.setDisable(false);
+			sruTestCheckBoxList.setDisable(false);
+		});
+		
+		
 	}
 
+	private void generateData() {
+		if(LRUTestStateObject.getTotalLRUSelectedTestFileCount() != LRUTestStateObject.getRunnedLRUTestFileCount().get()) {
+			LRUTestStateObject.getRunnedLRUTestFileCount().set(LRUTestStateObject.getRunnedLRUTestFileCount().get()+1);
+		}
+	}
 
-
-	private void startTest() {
-		callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
+	private List<String> getAllTestFilesForSelectedSubStages() {
+		List<String> allSelectedStageTestFileIds = new ArrayList<String>();
+		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+			List<String> response = getTestFilesForStageId(subStage);
+			if(response == null) {
+				return null;
+			}else {
+				allSelectedStageTestFileIds.addAll(response);
+			}
+		}
+		return allSelectedStageTestFileIds;
 	}
 	
-	private void sendSelectedSubStageData1() {
+	
+	private List<String> getTestFilesForStageId(TestCardData subStage){
+		List<String> subStageTestFileIds = new ArrayList<String>();TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(subStage.getCardId());
+	 	
+		if (testFileResponse.getTestFilesIdName() == null || testFileResponse.getTestFilesIdName().isEmpty() || testFileResponse.getTestFilesIdName().size() == 0) {
+            Platform.runLater(() -> {
+                Notifications.showWarningAlert("Please Add Test Files For "+subStage.getCardName() +" Stage... ");
+            });
+            return null;
+        }
+            		
+        Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+        subStageTestFileIds = new ArrayList<>(testFileMap.keySet());
+		return subStageTestFileIds;
+	}
+	
+	private void sendSelectedSubStageData() {
 		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 				if (newValue != null && newValue.equals("COMPLETED")) {
 					if(LRUTestStateObject.getSelectedSubStagesList().size()-1 > currentIndex) {
 						currentIndex++;
-						callStartTest(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
+						StateMachine.setTestState(TestState.RUNNING);
+						callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
 						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex-1).getCardId(), null);
 					}else if(LRUTestStateObject.getSelectedSubStagesList().size()-1 == currentIndex) {
 						LRUTestStateObject.updateSelectedSubStagesList(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
 						StateMachine.setTestState(TestState.COMPLETED);
 						currentIndex = 0;
-						startTest.setDisable(false);
+						startButton.setDisable(false);
+						runAllButton.setDisable(false);
+						pauseButton.setDisable(true);
+						stopButton.setDisable(true);
+						sruTestCheckBoxList.setDisable(false);
 					}
-
 				}
 			});
 			
 		}
+	}
+	
+	private void startSruTest() {
+		callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU", LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
 	}
 
 	private GridPane goNOGOGridPane() {
@@ -930,7 +1188,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
-				    	startTest.setDisable(true);
+				    	startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 				    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -938,11 +1196,11 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				        startTest.setDisable(false);
+				        startButton.setDisable(false);
 				        return;
 				    }
 				    
-				    callStartTest(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
+				    callstartButton(newButton.getId(),"GO NOGO",newButton.getUserData().toString());
 				    
 				    if(newButton.getText().toLowerCase().contains("complete")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
@@ -962,7 +1220,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 						if(checkGOandNOGOStatus("complete")) {
 							ofpButton.setDisable(false);
 						}
-						startTest.setDisable(false);
+						startButton.setDisable(false);
 						StateMachine.setTestState(TestState.COMPLETED);
 						LRUTestStateObject.getCompleteTestStatus().set(true);
 				 }
@@ -973,7 +1231,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 					if(checkGOandNOGOStatus("ofp")) {
 						piCheckButton.setDisable(false);					
 					}
-					startTest.setDisable(false);
+					startButton.setDisable(false);
 					StateMachine.setTestState(TestState.COMPLETED);	
 					LRUTestStateObject.getOfpLoadingStatus().set(true);
 				}
@@ -982,7 +1240,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		    	if(!newValue) {
 					StateMachine.setTestState(TestState.COMPLETED);
 					LRUTestStateObject.getPiCheckStatus().set(true);
-			        startTest.setDisable(false);
+			        startButton.setDisable(false);
 				}
 				boolean allCardsStatusOk = true;
 				
@@ -1195,10 +1453,11 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		});
 	}
 	
-	private void callStartTest(String stageId, String stageName, String testTypeId) {
+	private void callstartButton(String stageId, String stageName, String testTypeId) {
 		Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
+//	        	LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 	        	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 	        		currentSessionDetails.setRunConfigId(runConfigId);
 	        		String ID = stageId;
@@ -1207,7 +1466,7 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 		                    Platform.runLater(() -> {
 		                        Notifications.showWarningAlert("Please Add Test Files For This Stage... ");
 		                    });
-		                    startTest.setDisable(false);
+		                    startButton.setDisable(false);
 		                    StateMachine.setTestState(TestState.COMPLETED);
 		                    return null;
 		                }
@@ -1256,7 +1515,6 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 				}
 			} 
 		});
-		selectAllCheckBox.setSelected(false);
 		setListOfSubStage(LRUTestStateObject.getSRUSubCardList());
 	}
 
@@ -1270,17 +1528,34 @@ AitessProcessControlManagement aitessProcessControlManagement = AitessProcessCon
 	        newCheckBox.getStyleClass().add("session-testing-checkbox");
 	        newCheckBox.setWrapText(true);
 	        checkBoxes.add(newCheckBox);
-	        testListView.getItems().add(newCheckBox);
+	        
+	        Platform.runLater(() -> {
+		    	testListView.setFixedCellSize(30);
+		        testListView.getItems().add(newCheckBox);
+		        testListView.requestLayout();
+		    });
+	        
+	        testListView.setCellFactory(lv -> new ListCell<CheckBox>() {
+	            @Override
+	            protected void updateItem(CheckBox item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if (empty || item == null) {
+	                    setGraphic(null);
+	                } else {
+	                    setGraphic(item);
+	                }
+	            }
+	        });
+
 	        
 	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 	        	if(newValue) {
 	        		LRUTestStateObject.addSelectedSubStagesList(stage);
 	        	}else {
 					LRUTestStateObject.removeSelectedSubStagesList(stage);
-					selectAllCheckBox.setIndeterminate(true);
 				}
 	        });
 	    }
 	}
-		
-}
+
+}	
