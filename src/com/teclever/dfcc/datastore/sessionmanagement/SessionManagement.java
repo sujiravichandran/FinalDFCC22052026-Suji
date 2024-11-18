@@ -121,7 +121,7 @@ public class SessionManagement {
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
-			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
+			sessionPath = sessionPath + File.separator +"."+"output"+ File.separator+ uutIdName.get(sessionDTO.getUutId()) + File.separator
 					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
 			sessionDto.setPath(sessionPath);
 			// SESSION ENTITY : ADD

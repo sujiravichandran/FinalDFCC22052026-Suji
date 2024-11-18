@@ -4,7 +4,9 @@ package com.teclever.dfcc.stateMachine;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -289,6 +291,23 @@ public class LRUTestStateObject {
 		}
 	}
 	
+//	LRU SRU Test Progress Bar
+	private static int totalLRUSelectedTestFileCount;
+	private static IntegerProperty runnedLRUTestFileCount = new SimpleIntegerProperty(0);
+
+	public static int getTotalLRUSelectedTestFileCount() {
+		return totalLRUSelectedTestFileCount;
+	}
+	public static void setTotalLRUSelectedTestFileCount(int totalLRUSelectedTestFileCount) {
+		LRUTestStateObject.totalLRUSelectedTestFileCount = totalLRUSelectedTestFileCount;
+	}
+    public static IntegerProperty runnedLRUTestFileCountProperty() {
+        return runnedLRUTestFileCount;
+    }
+    public static IntegerProperty getRunnedLRUTestFileCount() {
+        return runnedLRUTestFileCount;
+    }
+	
 	public static void resetLRUTestStateObject() {
 	    // Clear Mandatory Test Card List
 	    clearLruMandatoryCardList();
@@ -326,6 +345,11 @@ public class LRUTestStateObject {
 
 	    // Clear Selected SRU Sub Stages List
 	    clearSelectedSubStagesList();
+	    
+	    // Clear Progress Bar Data
+        totalLRUSelectedTestFileCount = 0;
+        runnedLRUTestFileCount.set(0);	    
+
 	}
 
 	
