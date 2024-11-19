@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.SessionList;
 import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
@@ -104,7 +105,7 @@ public class DataBackupPopupController {
 	private void initializeSessionNameComboBox() {
 		sessionNameField.getItems().clear();
 		SESSION_ID = null;
-		SessionListResponse response = sessionManagement.getAllSessionData(currentSessionDetails.getUserId());
+		SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(UserData.getRoleId());
 		if(response.getResponse().getResponseCode() == 1) {			
 			sessionDataList = FXCollections.observableArrayList(response.getListOfSession());
 			for (SessionList session : sessionDataList) {

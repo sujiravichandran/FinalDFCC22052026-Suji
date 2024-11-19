@@ -12,10 +12,12 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
@@ -219,6 +221,11 @@ public class SelfTestController {
 			}
 		    TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
+				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					 Notifications.showErrorAlert(channelState.getResponseMessage());
+					 return ;
+				}
 		    	startTest.setDisable(true);
 		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);

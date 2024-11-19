@@ -442,7 +442,7 @@ public class SessionCreationController {
 	}
 
 	private void populateSessionTableView() {
-		SessionListResponse response = sessionManagement.getAllSessionData(USER_ID);
+		SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(ROLE_ID);
 		if (response.getResponse().getResponseCode() == 1) {
 			for (SessionList sessionDto : response.getListOfSession()) {
 				SessionDetails sessionDetails = new SessionDetails();

@@ -14,10 +14,12 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.model.StageIdName;
@@ -265,6 +267,12 @@ public class SessionTestingController {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+			if(channelState.getResponseCode()==0) {
+				 Notifications.showErrorAlert(channelState.getResponseMessage());
+				 return ;
+			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (!checkbox.isDisable()) {
@@ -331,6 +339,12 @@ public class SessionTestingController {
 			}
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
+			}
+			
+			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+			if(channelState.getResponseCode()==0) {
+				 Notifications.showErrorAlert(channelState.getResponseMessage());
+				 return ;
 			}
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {

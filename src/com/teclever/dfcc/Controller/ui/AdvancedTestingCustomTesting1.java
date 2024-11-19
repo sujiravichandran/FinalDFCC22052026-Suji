@@ -9,12 +9,14 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.SymbolListResponse;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
@@ -666,6 +668,12 @@ public class AdvancedTestingCustomTesting1 {
 	private boolean checkAndSetTestState() {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
+		}
+		
+		ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+		if(channelState.getResponseCode()==0) {
+			 Notifications.showErrorAlert(channelState.getResponseMessage());
+			 return false;
 		}
 
 		TestState currentState = StateMachine.getTestState();

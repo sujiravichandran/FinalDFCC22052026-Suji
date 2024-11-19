@@ -16,6 +16,7 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
@@ -500,7 +501,12 @@ public class LRUTestingController {
 				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-				    	startButton.setDisable(true);
+				    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+						if(channelState.getResponseCode()==0) {
+							 Notifications.showErrorAlert(channelState.getResponseMessage());
+							 return ;
+						}
+						startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 				    	ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -936,6 +942,13 @@ public class LRUTestingController {
 			
 			TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
+		    	
+		    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					 Notifications.showErrorAlert(channelState.getResponseMessage());
+					 return ;
+				}
+		    	
 		    	for (CheckBox checkBox : checkBoxes) {
 			        checkBox.setSelected(true);
 			     }
@@ -995,6 +1008,12 @@ public class LRUTestingController {
 			}
 			if(!checkAitessStatus.isBothAitessOn()) {
 				return ;
+			}
+			
+			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+			if(channelState.getResponseCode()==0) {
+				 Notifications.showErrorAlert(channelState.getResponseMessage());
+				 return ;
 			}
 			
 			boolean selected = false;
