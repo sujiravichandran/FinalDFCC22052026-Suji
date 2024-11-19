@@ -484,7 +484,7 @@ public class AitessProcessControlManagement {
 
 						if (launchAitess1 == true) {
 							if (output.contains(">>>")) {
-								System.out.println("Launch time aitess 2 end founded");
+								Debug.printDebug("Launch time aitess 2 end founded");
 								WriteAitess2Command1();
 								StateMachine.setAitess2Launched(true);
 								launchAitess1 = false;
@@ -528,14 +528,10 @@ public class AitessProcessControlManagement {
 									channelSCTemp.setChannel3Temperature(scTemp.getChannel3Temp());
 									channelSCTemp.setChannel4Temperature(scTemp.getChannel4Temp());
 
-									System.out.println(
-											"State Machine CH1 SC Temp:: " + channelSCTemp.getChannel1Temperature());
-									System.out.println(
-											"State Machine CH2 SC Temp:: " + channelSCTemp.getChannel2Temperature());
-									System.out.println(
-											"State Machine CH3 SC Temp:: " + channelSCTemp.getChannel3Temperature());
-									System.out.println(
-											"State Machine CH4 SC Temp:: " + channelSCTemp.getChannel4Temperature());
+									Debug.printDebug("State Machine CH1 SC Temp:: " + channelSCTemp.getChannel1Temperature());
+									Debug.printDebug("State Machine CH2 SC Temp:: " + channelSCTemp.getChannel2Temperature());
+									Debug.printDebug("State Machine CH3 SC Temp:: " + channelSCTemp.getChannel3Temperature());
+									Debug.printDebug("State Machine CH4 SC Temp:: " + channelSCTemp.getChannel4Temperature());
 
 								}
 
@@ -550,14 +546,10 @@ public class AitessProcessControlManagement {
 									channelAECTemp.setChannel3Temperature(aecTemp.getChannel3Temp());
 									channelAECTemp.setChannel4Temperature(aecTemp.getChannel4Temp());
 
-									System.out.println(
-											"State Machine AEC CH1 Temp:: " + channelAECTemp.getChannel1Temperature());
-									System.out.println(
-											"State Machine AEC CH2 Temp:: " + channelAECTemp.getChannel2Temperature());
-									System.out.println(
-											"State Machine AEC CH3 Temp:: " + channelAECTemp.getChannel3Temperature());
-									System.out.println(
-											"State Machine AEC CH4 Temp:: " + channelAECTemp.getChannel4Temperature());
+									Debug.printDebug("State Machine AEC CH1 Temp:: " + channelAECTemp.getChannel1Temperature());
+									Debug.printDebug("State Machine AEC CH2 Temp:: " + channelAECTemp.getChannel2Temperature());
+									Debug.printDebug("State Machine AEC CH3 Temp:: " + channelAECTemp.getChannel3Temperature());
+									Debug.printDebug("State Machine AEC CH4 Temp:: " + channelAECTemp.getChannel4Temperature());
 
 								}
 								break;
@@ -567,14 +559,10 @@ public class AitessProcessControlManagement {
 								ofp = channelStatusParser.getOFPversionStatus(finalLine);
 
 								if (ofp != null) {
-									System.out.println(
-											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel1Status());
-									System.out.println(
-											"State Machine OFPversion CH2:: " + OFPversionStatus.getChannel2Status());
-									System.out.println(
-											"State Machine OFPversion CH3:: " + OFPversionStatus.getChannel3Status());
-									System.out.println(
-											"State Machine OFPversion CH4:: " + OFPversionStatus.getChannel4Status());
+									Debug.printDebug("State Machine OFPversion CH1:: " + OFPversionStatus.getChannel1Status());
+									Debug.printDebug("State Machine OFPversion CH2:: " + OFPversionStatus.getChannel2Status());
+									Debug.printDebug("State Machine OFPversion CH3:: " + OFPversionStatus.getChannel3Status());
+									Debug.printDebug("State Machine OFPversion CH4:: " + OFPversionStatus.getChannel4Status());
 								}
 
 								break;
@@ -584,23 +572,15 @@ public class AitessProcessControlManagement {
 								wdm = channelStatusParser.getWDMStatus(finalLine);
 
 								if (wdm != null) {
-									System.out
-											.println("State Machine WDMstatus CH1:: " + WDMStatus.getChannel1Status());
-									System.out
-											.println("State Machine WDMstatus CH2:: " + WDMStatus.getChannel2Status());
-									System.out
-											.println("State Machine WDMstatus CH3:: " + WDMStatus.getChannel3Status());
-									System.out
-											.println("State Machine WDMstatus CH4:: " + WDMStatus.getChannel4Status());
-									System.out.println("*****---------------------------*****");
-									System.out.println(
-											"State Machine OnlineStatus CH1:: " + OnlineStatus.getChannel1Status());
-									System.out.println(
-											"State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel2Status());
-									System.out.println(
-											"State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
-									System.out.println(
-											"State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
+									Debug.printDebug("State Machine WDMstatus CH1:: " + WDMStatus.getChannel1Status());
+									Debug.printDebug("State Machine WDMstatus CH2:: " + WDMStatus.getChannel2Status());
+									Debug.printDebug("State Machine WDMstatus CH3:: " + WDMStatus.getChannel3Status());
+									Debug.printDebug("State Machine WDMstatus CH4:: " + WDMStatus.getChannel4Status());
+									Debug.printDebug("*****---------------------------*****");
+									Debug.printDebug("State Machine OnlineStatus CH1:: " + OnlineStatus.getChannel1Status());
+									Debug.printDebug("State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel2Status());
+									Debug.printDebug("State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
+									Debug.printDebug("State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
 								}
 								break;
 
@@ -620,7 +600,7 @@ public class AitessProcessControlManagement {
 						if (powerOnStatus.get()) {
 
 							if (cleanText.contains("pwronstsend")) {
-								System.out.println(" -- -- -- END OF MACRO -- -- -- ");
+								Debug.printDebug(" -- -- -- END OF MACRO -- -- -- ");
 								powerOnStatus.set(false);
 							}
 
@@ -673,7 +653,7 @@ public class AitessProcessControlManagement {
 
 									// Check if all channels are online and exit if true
 									if (channel1Online && channel2Online && channel3Online && channel4Online) {
-										System.out.println("All channels are online. Exiting loop.");
+										Debug.printDebug("All channels are online. Exiting loop.");
 										com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 												.setChannel1Status("online");
 										com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
@@ -683,16 +663,16 @@ public class AitessProcessControlManagement {
 										com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 												.setChannel4Status("online");
 
-										System.out.println("STATE MACHINE powerOnStatus : "
+										Debug.printDebug("STATE MACHINE powerOnStatus : "
 												+ com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 														.getChannel1Status());
-										System.out.println("STATE MACHINE powerOnStatus : "
+										Debug.printDebug("STATE MACHINE powerOnStatus : "
 												+ com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 														.getChannel2Status());
-										System.out.println("STATE MACHINE powerOnStatus : "
+										Debug.printDebug("STATE MACHINE powerOnStatus : "
 												+ com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 														.getChannel3Status());
-										System.out.println("STATE MACHINE powerOnStatus : "
+										Debug.printDebug("STATE MACHINE powerOnStatus : "
 												+ com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
 														.getChannel4Status());
 
@@ -719,7 +699,7 @@ public class AitessProcessControlManagement {
 						// SC TEMPERATURE MONITORING
 						if (SCtemperatureMonitoring.get() == true) {
 							if (cleanText.contains("sctempend")) {
-								System.out.println("End of SC Temprature Monitoring found.");
+								Debug.printDebug("End of SC Temprature Monitoring found.");
 								AECtemperatureMonitoring.set(true);
 								SCtemperatureMonitoring.set(false);
 							}
@@ -767,7 +747,7 @@ public class AitessProcessControlManagement {
 						// AEC monitoring
 						if (AECtemperatureMonitoring.get() == true) {
 							if (cleanText.contains("aectempend")) {
-								System.out.println("End of AEC Temprature Monitoring found.");
+								Debug.printDebug("End of AEC Temprature Monitoring found.");
 								AECtemperatureMonitoring.set(false);
 							}
 
@@ -1477,12 +1457,12 @@ public class AitessProcessControlManagement {
 
 			// OFP Present OK
 			ofpMatch = true;
-			System.out.println("All channels have the same OFP version.");
+			Debug.printDebug("All channels have the same OFP version.");
 
 		} else {
 			// NOT OK
 			ofpMatch = false;
-			System.out.println("Channels have different OFP versions.");
+			Debug.printDebug("Channels have different OFP versions.");
 		}
 
 		String expectedWDMStatus = "0xfffe6020";
@@ -1500,12 +1480,12 @@ public class AitessProcessControlManagement {
 
 				// WDM Status OK
 				wdmMatch = true;
-				System.out.println("All channels WDM status are UP.");
+				Debug.printDebug("All channels WDM status are UP.");
 
 			} else {
 				// NOT OK
 				wdmMatch = false;
-				System.out.println("All channels WDM status are not UP.");
+				Debug.printDebug("All channels WDM status are not UP.");
 			}
 		} else {
 			// mk1 and mk2
@@ -1515,12 +1495,12 @@ public class AitessProcessControlManagement {
 
 				// WDM Status OK
 				wdmMatch = true;
-				System.out.println("All channels WDM status are UP.");
+				Debug.printDebug("All channels WDM status are UP.");
 
 			} else {
 				// NOT OK
 				wdmMatch = false;
-				System.out.println("All channels WDM status are not UP.");
+				Debug.printDebug("All channels WDM status are not UP.");
 			}
 
 		}
@@ -1538,7 +1518,7 @@ public class AitessProcessControlManagement {
 		
 		response.setOfpStatus(ofpStatusList);
 		response.setWdmStatus(wdmStatusList);
-		System.out.println("responseId while pbit Test:-> " + response.getResponseCode());
+		Debug.printDebug("responseId while pbit Test:-> " + response.getResponseCode());
 		return response;
 	}
 

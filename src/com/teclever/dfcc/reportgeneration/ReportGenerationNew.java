@@ -1,11 +1,15 @@
 package com.teclever.dfcc.reportgeneration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,12 +62,15 @@ import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
+import com.teclever.dfcc.datastore.dto.UserLoginDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.reportgeneration.l.TOCEntry;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 
 public class ReportGenerationNew extends PdfPageEventHelper {
 	
@@ -144,8 +151,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String updatedFilePath = "";
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			updatedFilePath = "C:\\Users\\Teclever\\Downloads\\" +"updated_"+ fileName;
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
+			updatedFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" +"updated_"+ fileName;
 		} else {
 		//	filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "ESSContent.pdf";
 			  filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
@@ -154,10 +161,10 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
-			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_ESS.xlsx";
+			excelPath = "C:\\Users\\VIGNESH-TEC\\Downloads\\REPORT_FIELDS_ESS.xlsx";
 		} else {
 			//excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_ESS.xlsx";
-			
+
 			excelPath = currentDirectory +File.separator+"REPORT_FIELDS_ESS.xlsx";
 			
 		}
@@ -170,6 +177,9 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
 		writer.setPageEvent(event);
 		document.open();
+		
+	    addImageToFirstPage(writer, document);
+
 		essReportSummary(document,data,sessionId);
 		document.close();
 		
@@ -193,6 +203,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
           
             ColumnText.showTextAligned(canvas, Element.ALIGN_RIGHT,
                     new Phrase(pageNumberText, font), 382.0f, 709.0f, 0);
+                       
             
            // PdfContentByte canvas1 = stamper.getOverContent(i);
             // Set the start and end points of the line
@@ -214,6 +225,44 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		res.setResponseMessage("updated_" + fileName);
 		return res;
 	}
+	
+	private void addImageToFirstPage(PdfWriter writer, Document document) throws IOException, DocumentException {
+	    UserManagementModule user = new UserManagementModule();
+	    UserLoginDetailsDto u = user.getUserByUserId(currentSessionDetails.getUserId());
+
+	    Blob signatureBlob = u.getDigitalSignature(); 
+	    byte[] imageBytes = convertBlobToByteArray(signatureBlob);
+
+	    Image image = Image.getInstance(imageBytes);
+
+	    float x = 250f;    
+	    float y = 400f;   
+	    float boxWidth = 100f;   
+	    float boxHeight = 100f;  
+
+	    image.scaleToFit(boxWidth, boxHeight);
+	    image.setAbsolutePosition(x, y);
+	    PdfContentByte canvas = writer.getDirectContent();
+	    canvas.addImage(image);
+	}
+
+	private byte[] convertBlobToByteArray(Blob blob) throws IOException {
+	    InputStream inputStream = null;
+		try {
+			inputStream = blob.getBinaryStream();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+	    byte[] buffer = new byte[4096];
+	    int bytesRead;
+	    while ((bytesRead = inputStream.read(buffer)) != -1) {
+	        byteArrayOutputStream.write(buffer, 0, bytesRead);
+	    }
+	    return byteArrayOutputStream.toByteArray();
+	}
+
 
 	// Generation Of PQT Report Content
 	public Response generatePQTReportContent(String sessionId) throws DocumentException, MalformedURLException, IOException {
@@ -227,8 +276,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String filePath = "";
 		String updatedFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			updatedFilePath = "C:\\Users\\Teclever\\Downloads\\" + "updated_" + fileName;
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
+			updatedFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + "updated_" + fileName;
 		} else {
 			// filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +"PQTContent.pdf";
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
@@ -238,7 +287,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
 		String excelPath = "";
 		if (!DFCCConstant.isJarBuild) {
-			excelPath = "C:\\Users\\Teclever\\Downloads\\REPORT_FIELDS_PQT1.xlsx";
+			excelPath = "C:\\Users\\VIGNESH-TEC\\Downloads\\REPORT_FIELDS_PQT1.xlsx";
 		} else {
 			//excelPath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/REPORT_FIELDS_PQT.xlsx";
 			
@@ -254,6 +303,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
 		writer.setPageEvent(event);
 		document.open();
+	    addImageToFirstPage(writer, document);
 		pqtReportSummary(document, data,sessionId);
 		document.close();		
 		
@@ -319,8 +369,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String filePath = "";
 		String contentFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + res1.getResponseMessage() ;
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
+			contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage() ;
 		} else {
 			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 
@@ -456,8 +506,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String filePath = "";
 		String contentFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
-			contentFilePath = "C:\\Users\\Teclever\\Downloads\\" + res1.getResponseMessage() ;
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
+			contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage() ;
 		} else {
 			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 
