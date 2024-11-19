@@ -1619,5 +1619,74 @@ public class SessionManagement {
 
 		return response;
 	}
+	
+	//  BASED ON ROLE ID FETCH SESSION DATA
+	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
+		SessionListResponse sessionListResponse = new SessionListResponse();
+		Response res = new Response();
+		try {
+			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
 
+			// To Picking Trail Sessions...
+			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+			List<SessionList> listOfSession = new ArrayList<>();
+
+			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+			trailActiveSession = trailSessionResponse.getListOfSession();
+			for (TrailSessionDto trailSessionDto : trailActiveSession) {
+				SessionList sessionList = new SessionList();
+				sessionList.setSessionId(trailSessionDto.getSessionId());
+				sessionList.setSessionName(trailSessionDto.getSessionName());
+				sessionList.setCreationDate(trailSessionDto.getCreationDate());
+				listOfSession.add(sessionList);
+
+			}
+
+			// For Picking Others Sessions...
+			SessionService sessionSelectedStage = new SessionService();
+			GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
+
+			if (getResponse.getCode() == 0) {
+				if (listOfSession.size() > 0) {
+					res.setResponseCode(1);
+					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+					sessionListResponse.setResponse(res);
+					sessionListResponse.setListOfSession(listOfSession);
+					return sessionListResponse;
+
+				}
+				res.setResponseCode(0);
+				res.setResponseMessage(getResponse.geteMsg());
+				sessionListResponse.setResponse(res);
+				return sessionListResponse;
+			}
+
+			for (Object object : getResponse.getResponseList()) {
+				SessionEntity sessionEntity = (SessionEntity) object;
+				
+				if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+
+					SessionList sessionList = new SessionList();
+					sessionList.setSessionId(sessionEntity.getSessionId());
+					sessionList.setSessionName(sessionEntity.getSessionName());
+					sessionList.setCreationDate(sessionEntity.getCreationDate());
+					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+					listOfSession.add(sessionList);
+				}
+
+			}
+			res.setResponseCode(1);
+			res.setResponseMessage(getResponse.getMsg());
+			sessionListResponse.setResponse(res);
+			sessionListResponse.setListOfSession(listOfSession);
+		} catch (Exception e) {
+			res.setResponseCode(0);
+			res.setResponseMessage("Fetch Data Unsuccessfull");
+			sessionListResponse.setResponse(res);
+		}
+		return sessionListResponse;
+	}
 }

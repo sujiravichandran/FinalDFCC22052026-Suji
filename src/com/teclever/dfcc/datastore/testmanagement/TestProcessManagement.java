@@ -884,13 +884,13 @@ public class TestProcessManagement {
 			SessionStagesTestFilesResultService sessionStageTestFileResult) {
 		TestProcessDto responsetestProcessDto = new TestProcessDto();
 		int lineCount =0;
-		System.out.println("-----  START  ---------");
+		Debug.printDebug("-----  START  ---------");
 		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				lineCount++;
 				if ((!line.isEmpty())) {
-					System.out.println("Line Number : "+lineCount + " , Line is : "+line);
+					Debug.printDebug("Line Number : "+lineCount + " , Line is : "+line);
 					if (line.startsWith("@")) {
 						line = line.substring(1);
 
@@ -900,14 +900,14 @@ public class TestProcessManagement {
 							File file = new File(fileName);
 				            fileName = file.getName();
 				            String path = file.getParent();
-				            System.out.println("Dot Com File "+line);
+				            Debug.printDebug("Dot Com File "+line);
 				            //Calling itself with Same Parameter (fileName only Change)
 							processDotComFile(path+File.separator+line, stageName,
 									rdfFileLocation, stageId, sessionId, rdfFileResult, dotComFileResult,
 									continueWithError, testFileId, sessionStageMapId, lastCount,sessionStageTestFileResult);
 
 						}
-						System.out.println("TPF File "+line);
+						Debug.printDebug("TPF File "+line);
 						TestProcessDto testProcessDto = runTestFile(line, stageName,
 								rdfFileLocation, stageId, sessionId, rdfFileResult, dotComFileResult,
 								continueWithError, testFileId, sessionStageMapId, lastCount,sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
@@ -930,7 +930,7 @@ public class TestProcessManagement {
 						}
 
 					} else {
-						System.out.println("Command is  "+line +" , runCommands : "+AitessProcessControlManagement.getInstance().runCommands);
+						Debug.printDebug("Command is  "+line +" , runCommands : "+AitessProcessControlManagement.getInstance().runCommands);
 						// Call writing command to Terminal
 						AitessProcessControlManagement.getInstance().runCommands = true;
 						
@@ -952,7 +952,7 @@ public class TestProcessManagement {
 		 catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("------- COMPLETED --------");
+		Debug.printDebug("------- COMPLETED --------");
 		responsetestProcessDto.setRdfFileResult(tempRdfFileResult);
 		responsetestProcessDto.setDotComFileResult(tempDotComFileResult);
 		return responsetestProcessDto;

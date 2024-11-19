@@ -3,18 +3,21 @@ package com.teclever.dfcc;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.HashMap;
+import java.util.Properties;
 
 import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -27,134 +30,175 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class Main
-extends Application {
-    private static final String LOCK_FILE_PATH = ".app_lock";
-    private static FileChannel fileChannel;
-    private static FileLock lock;
-    private static boolean lockAcquired;
+public class Main extends Application {
+	private static final String LOCK_FILE_PATH = ".app_lock";
+	private static FileChannel fileChannel;
+	private static FileLock lock;
+	private static boolean lockAcquired;
 
-    static {
-        lockAcquired = true;
-    }
+	static {
+		lockAcquired = true;
+	}
+	static String currentDirectory = new File(
+			SystemConfigManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
+	
+	public static void main(String[] args) throws MalformedURLException, DocumentException, IOException {
+		String driverClass = "com.mysql.cj.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/dfcc";
+		String username = "root";
+		String password = "root";
+		String dialect = "org.hibernate.dialect.MySQLDialect";
+		String hbm2ddlAuto = "update";
+		String showSql = "false";
+		new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
 
-    public static void main(String[] args) throws MalformedURLException, DocumentException, IOException {
-        String driverClass = "com.mysql.cj.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/dfcc";
-        String username = "root";
-        String password = "root";
-        String dialect = "org.hibernate.dialect.MySQLDialect";
-        String hbm2ddlAuto = "update";
-        String showSql = "false";
-        new DataStoreConfiguration(driverClass, url, username, password, dialect, hbm2ddlAuto, showSql);
-   
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-        Main.launch(args);
-        
-        
-    }
+		
+  		Main.launch(args);
 
-    @Override
-    public void init() {
-        try {
-            File lockFile = new File(LOCK_FILE_PATH);
-            if (!lockFile.exists()) {
-                lockFile.createNewFile();
-            }
-            if ((lock = (fileChannel = new RandomAccessFile(lockFile, "rw").getChannel()).tryLock()) == null) {
-                lockAcquired = false;
-                this.showErrorAndExit("Application is already running.");
-            }
-        } catch (Exception e) {
-            lockAcquired = false;
-            this.showErrorAndExit("Error encountered while checking application instance.");
-        }
-    }
+	}
 
-    private void showErrorAndExit(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.setOnCloseRequest(evt -> Platform.exit());
-            alert.show();
-        });											
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws IOException {
-        if (!lockAcquired) {
-            return;
-        }
-        Parent root = (Parent)FXMLLoader.load(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
-        Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
-        double width = resolution.getWidth();
-        double height = resolution.getHeight();
-        double w = width / 1920.0;
-        double h = height / 1080.0;
-        Scale scale = new Scale(w, h, 0.0, 0.0);
-        root.getTransforms().add(scale);
-        Scene scene = new Scene(root);
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING+"/Resources/Images/DFCC-Logo.png")));
-        primaryStage.setMaximized(true);
-        primaryStage.initStyle(StageStyle.UNDECORATED);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        scene.getStylesheets().add(this.getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
-        AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-        UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
-        HashMap<String, String> idNameMap = new HashMap<String, String>();
-        HashMap<String, String> nameIdMap = new HashMap<String, String>();
-        UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
-        int n = uutDataList.length;
-        int n2 = 0;
-        while (n2 < n) {
-            UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-//            Debug.printDebug("UUT Type--------   " + uutType.getUutType());
-            nameIdMap.put(uutType.getUutType(), uutType.getUutId());
-            idNameMap.put(uutType.getUutId(), uutType.getUutType());
-            ++n2;
-        }
-        DFCCConstant.setUutIdNameMap(idNameMap);
-        DFCCConstant.setUutNameIdMap(nameIdMap);
-        DFCCConstant.setDebug(setisDebug());
-		System.out.println("DEBUG Mode :: " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
-	       
-        //Report Temp Files
-        if(DFCCConstant.isJarBuild)
-        {
-        	SessionFileManagement sessionFileManagement = new SessionFileManagement();
-        	String reportDirectory = new File(
-        			Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent()+File.separator+"Reports";
-            sessionFileManagement.deleteAllFilesInDirectory(reportDirectory);
-        }
-        
-    }
-
-    @Override
-    public void stop() {
-        try {
-            if (lock != null && fileChannel != null) {
-                lock.release();
-                fileChannel.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private boolean setisDebug() {
-    	boolean flag = false;
-    	try {
-    		String isDebug = System.getenv("isdebug");
-        	if(isDebug!=null &&!isDebug.equals("")&&isDebug.trim().equalsIgnoreCase("true")) {
-    			flag = true;		
-        	}
+	@Override
+	public void init() {
+		try {
+			File lockFile = new File(LOCK_FILE_PATH);
+			if (!lockFile.exists()) {
+				lockFile.createNewFile();
+			}
+			if ((lock = (fileChannel = new RandomAccessFile(lockFile, "rw").getChannel()).tryLock()) == null) {
+				lockAcquired = false;
+				this.showErrorAndExit("Application is already running.");
+			}
 		} catch (Exception e) {
-			System.out.println("Error :: "+e.getLocalizedMessage());
+			lockAcquired = false;
+			this.showErrorAndExit("Error encountered while checking application instance.");
 		}
-    	return flag;
-    }
+	}
+
+	private void showErrorAndExit(String message) {
+		Platform.runLater(() -> {
+			Alert alert = new Alert(Alert.AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText(null);
+			alert.setContentText(message);
+			alert.setOnCloseRequest(evt -> Platform.exit());
+			alert.show();
+		});
+	}
+
+	@Override
+	public void start(Stage primaryStage) throws IOException {
+		if (!lockAcquired) {
+			return;
+		}
+		Parent root = (Parent) FXMLLoader.load(
+				this.getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
+		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
+		double width = resolution.getWidth();
+		double height = resolution.getHeight();
+		double w = width / 1920.0;
+		double h = height / 1080.0;
+		Scale scale = new Scale(w, h, 0.0, 0.0);
+		root.getTransforms().add(scale);
+		Scene scene = new Scene(root);
+		primaryStage.getIcons().add(
+				new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/DFCC-Logo.png")));
+		primaryStage.setMaximized(true);
+		primaryStage.initStyle(StageStyle.UNDECORATED);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		scene.getStylesheets().add(this.getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
+		AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+		UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
+		HashMap<String, String> idNameMap = new HashMap<String, String>();
+		HashMap<String, String> nameIdMap = new HashMap<String, String>();
+		UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
+		int n = uutDataList.length;
+		int n2 = 0;
+		while (n2 < n) {
+			UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
+//            Debug.printDebug("UUT Type--------   " + uutType.getUutType());
+			nameIdMap.put(uutType.getUutType(), uutType.getUutId());
+			idNameMap.put(uutType.getUutId(), uutType.getUutType());
+			++n2;
+		}
+		DFCCConstant.setUutIdNameMap(idNameMap);
+		DFCCConstant.setUutNameIdMap(nameIdMap);
+
+		 String isDebugValue = getIsDebugValueFromFile();
+	        
+	        if (isDebugValue != null) {
+
+	        	if (isDebugValue.equalsIgnoreCase("true")) {
+	            	DFCCConstant.setDebug(true);
+	            }
+	        } else {
+	            System.out.println(" dfcc.set File Not Present ");
+	        }
+		
+			System.out.println("DEBUG Mode :: " +DFCCConstant.isDebug +"  :   "+ (DFCCConstant.isDebug ? "Active" : "Inactive"));
+
+		// Report Temp Files
+		if (DFCCConstant.isJarBuild) {
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			String reportDirectory = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+					.getParent() + File.separator + "Reports";
+			sessionFileManagement.deleteAllFilesInDirectory(reportDirectory);
+		}
+
+	}
+
+	@Override
+	public void stop() {
+		try {
+			if (lock != null && fileChannel != null) {
+				lock.release();
+				fileChannel.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String getIsDebugValueFromFile() {
+        String isDebugValue = null;
+        Properties properties = new Properties();
+		// Get the current parent directory path
+		File file = new File(currentDirectory + File.separator + "dfcc.set");
+
+		// Check if the file exists
+		if (!file.exists()) {
+			System.out.println("dfcc.set File Not Exist "+(currentDirectory + File.separator + "dfcc.set"));
+			return isDebugValue;
+		}
+        try (FileInputStream input = new FileInputStream(file)) {
+            properties.load(input);
+            isDebugValue = properties.getProperty("isdebug");
+            System.out.println("Is Debug: " + isDebugValue);
+        } catch (IOException ex) {
+            System.out.println("Error: Could not load configuration from " + file.getAbsolutePath());
+        }
+//		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+//			String line;
+//            while ((line = reader.readLine()) != null) {
+//                // Find line containing "isdebug" and extract its value
+//                if (line.contains("isdebug")) {
+//                    // Assuming the line is in the format: isdebug="true" or isdebug=true
+//                    String[] parts = line.split("=");
+//                    if (parts.length == 2) {
+//                        isDebugValue = parts[1].replaceAll("\"", "").trim(); // Remove quotes and trim
+//                    }
+//                    break;
+//                }
+//            }
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
+		// Return false if "isdebug = true" is not found or any other condition is met
+		return isDebugValue;
+	}
 }
