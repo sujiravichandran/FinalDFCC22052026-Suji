@@ -829,7 +829,7 @@ public class AitessProcessControlManagement {
 		try {
 			testStarted = true;
 			final String fileName;
-			System.out.println("Perform test() Start -- " + tpfFileName);
+			Debug.printDebug("Perform test() Start -- " + tpfFileName);
 			if (tpfFileName.contains("\\") || tpfFileName.contains("/")) {
 				File file = new File(tpfFileName);
 				fileName = file.getName();
@@ -843,7 +843,7 @@ public class AitessProcessControlManagement {
 
 				if (aitess1ResultQ != null && aitess1ResultQ.peek() != null) {
 					aets1QResponse = aitess1ResultQ.take();
-					System.out.println(" --> AETS 1 Q Data : " + aets1QResponse);
+					Debug.printDebug(" --> AETS 1 Q Data : " + aets1QResponse);
 
 					if (aets1QResponse != null && !aets1QResponse.isEmpty()) {
 
@@ -861,7 +861,7 @@ public class AitessProcessControlManagement {
 			}
 
 			testStarted = false;
-			System.out.println("Perform Test() Return : " + aets1QResponse);
+			Debug.printDebug("Perform Test() Return : " + aets1QResponse);
 
 		} catch (Exception e) {
 			e.printStackTrace();
