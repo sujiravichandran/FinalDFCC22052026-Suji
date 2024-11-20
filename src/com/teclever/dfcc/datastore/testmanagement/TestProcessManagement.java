@@ -1028,19 +1028,21 @@ public class TestProcessManagement {
 			//File Copying
 			if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 				
-				SessionFileManagement sessionFileManagement = new SessionFileManagement();
-				String rdfFile = rdfFileLocation + rdfFileName;
-				
-				
-				SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
-				GetObjResponse sessionStages= sessionStagesSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
-				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
-				sessionStagesMapping = (SessionStagesMapping) sessionStages.getObject();
-				String stagePath = sessionStagesMapping.getPath();
-				 
-				Path sourcePath = Paths.get(rdfFile);
-				Path destinationPath = Paths.get(stagePath);
-				sessionFileManagement.copyFilesToOutputFolder(sourcePath, destinationPath);
+				if (rdfFileName != null && !rdfFileName.equals("USER EXIT") && !rdfFileName.equals("RUN TIME ERROR")) {
+					SessionFileManagement sessionFileManagement = new SessionFileManagement();
+					String rdfFile = rdfFileLocation + rdfFileName;
+
+					SessionSelectedStagesService sessionStagesSelectedStagesService = new SessionSelectedStagesService();
+					GetObjResponse sessionStages = sessionStagesSelectedStagesService.getSessionStagesMapp(sessionId,
+							stageId);
+					SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+					sessionStagesMapping = (SessionStagesMapping) sessionStages.getObject();
+					String stagePath = sessionStagesMapping.getPath();
+
+					Path sourcePath = Paths.get(rdfFile);
+					Path destinationPath = Paths.get(stagePath);
+					sessionFileManagement.copyFilesToOutputFolder(sourcePath, destinationPath);
+				}
 				
 			}
 			// Update State Machine to Set TextArea to TRUE.
