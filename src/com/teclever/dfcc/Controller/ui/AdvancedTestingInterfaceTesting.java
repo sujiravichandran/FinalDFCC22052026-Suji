@@ -273,11 +273,6 @@ public class AdvancedTestingInterfaceTesting {
 				return;
 			}
 			
-			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-			if(channelState.getResponseCode()==0) {
-				 Notifications.showErrorAlert(channelState.getResponseMessage());
-				 return ;
-			}
 			
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -293,6 +288,12 @@ public class AdvancedTestingInterfaceTesting {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
+				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					 Notifications.showErrorAlert(channelState.getResponseMessage());
+					 return ;
+				}
+				
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -344,13 +345,7 @@ public class AdvancedTestingInterfaceTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
-			
-			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-			if(channelState.getResponseCode()==0) {
-				 Notifications.showErrorAlert(channelState.getResponseMessage());
-				 return ;
-			}
-			
+						
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (checkbox.isSelected()) {
@@ -365,6 +360,12 @@ public class AdvancedTestingInterfaceTesting {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
+				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					 Notifications.showErrorAlert(channelState.getResponseMessage());
+					 return ;
+				}
+				
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);

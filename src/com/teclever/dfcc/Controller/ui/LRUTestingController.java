@@ -1010,26 +1010,28 @@ public class LRUTestingController {
 				return ;
 			}
 			
-			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-			if(channelState.getResponseCode()==0) {
-				 Notifications.showErrorAlert(channelState.getResponseMessage());
-				 return ;
-			}
-			
-			boolean selected = false;
-			for(CheckBox checkBox : checkBoxes) {
-				if(checkBox.isSelected()) {
-					selected = true;
-				}
-			}
-			if(!selected) {
-				Notifications.showWarningAlert("Please select any checkbox for start test.");
-				return ;
-			}
 			
 			TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
-		
+		    	
+		    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					 Notifications.showErrorAlert(channelState.getResponseMessage());
+					 return ;
+				}
+				
+				
+				boolean selected = false;
+				for(CheckBox checkBox : checkBoxes) {
+					if(checkBox.isSelected()) {
+						selected = true;
+					}
+				}
+				if(!selected) {
+					Notifications.showWarningAlert("Please select any checkbox for start test.");
+					return ;
+				}
+				
 				List<String> fileIdList = getAllTestFilesForSelectedSubStages();
 				
 				if(fileIdList == null){	
@@ -1206,7 +1208,14 @@ public class LRUTestingController {
 					return ;
 				}
 				 TestState currentState = StateMachine.getTestState();            
-				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED) {
+				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
+				    	
+				    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+						if(channelState.getResponseCode()==0) {
+							 Notifications.showErrorAlert(channelState.getResponseMessage());
+							 return ;
+						}
+						
 				    	startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);

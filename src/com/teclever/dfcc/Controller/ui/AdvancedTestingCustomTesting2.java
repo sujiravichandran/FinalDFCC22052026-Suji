@@ -411,17 +411,16 @@ public class AdvancedTestingCustomTesting2 {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
-		
-		ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-		if(channelState.getResponseCode()==0) {
-			 Notifications.showErrorAlert(channelState.getResponseMessage());
-			 return false ;
-		}
-
+	
 		TestState currentState = StateMachine.getTestState();
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
+			ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+			if(channelState.getResponseCode()==0) {
+				 Notifications.showErrorAlert(channelState.getResponseMessage());
+				 return false ;
+			}
 			StateMachine.setTestState(TestState.RUNNING);
 			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
 		} else if (currentState == TestState.RUNNING) {
