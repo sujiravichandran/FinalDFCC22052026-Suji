@@ -803,8 +803,6 @@ public class AitessProcessControlManagement {
 	}
 
 	public String performTest(String tpfFileName) {
-
-		checkChannelStatus();
 		String aets1QResponse = null;
 		try {
 			testStarted = true;

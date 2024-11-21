@@ -521,10 +521,10 @@ public class StateMachine {
 	// WDM STATUS
 	public static class WDMStatus {
 
-		private static String channel1Status;
-		private static String channel2Status;
-		private static String channel3Status;
-		private static String channel4Status;
+		private static String channel1Status="offline";
+		private static String channel2Status="offline";
+		private static String channel3Status="offline";
+		private static String channel4Status="offline";
 
 		public static String getChannel1Status() {
 			return channel1Status;

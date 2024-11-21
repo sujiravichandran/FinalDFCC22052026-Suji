@@ -30,6 +30,7 @@ import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TrailSessionEntityService;
+import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessDto;
 import com.teclever.dfcc.datastore.dto.TestProcessResponse;
@@ -88,10 +89,21 @@ public class TestProcessManagement {
 			// If AETS process failed to launch, return failure response
 			if (checkAndUpdateAetsProcessStatus(testTypeId, ofpConfig)) {
 				resetAitessFailureStates();
+				Debug.printDebug("AETS Switch Failed");
 				return createErrorResponse("AETS Failed to launch");
 			}
 
 			resetAitessFailureStates();
+			
+			if(!stageName.equals("RACK1") && !stageName.equals("CPCI")){				
+				ChannelStatusBeforeTestResponse channelState=AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
+				if(channelState.getResponseCode()==0) {
+					Debug.printDebug("Channel is Offline");
+					res.setResponseCode(0);
+					res.setResponseMessage(channelState.getResponseMessage());
+					return res;
+				}
+			}
 
 			// Update SESSION ENTITY with start data
 			res = updateSessionEntityStartData(sessionId);
