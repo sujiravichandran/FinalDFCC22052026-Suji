@@ -221,11 +221,6 @@ public class SelfTestController {
 			}
 		    TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-				if(channelState.getResponseCode()==0) {
-					 Notifications.showErrorAlert(channelState.getResponseMessage());
-					 return ;
-				}
 		    	startTest.setDisable(true);
 		    	resetSelftTestStateMachineStatus();
 		        StateMachine.setTestState(TestState.RUNNING);

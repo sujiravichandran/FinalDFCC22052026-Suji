@@ -501,11 +501,6 @@ public class LRUTestingController {
 				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-				    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-						if(channelState.getResponseCode()==0) {
-							 Notifications.showErrorAlert(channelState.getResponseMessage());
-							 return ;
-						}
 						startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
 				    	StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
@@ -943,12 +938,6 @@ public class LRUTestingController {
 			TestState currentState = StateMachine.getTestState();            
 		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
 		    	
-		    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-				if(channelState.getResponseCode()==0) {
-					 Notifications.showErrorAlert(channelState.getResponseMessage());
-					 return ;
-				}
-		    	
 		    	for (CheckBox checkBox : checkBoxes) {
 			        checkBox.setSelected(true);
 			     }
@@ -1012,14 +1001,7 @@ public class LRUTestingController {
 			
 			
 			TestState currentState = StateMachine.getTestState();            
-		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
-		    	
-		    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-				if(channelState.getResponseCode()==0) {
-					 Notifications.showErrorAlert(channelState.getResponseMessage());
-					 return ;
-				}
-				
+		    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {		
 				
 				boolean selected = false;
 				for(CheckBox checkBox : checkBoxes) {
@@ -1209,12 +1191,6 @@ public class LRUTestingController {
 				}
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState == TestState.STOPPED) {
-				    	
-				    	ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-						if(channelState.getResponseCode()==0) {
-							 Notifications.showErrorAlert(channelState.getResponseMessage());
-							 return ;
-						}
 						
 				    	startButton.setDisable(true);
 				    	StateMachine.setTestState(TestState.RUNNING);
