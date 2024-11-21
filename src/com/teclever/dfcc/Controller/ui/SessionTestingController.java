@@ -282,11 +282,6 @@ public class SessionTestingController {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
-				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-				if(channelState.getResponseCode()==0) {
-					 Notifications.showErrorAlert(channelState.getResponseMessage());
-					 return ;
-				}
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -355,11 +350,6 @@ public class SessionTestingController {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
-				ChannelStatusBeforeTestResponse channelState =AitessProcessControlManagement.getInstance().checkChannelStatusBeforeAnyTest();
-				if(channelState.getResponseCode()==0) {
-					 Notifications.showErrorAlert(channelState.getResponseMessage());
-					 return ;
-				}
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
