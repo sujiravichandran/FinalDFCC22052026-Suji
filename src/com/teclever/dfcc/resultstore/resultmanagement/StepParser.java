@@ -104,7 +104,21 @@ public class StepParser {
 	                testPlanFile = extractTestPlanFileName(line);
 	            } else if (line.startsWith("Z>") && line.contains("Result data file")) {
 	                resultDataFile = extractResultDataFileName(line);
-	            } else if (line.startsWith("S>") && isAfterStep) {
+	            }else if (line.startsWith("S>") && !isAfterStep) {
+	                // Only extract signalName and expectedValue if they have not been set yet
+	                if (signalName == null || expectedValue == null) {
+	                    // Extract signalName and expectedValue even when there's no STEP or TPGPH
+	                    if (!line.contains("STEP") && !line.contains("opwait")) {
+	                        signalName = extractSignalName(line);
+	                        expectedValue = extractExpectedValue(line);
+	                    }
+	                }
+
+	                // Append to input otherwise
+	                input += line.substring(3).trim() + "\n";
+	            }
+
+	            else if (line.startsWith("S>") && isAfterStep) {
 	                // Ignore S> opwait lines and continue searching for signalName and expectedValue
 	                if (line.contains("opwait")) {
 	                    continue; // Skip this line and proceed to the next
@@ -388,7 +402,7 @@ public class StepParser {
                 String[] channelValues = channels.split(",\\s*");
                 for (int i = 0; i < channelValues.length; i++) {
                     String trimmedValue = channelValues[i].trim();
-                    if (trimmedValue.startsWith("*") || trimmedValue.contains("down") || trimmedValue.contains("offline") || trimmedValue.contains("unused")) {
+                    if (trimmedValue.startsWith("*") || trimmedValue.contains("down") || trimmedValue.contains("offline") || trimmedValue.contains("unused") || trimmedValue.contains("0.0") || trimmedValue.contains("0xfafafafa") || trimmedValue.contains("online")) {
                         String valueWithoutAsterisk = trimmedValue.replace("*", "").trim();
                         failedChannels.put("Channel" + (i + 1), valueWithoutAsterisk);
                     }
@@ -436,6 +450,32 @@ public class StepParser {
         return signalName;
     }
 
+//    private static String extractSignalName(String line) {
+//        line = line.substring(3).trim(); // Remove "S>" part and trim the line
+//
+//        // Check for "!" and ignore everything after it
+//        int exclamationIndex = line.indexOf('!');
+//        if (exclamationIndex != -1) {
+//            line = line.substring(0, exclamationIndex).trim(); // Ignore everything after "!"
+//        }
+//
+//        // Try to find the symbol (>, <, <=, >=, =)
+//        int symbolIndex = line.indexOf('<');
+//        if (symbolIndex == -1) symbolIndex = line.indexOf('>');
+//        if (symbolIndex == -1) symbolIndex = line.indexOf("<=");
+//        if (symbolIndex == -1) symbolIndex = line.indexOf(">=");
+//        if (symbolIndex == -1) symbolIndex = line.indexOf("=");
+//
+//        String signalName = null;
+//        if (symbolIndex != -1) {
+//            signalName = line.substring(0, symbolIndex).trim();
+//        } 
+//
+//        return signalName;
+//    }
+
+    
+    
 
 
     
