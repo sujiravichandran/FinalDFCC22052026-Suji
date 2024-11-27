@@ -16,7 +16,6 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
-import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
@@ -370,6 +369,12 @@ public class LRUTestingController {
 						Response response = testProcessManagement.testProcesControl(
 								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
 								ofpConfigId);
+						
+						 if (response.getResponseCode() == 0) {
+					            Debug.printDebug("PBIT Task Response received: " + response.getResponseMessage()); 
+					            StateMachine.setTestState(TestState.PENDING);
+					            Notifications.showErrorAlert(response.getResponseMessage());
+						 	}
 
 						Debug.printDebug("File Name of test file" + testFileList);
 					}
@@ -407,6 +412,12 @@ public class LRUTestingController {
 						Response response = testProcessManagement.testProcesControl(
 								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
 								ofpConfigId);
+						if (response.getResponseCode() == 0) {
+				            Debug.printDebug("PBIT Task Response received: " + response.getResponseMessage()); 
+				            StateMachine.setTestState(TestState.PENDING);
+				            Notifications.showErrorAlert(response.getResponseMessage());
+					 	}
+						
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -509,7 +520,6 @@ public class LRUTestingController {
 						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				        startButton.setDisable(false);
 				        return;
 				    }
 				    
@@ -697,7 +707,10 @@ public class LRUTestingController {
 			boolean allCardsStatusOk = true;
 		
 	        for (TestCardData card : mandatoryCardList) {
+	        	System.out.println("----"+card.getCardName()+"   "+card.getStatus());
 	            if (card.getStatus().equalsIgnoreCase("NOT OK")) {
+	            	System.out.println("Inside 1st IF");
+	            	System.out.println("PBIT    :"+!card.getCardName().trim().toLowerCase().contains("pbit"));
 	                if (!card.getCardName().trim().toLowerCase().contains("pbit")) {
 	                    allCardsStatusOk = false;
 	                    break;
@@ -1200,7 +1213,6 @@ public class LRUTestingController {
 						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				    } else if(currentState == TestState.RUNNING) {
 				        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-				        startButton.setDisable(false);
 				        return;
 				    }
 				    
@@ -1458,9 +1470,9 @@ public class LRUTestingController {
 	}
 	
 	private void callstartButton(String stageId, String stageName, String testTypeId) {
-		Task<Void> task = new Task<Void>() {
+		Task<Response> task = new Task<Response>() {
 	        @Override
-	        protected Void call() throws Exception {
+	        protected Response call() throws Exception {
 //	        	LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 	        	 	String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 	        		currentSessionDetails.setRunConfigId(runConfigId);
@@ -1479,14 +1491,36 @@ public class LRUTestingController {
 		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
 		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
 		                
-		                Response response = testProcessManagement.testProcesControl(
+		                return testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
 		                    ID, 1, testFileList, true,stageName , testTypeId , ofpConfigId 
 		                );                   			               
-	          
-	            return null;
 	        }
 	    };
+	    
+	    task.setOnSucceeded(event -> {
+	        Response response = task.getValue(); // Get the response
+	        if (response.getResponseCode() == 0) {
+	            Debug.printDebug(stageName+" Task Response received: " + response.getResponseMessage());
+	            
+	            StateMachine.setTestState(TestState.PENDING);
+	            
+	            if(stageName.equals("SRU")) {
+	            	runAllButton.setDisable(false);
+	            	startButton.setDisable(false);
+	            	pauseButton.setDisable(true);
+	            	stopButton.setDisable(true);
+	            	sruTestCheckBoxList.setDisable(false);
+	            }
+	            
+	            Notifications.showErrorAlert(response.getResponseMessage());
+	        }
+	    });
+
+	    task.setOnFailed(event -> {
+	        Throwable exception = task.getException();
+	        Debug.printDebug(stageName+" Task failed with exception: " + exception.getMessage());
+	    });
 	    
 	    new Thread(task).start();
 	}
