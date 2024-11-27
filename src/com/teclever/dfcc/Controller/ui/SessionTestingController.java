@@ -488,6 +488,7 @@ public class SessionTestingController {
 
 		for (Entry<String, StageObject> l1_stage : SessionTestStateObject.getL1StageMap().entrySet()) {
 			Label newL1StageLabel = new Label(l1_stage.getValue().getL1StageName());
+			newL1StageLabel.setId(l1_stage.getKey());
 			newL1StageLabel.setUserData(l1_stage.getValue());
 			newL1StageLabel.getStyleClass().add("l1_stage-label");
 			TreeItem<Label> sessionItem = new TreeItem<Label>(newL1StageLabel);
@@ -740,9 +741,9 @@ public class SessionTestingController {
 	}
 
 	private void callStartTest(String stageId, String stageName, String testTypeId, List<String> testFileIds) {
-		Task<Void> task = new Task<Void>() {
+		Task<Response> task = new Task<Response>() {
 			@Override
-			protected Void call() throws Exception {
+			protected Response call() throws Exception {
 
 				boolean isContinueWithError = SessionTestStateObject.getL1ContinueWithErrorStatus()
 						.get(SessionTestStateObject.getCurrentRunningStageId());
@@ -760,12 +761,31 @@ public class SessionTestingController {
 				});
 				SessionTestStateObject.getRunnedTestFileCount().set(0);
 
-				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId, null);
 
-				return null;
 			}
 		};
+		
+	    task.setOnSucceeded(event -> {
+	        Response response = task.getValue(); // Get the response
+	        if (response.getResponseCode() == 0) {
+	            Debug.printDebug("Session Test Task Response received: " + response.getResponseMessage());
+	            
+	            StateMachine.setTestState(TestState.PENDING);
+	            runAllButton.setDisable(false);
+	            startButton.setDisable(false);
+	            pauseButton.setDisable(true);
+	            stopButton.setDisable(false);
+	            
+	            Notifications.showErrorAlert(response.getResponseMessage());
+	        }
+	    });
+
+	    task.setOnFailed(event -> {
+	        Throwable exception = task.getException();
+	        Debug.printDebug("Session Test Task failed with exception: " + exception.getMessage());
+	    });
 
 		new Thread(task).start();
 	}

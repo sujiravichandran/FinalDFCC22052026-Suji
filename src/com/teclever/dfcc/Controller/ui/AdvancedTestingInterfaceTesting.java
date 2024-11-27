@@ -24,6 +24,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -470,9 +471,9 @@ public class AdvancedTestingInterfaceTesting {
 	}
 
 	private void callStartTest(String stageId, String stageName, String testTypeId, List<String> testFileIds) {
-		Task<Void> task = new Task<Void>() {
+		Task<Response> task = new Task<Response>() {
 			@Override
-			protected Void call() throws Exception {
+			protected Response call() throws Exception {
 
 				String runConfigId = runConfigurationService
 						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
@@ -488,12 +489,31 @@ public class AdvancedTestingInterfaceTesting {
 				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(0);
 			
 
-				Response response = testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
 						repeatCount, testFileIds, true, stageName, testTypeId, null);
 
-				return null;
 			}
 		};
+		
+		 task.setOnSucceeded(event -> {
+		        Response response = task.getValue(); // Get the response
+		        if (response.getResponseCode() == 0) {
+		            Debug.printDebug("Interface Test Task Response received: " + response.getResponseMessage());
+		            
+		            StateMachine.setTestState(TestState.PENDING);
+		            runAllButton.setDisable(false);
+		            startButton.setDisable(false);
+		            pauseButton.setDisable(true);
+		            stopButton.setDisable(false);
+		            
+		            Notifications.showErrorAlert(response.getResponseMessage());
+		        }
+		    });
+
+		    task.setOnFailed(event -> {
+		        Throwable exception = task.getException();
+		        Debug.printDebug("Interface Test Task failed with exception: " + exception.getMessage());
+		    });
 
 		new Thread(task).start();
 	}

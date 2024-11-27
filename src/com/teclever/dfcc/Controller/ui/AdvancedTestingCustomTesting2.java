@@ -17,6 +17,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
@@ -385,7 +386,11 @@ public class AdvancedTestingCustomTesting2 {
 			if (selectedTestFilePath != null) {
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
 				if(checkAndSetTestState()) {					
-					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId, selectedTestFilePath, TEST_TYPE_ID);
+					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId,selectedTestFilePath, TEST_TYPE_ID);
+					if (response.getResponseCode() == 0) {
+						Debug.printDebug("Custom-2 TestFile Test Task Response received: " + response.getResponseMessage());
+						Notifications.showErrorAlert(response.getResponseMessage());
+					}
 				}
 			} else {
 				Notifications.showWarningAlert("Select a test file to run.");
@@ -396,6 +401,10 @@ public class AdvancedTestingCustomTesting2 {
 					String stageId = AdvancedTestStateObject.getCustomTest2DownloadCodeTestId();
 					if(checkAndSetTestState()) {
 						Response response = advanceCustom1TestingManagement.customTwoRunDownloadFile(stageId, selectedDownloadCodeFilePath, selectedCheckSumFilePath, TEST_TYPE_ID);
+						if (response.getResponseCode() == 0) {
+							Debug.printDebug("Custom-2 DownloadCode Test Task Response received: " + response.getResponseMessage());
+							Notifications.showErrorAlert(response.getResponseMessage());
+						}
 					}
 				}else {
 					Notifications.showWarningAlert("Select a checksum file to run.");

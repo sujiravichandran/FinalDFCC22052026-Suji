@@ -232,7 +232,12 @@ public class SelfTestController {
 		        Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 		        startTest.setDisable(false);
 		        return;
-		    }
+		    }else if (currentState == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				startTest.setDisable(false);
+				return;
+			}
 		    
 		    ObservableList<TestCardData> cpciCardList =SelfTestStateObject.getSelfTestcPCICard();
 		    
@@ -287,9 +292,9 @@ public class SelfTestController {
 	}
 
 	private void callStartTesting(String stageId, String stageName, String testTypeId) {
-		Task<Void> task = new Task<Void>() {
+		Task<Response> task = new Task<Response>() {
 	        @Override
-	        protected Void call() throws Exception {
+	        protected Response call() throws Exception {
 	    		String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 	    		currentSessionDetails.setRunConfigId(runConfigId);
 	    		
@@ -307,15 +312,33 @@ public class SelfTestController {
 		                Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
 		                List<String> testFileList = new ArrayList<>(testFileMap.keySet());
 		                
-		                Response response = testProcessManagement.testProcesControl(
+		                return testProcessManagement.testProcesControl(
 		                    currentSessionDetails.getSessionId(),
 		                    ID, 1, testFileList, true, stageName, testTypeId, null
 		                );
 	                    			               
 	          
-	            return null;
+	            
 	        }
 	    };
+	    
+	    task.setOnSucceeded(event -> {
+	        Response response = task.getValue(); // Get the response
+	        if (response.getResponseCode() == 0) {
+	            Debug.printDebug("Self Test Task Response received: " + response.getResponseMessage());
+	            
+	            StateMachine.setTestState(TestState.PENDING);
+	            startTest.setDisable(false);
+	            
+	            Notifications.showErrorAlert(response.getResponseMessage());
+	        }
+	    });
+
+	    task.setOnFailed(event -> {
+	        Throwable exception = task.getException();
+	        Debug.printDebug("Self Test Task failed with exception: " + exception.getMessage());
+	    });
+
 	    
 	    new Thread(task).start();
 	}

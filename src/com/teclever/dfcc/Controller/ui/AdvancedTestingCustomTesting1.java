@@ -23,6 +23,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
+import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -647,20 +648,32 @@ public class AdvancedTestingCustomTesting1 {
 		}
 
 		if (checkAndSetTestState()) {
-			Task<Void> task = new Task<Void>() {
+			Task<Response> task = new Task<Response>() {
 				@Override
-				protected Void call() throws Exception {
+				protected Response call() throws Exception {
 
 					String runConfigId = runConfigurationService
 							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), TEST_TYPE_ID);
 					currentSessionDetails.setRunConfigId(runConfigId);
 
-					Response response = advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
+					return advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
 							TEST_TYPE_ID);
-					
-					return null;
 				}
 			};
+			
+			 task.setOnSucceeded(event -> {
+			        Response response = task.getValue(); // Get the response
+			        if (response.getResponseCode() == 0) {
+			            Debug.printDebug("Custom-1 Test Task Response received: " + response.getResponseMessage());			            
+			            Notifications.showErrorAlert(response.getResponseMessage());
+			        }
+			    });
+
+			    task.setOnFailed(event -> {
+			        Throwable exception = task.getException();
+			        Debug.printDebug("Custom-1 Test Task failed with exception: " + exception.getMessage());
+			    });
+			    
 			new Thread(task).start();
 		}
 	}
