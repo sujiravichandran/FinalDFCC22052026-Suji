@@ -390,39 +390,47 @@ public class StepParser {
         return null;
     }
     
+    private static List<String> extractChannelValues(String input) {
+        List<String> channelValues = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("\\((.*?)\\)");
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.find()) {
+            String channels = matcher.group(1);
+            String[] channelArray = channels.split(",\\s*");
+
+            for (String value : channelArray) {
+                String cleanedValue = value.trim().replace("*", "").trim(); // Remove asterisk and trim
+                channelValues.add(cleanedValue);
+            }
+        }
+        return channelValues;
+    }
+
     public static Map<String, String> extractFaultyChannels(String dStarInfo) {
-        Map<String, String> failedChannels = new LinkedHashMap<>();
+        Map<String, String> extractedChannels = new LinkedHashMap<>();
 
         if (dStarInfo != null) {
-            // First check for the pattern "(some content)"
-            Pattern pattern = Pattern.compile("\\((.*?)\\)");
-            Matcher matcher = pattern.matcher(dStarInfo);
-            if (matcher.find()) {
-                String channels = matcher.group(1);
-                String[] channelValues = channels.split(",\\s*");
-                for (int i = 0; i < channelValues.length; i++) {
-                    String trimmedValue = channelValues[i].trim();
-                    if (trimmedValue.startsWith("*") || trimmedValue.contains("down") || trimmedValue.contains("offline") || trimmedValue.contains("unused") || trimmedValue.contains("0.0") || trimmedValue.contains("0xfafafafa") || trimmedValue.contains("online")) {
-                        String valueWithoutAsterisk = trimmedValue.replace("*", "").trim();
-                        failedChannels.put("Channel" + (i + 1), valueWithoutAsterisk);
-                    }
-                }
-            }
+            List<String> channelValues = extractChannelValues(dStarInfo);
 
-            // If no faulty channels found, look for the "diff(s)" pattern
-            if (failedChannels.isEmpty()) {
+            // If exactly 4 values are found, store them directly
+            if (channelValues.size() == 4) {
+                for (int i = 0; i < 4; i++) {
+                    extractedChannels.put("Channel" + (i + 1), channelValues.get(i));
+                }
+            } else {
+                // If there are not exactly 4 values, look for the "diff(s)" pattern
                 Pattern diffPattern = Pattern.compile("\\(\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*\\)");
                 Matcher diffMatcher = diffPattern.matcher(dStarInfo);
-
                 if (diffMatcher.find()) {
                     for (int i = 0; i < 4; i++) {
                         String diffValue = diffMatcher.group(i + 1);
-                        failedChannels.put("Channel" + (i + 1), diffValue);
+                        extractedChannels.put("Channel" + (i + 1), diffValue);
                     }
                 }
             }
         }
-        return failedChannels;
+        return extractedChannels;
     }
     
     private static String extractSignalName(String line) {
@@ -449,34 +457,6 @@ public class StepParser {
 
         return signalName;
     }
-
-//    private static String extractSignalName(String line) {
-//        line = line.substring(3).trim(); // Remove "S>" part and trim the line
-//
-//        // Check for "!" and ignore everything after it
-//        int exclamationIndex = line.indexOf('!');
-//        if (exclamationIndex != -1) {
-//            line = line.substring(0, exclamationIndex).trim(); // Ignore everything after "!"
-//        }
-//
-//        // Try to find the symbol (>, <, <=, >=, =)
-//        int symbolIndex = line.indexOf('<');
-//        if (symbolIndex == -1) symbolIndex = line.indexOf('>');
-//        if (symbolIndex == -1) symbolIndex = line.indexOf("<=");
-//        if (symbolIndex == -1) symbolIndex = line.indexOf(">=");
-//        if (symbolIndex == -1) symbolIndex = line.indexOf("=");
-//
-//        String signalName = null;
-//        if (symbolIndex != -1) {
-//            signalName = line.substring(0, symbolIndex).trim();
-//        } 
-//
-//        return signalName;
-//    }
-
-    
-    
-
 
     
     private static String extractExpectedValue(String line) {

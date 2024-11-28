@@ -75,48 +75,43 @@ public class ResultManagement {
 	                    }
 	                }
 	            } else {
-	            	// Fetch all documents from the resultDataCollection
-	            	List<Document> allSteps = resultDataCollection.find(Filters.gte("_id", refObjectId))
-                            .into(new ArrayList<>());
-	            	// Flag to skip the first document
-	            	boolean skipFirstDocument = true;
+	                List<Document> allSteps = resultDataCollection.find(Filters.gte("_id", refObjectId))
+	                                    .into(new ArrayList<>());
+	                
+	                boolean skipFirstDocument = true;
 
-	            	for (Document stepDoc : allSteps) {
-	            	    // If this is the first document, skip it
-	            	    if (skipFirstDocument) {
-	            	        skipFirstDocument = false;
-	            	        continue;
-	            	    }
+	                for (Document stepDoc : allSteps) {
+	                    if (skipFirstDocument) {
+	                        skipFirstDocument = false;
+	                        continue;
+	                    }
 
-	            	    // Check if the document contains the "project" field
-	            	    if (stepDoc.containsKey("project")) {
-	            	        break;
-	            	    }
+	                    if (stepDoc.containsKey("project")) {
+	                        break;
+	                    }
 
-	            	    String stepName = null; 
-	            	    String measuredValue = null;
-	            	    String faultyChannel = null;
+	                    String stepName = null;
+	                    String measuredValue = null;
+	                    String faultyChannel = null;
 
-	            	    // Extract faultyChannel and measuredValue if present
-	            	    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
-	            	    if (faultyChannels != null) {
-	            	        for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
-	            	            faultyChannel = faultyChannelEntry.getKey();
-	            	            measuredValue = faultyChannelEntry.getValue();
-	            	        }
-	            	    }
+	                    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
 
-	            	    // Extract other fields
-	            	    String tpgph = stepDoc.getString("tpgph");
-	            	    String unit = stepDoc.getString("unit");
-	            	    String signalName = stepDoc.getString("signalName");
-	            	    String expectedValue = stepDoc.getString("expectedValue");
-	            	    String faultySRU = stepDoc.getString("faultySRU");
+	                    if (faultyChannels != null && !faultyChannels.isEmpty()) {
+	                        for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
+	                            faultyChannel = faultyChannelEntry.getKey();
+	                            measuredValue = faultyChannelEntry.getValue();
+	                        }
 
-	            	    // Create the ResultDto object and add it to the result list
-	            	    ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
-	            	    resultList.add(resultDto);
-	            	}
+	                        String tpgph = stepDoc.getString("tpgph");
+	                        String unit = stepDoc.getString("unit");
+	                        String signalName = stepDoc.getString("signalName");
+	                        String expectedValue = stepDoc.getString("expectedValue");
+	                        String faultySRU = stepDoc.getString("faultySRU");
+
+	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
+	                        resultList.add(resultDto);
+	                    }
+	                }
 	            }
 
 	        } else {

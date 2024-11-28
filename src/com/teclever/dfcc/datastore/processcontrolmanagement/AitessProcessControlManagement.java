@@ -1112,14 +1112,14 @@ public class AitessProcessControlManagement {
 						"Aitess Matches::---- " + smAitess.getAitessName() + " == " + currentAitess.getAitessName());
 				if (!smAitess.getConfigFile().equals(currentAitess.getConfigFile())) {
 					try {
-						WriteAitess1Command("sudo rm -r config.cache" + "\n");
-
 						Files.copy(Paths.get(currentAitess.getConfigFile()), aitessConfigFile,
 								StandardCopyOption.REPLACE_EXISTING);
 
 						// exit from aitess
 						exitAitess1Command();
 						Thread.sleep(200);
+						WriteAitess1Command("sudo rm -r config.cache" + "\n");
+						Thread.sleep(500);
 
 						// load aitess
 						launcherFuture1.thenRun(() -> aitess1ProcessControl
