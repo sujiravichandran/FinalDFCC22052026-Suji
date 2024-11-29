@@ -173,7 +173,7 @@ public class AdvanceCustom1TestingManagement {
 
 				addCustomTest(fileName, customFileDir, file, "C1");
 
-				addTestFiletoStageAndStartTest(testTypeId, fileNamewithFullPath, stageId, "CUSTOM ONE");
+			res =	addTestFiletoStageAndStartTest(testTypeId, fileNamewithFullPath, stageId, "CUSTOM ONE");
 
 			} else {
 				Debug.printDebug("CustomTesting1Files Directory Not Present,Please Create");
@@ -191,8 +191,8 @@ public class AdvanceCustom1TestingManagement {
 			e.printStackTrace();
 			throw e;
 		}
-		res.setResponseCode(1);
-		res.setResponseMessage("Test Started");
+//		res.setResponseCode(1);
+//		res.setResponseMessage("Test Started");
 		return res;
 	}
 
@@ -212,7 +212,8 @@ public class AdvanceCustom1TestingManagement {
 				convertFileToBlob(file), filePath, customType);
 	}
 
-	private void addTestFiletoStageAndStartTest(String testTypeId, String fileName, String stageId, String stageName) {
+	private Response addTestFiletoStageAndStartTest(String testTypeId, String fileName, String stageId, String stageName) {
+		Response res = new Response();
 		try {
 
 			List<String> listOfTestFileIds = addTestFileandGetFileId(fileName, testTypeId);
@@ -220,7 +221,7 @@ public class AdvanceCustom1TestingManagement {
 			testFileStageMapService.addTestFilesStagesMapping(stageId, listOfTestFileIds);
 
 			TestProcessManagement testProcessManangement = new TestProcessManagement();
-			testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
+			res =testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
 					listOfTestFileIds /* listOfFileId */, true /* continueWithError */, stageName/* stageName */,
 					testTypeId/* testTypeId */, null);
 
@@ -228,6 +229,7 @@ public class AdvanceCustom1TestingManagement {
 			e.printStackTrace();
 			throw e;
 		}
+		return res;
 	}
 
 	private void createDirectoryIfNotExists(String directoryPath) {
@@ -326,7 +328,7 @@ public class AdvanceCustom1TestingManagement {
 
 			addCustomTest(fileName, filePath, file, "C2");
 
-			addTestFiletoStageAndStartTest(testTypeId, testfileName, stageId, "CUSTOM TWO");
+			res = addTestFiletoStageAndStartTest(testTypeId, testfileName, stageId, "CUSTOM TWO");
 
 		} catch (Exception e) {
 			e.printStackTrace();
