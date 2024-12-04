@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
+import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
@@ -184,6 +186,8 @@ public class SessionTestingController {
 		sessionTestingTreeviewGridPane.getRowConstraints().addAll(firstRow);
 
 		sessionTestingTreeviewGridPane.add(createTreeView(), 0, 0);
+		
+		getStatusForAllStage();
 
 		return sessionTestingTreeviewGridPane;
 	}
@@ -385,6 +389,7 @@ public class SessionTestingController {
 				startButton.setDisable(false);
 				runAllButton.setDisable(false);
 				setStateMachineCurrentL1StageId();
+				getStatusForAllStage();
 			}
 		});
 
@@ -945,4 +950,74 @@ public class SessionTestingController {
 			}
 		});
 	}
+		
+	private void getStatusForAllStage() {
+		List<StageObject> stageList = new ArrayList<StageObject>();
+		SessionStageMapResponse response = sessionManagement.getAllSessionStage_IdsWithResult(currentSessionDetails.getSessionId());
+		if(response.getResponse().getResponseCode() == 1 && response.getListOfStageObject() != null) {
+			stageList.addAll(response.getListOfStageObject());
+		}else {
+			System.out.println("Error : "+response.getResponse().getResponseCode()+"-"+response.getResponse().getResponseMessage());
+		}
+		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+
+		observableStageList.stream().forEach(stage -> {
+			if(stage.getL1StageId() != null) {				
+				if(stage.getL2StageId() == null) {
+//					System.out.println(stage.getL1StageId()+" -> "+stage.getStatus());
+					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL1StageId(), stage.getStatus());
+				}
+			}
+			if(stage.getL2StageId() != null) {				
+				if(stage.getL3StageId() == null) {
+//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getStatus());
+					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL2StageId(), stage.getStatus());
+				}
+			}
+			if(stage.getL3StageId() != null) {				
+				if(stage.getL4StageId() == null) {
+//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getStatus());
+					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL3StageId(), stage.getStatus());
+				}
+			}
+			if(stage.getL4StageId() != null) {				
+				if(stage.getL5StageId() == null) {
+//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getL4StageId()+" -> "+stage.getStatus());
+					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL4StageId(), stage.getStatus());
+				}
+			}
+			if(stage.getL5StageId() != null) {				
+//				System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getL4StageId()+" -> "+stage.getL5StageId()+" -> "+stage.getStatus());
+				changeTreeViewBG(sessionTreeView.getRoot(), stage.getL5StageId(), stage.getStatus());
+			}
+//			System.out.println("------------");
+
+		});
+		
+	}
+	
+	private void changeTreeViewBG(TreeItem<Label> item, String stageId, String status) {
+	    if (item.getValue() != null) {
+	        if(item.getValue().getId().equals(stageId)) {
+		        Label label = item.getValue();
+
+		        if (!label.getStyleClass().contains(status)) {
+		            label.getStyleClass().clear();
+		            label.getStyleClass().addAll("label", "l1_stage-label", status.toLowerCase());
+		        }
+	        }
+	    }
+
+	    for (TreeItem<Label> child : item.getChildren()) {
+	    	changeTreeViewBG(child, stageId, status);
+	    }
+	}
+	
 }
+
+
+
+
+
+
+

@@ -43,10 +43,10 @@
      -fx-text-fill: hover-menu-text ;
 }
 .tree-cell > .tree-disclosure-node {
-    -fx-padding :13px 0 0 15px;
+    -fx-padding :13px 10px 0 15px;
 }
 .tree-cell > .arrow {
-    -fx-padding :13px 0 0 20px;
+    -fx-padding :13px 10px 0 20px;
 }
 .tree-cell > .tree-disclosure-node > .arrow {
     -fx-background-color: primary-text-color;
@@ -70,6 +70,15 @@
 }
 .tree-cell:selected .l1_stage-label {
     -fx-text-fill: selected-menu-text;
+}
+.completed{
+	 -fx-background-color: red;
+}
+.partial{	
+	 -fx-background-color: primary-color;	
+}
+.pending{
+	 -fx-background-color: green;	
 }
 
 
