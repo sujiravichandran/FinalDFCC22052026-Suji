@@ -72,13 +72,13 @@
     -fx-text-fill: selected-menu-text;
 }
 .completed{
-	 -fx-background-color: red;
+	 -fx-background-color: green;
 }
 .partial{	
 	 -fx-background-color: primary-color;	
 }
 .pending{
-	 -fx-background-color: green;	
+	 -fx-background-color: grey;	
 }
 
 
