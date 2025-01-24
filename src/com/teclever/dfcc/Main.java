@@ -55,7 +55,7 @@ public class Main extends Application {
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-		
+		//COM FILE
   		Main.launch(args);
 
 	}
