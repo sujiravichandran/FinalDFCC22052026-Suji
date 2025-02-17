@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,7 @@ import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.StagesRemarks;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
@@ -41,6 +41,7 @@ import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.StagesRemarksService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.service.TrailSessionEntityService;
@@ -956,8 +957,36 @@ public class SessionManagement {
 		} catch (Exception ex) {
 			Debug.printDebug(ex.getLocalizedMessage());
 		}
+		System.out.println("Is Reconfig Status"+ getReconfigStatus());
 		return isConfig;
 	}
+	
+	
+	
+	public boolean getReconfigStatus() {
+		boolean isReConfigAvail = true;
+		try {
+			TrailSessionEntity sessionEntity = new TrailSessionEntity();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			GetObjResponse objRes = trailSessionEntityService.getActiveTrailSessionObject();
+			sessionEntity = (TrailSessionEntity) objRes.getObject();
+			String trailSessionId = sessionEntity.getTrailSessionId();
+
+			SessionStagesTestFilesResultService s = new SessionStagesTestFilesResultService();
+			GetResponse getResponse = s.getTestResultFileByStageId(trailSessionId);
+			List<SessionStagesTestFilesResult> lst = new ArrayList();
+			System.out.println("Name"+trailSessionId);
+			lst = (List<SessionStagesTestFilesResult>) getResponse.getResponseList();
+			System.out.println(lst.size());
+			if (lst != null) {
+				isReConfigAvail = false;
+			}
+
+		} catch (Exception ex) {
+			Debug.printDebug(ex.getLocalizedMessage());
+		}
+		return isReConfigAvail;
+	}	
 
 	// Trail Method - To Save The Trails Entity
 	public GetObjResponse saveTrailSessionEntity(SessionDTO sessionDTO) {

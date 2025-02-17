@@ -1,5 +1,7 @@
 package com.teclever.dfcc.datastore.dto;
 
+import java.util.List;
+
 // NOT USING : while reading dot Com file Line by line This class is Required.(Test Process Management) 
 public class TestProcessDto {
 
@@ -8,6 +10,9 @@ public class TestProcessDto {
 	private String rdfFileResult;
 
 	private String dotComFileResult;
+	
+	private int responseCode;
+	private List<String> onlineStatus;
 
 
 	public String getTestState() {
@@ -32,6 +37,22 @@ public class TestProcessDto {
 
 	public void setDotComFileResult(String dotComFileResult) {
 		this.dotComFileResult = dotComFileResult;
+	}
+
+	public int getResponseCode() {
+		return responseCode;
+	}
+
+	public void setResponseCode(int responseCode) {
+		this.responseCode = responseCode;
+	}
+
+	public List<String> getOnlineStatus() {
+		return onlineStatus;
+	}
+
+	public void setOnlineStatus(List<String> onlineStatus) {
+		this.onlineStatus = onlineStatus;
 	}
 
 

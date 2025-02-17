@@ -19,6 +19,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -127,25 +129,36 @@ public class VDDConfigurationController {
 	}
 
 	private void setTableData() {
-		ChecksumResponse vddList =checksumManagement.getListOfVDD();
-		ObservableList<VDDConfiguraion> tableData = FXCollections.observableArrayList();
-		if (vddList.getResponse().getResponseCode() != 0) {
-			for (ChecksumDto vdd : vddList.getvDDList()) {
-				VDDConfiguraion vddData = new VDDConfiguraion();
-				vddData.setFileName(vdd.getFileName());
-				vddData.setPath(vdd.getFilePath());
-				vddData.setChecksumValue(vdd.getChecksum());
-				vdd.setFilePath(null);
-				
-				tableData.add(vddData);
-			}
-		}
+	    ChecksumResponse vddList = checksumManagement.getListOfVDD();
+	    ObservableList<VDDConfiguraion> tableData = FXCollections.observableArrayList();
 
-		TableViewFactory<VDDConfiguraion> userFactory = new VDDConfiguraionTableViewFactory();
-		CustomTableView<VDDConfiguraion> customTableView = userFactory.createTableView(tableData, false, false);
+	    if (vddList.getResponse().getResponseCode() != 0) {
+	        for (ChecksumDto vdd : vddList.getvDDList()) {
+	            VDDConfiguraion vddData = new VDDConfiguraion();
+	            vddData.setFileName(vdd.getFileName());
+	            vddData.setPath(vdd.getFilePath());
+	            vddData.setChecksumValue(vdd.getChecksum());
+	            vdd.setFilePath(null);
 
-		vddConfigTableGridPane.add(customTableView, 0, 0);
+	            tableData.add(vddData);
+	        }
+	    }
+	    for (int i = 0; i < tableData.size(); i++) {
+	        if ("filesum.txt".equals(tableData.get(i).getFileName())) {
+	            VDDConfiguraion filsumRecord = tableData.remove(i); 
+	            tableData.add(0, filsumRecord);
+	            break; 
+	        }
+	    }
+
+	    TableViewFactory<VDDConfiguraion> userFactory = new VDDConfiguraionTableViewFactory();
+	    CustomTableView<VDDConfiguraion> customTableView = userFactory.createTableView(tableData, false, false);
+	   
+	    vddConfigTableGridPane.add(customTableView, 0, 0);
 	}
+
+
+
 	
 	private void uploadfile() {
 		FileChooser fileChooser = new FileChooser();

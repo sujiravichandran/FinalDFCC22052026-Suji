@@ -12,6 +12,14 @@ public class ResultExecutionDTO {
 	private String stageId;
 	private String sessionId;
 	private String systemInfoId;
+	private String testMode;
+	
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public String getSystemInfoId() {
 		return systemInfoId;
 	}

@@ -267,6 +267,26 @@ public class LRUTestStateObject {
 		}
 	}
 	
+	// Method to get all test files from different lists
+	public static ObservableList<TestCardData> getAllTestFiles() {
+	    ObservableList<TestCardData> allTestFiles = FXCollections.observableArrayList();
+	    
+	    // Add all items from LRU Mandatory Test Card List
+	    allTestFiles.addAll(lruMandatoryCardList);
+	    
+	    // Add all items from LRU SRU Test Card List
+	    allTestFiles.addAll(lruSruCardList);
+	    
+	    // Add all items from LRU GO and NOGO Test Card List
+	    allTestFiles.addAll(lruGoAndNogoCardList);
+	    
+	    allTestFiles.addAll(sruSubCardList);
+	    
+	    
+	    
+	    return allTestFiles;
+	}
+	
 //	Selected SRU Sub Stages List
 	private static ObservableList<TestCardData> selectedSubStagesList = FXCollections.observableArrayList();
 	

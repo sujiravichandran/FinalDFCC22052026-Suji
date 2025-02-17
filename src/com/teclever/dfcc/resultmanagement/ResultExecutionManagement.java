@@ -164,9 +164,7 @@ public class ResultExecutionManagement {
 			
 			
 			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
-					.collect(Collectors.toList());
-			
-			
+					.collect(Collectors.toList());			
 
 			List<ResultExecutionDTO> resultList = new ArrayList();
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
@@ -192,7 +190,10 @@ public class ResultExecutionManagement {
 				Debug.printDebug("Test File Name" + testFileIdName
 						.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
-				resultList.add(resultExecutionDTO);
+//				System.out.println("RESULT STATUS" + sessionStagesTestFilesResult.getTestStatus());
+				resultExecutionDTO.setTestMode(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+
+//				resultList.add(resultExecutionDTO.getStageName());
 
 			}
 			response.setStageId(lastStageId);
@@ -325,6 +326,9 @@ public class ResultExecutionManagement {
 				resultExecutionDTO.setTestFileName(testFileIdName
 						.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
+//				System.out.println("STAGE NAME CHECKING" + stageIdName.get(sessionStagesTestFilesResult.getSessionId()));
+				resultExecutionDTO.setTestMode(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+
 				resultList.add(resultExecutionDTO);
 
 			}
@@ -461,6 +465,10 @@ public class ResultExecutionManagement {
 					
 					resultExecutionDTO
 							.setTestFileName(testFileIdName.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
+//					System.out.println("STAGE NAME CHECKING" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+//					System.out.println("RESULT STATUS" + sessionStagesTestFilesResult.getTestStatus());
+					resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
+					resultExecutionDTO.setTestMode(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 					resultList.add(resultExecutionDTO);
 
 				}

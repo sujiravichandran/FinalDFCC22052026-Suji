@@ -59,6 +59,9 @@
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
+.headingHbox{
+	-fx-border-color: dark-bg;
+}
 
 .racklabel{
 	-fx-text-fill:light-bg;
@@ -134,4 +137,13 @@
 
 .default-status {
     -fx-background-color: default-bg;
+}
+
+.progress-bar {
+	-fx-min-width: 400px;
+}
+.progress-label{
+    -fx-text-fill: secondary-text-color ;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }

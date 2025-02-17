@@ -89,6 +89,14 @@
 	-fx-padding : 10px 5px;
 }
 
+.session-testing-right-text-field{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+	-fx-padding : 10px 5px;
+	-fx-font-weight:bold;
+}
+
 .session-testing-list-view{
 	-fx-border-color: transparent;
 	-fx-border-width: 0; 
@@ -185,3 +193,5 @@
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
+
+

@@ -50,6 +50,7 @@ import com.teclever.utils.ProcessControl;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
+import javafx.scene.web.WebView;
 
 public class AitessProcessControlManagement {
 
@@ -118,6 +119,10 @@ public class AitessProcessControlManagement {
 					+ "\u001B\\[2J|" + "\u001B\\[8;38H|" + "\u001B\\[11;28H|" + "\u001B\\[16d|" + "\u001B\\[15;41H|"
 					+ "\u001B\\[13;33H|" + "\u001B\\[24d|" + "\u001B\\[K|" + "\u001B\\[\\?1049l|" + "\u001B\\[23;0;0t|"
 					+ "\u001B\\[\\?1l|" + "\u001B>" + "\u001B\\[?7h|" + "\u001B\\[\\?25l|" + "\u001B\\[\\d+;\\d+[Hh]");
+	
+//	String ansiText = "This is \u001B[31mred\u001B[0m and this is \u001B[32mgreen\u001B[0m.";
+//	String htmlText = ansiToHtml(ansiText);
+	
 
 	private static final Pattern ANSI_PATTERN = Pattern.compile("\u001B\\[([;\\d]*)m");
 
@@ -140,6 +145,8 @@ public class AitessProcessControlManagement {
 			Files.copy(startupUserFile, aitessStartupUserFile, StandardCopyOption.REPLACE_EXISTING);
 			// Files.deleteIfExists(aitessDir.resolve("config.cache"));
 
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -252,15 +259,61 @@ public class AitessProcessControlManagement {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-//			textArea.appendText("Failed to create directories or copy config.dat file.\n");
-			appendText(textArea, "Failed to create directories or copy config.dat file.\n");
+			textArea.appendText("Failed to create directories or copy config.dat file.\n");
+//			appendText(textArea, "Failed to create directories or copy config.dat file.\n");
 			Debug.printDebug("1");
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
-//			textArea.appendText("Failed to retrieve the username.\n");
-			appendText(textArea, "Failed to retrieve the username.\\n");
+			textArea.appendText("Failed to retrieve the username.\n");
+//			appendText(textArea, "Failed to retrieve the username.\\n");
 			Debug.printDebug("2");
 		}
+	}
+	
+	public String ansiToHtml(String text) {
+		text = text.replaceAll("\u001B\\[\\?7h", "");
+		text = UNNECESSARY_ANSI_PATTERN.matcher(text).replaceAll("");
+		StringBuilder htmlText = new StringBuilder();
+		int lastEnd = 0;
+		Matcher matcher = ANSI_PATTERN.matcher(text);
+		while (matcher.find()) {
+			String codes = matcher.group(1);
+			String[] codeArray = codes.split(";");
+
+			htmlText.append(text, lastEnd, matcher.start());
+
+			StringBuilder style = new StringBuilder();
+			for (String code : codeArray) {
+				for (String[] colorMap : ANSI_TO_HTML_COLOR_MAP) {
+					if (code.equals(colorMap[0])) {
+						style.append("color:").append(colorMap[1]).append(";");
+					}
+				}
+				if (code.equals("1")) {
+					style.append("font-weight:bold;");
+				} else if (code.equals("4")) {
+					style.append("text-decoration:none;");
+				} else if (code.equals("0")) {
+					style.append("</span>");
+				}
+			}
+
+			if (style.length() > 0 && !style.toString().equals("</span>")) {
+				htmlText.append("<span style=\"").append(style).append("\">");
+			} else if (style.toString().equals("</span>")) {
+				htmlText.append(style);
+			}
+
+			lastEnd = matcher.end();
+		}
+
+		htmlText.append(text.substring(lastEnd));
+		if (htmlText.indexOf("<span") != -1 && htmlText.lastIndexOf("</span>") < htmlText.lastIndexOf("<span")) {
+			htmlText.append("</span>");
+		}
+
+		String finalHtmlText = htmlText.toString().replaceAll("\n", "<br>");
+		return finalHtmlText;
 	}
 
 	private void launchAitess1(String command, TextArea textArea) {
@@ -528,10 +581,14 @@ public class AitessProcessControlManagement {
 									channelSCTemp.setChannel3Temperature(scTemp.getChannel3Temp());
 									channelSCTemp.setChannel4Temperature(scTemp.getChannel4Temp());
 
-									Debug.printDebug("State Machine CH1 SC Temp:: " + channelSCTemp.getChannel1Temperature());
-									Debug.printDebug("State Machine CH2 SC Temp:: " + channelSCTemp.getChannel2Temperature());
-									Debug.printDebug("State Machine CH3 SC Temp:: " + channelSCTemp.getChannel3Temperature());
-									Debug.printDebug("State Machine CH4 SC Temp:: " + channelSCTemp.getChannel4Temperature());
+									Debug.printDebug(
+											"State Machine CH1 SC Temp:: " + channelSCTemp.getChannel1Temperature());
+									Debug.printDebug(
+											"State Machine CH2 SC Temp:: " + channelSCTemp.getChannel2Temperature());
+									Debug.printDebug(
+											"State Machine CH3 SC Temp:: " + channelSCTemp.getChannel3Temperature());
+									Debug.printDebug(
+											"State Machine CH4 SC Temp:: " + channelSCTemp.getChannel4Temperature());
 
 								}
 
@@ -546,10 +603,14 @@ public class AitessProcessControlManagement {
 									channelAECTemp.setChannel3Temperature(aecTemp.getChannel3Temp());
 									channelAECTemp.setChannel4Temperature(aecTemp.getChannel4Temp());
 
-									Debug.printDebug("State Machine AEC CH1 Temp:: " + channelAECTemp.getChannel1Temperature());
-									Debug.printDebug("State Machine AEC CH2 Temp:: " + channelAECTemp.getChannel2Temperature());
-									Debug.printDebug("State Machine AEC CH3 Temp:: " + channelAECTemp.getChannel3Temperature());
-									Debug.printDebug("State Machine AEC CH4 Temp:: " + channelAECTemp.getChannel4Temperature());
+									Debug.printDebug(
+											"State Machine AEC CH1 Temp:: " + channelAECTemp.getChannel1Temperature());
+									Debug.printDebug(
+											"State Machine AEC CH2 Temp:: " + channelAECTemp.getChannel2Temperature());
+									Debug.printDebug(
+											"State Machine AEC CH3 Temp:: " + channelAECTemp.getChannel3Temperature());
+									Debug.printDebug(
+											"State Machine AEC CH4 Temp:: " + channelAECTemp.getChannel4Temperature());
 
 								}
 								break;
@@ -559,10 +620,14 @@ public class AitessProcessControlManagement {
 								ofp = channelStatusParser.getOFPversionStatus(finalLine);
 
 								if (ofp != null) {
-									Debug.printDebug("State Machine OFPversion CH1:: " + OFPversionStatus.getChannel1Status());
-									Debug.printDebug("State Machine OFPversion CH2:: " + OFPversionStatus.getChannel2Status());
-									Debug.printDebug("State Machine OFPversion CH3:: " + OFPversionStatus.getChannel3Status());
-									Debug.printDebug("State Machine OFPversion CH4:: " + OFPversionStatus.getChannel4Status());
+									Debug.printDebug(
+											"State Machine OFPversion CH1:: " + OFPversionStatus.getChannel1Status());
+									Debug.printDebug(
+											"State Machine OFPversion CH2:: " + OFPversionStatus.getChannel2Status());
+									Debug.printDebug(
+											"State Machine OFPversion CH3:: " + OFPversionStatus.getChannel3Status());
+									Debug.printDebug(
+											"State Machine OFPversion CH4:: " + OFPversionStatus.getChannel4Status());
 								}
 
 								break;
@@ -577,10 +642,14 @@ public class AitessProcessControlManagement {
 									Debug.printDebug("State Machine WDMstatus CH3:: " + WDMStatus.getChannel3Status());
 									Debug.printDebug("State Machine WDMstatus CH4:: " + WDMStatus.getChannel4Status());
 									Debug.printDebug("*****---------------------------*****");
-									Debug.printDebug("State Machine OnlineStatus CH1:: " + OnlineStatus.getChannel1Status());
-									Debug.printDebug("State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel2Status());
-									Debug.printDebug("State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
-									Debug.printDebug("State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
+									Debug.printDebug(
+											"State Machine OnlineStatus CH1:: " + OnlineStatus.getChannel1Status());
+									Debug.printDebug(
+											"State Machine OnlineStatus CH2:: " + OnlineStatus.getChannel2Status());
+									Debug.printDebug(
+											"State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
+									Debug.printDebug(
+											"State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
 								}
 								break;
 
@@ -932,6 +1001,41 @@ public class AitessProcessControlManagement {
 		}
 	}
 
+	// Before any Test Files Checking Online Status
+	public ChannelStatusBeforeTestResponse checkOnlineStatusBeforeAnyTestFile() {
+		try {
+			dfccCheckStstusStarted.set(true);
+			currentCommand.set("WDMversion");
+			launcherFuture2
+					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
+
+			Thread.sleep(300);
+
+			List<String> onlineStatusList = new ArrayList<>();
+			
+
+			onlineStatusList.add(OnlineStatus.getChannel1Status());
+			onlineStatusList.add(OnlineStatus.getChannel2Status());
+			onlineStatusList.add(OnlineStatus.getChannel3Status());
+			onlineStatusList.add(OnlineStatus.getChannel4Status());
+
+			if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
+					|| OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
+					|| OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
+					|| OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
+				return new ChannelStatusBeforeTestResponse(0, "Online Status is offline", onlineStatusList);
+			} else {
+				return new ChannelStatusBeforeTestResponse(1, "Continue", onlineStatusList);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ChannelStatusBeforeTestResponse(0, "Error"); // Stop in case of an exception
+		} finally {
+			dfccCheckStstusStarted.set(false);
+		}
+	}
+
 	public void WriteDfccPowerOffCommandToAitess2() {
 		try {
 			dfccCheckStstusStarted.set(true);
@@ -967,10 +1071,9 @@ public class AitessProcessControlManagement {
 		long currentTime = System.currentTimeMillis();
 		if (fromThread && StateMachine.getTestState() == TestState.RUNNING) {
 			return;
-		}
-		else if(!fromThread) {
+		} else if (!fromThread) {
 			if (lastExecutedTime == 0 || currentTime - lastExecutedTime < DFCCConstant.tempDelayTime) {
-			return;
+				return;
 			}
 		}
 		executeDfccStatusCommandsToAitess2();
@@ -1200,6 +1303,7 @@ public class AitessProcessControlManagement {
 				aets1SwitchFlag = false;
 			}
 		}
+		
 		while (aets2SwitchFlag) {
 			// System.out.print(" * ");
 			if (aitessRunning.isAitess2Switched()) {
@@ -1330,51 +1434,6 @@ public class AitessProcessControlManagement {
 		return matcher1.replaceAll("");
 	}
 
-	private String ansiToHtml(String text) {
-		text = text.replaceAll("\u001B\\[\\?7h", "");
-		text = UNNECESSARY_ANSI_PATTERN.matcher(text).replaceAll("");
-		StringBuilder htmlText = new StringBuilder();
-		int lastEnd = 0;
-		Matcher matcher = ANSI_PATTERN.matcher(text);
-		while (matcher.find()) {
-			String codes = matcher.group(1);
-			String[] codeArray = codes.split(";");
-
-			htmlText.append(text, lastEnd, matcher.start());
-
-			StringBuilder style = new StringBuilder();
-			for (String code : codeArray) {
-				for (String[] colorMap : ANSI_TO_HTML_COLOR_MAP) {
-					if (code.equals(colorMap[0])) {
-						style.append("color:").append(colorMap[1]).append(";");
-					}
-				}
-				if (code.equals("1")) {
-					style.append("font-weight:bold;");
-				} else if (code.equals("4")) {
-					style.append("text-decoration:none;");
-				} else if (code.equals("0")) {
-					style.append("</span>");
-				}
-			}
-
-			if (style.length() > 0 && !style.toString().equals("</span>")) {
-				htmlText.append("<span style=\"").append(style).append("\">");
-			} else if (style.toString().equals("</span>")) {
-				htmlText.append(style);
-			}
-
-			lastEnd = matcher.end();
-		}
-
-		htmlText.append(text.substring(lastEnd));
-		if (htmlText.indexOf("<span") != -1 && htmlText.lastIndexOf("</span>") < htmlText.lastIndexOf("<span")) {
-			htmlText.append("</span>");
-		}
-
-		String finalHtmlText = htmlText.toString().replaceAll("\n", "<br>");
-		return finalHtmlText;
-	}
 
 	public void endAllProcessOnLogout() {
 		if (DFCCConstant.isJarBuild) {
@@ -1434,20 +1493,19 @@ public class AitessProcessControlManagement {
 
 		dfccCheckStstusStarted.set(false);
 
-	    List<String> ofpStatusList = new ArrayList<>();
-	    List<String> wdmStatusList = new ArrayList<>();
-	    
-	    ofpStatusList.add(OFPversionStatus.getChannel1Status());
-	    ofpStatusList.add(OFPversionStatus.getChannel2Status());
-	    ofpStatusList.add(OFPversionStatus.getChannel3Status());
-	    ofpStatusList.add(OFPversionStatus.getChannel4Status());
+		List<String> ofpStatusList = new ArrayList<>();
+		List<String> wdmStatusList = new ArrayList<>();
 
-	    wdmStatusList.add(WDMStatus.getChannel1Status());
-	    wdmStatusList.add(WDMStatus.getChannel2Status());
-	    wdmStatusList.add(WDMStatus.getChannel3Status());
-	    wdmStatusList.add(WDMStatus.getChannel4Status());
+		ofpStatusList.add(OFPversionStatus.getChannel1Status());
+		ofpStatusList.add(OFPversionStatus.getChannel2Status());
+		ofpStatusList.add(OFPversionStatus.getChannel3Status());
+		ofpStatusList.add(OFPversionStatus.getChannel4Status());
 
-	    
+		wdmStatusList.add(WDMStatus.getChannel1Status());
+		wdmStatusList.add(WDMStatus.getChannel2Status());
+		wdmStatusList.add(WDMStatus.getChannel3Status());
+		wdmStatusList.add(WDMStatus.getChannel4Status());
+
 		// Check if all OFP versions are equal
 		if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status())
 				&& OFPversionStatus.getChannel2Status().equals(OFPversionStatus.getChannel3Status())
@@ -1513,7 +1571,7 @@ public class AitessProcessControlManagement {
 			response.setResponseCode(400);
 			response.setResponseMessage("Channels have different OFP versions but all WDM channels are UP.");
 		}
-		
+
 		response.setOfpStatus(ofpStatusList);
 		response.setWdmStatus(wdmStatusList);
 		Debug.printDebug("responseId while pbit Test:-> " + response.getResponseCode());
@@ -1610,46 +1668,47 @@ public class AitessProcessControlManagement {
 	}
 
 	private void appendText(TextArea textArea, String content) {
-		Task<Void> appendTask = new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				Platform.runLater(() -> {
+	    Task<Void> appendTask = new Task<>() {
+	        @Override
+	        protected Void call() throws Exception {
+	            Platform.runLater(() -> {
+	                // Append content to the buffer
+	                textBuffer.append(content);
+	                LINES_COUNT++;
 
-					textBuffer.append(content);
-					LINES_COUNT++;
+	                // Check if we need to update the WebView
+	                if (LINES_COUNT == MAX_LINES || content.contains(">>>") || content.contains("@")
+	                        || content.contains("macname") || content.contains("wait") || content.contains("Y/N")) {
 
-					if ((LINES_COUNT == MAX_LINES) || content.contains(">>>") || content.contains("@")
-							|| content.contains("macname") || content.contains("wait") || content.contains("Y/N")) {
-//	                	    textArea.setText(textBuffer.toString()); // Replace entire content with text buffer
-						textArea.appendText(textBuffer.toString()); // append content with text buffer
+	                    // Update the WebView with the current buffer content
+	                    String newContent = textBuffer.toString();
+	                    newContent = newContent.replace("\n", "<br>"); // Replace line breaks with <br>
+	                    String jsCode = String.format(
+	                            "var body = document.body;" +
+	                            "body.innerHTML += '%s';" +
+	                            "window.scrollTo(0, document.body.scrollHeight);", 
+	                            newContent.replace("'", "\\'")
+	                    );
+	                    textArea.setText(jsCode);
 
-						textArea.setScrollTop(Double.MAX_VALUE); // Scroll to bottom
+	                    // Clear the buffer and reset counters
+	                    textBuffer.setLength(0);
+	                    LINES_COUNT = 0;
 
-						textBuffer.setLength(0); // Clear buffer
-						LINES_COUNT = 0;
+	                    // Enforce maximum total lines if necessary
+	                    int maxTextLine = LINES_COUNT; // Adjust logic to handle line limits
+	                    if (maxTextLine >= MAX_TOTAL_LINES) {
+	                        // Reset or handle overflow here as needed
+	                    }
+	                }
+	            });
 
-						int maxTextLine = textArea.getParagraphs().size();
-
-						if (maxTextLine >= MAX_TOTAL_LINES) {
-							textArea.deleteText(0, maxTextLine - MAX_TOTAL_LINES);
-						}
-
-					}
-//	                	 if (textArea.getParagraphs().size() >= 2500) {
-////	                         int firstLineEndIndex = textArea.getText().indexOf("\n") + 1;
-//	                         int maxTextLine = textArea.getParagraphs().size();
-//	                         int DeleteLinendex = maxTextLine - 2500;
-//	                         textArea.deleteText(0, DeleteLinendex);
-//	                     }
-//	                	 textArea.appendText(content);
-//	                	 textArea.requestFocus();
-//	                	 textArea.setScrollTop(Double.MAX_VALUE);
-				});
-				Thread.sleep(10);
-				return null;
-			}
-		};
-		new Thread(appendTask).start();
+	            Thread.sleep(10);
+	            return null;
+	        }
+	    };
+	    new Thread(appendTask).start();
 	}
+
 
 }

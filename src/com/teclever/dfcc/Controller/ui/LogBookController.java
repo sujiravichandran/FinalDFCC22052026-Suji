@@ -66,12 +66,7 @@ public class LogBookController {
 	private Button refreshButton = new Button("Refresh");
 	private Label bottomLabel = new Label("User Input");
 
-	private HBox selectionHBoxUUTType = new HBox(10);
-	private HBox selectionHBoxUUTSN = new HBox(10);
-	private HBox selectionBoxSESSION = new HBox(10);
-	private HBox datePickerFromHBox = new HBox(10);
-	private HBox datePickerToHBox = new HBox(10);
-	private HBox userInputDatePickerToHBox = new HBox(10);
+	
 
 	private DatePicker fromDate = new DatePicker();
 	private DatePicker toDate = new DatePicker();
@@ -81,13 +76,20 @@ public class LogBookController {
 	private TextArea uutTextArea = new TextArea();
 	private TextArea userInputTextArea = new TextArea();
 
-	public ComboBox<String> uutTypeField = new ComboBox<>();
-	public ComboBox<String> uutSerialNoField = new ComboBox<>();
-	public ComboBox<String> sessionField = new ComboBox<>();
+	private ComboBox<String> uutTypeField = new ComboBox<String>();
+	private ComboBox<String> uutSerialNoField = new ComboBox<String>();
+	private ComboBox<String> sessionField = new ComboBox<String>();
 
 	private ComboBox<String> fromTimePicker = new ComboBox<>();
 	private ComboBox<String> toTimePicker = new ComboBox<>();
 	private ComboBox<String> userInputTimePicker = new ComboBox<>();
+	
+	private HBox selectionHBoxUUTType = new HBox();
+	private HBox selectionHBoxUUTSN = new HBox(10);
+	private HBox selectionBoxSESSION = new HBox(10);
+	private HBox datePickerFromHBox = new HBox(10);
+	private HBox datePickerToHBox = new HBox(10);
+	private HBox userInputDatePickerToHBox = new HBox(10);
 
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
