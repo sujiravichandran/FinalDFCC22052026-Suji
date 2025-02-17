@@ -1668,7 +1668,7 @@ public class AitessProcessControlManagement {
 	}
 
 	private void appendText(TextArea textArea, String content) {
-	    Task<Void> appendTask = new Task<>() {
+	    Task<Void> appendTask = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
 	            Platform.runLater(() -> {
