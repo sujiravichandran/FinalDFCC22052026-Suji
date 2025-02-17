@@ -14,12 +14,28 @@ public class ResultDetailedDTO {
     private String signalName;
     private String faultyChannel;
     private String rdfName;
-    private String stageId;
+    
+	private String stageId;
     private String stageName;
     private String faultySRU;
+    private String testMode;
+    private String faultyChannelValue;
     
     
     
+	public String getFaultyChannelValue() {
+		return faultyChannelValue;
+	}
+	public void setFaultyChannelValue(String faultyChannelValue) {
+		this.faultyChannelValue = faultyChannelValue;
+	}
+	public String getTestMode() {
+  		return testMode;
+  	}
+  	public void setTestMode(String testMode) {
+  		this.testMode = testMode;
+  	}
+  	
 	public String getStageId() {
 		return stageId;
 	}

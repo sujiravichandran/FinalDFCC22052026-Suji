@@ -101,9 +101,15 @@
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 	-fx-padding : 10px;
+	-fx-font-weight:bold;
 }
 
-
+.advanced-search-field{
+	-fx-background-color: dark-bg;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+	-fx-font-weight:bold;
+}
 .advanced-testing-list-view{
 	-fx-border-color: transparent;
 	-fx-border-width: 0; 

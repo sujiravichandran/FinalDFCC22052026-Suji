@@ -19,6 +19,7 @@ import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.dto.TestProcessDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
@@ -70,10 +71,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Shape;
 import javafx.util.Callback;
 
 public class LRUTestingController {
 
+	private static final Object RUNNING = null;
+
+	private static final TestState PENDING = null;
+
+	private static final boolean COMPLETED = false;
+
+	private static final Shape ROUND = null;
+	
+	
 	private GridPane lruTestMainContainerGridPane = new GridPane();
 
 	private GridPane headingGridPane = new GridPane();
@@ -122,6 +133,8 @@ public class LRUTestingController {
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 	
+	
+	
 	private String UUT_ID;
     private String ofpConfigId;
     
@@ -151,6 +164,10 @@ public class LRUTestingController {
 
     public StringProperty runConfigIdProperty() {
         return RUN_CONFIG_ID;
+    }
+    
+    public LRUTestingController() {
+    	 initializeTestStop() ;
     }
     
 	public GridPane createlruTestMainContainerGridPane() {
@@ -346,43 +363,54 @@ public class LRUTestingController {
 	
 	
 	private void ofpDownWDMUp(String stageId, String stageName, String testTypeId) {
-		Task<Void> task = new Task<Void>() {
+		Task<Response> task = new Task<Response>() {
 			@Override
-			protected Void call() throws Exception {
-				try {
-					String runConfigId = runConfigurationService
-							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
-					currentSessionDetails.setRunConfigId(runConfigId);
-					String ID = stageId;
+			protected Response call() throws Exception {
+				String runConfigId = runConfigurationService
+						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+				currentSessionDetails.setRunConfigId(runConfigId);
+				String ID = stageId;
+				
+				String testFilename1 = "download_verify.com";
+				String testFilename2 = "pbit_test.tpf";
+				
+				List<String> testFileName = Arrays.asList(testFilename1, testFilename2);
+				System.out.println("TEST File Name " + testFileName);
 
-					String testFile1 = "download_versions.com";
-					String testFile2 = "PBIT_Test.com";
+				TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+				System.out.println("testPlanFileManagement " + testFileResponse);
 
-					List<String> testFileName = Arrays.asList(testFile1, testFile2);
+				Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+				System.out.println("testFileMap " + testFileMap);
 
-					for (String testFile : testFileName) {
-						TestFileResponse testFileResponse = testPlanFileManagement
-								.getSelectedTestFilesFromStage(testFile);
-						Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
-						List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+				List<String> testFileList = new ArrayList<>();
+				for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
 
-						Response response = testProcessManagement.testProcesControl(
-								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
-								ofpConfigId);
-						
-						 if (response.getResponseCode() == 0) {
-					            Debug.printDebug("PBIT Task Response received: " + response.getResponseMessage()); 
-					            StateMachine.setTestState(TestState.PENDING);
-					            Notifications.showErrorAlert(response.getResponseMessage());
-						 	}
+					String fullPath = entry.getValue();
+					String extractedFileName = fullPath.substring(fullPath.lastIndexOf('/') + 1);
 
-						Debug.printDebug("File Name of test file" + testFileList);
+					// Check if the extracted filename matches any in testFileName
+					if (testFileName.contains(extractedFileName)) {
+						testFileList.add(entry.getKey());
+						System.out.println("Matching File: " + extractedFileName);
 					}
-				} catch (Exception e) {
-					e.printStackTrace(); // Optionally handle/log the exception
 				}
 
-				return null;
+				// Validate if all files in `testFileName` have corresponding IDs
+				if (testFileList.size() != testFileName.size()) {
+					Platform.runLater(() -> {
+						Notifications
+								.showWarningAlert("Some test files are missing IDs. Please check the configuration.");
+					});
+					startButton.setDisable(false);
+					StateMachine.setTestState(TestState.COMPLETED);
+					return null;
+				}
+
+				System.out.println("TEST FILE LIST " + testFileList);
+
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, 1,
+						testFileList, true, stageName, testTypeId, ofpConfigId);
 			}
 		};
 
@@ -390,40 +418,54 @@ public class LRUTestingController {
 	}
 
 	private void ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
-		Task<Void> task = new Task<Void>() {
+		System.out.println("Entered ofpUpWDMUp ");
+		Task<Response> task = new Task<Response>() {
 			@Override
-			protected Void call() throws Exception {
-				try {
-					String runConfigId = runConfigurationService
-							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
-					currentSessionDetails.setRunConfigId(runConfigId);
-					String ID = stageId;
+			protected Response call() throws Exception {
+				String runConfigId = runConfigurationService
+						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+				currentSessionDetails.setRunConfigId(runConfigId);
+				String ID = stageId;
 
-					String testFile2 = "PBIT_Test.com";
+				String testFilename1 = "pbit_test.tpf";
+				List<String> testFileName = Arrays.asList(testFilename1);
+				System.out.println("TEST File Name " + testFileName);
 
-					List<String> testFileName = Arrays.asList(testFile2);
+				TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
+				System.out.println("testPlanFileManagement " + testFileResponse);
 
-					for (String testFile : testFileName) {
-						TestFileResponse testFileResponse = testPlanFileManagement
-								.getSelectedTestFilesFromStage(testFile);
-						Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
-						List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+				Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
+				System.out.println("testFileMap " + testFileMap);
 
-						Response response = testProcessManagement.testProcesControl(
-								currentSessionDetails.getSessionId(), ID, 1, testFileList, true, stageName, testTypeId,
-								ofpConfigId);
-						if (response.getResponseCode() == 0) {
-				            Debug.printDebug("PBIT Task Response received: " + response.getResponseMessage()); 
-				            StateMachine.setTestState(TestState.PENDING);
-				            Notifications.showErrorAlert(response.getResponseMessage());
-					 	}
-						
+				List<String> testFileList = new ArrayList<>();
+				for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+
+					String fullPath = entry.getValue();
+					String extractedFileName = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+
+					// Check if the extracted filename matches any in testFileName
+					if (testFileName.contains(extractedFileName)) {
+						testFileList.add(entry.getKey());
+						System.out.println("Matching File: " + extractedFileName);
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
 
-				return null;
+				// Validate if all files in `testFileName` have corresponding IDs
+				if (testFileList.size() != testFileName.size()) {
+					Platform.runLater(() -> {
+						Notifications
+								.showWarningAlert("Some test files are missing IDs. Please check the configuration.");
+					});
+					startButton.setDisable(false);
+					StateMachine.setTestState(TestState.COMPLETED);
+					return null;
+				}
+
+				System.out.println("TEST FILE LIST " + testFileList);
+
+				// Call the test process control
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, 1,
+						testFileList, true, stageName, testTypeId, ofpConfigId);
 			}
 		};
 
@@ -461,6 +503,7 @@ public class LRUTestingController {
 		
 	
 	
+	@SuppressWarnings("unlikely-arg-type")
 	private VBox createLruTestCardButton() {
 		ObservableList<TestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
 		boolean firstButton = true;
@@ -476,7 +519,8 @@ public class LRUTestingController {
 				newButton.setDisable(true);	
 			}
 			firstButton =false;
-	
+		  
+		    
 			newButton.setOnAction(e ->{	
 				
 //				if(newButton.getText().toLowerCase().contains("spil")) {
@@ -506,10 +550,14 @@ public class LRUTestingController {
 //			    	
 //			    }
 				
-				
-				if(!checkAitessStatus.isBothAitessOn()) {
-					return ;
-				}
+				 if (!checkAitessStatus.isBothAitessOn()) {
+				        newButton.setDisable(true);
+				        return;
+				    } else {
+				        newButton.setDisable(false);
+				    }
+			
+
 				 TestState currentState = StateMachine.getTestState();            
 				    if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
 						startButton.setDisable(true);
@@ -523,14 +571,35 @@ public class LRUTestingController {
 				        return;
 				    }
 				    
+				    if(StateMachine.getTestState()!=PENDING ||COMPLETED ) {
+				    	 Dialog<ButtonType> dialog = new Dialog<>();
+				            dialog.setTitle("Confirmation Dialog");
+				            dialog.setContentText("Please click OK to proceed the test (or) Click Cancel");
+				            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK,ButtonType.CANCEL );
+				            Optional<ButtonType> resultButton = dialog.showAndWait();
+
+				            if (resultButton.isPresent() && resultButton.get() == ButtonType.CANCEL) {
+//				                StateMachine.setTestState(TestState.STOPPED);
+//				                startButton.setText("Start");
+//				                pauseButton.setDisable(true);
+//				                stopButton.setDisable(true);
+//				                startButton.setDisable(false);
+//				                runAllButton.setDisable(false);
+//				                sruTestCheckBoxList.setDisable(false);
+//				                System.out.println("TEST STATE @ :" + StateMachine.getTestState());
+				                dialog.close();
+				            }
 				    
+				            else {
 				    if (newButton.getText().toLowerCase().contains("spil")) {
 				    	
-			            Dialog<ButtonType> dialog = new Dialog<>();
-			            dialog.setTitle("Confirmation Dialog");
-			            dialog.setContentText("Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
-			            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-			            dialog.showAndWait();
+//			            Dialog<ButtonType> dialog1 = new Dialog<>();
+//			            dialog1.setTitle("Confirmation Dialog");
+//			            dialog1.setContentText("Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
+//			            dialog1.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+//			            dialog1.showAndWait();
+				    	
+				    	
 						LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 					} else if (newButton.getText().toLowerCase().contains("pbit")) {
 						UUT_ID = StateMachine.currentSessionDetails.getUutId();
@@ -545,21 +614,21 @@ public class LRUTestingController {
 							OFPVersion.setPromptText("select OFP Version");
 							OFPVersion.setVisible(false);
 
-							Dialog<String> dialog = new Dialog<>();
-							dialog.setWidth(500);
-							dialog.setTitle("Check Status");
+							Dialog<String> dialog2 = new Dialog<>();
+							dialog2.setWidth(500);
+							dialog2.setTitle("Check Status");
 
 							Button okButton = new Button("OK");
 							Button cancelButton = new Button("Cancel");
 
 							okButton.setOnAction(event -> {
-								dialog.setResult("Ok");
+								dialog2.setResult("Ok");
 								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								dialog.close();
 							});
 
 							cancelButton.setOnAction(event -> {
-								dialog.setResult("Cancel");
+								dialog2.setResult("Cancel");
 								dialog.close();
 							});
 
@@ -617,7 +686,7 @@ public class LRUTestingController {
 
 							Optional<ButtonType> result = alert.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.OK) {
-								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 							}
 
@@ -631,7 +700,7 @@ public class LRUTestingController {
 
 							Optional<ButtonType> result = alert.showAndWait();
 							if (result.isPresent() && result.get() == ButtonType.OK) {
-								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
 								ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 							}
@@ -645,11 +714,11 @@ public class LRUTestingController {
 				    }else if(newButton.getText().toLowerCase().contains("interface")) {
 				    	LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
 				    }
-				    
+				            }}    
 				    callstartButton(newButton.getId(),"MANDATORY",newButton.getUserData().toString());
 			});
 					
-	
+				    
 			mandatoryTestVBox.getChildren().add(newButton);
 		}
 		
@@ -942,8 +1011,32 @@ public class LRUTestingController {
 	}
 
 
+	private void initializeTestStop() {
+		StateMachine.setAitess1Launched(true);
+		StateMachine.setAitess2Launched(true);
+		TestProcessDto testState = new TestProcessDto();
+		TestState currentState = StateMachine.getTestState();  
+		if (currentState == TestState.RUNNING)
+		{
+			if(testState.getTestState().equals("STOPPED"))
+			{
+				Notifications.showErrorAlert(testState.getOnlineStatus() + " Test is Stopped because Some Channel is Offline");
+				StateMachine.setTestState(TestState.STOPPED);
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				runAllButton.setDisable(false);
+				sruTestCheckBoxList.setDisable(false);
+			}
+		}
+		
+		
+	}
+
 	private void initializeButtons() {
 		runAllButton.setOnAction(e -> {
+			
 			if(!checkAitessStatus.isBothAitessOn()) {
 				return ;
 			}
@@ -1103,7 +1196,7 @@ public class LRUTestingController {
 
 	private List<String> getAllTestFilesForSelectedSubStages() {
 		List<String> allSelectedStageTestFileIds = new ArrayList<String>();
-		for(TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+		for(TestCardData subStage : LRUTestStateObject.getAllTestFiles()) {
 			List<String> response = getTestFilesForStageId(subStage);
 			if(response == null) {
 				return null;
@@ -1117,7 +1210,6 @@ public class LRUTestingController {
 	
 	private List<String> getTestFilesForStageId(TestCardData subStage){
 		List<String> subStageTestFileIds = new ArrayList<String>();TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(subStage.getCardId());
-	 	
 		if (testFileResponse.getTestFilesIdName() == null || testFileResponse.getTestFilesIdName().isEmpty() || testFileResponse.getTestFilesIdName().size() == 0) {
             Platform.runLater(() -> {
                 Notifications.showWarningAlert("Please Add Test Files For "+subStage.getCardName() +" Stage... ");
@@ -1227,7 +1319,7 @@ public class LRUTestingController {
 				    }
 				    			    
 			});
-			goNoGoVBox.getChildren().add(newButton);		
+			goNoGoVBox.getChildren().add(newButton);
 		}
 		
 			LRUTestStateObject.completeTestStatusProperty().addListener((observable, oldValue, newValue) -> {
@@ -1270,7 +1362,8 @@ public class LRUTestingController {
 		        }
 		        
 		        if(allCardsStatusOk) {
-			        goLabel.setStyle("-fx-background-color:green;-fx-text-fill:white;");	
+			        goLabel.setStyle("-fx-background-color:green;-fx-text-fill:white;");
+			        
 		        }else {
 		        	noGoLabel.setStyle("-fx-background-color:red;-fx-text-fill:white;");
 		        }
@@ -1281,6 +1374,7 @@ public class LRUTestingController {
 	}
 	
 	private boolean checkGOandNOGOStatus(String cardName) {
+		
 	    List<TestCardData> matchingCards = LRUTestStateObject.getLruGoAndNogoCardList().stream()
 	    		 .filter(card -> card.getCardName().trim().toLowerCase().contains(cardName))
 	            .collect(Collectors.toList());
@@ -1468,6 +1562,7 @@ public class LRUTestingController {
 			}
 		});
 	}
+	
 	
 	private void callstartButton(String stageId, String stageName, String testTypeId) {
 		Task<Response> task = new Task<Response>() {

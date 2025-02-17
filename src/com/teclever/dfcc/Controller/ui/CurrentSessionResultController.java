@@ -130,7 +130,7 @@ public class CurrentSessionResultController {
 		return currentSessionResultHeadingGridPane;
 	}
 	
-	private HBox createViewAllButtonButton() {
+	public HBox createViewAllButtonButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
 		buttonBox.getChildren().add(viewAllButton);
 		

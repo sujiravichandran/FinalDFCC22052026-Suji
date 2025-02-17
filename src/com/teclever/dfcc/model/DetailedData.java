@@ -13,7 +13,23 @@ public class DetailedData {
 	private String measuredValueCh1_Ch2_Ch3_Ch4;
 	private String faultySru;
 	private String unit;
+	private String testMode;
+	private String faultyChannelValue;
 	
+	
+	
+	public String getFaultyChannelValue() {
+		return faultyChannelValue;
+	}
+	public void setFaultyChannelValue(String faultyChannelValue) {
+		this.faultyChannelValue = faultyChannelValue;
+	}
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public int getId() {
 		return id;
 	}

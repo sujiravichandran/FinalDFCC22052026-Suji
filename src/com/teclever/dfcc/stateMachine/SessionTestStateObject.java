@@ -281,6 +281,16 @@ public class SessionTestStateObject {
 
 	//	Progress Bar
 	private static int totalSelectedTestFileCount;
+	private static String currentFileName;
+	
+	public static String getCurrentFileName() {
+		return currentFileName;
+	}
+
+	public static void setCurrentFileName(String currentFileName) {
+		SessionTestStateObject.currentFileName = currentFileName;
+	}
+
 	private static IntegerProperty runnedTestFileCount = new SimpleIntegerProperty(0);
 
 	public static int getTotalSelectedTestFileCount() {

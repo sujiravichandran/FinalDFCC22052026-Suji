@@ -7,7 +7,14 @@ public class BriefData {
 	private String executedFileName;
 	private String timeOfExecution;
 	private String result;
+	private String testMode;
 	
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public String getId() {
 		return id;
 	}

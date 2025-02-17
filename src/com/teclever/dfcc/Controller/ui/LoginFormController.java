@@ -302,8 +302,10 @@ public class LoginFormController {
 					}
 				}
 			} else {
-				Notifications.showErrorAlert(loginResponse.getResponse().getResponseMessage());
-			}
+			
+						Notifications.showErrorAlert(loginResponse.getResponse().getResponseMessage());
+					}
+		
 		});
 
 		userNameTextField.setText("BelUser");
@@ -620,9 +622,9 @@ public class LoginFormController {
 		buttonBox.getChildren().add(okButton);
 
 		okButton.setOnAction(e -> {
-			for(CheckSumList checksum : checkSumTableData) {
-				if(!"ok".equalsIgnoreCase(checksum.getStatus())) {
-					checkSumFinalResult = false ;
+			for (CheckSumList checksum : checkSumTableData) {
+				if (!"ok".equalsIgnoreCase(checksum.getStatus())) {
+					checkSumFinalResult = false;
 				}
 			}
 			if (checkSumFinalResult) {
@@ -665,9 +667,9 @@ public class LoginFormController {
 		buttonBox.getChildren().add(okButton);
 
 		okButton.setOnAction(e -> {
-			for(CheckSumList checksum : checkSumTableData) {
-				if(!"ok".equalsIgnoreCase(checksum.getStatus())) {
-					checkSumFinalResult = false ;
+			for (CheckSumList checksum : checkSumTableData) {
+				if (!"ok".equalsIgnoreCase(checksum.getStatus())) {
+					checkSumFinalResult = false;
 				}
 			}
 			if (checkSumFinalResult) {

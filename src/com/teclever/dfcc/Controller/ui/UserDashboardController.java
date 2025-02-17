@@ -94,6 +94,11 @@ public class UserDashboardController {
 	private Button yesButton = new Button("YES");
 	private Button noButton = new Button("NO");
 	private StackPane terminalStackPane;
+	private Rectangle background = new Rectangle(80, 30, Color.RED);
+	private Circle toggleButton = new Circle(12, Color.WHITE);
+	private Label toggleLabel = new Label("OFF");
+	private StackPane stack = new StackPane();
+	private HBox toggleSwitch = new HBox();
 	TerminalController terminalController1 = new TerminalController();
 	
 	private MapChangeListener<String, ChannelTemperature> scListener;
@@ -101,6 +106,7 @@ public class UserDashboardController {
 	
     public UserDashboardController() {
     	terminalStackPane = terminalController1.createTerminalStackPane();
+    	checkTestStatus() ;
     }
 
 	public GridPane createUserDashboard() {
@@ -621,25 +627,18 @@ public class UserDashboardController {
 	private boolean isOn = false;  // Track toggle state
 
 	private HBox createToggleSwitch() {
-	    // Background for the toggle (Rectangle)
-	    Rectangle background = new Rectangle(80, 30, Color.RED);
 	    background.setArcWidth(30);
 	    background.setArcHeight(30);
 
-	    // Circle that will move
-	    Circle toggleButton = new Circle(12, Color.WHITE);
-	    toggleButton.setTranslateX(-26); // Start from the left side of the rectangle
-
-	    // Label for "ON" and "OFF"
-	    Label toggleLabel = new Label("OFF");
+	    toggleButton.setTranslateX(-26);
+	    
 	    toggleLabel.setTextFill(Color.WHITE);
 	    toggleLabel.setStyle("-fx-font-size:16px; -fx-font-weight: bold; -fx-padding:0px 5px");
 
-	    // StackPane to hold the background, circle, and label
-	    StackPane stack = new StackPane();
+
 	    stack.getChildren().addAll(background, toggleLabel, toggleButton);
 
-	    HBox toggleSwitch = new HBox();
+
 	    toggleSwitch.setSpacing(0);
 	    toggleSwitch.getChildren().add(stack);
 
@@ -943,6 +942,27 @@ public class UserDashboardController {
 			label2.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel2Temp());
 			label3.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel3Temp());
 			label4.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel4Temp());
+			try {
+			    double value1 = Double.parseDouble(label1.getText()); 
+			    double value2 = Double.parseDouble(label2.getText()); 
+			    double value3 = Double.parseDouble(label3.getText()); 
+			    double value4 = Double.parseDouble(label4.getText()); 
+			    
+			    if ((value1 <= 0 && value1 < 1) || (value2 <= 0 && value2 < 1)
+			    		|| (value3 <= 0 && value3 < 1) || (value4 <= 0 && value4 < 1) ) { 
+			     
+			    	box1.getStyleClass().add("temp-box-off");
+			    	box2.getStyleClass().add("temp-box-off");
+			    	box3.getStyleClass().add("temp-box-off");
+			    	box4.getStyleClass().add("temp-box-off");
+			    	
+			    }
+			} catch (NumberFormatException | NullPointerException e) {
+			    System.err.println("Invalid numeric value in labels: " + label1.getText() + ", "
+			    		+ "" + label2.getText() + ", " + "" + label3.getText() + ", " + "" + label4.getText()  );
+			}
+			
+			
 		}else if(temp.equalsIgnoreCase("aec") && boardChannelTempAEC.getBoardTemperatureMap().get(board) != null ) {
 			label1.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel1Temp());
 			label2.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel2Temp());
@@ -956,7 +976,7 @@ public class UserDashboardController {
 	        scBoardTemperatureMap.removeListener(scListener);
 	    }
 	    if (aecListener != null) {
-	        aecBoardTemperatureMap.removeListener(aecListener);
+	        aecBoardTemperatureMap.removeListener(aecListener);	
 	    }
 	    
 	    if (temp.equalsIgnoreCase("sc")) {
@@ -1173,6 +1193,7 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box1.getStyleClass().remove("power-status-box-off");
 				box1.getStyleClass().add("power-status-box-on");
+				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box1.getStyleClass().remove("power-status-box-on");
 				box1.getStyleClass().add("power-status-box-off");
@@ -1183,6 +1204,7 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box2.getStyleClass().remove("power-status-box-off");
 				box2.getStyleClass().add("power-status-box-on");
+				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box2.getStyleClass().remove("power-status-box-on");
 				box2.getStyleClass().add("power-status-box-off");
@@ -1193,6 +1215,7 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box3.getStyleClass().remove("power-status-box-off");
 				box3.getStyleClass().add("power-status-box-on");
+				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box3.getStyleClass().remove("power-status-box-on");
 				box3.getStyleClass().add("power-status-box-off");
@@ -1203,6 +1226,7 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box4.getStyleClass().remove("power-status-box-off");
 				box4.getStyleClass().add("power-status-box-on");
+				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box4.getStyleClass().remove("power-status-box-on");
 				box4.getStyleClass().add("power-status-box-off");
@@ -1217,6 +1241,41 @@ public class UserDashboardController {
 		bottomRightMidFourthBox.getChildren().addAll(titleLabel, bottomRightMidFourthGridPane);
 
 		return bottomRightMidFourthBox;
+	}
+
+	private void checkChannelOnlineStatus() {
+		TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+		
+		if(OnlineStatus.getChannel1Status().equalsIgnoreCase("online") && OnlineStatus.getChannel2Status().equalsIgnoreCase("online") &&
+				OnlineStatus.getChannel3Status().equalsIgnoreCase("online") &&OnlineStatus.getChannel4Status().equalsIgnoreCase("online")) {
+		    if (isOn) {
+		        transition.setToX(-26);
+		        background.setFill(Color.RED);
+		        toggleLabel.setText("OFF");
+		        StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+		    } else {
+		        transition.setToX(26);
+		        background.setFill(Color.GREEN);
+		        toggleLabel.setText("ON");
+		        StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+		    }
+		    isOn = !isOn;
+		}
+	    transition.play();
+	    
+	    
+	}
+	
+	private void checkTestStatus() {
+		
+		if(StateMachine.getTestState() == TestState.RUNNING) {
+	        background.setFill(Color.GRAY);
+	        toggleButton.setDisable(true);
+	        StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+	        System.out.println("******Test State*****" + StateMachine.getTestState());
+	        
+	        
+	    }
 	}
 
 	private GridPane createRigthMidSecond() {

@@ -343,7 +343,9 @@ public class CurrentExecutionResultController {
 		} else if(STAGE_ID == null && SESSION_ID != null){
 			response = resultExecutionManagement.getResultExecutionListBriefListForSession(SESSION_ID);
 		} else {
-			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+//			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+			response = resultExecutionManagement.getResultExecutionListBriefListForSession(currentSessionDetails.getSessionId());
+			
 		}
 		
 		if (response.getCode() == 1 && response.getResultDTOList() != null) {
@@ -354,8 +356,9 @@ public class CurrentExecutionResultController {
 
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
-				newBriefData.setExecutedFileName(data.getTestFileName());
+				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
+				newBriefData.setTestMode(data.getTestMode());
 				newBriefData.setResult(data.getStatus());
 
 				briefDataList.add(newBriefData);
@@ -424,10 +427,27 @@ public class CurrentExecutionResultController {
 		} else if(STAGE_ID == null && SESSION_ID != null){
 			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
 		} else {
-			response = resultExecutionManagement
-					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+			
+			System.out.println("Entered into Detail Data Method");
+//			response = resultExecutionManagement
+////					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+//			System.out.println("Session ID Check brief " + SESSION_ID);
+//			System.out.println("Session ID CheckCurrent session detail " + currentSessionDetails.getSessionId());
+			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(currentSessionDetails.getSessionId());
 		}
-
+		
+	//Fault Code Coloum-----------------------------------//
+		
+//		DetailedData newDetailedDatas = new DetailedData();
+//		ResultDetailedDTO datas = (ResultDetailedDTO) response.getResultDetailedList();
+//		
+//		    double faultyValue = Double.parseDouble(datas.getFaultyChannel()); 
+//		    if (faultyValue <= 0 || faultyValue < 1) {
+//		    	newDetailedDatas.setFaultyChannelValue(datas.getFaultyChannelValue());
+//		    }
+		    
+    //-----------------------------------------Fault Code Coloum//
+		    
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
 			for (ResultDetailedDTO data : response.getResultDetailedList()) {
@@ -444,6 +464,7 @@ public class CurrentExecutionResultController {
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
 				newDetailedData.setFaultySru(data.getFaultySRU());
+				newDetailedData.setTestMode(data.getTestMode());
 				detailedDataList.add(newDetailedData);
 
 				i++;
