@@ -978,7 +978,7 @@ public class SessionManagement {
 			System.out.println("Name"+trailSessionId);
 			lst = (List<SessionStagesTestFilesResult>) getResponse.getResponseList();
 			System.out.println(lst.size());
-			if (lst != null) {
+			if (lst.size()>0) {
 				isReConfigAvail = false;
 			}
 

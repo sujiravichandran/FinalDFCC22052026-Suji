@@ -551,40 +551,40 @@ public class AdvanceCustom1TestingManagement {
 	}
 
 	// NOT USED
-//	public CustomTestFileResponse getListOfFileNamesWithId() {
-//		CustomTestFileResponse customTestFileResponse = new CustomTestFileResponse();
-//		Response res = new Response();
-//		try {
-//
-//			CustomTestService customTestService = new CustomTestService();
-//			GetResponse objResponse = customTestService.getAllFileNames();
-//			CustomTest customTest;
-//			if (objResponse.getCode() == 1) {
-//
-//				Map<String, String> fileIdAndName = new HashMap<>();
-//
-//				List<CustomTest> custom1TestList = new ArrayList<CustomTest>();
-//				custom1TestList = (List<CustomTest>) objResponse.getResponseList();
-//				custom1TestList = custom1TestList.stream().filter(S -> S.getCustomTestType().equals("custom1"))
-//					.toList();
-//
-//				for (CustomTest obj : custom1TestList) {
-//					fileIdAndName.put(obj.getCustomId(), obj.getFilename());
-//				}
-//				customTestFileResponse.setFileIdAndName(fileIdAndName);
-//			}
-//			res.setResponseCode(objResponse.getCode());
-//			res.setResponseMessage(objResponse.getMsg());
-//			customTestFileResponse.setResponse(res);
-//		} catch (Exception e) {
-//
-//			e.printStackTrace();
-//			res.setResponseCode(0);
-//			res.setResponseMessage("Exception " + e.getLocalizedMessage());
-//			customTestFileResponse.setResponse(res);
-//		}
-//		return customTestFileResponse;
-//	}
+	public CustomTestFileResponse getListOfFileNamesWithId() {
+		CustomTestFileResponse customTestFileResponse = new CustomTestFileResponse();
+		Response res = new Response();
+		try {
+
+			CustomTestService customTestService = new CustomTestService();
+			GetResponse objResponse = customTestService.getAllFileNames();
+			CustomTest customTest;
+			if (objResponse.getCode() == 1) {
+
+				Map<String, String> fileIdAndName = new HashMap<>();
+
+				List<CustomTest> custom1TestList = new ArrayList<CustomTest>();
+				custom1TestList = (List<CustomTest>) objResponse.getResponseList();
+				custom1TestList = custom1TestList.stream().filter(S -> S.getCustomTestType().equals("custom1"))
+					.toList();
+
+				for (CustomTest obj : custom1TestList) {
+					fileIdAndName.put(obj.getCustomId(), obj.getFilename());
+				}
+				customTestFileResponse.setFileIdAndName(fileIdAndName);
+			}
+			res.setResponseCode(objResponse.getCode());
+			res.setResponseMessage(objResponse.getMsg());
+			customTestFileResponse.setResponse(res);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			res.setResponseCode(0);
+			res.setResponseMessage("Exception " + e.getLocalizedMessage());
+			customTestFileResponse.setResponse(res);
+		}
+		return customTestFileResponse;
+	}
 
 	// Copying The File
 	public static void copyFileRdfFile(String sourceFilePath, String destinationDirectory) {
