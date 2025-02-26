@@ -75,8 +75,9 @@ public class TrialsConfigurationController {
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
 
-	private HBox buttonBox = new HBox();
+	private HBox buttonBox = new HBox(10);
 	private Button finalizeButton = new Button("Finalize Config");
+	private Button reCofigButton = new Button("ReConfig");
 
 	private TextField stageNameField = new TextField();
 	private Button addNewStageButton = new Button("Add New Stage");
@@ -173,10 +174,17 @@ public class TrialsConfigurationController {
 		titleBox.getChildren().add(title);
 
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
-		buttonBox.getChildren().add(finalizeButton);
+		buttonBox.getChildren().addAll(finalizeButton, reCofigButton);
 
 		finalizeButton.setOnAction(e -> {
 			handleFinalizeButton();
+		});
+		
+		reCofigButton.setOnAction(e -> {
+			if(sessionManagement.getReconfigStatus()) {
+				FINALIZE_CONFIG = false;
+				disableDispaly();
+			}
 		});
 
 		headingGridPane.add(titleBox, 0, 0);
