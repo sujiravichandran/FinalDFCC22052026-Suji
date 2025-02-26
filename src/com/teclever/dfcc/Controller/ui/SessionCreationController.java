@@ -58,8 +58,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
@@ -71,6 +74,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
@@ -178,6 +182,7 @@ public class SessionCreationController {
 	private boolean newSession;
 
 	private List<List<String>> selectedStagesList = new ArrayList<>();
+	private static String userInput;
 
 	public SessionCreationController() {
 		this.ROLE_ID = UserData.getRoleId();
@@ -596,12 +601,22 @@ public class SessionCreationController {
 	private void handleSessionTypeSelection() {
 		refreshFaultCode();
 		SESSION_TYPE_ID = fetchSessionTypeId(sessionTypeField.getValue());
+		final String[] activeTrailIdHolder = {null};
 
 		if (SESSION_TYPE_ID.equals("ST4")) {
 			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
+			SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(ROLE_ID);
+			if (response.getResponse().getResponseCode() == 1) {
+				for (SessionList sessionDto : response.getListOfSession()) {
+					if(sessionDto.getSessionId().startsWith("TSSN")) {
+						activeTrailIdHolder[0] = sessionDto.getSessionId();
+					}
+				}
+			}
 			if (trailsActiveStatus) {
-				Notifications.showWarningAlert(
-						"The existing trail session is still active, so a new trail session cannot be created.");
+				String title = "Confirmation Dialog";
+				String contentText = "The existing trail session is still active, so a new trail session cannot be created. Do you want do end trail session?";
+				Notifications.showConfirmationDialog(title, contentText, () -> endTrailSesion(activeTrailIdHolder[0]));
 				Platform.runLater(() -> {
 					sessionTypeField.setValue(null);
 				});
@@ -620,6 +635,80 @@ public class SessionCreationController {
 			rightContainer.setDisable(true);
 		}
 
+	}
+	
+	private void endTrailSesion(String activeTrailSessionId) {
+		currentSessionDetails.setSessionId(activeTrailSessionId);
+		showEndRemarksDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
+	            Response response = sessionManagement.endSession(userInput);
+	            if (response.getResponseCode() == 1) {
+					currentSessionDetails.setSessionId(null);
+	            	Notifications.showSuccessAlert("Trail session ended successfully");
+	            } else {
+	                Notifications.showErrorAlert(response.getResponseMessage());
+	            }
+	        },
+			() -> {
+				currentSessionDetails.setSessionId(null);
+			}
+		);
+	}
+	
+	public static void showEndRemarksDialog(String title, String contentText, Runnable onConfirm, Runnable onCancel) {
+		Platform.runLater(() -> {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle(title);
+			alert.setHeaderText(null);
+			alert.setHeight(300);
+			alert.setWidth(500);
+			alert.setContentText(contentText);
+
+			TextArea endRemarksTextArea = new TextArea();
+			endRemarksTextArea.setPromptText("Enter End Remarks");
+			endRemarksTextArea.setPrefHeight(300);
+			endRemarksTextArea.setPrefWidth(500);
+			endRemarksTextArea.setWrapText(true);
+			
+
+			VBox inputDialog = new VBox();
+			inputDialog.getChildren().add(endRemarksTextArea);
+			alert.getDialogPane().setContent(inputDialog);
+
+			endRemarksTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+			endRemarksTextArea.setText(newValue.length() > 50 ? newValue.substring(0, 50) : newValue);
+			});
+
+			ButtonType buttonTypeSave = new ButtonType("Save");
+			ButtonType buttonTypeCancel = new ButtonType("Cancel");
+
+			alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeCancel);
+
+			Button saveButton = (Button) alert.getDialogPane().lookupButton(buttonTypeSave);
+			Button cancelButton = (Button) alert.getDialogPane().lookupButton(buttonTypeCancel);
+
+			saveButton.addEventFilter(ActionEvent.ACTION, event -> {
+				userInput = endRemarksTextArea.getText();
+
+				if (userInput == null || userInput.trim().isEmpty()) {
+					Alert alertText = new Alert(AlertType.INFORMATION);
+					alertText.setHeaderText(null);
+					alertText.setContentText("Please Enter END REMARKS");
+					alertText.showAndWait();
+
+					event.consume();
+				} else {
+					onConfirm.run();
+				}
+			});
+			
+			cancelButton.addEventFilter(ActionEvent.ACTION, event -> {
+	            if (onCancel != null) {
+	                onCancel.run();
+	            }
+	        });
+
+	        alert.showAndWait();
+		});
 	}
 
 	private void setDefaultSessionTypeSelection() {
