@@ -8,13 +8,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class CheckSumController {
-	public void createCheckSumDataPopup() {
+	public GridPane createCheckSumDataPopup() {
 		try {
 			FXMLLoader addUserPopup = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/fxml/CheckSum.fxml"));
 			Parent root = addUserPopup.load();
@@ -34,5 +35,6 @@ public class CheckSumController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 }

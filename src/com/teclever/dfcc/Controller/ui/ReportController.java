@@ -21,6 +21,7 @@ import com.teclever.dfcc.utils.Notifications;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -280,32 +281,92 @@ public class ReportController {
 		return reportHeadingGridPane;
 	}
 
+//	Before Changing
+//	private HBox createDownloadButton() {
+//		buttonBox.setAlignment(Pos.CENTER_RIGHT);
+//		buttonBox.getChildren().add(downloadButton);
+//
+//		downloadButton.setOnAction(e -> {
+//			if(UUT_ID != null && SESSION_ID != null) {	
+//				Response response = null;
+//				if (REPORT_TYPE.equals("PQT")) {
+//					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
+//					response = reportGenerationNew.generatePQTReport(SESSION_ID);
+//				} else if (REPORT_TYPE.equals("ESS")) {
+//					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
+//					response = reportGenerationNew.generateEssReport(SESSION_ID);
+//				} 
+//				if(response.getResponseCode() == 1) {
+//					Notifications.showSuccessAlert(response.getResponseMessage());
+//				}else if(response.getResponseCode() == 0) {
+//					Notifications.showErrorAlert(response.getResponseMessage());
+//				}
+//			}else {
+//				Notifications.showWarningAlert("Please select UUT type and session name.");
+//			}
+//		});
+//
+//		return buttonBox;
+//	}
+	
+	ViewReportController viewReport = new ViewReportController();
+	
+//	After Changing
 	private HBox createDownloadButton() {
-		buttonBox.setAlignment(Pos.CENTER_RIGHT);
-		buttonBox.getChildren().add(downloadButton);
+	    buttonBox.setAlignment(Pos.CENTER_RIGHT);
+	    buttonBox.getChildren().add(downloadButton);
 
-		downloadButton.setOnAction(e -> {
-			if(UUT_ID != null && SESSION_ID != null) {	
-				Response response = null;
-				if (REPORT_TYPE.equals("PQT")) {
-					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
-					response = reportGenerationNew.generatePQTReport(SESSION_ID);
-				} else if (REPORT_TYPE.equals("ESS")) {
-					ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
-					response = reportGenerationNew.generateEssReport(SESSION_ID);
-				} 
-				if(response.getResponseCode() == 1) {
-					Notifications.showSuccessAlert(response.getResponseMessage());
-				}else if(response.getResponseCode() == 0) {
-					Notifications.showErrorAlert(response.getResponseMessage());
-				}
-			}else {
-				Notifications.showWarningAlert("Please select UUT type and session name.");
-			}
-		});
+	    downloadButton.setOnAction(e -> {
+	        if (UUT_ID != null && SESSION_ID != null) {    
+	            Task<Response> task = new Task<>() {
+	                @Override
+	                protected Response call() throws Exception {
+	                    ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
+	                    Response response = null;
+	                    
+	                    if (REPORT_TYPE.equals("PQT")) {
+	    					response = reportGenerationNew.generatePQTReport(SESSION_ID);
+	    				} else if (REPORT_TYPE.equals("ESS")) {
+	    					response = reportGenerationNew.generateEssReport(SESSION_ID);
+	    				} 
+	                    System.out.println("Rport Generation Response" + response);
+	                    return response;
+	                }
+	            };
 
-		return buttonBox;
+	            task.setOnSucceeded(event -> {
+	                Response response = task.getValue();
+	                if (response != null) {
+	                    if (response.getResponseCode() == 1) {
+	                        Notifications.showSuccessAlert(response.getResponseMessage());
+	                        Platform.runLater(() -> {
+	                        	viewReport.viewReportPopup(response);			
+								});
+	                    } else {
+	                        Notifications.showErrorAlert(response.getResponseMessage());
+	                    }
+	                } else {
+	                    Notifications.showErrorAlert("Failed to generate the report.");
+	                }
+	            });
+
+	            task.setOnFailed(event -> {
+	                Notifications.showErrorAlert("Error generating the report.");
+	                task.getException().printStackTrace();
+	            });
+
+	            Thread thread = new Thread(task);
+	            thread.setDaemon(true);
+	            thread.start();
+	        } else {
+	            Notifications.showWarningAlert("Please select UUT type and session name.");
+	        }
+	    });
+
+	    return buttonBox;
 	}
+
+	
 
 	private GridPane createBottomGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();

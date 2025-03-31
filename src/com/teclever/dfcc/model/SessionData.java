@@ -12,7 +12,15 @@ public class SessionData {
 	private String timeTakenForExecution;
 	private String noOfFilesExecuted;
 	private String failedFiles;
+	private String testMode;
 	
+	
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public String getId() {
 		return id;
 	}

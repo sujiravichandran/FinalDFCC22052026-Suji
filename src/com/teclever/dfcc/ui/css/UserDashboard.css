@@ -202,6 +202,9 @@
 .temp-box-off{
 -fx-background-color: #FF0000;	
 }
+.temp-box-off{
+-fx-background-color: #DBFFDB;	
+}
 
 .power-status-box{
 	-fx-font-size: 18px;

@@ -32,6 +32,7 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.DFCCConstant.UutTypeConstants;
 import com.teclever.dfcc.datastore.dto.CustomTestFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
@@ -139,17 +140,17 @@ public class AdvanceCustom1TestingManagement {
 		try {
 			String uutType = currentSessionDetails.getUutType();
 			switch (uutType) {
-			case "MK-1":
-				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + "MK-1" 
+			case UutTypeConstants.MARK1:
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + UutTypeConstants.MARK1 
 						+ File.separator;
 
 				break;
-			case "MK-1A":
-				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + "MK-1A" 
+			case UutTypeConstants.MARK1A:
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + UutTypeConstants.MARK1A 
 						+ File.separator;
 				break;
-			case "MK-2":
-				customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator + "MK-2"
+			case UutTypeConstants.MARK2:
+				customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator + UutTypeConstants.MARK2
 						+ File.separator;
 				break;
 			default:
@@ -346,22 +347,22 @@ public class AdvanceCustom1TestingManagement {
 			String basetestFilePath = "";
 			String modifiedFilePath = "";
 			switch (uutType) {
-			case "MK-1":
-				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1"
+			case UutTypeConstants.MARK1:
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1
 						+ File.separator + "basefile" + File.separator + "download_V7355.tpf";
-				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
-			case "MK-1A":
-				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
+			case UutTypeConstants.MARK1A:
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1A
 						+ File.separator + "basefile" + File.separator + "external_flash.tst";
-				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-1A"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1A
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
-			case "MK-2":
-				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-2"
+			case UutTypeConstants.MARK2:
+				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK2
 						+ File.separator + "basefile" + File.separator + "external_flash.tst";
-				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + "MK-2"
+				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK2
 						+ File.separator + "modifiedfile" + File.separator;
 				break;
 			default:
@@ -565,8 +566,8 @@ public class AdvanceCustom1TestingManagement {
 
 				List<CustomTest> custom1TestList = new ArrayList<CustomTest>();
 				custom1TestList = (List<CustomTest>) objResponse.getResponseList();
-				custom1TestList = custom1TestList.stream().filter(S -> S.getCustomTestType().equals("custom1"))
-					.toList();
+//				custom1TestList = custom1TestList.stream().filter(S -> S.getCustomTestType().equals("custom1"))
+//						.toList();
 
 				for (CustomTest obj : custom1TestList) {
 					fileIdAndName.put(obj.getCustomId(), obj.getFilename());

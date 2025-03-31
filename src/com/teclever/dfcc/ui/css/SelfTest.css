@@ -59,9 +59,6 @@
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 }
-.headingHbox{
-	-fx-border-color: dark-bg;
-}
 
 .racklabel{
 	-fx-text-fill:light-bg;

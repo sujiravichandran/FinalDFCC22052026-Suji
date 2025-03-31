@@ -4,10 +4,11 @@ public class BriefData {
 	
 	private String id;
 	private String slNo;
+	private String testMode;
 	private String executedFileName;
 	private String timeOfExecution;
 	private String result;
-	private String testMode;
+	
 	
 	public String getTestMode() {
 		return testMode;

@@ -311,7 +311,13 @@ public class LRUTestStateObject {
 		}
 	}
 	
-//	LRU SRU Test Progress Bar
+	
+//	LRU SRU Progress Bar for Mandatory Test
+	
+	
+	
+	
+//	LRU SRU Test Progress Bar for SRU Test
 	private static int totalLRUSelectedTestFileCount;
 	private static IntegerProperty runnedLRUTestFileCount = new SimpleIntegerProperty(0);
 

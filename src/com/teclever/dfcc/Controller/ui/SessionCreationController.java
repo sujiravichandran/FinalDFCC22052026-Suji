@@ -406,8 +406,10 @@ public class SessionCreationController {
 
 		modTypeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 		    if (newValue.length() > 20 || !newValue.matches("[A-Z0-9_-]*")) {
-		        String filtered = newValue.replaceAll("[^A-Z0-9_-]", "");
+		        String filtered = newValue.replaceAll("[^a-zA-Z0-9_-]", "").toUpperCase();
 		        modTypeTextField.setText(filtered.length() > 20 ? filtered.substring(0, 20) : filtered);
+		    } else {
+		        modTypeTextField.setText(newValue.toUpperCase());
 		    }
 		});
 		
@@ -640,7 +642,7 @@ public class SessionCreationController {
 	private void endTrailSesion(String activeTrailSessionId) {
 		currentSessionDetails.setSessionId(activeTrailSessionId);
 		showEndRemarksDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
-	            Response response = sessionManagement.endSession(userInput);
+	            Response response = sessionManagement.endSession(userInput,false);
 	            if (response.getResponseCode() == 1) {
 					currentSessionDetails.setSessionId(null);
 	            	Notifications.showSuccessAlert("Trail session ended successfully");

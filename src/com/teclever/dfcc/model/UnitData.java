@@ -13,7 +13,6 @@ public class UnitData {
 	private String startRemarks;
 	private String endRemarks;
 	
-	
 	public String getStartRemarks() {
 		return startRemarks;
 	}

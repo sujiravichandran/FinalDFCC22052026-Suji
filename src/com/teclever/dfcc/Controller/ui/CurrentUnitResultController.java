@@ -12,12 +12,17 @@ import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
@@ -61,6 +66,7 @@ public class CurrentUnitResultController {
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
 
 	public CurrentUnitResultController() {
+		unitDataList.clear();
     	getCurrentUnitResultData(currentSessionDetails.getUutId());
 	}
 
@@ -223,8 +229,12 @@ public class CurrentUnitResultController {
 //				updateUnitData((TableColumn<UnitData, String>) column);
 			}
 		});
-
+//Berfore Changing for Loadung cursor
 		unitDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
+			Platform.runLater(() -> {
+		        currentUnitResultGridPane.getScene().setCursor(Cursor.WAIT);
+		        currentUnitResultGridPane.getScene().getRoot().setDisable(true);
+		    });
 			ObservableList<UnitData> selectedItems = unitDataTableView.getSelectedItems();
 			for (UnitData rowData : selectedItems) {
 				UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
@@ -235,7 +245,44 @@ public class CurrentUnitResultController {
 						rowData.getId(), null);
 				break;
 			}
+			Platform.runLater(() -> {
+			currentUnitResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+			currentUnitResultGridPane.getScene().getRoot().setDisable(false);
+			 });
 		});
+		
+////		After Loading for Cursor Wait
+//		unitDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
+//		    Platform.runLater(() -> {
+//		        currentUnitResultGridPane.getScene().setCursor(Cursor.WAIT);
+//		        setControlsDisabled(currentUnitResultGridPane.getScene().getRoot(), true);
+//		    });
+//
+//		    ObservableList<UnitData> selectedItems = unitDataTableView.getSelectedItems();
+//
+//		    if (!selectedItems.isEmpty()) {
+//		        UnitData rowData = selectedItems.get(0); // Process only the first item
+//		        UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
+//		        GridPane bottomMidTopGridPane = (GridPane) currentUnitResultGridPane.getParent().getParent().getParent();
+//
+//		        // Run data loading in a separate thread
+//		        Task<Void> task = new Task<>() {
+//		            @Override
+//		            protected Void call() {
+//		            	 currentUnitResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//		                userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Session Results",
+//		                        rowData.getId(), null);
+//		               
+//		                return null;
+//		            }
+//
+//		          
+//		        };
+//
+//		        new Thread(task).start();
+//		    }
+//		});
+
 
 		tableScrollPane.setContent(unitDataTableView);
 		tableScrollPane.setFitToHeight(true);

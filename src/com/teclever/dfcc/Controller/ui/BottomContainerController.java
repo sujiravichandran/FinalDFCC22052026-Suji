@@ -65,8 +65,8 @@ public class BottomContainerController {
 	   
 	    bottomStackPane.getChildren().add(backgroundImageView);
 	    bottomStackPane.getChildren().add(loginFormController.createLoginForm());
-	    loginFormController.getCheckSumData();
 //	    bottomStackPane.getChildren().add(loginFormController.getCheckSumData());
+	    loginFormController.getCheckSumData();
 
 	    return bottomStackPane;
 	}
