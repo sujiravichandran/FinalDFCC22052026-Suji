@@ -142,8 +142,6 @@ public class TestProcessManagement {
 			// Thread START
 			startTestProcessThread.start();
 
-			Thread.sleep(5000);
-			
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
 
@@ -1069,7 +1067,6 @@ public class TestProcessManagement {
 			if (line.contains(".tst") || line.contains(".tpf")) {
 				fileCount++;
 			} else if (line.endsWith(".com")) {
-				fileCount++;
 				File file = new File(line);								
 				String fullPath = file.getAbsolutePath();
 

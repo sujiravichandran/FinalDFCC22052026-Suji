@@ -1187,8 +1187,10 @@ public class UserDashboardController {
 		Label label2 = (Label) box2.getChildren().get(0);
 		Label label3 = (Label) box3.getChildren().get(0);
 		Label label4 = (Label) box4.getChildren().get(0);
+		
 		double maxValue = boardChannelTemp.getMaxValue();
 		double minValue = boardChannelTemp.getMinValue();
+		
 		label1.textProperty().bind(valueAdded.channel1TempProperty());
 		label2.textProperty().bind(valueAdded.channel2TempProperty());
 		label3.textProperty().bind(valueAdded.channel3TempProperty());
@@ -1282,6 +1284,8 @@ public class UserDashboardController {
 			System.err.println("Invalid numeric value in labels: " + label1.getText() + ", " + "" + label2.getText()
 					+ ", " + "" + label3.getText() + ", " + "" + label4.getText());
 		}
+		
+		
 
 	}
 	

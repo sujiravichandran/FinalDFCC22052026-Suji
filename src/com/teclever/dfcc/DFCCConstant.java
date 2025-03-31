@@ -11,8 +11,24 @@ public class DFCCConstant {
     public static String filePath = "";
     public static boolean isDebug = false;
     public static long tempDelayTime = 120000; //2mins
+    public static boolean entered = true;
+    
+    public static class UutTypeConstants {
+        public static final String MARK1 = "DFCC-MK1";
+        public static final String MARK1A = "DFCC-MK1A";
+        public static final String MARK2 = "DFCC-MK2";
+    }
+    
 
-    public static Map getUutIdNameMap() {
+	public static boolean isEntered() {
+		return entered;
+	}
+
+	public static void setEntered(boolean entered) {
+		DFCCConstant.entered = entered;
+	}
+
+	public static Map getUutIdNameMap() {
         return uutIdNameMap;
     }
 

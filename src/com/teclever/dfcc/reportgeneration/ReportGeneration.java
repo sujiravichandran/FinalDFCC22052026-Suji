@@ -412,7 +412,7 @@ public class ReportGeneration {
 		writer.setPageEvent(event);
 		document.open();
 
-		res.setDownloadPath(filePath);
+	
 		
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));

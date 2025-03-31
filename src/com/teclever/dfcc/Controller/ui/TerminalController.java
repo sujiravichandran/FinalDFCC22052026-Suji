@@ -40,15 +40,15 @@ public class TerminalController {
 	private Button yesButton = new Button("YES");
 	private Button noButton = new Button("NO");
 	
-//	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 	
 	public TerminalController() {
-//		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
-//		Platform.runLater(() -> {
-//			textArea.setEditable(false);
-//            aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);           
-//        });		
+		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+		Platform.runLater(() -> {
+			textArea.setEditable(false);
+            aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);           
+        });		
 		
 		terminalStackPane.setOnMouseClicked(event -> {
             if (event.getTarget() instanceof GridPane) {
@@ -234,7 +234,7 @@ public class TerminalController {
 			return ;
 		}
 		Platform.runLater(()->{			
-//			aitessProcessControlManagement.WriteAitess1Command(command);		
+			aitessProcessControlManagement.WriteAitess1Command(command);		
 			terminalTextField.clear();
 			terminalTextField.requestFocus();
 			terminalTextField.setFocusTraversable(true);

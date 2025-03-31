@@ -237,6 +237,7 @@ public class CurrentUnitResultController {
 		    });
 			ObservableList<UnitData> selectedItems = unitDataTableView.getSelectedItems();
 			for (UnitData rowData : selectedItems) {
+				
 				UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
 
 				GridPane bottomMidTopGridPane = (GridPane) currentUnitResultGridPane.getParent().getParent()
@@ -287,6 +288,14 @@ public class CurrentUnitResultController {
 		tableScrollPane.setContent(unitDataTableView);
 		tableScrollPane.setFitToHeight(true);
 		return tableScrollPane;
+	}
+	
+	private void setControlsDisabled(Node root, boolean disabled) {
+	    for (Node node : root.lookupAll("*")) {
+	        if (node instanceof Control) {
+	            ((Control) node).setDisable(disabled);
+	        }
+	    }
 	}
 
 //	private void updateUnitData(TableColumn<UnitData, String> column) {

@@ -25,7 +25,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 public class LoadDriverController {
 	private GridPane loadDriverMainGridPane = new GridPane();
 	private GridPane loadDriverSubGridPane = new GridPane();
@@ -219,7 +218,6 @@ public class LoadDriverController {
 					parent.getChildren().add(userDashboardController.createUserDashboard());
 			} else {
 				Platform.exit();
-//				System.exit(0);
 			}
 		});
 

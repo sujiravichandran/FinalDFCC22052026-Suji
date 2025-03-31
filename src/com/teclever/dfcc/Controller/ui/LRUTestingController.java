@@ -509,6 +509,7 @@ public class LRUTestingController {
 	    // Execute the task on a new thread
 	    new Thread(task).start();
 
+	    
 	    return testFileList; // Return the testFileList
 	}
 
@@ -620,6 +621,7 @@ public class LRUTestingController {
 
 	@SuppressWarnings({ "unlikely-arg-type", "unused" })
 	private VBox createLruTestCardButton() {
+		
 		ObservableList<TestCardData> mandatoryCardList = LRUTestStateObject.getLruMandatoryCardList();
 		boolean firstButton = true;
 		
@@ -631,6 +633,7 @@ public class LRUTestingController {
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
+			
 			if (!firstButton) {
 				newButton.setDisable(true);
 			} 
@@ -704,11 +707,11 @@ public class LRUTestingController {
 					else {
 						if (newButton.getText().toLowerCase().contains("spil")) {
 
-//			            Dialog<ButtonType> dialog1 = new Dialog<>();
-//			            dialog1.setTitle("Confirmation Dialog");
-//			            dialog1.setContentText("Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
-//			            dialog1.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-//			            dialog1.showAndWait();
+			            Dialog<ButtonType> dialog1 = new Dialog<>();
+			            dialog1.setTitle("Confirmation Dialog");
+			            dialog1.setContentText("Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
+			            dialog1.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+			            dialog1.showAndWait();
 
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
@@ -1259,13 +1262,6 @@ public class LRUTestingController {
 
 	private void initializeButtons() {
 		runAllButton.setOnAction(e -> {
-			
-			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
-					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Run All in SRU/LRU Testing");
-			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -1322,23 +1318,6 @@ public class LRUTestingController {
 		});
 
 		startButton.setOnAction(e -> {
-			
-			if (startButton.getText().equalsIgnoreCase("Resume")) {
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Resume in SRU/LRU Testing");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}else {
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Start in SRU/LRU Testing");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}
-			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -1416,12 +1395,6 @@ public class LRUTestingController {
 		});
 
 		pauseButton.setOnAction(e -> {
-			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Pause in SRU/LRU Test");
-			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
 			pauseButton.setDisable(true);
@@ -1430,13 +1403,8 @@ public class LRUTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
-			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Stop in SRU/LRU Test");
-			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
+			System.out.println("SRULRU After clicked on Stop button test State is:::" + StateMachine.getTestState());
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
