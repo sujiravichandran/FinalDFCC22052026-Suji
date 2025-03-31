@@ -145,16 +145,23 @@
     -fx-font-weight:bold;
 }
 
+.session-testing-repeat-count-label-info{
+	-fx-text-fill: primary-text-color; 
+    -fx-font-size:14px;
+    -fx-font-weight:bold;
+}
+
 .button {
 	-fx-min-width:110px;
     -fx-background-color: button-bg ; 
     -fx-text-fill:button-text; 
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
     -fx-border-color: transparent; 
 	-fx-cursor:hand;
+	-fx-pref-height: 35px;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
@@ -183,7 +190,7 @@
 }
 .progress-label{
     -fx-text-fill: primary-text-color ;
-    -fx-font-size: 16px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 

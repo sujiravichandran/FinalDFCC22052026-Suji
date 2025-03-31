@@ -13,6 +13,8 @@ public class ResultUnitSessionDetailsDTO {
 	private String stratRemarks;
 	private String endRemarks;
 	
+	
+	
 	public String getStratRemarks() {
 		return stratRemarks;
 	}

@@ -1,0 +1,60 @@
+@import url("Global.css");
+
+
+#viewreport{
+	 -fx-background-color:form-bg;
+
+}
+
+.pane{
+	  -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+
+.vbox{
+	  -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: form-label; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+    -fx-background-radius: 10.0px;
+}
+
+.text-area {
+	 -fx-font-size: 20.0px;
+	 -fx-font-weight: bold;
+    -fx-background-color: form-input; 
+    -fx-border-width: 1.0px; 
+    -fx-pref-width: 300.0px;
+}
+
+.label {
+   -fx-font-size: 25px;
+    -fx-font-weight: 700;
+    -fx-text-fill:form-label;
+}
+.combo-box .list-cell:hover {
+    -fx-background-color: #037bdd; 
+    -fx-text-fill: white; 
+}
+
+.button {
+	-fx-min-width: 150px;
+    -fx-background-color: button-bg ; 
+    -fx-text-fill:button-text; 
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10px; 
+    -fx-background-radius: 10px; 
+    -fx-border-color: transparent; 
+    -fx-cursor:hand;
+}
+.button:hover {
+	-fx-text-fill:button-bg; 
+    -fx-background-color:button-text; 
+    -fx-border-color: button-bg; 
+}

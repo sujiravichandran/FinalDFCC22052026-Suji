@@ -381,6 +381,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			
 		}
 
+		res.setDownloadPath(filePath);
+		
 		List<String> pdfFiles = new ArrayList<String>();
 		
 		Map<String, String> filesPathStageFullPath = new HashMap<String, String>();
@@ -517,6 +519,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			
 			
 		}
+		
+		res.setDownloadPath(filePath);
 
 		List<String> pdfFiles = new ArrayList<String>();
 		Map<String, String> filesPathStageFullPath = new HashMap<String, String>();

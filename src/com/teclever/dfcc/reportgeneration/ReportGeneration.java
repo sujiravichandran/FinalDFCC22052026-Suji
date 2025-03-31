@@ -56,6 +56,8 @@ public class ReportGeneration {
 		// dd-MM-yyyy
 		Response res = new Response();
 		Document document = new Document(PageSize.A4);
+		
+		System.out.println("ENtred Brief Download method");
 
 		String fileName = "BriefReport_"
 				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
@@ -70,7 +72,8 @@ public class ReportGeneration {
 		}
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
-
+		res.setDownloadPath(filePath);
+		
 		ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
 		writer.setPageEvent(event);
 		document.open();
@@ -86,14 +89,21 @@ public class ReportGeneration {
 
 		// To Create Header
 
+		
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			
+			
 		} else {
-			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+//			Before changing for tecelever testing
+//			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
 			
+//			After changing for Tecelever testing
+	//		imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.png";
+	//		imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.png";
 		}
 
 		Image img = Image.getInstance(imagePath);
@@ -140,16 +150,23 @@ public class ReportGeneration {
 
 		// Add images and text inside the rounded rectangular box
 		String imagePath1 = "";
+	
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+//			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			System.out.println("Entring!DFCCC");
+			imagePath1 = "C:\\Suji\\Reports\\Logo\\BEL.png";
+			
 		} else {
 		//	imagePath1 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
+			System.out.println("Entring Else");
 			imagePath1 =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
 		}
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+		imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+	//		imagePath3 ="C:\\Suji\\Reports\\Logo\\TECLEVER_logo.png";
+			
 		} else {
 		//	imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 			imagePath3 =  currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";
@@ -387,7 +404,7 @@ public class ReportGeneration {
 		//	filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 			filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
 		}
-
+		res.setDownloadPath(filePath);
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
 
@@ -395,6 +412,8 @@ public class ReportGeneration {
 		writer.setPageEvent(event);
 		document.open();
 
+		res.setDownloadPath(filePath);
+		
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));
@@ -743,13 +762,18 @@ public class ReportGeneration {
 			
 			
 		}
+
+	
+		
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
 
 		ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
 		writer.setPageEvent(event);
 		document.open();
-
+		
+		 res.setDownloadPath(filePath);
+		
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));
@@ -1115,6 +1139,8 @@ public class ReportGeneration {
         document.add(new Paragraph("\n"));
 
         document.newPage();
+        
+        res.setDownloadPath(filePath);
 
         PdfContentByte canvas = writer.getDirectContent();
 		float x = document.leftMargin();
@@ -1737,6 +1763,8 @@ public class ReportGeneration {
         ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
         writer.setPageEvent(event);
         document.open();
+        
+        res.setDownloadPath(filePath);
 
         document.add(new Paragraph("\n"));
         document.add(new Paragraph("\n"));
@@ -1815,7 +1843,7 @@ public class ReportGeneration {
         if (!DFCCConstant.isJarBuild) {
             imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
         } else {
-//          imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
+      //    imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
             imagePath3 = currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";        	
         }
 
@@ -2155,7 +2183,7 @@ public class ReportGeneration {
         document.add(new Paragraph("\n"));
 
         document.newPage();
-
+        res.setDownloadPath(filePath);
 
         // Correct One
 
@@ -2235,7 +2263,7 @@ public class ReportGeneration {
         if (!DFCCConstant.isJarBuild) {
             imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
         } else {
-//          imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
+     //     imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
             imagePath3 = currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";        	
             
         }
@@ -2646,7 +2674,7 @@ public class ReportGeneration {
 
         document.newPage();
 
-
+        res.setDownloadPath(filePath);
         // Correct One
 
         PdfContentByte canvas = writer.getDirectContent();
@@ -2830,7 +2858,7 @@ public class ReportGeneration {
         document.add(new Paragraph("\n"));
 
         document.newPage();
-
+        res.setDownloadPath(filePath);
 
         // Correct One
 

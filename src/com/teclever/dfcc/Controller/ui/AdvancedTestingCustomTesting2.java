@@ -96,6 +96,10 @@ public class AdvancedTestingCustomTesting2 {
 	private String TEST_TYPE_ID;
 
 	public GridPane createAdvancedTestingTab4GridPane() {
+		
+		
+		StateMachine.setAitess2Launched(true);
+		StateMachine.setAitess1Launched(true);
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -354,7 +358,7 @@ public class AdvancedTestingCustomTesting2 {
 			String filePath = selectedFile.getAbsolutePath();
 			String fileName = selectedFile.getName();
 			if (type.equalsIgnoreCase("selectTestFile")) {
-				selectedTestFileName.setText(fileName);
+				selectedTestFileName.setText(filePath);
 				selectedTestFilePath = filePath;
 			} else if (type.equalsIgnoreCase("downloadCode")) {
 				selectedDownloadCodeName.setText(fileName);
@@ -425,8 +429,8 @@ public class AdvancedTestingCustomTesting2 {
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
-			StateMachine.setTestState(TestState.RUNNING);
-			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+			StateMachine.setTestState(TestState.STOPPED);
+//			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;

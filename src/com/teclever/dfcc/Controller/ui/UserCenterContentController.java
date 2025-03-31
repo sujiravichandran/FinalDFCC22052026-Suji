@@ -67,7 +67,7 @@ public class UserCenterContentController {
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	private StackPane reportsUploadStackPane = new StackPane();
-	private static String userInput;
+	
 	
 	private SessionManagement sessionManagement = new SessionManagement();
 
@@ -213,7 +213,7 @@ public class UserCenterContentController {
 				currentExecutionResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentExecutionResultStackPane);
 			}
-			currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane(null,null,false));
+			currentExecutionResultStackPane.getChildren().add(currentExcecutionResultController.createCurrentExecutionResultGridPane(null,null));
 			centerStackPane.getChildren().add(currentExecutionResultStackPane);
 			
 			break;
@@ -246,7 +246,7 @@ public class UserCenterContentController {
 			break;
 			
 		case "Stage Results" :	
-			CurrentExecutionResultController currentExcecutionResultController1 = new CurrentExecutionResultController();
+			CurrentStageResultController currentStageResultController = new CurrentStageResultController();
 			if (centerStackPane.getChildren().contains(currentStageResultStackPane)) {
 				if(sessionId == null && stageId == null) {
 					currentStageResultStackPane.toFront();
@@ -255,7 +255,7 @@ public class UserCenterContentController {
 				currentStageResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentStageResultStackPane);
 			}
-			currentStageResultStackPane.getChildren().add(currentExcecutionResultController1.createCurrentExecutionResultGridPane(sessionId,stageId,true));
+			currentStageResultStackPane.getChildren().add(currentStageResultController.createCurrentExecutionResultGridPane(sessionId,stageId));
 			centerStackPane.getChildren().add(currentStageResultStackPane);	
 			
 			break;
@@ -332,18 +332,9 @@ public class UserCenterContentController {
 			break;
 
 		case "End Session":
-		    if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.COMPLETED || StateMachine.getTestState() == TestState.STOPPED) {
-		    	showEndRemarksDialog("Confirm End Session", "Are you sure you want to end the current session and close the application?", () -> {
-		            Response response = sessionManagement.endSession(userInput);
-		            if (response.getResponseCode() == 1) {
-		                clearAllData();
-		            } else {
-		                Notifications.showErrorAlert(response.getResponseMessage());
-		            }
-		        });
-		    } else if (StateMachine.getTestState() == TestState.PAUSED || StateMachine.getTestState() == TestState.RUNNING) {
-		        Notifications.showWarningAlert("Please stop the" + StateMachine.getRunningTestName() + " test before ending the current session");
-		    }
+			EndRemarksController endRemarksController = new EndRemarksController();
+			endRemarksController.endSessionPopup();
+		   
 		    break;
 		
 		}
@@ -402,58 +393,60 @@ public class UserCenterContentController {
 
 	
 	public static void showEndRemarksDialog(String title, String contentText, Runnable onConfirm) {
-		Platform.runLater(() -> {
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.setTitle(title);
-			alert.setHeaderText(null);
-			alert.setHeight(300);
-			alert.setWidth(500);
-			alert.setContentText(contentText);
-
-			TextArea endRemarksTextArea = new TextArea();
-			endRemarksTextArea.setPromptText("Enter End Remarks");
-			endRemarksTextArea.setPrefHeight(300);
-			endRemarksTextArea.setPrefWidth(500);
-			endRemarksTextArea.setWrapText(true);
-			
-
-			VBox inputDialog = new VBox();
-			inputDialog.getChildren().add(endRemarksTextArea);
-			alert.getDialogPane().setContent(inputDialog);
-
-			endRemarksTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-			endRemarksTextArea.setText(newValue.length() > 50 ? newValue.substring(0, 50) : newValue);
-			});
-
-			ButtonType buttonTypeSave = new ButtonType("Save");
-			ButtonType buttonTypeCancel = new ButtonType("Cancel");
-
-			alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeCancel);
-
-			Button saveButton = (Button) alert.getDialogPane().lookupButton(buttonTypeSave);
-
-			saveButton.addEventFilter(ActionEvent.ACTION, event -> {
-				userInput = endRemarksTextArea.getText();
-
-				if (userInput == null || userInput.trim().isEmpty()) {
-					Alert alertText = new Alert(AlertType.INFORMATION);
-					alertText.setHeaderText(null);
-					alertText.setContentText("Please Enter END REMARKS");
-					alertText.showAndWait();
-
-					event.consume();
-				} else {
-					System.out.println("userInput: " + userInput);
-					onConfirm.run();
-				}
-			});
-
-			alert.showAndWait().ifPresent(response -> {
-				if (response == buttonTypeCancel) {
-					alert.close();
-				}
-			});
-		});
+//		Platform.runLater(() -> {
+//			Alert alert = new Alert(AlertType.CONFIRMATION);
+//			alert.setTitle(title);
+//			alert.setHeaderText(null);
+//			alert.setHeight(300);
+//			alert.setWidth(500);
+//			alert.setContentText(contentText);
+//
+//			TextArea endRemarksTextArea = new TextArea();
+//			endRemarksTextArea.setPromptText("Enter End Remarks");
+//			endRemarksTextArea.setPrefHeight(300);
+//			endRemarksTextArea.setPrefWidth(500);
+//			endRemarksTextArea.setWrapText(true);
+//			
+//
+//			VBox inputDialog = new VBox();
+//			inputDialog.getChildren().add(endRemarksTextArea);
+//			alert.getDialogPane().setContent(inputDialog);
+//
+//			endRemarksTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+//			endRemarksTextArea.setText(newValue.length() > 50 ? newValue.substring(0, 50) : newValue);
+//			});
+//
+//			ButtonType buttonTypeSave = new ButtonType("Save");
+//			ButtonType buttonTypeCancel = new ButtonType("Cancel");
+//
+//			alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeCancel);
+//
+//			Button saveButton = (Button) alert.getDialogPane().lookupButton(buttonTypeSave);
+//
+//			saveButton.addEventFilter(ActionEvent.ACTION, event -> {
+//				userInput = endRemarksTextArea.getText();
+//
+//				if (userInput == null || userInput.trim().isEmpty()) {
+//					Alert alertText = new Alert(AlertType.INFORMATION);
+//					alertText.setHeaderText(null);
+//					alertText.setContentText("Please Enter END REMARKS");
+//					alertText.showAndWait();
+//
+//					event.consume();
+//					Platform.exit();
+//		        	System.exit(0);
+//				} else {
+//					System.out.println("userInput: " + userInput);
+//					onConfirm.run();
+//				}
+//			});
+//
+//			alert.showAndWait().ifPresent(response -> {
+//				if (response == buttonTypeCancel) {
+//					alert.close();
+//				}
+//			});
+//		});
 	}
 	
 	private void openDataBackupPopup() {

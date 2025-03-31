@@ -13,7 +13,16 @@ public class ResultSessionStagesDetailsDTO {
 	private String timeTakenForExecution;
 	private int noOfFilesExecuted;
 	private int failedFiles;
+	private String testMode;
 	
+	
+	
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public String getSessionId() {
 		return sessionId;
 	}

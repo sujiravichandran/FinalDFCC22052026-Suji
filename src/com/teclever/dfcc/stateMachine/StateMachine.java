@@ -9,7 +9,9 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.utils.Debug;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -23,18 +25,21 @@ public class StateMachine {
 	public enum RunningTestName {
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
 	}
-
-	private static TestState testState = TestState.PENDING;
+	 private static final ObjectProperty<TestState> testState = new SimpleObjectProperty<>(TestState.PENDING);
 	private static RunningTestName runningTestName = RunningTestName.OTHER;
 
+	 public static ObjectProperty<TestState> testStateProperty() {
+	        return testState;
+	    }
+
+	 public static void setTestState(TestState newState) {
+	        testState.set(newState);
+	    }
+
 	public static TestState getTestState() {
-		return testState;
-	}
-
-	public static void setTestState(TestState newState) {
-		testState = newState;
-	}
-
+        return testState.get();
+    }
+	
 	public static RunningTestName getRunningTestName() {
 		return runningTestName;
 	}
@@ -277,10 +282,8 @@ public class StateMachine {
 
 		private static String ofpVersionStatusCommand;
 		private static String wdmStatusCommand;
-		
+
 		private static String dfccPowerOnStatus;
-		
-		
 
 		public static String getDfccPowerOnStatus() {
 			return dfccPowerOnStatus;
@@ -379,18 +382,16 @@ public class StateMachine {
 	// STORING DATA FOR DFCC STATUS CHECK AITESS 2
 
 	// POWER ON STATUS
-	public static class powerOnStatus{
+	public static class powerOnStatus {
 
 		private static StringProperty channel1Status = new SimpleStringProperty();
 		private static StringProperty channel2Status = new SimpleStringProperty();
 		private static StringProperty channel3Status = new SimpleStringProperty();
 		private static StringProperty channel4Status = new SimpleStringProperty();
-		
-		
+
 		private static String minValue;
 		private static String maxValue;
-		
-		
+
 		public static String getMinValue() {
 			return minValue;
 		}
@@ -410,57 +411,53 @@ public class StateMachine {
 		public static StringProperty channel1StatusProperty() {
 			return channel1Status;
 		}
-		
+
 		public static String getChannel1Status() {
 			return channel1Status.get();
 		}
-		
+
 		public static void setChannel1Status(String channel1Status) {
 			powerOnStatus.channel1Status.set(channel1Status);
 		}
-		
-		
+
 		public static StringProperty channel2StatusProperty() {
 			return channel2Status;
 		}
-		
+
 		public static String getChannel2Status() {
 			return channel2Status.get();
 		}
-		
+
 		public static void setChannel2Status(String channel2Status) {
 			powerOnStatus.channel2Status.set(channel2Status);
 		}
-		
-		
+
 		public static StringProperty channel3StatusProperty() {
 			return channel3Status;
 		}
-		
+
 		public static String getChannel3Status() {
 			return channel3Status.get();
 		}
-		
+
 		public static void setChannel3Status(String channel3Status) {
 			powerOnStatus.channel3Status.set(channel3Status);
 		}
-		
+
 		public static StringProperty channel4StatusProperty() {
 			return channel4Status;
 		}
-		
+
 		public static String getChannel4Status() {
 			return channel4Status.get();
 		}
-		
+
 		public static void setChannel4Status(String channel4Status) {
 			powerOnStatus.channel4Status.set(channel4Status);
 		}
-		
 
 	}
-	
-	
+
 	// ONLINE STATUS
 	public static class OnlineStatus {
 
@@ -521,10 +518,10 @@ public class StateMachine {
 	// WDM STATUS
 	public static class WDMStatus {
 
-		private static String channel1Status="offline";
-		private static String channel2Status="offline";
-		private static String channel3Status="offline";
-		private static String channel4Status="offline";
+		private static String channel1Status = "offline";
+		private static String channel2Status = "offline";
+		private static String channel3Status = "offline";
+		private static String channel4Status = "offline";
 
 		public static String getChannel1Status() {
 			return channel1Status;
@@ -656,6 +653,45 @@ public class StateMachine {
 		public static void setChannel4Temperature(String channel4Temperature) {
 			channelSCTemp.channel4Temperature.set(channel4Temperature);
 		}
+
+		// COLOR
+		private static StringProperty channel1BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel2BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel3BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel4BackgroundColor = new SimpleStringProperty();
+
+		public static StringProperty channel1BackgroundColorProperty() {
+			return channel1BackgroundColor;
+		}
+
+		public static void setChannel1BackgroundColor(String color) {
+			channelSCTemp.channel1BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel2BackgroundColorProperty() {
+			return channel2BackgroundColor;
+		}
+
+		public static void setChannel2BackgroundColor(String color) {
+			channelSCTemp.channel2BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel3BackgroundColorProperty() {
+			return channel3BackgroundColor;
+		}
+
+		public static void setChannel3BackgroundColor(String color) {
+			channelSCTemp.channel3BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel4BackgroundColorProperty() {
+			return channel4BackgroundColor;
+		}
+
+		public static void setChannel4BackgroundColor(String color) {
+			channelSCTemp.channel4BackgroundColor.set(color);
+		}
+
 	}
 
 	// MK1 AEC TEMPERATURE
@@ -713,6 +749,45 @@ public class StateMachine {
 		public static void setChannel4Temperature(String channel4Temperature) {
 			channelAECTemp.channel4Temperature.set(channel4Temperature);
 		}
+
+		// COLOR
+		private static StringProperty channel1BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel2BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel3BackgroundColor = new SimpleStringProperty();
+		private static StringProperty channel4BackgroundColor = new SimpleStringProperty();
+
+		public static StringProperty channel1BackgroundColorProperty() {
+			return channel1BackgroundColor;
+		}
+
+		public static void setChannel1BackgroundColor(String color) {
+			channelAECTemp.channel1BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel2BackgroundColorProperty() {
+			return channel2BackgroundColor;
+		}
+
+		public static void setChannel2BackgroundColor(String color) {
+			channelAECTemp.channel2BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel3BackgroundColorProperty() {
+			return channel3BackgroundColor;
+		}
+
+		public static void setChannel3BackgroundColor(String color) {
+			channelAECTemp.channel3BackgroundColor.set(color);
+		}
+
+		public static StringProperty channel4BackgroundColorProperty() {
+			return channel4BackgroundColor;
+		}
+
+		public static void setChannel4BackgroundColor(String color) {
+			channelAECTemp.channel4BackgroundColor.set(color);
+		}
+
 	}
 
 	// MK1a MK2 TEMPERATURE
@@ -726,16 +801,35 @@ public class StateMachine {
 		}
 
 		public static void addBoardTemperatureMap(String key, ChannelTemperature value) {
-			System.out.println(key+"   "+value);
 			boardTemperatureMap.put(key, value);
 		}
 
 		public static void setBoardTemperatureMap(ObservableMap<String, ChannelTemperature> boardTemperatureMap) {
 			boardChannelTemp.boardTemperatureMap.clear();
 			boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
-		}
-	}
+		}	
 	
+		public static double minValue;
+		public static double maxValue;
+
+		public static double getMinValue() {
+			return minValue;
+		}
+
+		public static double setMinValue(double minValue) {
+			return boardChannelTemp.minValue = minValue;
+		}
+
+		public static double getMaxValue() {
+			return maxValue;
+		}
+
+		public static double setMaxValue(double maxValue) {
+			return boardChannelTemp.maxValue = maxValue;
+		}
+		
+	}
+
 	public static class boardChannelTempAEC {
 
 		public static ObservableMap<String, ChannelTemperature> boardTemperatureMap = FXCollections
@@ -753,12 +847,58 @@ public class StateMachine {
 			boardChannelTempAEC.boardTemperatureMap.clear();
 			boardChannelTempAEC.boardTemperatureMap.putAll(boardTemperatureMap);
 		}
+		
+		public static double minValue;
+		public static double maxValue;
+
+		public static double getMinValue() {
+			return minValue;
+		}
+
+		public static void setMinValue(double minValue) {
+			boardChannelTempAEC.minValue = minValue;
+		}
+
+		public static double getMaxValue() {
+			return maxValue;
+		}
+
+		public static void setMaxValue(double maxValue) {
+			boardChannelTempAEC.maxValue = maxValue;
+		}
+		
+		
 	}
 	
+	//COLOR
+	private static StringProperty lessBackgroundColor = new SimpleStringProperty("#ADD8E6");
+	private static StringProperty greaterBackgroundColor = new SimpleStringProperty("#FF0000");
+	private static StringProperty normalBackgroundColor = new SimpleStringProperty("#32CD32");
 	
-	
-	
-	
+	public static StringProperty LessBackgroundColor() {
+		return lessBackgroundColor;
+	}
+
+	public static void setLessBackgroundColor(String lessBackgroundColor) {
+		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
+	}
+
+	public static StringProperty GreaterBackgroundColor() {
+		return greaterBackgroundColor;
+	}
+
+	public static void setGreaterBackgroundColor(String greaterBackgroundColor) {
+		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
+		
+	}
+
+	public static StringProperty NormalBackgroundColor() {
+		return normalBackgroundColor;
+	}
+
+	public static void setNormalBackgroundColor(String normalBackgroundColor) {
+		StateMachine.normalBackgroundColor.set(normalBackgroundColor);;
+	}
 
 	// FOR RDF FILE PARSER
 	public static class rdfFileParser {
@@ -941,8 +1081,7 @@ public class StateMachine {
 	}
 
 	public static void resetStateMachine() {
-		// Reset TestState and RunningTestName
-		testState = TestState.PENDING;
+		 testState.set(TestState.PENDING);
 		runningTestName = RunningTestName.OTHER;
 
 		// Reset currentSessionDetails
@@ -1045,6 +1184,14 @@ public class StateMachine {
 		currentUserLogin = null;
 		runCommand = false;
 		aitess1CommandFinished = false;
+	}
+	
+	private static boolean allowToggle = true;
+	public static boolean isAllowToggle() {
+		return allowToggle;
+	}
+	public static void setAllowToggle(boolean allowToggle) {
+		StateMachine.allowToggle = allowToggle;
 	}
 
 }

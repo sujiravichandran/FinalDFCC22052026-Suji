@@ -18,13 +18,16 @@ import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
+import com.teclever.dfcc.model.SessionDetails;
 import com.teclever.dfcc.model.StageIdName;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -45,6 +48,7 @@ import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -54,6 +58,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -64,6 +69,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 public class SessionTestingController {
@@ -82,14 +88,17 @@ public class SessionTestingController {
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
 	private HBox buttonHBox = new HBox(5);
+	
 	private Button startButton = new Button("Start");
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 	private Button runAllButton = new Button("Run All");
+	
 
 	private VBox repeatCountVBox = new VBox();
 	private Label repeatCountLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
+	private Label repeatNotLabel = new Label();
 
 	private ObservableMap<String, String> testFileMap;
 
@@ -98,6 +107,12 @@ public class SessionTestingController {
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private SessionManagement sessionManagement = new SessionManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+//	private AitessProcessControlManagement aitessProcessControlManagement = new AitessProcessControlManagement();
+	
+	private TextField testNameField = new TextField();
+
+	
+	private VBox searchVBox = new VBox(5);
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
@@ -113,6 +128,32 @@ public class SessionTestingController {
 	
 	private double progress = 0.1;
 
+	public SessionTestingController() {
+		
+		initializeSearch();
+	   
+	}
+	
+	
+	private void clearTextField() {
+	    if (!testNameField.getText().isEmpty()) {
+	        testNameField.clear();
+	        System.out.println("TextField cleared.");
+	    }
+	}
+	public void initializeSearch() {
+		
+	    testNameField.setPromptText("Search...");
+	    
+	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+	        if (!newValue) { 
+	            clearTextField();
+	        }
+	    });
+	    
+	}
+	
 	public GridPane createSessionTestingGridPane(boolean status) {
 		if (status) {
 			isTrailSession = true;
@@ -197,21 +238,33 @@ public class SessionTestingController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(80);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(20);
+		secondRow.setPercentHeight(57);
+		
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(33);
 
+		
 		sessionTestingListMainGridPane.getColumnConstraints().addAll(firstColumn);
-		sessionTestingListMainGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		sessionTestingListMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 		sessionTestingListMainGridPane.setHgap(5);
 		sessionTestingListMainGridPane.setVgap(5);
-		sessionTestingListMainGridPane.add(createTestListView(), 0, 0);
-		sessionTestingListMainGridPane.add(createButtonBox(), 0, 1);
+		sessionTestingListMainGridPane.add(createSearchFile(), 0, 0);
+		sessionTestingListMainGridPane.add(createTestListView(), 0, 1);
+		sessionTestingListMainGridPane.add(createButtonBox(), 0, 2);
 
 		return sessionTestingListMainGridPane;
 	}
 
+	private VBox createSearchFile() {
+		searchVBox.getStyleClass().add("session-testing-right-text-field");
+		searchVBox.getChildren().add(testNameField);
+		return searchVBox;
+		
+	}
+	
 	private VBox createTestListView() {
 		testListView.getStyleClass().add("session-testing-list-view");
 
@@ -220,7 +273,27 @@ public class SessionTestingController {
 		return testListVBox;
 	}
 
+	
+	List<String> testFiles =  new ArrayList<>();
+	
+//	 public void useTestFiles() {
+//	        testFiles = testProcessManagement.getTestFiles();
+//	    } 
+	 
+	 int testFileSize;
+	 
+	 
+		private void showAlert() {
+		    Alert alert = new Alert(Alert.AlertType.WARNING);
+		    alert.setTitle("Input Required");
+		    alert.setHeaderText(null);
+		    alert.setContentText("Please enter a repeat count between 1 and 100.");
+		    alert.showAndWait();
+		}
+	 
 	private HBox createButtonBox() {
+
+		
 		buttonHBox.getStyleClass().add("session-testing-right-container");
 		Image playImage = new Image(
 				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/play.png"));
@@ -260,7 +333,6 @@ public class SessionTestingController {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
-
 		runAllButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -271,6 +343,9 @@ public class SessionTestingController {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+//			List<String> testFileIds = new ArrayList<>();
+			
+//			int testFileLines = testProcessManagement.testFileLinesCount();
 			
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -306,6 +381,18 @@ public class SessionTestingController {
 				pauseButton.setDisable(true);
 				return;
 			}
+			
+//			if (DFCCConstant.entered == true) {
+//				if (aitessProcessControlManagement.checkChannelStatusBeforeAnyTest().equals(true)
+//						|| aitessProcessControlManagement.checkOnlineStatusBeforeAnyTestFile().equals(true)) {
+//
+//					stopButton.setDisable(true);
+//
+//				} else {
+//					stopButton.setDisable(false);
+//				}
+//			}
+			
 
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
@@ -336,6 +423,11 @@ public class SessionTestingController {
 				stopButton.setDisable(false);
 				return;
 			}
+			
+			if(repeatCountTextField == null) {
+				showAlert();
+			}
+			
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -423,23 +515,45 @@ public class SessionTestingController {
 		});
 
 		repeatCountLabel.setText("Repeat Count");
+		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
+		repeatNotLabel.setTextFill(Color.WHITE);
+		repeatNotLabel.setWrapText(true);
+		repeatNotLabel.getStyleClass().add("session-testing-repeat-count-label-info");
 		repeatCountLabel.getStyleClass().add("session-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("session-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
 		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
 		
-		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			if (!newValue.matches("\\d*")) {
-				repeatCountTextField.setText(oldValue);
-			} else if (newValue.length() > 3) {
-				repeatCountTextField.setText(oldValue);
-			}
-		});
+		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+	        String newText = change.getControlNewText();
+
+	       
+
+	        try {
+	            int value = Integer.parseInt(newText);
+	            if (value >= 1 && value <= 100) {
+	                return change;
+	            }
+	        } catch (NumberFormatException e) {
+	        }
+
+	        return null; 
+	    });
+	
+	  repeatCountTextField.setTextFormatter(textFormatter);
+		
+//		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+//			if (!newValue.matches("\\d*")) {
+//				repeatCountTextField.setText(oldValue);
+//			} else if (newValue.length() > 3) {
+//				repeatCountTextField.setText(oldValue);
+//			}
+//		});
 
 		repeatCountVBox.setAlignment(Pos.CENTER);
 		repeatCountVBox.setPadding(new Insets(5));
-		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
+		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
 
@@ -448,26 +562,77 @@ public class SessionTestingController {
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
-
+		
+		buttonMainVBox.setPadding(new Insets(25, 0, 0, 0));
+		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
 		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
 		
-		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null ) {
-				double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() / SessionTestStateObject.getTotalSelectedTestFileCount();
-				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
-				Platform.runLater(() -> {
-					testProgressBar.setProgress(roundedPercentage);
-					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
-				});
-			}
-		});
 		
-		return buttonHBox;
-	}
+//		Before Changing 100%
+//		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue != null ) {
+//				double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() /  SessionTestStateObject.getTotalSelectedTestFileCount();
+//				System.out.println("Session Test Files Count" + SessionTestStateObject.getRunnedTestFileCount().get());
+//				System.out.println("GET TOTAL SELECTED FILE COUNt" + SessionTestStateObject.getTotalSelectedTestFileCount());
+//				
+//				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+//				
+//				System.out.println("Rounded Percentage "+ (roundedPercentage * 100) );
+//				
+//				Platform.runLater(() -> {
+//					testProgressBar.setProgress(roundedPercentage);
+//					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+//				});
+//			}
+//		});
+//		
+//		return buttonHBox;
+//	}
+	
+//	After Changing :
+	SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+	    if (newValue != null && SessionTestStateObject.getTotalSelectedTestFileCount() > 0) {
+	        double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() /  
+	                            SessionTestStateObject.getTotalSelectedTestFileCount();
+	        double roundedPercentage = Math.round(percentage * 100.0) / 100.0; 
+
+	        System.out.println("Session Test Files Count: " + SessionTestStateObject.getRunnedTestFileCount().get());
+	        System.out.println("Total Selected File Count: " + SessionTestStateObject.getTotalSelectedTestFileCount());
+	        System.out.println("Rounded Percentage: " + (roundedPercentage * 100));
+	        
+//	        if(SessionTestStateObject.getTotalSelectedTestFileCount() == 1) {
+//	        	Platform.runLater(() -> {
+//	                testProgressBar.setProgress(roundedPercentage);
+//	                percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+//	            });
+//	        }
+
+	        if (roundedPercentage <=1.0) { // Less than 100%
+	            Platform.runLater(() -> {
+	                testProgressBar.setProgress(roundedPercentage);
+	                percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+	            });
+	        } else if(roundedPercentage > 1.0){ 
+	             // Set to 100%
+	            Platform.runLater(() -> {
+	                testProgressBar.setProgress(roundedPercentage);
+	                percentageLabel.setText("100%");
+	            });
+	        }
+	    }
+	});
+	
+	return buttonHBox;
+}
+	
+	
+//	List<CheckBox> checkBoxes = new ArrayList<>();
+	
+
 
 	private GridPane createSessionTestingResultsGridPane() {
 		sessionTestingResultsGridPane.getStyleClass().add("session-testing-result-container");
@@ -658,58 +823,74 @@ public class SessionTestingController {
 		testFileMap = FXCollections.observableMap(testFileResponse.getTestFilesIdName());
 
 		setTestListViewData(testFileMap, checkboxDisable, stageId);
+	}
+	
+	
+	
+	private void filterList(String keyword) {
+	    String trimmedKeyword = keyword.trim();
+	    
+	    if (trimmedKeyword.isEmpty()) {
+	        setTestListViewData(testFileMap, false, "stageId");
+	        System.out.println("TEST FILE LIST" + testFileMap);
+	        return;
+	    }
+	    else {
+	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+	    	
+	    	System.out.println("Entry prompt"+entry);
+	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+	            filteredMap.put(entry.getKey(), entry.getValue());
+	        }
+	        
+	    }
+	   
+//	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
+	    setTestListViewData(filteredMap, false, "stageId");
+	    }
+	    
+	
+	}
+	
+	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable, String stageId) {
+	    System.out.println("Updating ListView with stageId: " + stageId);
+	    
+	    
+	    testListView.getItems().clear();
+	    checkBoxes.clear();
+	    Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 
+	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+	        String filePath = entry.getValue();
+	        File file = new File(filePath);
+	        CheckBox newCheckBox = new CheckBox(file.getName());
+	        newCheckBox.setMnemonicParsing(false);
+	        newCheckBox.setId(entry.getKey());
+	        newCheckBox.getStyleClass().add("session-testing-checkbox");
+	        newCheckBox.setWrapText(true);
+
+	        if (checkboxDisable || (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey()))) {
+	            newCheckBox.setDisable(true);
+	        }
+
+	        checkBoxes.add(newCheckBox);
+	        testListView.getItems().add(newCheckBox);
+
+	        System.out.println("Added CheckBox: " + newCheckBox.getText());
+
+	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+	            boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
+	            if (StateMachine.getTestState() != TestState.RUNNING) {
+	                startButton.setDisable(!anySelected);
+	            }
+	        });
+	    }
+	    
+	   
 	}
 
-	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
-			String stageId) {
-		testListView.getItems().clear();
-		checkBoxes.clear();
-
-		Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-
-		for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-			String filePath = entry.getValue();
-			File file = new File(filePath);
-			CheckBox newCheckBox = new CheckBox(file.getName());
-			newCheckBox.setId(entry.getKey());
-			newCheckBox.getStyleClass().add("session-testing-checkbox");
-			newCheckBox.setWrapText(true);
-			if (checkboxDisable) {
-				newCheckBox.setDisable(checkboxDisable);
-			} else {
-				if (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey())) {
-					newCheckBox.setDisable(true);
-				} else {
-					newCheckBox.setDisable(false);
-				}
-			}
-			checkBoxes.add(newCheckBox);
-			testListView.getItems().add(newCheckBox);
-
-			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-				if (StateMachine.getTestState() != TestState.RUNNING) {
-					startButton.setDisable(!anySelected);
-				}
-			});
-		}
-
-//		List<String> fileId = Arrays.asList("TestFiled28e199702f147a89213b8c4d910178b", "TestFile6510b1756972433999b865861836e5ce", "TestFilea9d5320eab5a45e9aca6ca6d43ae49d9");
-//
-//		Task<Void> task = new Task<Void>() {
-//			@Override
-//			protected Void call() throws Exception {
-//				for (int i = 0; i < fileId.size(); i++) {
-//					Thread.sleep(5000); 
-//					SessionTestStateObject.setStageIdWithFileIds("L3_004",fileId.get(i));
-//				}
-//				return null;
-//			}
-//		};
-//		new Thread(task).start();
-
-	}
+	
 
 	private void disableCheckBox(String stageId) {
 //		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
@@ -759,8 +940,10 @@ public class SessionTestingController {
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
 				
-				int totalTestFileCount = testFileIds.size() * repeatCount;
-				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);
+				testFileSize= testFileIds.size();
+				System.out.println("Test File Size check:" + testFileSize);
+				int totalTestFileCount = testFileSize * repeatCount;
+				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);	
 				Platform.runLater(()->{
 					percentageLabel.setText("0%");
 				});

@@ -1,5 +1,6 @@
 package com.teclever.dfcc.resultstore.dto;
 
+import java.util.List;
 import java.util.Map;
 
 public class ResultDto {
@@ -13,6 +14,15 @@ public class ResultDto {
     private Map<String,String> faultyChannel;
     private String fileName;
     private String faultySRU;
+    private String testMode;
+    private List<String> dStarChannels;
+    
+	public String getTestMode() {
+		return testMode;
+	}
+	public void setTestMode(String testMode) {
+		this.testMode = testMode;
+	}
 	public String getTpgph() {
 		return tpgph;
 	}
@@ -67,6 +77,13 @@ public class ResultDto {
 	}
 	public void setFaultySRU(String faultySRU) {
 		this.faultySRU = faultySRU;
+	}
+	
+	public List<String> getdStarChannels() {
+		return dStarChannels;
+	}
+	public void setdStarChannels(List<String> dStarChannels) {
+		this.dStarChannels = dStarChannels;
 	}
 	public ResultDto() {
 		super();

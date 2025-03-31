@@ -4,6 +4,7 @@ public class DetailedData {
 	
 	private int id;
 	private String slNo;
+	private String testMode;
 	private String testName;
 	private String rdfName;
 	private String tpgphNo;
@@ -13,9 +14,8 @@ public class DetailedData {
 	private String measuredValueCh1_Ch2_Ch3_Ch4;
 	private String faultySru;
 	private String unit;
-	private String testMode;
-	private String faultyChannelValue;
 	
+	private String faultyChannelValue;
 	
 	
 	public String getFaultyChannelValue() {

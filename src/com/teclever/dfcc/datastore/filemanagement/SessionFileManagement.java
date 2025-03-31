@@ -30,6 +30,7 @@ import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.DFCCConstant.UutTypeConstants;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
@@ -74,9 +75,9 @@ public class SessionFileManagement {
 			StateMachine.setHomelocation(Paths.get(currentDirectory));
 
 			Debug.printDebug(currentDirectory);
-			mark1Directory = StateMachine.getHomelocation().resolve("MK-1");
-			mark1aDirectory = StateMachine.getHomelocation().resolve("MK-1A");
-			mark2Directory = StateMachine.getHomelocation().resolve("MK-2");
+			mark1Directory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK1);
+			mark1aDirectory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK1A);
+			mark2Directory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK2);
 
 			if (Files.notExists(mark1Directory)) {
 				Files.createDirectories(mark1Directory);
@@ -95,13 +96,13 @@ public class SessionFileManagement {
 		try {
 			dfccSerialNoDirectory = null;
 			switch (uutType) {
-			case "MK-1":
+			case UutTypeConstants.MARK1:
 				dfccSerialNoDirectory = mark1Directory.resolve(dfccSerialNumber);
 				break;
-			case "MK-1A":
+			case UutTypeConstants.MARK1A:
 				dfccSerialNoDirectory = mark1aDirectory.resolve(dfccSerialNumber);
 				break;
-			case "MK-2":
+			case UutTypeConstants.MARK2:
 				dfccSerialNoDirectory = mark2Directory.resolve(dfccSerialNumber);
 				break;
 			default:
@@ -121,9 +122,9 @@ public class SessionFileManagement {
 		try {
 			sessionDirectory = null;
 			switch (uutType) {
-			case "MK-1":
-			case "MK-1A":
-			case "MK-2":
+			case UutTypeConstants.MARK1:
+			case UutTypeConstants.MARK1A:
+			case UutTypeConstants.MARK2:
 				// sessionDirectory = dfccSerialNoDirectory.resolve(sessionName + "_" +
 				// dfccSerialNumber + "_" + new
 				// SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()));

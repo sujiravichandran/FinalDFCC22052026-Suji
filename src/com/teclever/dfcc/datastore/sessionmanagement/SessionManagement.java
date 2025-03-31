@@ -261,6 +261,7 @@ public class SessionManagement {
 		}
 		return res;
 	}
+	
 
 	// AT FIRST TIME SESSION CREATION
 	public StageMasterLevelOneResponse getLevelOneStageMasterBySessionId(String uutId, String sessionId) {
@@ -1557,11 +1558,45 @@ public class SessionManagement {
 	}
 
 	// ADD SESSION END TIME
-	public Response endSession(String endRemarks) {
+//	before Anuj change 
+//	public Response endSession(String endRemarks) {
+//		Response res = new Response();
+//
+//		try {
+//			AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
+//			String sessionId = currentSessionDetails.getSessionId();
+//			if (sessionId.substring(0, 4).equals("TSSN")) {
+//				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+//				res = trailSessionEntityService.updateStatus(sessionId, endRemarks);
+//			} else {
+//				SessionService sessionService = new SessionService();
+//				GetObjResponse s = sessionService.getSessionDetailBySessionStageId(sessionId);
+//				if (s.getResponse().getResponseCode() == 0) {
+//					return s.getResponse();
+//				}
+//				SessionEntity ss = (SessionEntity) s.getObject();
+//				Date utilDate = new Date();
+//				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+//				ss.setEndDate(sqlDate);
+//				ss.setEndRemarks(endRemarks);
+//				res = sessionService.updateSession(ss);
+//			}
+//
+//		} catch (Exception e) {
+//			res.setResponseCode(0);
+//			res.setResponseMessage("Failed to End Session " + e.getLocalizedMessage());
+//		}
+//		return res;
+//
+//	}
+	
+//	After Anuj Change
+	public Response endSession(String endRemarks,boolean islogout) {
 		Response res = new Response();
-
 		try {
+			if(islogout) {
 			AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
+			}
 			String sessionId = currentSessionDetails.getSessionId();
 			if (sessionId.substring(0, 4).equals("TSSN")) {
 				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
@@ -1579,13 +1614,11 @@ public class SessionManagement {
 				ss.setEndRemarks(endRemarks);
 				res = sessionService.updateSession(ss);
 			}
-
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Failed to End Session " + e.getLocalizedMessage());
 		}
 		return res;
-
 	}
 
 	// STAGES REMARKS

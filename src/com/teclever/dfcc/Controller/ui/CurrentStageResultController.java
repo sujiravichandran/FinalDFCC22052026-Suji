@@ -1,8 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
@@ -30,7 +28,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -52,7 +49,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-class BriefDataTableViewFactory implements TableViewFactory<BriefData> {
+class BriefDataTableViewFactory1 implements TableViewFactory<BriefData> {
 	@Override
 	public CustomTableView<BriefData> createTableView(ObservableList<BriefData> items, boolean addUserColumn,
 			boolean addCheckboxColumn) {
@@ -60,7 +57,7 @@ class BriefDataTableViewFactory implements TableViewFactory<BriefData> {
 	}
 }
 
-class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
+class DetailedDataTableViewFactory1 implements TableViewFactory<DetailedData> {
 	@Override
 	public CustomTableView<DetailedData> createTableView(ObservableList<DetailedData> items, boolean addUserColumn,
 			boolean addCheckboxColumn) {
@@ -68,7 +65,7 @@ class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
 	}
 }
 
-public class CurrentExecutionResultController {
+public class CurrentStageResultController {
 
 	private GridPane currentExecutionResultGridPane = new GridPane();
 	private GridPane currentExecutionResultHeadingGridPane = new GridPane();
@@ -104,7 +101,6 @@ public class CurrentExecutionResultController {
 	public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId) {
 		SESSION_ID = sessionId;
 		STAGE_ID = stageId;
-		
 
 		currentExecutionResultGridPane.getStylesheets()
 				.add(getClass()
@@ -143,7 +139,7 @@ public class CurrentExecutionResultController {
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("CURRENT EXECUTION RESULTS");
+		title.setText("STAGE RESULTS" );
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 
@@ -152,9 +148,8 @@ public class CurrentExecutionResultController {
 
 		return currentExecutionResultHeadingGridPane;
 	}
-	ViewReportController viewReportController = new ViewReportController();
-	
-//before changes to view Report
+
+
 	private HBox createDownloadButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
 		buttonBox.getChildren().add(downloadButton);
@@ -192,39 +187,25 @@ public class CurrentExecutionResultController {
 
 			dialog.showAndWait().ifPresent(result -> {
 				if ("Brief".equals(result)) {
-					Consumer<Response> onDownloadComplete = (response) -> {
-
-						Platform.runLater(() -> {
-							viewReportController.viewReportPopup(response);			
-							});
-					};
-
 					if (STAGE_ID != null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, STAGE_ID, true, false, onDownloadComplete);
+						downloadReport(SESSION_ID, STAGE_ID, true, false);
 						logDownload("Brief Data");
-					} else if (STAGE_ID == null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, null, true, false, onDownloadComplete);
+					} else if(STAGE_ID == null && SESSION_ID != null){
+						downloadReport(SESSION_ID, null, true, false);
 						logDownload("Brief Data");
 					} else {
-						downloadReport(currentSessionDetails.getSessionId(), null, true, true, onDownloadComplete);
+						downloadReport(currentSessionDetails.getSessionId(), null, true, true);
 						logDownload("Brief Data");
 					}
 				} else {
-
-					Consumer<Response> onDownloadComplete = (response) -> {
-						Platform.runLater(() -> {
-							viewReportController.viewReportPopup(response);
-									
-						});
-					};
 					if (STAGE_ID != null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, STAGE_ID, false, false, onDownloadComplete);
+						downloadReport(SESSION_ID, STAGE_ID, false, false);
 						logDownload("Brief Data");
-					} else if (STAGE_ID == null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, null, false, false, onDownloadComplete);
+					} else if(STAGE_ID == null && SESSION_ID != null){
+						downloadReport(SESSION_ID, null, false, false);
 						logDownload("Brief Data");
 					} else {
-						downloadReport(currentSessionDetails.getSessionId(), null, false, true, onDownloadComplete);
+						downloadReport(currentSessionDetails.getSessionId(), null , false, true);
 						logDownload("Brief Data");
 					}
 				}
@@ -241,77 +222,37 @@ public class CurrentExecutionResultController {
 		appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 	}
 
-	// Before Changing
-//	private void downloadReport1(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession,
-//			Consumer<Response> onDownloadComplete) {
-//
-//		Task<Void> task = new Task<>() {
-//			@Override
-//			protected Void call() throws Exception {
-//				Response response = null;
-//
-//				if (isBrief) {
-//					if (isCurrentSession) {
-//
-//						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
-//
-//					} else if (sessionId != null && stageId != null) {
-//						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
-//					} else if (sessionId != null) {
-//						response = reportGeneration.generateBreifReportForCurrentSession(sessionId);
-//					}
-//				} else {
-//					if (isCurrentSession) {
-//						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
-//					} else if (sessionId != null && stageId != null) {
-//						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId);
-//					} else if (sessionId != null) {
-//						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
-//					}
-//				}
-//
-//				return null;
-//			}
-//		};
-//
-//		Thread thread = new Thread(task);
-//		thread.setDaemon(true);
-//		thread.start();
-//	}
-
-	// After Changing
-	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession,
-			Consumer<Response> onDownloadComplete) {
-
-		Task<Void> task = new Task<>() {
+	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession) {
+		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				AtomicReference<Response> responseRef = new AtomicReference<>(null);
-
+				Response response = null;
 				if (isBrief) {
-					if (isCurrentSession) {
-						responseRef.set(reportGeneration.generateBreifReportForCurrentExecution(sessionId));
-					} else if (sessionId != null && stageId != null) {
-						responseRef.set(reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId));
-					} else if (sessionId != null && stageId == null) {
-						responseRef.set(reportGeneration.generateBreifReportForCurrentSession(sessionId));
+					if(isCurrentSession) {
+						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
+					}else if(sessionId != null && stageId != null) {
+						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
+					}else if(sessionId != null && stageId == null ) {
+						response = reportGeneration.generateBreifReportForCurrentSession(sessionId);
 					}
 				} else {
-					if (isCurrentSession) {
-						responseRef.set(reportGeneration.generateDetailedReportForCurrentExecution(sessionId));
-					} else if (sessionId != null && stageId != null) {
-						responseRef.set(reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId));
-					} else if (sessionId != null && stageId == null ) {
-						responseRef.set(reportGeneration.generateDetailedReportForCurrentSession(sessionId));
+					if(isCurrentSession) {
+						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
+					}else if(sessionId != null && stageId != null) {
+						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId);
+						
+					}else if(sessionId != null && stageId == null ) {
+						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
+						
 					}
 				}
 
 
-
-				if (responseRef.get() != null) {
-					Platform.runLater(() -> onDownloadComplete.accept(responseRef.get()));
+				if (response.getResponseCode() == 1) {
+					Notifications.showSuccessAlert("Download Completed Successfully...");
+				} else {
+					Notifications.showErrorAlert(response.getResponseMessage());
 				}
-
 				return null;
 			}
 		};
@@ -394,30 +335,41 @@ public class CurrentExecutionResultController {
 		detailedDataStackPane.getChildren().add(createDetailedDataTable());
 		return detailedDataStackPane;
 	}
-
 	
+	private void setControlsDisabled(Node root, boolean disabled) {
+	    for (Node node : root.lookupAll("*")) {
+	        if (node instanceof Control) {
+	            ((Control) node).setDisable(disabled);
+	        }
+	    }
+	}
+
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
-		Platform.runLater(() -> {
-    		System.out.println("Entred runlater Succeed1111");
-    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
-        });
-		
 		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
-		 Task<Void> task = new Task<Void>() {
+		   Task<Void> task = new Task<Void>() {
 		        @Override
 		        protected Void call() throws Exception {
 		ResultExecutionResponse response = new ResultExecutionResponse();
 		
+		
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID, STAGE_ID);
-		} else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement.getResultExecutionListBriefListForSession(SESSION_ID);
-		} else {
-			response = resultExecutionManagement.getResultExecutionListBriefListForStages(currentSessionDetails.getSessionId());
+	
+			System.out.println("Entred Stage Stage ID");
+		} 
+		else if(STAGE_ID == null && SESSION_ID != null){
+			response = resultExecutionManagement.getResultExecutionListBriefListForStages(SESSION_ID);
+			System.out.println("Entred Stage Session ID");
 		}
+		System.out.println("Entred Stage Page");
 		
+		Platform.runLater(() -> {
+			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+		 });
+
+	 
 		if (response.getCode() == 1 && response.getResultDTOList() != null) {
 			int i = 1;
 			for (ResultExecutionDTO data : response.getResultDTOList()) {
@@ -430,12 +382,17 @@ public class CurrentExecutionResultController {
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
 				newBriefData.setTestMode(data.getTestMode());
+
 				briefDataList.add(newBriefData);
 				i++;
 			}
 		}
 
 		briefDataTableView = briefDataFactory.createTableView(briefDataList, false, false);
+		
+			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
+			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
+			briefDataTableView.setPlaceholder(tablePlaceholderLabel);
 		
 
 		briefDataTableView.getColumns().forEach(column -> {
@@ -451,37 +408,37 @@ public class CurrentExecutionResultController {
 		}
 		
 		tableScrollPane.setFitToHeight(true);
-		 return null;  
-		        }
-			
-		        @Override
-				protected void succeeded() {
-			    	Platform.runLater(() -> {
-		            	System.out.println("Entred runlater Succeed");
-		            	
-		 	               tableScrollPane.setContent(briefDataTableView);
-		 	              tableScrollPane.setFitToHeight(true);
-		 	            });
-			    	Platform.runLater(() -> {
-			    		System.out.println("Entred runlater Succeed1111");
-			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
-		               
-		           
-				}
+	      return null;  
+	        }
+		
+	        @Override
+			protected void succeeded() {
+		    	Platform.runLater(() -> {
+	            	System.out.println("Entred runlater Succeed");
+	            	
+	 	               tableScrollPane.setContent(briefDataTableView);
+	 	              tableScrollPane.setFitToHeight(true);
+	 	            });
+		    	Platform.runLater(() -> {
+		    		System.out.println("Entred runlater Succeed1111");
+		    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+		    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+		        });
+	               
+	           
+			}
 
-				@Override
-				protected void failed() {
-					System.out.println("Entred Failed");
-					Platform.runLater(() -> {
-						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
-					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
-				}
-			};
-			new Thread(task).start();
+			@Override
+			protected void failed() {
+				System.out.println("Entred Failed");
+				Platform.runLater(() -> {
+					currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+					currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+		        });
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+			}
+		};
+		new Thread(task).start();
 		
 		return tableScrollPane;
 	}
@@ -517,27 +474,17 @@ public class CurrentExecutionResultController {
 
 	public ScrollPane createDetailedDataTable() {
 		detailedDataList.clear();
-  
-	Platform.runLater(() -> {
-		System.out.println("Entred runlater Succeed1111");
-		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
-    });
-		
-		
 		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
 		 Task<Void> task = new Task<Void>() {
 		        @Override
 		        protected Void call() throws Exception {
-		ResultDetailedResponse response = null;
+		ResultDetailedResponse response = new ResultDetailedResponse();
 		
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
-		} else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
-		} else {
-			response = resultExecutionManagement
-					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+		} 
+		else if(STAGE_ID == null && SESSION_ID != null){
+			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID);
 		}
 
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
@@ -553,12 +500,11 @@ public class CurrentExecutionResultController {
 				newDetailedData.setStepNo(data.getStepName());
 				newDetailedData.setExpectedValue(data.getExpectedValue());
 				newDetailedData.setMeasuredValueCh1_Ch2_Ch3_Ch4(data.getFaultyChannel());
-				newDetailedData.setFaultySru(data.getFaultySRU());
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
-				newDetailedData.setFaultyChannelValue(data.getFaultyChannelValue());
-				System.out.println("CurrentExe" + data.getFaultyChannelValue());
+				newDetailedData.setFaultySru(data.getFaultySRU());
 				newDetailedData.setTestMode(data.getTestMode());
+				newDetailedData.setFaultyChannelValue(data.getFaultyChannelValue());
 				detailedDataList.add(newDetailedData);
 
 				i++;
@@ -569,16 +515,20 @@ public class CurrentExecutionResultController {
 
 		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 
+		
+			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
+			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
+			detailedDataTableView.setPlaceholder(tablePlaceholderLabel);
+		
 
 		detailedDataTableView.getColumns().forEach(column -> {
 			column.setMinWidth(column.getText().length() * 14);
 			updateDetailedData((TableColumn<DetailedData, String>) column);
 		});
 
-		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
-		tableScrollPane.setFitToHeight(true);
 		
-		return null;  
+		tableScrollPane.setFitToHeight(true);
+		  return null;  
 		        }
 			
 		        @Override
@@ -592,7 +542,7 @@ public class CurrentExecutionResultController {
 			    	Platform.runLater(() -> {
 			    		System.out.println("Entred runlater Succeed1111");
 			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);;
+			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 			        });
 		               
 		           
@@ -609,10 +559,14 @@ public class CurrentExecutionResultController {
 				}
 			};
 			new Thread(task).start();
+		
+		
 		return tableScrollPane;
 	}
 
 	private void updateDetailedData(TableColumn<DetailedData, String> column) {
+		
+		
 		column.setCellFactory(col -> new TableCell<DetailedData, String>() {
 			private Label label;
 
@@ -640,4 +594,6 @@ public class CurrentExecutionResultController {
 			}
 		});
 	}
+	
+	
 }

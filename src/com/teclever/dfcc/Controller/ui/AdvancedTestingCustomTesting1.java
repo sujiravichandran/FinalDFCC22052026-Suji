@@ -451,7 +451,7 @@ public class AdvancedTestingCustomTesting1 {
 		clearFiledValues();
 		 Platform.runLater(() -> {
 			 tab3MainGridPane.getScene().setCursor(Cursor.WAIT);
-	         setControlsDisabled(tab3MainGridPane.getScene().getRoot(), true);
+			 tab3MainGridPane.getScene().getRoot().setDisable(true);
 		 });
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -487,7 +487,7 @@ public class AdvancedTestingCustomTesting1 {
 				});
 				Platform.runLater(() -> {
 		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
-			        setControlsDisabled(tab3MainGridPane.getScene().getRoot(), false);
+		        	tab3MainGridPane.getScene().getRoot().setDisable(false);
 		        });
 			}
 
@@ -495,7 +495,7 @@ public class AdvancedTestingCustomTesting1 {
 			protected void failed() {
 				Platform.runLater(() -> {
 		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
-			        setControlsDisabled(tab3MainGridPane.getScene().getRoot(), false);
+		        	tab3MainGridPane.getScene().getRoot().setDisable(false);
 		        });
 				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 			}
@@ -600,7 +600,7 @@ public class AdvancedTestingCustomTesting1 {
 			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
-		String formattedData = "macn = " + macroName + ";";
+		String formattedData = "macname = " + macroName + ";";
 		if (runStatus) {
 			if (checkAndSetTestState()) {
 				handleRunCommand(formattedData);
@@ -688,8 +688,8 @@ public class AdvancedTestingCustomTesting1 {
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
 			
-			StateMachine.setTestState(TestState.RUNNING);
-			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+			StateMachine.setTestState(TestState.STOPPED);
+//			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;
@@ -702,12 +702,5 @@ public class AdvancedTestingCustomTesting1 {
 		return true;
 	}
 	
-	private void setControlsDisabled(Node root, boolean disabled) {
-	    for (Node node : root.lookupAll("*")) {
-	        if (node instanceof Control) {
-	            ((Control) node).setDisable(disabled);
-	        }
-	    }
-	}
 
 }

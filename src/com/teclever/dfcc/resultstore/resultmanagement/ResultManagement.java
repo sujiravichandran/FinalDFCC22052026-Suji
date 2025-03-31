@@ -6,6 +6,8 @@ import static com.mongodb.client.model.Filters.eq;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -69,23 +71,68 @@ public class ResultManagement {
 	                        String signalName = stepDoc.getString("signalName");
 	                        String expectedValue = stepDoc.getString("expectedValue");
 	                        String faultySRU = stepDoc.getString("faultySRU");
+	                        String dStarInfo = stepDoc.getString("dStarInfo");
+	                        System.out.println("11. " + dStarInfo);
+	                        // Regular expression to extract content inside the parentheses
+	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");  // Non-greedy match inside parentheses
+	                        Matcher matcher = pattern.matcher(dStarInfo);
+                            List<String> formattedChannels = new ArrayList<>();
+
+	                        // Extract the content inside parentheses if found
+	                        if (matcher.find()) {
+	                            String contentInsideParentheses = matcher.group(1).trim();  // Get the matched group (the content inside parentheses)
+	                            
+	                            // Split by commas and trim spaces to extract individual parts
+	                            String[] parts = contentInsideParentheses.split(",");
+	                            
+	                            // List to store the formatted channel output
+	                            
+	                            // Iterate over the parts and label each one
+	                            for (int i = 0; i < parts.length; i++) {
+	                                String channelValue = parts[i].trim();  // Remove any leading or trailing spaces
+	                                System.out.println("2... "+channelValue);
+	                                // Check if the value is either "down", "offline", or starts with "*"
+	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
+	                                    // If it starts with '*' remove it
+	                                    if (channelValue.startsWith("*")) {
+	                                        channelValue = channelValue.substring(1);  // Remove the '*'
+	                                    }
+	                                    
+	                                    // Add the formatted channel to the output list
+	                                    formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
+	                                }
+	                            }
+	                            
+	                            // Prepare the final output as a string
+	                            //String result = String.join(", ", formattedChannels);
+	                            
+	                            // Print the formatted output
+	                           // System.out.println(result);
+	                        } else {
+	                            System.out.println("No content inside parentheses found.");
+	                        }
 
 	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);
+	                        resultDto.setdStarChannels(formattedChannels);
 	                        resultList.add(resultDto);
 	                    }
 	                }
 	            } else {
+	                // Fetch all documents from the resultDataCollection
 	                List<Document> allSteps = resultDataCollection.find(Filters.gte("_id", refObjectId))
 	                                    .into(new ArrayList<>());
 	                
+	                // Flag to skip the first document
 	                boolean skipFirstDocument = true;
 
 	                for (Document stepDoc : allSteps) {
+	                    // If this is the first document, skip it
 	                    if (skipFirstDocument) {
 	                        skipFirstDocument = false;
 	                        continue;
 	                    }
 
+	                    // Check if the document contains the "project" field
 	                    if (stepDoc.containsKey("project")) {
 	                        break;
 	                    }
@@ -94,21 +141,67 @@ public class ResultManagement {
 	                    String measuredValue = null;
 	                    String faultyChannel = null;
 
+	                    // Extract faultyChannel and measuredValue if present
 	                    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
 
+	                    // Only proceed if faultyChannels is not null or empty
 	                    if (faultyChannels != null && !faultyChannels.isEmpty()) {
+	                        // Iterate over the faultyChannels map to get key-value pairs
 	                        for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
 	                            faultyChannel = faultyChannelEntry.getKey();
 	                            measuredValue = faultyChannelEntry.getValue();
 	                        }
 
+	                        // Extract other fields
 	                        String tpgph = stepDoc.getString("tpgph");
 	                        String unit = stepDoc.getString("unit");
 	                        String signalName = stepDoc.getString("signalName");
 	                        String expectedValue = stepDoc.getString("expectedValue");
 	                        String faultySRU = stepDoc.getString("faultySRU");
+	                        String dStarInfo = stepDoc.getString("dStarInfo");
+	                        System.out.println("11. " + dStarInfo);
+	                     // Regular expression to extract content inside the parentheses
+	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");  // Non-greedy match inside parentheses
+	                        Matcher matcher = pattern.matcher(dStarInfo);
+                            List<String> formattedChannels = new ArrayList<>();
 
+	                        // Extract the content inside parentheses if found
+	                        if (matcher.find()) {
+	                            String contentInsideParentheses = matcher.group(1).trim();  // Get the matched group (the content inside parentheses)
+	                            
+	                            // Split by commas and trim spaces to extract individual parts
+	                            String[] parts = contentInsideParentheses.split(",");
+	                            
+	                            // List to store the formatted channel output
+//	                            List<String> formattedChannels = new ArrayList<>();
+	                            
+	                            // Iterate over the parts and label each one
+	                            for (int i = 0; i < parts.length; i++) {
+	                                String channelValue = parts[i].trim();  // Remove any leading or trailing spaces
+	                                System.out.println("2... "+channelValue);
+	                                // Check if the value is either "down", "offline", or starts with "*"
+	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
+	                                    // If it starts with '*' remove it
+	                                    if (channelValue.startsWith("*")) {
+	                                        channelValue = channelValue.substring(1);  // Remove the '*'
+	                                    }
+	                                    
+	                                    // Add the formatted channel to the output list
+	                                    formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
+	                                }
+	                            }
+	                            
+	                            // Prepare the final output as a string
+	                            String result = String.join(", ", formattedChannels);
+	                            
+	                            // Print the formatted output
+	                            System.out.println("--------------------[" + result + "]");} else {
+	                            System.out.println("No content inside parentheses found.");
+	                        }
+
+	                        // Create the ResultDto object and add it to the result list
 	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
+	                        resultDto.setdStarChannels(formattedChannels);
 	                        resultList.add(resultDto);
 	                    }
 	                }

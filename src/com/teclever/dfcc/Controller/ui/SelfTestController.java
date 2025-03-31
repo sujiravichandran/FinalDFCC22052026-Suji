@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.internal.build.AllowSysOut;
+
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
@@ -98,6 +100,8 @@ public class SelfTestController {
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 	public GridPane createSelfTestMainContainerGridPane() {
+	
+		
 		selfTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
@@ -231,8 +235,6 @@ public class SelfTestController {
 
 	private HBox topButton() {
 
-//		StateMachine.setAitess1Launched(true);
-//		StateMachine.setAitess2Launched(true);
 		topButton.setPadding(new Insets(0, 5, 0, 0));
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
@@ -272,7 +274,7 @@ public class SelfTestController {
 			
 			
 			System.out.println("LIST SIZE" + cpciCardList);
-			SelfTestStateObject.setTotalSelfTestFileCount(4);
+			SelfTestStateObject.setTotalSelfTestFileCount(5);
 			
 			if (SelfTestStateObject.getRack1Status().get()) {
 				SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
@@ -341,6 +343,9 @@ public class SelfTestController {
 	
 
 		SelfTestStateObject.runnedSelfTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			System.out.println("Enterd Run Method" + newValue);
+			
+			
 		    if (newValue != null) {
 		    	
 		    	int fileCount = SelfTestStateObject.getRunnedSelfTestFileCount().get();
@@ -348,6 +353,7 @@ public class SelfTestController {
 		           System.out.println("RUNNED FILE COUNT" + SelfTestStateObject.getRunnedSelfTestFileCount().get());
 
 		            incrementCounter++;
+		            System.out.println("########TOTAL TEST FILE COUNTS##############"+SelfTestStateObject.getTotalSelfTestFileCount());
 
 		            System.out.println("Increment: " + incrementCounter);
 
@@ -403,9 +409,9 @@ public class SelfTestController {
 				
 				System.out.println("TEST FILE COUNT" + totalTestFileCount);
 				SelfTestStateObject.setTotalSelfTestFileCount(totalTestFileCount);
-				Platform.runLater(() -> {
-					percentageLabel.setText("0%");
-				});
+//				Platform.runLater(() -> {
+//					percentageLabel.setText("0%");
+//				});
 				SelfTestStateObject.getRunnedSelfTestFileCount().set(0);
 
 				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, 1,

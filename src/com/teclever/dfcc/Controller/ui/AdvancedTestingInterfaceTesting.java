@@ -34,6 +34,7 @@ import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -41,6 +42,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,6 +51,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class AdvancedTestingInterfaceTesting {
 
@@ -59,6 +62,10 @@ public class AdvancedTestingInterfaceTesting {
 	private List<RadioButton> stageListRadioButtons = new ArrayList<>();
 	private ListView<RadioButton> stageListView = new ListView<>();
 
+	private VBox searchVBox = new VBox(5);
+	private TextField testNameField = new TextField();
+	private ObservableMap<String, String> testFileMap;
+	
 	private List<CheckBox> checkBoxes = new ArrayList<>();
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
@@ -71,6 +78,7 @@ public class AdvancedTestingInterfaceTesting {
 	private VBox repeatCountVBox = new VBox();
 	private Label repeatCountLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
+	private Label repeatNotLabel = new Label();
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
@@ -86,6 +94,14 @@ public class AdvancedTestingInterfaceTesting {
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
+	
+	public AdvancedTestingInterfaceTesting() {
+		initializeSearch();
+	}
+	
+	
+	
+	
 	public GridPane createAdvancedTestingTab2GridPane() {
 		getInterfaceTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -121,6 +137,33 @@ public class AdvancedTestingInterfaceTesting {
 				});
 	}
 
+	private void clearTextField() {
+	    if (!testNameField.getText().isEmpty()) {
+	        testNameField.clear();
+	        System.out.println("TextField cleared.");
+	    }
+	}
+	public void initializeSearch() {
+		
+	    testNameField.setPromptText("Search...");
+	    
+	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+	        if (!newValue) { 
+	            clearTextField();
+	        }
+	    });
+	    
+	}
+	
+	private VBox createSearchFile() {
+		searchVBox.getStyleClass().add("advanced-testing-right-text-field");
+		searchVBox.setAlignment(Pos.CENTER);
+		searchVBox.getChildren().add(testNameField);
+		return searchVBox;
+		
+	}
+	
 	private VBox createLeftSide() {
 		ObservableList<TestCardData> interfaceTestList = AdvancedTestStateObject.getInterfaceTestList();
 
@@ -157,6 +200,7 @@ public class AdvancedTestingInterfaceTesting {
 	}
 
 	private void getTestListByStageId(String stageId, String testTypeId) {
+
 		String runConfigId = runConfigurationService
 				.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 		currentSessionDetails.setRunConfigId(runConfigId);
@@ -170,11 +214,40 @@ public class AdvancedTestingInterfaceTesting {
 			return;
 		}
 
-		ObservableMap<String, String> testFileMap = FXCollections.observableMap(testFileResponse.getTestFilesIdName());
-		setTestListViewData(testFileMap);
-	}
+		testFileMap = FXCollections.observableMap(testFileResponse.getTestFilesIdName());
 
-	private void setTestListViewData(ObservableMap<String, String> testFileMap) {
+		setTestListViewData(testFileMap, false, stageId);
+	}
+	
+	private void filterList(String keyword) {
+	    String trimmedKeyword = keyword.trim();
+	    
+	    if (trimmedKeyword.isEmpty()) {
+	        setTestListViewData(testFileMap, false, "stageId");
+	        System.out.println("TEST FILE LIST" + testFileMap);
+	        return;
+	    }
+	    else {
+	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+	    	
+	    	System.out.println("Entry prompt"+entry);
+	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+	            filteredMap.put(entry.getKey(), entry.getValue());
+	        }
+	        
+	    }
+	   
+//	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
+	    setTestListViewData(filteredMap, false, "stageId");
+	    }
+	    
+	
+	}
+	
+
+	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
+			String stageId) {
 		testListView.getItems().clear();
 		checkBoxes.clear();
 
@@ -183,38 +256,57 @@ public class AdvancedTestingInterfaceTesting {
 			File file = new File(filePath);
 			CheckBox newCheckBox = new CheckBox(file.getName());
 			newCheckBox.setId(entry.getKey());
+			newCheckBox.setMnemonicParsing(false);
 			newCheckBox.getStyleClass().add("advanced-testing-checkbox");
 			newCheckBox.setWrapText(true);
+			if (checkboxDisable) {
+				newCheckBox.setDisable(checkboxDisable);
+			}
 			checkBoxes.add(newCheckBox);
 			testListView.getItems().add(newCheckBox);
 
 			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-				startButton.setDisable(!anySelected);
+				if (StateMachine.getTestState() != TestState.RUNNING) {
+					startButton.setDisable(!anySelected);
+				}
 			});
 		}
 	}
 
+
+	private void showAlert() {
+	    Alert alert = new Alert(Alert.AlertType.WARNING);
+	    alert.setTitle("Input Required");
+	    alert.setHeaderText(null);
+	    alert.setContentText("Please enter a repeat count between 1 and 100.");
+	    alert.showAndWait();
+	}
+	
 	private GridPane createRightSide() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(77);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(23);
+		secondRow.setPercentHeight(45);
+		
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(32);
 
 		rightSideGridPane.getColumnConstraints().addAll(firstColumn);
-		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 		rightSideGridPane.setVgap(5);
-		rightSideGridPane.add(createTestListView(), 0, 0);
-		rightSideGridPane.add(createButtonBox(), 0, 1);
+		rightSideGridPane.add(createSearchFile(), 0, 0);
+		rightSideGridPane.add(createTestListView(), 0, 1);
+		rightSideGridPane.add(createButtonBox(), 0, 2);
 		return rightSideGridPane;
 	}
 
 	private VBox createTestListView() {
-		testListView.getStyleClass().add("advanced-testing-list-view");
+//		testListView.getStyleClass().add("advanced-testing-list-view");
 
 
 		testListVBox.getChildren().add(testListView);
@@ -341,6 +433,10 @@ public class AdvancedTestingInterfaceTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+			if(repeatCountTextField == null) {
+				showAlert();
+			}
 						
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -360,7 +456,7 @@ public class AdvancedTestingInterfaceTesting {
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
-				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
+				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
 				stopButton.setDisable(false);
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
@@ -411,23 +507,44 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		repeatCountLabel.setText("Repeat Count");
+		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
+		repeatNotLabel.setTextFill(Color.WHITE);
+		repeatNotLabel.setWrapText(true);
 		repeatCountLabel.getStyleClass().add("advanced-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("advanced-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
 		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
+		
+		 TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+		        String newText = change.getControlNewText();
 
-		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			if (!newValue.matches("\\d*")) {
-				repeatCountTextField.setText(oldValue);
-			} else if (newValue.length() > 3) {
-				repeatCountTextField.setText(oldValue);
-			}
-		});
+		       
+
+		        try {
+		            int value = Integer.parseInt(newText);
+		            if (value >= 1 && value <= 100) {
+		                return change;
+		            }
+		        } catch (NumberFormatException e) {
+		        }
+
+		        return null; 
+		    });
+		
+		  repeatCountTextField.setTextFormatter(textFormatter);
+		
+//		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+//		    if (!newValue.matches("\\d*")) {
+//		        repeatCountTextField.setText(oldValue);
+//		    } else if (newValue.length() > 3 || newValue.equals("0")) { 
+//		        repeatCountTextField.setText(oldValue);
+//		    }
+//		});
 
 		repeatCountVBox.setAlignment(Pos.CENTER);
 		repeatCountVBox.setPadding(new Insets(5));
-		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
+		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
 		
@@ -437,6 +554,9 @@ public class AdvancedTestingInterfaceTesting {
 
 		progressBarHBox.setAlignment(Pos.CENTER);
 
+		
+		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
+		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
