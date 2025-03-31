@@ -7,7 +7,6 @@ import java.io.IOException;
 import com.itextpdf.io.util.SystemUtil;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.utils.Debug;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -89,40 +88,38 @@ public class ViewReportController {
     }
     
     private void ViewReport(Response response) {
-    	 if (response == null || response.getDownloadPath() == null || response.getDownloadPath().isEmpty()) {
-             System.out.println("No file path available.");
-             return;
-         }
+        if (response == null || response.getDownloadPath() == null || response.getDownloadPath().isEmpty()) {
+            System.out.println("No file path available.");
+            return;
+        }
+        System.out.println("PATHE FOR PDF" +response.getDownloadPath() );
+        File file = new File(response.getDownloadPath());
+        if (!file.exists()) {
+            System.out.println("File not found.");
+            return;
+        }
 
-         File file = new File(response.getDownloadPath());
-         if (file.exists()) {
-				try {
-					String os = System.getProperty("os.name").toLowerCase();
-					if (os.contains("win")) {
-						// Windows-specific code
-						Desktop desktop = Desktop.getDesktop();
-						if (desktop.isSupported(Desktop.Action.OPEN)) {
-							desktop.open(file);
-						} else {
-							Debug.printDebug("Open action not supported on this platform.");
-						}
-					} else if (os.contains("nix") || os.contains("nux")) {
-						// Linux-specific code using xdg-open
-						// Ensure the file path is absolute
-						File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
-						new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
-					} else {
-						Debug.printDebug("Unsupported OS: " + os);
-					}
-				} catch (IOException ex) {
-					Debug.printDebug("Error opening file: " + ex.getMessage());
-				}
-			} else {
-				Debug.printDebug("File does not exist: " + file.getAbsolutePath());
-			}
-	
-     }
-    
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                Desktop.getDesktop().open(file);
+            } else {
+                // Fallback for Linux
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("linux")) {
+                	System.out.println("Entred Linux Condition");
+                    new ProcessBuilder("xdg-open", file.getAbsolutePath()).start();
+                } else {
+                    System.out.println("Opening files is not supported on this OS.");
+                }
+            }
+
+            Stage stage = (Stage) viewButton.getScene().getWindow();
+            stage.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     
     @FXML
 	private void handleCancelButtonAction() {

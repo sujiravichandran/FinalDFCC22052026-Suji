@@ -283,7 +283,7 @@ public class CurrentExecutionResultController {
 	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession,
 			Consumer<Response> onDownloadComplete) {
 
-		Task<Void> task = new Task<>() {
+		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				AtomicReference<Response> responseRef = new AtomicReference<>(null);

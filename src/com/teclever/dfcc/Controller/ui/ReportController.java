@@ -318,7 +318,7 @@ public class ReportController {
 
 	    downloadButton.setOnAction(e -> {
 	        if (UUT_ID != null && SESSION_ID != null) {    
-	            Task<Response> task = new Task<>() {
+	        	Task<Response> task = new Task<Response>() {
 	                @Override
 	                protected Response call() throws Exception {
 	                    ReportGenerationNew reportGenerationNew = new ReportGenerationNew();
