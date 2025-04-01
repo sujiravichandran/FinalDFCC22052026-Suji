@@ -66,6 +66,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
@@ -1957,7 +1958,12 @@ public class UserDashboardController {
 		GridPane newGridPane = (GridPane) terminalStackPane.getChildren().get(0);
 		GridPane newGridPane1 = (GridPane) newGridPane.getChildren().get(0);
 		GridPane newGridPane2 = (GridPane) newGridPane1.getChildren().get(0);
-
+		
+		TextArea newTextArea = (TextArea) newGridPane2.getChildren().get(0);
+		if(newTextArea instanceof TextArea) {			
+			newTextArea.setScrollTop(Double.MAX_VALUE);
+		}
+		
 		newGridPane2.setScaleY(0.0);
 
 		ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(300), newGridPane2);
