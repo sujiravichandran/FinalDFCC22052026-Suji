@@ -1,11 +1,19 @@
 package com.teclever.dfcc.datastore.dto;
 import java.util.List;
+import java.util.Map;
 public class StagesFilesResponseDTO {
 	
 	public int code;
 	public String msg;
 	public String emsg;
 	public List<StagesFilesDTO> responseList;
+	public Map<String,String> allTestFilesIdName;
+	public Map<String, String> getAllTestFilesIdName() {
+		return allTestFilesIdName;
+	}
+	public void setAllTestFilesIdName(Map<String, String> allTestFilesIdName) {
+		this.allTestFilesIdName = allTestFilesIdName;
+	}
 	public int getCode() {
 		return code;
 	}

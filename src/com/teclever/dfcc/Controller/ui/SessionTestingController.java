@@ -145,7 +145,7 @@ public class SessionTestingController {
 		
 	    testNameField.setPromptText("Search...");
 	    
-	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+//	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
 	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
 	        if (!newValue) { 
 	            clearTextField();
@@ -827,39 +827,42 @@ public class SessionTestingController {
 	
 	
 	
-	private void filterList(String keyword) {
-	    String trimmedKeyword = keyword.trim();
-	    
-	    if (trimmedKeyword.isEmpty()) {
-	        setTestListViewData(testFileMap, false, "stageId");
-	        System.out.println("TEST FILE LIST" + testFileMap);
-	        return;
-	    }
-	    else {
-	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
-	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-	    	
-	    	System.out.println("Entry prompt"+entry);
-	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
-	            filteredMap.put(entry.getKey(), entry.getValue());
-	        }
-	        
-	    }
-	   
-//	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
-	    setTestListViewData(filteredMap, false, "stageId");
-	    }
-	    
+//	private void filterList(String keyword) {
+//	    String trimmedKeyword = keyword.trim();
+//	    
+//	    if (trimmedKeyword.isEmpty()) {
+//	        setTestListViewData(testFileMap, false, "stageId");
+//	        System.out.println("TEST FILE LIST" + testFileMap);
+//	        return;
+//	    }
+//	    else {
+//	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+//	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+//	    	
+//	    	System.out.println("Entry prompt"+entry);
+//	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+//	            filteredMap.put(entry.getKey(), entry.getValue());
+//	        }
+//	        
+//	    }
+//	   
+////	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
+//	    setTestListViewData(filteredMap, false, "stageId");
+//	    }
+//	    
+//	
+//	}
 	
-	}
+//	Before Changing
 	
 	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable, String stageId) {
-	    System.out.println("Updating ListView with stageId: " + stageId);
+	    System.out.println("Updating ListView with testFileMap: " + testFileMap);
 	    
 	    
 	    testListView.getItems().clear();
 	    checkBoxes.clear();
 	    Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
+	    System.out.println("Stage Test Lists" +stageCompleteTestList );
 
 	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
 	        String filePath = entry.getValue();
@@ -890,8 +893,45 @@ public class SessionTestingController {
 	   
 	}
 
-	
-
+//	After Changing
+//	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable, String stageId) {
+//		System.out.println("Updating ListView with stageId: " + stageId);
+//
+//		testListView.getItems().clear();
+//		checkBoxes.clear();
+//		Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
+//		System.out.println("Stage Test Lists" + stageCompleteTestList);
+//
+//		List<Map.Entry<String, String>> sortedEntries = new ArrayList<>(testFileMap.entrySet());
+//		sortedEntries.sort((entry1, entry2) -> entry1.getValue().compareTo(entry2.getValue()));
+//
+//		for (Map.Entry<String, String> entry : sortedEntries) {
+//		    String filePath = entry.getValue();
+//		    File file = new File(filePath);
+//		    CheckBox newCheckBox = new CheckBox(file.getName());
+//		    newCheckBox.setMnemonicParsing(false);
+//		    newCheckBox.setId(entry.getKey());  
+//		    newCheckBox.getStyleClass().add("session-testing-checkbox");
+//		    newCheckBox.setWrapText(true);
+//		    
+//		    if (checkboxDisable || (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey()))) {
+//		        newCheckBox.setDisable(true);
+//		    }
+//
+//		    checkBoxes.add(newCheckBox);
+//		    testListView.getItems().add(newCheckBox);
+//
+//		    System.out.println("Added CheckBox: " + newCheckBox.getText());
+//
+//		    // Listener to manage start button enable/disable based on checkbox selection
+//		    newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//		        boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
+//		        if (StateMachine.getTestState() != TestState.RUNNING) {
+//		            startButton.setDisable(!anySelected);
+//		        }
+//		    });
+//	}
+//	}
 	private void disableCheckBox(String stageId) {
 //		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
 		if (selectedStageId.equals(stageId)) {

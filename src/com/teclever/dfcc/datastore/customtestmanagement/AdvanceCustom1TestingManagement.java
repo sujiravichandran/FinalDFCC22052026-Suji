@@ -58,13 +58,18 @@ public class AdvanceCustom1TestingManagement {
 	public MacroListResponse getAllMacrosForAdavanceTest(String uutTypeId, String testTypeId) {
 		MacroListResponse macroListResponse = new MacroListResponse();
 		Response res = new Response();
+		
+	
 		try {
 			List<MacroDto> macros = MacroFileManagement.getAllMacros(getRunConfigId(testTypeId));
+			System.out.println("macros check:::" + macros.size());
+			System.out.println("macros check:::" + macros);
 			if (macros != null && macros.size() > 0) {
 
 				macroListResponse.setListOfMacroDto(macros);
 				res.setResponseCode(1);
 				res.setResponseMessage("Data Fetching Succesfull ");
+				
 			} else {
 				macroListResponse.setListOfMacroDto(macros);
 				res.setResponseCode(0);
@@ -222,6 +227,11 @@ public class AdvanceCustom1TestingManagement {
 			testFileStageMapService.addTestFilesStagesMapping(stageId, listOfTestFileIds);
 
 			TestProcessManagement testProcessManangement = new TestProcessManagement();
+			System.out.println("Sts:StateMachine.currentSessionDetails.getSessionId()" + StateMachine.currentSessionDetails.getSessionId());
+			System.out.println("Sts:stageId::" + stageId);
+			System.out.println("Sts:listOfTestFileIds" + listOfTestFileIds);
+			System.out.println("Sts:stageName" + stageName);
+			System.out.println("Sts:testTypeId" + testTypeId);
 			res =testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
 					listOfTestFileIds /* listOfFileId */, true /* continueWithError */, stageName/* stageName */,
 					testTypeId/* testTypeId */, null);
@@ -315,20 +325,25 @@ public class AdvanceCustom1TestingManagement {
 				return res;
 
 			}
+			System.out.println("TEst FIle Name:1:" + testfileName);
 			Path path = Paths.get(testfileName);
 
 			// Get the file name
 			String fileName = path.getFileName().toString();
-
+			System.out.println("TEst FIle Name:2:" + fileName);
 			// Get the parent directory (path without the file name)
 			String filePath = path.getParent().toString();
+			System.out.println("Path without file name" + filePath);
 
 			// Print results
 			Debug.printDebug("File Name: " + fileName);
 			Debug.printDebug("Directory Path: " + filePath);
-
+			System.out.println("FILE::" +file );
 			addCustomTest(fileName, filePath, file, "C2");
-
+System.out.println("testTypeId:::" + testTypeId);
+System.out.println("testfileName:::" + testfileName);
+System.out.println("stageId:::" + stageId);
+			
 			res = addTestFiletoStageAndStartTest(testTypeId, testfileName, stageId, "CUSTOM TWO");
 
 		} catch (Exception e) {

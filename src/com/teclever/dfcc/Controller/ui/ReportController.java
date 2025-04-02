@@ -513,7 +513,7 @@ public class ReportController {
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a Configuration File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg"));
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg","*.pdf"));
 
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(reportMainGridPane.getScene().getWindow());
 		List<String> selectedFilePath = new ArrayList<>();

@@ -273,13 +273,7 @@ public class AddRunConfigurationController {
 		if (aitessType.getValue() == null) {
 			errors.add("Please enter the AitessType.");
 		}
-		if (fileConfigName == null || fileConfigName.isEmpty()) {
-			errors.add("Please select the File Configuration.");
-		}
 		
-		if (fileConfigName2 == null || fileConfigName2.isEmpty()) {
-			errors.add("Please select the File Configuration2.");
-		}
 		if (driverName == null || driverName.isEmpty()) {
 			errors.add("Please enter the Driver Name.");
 		}

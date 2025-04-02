@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -20,6 +21,9 @@ import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
+import com.teclever.dfcc.datastore.dto.StagesFilesDTO;
+import com.teclever.dfcc.datastore.dto.StagesFilesResponseDTO;
 import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.utils.Debug;
@@ -155,6 +159,49 @@ public class TestPlanFileManagement {
 		return testFileDtos;
 	}
 
+//	Before Chaning
+//	public TestFileResponse getSelectedTestFilesFromStage(String stageId) {
+//		TestFileResponse testFileResponse = new TestFileResponse();
+//		Response res = new Response();
+//		try {
+//			TestFileService testFileService = new TestFileService();
+//			List<TestFile> listOfTestFile = testFileService.getAllTestFiles();
+//			Map<String, String> testFileIdAndName = new HashMap<>();
+//			for (TestFile testFile : listOfTestFile) {
+//				testFileIdAndName.put(testFile.getTestFileId(), testFile.getTestFileName());
+//			}
+//			TestFilesStagesMappingService testFilesStageMappingService = new TestFilesStagesMappingService();
+//			GetResponse getResponse = testFilesStageMappingService
+//					.getTestFilesStagesMappingByLastLevelReference(stageId);
+//			if (getResponse.getCode() == 0) {
+//				res.setResponseCode(0);
+//				res.setResponseMessage(getResponse.geteMsg());
+//				testFileResponse.setResponse(res);
+//				return testFileResponse;
+//			}
+//			Map<String, String> testFileNames = new HashMap<>();
+//			for (Object obj : getResponse.getResponseList()) {
+//				TestFilesStagesMapping testFileStagMapping = (TestFilesStagesMapping) obj;
+//				if (testFileIdAndName.get(testFileStagMapping.getTestFileId()) != null) {
+//					testFileNames.put(testFileStagMapping.getTestFileId(),
+//							testFileIdAndName.get(testFileStagMapping.getTestFileId()));
+//				}
+//			}
+//						
+//			testFileResponse.setTestFilesIdName(testFileNames);
+//			res.setResponseCode(1);
+//			res.setResponseMessage("Fetch Successful ");
+//			testFileResponse.setResponse(res);
+//		} catch (Exception e) {
+//			res.setResponseCode(0);
+//			res.setResponseMessage("Fetch Data Unsuccessful ");
+//			testFileResponse.setResponse(res);
+//			e.printStackTrace();
+//		}
+//		return testFileResponse;
+//	}
+	
+//	After Changing
 	public TestFileResponse getSelectedTestFilesFromStage(String stageId) {
 		TestFileResponse testFileResponse = new TestFileResponse();
 		Response res = new Response();
@@ -174,7 +221,7 @@ public class TestPlanFileManagement {
 				testFileResponse.setResponse(res);
 				return testFileResponse;
 			}
-			Map<String, String> testFileNames = new HashMap<>();
+			Map<String, String> testFileNames = new LinkedHashMap<>();
 			for (Object obj : getResponse.getResponseList()) {
 				TestFilesStagesMapping testFileStagMapping = (TestFilesStagesMapping) obj;
 				if (testFileIdAndName.get(testFileStagMapping.getTestFileId()) != null) {
@@ -182,6 +229,7 @@ public class TestPlanFileManagement {
 							testFileIdAndName.get(testFileStagMapping.getTestFileId()));
 				}
 			}
+						
 			testFileResponse.setTestFilesIdName(testFileNames);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Successful ");

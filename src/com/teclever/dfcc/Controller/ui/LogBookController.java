@@ -312,7 +312,7 @@ public class LogBookController {
 
 			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
 			String uutId = fetchUutId(selectedUUTType);
-			initializeSessionComboBox(uutId);
+			
 			initializeDfccSNComboBox(uutId);
 		});
 
@@ -407,20 +407,7 @@ public class LogBookController {
 
 		return selectionBoxSESSION;
 	}
-
-//    // UUT SESSION NAME TYPE FIELD
-	private void initializeSessionComboBox(String uutTypeId) {
-		sessionTypeList.clear();
-
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
-				.collect(Collectors.toList());
-		for (SessionDto sessionName : filterSessionList) {
-			sessionTypeList.add(sessionName.getSessionName());
-		}
-
-		sessionField.setItems(sessionTypeList);
-	}
-
+	
 //  // UUT SESSION DFCC S/N FIELD
 	private void initializeDfccSNComboBox(String uutTypeId) {
 		dfccSNList.clear();
@@ -431,9 +418,40 @@ public class LogBookController {
 		for (SessionDto dfccSn : filterSessionList) {
 			dfccSNList.add(dfccSn.getDfccSNo());
 		}
+		
+		
+//		initializeSessionComboBox(uutId);
 
+		uutSerialNoField.setOnAction(event -> {
+		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
+		    System.out.println("***selectedSerialNo***" +selectedSerialNo );
+		    if (selectedSerialNo != null) {
+		        initializeSessionComboBox(selectedSerialNo);
+		    }
+		});
+
+		
 		uutSerialNoField.setItems(dfccSNList);
 	}
+
+//    // UUT SESSION NAME TYPE FIELD
+	private void initializeSessionComboBox(String selectedDfccNo) {
+		sessionTypeList.clear();
+
+		 List<SessionDto> filterSessionList = sessionList.stream()
+		            .filter(t -> t.getDfccSNo().equals(selectedDfccNo)) // Correct filtering condition
+		            .collect(Collectors.toList());
+		
+		System.out.println("Selected Dfc no" + selectedDfccNo);
+		System.out.println("Session List Size" + filterSessionList.size());
+		
+		for (SessionDto sessionName : filterSessionList) {
+			sessionTypeList.add(sessionName.getSessionName());
+		}
+
+		sessionField.setItems(sessionTypeList);
+	}
+	
 
 	// DATE PICKER - FROM
 	private HBox createFromDatePickerComboBox() {

@@ -96,7 +96,19 @@ public class AdvancedTestingCustomTesting2 {
 	private String TEST_TYPE_ID;
 
 	public GridPane createAdvancedTestingTab4GridPane() {
+		memoryTestLabel.setDisable(true);
+		memoryTypeLabel.setDisable(true);
+		rwTypeLabel.setDisable(true);
+		startAddressLabel.setDisable(true);
+		endAddressLabel.setDisable(true);
+		ipDataLabel.setDisable(true);
 		
+		memoryTypeComboBox.setDisable(true);
+		rwTypeComboBox.setDisable(true);
+		startAddressTextField.setDisable(true);
+		endAddressTextField.setDisable(true);
+		ipDataTextField.setDisable(true);
+		memoryTestRunButton.setDisable(true);
 		
 		StateMachine.setAitess2Launched(true);
 		StateMachine.setAitess1Launched(true);
@@ -377,18 +389,23 @@ public class AdvancedTestingCustomTesting2 {
 		addCheckSumFileLabel.setDisable(status);
 		selectTestFileRunButton.setDisable(status);
 		downloadCodeRunButton.setDisable(status);
-		memoryTypeComboBox.setDisable(status);
-		rwTypeComboBox.setDisable(status);
-		startAddressTextField.setDisable(status);
-		endAddressTextField.setDisable(status);
-		ipDataTextField.setDisable(status);
-		memoryTestRunButton.setDisable(status);
+//		memoryTypeComboBox.setDisable(status);
+//		rwTypeComboBox.setDisable(status);
+//		startAddressTextField.setDisable(status);
+//		endAddressTextField.setDisable(status);
+//		ipDataTextField.setDisable(status);
+//		memoryTestRunButton.setDisable(status);
 	}
 
 	private void handleRunTestFile(boolean isTestFile) {
+		System.out.println("Entred Handle Run");
 		if (isTestFile) {
 			if (selectedTestFilePath != null) {
+				System.out.println("Entred Handle Run Condition");
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
+				System.out.println("User Test File ID" + stageId);
+				System.out.println("Test File Path" + selectedTestFilePath);
+				
 				if(checkAndSetTestState()) {					
 					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId,selectedTestFilePath, TEST_TYPE_ID);
 					if (response.getResponseCode() == 0) {

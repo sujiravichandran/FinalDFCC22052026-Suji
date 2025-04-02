@@ -624,7 +624,7 @@ public class AdvancedTestingHWATPTesting {
 	            runAllButton.setDisable(false);
 	            startButton.setDisable(false);
 	            pauseButton.setDisable(true);
-	            stopButton.setDisable(false);
+	            stopButton.setDisable(true);
 	            
 	            Notifications.showErrorAlert(response.getResponseMessage());
 	        }
@@ -634,7 +634,7 @@ public class AdvancedTestingHWATPTesting {
 	    	 runAllButton.setDisable(false);
 	            startButton.setDisable(false);
 	            pauseButton.setDisable(true);
-	            stopButton.setDisable(false);
+	            stopButton.setDisable(true);
 	        Throwable exception = task.getException();
 	        Debug.printDebug("HWATP Test Task failed with exception: " + exception.getMessage());
 	    });

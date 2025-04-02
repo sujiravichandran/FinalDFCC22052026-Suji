@@ -469,6 +469,7 @@ e.printStackTrace();
 		Debug.printDebug("Stage Level From LRU"+ stageLevel);
 		Response response = new Response();
 		try {
+			System.out.println("File Ids"+ fileIds);
 			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
 			response = testFilesStagesMappingService.addTestFilesStagesMapping(stageLevel, fileIds);
 			// Checking Wheather levelId Level 4
@@ -535,6 +536,7 @@ e.printStackTrace();
 				stagesFilesDTO.setPathMasterId(testFileIdPathId.get(testFilesStagesMapping.getTestFileId()));
 				listStagesFiles.add(stagesFilesDTO);
 			}
+			response.setAllTestFilesIdName(testFileIdName);
 			response.setResponseList(listStagesFiles);
 			response.setCode(1);
 			response.setMsg("Fetched");

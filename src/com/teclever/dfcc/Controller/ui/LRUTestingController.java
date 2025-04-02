@@ -115,6 +115,8 @@ public class LRUTestingController {
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 	private Button runAllButton = new Button("Run All");
+	private Button selectAllButton = new Button("Select All");
+
 
 	private GridPane sruTestCheckBoxList = new GridPane();
 	private VBox selectedListVBox = new VBox(5);
@@ -164,7 +166,8 @@ public class LRUTestingController {
 
 	public GridPane createlruTestMainContainerGridPane() {
 		
-
+		StateMachine.setAitess1Launched(true);
+		StateMachine.setAitess2Launched(true);
 		lruTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
 		lruTestMainContainerGridPane.getStyleClass().add("lruTest-main-container");
@@ -392,6 +395,7 @@ public class LRUTestingController {
 						Notifications
 								.showWarningAlert("Some test files are missing IDs. Please check the configuration.");
 					});
+					
 					startButton.setDisable(false);
 					StateMachine.setTestState(TestState.COMPLETED);
 					return null;
@@ -634,10 +638,10 @@ public class LRUTestingController {
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
 			
-			if (!firstButton) {
-				newButton.setDisable(true);
-			} 
-			firstButton = false;
+//			if (!firstButton) {
+//				newButton.setDisable(true);
+//			} 
+//			firstButton = false;
 			newButton.setOnAction(e -> {
 				LRUTestStateObject.getRunnedLRUTestFileCount().set(0);
 //				if(newButton.getText().toLowerCase().contains("spil")) {
@@ -678,6 +682,7 @@ public class LRUTestingController {
 				if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 						|| currentState == TestState.STOPPED) {
 					startButton.setDisable(true);
+					selectAllButton.setDisable(true);
 					StateMachine.setTestState(TestState.RUNNING);
 					StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -1170,7 +1175,7 @@ public class LRUTestingController {
 		stopButton.setGraphicTextGap(10);
 		pauseButton.setGraphic(pauseImageView);
 		pauseButton.setGraphicTextGap(10);
-
+		selectAllButton.setDisable(true);
 		runAllButton.setDisable(true);
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
@@ -1187,7 +1192,7 @@ public class LRUTestingController {
 		progressBarHBox.setAlignment(Pos.CENTER);
 
 		// Create Select All / Deselect All button
-		Button selectAllButton = new Button("Select All");
+		
 		selectAllButton.setOnAction(event -> {
 			boolean selectAll = selectAllButton.getText().equals("Select All");
 			checkBoxes.forEach(cb -> cb.setSelected(selectAll));
@@ -1293,7 +1298,7 @@ public class LRUTestingController {
 
 				sendSelectedSubStageData();
 				startSruTest();
-
+				selectAllButton.setDisable(true);
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				stopButton.setDisable(false);
@@ -1303,6 +1308,7 @@ public class LRUTestingController {
 
 			} else if (currentState == TestState.RUNNING) {
 				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				selectAllButton.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -1310,6 +1316,7 @@ public class LRUTestingController {
 			} else if (currentState == TestState.PAUSED) {
 				Notifications.showWarningAlert(
 						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				selectAllButton.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -1321,6 +1328,7 @@ public class LRUTestingController {
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
+				selectAllButton.setDisable(false);
 				startButton.setDisable(true);
 				pauseButton.setDisable(false);
 				stopButton.setDisable(false);
@@ -1397,6 +1405,7 @@ public class LRUTestingController {
 		pauseButton.setOnAction(e -> {
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
+			selectAllButton.setDisable(true);
 			pauseButton.setDisable(true);
 			startButton.setDisable(false);
 			stopButton.setDisable(false);
@@ -1409,8 +1418,18 @@ public class LRUTestingController {
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
 			startButton.setDisable(false);
-			runAllButton.setDisable(false);
+			runAllButton.setDisable(false);	
 			sruTestCheckBoxList.setDisable(false);
+			selectAllButton.setDisable(false);
+			
+			
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+					"clicked on Stop in SRU/LRU Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			
 		});
 
 	}

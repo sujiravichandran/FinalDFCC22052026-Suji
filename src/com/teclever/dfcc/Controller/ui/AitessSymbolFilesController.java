@@ -156,6 +156,8 @@ public class AitessSymbolFilesController {
 					filePaths.add(file.getAbsolutePath());
 				}
 
+				System.out.println("Files Path in Symbolc:filePaths" + filePaths);
+				System.out.println("Files Path in Symbolc:RUN_CONFIG_ID" + RUN_CONFIG_ID);
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "symbols");
 				if (res.getResponseCode() == 1) {
 					tableData.clear();
