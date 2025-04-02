@@ -64,7 +64,7 @@ public class ReportGeneration {
 
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			filePath = "C:\\Suji\\Reports\\" + fileName;
 		} else {
 			//filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 			  filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
@@ -93,17 +93,17 @@ public class ReportGeneration {
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-		imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-			
+//			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Suji\\Reports\\Logo\\BEL.png";		
 			
 		} else {
 //			Before changing for tecelever testing
 //			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
-			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
+//			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
 			
 //			After changing for Tecelever testing
-	//		imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.png";
-	//		imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.png";
+			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.png";
+			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.png";
 		}
 
 		Image img = Image.getInstance(imagePath);
@@ -150,7 +150,7 @@ public class ReportGeneration {
 
 		// Add images and text inside the rounded rectangular box
 		String imagePath1 = "";
-	
+		System.out.println("DFCCConstant.isJarBuild 2" + DFCCConstant.isJarBuild);
 		if (!DFCCConstant.isJarBuild) {
 //			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
 			System.out.println("Entring!DFCCC");
@@ -164,12 +164,16 @@ public class ReportGeneration {
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-		imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-	//		imagePath3 ="C:\\Suji\\Reports\\Logo\\TECLEVER_logo.png";
+//			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+			imagePath3 ="C:\\Suji\\Reports\\Logo\\TECLEVER_logo.png";
 			
 		} else {
-		//	imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
+//			Before Changing for Tecelever Testing
+			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 			imagePath3 =  currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";
+			
+			
+			
 		}
 
 		Image img1 = Image.getInstance(imagePath1);
@@ -199,7 +203,6 @@ public class ReportGeneration {
 	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
 
-		System.out.println("Line No 185");		
 	
 	/*	for (int i = 1; i <= 100; i++) {
 			ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
@@ -251,7 +254,6 @@ public class ReportGeneration {
 		 * heading document.add(SessionDetails); document.add(new Paragraph("\n" ));
 		 */
 
-		System.out.println("Line No 227");		
 	
 		Chunk sessionNameChunk = new Chunk("Session Name             ", headerFont);
 		Chunk sessionDetailsChunk = new Chunk(sessionDetailsMap.get("sessionName"), highlightCementFont);
@@ -274,7 +276,6 @@ public class ReportGeneration {
 		dfccPartNoDetailsParagraph.add(dfccPartNoDetailsChunk);
 		document.add(dfccPartNoDetailsParagraph);
 
-		System.out.println("Line No 248");		
 		String stageName = "";
 		if (resultExecutionDTOList != null) {
 			stageName = resultExecutionDTOList.get(0).getStageName();
@@ -412,7 +413,7 @@ public class ReportGeneration {
 		writer.setPageEvent(event);
 		document.open();
 
-	
+		res.setDownloadPath(filePath);
 		
 		document.add(new Paragraph("\n"));
 		document.add(new Paragraph("\n"));
@@ -762,8 +763,10 @@ public class ReportGeneration {
 			
 			
 		}
-
-	
+		
+		res.setDownloadPath(filePath);
+		System.out.println("FILE PATH " +filePath);
+		System.out.println("FILE PATH get method " +res.getDownloadPath() );
 		
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
@@ -1739,6 +1742,243 @@ public class ReportGeneration {
         return res;
     }*/
     
+    //Create the Report ESS and PQT
+    public Response generateBreifReportESSPQTSession(String sessionId)
+            throws DocumentException, MalformedURLException, IOException {
+    	//yyyyMMdd_HHmmss
+    	//dd-MM-yyyy
+        Response res = new Response();
+        Document document = new Document(PageSize.A4);
+        
+        String fileName = "BriefReport_Session.pdf";
+    
+        String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
+		} else {
+//			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
+		}
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
+
+        ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
+        writer.setPageEvent(event);
+        document.open();
+        
+        res.setDownloadPath(filePath);
+        //To Fetch....
+        ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);    
+        List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+        resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
+        
+       /* for(int i=1;i<=100;i++)
+        {
+        	ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
+        	resultExecutionDTO.setTestFileName("Test Name -"+i);
+        	resultExecutionDTO.setDStarCount(i+"");
+        	resultExecutionDTO.setRdfFile("RDF FILE NAME -"+i);
+        	resultExecutionDTO.setEndTime("End Time  -00:00:00");
+        	resultExecutionDTO.setStageName("StageName  -"+i);
+        	resultExecutionDTO.setStatus("Status - "+i);
+      
+        	if(i<=20)
+        	{
+        		resultExecutionDTO.setTestMode("Session Test-Intial1- Test 1");
+        	}
+        	else if(i<=40)
+        	{
+        		resultExecutionDTO.setTestMode("Session Test-Intial2- Test 2");
+        	}
+        	else if(i<=60)
+        	{
+        		resultExecutionDTO.setTestMode("Session Test-Intial3- Test 3 - T4");
+        	}
+        	else if(i<=80)
+        	{
+        		resultExecutionDTO.setTestMode("Session Test-Intial4- Test 4");
+        	}
+        	else
+        	{
+        		resultExecutionDTO.setTestMode("Session Test-Intial5- Test 5");
+        	}
+          	resultExecutionDTOList.add(resultExecutionDTO);
+        }*/
+        
+     //   System.out.println(resultExecutionDTOList.size());
+   //     Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+     
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		if (!sessionId.substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+		} else {
+			sessionDetailsMap = resultExecutionManagement.getTrailSessionDetailsBySessionId(sessionId);
+
+		}
+
+        // Add text in place of the second image
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
+        Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
+        
+        //User Defined Colour..
+    	BaseColor tecBlueColor = new BaseColor(0, 79, 104, 255); // RGB values (Red, Green, Blue)
+    	BaseColor skyBlueColor = new BaseColor(0,176,196,222);
+		BaseColor belBlueColor = new BaseColor(1, 75, 174, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecGreenColor = new BaseColor(99, 137, 52, 255); // RGB values (Red, Green, Blue)
+		BaseColor tecCementColor = new BaseColor(151, 185, 196);
+		Font highlightCementFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecCementColor);
+		Font highlighttecBlueColor = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLDITALIC, tecBlueColor);
+		Font highlightbelBlueColor = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLDITALIC, belBlueColor);
+        
+        Font headerFont = new Font(Font.FontFamily.COURIER, 12, Font.BOLD, BaseColor.BLACK);
+        document.add(new Paragraph("\n"));        
+      
+        Chunk sessionNameChunk = new Chunk("Session Name             ", headerFont);
+        Chunk sessionDetailsChunk = new Chunk(sessionDetailsMap.get("sessionName"), highlightCementFont);
+        Paragraph sessionNameDetailsParagraph = new Paragraph();
+        sessionNameDetailsParagraph.add(sessionNameChunk); 
+        sessionNameDetailsParagraph.add(sessionDetailsChunk);
+        document.add(sessionNameDetailsParagraph);
+        
+        String stageNameTestMode = "";
+        String previousStage = "";  // To track the previous stage and decide when to start a new table
+
+        if (resultExecutionDTOList != null) {
+            // Create a table with 3 columns
+            PdfPTable table = new PdfPTable(3);
+            table.setWidthPercentage(100); // Set table width to 100%
+            table.setSpacingBefore(10f); // Space before table
+            table.setSpacingAfter(10f); // Space after table
+            float[] columnWidths = { 2f, 2f, 1f }; // Column widths
+            table.setWidths(columnWidths);
+
+            Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+            String[] headers = { "File Name", "Time", "Result" };
+
+            // Add an initial empty row at the start for spacing before the first stage
+            PdfPCell emptyCell = new PdfPCell(new Phrase(""));  // Empty cell
+            emptyCell.setColspan(3);
+            emptyCell.setFixedHeight(10);  // Adjust height as needed for spacing
+            emptyCell.setBorder(Rectangle.NO_BORDER);  // Remove border for clean spacing
+            table.addCell(emptyCell);
+
+            // Loop through resultExecutionDTOList to process each item
+            for (ResultExecutionDTO resultExecutionDTO : resultExecutionDTOList) {
+                String currentStageTestMode = resultExecutionDTO.getTestMode().split("-")[1];
+
+                // If the stage name is different from the previous stage, create a new table and add a heading
+                if (!currentStageTestMode.equals(previousStage)) {
+                	
+                	 PdfPCell emptyCellForSpacing = new PdfPCell(new Phrase(""));  // Empty cell
+                     emptyCellForSpacing.setColspan(3);
+                     emptyCellForSpacing.setFixedHeight(10);  // Adjust height as needed for spacing
+                     emptyCellForSpacing.setBorder(Rectangle.NO_BORDER);  // Remove border for clean spacing
+                     table.addCell(emptyCellForSpacing);
+
+                    // Add the current stage heading to the table
+                    PdfPCell mergedCell = new PdfPCell(new Paragraph(currentStageTestMode));
+                    mergedCell.setColspan(3);
+                    mergedCell.setFixedHeight(20);
+                    mergedCell.setBackgroundColor(skyBlueColor);
+                    mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table.addCell(mergedCell);
+
+                    // Add headers to the table
+                    for (String header : headers) {
+                        PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+                        cell.setBackgroundColor(BaseColor.GRAY);
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        table.addCell(cell);
+                    }
+
+                    // Add an empty row for space between stages
+                    PdfPCell emptyCellForSpacing1 = new PdfPCell(new Phrase(""));  // Empty cell
+                    emptyCellForSpacing1.setColspan(3);
+                    emptyCellForSpacing1.setFixedHeight(10);  // Adjust height as needed for spacing
+                    emptyCellForSpacing1.setBorder(Rectangle.NO_BORDER);  // Remove border for clean spacing
+                    table.addCell(emptyCellForSpacing1);
+
+                    // Update previousStage with currentStageTestMode
+                    previousStage = currentStageTestMode;
+                }
+
+                // Add the row data for the current stage
+                table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
+                table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
+                table.addCell(new Phrase(resultExecutionDTO.getStatus()));
+            }
+
+            // Add the table to the document after processing all results
+            document.add(table);
+            document.add(new Paragraph("\n" + "\n"));
+        }
+       
+        document.close();  
+		res.setResponseMessage("Brief Session Results Download Successfully...!");
+        res.setResponseCode(1);
+        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
+        return res;
+    }
+    
+    public Response generateAnnexure(int annexureCount)
+            throws DocumentException, MalformedURLException, IOException {
+    	//yyyyMMdd_HHmmss
+    	//dd-MM-yyyy
+        Response res = new Response();
+        Document document = new Document(PageSize.A4);
+        
+        String filePath = "";
+		if (!DFCCConstant.isJarBuild) {
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" +"Annexure"+annexureCount+".pdf";
+		} else {
+//			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/fileName;
+			filePath = currentDirectory + File.separator +"Annexure"+annexureCount+".pdf";
+			
+		}
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
+
+        ReportGeneration.HeaderFooter event = new ReportGeneration.HeaderFooter();
+        writer.setPageEvent(event);
+        document.open();
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));   
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));   
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n"));
+      
+      
+        Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 24, Font.BOLD, BaseColor.BLACK);
+        String title = "Annexure - "+annexureCount ;
+   
+        Paragraph titlePara = new Paragraph(title, titleFont);
+        titlePara.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+        document.add(titlePara);
+
+             
+        document.close();  
+		res.setResponseMessage("Brief Session Results Download Successfully...!");
+        res.setResponseCode(1);
+        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
+        return res;
+    }
+    
+    
     //Session Brief Report
     public Response generateBreifReportForCurrentSession(String sessionId)
             throws DocumentException, MalformedURLException, IOException {
@@ -1752,7 +1992,7 @@ public class ReportGeneration {
     
         String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\Teclever\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
 		} else {
 //			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 			filePath = currentDirectory + File.separator + "Reports"+File.separator+fileName;
@@ -1780,7 +2020,7 @@ public class ReportGeneration {
         // Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\BEL.jpeg";
 		} else {
 //			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath = currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
@@ -1833,7 +2073,7 @@ public class ReportGeneration {
         // Add images and text inside the rounded rectangular box
         String imagePath1 = "";
         if (!DFCCConstant.isJarBuild) {
-            imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+            imagePath1 = "C:\\Users\\VIGNESH-TEC\\Downloads\\BEL.jpeg";
         } else {
 //          imagePath1 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
             imagePath1 = currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";   	
@@ -1841,9 +2081,9 @@ public class ReportGeneration {
 
         String imagePath3 = "";
         if (!DFCCConstant.isJarBuild) {
-            imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
+            imagePath3 = "C:\\Users\\VIGNESH-TEC\\Downloads\\TECLEVER_logo.png";
         } else {
-      //    imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
+          imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
             imagePath3 = currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";        	
         }
 
@@ -2263,7 +2503,7 @@ public class ReportGeneration {
         if (!DFCCConstant.isJarBuild) {
             imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
         } else {
-     //     imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
+          imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
             imagePath3 = currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";        	
             
         }

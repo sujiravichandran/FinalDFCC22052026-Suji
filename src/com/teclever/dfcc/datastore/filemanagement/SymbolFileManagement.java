@@ -146,6 +146,8 @@ public class SymbolFileManagement {
 			e.printStackTrace();
 		}
 		List<SymbolDto> symbols = SymbolFileParser.parseSymbols(filePaths, runPathMasterId);
+		System.out.println("In Symbole file Manager checking : runPathMasterId : " + runPathMasterId);
+		System.out.println("In Symbole file Manager checking : filePaths : " + filePaths);
 		SymbolService symbolService = new SymbolService();
 
 		// Mark previous macro rows as deleted before adding new ones

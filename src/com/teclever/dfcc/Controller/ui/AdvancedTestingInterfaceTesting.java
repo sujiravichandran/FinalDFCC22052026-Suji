@@ -103,6 +103,10 @@ public class AdvancedTestingInterfaceTesting {
 	
 	
 	public GridPane createAdvancedTestingTab2GridPane() {
+		
+		StateMachine.setAitess1Launched(true);
+		StateMachine.setAitess2Launched(true);
+		
 		getInterfaceTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
@@ -578,6 +582,8 @@ public class AdvancedTestingInterfaceTesting {
 		
 		AdvancedTestStateObject.runnedInterfaceestFileCountProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null ) {
+				System.out.println("");
+				
 				double percentage = (double) AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get() / AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount();
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 				Platform.runLater(() -> {
@@ -624,13 +630,17 @@ public class AdvancedTestingInterfaceTesting {
 		            runAllButton.setDisable(false);
 		            startButton.setDisable(false);
 		            pauseButton.setDisable(true);
-		            stopButton.setDisable(false);
+		            stopButton.setDisable(true);
 		            
 		            Notifications.showErrorAlert(response.getResponseMessage());
 		        }
 		    });
 
 		    task.setOnFailed(event -> {
+		    	 runAllButton.setDisable(false);
+		            startButton.setDisable(false);
+		            pauseButton.setDisable(true);
+		            stopButton.setDisable(true);
 		        Throwable exception = task.getException();
 		        Debug.printDebug("Interface Test Task failed with exception: " + exception.getMessage());
 		    });

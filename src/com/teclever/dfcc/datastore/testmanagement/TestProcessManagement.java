@@ -873,7 +873,7 @@ public class TestProcessManagement {
 
 					} else
 					 {
-
+System.out.println("Enterd Runtest Process");
 						testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
@@ -1054,6 +1054,7 @@ public class TestProcessManagement {
 //Test file progress indication
 //	after chatgpt
 	private static int countFilesFromString(String data) {
+		processedFiles.clear();
 		int fileCount = 0;
 		String[] lines = data.split(",");
 
@@ -1067,7 +1068,11 @@ public class TestProcessManagement {
 			if (line.contains(".tst") || line.contains(".tpf")) {
 				fileCount++;
 			} else if (line.endsWith(".com")) {
-				File file = new File(line);								
+				fileCount++;
+				File file = new File(line);
+				
+				
+				
 				String fullPath = file.getAbsolutePath();
 
 				// Debugging output
@@ -1120,7 +1125,7 @@ public class TestProcessManagement {
 	private TestProcessDto runTestFile(String testFileName, String stageName, String rdfFileLocation, String stageId,
 			String sessionId, String rdfFileResult, String dotComFileResult, boolean continueWithError,
 			String testFileId, String sessionStageMapId, boolean lastCount, String uniqueTestFilesResultIdId) {
-
+		System.out.println("Enterd Runtest runTestFile");
 		TestProcessDto testProcessDto = new TestProcessDto();
 
 		try {
@@ -1140,9 +1145,10 @@ public class TestProcessManagement {
 
 			// Test Started Time
 			String startTime = String.valueOf(new Date());
-
+			
 			// Getting RDF file Name from PerformTest()
 			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
+			System.out.println("Checking Aitess Running perform Test" + rdfFileName);
 			
 			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
 			TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName, testFileName,

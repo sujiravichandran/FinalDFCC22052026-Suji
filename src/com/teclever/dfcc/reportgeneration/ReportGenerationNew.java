@@ -41,6 +41,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfCopy;
+import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
@@ -343,9 +344,9 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		return res;
 	}
 
-	//// Generation Of ESS Report Content
+	// Generation Of ESS Report Content
 	public Response generateEssReport(String sessionId) {
-		
+
 		currentPageNumber = 1;
 		tocPlaceholder = new HashMap<String, PdfTemplate>();
 		pageByTitle = new HashMap<>();
@@ -355,98 +356,100 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		summaryPlaceHolderCountSub = 1;
 		tocPlaceHolderCountH3 = 1;
 		summaryPlaceHolderCountH3 = 1;
-		
+
 		Response res = new Response();
 		Response res1 = new Response();
+		ReportGeneration reportGeneration = new ReportGeneration();
 		try {
-		res1=	generateEssReportContent(sessionId);
-		} catch (DocumentException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String fileName = "ESS_Report"
-				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-		String filePath = "";
-		String contentFilePath = "";
-		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
-			contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage() ;
-		} else {
-			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			res1 = generateEssReportContent(sessionId);
 
-			filePath = currentDirectory + File.separator +"Reports" +File.separator+ fileName;
-		//	contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
-			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+res1.getResponseMessage();
-			
-			
-		}
-
-		res.setDownloadPath(filePath);
-		
-		List<String> pdfFiles = new ArrayList<String>();
-		
-		Map<String, String> filesPathStageFullPath = new HashMap<String, String>();
-		pdfFiles.add(contentFilePath);
-		ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
-		ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
-		reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "ESS");
-		for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
-			File file = new File(reportConfigDTO.getFileName());
-			ImageToPdfConverter img = new ImageToPdfConverter();
-
-			boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
-			if (checkPdf) {
-				pdfFiles.add(reportConfigDTO.getFileName());
+			String fileName = "ESS_Report"
+					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+			String filePath = "";
+			String contentFilePath = "";
+			if (!DFCCConstant.isJarBuild) {
+				filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
+				contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage();
 			} else {
-				pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
-			}
-			/*
-			 * String fullPathName = reportConfigDTO.getLevelOneName() + ":" +
-			 * reportConfigDTO.getLevelTwoName(); if (reportConfigDTO.getLevelThreeName() !=
-			 * null && !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
-			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
-			 * (reportConfigDTO.getLevelThreeName() != null &&
-			 * !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
-			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
-			 * (reportConfigDTO.getLevelFourName() != null &&
-			 * !reportConfigDTO.getLevelFourName().equals("")) { fullPathName = fullPathName
-			 * + ":" + reportConfigDTO.getLevelFourName(); } if
-			 * (reportConfigDTO.getLevelFiveName() != null &&
-			 * !reportConfigDTO.getLevelFiveName().equals("")) { fullPathName = fullPathName
-			 * + ":" + reportConfigDTO.getLevelFiveName(); }
-			 * filesPathStageFullPath.put(reportConfigDTO.getFileName(), fullPathName);
-			 */
-		}
+				// filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +
+				// fileName;
 
-		try {
-			
+				filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+				// contentFilePath =
+				// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +
+				// "PQTContent.pdf";
+				contentFilePath = currentDirectory + File.separator + "Reports" + File.separator
+						+ res1.getResponseMessage();
+
+			}
+
+			res.setDownloadPath(filePath);
+
+			List<String> pdfFiles = new ArrayList<String>();
+
+			Map<String, String> filesPathStageFullPath = new HashMap<String, String>();
+			pdfFiles.add(contentFilePath);
+			ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+			ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+			reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "ESS");
+			int annexureCount = 1;
+			for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+				File file = new File(reportConfigDTO.getFileName());
+				ImageToPdfConverter img = new ImageToPdfConverter();
+				boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+				String annexureFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + "Annexure" + annexureCount + ".pdf";
+				File annexureFile = new File(annexureFilePath);
+				if (checkPdf) {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(reportConfigDTO.getFileName());
+				} else {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+				}
+				annexureCount++;
+			}
+
 			Document document = new Document();
 			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
 			document.open();
 
+			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+
+			// Loop through each PDF file
 			for (String pdf : pdfFiles) {
 				PdfReader reader = new PdfReader(pdf);
+
+				// Loop through each page of the current PDF
 				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+
+					// Create the heading for each page (Annexure - X)
+					Paragraph sessionDetails = new Paragraph("Annexure - " + i, headerFont);
+					System.out.println("Annexure  :" + "Annexure - " + i);
+					sessionDetails.setAlignment(Element.ALIGN_CENTER); // Center align the heading
+					document.add(sessionDetails); // Add the "Annexure - X" text to the document
+
+					// Now add the actual page content from the PDF to the merged document
 					copy.addPage(copy.getImportedPage(reader, i));
 				}
-				reader.close();
+
+				reader.close(); // Close the reader for this PDF
 			}
 
-			document.close();
-			/*SessionService  sessionService = new SessionService();
-			GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
-			SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
-			String sessionPathString = sessionentity.getPath()+File.separator+"report";
-			Path fileFullPath = Path.of(filePath);
-				
-			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			Path sessionPath =Path.of(sessionPathString) ;
-			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
-			
-			
+			document.close(); // Close the document after adding all content
+
 			GetObjResponse sessionRes = new GetObjResponse();
 			String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
-			
+
 			if (!sessionId.substring(0, 4).equals("TSSN")) {
 				SessionService sessionService = new SessionService();
 				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
@@ -460,31 +463,25 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
 				sessionPathString = trailSessionEntity.getPath();
 			}
-			
-			sessionPathString = sessionPathString+File.separator+"report";
+
+			sessionPathString = sessionPathString + File.separator + "report";
 			Path fileFullPath = Path.of(filePath);
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			Path sessionPath =Path.of(sessionPathString) ;
+			Path sessionPath = Path.of(sessionPathString);
 			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
-		
-			
-			
+
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
-				
-		
-			//Deleting the Content PDF and Updated PDF
 			res.setResponseCode(1);
 			res.setResponseMessage("Ess Report Download Successfully!");
-				
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return res;
 	}
-
-	// Generate PQT Report..
+	
 	public Response generatePQTReport(String sessionId) {
-		
+
 		currentPageNumber = 1;
 		tocPlaceholder = new HashMap<String, PdfTemplate>();
 		pageByTitle = new HashMap<>();
@@ -494,11 +491,160 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		summaryPlaceHolderCountSub = 1;
 		tocPlaceHolderCountH3 = 1;
 		summaryPlaceHolderCountH3 = 1;
-		
+
+		Response res = new Response();
+		Response res1 = new Response();
+		ReportGeneration reportGeneration = new ReportGeneration();
+		try {
+
+			res1 = generatePQTReportContent(sessionId);
+			String fileName = "PQT_Report"
+					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+			String filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
+			String contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage();
+
+			res.setDownloadPath(filePath);
+
+			List<String> pdfFiles = new ArrayList<>();
+			pdfFiles.add(contentFilePath);
+
+			// Adding all other PDFs
+			ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+			ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+			reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "PQT");
+			int annexureCount = 1;
+			for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+				File file = new File(reportConfigDTO.getFileName());
+				ImageToPdfConverter img = new ImageToPdfConverter();
+				boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+				String annexureFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + "Annexure" + annexureCount + ".pdf";
+				File annexureFile = new File(annexureFilePath);
+				if (checkPdf) {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(reportConfigDTO.getFileName());
+				} else {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+				}
+				annexureCount++;
+			}
+
+			Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
+			int resResultCode = resReport.getResponseCode();
+			if (resResultCode == 1) {
+				if (!DFCCConstant.isJarBuild) {
+					pdfFiles.add("C:\\Users\\VIGNESH-TEC\\Downloads\\BriefReport_Session.pdf");
+				} else {
+					pdfFiles.add(
+							currentDirectory + File.separator + "Reports" + File.separator + "BriefReport_Session.pdf");
+				}
+				pdfFiles.add(contentFilePath);
+			}
+
+			// Create a new document for merging
+			Document document = new Document();
+			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+			document.open(); // Open the document
+
+			// Header settings
+			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+			int pdfCounter = 1;
+
+			// Loop through all PDF files
+			for (String inputPdf : pdfFiles) {
+				// First, add the heading "PDF - X"
+				Paragraph pdfHeading = new Paragraph("PDF - " + pdfCounter, headerFont);
+				pdfHeading.setAlignment(Element.ALIGN_CENTER);
+				document.add(pdfHeading); // Add heading to the document
+				document.add(new Paragraph("\n")); // Add a small gap
+
+				// Now let's process the PDF and add the pages
+				PdfReader reader = new PdfReader(inputPdf);
+				PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(filePath, true));
+
+				// Loop through each page and add header on the first page
+				int numPages = reader.getNumberOfPages();
+				for (int i = 1; i <= numPages; i++) {
+					// For the first page of each PDF, we add a header
+					if (i == 1) {
+						// Create a new canvas for adding text on top of the page
+						PdfContentByte canvas = stamper.getOverContent(i);
+						ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
+								new Phrase("PDF - " + pdfCounter, headerFont), 300, 750, 0); // You can adjust x, y
+																								// positions as needed
+					}
+
+					// Copy page content to new document
+					PdfImportedPage page = copy.getImportedPage(reader, i);
+					copy.addPage(page);
+				}
+
+				stamper.close(); // Close the stamper for the current file
+				reader.close(); // Close the reader for the current PDF
+
+				pdfCounter++; // Increment PDF counter for the next document
+			}
+
+			document.close(); // Close the final document
+
+			// Copy the file to session path (optional step)
+			GetObjResponse sessionRes = new GetObjResponse();
+			String sessionPathString = "";
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				SessionService sessionService = new SessionService();
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionPathString = sessionEntity.getPath();
+			} else {
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionPathString = trailSessionEntity.getPath();
+			}
+
+			sessionPathString = sessionPathString + File.separator + "report";
+			Path fileFullPath = Path.of(filePath);
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath = Path.of(sessionPathString);
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+
+			res.setResponseCode(1);
+			res.setResponseMessage("PQT Report Download Successfully...!");
+			System.out.println("PDFs Created successfully In Path...!" + filePath);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
+	// Generate PQT Report..
+	public Response generatePQTReport1(String sessionId) {
+
+		currentPageNumber = 1;
+		tocPlaceholder = new HashMap<String, PdfTemplate>();
+		pageByTitle = new HashMap<>();
+		tocPlaceHolderCount = 1;
+		summaryPlaceHolderCount = 2;
+		tocPlaceHolderCountSub = 1;
+		summaryPlaceHolderCountSub = 1;
+		tocPlaceHolderCountH3 = 1;
+		summaryPlaceHolderCountH3 = 1;
+
 		Response res = new Response();
 		Response res1 = new Response();
 		try {
-		res1=	generatePQTReportContent(sessionId);
+			res1 = generatePQTReportContent(sessionId);
 		} catch (DocumentException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -509,17 +655,20 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 		String contentFilePath = "";
 		if (!DFCCConstant.isJarBuild) {
 			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\Reports\\" + fileName;
-			contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage() ;
+			contentFilePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + res1.getResponseMessage();
 		} else {
-			//filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
+			// filePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +
+			// fileName;
 
-			filePath = currentDirectory + File.separator +"Reports" +File.separator+ fileName;
-		//	contentFilePath = "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + "PQTContent.pdf";
-			contentFilePath = 	 currentDirectory + File.separator + "Reports"+File.separator+res1.getResponseMessage();
-			
-			
+			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+			// contentFilePath =
+			// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +
+			// "PQTContent.pdf";
+			contentFilePath = currentDirectory + File.separator + "Reports" + File.separator
+					+ res1.getResponseMessage();
+
 		}
-		
+
 		res.setDownloadPath(filePath);
 
 		List<String> pdfFiles = new ArrayList<String>();
@@ -538,56 +687,63 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 			} else {
 				pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
 			}
-			/*
-			 * String fullPathName = reportConfigDTO.getLevelOneName() + ":" +
-			 * reportConfigDTO.getLevelTwoName(); if (reportConfigDTO.getLevelThreeName() !=
-			 * null && !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
-			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
-			 * (reportConfigDTO.getLevelThreeName() != null &&
-			 * !reportConfigDTO.getLevelThreeName().equals("")) { fullPathName =
-			 * fullPathName + ":" + reportConfigDTO.getLevelThreeName(); } if
-			 * (reportConfigDTO.getLevelFourName() != null &&
-			 * !reportConfigDTO.getLevelFourName().equals("")) { fullPathName = fullPathName
-			 * + ":" + reportConfigDTO.getLevelFourName(); } if
-			 * (reportConfigDTO.getLevelFiveName() != null &&
-			 * !reportConfigDTO.getLevelFiveName().equals("")) { fullPathName = fullPathName
-			 * + ":" + reportConfigDTO.getLevelFiveName(); }
-			 * filesPathStageFullPath.put(reportConfigDTO.getFileName(), fullPathName);
-			 */
 		}
-
+		
+		
 		try {
-			
-			Document document = new Document();
-			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
-			document.open();
-
-			for (String pdf : pdfFiles) {
-				PdfReader reader = new PdfReader(pdf);
-				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
-					copy.addPage(copy.getImportedPage(reader, i));
-				}
-				reader.close();
+			ReportGeneration reportGeneration = new ReportGeneration();
+			Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
+			int resResultCode = resReport.getResponseCode(); 
+			if(resResultCode==1)
+			{
+				  pdfFiles.add("C:\\Users\\VIGNESH-TEC\\Downloads\\BriefReport_Session.pdf" );
+				 // pdfFiles.add(currentDirectory + File.separator + "Reports"+File.separator+"BriefReport_Session.pdf");
 			}
+			// Initialize the document and PdfCopy
+            Document document = new Document();
+            PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+            document.open(); // Open the document to start adding content
 
-			document.close();
-			
-			
-			
-			/*SessionService  sessionService = new SessionService();
-			GetObjResponse getObjResponse	= sessionService.getSessionDetailBySessionStageId(sessionId);
-			SessionEntity sessionentity = (SessionEntity) getObjResponse.getObject();
-			String sessionPathString = sessionentity.getPath()+File.separator+"report";
-			Path fileFullPath = Path.of(filePath);
-				
-			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			Path sessionPath =Path.of(sessionPathString) ;
-			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);*/
-			
+            // Font settings for the header
+            Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+
+            // Variable to keep track of the PDF number
+            int pdfCounter = 1;
+
+            for (String inputPdf : pdfFiles) {
+                // Add a heading for the current PDF
+            	if(pdfCounter>2 && pdfCounter<pdfFiles.size())
+            	{
+                Paragraph pdfHeading = new Paragraph("PDF - " + pdfCounter, headerFont);
+                pdfHeading.setAlignment(Element.ALIGN_CENTER); // Center the heading
+                document.add(pdfHeading); // Add the heading to the document
+            	}
+                System.out.println("Adding ---"+pdfCounter);
+                
+                // Add a small gap between heading and content
+                document.add(new Paragraph("\n")); // Empty paragraph for spacing
+
+                // Read the current PDF file
+                PdfReader reader = new PdfReader(inputPdf);
+                int numPages = reader.getNumberOfPages();
+
+                // Loop through each page in the current PDF file
+                for (int i = 1; i <= numPages; i++) {
+                    PdfImportedPage page = copy.getImportedPage(reader, i);
+                    copy.addPage(page); // Add the page from the input PDF to the merged output
+                }
+                reader.close(); // Close the reader for the current PDF
+
+                // Increment the PDF counter for the next PDF
+                pdfCounter++;
+            }
+
+            document.close(); // Close the document after adding all content
+
 			
 			GetObjResponse sessionRes = new GetObjResponse();
 			String sessionPathString = "";// sessionentity.getPath()+File.separator+"report";
-			
+
 			if (!sessionId.substring(0, 4).equals("TSSN")) {
 				SessionService sessionService = new SessionService();
 				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
@@ -601,17 +757,17 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
 				sessionPathString = trailSessionEntity.getPath();
 			}
-			
-			sessionPathString = sessionPathString+File.separator+"report";
+
+			sessionPathString = sessionPathString + File.separator + "report";
 			Path fileFullPath = Path.of(filePath);
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
-			Path sessionPath =Path.of(sessionPathString) ;
+			Path sessionPath = Path.of(sessionPathString);
 			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
-		
+
 			res.setResponseCode(1);
 			res.setResponseMessage("PQT Report Download Successfully...!");
 			System.out.println("PDFs Created successfully In Path...!" + filePath);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

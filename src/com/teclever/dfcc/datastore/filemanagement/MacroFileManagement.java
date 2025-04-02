@@ -23,12 +23,14 @@ public class MacroFileManagement {
             MacroService macroService = new MacroService();
             List<String> runPathMasterIds = macroService.getRunPathMasterIdsByRunConfigId(runConfigId);
 
+            System.out.println("Macro runPathMasterIds------::" + runPathMasterIds );
             // Fetch macros based on runPathMasterIds and deleteStatus
             for (String runPathMasterId : runPathMasterIds) {
                 List<Macro> macros = macroService.getAllMacrosByRunPathMasterId(runPathMasterId);
                 for (Macro macro : macros) {
                     MacroDto macroDto = new MacroDto();
                     macroDto.setMacroId(macro.getMacroId());
+                    System.out.println("$$$$$$$$Macro ID" +macro.getMacroName() );
                     macroDto.setMacroName(macro.getMacroName());
                     macroDto.setFileName(macro.getFileName());
                     macroDto.setRunPathMasterId(macro.getRunPathMasterId());
@@ -50,14 +52,15 @@ public class MacroFileManagement {
 
         // Mark previous macro rows as deleted before adding new ones
         markPreviousMacroRowsAsDeleted(runPathMasterId);
+        
 
         for (String fileName : fileNamePaths) {
             MacroFileParser macroParser = new MacroFileParser();
             try {
-              	
+              	System.out.println("MAcro File Name" + macroParser);
                 List<String> parsedMacroNames = macroParser.parse(fileName);
                 if(!(parsedMacroNames.size()>0)) {
-                	macroService.saveMacroToDatabase("--", Paths.get(fileName).toString(), runPathMasterId);
+                	macroService.saveMacroToDatabase("------------", Paths.get(fileName).toString(), runPathMasterId);
                 }
                 for (String macroName : parsedMacroNames) {
                     String filename = Paths.get(fileName).toString();
@@ -78,19 +81,56 @@ public class MacroFileManagement {
         return macroNames;
     }
     
+    
+//    Before Change
+//    public static List<MacroDto> saveMacroNamesForCustomFiles(List<String> fileNamePaths, String runPathMasterId) {
+//        List<MacroDto> macroNames = new ArrayList<>();
+//        MacroService macroService = new MacroService();
+//
+//        // Mark previous macro rows as deleted before adding new ones
+//        //markPreviousMacroRowsAsDeleted(runPathMasterId);
+//
+//        for (String fileName : fileNamePaths) {
+//            MacroFileParser macroParser = new MacroFileParser();
+//            try {
+//            	macroService.saveMacroToDatabase("--", fileName, runPathMasterId);
+//                List<String> parsedMacroNames = macroParser.parse(fileName);
+//                for (String macroName : parsedMacroNames) {
+//                    String filename = Paths.get(fileName).toString();
+//
+//                    Response response = macroService.saveMacroToDatabase(macroName, filename, runPathMasterId);
+//                    if (response.getResponseCode() == 1) {
+//                        MacroDto macroDto = new MacroDto(macroName, filename, runPathMasterId);
+//                        macroNames.add(macroDto);
+//                    } else {
+//                        System.err.println("Failed to save macro: " + macroName + " Error: " + response.getResponseMessage());
+//                    }
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return macroNames;
+//    }
+    
+//    After Change
     public static List<MacroDto> saveMacroNamesForCustomFiles(List<String> fileNamePaths, String runPathMasterId) {
         List<MacroDto> macroNames = new ArrayList<>();
         MacroService macroService = new MacroService();
 
+        
+        
         // Mark previous macro rows as deleted before adding new ones
         //markPreviousMacroRowsAsDeleted(runPathMasterId);
 
         for (String fileName : fileNamePaths) {
             MacroFileParser macroParser = new MacroFileParser();
             try {
-            	macroService.saveMacroToDatabase("--", fileName, runPathMasterId);
+            	
                 List<String> parsedMacroNames = macroParser.parse(fileName);
                 for (String macroName : parsedMacroNames) {
+                	macroService.saveMacroToDatabase(macroName, fileName, runPathMasterId);
                     String filename = Paths.get(fileName).toString();
 
                     Response response = macroService.saveMacroToDatabase(macroName, filename, runPathMasterId);
