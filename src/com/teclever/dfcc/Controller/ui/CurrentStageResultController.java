@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
@@ -149,7 +151,7 @@ public class CurrentStageResultController {
 		return currentExecutionResultHeadingGridPane;
 	}
 
-
+	ViewReportController viewReportController = new ViewReportController();
 	private HBox createDownloadButton() {
 		buttonBox.setAlignment(Pos.CENTER_RIGHT);
 		buttonBox.getChildren().add(downloadButton);
@@ -187,25 +189,38 @@ public class CurrentStageResultController {
 
 			dialog.showAndWait().ifPresent(result -> {
 				if ("Brief".equals(result)) {
+					Consumer<Response> onDownloadComplete = (response) -> {
+
+						Platform.runLater(() -> {
+							viewReportController.viewReportPopup(response);			
+							});
+					};
 					if (STAGE_ID != null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, STAGE_ID, true, false);
+						downloadReport(SESSION_ID, STAGE_ID, true, false, onDownloadComplete);
 						logDownload("Brief Data");
 					} else if(STAGE_ID == null && SESSION_ID != null){
-						downloadReport(SESSION_ID, null, true, false);
+						downloadReport(SESSION_ID, null, true, false, onDownloadComplete);
 						logDownload("Brief Data");
 					} else {
-						downloadReport(currentSessionDetails.getSessionId(), null, true, true);
+						downloadReport(currentSessionDetails.getSessionId(), null, true, true, onDownloadComplete);
 						logDownload("Brief Data");
 					}
 				} else {
+					
+					Consumer<Response> onDownloadComplete = (response) -> {
+
+						Platform.runLater(() -> {
+							viewReportController.viewReportPopup(response);			
+							});
+					};
 					if (STAGE_ID != null && SESSION_ID != null) {
-						downloadReport(SESSION_ID, STAGE_ID, false, false);
+						downloadReport(SESSION_ID, STAGE_ID, false, false, onDownloadComplete);
 						logDownload("Brief Data");
 					} else if(STAGE_ID == null && SESSION_ID != null){
-						downloadReport(SESSION_ID, null, false, false);
+						downloadReport(SESSION_ID, null, false, false, onDownloadComplete);
 						logDownload("Brief Data");
 					} else {
-						downloadReport(currentSessionDetails.getSessionId(), null , false, true);
+						downloadReport(currentSessionDetails.getSessionId(), null , false, true, onDownloadComplete);
 						logDownload("Brief Data");
 					}
 				}
@@ -222,36 +237,35 @@ public class CurrentStageResultController {
 		appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 	}
 
-	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession) {
+	private void downloadReport(String sessionId, String stageId, boolean isBrief, boolean isCurrentSession,
+			Consumer<Response> onDownloadComplete) {
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				Response response = null;
+				AtomicReference<Response> responseRef = new AtomicReference<>(null);
 				if (isBrief) {
 					if(isCurrentSession) {
-						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId);
+						responseRef.set(reportGeneration.generateBreifReportForCurrentExecution(sessionId));
 					}else if(sessionId != null && stageId != null) {
-						response = reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId);
+						responseRef.set(reportGeneration.generateBreifReportForCurrentExecution(sessionId, stageId));
 					}else if(sessionId != null && stageId == null ) {
-						response = reportGeneration.generateBreifReportForCurrentSession(sessionId);
+						responseRef.set(reportGeneration.generateBreifReportForCurrentSession(sessionId));
 					}
 				} else {
 					if(isCurrentSession) {
-						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId);
+						responseRef.set(reportGeneration.generateDetailedReportForCurrentExecution(sessionId));
 					}else if(sessionId != null && stageId != null) {
-						response = reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId);
+						responseRef.set(reportGeneration.generateDetailedReportForCurrentExecution(sessionId, stageId));
 						
 					}else if(sessionId != null && stageId == null ) {
-						response = reportGeneration.generateDetailedReportForCurrentSession(sessionId);
+						responseRef.set(reportGeneration.generateDetailedReportForCurrentSession(sessionId));
 						
 					}
 				}
 
 
-				if (response.getResponseCode() == 1) {
-					Notifications.showSuccessAlert("Download Completed Successfully...");
-				} else {
-					Notifications.showErrorAlert(response.getResponseMessage());
+				if (responseRef.get() != null) {
+					Platform.runLater(() -> onDownloadComplete.accept(responseRef.get()));
 				}
 				return null;
 			}
@@ -346,6 +360,12 @@ public class CurrentStageResultController {
 
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
+		
+		Platform.runLater(() -> {
+    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+        });
+		
 		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
 		   Task<Void> task = new Task<Void>() {
 		        @Override
@@ -356,13 +376,10 @@ public class CurrentStageResultController {
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(SESSION_ID, STAGE_ID);
 	
-			System.out.println("Entred Stage Stage ID");
 		} 
 		else if(STAGE_ID == null && SESSION_ID != null){
 			response = resultExecutionManagement.getResultExecutionListBriefListForStages(SESSION_ID);
-			System.out.println("Entred Stage Session ID");
 		}
-		System.out.println("Entred Stage Page");
 		
 		Platform.runLater(() -> {
 			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
@@ -414,13 +431,11 @@ public class CurrentStageResultController {
 	        @Override
 			protected void succeeded() {
 		    	Platform.runLater(() -> {
-	            	System.out.println("Entred runlater Succeed");
 	            	
 	 	               tableScrollPane.setContent(briefDataTableView);
 	 	              tableScrollPane.setFitToHeight(true);
 	 	            });
 		    	Platform.runLater(() -> {
-		    		System.out.println("Entred runlater Succeed1111");
 		    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 		    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 		        });
@@ -430,7 +445,6 @@ public class CurrentStageResultController {
 
 			@Override
 			protected void failed() {
-				System.out.println("Entred Failed");
 				Platform.runLater(() -> {
 					currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 					currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
@@ -474,6 +488,12 @@ public class CurrentStageResultController {
 
 	public ScrollPane createDetailedDataTable() {
 		detailedDataList.clear();
+		
+		Platform.runLater(() -> {
+			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
+	    });
+		
 		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
 		 Task<Void> task = new Task<Void>() {
 		        @Override
@@ -485,6 +505,9 @@ public class CurrentStageResultController {
 		} 
 		else if(STAGE_ID == null && SESSION_ID != null){
 			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID);
+		}else {
+			response = resultExecutionManagement
+					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
 		}
 
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
@@ -534,13 +557,11 @@ public class CurrentStageResultController {
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
-		            	System.out.println("Entred runlater Succeed");
 		            	
 		 	               tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
 			    	Platform.runLater(() -> {
-			    		System.out.println("Entred runlater Succeed1111");
 			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 			        });
@@ -550,7 +571,6 @@ public class CurrentStageResultController {
 
 				@Override
 				protected void failed() {
-					System.out.println("Entred Failed");
 					Platform.runLater(() -> {
 						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);

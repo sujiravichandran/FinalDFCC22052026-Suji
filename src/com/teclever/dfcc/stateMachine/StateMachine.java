@@ -8,6 +8,7 @@ import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.utils.Debug;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -59,6 +60,17 @@ public class StateMachine {
 		private static String sessionTypeName;
 		private static String runConfigId;
 		private static int loginSessionId;
+		private static String dfccPartNo;
+		
+		
+
+		public static String getDfccPartNo() {
+			return dfccPartNo;
+		}
+
+		public static void setDfccPartNo(String dfccPartNo) {
+			currentSessionDetails.dfccPartNo = dfccPartNo;
+		}
 
 		public static String getUserId() {
 			return userId;
@@ -615,7 +627,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel1Temperature(String channel1Temperature) {
-			channelSCTemp.channel1Temperature.set(channel1Temperature);
+			Platform.runLater(() -> channelSCTemp.channel1Temperature.set(channel1Temperature));
 		}
 
 		public static StringProperty channel2TemperatureProperty() {
@@ -627,7 +639,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel2Temperature(String channel2Temperature) {
-			channelSCTemp.channel2Temperature.set(channel2Temperature);
+			Platform.runLater(() -> channelSCTemp.channel2Temperature.set(channel2Temperature));
 		}
 
 		public static StringProperty channel3TemperatureProperty() {
@@ -639,7 +651,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel3Temperature(String channel3Temperature) {
-			channelSCTemp.channel3Temperature.set(channel3Temperature);
+			Platform.runLater(() -> channelSCTemp.channel3Temperature.set(channel3Temperature));
 		}
 
 		public static StringProperty channel4TemperatureProperty() {
@@ -651,7 +663,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel4Temperature(String channel4Temperature) {
-			channelSCTemp.channel4Temperature.set(channel4Temperature);
+			Platform.runLater(() -> channelSCTemp.channel4Temperature.set(channel4Temperature));
 		}
 
 		// COLOR
@@ -1193,5 +1205,41 @@ public class StateMachine {
 	public static void setAllowToggle(boolean allowToggle) {
 		StateMachine.allowToggle = allowToggle;
 	}
+	
+//	For Custom Two Test
+	
+	private static boolean customTwoTest = false;
+
+	public static boolean isCustomTwoTest() {
+		return customTwoTest;
+	}
+
+	public static void setCustomTwoTest(boolean customTwoTest) {
+		StateMachine.customTwoTest = customTwoTest;
+	}
+	
+//	For Test Completed Confirmation
+	
+	private static boolean confirmTestFileCompleted = false;
+
+	public static boolean isConfirmTestFileCompleted() {
+		return confirmTestFileCompleted;
+	}
+
+	public static void setConfirmTestFileCompleted(boolean confirmTestFileCompleted) {
+		StateMachine.confirmTestFileCompleted = confirmTestFileCompleted;
+	}
+	
+//	For Conform Test Stop
+	private static boolean confirmTestStop = false;
+
+	public static boolean isConfirmTestStop() {
+		return confirmTestStop;
+	}
+
+	public static void setConfirmTestStop(boolean confirmTestStop) {
+		StateMachine.confirmTestStop = confirmTestStop;
+	}
+	
 
 }

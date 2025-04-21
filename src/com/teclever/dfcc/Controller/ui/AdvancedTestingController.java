@@ -239,12 +239,12 @@ public class AdvancedTestingController {
 		advancedTestingResultsGridPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingResultsGridPane.getRowConstraints().addAll(firstRow);
 		
-		advancedTestingResultsGridPane.add(createResultTableView(), 0, 0);
+		advancedTestingResultsGridPane.add(createResultTableViewAdvance(), 0, 0);
 		
 		return advancedTestingResultsGridPane;
 	}
 	
-	private TableView<AdvancedTestResult> createResultTableView() {
+	private TableView<AdvancedTestResult> createResultTableViewAdvance() {
 		TableView<AdvancedTestResult> tableView = new TableView<>();
 		tableView.getStylesheets()
 		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());

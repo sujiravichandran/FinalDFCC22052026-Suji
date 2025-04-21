@@ -7,6 +7,7 @@ import java.io.IOException;
 import com.itextpdf.io.util.SystemUtil;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.utils.Debug;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -80,22 +81,16 @@ public class ViewReportController {
         this.response = response;
         if (response != null) {
         	reportPath.setText(response.getDownloadPath());
-            System.out.println("ViewReportController received response:");
-            System.out.println("Download Path: " + response.getDownloadPath());
         } else {
-            System.out.println("ViewReportController: Received null response!");
         }
     }
     
     private void ViewReport(Response response) {
         if (response == null || response.getDownloadPath() == null || response.getDownloadPath().isEmpty()) {
-            System.out.println("No file path available.");
             return;
         }
-        System.out.println("PATHE FOR PDF" +response.getDownloadPath() );
         File file = new File(response.getDownloadPath());
         if (!file.exists()) {
-            System.out.println("File not found.");
             return;
         }
 
@@ -106,7 +101,6 @@ public class ViewReportController {
                 // Fallback for Linux
                 String os = System.getProperty("os.name").toLowerCase();
                 if (os.contains("linux")) {
-                	System.out.println("Entred Linux Condition");
                     new ProcessBuilder("xdg-open", file.getAbsolutePath()).start();
                 } else {
                     System.out.println("Opening files is not supported on this OS.");

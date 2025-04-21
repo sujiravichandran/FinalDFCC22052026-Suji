@@ -72,7 +72,6 @@ public class ResultManagement {
 	                        String expectedValue = stepDoc.getString("expectedValue");
 	                        String faultySRU = stepDoc.getString("faultySRU");
 	                        String dStarInfo = stepDoc.getString("dStarInfo");
-	                        System.out.println("11. " + dStarInfo);
 	                        // Regular expression to extract content inside the parentheses
 	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");  // Non-greedy match inside parentheses
 	                        Matcher matcher = pattern.matcher(dStarInfo);
@@ -90,7 +89,6 @@ public class ResultManagement {
 	                            // Iterate over the parts and label each one
 	                            for (int i = 0; i < parts.length; i++) {
 	                                String channelValue = parts[i].trim();  // Remove any leading or trailing spaces
-	                                System.out.println("2... "+channelValue);
 	                                // Check if the value is either "down", "offline", or starts with "*"
 	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
 	                                    // If it starts with '*' remove it
@@ -107,9 +105,7 @@ public class ResultManagement {
 	                            //String result = String.join(", ", formattedChannels);
 	                            
 	                            // Print the formatted output
-	                           // System.out.println(result);
 	                        } else {
-	                            System.out.println("No content inside parentheses found.");
 	                        }
 
 	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);
@@ -159,7 +155,6 @@ public class ResultManagement {
 	                        String expectedValue = stepDoc.getString("expectedValue");
 	                        String faultySRU = stepDoc.getString("faultySRU");
 	                        String dStarInfo = stepDoc.getString("dStarInfo");
-	                        System.out.println("11. " + dStarInfo);
 	                     // Regular expression to extract content inside the parentheses
 	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");  // Non-greedy match inside parentheses
 	                        Matcher matcher = pattern.matcher(dStarInfo);
@@ -178,7 +173,6 @@ public class ResultManagement {
 	                            // Iterate over the parts and label each one
 	                            for (int i = 0; i < parts.length; i++) {
 	                                String channelValue = parts[i].trim();  // Remove any leading or trailing spaces
-	                                System.out.println("2... "+channelValue);
 	                                // Check if the value is either "down", "offline", or starts with "*"
 	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
 	                                    // If it starts with '*' remove it
@@ -195,8 +189,6 @@ public class ResultManagement {
 	                            String result = String.join(", ", formattedChannels);
 	                            
 	                            // Print the formatted output
-	                            System.out.println("--------------------[" + result + "]");} else {
-	                            System.out.println("No content inside parentheses found.");
 	                        }
 
 	                        // Create the ResultDto object and add it to the result list

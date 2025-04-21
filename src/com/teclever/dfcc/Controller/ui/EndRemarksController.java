@@ -97,7 +97,6 @@ public class EndRemarksController {
 
 	private void saveEndremarks() {
 		TestState currentState = StateMachine.getTestState();
-		System.out.println("Test State" + currentState);
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
 			// Show confirmation dialog before ending the session

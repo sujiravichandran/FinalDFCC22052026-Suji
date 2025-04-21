@@ -1,5 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
@@ -1133,6 +1136,14 @@ public class SessionCreationController {
 				StateMachine.getCurrentUserLogin(), new Date(),
 				"session " + currentSessionDetails.getSessionName() + " opened");
 		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+		
+		String currentDirectory = new File(
+				SessionFileManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+				.getParent();
+		
+		currentDirectory = currentDirectory+File.separator+".output";
+		
+		StateMachine.setHomelocation(Paths.get(currentDirectory));
 
 		StackPane parent1 = (StackPane) sessionCreationParentGridPane.getParent();
 		parent1.getChildren().clear();

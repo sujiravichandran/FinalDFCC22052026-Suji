@@ -281,7 +281,7 @@ public class ReportsUploadController {
 				upload.setReportType("UPLOAD");
 				upload.setSessionId(SESSION_ID);
 				uploadFile.add(upload);
-				sessionFileName.copyToUpload(uploadFile);
+				sessionFileName.copyToUpload(uploadFile, SESSION_ID);
 				reportConfig.addReportConfig(upload);
 				setupDisplayTable();
 			}

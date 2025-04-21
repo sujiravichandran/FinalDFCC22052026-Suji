@@ -178,6 +178,7 @@ public class ResultExecutionManagement {
 						|| !sessionStagesTestFilesResult.getStageId().equals("")) {
 					resultExecutionDTO.setStageId(sessionStagesTestFilesResult.getStageId());
 					resultExecutionDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+					
 
 				}
 				resultExecutionDTO.setTestFileId(
@@ -199,7 +200,7 @@ public class ResultExecutionManagement {
 							.setTestMode(parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				} else {
-					resultExecutionDTO.setTestMode("SESSION TEST" + parentName + "-"
+					resultExecutionDTO.setTestMode("SESSION TEST - " + parentName + "-"
 							+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				}
@@ -347,7 +348,7 @@ public class ResultExecutionManagement {
 					resultExecutionDTO.setTestMode(parentName + "-" + stageIdName.get(stageId));
 
 				} else {
-					resultExecutionDTO.setTestMode("SESSION TEST-" + parentName + "-" + stageIdName.get(stageId));
+					resultExecutionDTO.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
 
 				}
 
@@ -502,7 +503,7 @@ public class ResultExecutionManagement {
 							.setTestMode(parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				} else {
-					resultExecutionDTO.setTestMode("SESSION TEST" + parentName + "-"
+					resultExecutionDTO.setTestMode("SESSION TEST - " + parentName + "-"
 							+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 				}
@@ -622,7 +623,6 @@ public class ResultExecutionManagement {
 
 						String dStarValue = String.join(";", dChannels); // Join with semicolon as separator
 						Debug.printDebug("Concatenated Values: " + dStarValue);
-						System.out.println("Faulty Channel Value In ResultExe" + dStarValue);
 						resultDetailedDTO.setFaultyChannel(channelValues);
 						channelValues = channelValues.replaceAll("Channel", "CH");
 						resultDetailedDTO.setFaultyChannel(channelValues);
@@ -644,6 +644,14 @@ public class ResultExecutionManagement {
 						resultDetailedDTO.setUnit(resultDto.getUnit());
 						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 						resultDetailedDTO.setFaultyChannelValue(dStarValue);
+						if (sessionStagesTestFilesResult.getStageId() != null
+								|| !sessionStagesTestFilesResult.getStageId().equals("")) {
+							resultDetailedDTO.setStageId(sessionStagesTestFilesResult.getStageId());
+							resultDetailedDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+							
+
+						}
+						
 						String parentName = sessionManagement
 								.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
 						parentName = parentName.substring(0, parentName.indexOf("/"));
@@ -654,7 +662,7 @@ public class ResultExecutionManagement {
 									parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						} else {
-							resultDetailedDTO.setTestMode("SESSION TEST" + parentName + "-"
+							resultDetailedDTO.setTestMode("SESSION TEST - " + parentName + "-"
 									+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						}
@@ -779,7 +787,6 @@ public class ResultExecutionManagement {
 
 						String dStarValue = String.join(";", dChannels); // Join with semicolon as separator
 						Debug.printDebug("Concatenated Values: " + dStarValue);
-						System.out.println("Faulty Channel Value In ResultExe" + dStarValue);
 
 						resultDetailedDTO.setFaultyChannel(channelValues);
 						channelValues = channelValues.replaceAll("Channel", "CH");
@@ -798,6 +805,13 @@ public class ResultExecutionManagement {
 						resultDetailedDTO.setUnit(resultDto.getUnit());
 						Debug.printDebug("ResultDto--->" + resultDto.getFileName());
 						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+						if (sessionStagesTestFilesResult.getStageId() != null
+								|| !sessionStagesTestFilesResult.getStageId().equals("")) {
+							resultDetailedDTO.setStageId(sessionStagesTestFilesResult.getStageId());
+							resultDetailedDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+							
+
+						}
 
 						String parentName = sessionManagement
 								.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
@@ -810,7 +824,7 @@ public class ResultExecutionManagement {
 									parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						} else {
-							resultDetailedDTO.setTestMode("SESSION TEST" + parentName + "-"
+							resultDetailedDTO.setTestMode("SESSION TEST - " + parentName + "-"
 									+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						}
@@ -914,7 +928,6 @@ public class ResultExecutionManagement {
 
 						String dStarValue = String.join(";", dChannels); // Join with semicolon as separator
 						Debug.printDebug("Concatenated Values: " + dStarValue);
-						System.out.println("Faulty Channel Value In ResultExe" + dStarValue);
 
 						resultDetailedDTO.setFaultyChannel(channelValues);
 						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
@@ -928,6 +941,13 @@ public class ResultExecutionManagement {
 						resultDetailedDTO.setUnit(resultDto.getUnit());
 						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 						resultDetailedDTO.setFaultyChannelValue(dStarValue);
+						if (sessionStagesTestFilesResult.getStageId() != null
+								|| !sessionStagesTestFilesResult.getStageId().equals("")) {
+							resultDetailedDTO.setStageId(sessionStagesTestFilesResult.getStageId());
+							resultDetailedDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
+							
+
+						}
 
 						String parentName = sessionManagement
 								.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
@@ -939,7 +959,7 @@ public class ResultExecutionManagement {
 									parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						} else {
-							resultDetailedDTO.setTestMode("SESSION TEST" + parentName + "-"
+							resultDetailedDTO.setTestMode("SESSION TEST - " + parentName + "-"
 									+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
 
 						}
@@ -1364,19 +1384,22 @@ public class ResultExecutionManagement {
 			TrailSessionEntityService sessionService = new TrailSessionEntityService();
 
 			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionId(sessionId);
-			SessionEntity sessionDto = new SessionEntity();
-			sessionDto = (SessionEntity) sessionRes.getObject();
+			
+			TrailSessionEntity sessionDto = new TrailSessionEntity();
+//			SessionEntity sessionDto = new SessionEntity();
+			sessionDto = (TrailSessionEntity) sessionRes.getObject();
 			sessionDetailsMap.put("sessionId", sessionId);
 			sessionDetailsMap.put("dfccPartNo", sessionDto.getDfccPartNo());
 			sessionDetailsMap.put("dfccSNo", sessionDto.getDfccSNo());
-			sessionDetailsMap.put("userId", sessionDto.getUserId());
-			sessionDetailsMap.put("sessionName", sessionDto.getSessionName());
-			sessionDetailsMap.put("uUtID", sessionDto.getUutId());
+			sessionDetailsMap.put("userId", sessionDto.getCreatedBy());
+			sessionDetailsMap.put("sessionName", sessionDto.getTrailSessionName());
+			sessionDetailsMap.put("uUtID", sessionDto.getUutTypeId());
 			sessionDetailsMap.put("startRemarks", sessionDto.getStartRemarks());
 			sessionDetailsMap.put("startRemarks", sessionDto.getEndRemarks());
 			UserLoginDetailsService userDetailsService = new UserLoginDetailsService();
-			UserLoginDetails userDetails = userDetailsService.getUserByUserId(sessionDto.getUserId());
+			UserLoginDetails userDetails = userDetailsService.getUserByUserId(sessionDto.getCreatedBy());
 			if (userDetails != null) {
+				
 				sessionDetailsMap.put("userName", userDetails.getLoginName());
 			}
 
@@ -1580,9 +1603,7 @@ public class ResultExecutionManagement {
 			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
 
 			if (sessionStagesTestFilesResultList != null) {
-				System.out.println("sessionStagesTestFilesResultList size: " + sessionStagesTestFilesResultList.size());
 			} else {
-				System.out.println("sessionStagesTestFilesResultList is null");
 			}
 			Map<String, String> stagesIdName = sessionManagemment.getAllStageIdName();
 			List<ResultSessionStagesDetailsDTO> resultSessionStagesDetailsDTOList = new ArrayList<ResultSessionStagesDetailsDTO>();
@@ -1646,7 +1667,7 @@ public class ResultExecutionManagement {
 						resultSessionStagesDetailsDTO.setTestMode(parentName + "-" + stageIdName.get(stageId));
 					} else {
 						resultSessionStagesDetailsDTO
-								.setTestMode("SESSION TEST-" + parentName + "-" + stageIdName.get(stageId));
+								.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
 					}
 					if (!startTime.equals("-") && !endTime.equals("-")) {
 						SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
@@ -1773,7 +1794,7 @@ public class ResultExecutionManagement {
 
 				} else {
 					resultSessionStagesDetailsDTO
-							.setTestMode("SESSION TEST-" + parentName + "-" + stageIdName.get(stageId));
+							.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
 
 				}
 

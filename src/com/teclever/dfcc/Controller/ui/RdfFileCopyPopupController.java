@@ -236,10 +236,8 @@ public class RdfFileCopyPopupController {
 				stage.close();
 			});
 		}else {
-//			System.out.println("Closing Popup........");
 			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
 			stage.close();
-//			System.out.println("Closed...........");
 			if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
 				SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
 			}
@@ -248,7 +246,6 @@ public class RdfFileCopyPopupController {
 
 	private void getRdfFileDetails() {
 	
-//		System.out.println("SessionId : "+sessionId+"   "+"StageId : "+stageId);
 		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
 
 		if (response.getCode() == 1) {
@@ -287,7 +284,6 @@ public class RdfFileCopyPopupController {
 			    protected Void call() throws Exception {
 			        Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
 			        
-//			        System.out.println("Response code after copying rdf files : "+ response.getResponseCode());
 			        
 			        if (response.getResponseCode() == 1) {
 			        	Platform.runLater(() -> handleClosePopup(false));	           

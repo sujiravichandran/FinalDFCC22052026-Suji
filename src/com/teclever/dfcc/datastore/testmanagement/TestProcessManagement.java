@@ -133,18 +133,20 @@ public class TestProcessManagement {
 			// Fetching Selected TestFile IDs From DB.
 			Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
 			Set<String> keysSet = new HashSet<>(testFilesIdName.keySet());
+			
+			
 
 			Thread startTestProcessThread = new Thread(() -> runTestProcess(sessionId, stageId, repeatCount,
 					listOfFileId, continueWithError, stageName, sessionStageMapId, testFilesIdName, keysSet));
 			
-			System.out.println("Test File Name" + testFilesIdName);
 			
 			// Thread START
 			startTestProcessThread.start();
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
-
+			
+			
 //			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 //			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 //
@@ -352,6 +354,7 @@ public class TestProcessManagement {
 			case "RACK1":
 
 				if (SelfTestStateObject.getSelfTestRunningCard() == SelfTestRunningCard.RACK1) {
+					StateMachine.setConfirmTestFileCompleted(false);
 					SelfTestStateObject.getRack1Status().set(false);
 					;
 				}
@@ -364,15 +367,15 @@ public class TestProcessManagement {
 
 				case B1553:
 					SelfTestStateObject.getB1553Status().set(false);
-
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case RS422_1:
 					SelfTestStateObject.getRs422_1Status().set(false);
-
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case RS422_2:
 					SelfTestStateObject.getrS422_2Status().set(false);
-
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 
 				default:
@@ -389,22 +392,27 @@ public class TestProcessManagement {
 				case SPIL_LINK:
 					Debug.printDebug("----- SPIL_LINK ----");
 					LRUTestStateObject.getSpilLinkStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case POWER_SUPPLY:
 					Debug.printDebug("----- POWER_SUPPLY ----");
 					LRUTestStateObject.getPowerSupplyStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case PBIT:
 					Debug.printDebug("----- PBIT ----");
 					LRUTestStateObject.getPbitStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case AD_DA_INTERFACE:
 					Debug.printDebug("----- AD_DA_INTERFACE ----");
 					LRUTestStateObject.getAd_daInterfaceStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case INITIALIZE_LRU:
 					Debug.printDebug("----- INITIALIZE_LRU ----");
 					LRUTestStateObject.getInitializeLRUStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 
 				default:
@@ -419,12 +427,15 @@ public class TestProcessManagement {
 
 				case COMPLETE_TEST:
 					LRUTestStateObject.getCompleteTestStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case OFP_LOADING:
 					LRUTestStateObject.getOfpLoadingStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				case PI_CHECK:
 					LRUTestStateObject.getPiCheckStatus().set(false);
+					StateMachine.setConfirmTestFileCompleted(false);
 					break;
 				default:
 					break;
@@ -436,16 +447,16 @@ public class TestProcessManagement {
 				LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
 				StateMachine.setTestState(TestState.COMPLETED);
 				Debug.printDebug("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
+				StateMachine.setConfirmTestFileCompleted(false);
 				break;
 			case "SESSION TEST":
-
-				SessionTestStateObject.updateEndLeafMapStatus(stageId, getStageResult(stageId, keysSet));
 
 				// Debug.printDebug("CASE : SESSION TEST");
 //				SessionTestStateObject.updateEndLeafMapStatus(stageId, "COMPLETED");
 				StateMachine.setTestState(TestState.COMPLETED);
-				System.out.println("State MAchine for DOT COM" + StateMachine.getTestState());
+				SessionTestStateObject.updateEndLeafMapStatus(stageId, getStageResult(stageId, keysSet));
 				SessionTestStateObject.getRunningTestLeafStatus().set(true);
+				StateMachine.setConfirmTestFileCompleted(false);
 				
 				break;
 
@@ -453,19 +464,23 @@ public class TestProcessManagement {
 
 				Debug.printDebug("CASE : HWATP TEST");
 				AdvancedTestStateObject.getHwatpTestStatus().set(false);
+				StateMachine.setConfirmTestFileCompleted(false);
 				break;
 			case "INTERFACE TEST":
 				Debug.printDebug("CASE : INTERFACE TEST");
 				AdvancedTestStateObject.getInterfaceTestStatus().set(false);
+				StateMachine.setConfirmTestFileCompleted(false);
 				break;
 
 			case "CUSTOM ONE":
 				Debug.printDebug("CASE : CUSTOM ONE");
 				AdvancedTestStateObject.getCustomTest1Status().set(false);
+				StateMachine.setConfirmTestFileCompleted(false);
 				break;
 			case "CUSTOM TWO":
 				Debug.printDebug("CASE : CUSTOM TWO");
 				AdvancedTestStateObject.getCustomTest2Status().set(false);
+				StateMachine.setConfirmTestFileCompleted(false);
 				break;
 			default:
 				Debug.printDebug("INVALID TEST TYPE ID ");
@@ -481,6 +496,7 @@ public class TestProcessManagement {
 		Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 		if (setOfFileIds != null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
 			return "COMPLETED";
+			
 		} else {
 			return "pending";
 		}
@@ -803,7 +819,6 @@ public class TestProcessManagement {
 			String rdfFileLocation = downloadFileService
 					.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
 
-			System.out.println("RDF File Location Check" + rdfFileLocation);
 
 			// Populate list of file IDs for repetition
 			List<String> listOfFileIds = generateFileIdsList(repeatCount, listOfFileId);
@@ -813,7 +828,6 @@ public class TestProcessManagement {
 			int incrementNum = 0;
 			boolean lastCount = false;
 			
-			System.out.println("Tes Files ID Foe Checking :" + listOfFileIds);
 
 			for (String testFileIdName1 : listOfFileIds) {
 
@@ -822,11 +836,8 @@ public class TestProcessManagement {
 			}
 			String fullList = String.join(",", fileNameforDotComList);
 
-			System.out.println("fullList" + fullList);
 
 			int sflcnt = countFilesFromString(fullList);
-
-			System.out.println("**setTotalSelectedTestFileCount**" + sflcnt);
 			fileNameforDotComList.clear();
 
 			if (stageName.equals("SESSION TEST")) {
@@ -845,6 +856,12 @@ public class TestProcessManagement {
 			else if (stageName.equals("SRU")) {
 				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
 			}
+			else if (stageName.equals("MANDATORY")) {
+				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
+			}
+			
+
+			StateMachine.setConfirmTestFileCompleted(true);
 
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
@@ -873,13 +890,14 @@ public class TestProcessManagement {
 
 					} else
 					 {
-System.out.println("Enterd Runtest Process");
+
 						testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
 					}
 					// check TestState From Response if it stop then exit from the loop.
 					if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
+						
 						testState = "STOPED";
 						break outerLoop;
 					}
@@ -939,11 +957,10 @@ System.out.println("Enterd Runtest Process");
 			 * SessionTestStateObject.setPopupStageId(stageId); }
 			 */
 			
-			// Update state machine card status
+			// Update state machine card 
 			
 			updateStateMachineCardStatus(stageName, stageId, rdfFileResult, keysSet);
 	
-						
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -970,6 +987,8 @@ System.out.println("Enterd Runtest Process");
 				lineCount++;
 				if ((!line.isEmpty())) {
 					Debug.printDebug("Line Number : " + lineCount + " , Line is : " + line);
+					if (line.startsWith("!"))
+						continue; //
 					if (line.startsWith("@") || line.contains(".com")) {
 						line = line.substring(1);
 
@@ -980,13 +999,29 @@ System.out.println("Enterd Runtest Process");
 
 							// Extracting File Path. To Fetch founded Dot Com File
 							File file = new File(fileName);
-							fileName = file.getName();
-							String path = file.getParent();
+							String fileName1 = file.getName();
+							fileName1.trim();
+							String path = file.getAbsolutePath();//"/opt/dfcc-mk1/HW_ATP/input/";
+							path.trim();
+//							VIGNESH CHNAGE for path correction
+							int indexToTake=(path.length() - fileName1.length());
+							path = path.substring(0,indexToTake);
+							
+							
+//							String path = file.getAbsolutePath();
+//							if(path.contains(fileName))
+//							{
+//								path.
+//								System.out.println("Trimcheck" +path.trim() );
+//							}
 							Debug.printDebug("Dot Com File " + comFileName);
 							// Calling itself with Same Parameter (fileName only Change)
-							processDotComFile(path + File.separator + comFileName, stageName, rdfFileLocation, stageId,
+							processDotComFile(path + comFileName, stageName, rdfFileLocation, stageId,
 									sessionId, rdfFileResult, dotComFileResult, continueWithError, testFileId,
 									sessionStageMapId, lastCount, sessionStageTestFileResult);
+//							processDotComFile(path + File.separator + comFileName, stageName, rdfFileLocation, stageId,
+//									sessionId, rdfFileResult, dotComFileResult, continueWithError, testFileId,
+//									sessionStageMapId, lastCount, sessionStageTestFileResult);
 
 						} else {
 							Debug.printDebug("TPF File " + line);
@@ -1069,14 +1104,10 @@ System.out.println("Enterd Runtest Process");
 				fileCount++;
 			} else if (line.endsWith(".com")) {
 				fileCount++;
-				File file = new File(line);
-				
-				
-				
+				File file = new File(line);								
 				String fullPath = file.getAbsolutePath();
 
 				// Debugging output
-				System.out.println("Processing .com file: " + fullPath);
 				fileCount += countFilesRecursively(fullPath);
 			}
 		}
@@ -1125,7 +1156,7 @@ System.out.println("Enterd Runtest Process");
 	private TestProcessDto runTestFile(String testFileName, String stageName, String rdfFileLocation, String stageId,
 			String sessionId, String rdfFileResult, String dotComFileResult, boolean continueWithError,
 			String testFileId, String sessionStageMapId, boolean lastCount, String uniqueTestFilesResultIdId) {
-		System.out.println("Enterd Runtest runTestFile");
+
 		TestProcessDto testProcessDto = new TestProcessDto();
 
 		try {
@@ -1136,6 +1167,9 @@ System.out.println("Enterd Runtest Process");
 			// Update State Machine : Set TextArea to FALSE.
 			StateMachine.setTextArea(false);
 
+			
+			StateMachine.setConfirmTestStop(true);
+			
 			// Handle PAUSED or STOPPED states
 			if (handleTestState() == true) {
 				testProcessDto.setTestState("STOPED");
@@ -1145,10 +1179,9 @@ System.out.println("Enterd Runtest Process");
 
 			// Test Started Time
 			String startTime = String.valueOf(new Date());
-			
+
 			// Getting RDF file Name from PerformTest()
 			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
-			System.out.println("Checking Aitess Running perform Test" + rdfFileName);
 			
 			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
 			TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName, testFileName,
@@ -1318,8 +1351,6 @@ System.out.println("Enterd Runtest Process");
 			case "SESSION TEST":
 				SessionTestStateObject.getRunnedTestFileCount()
 						.set(SessionTestStateObject.getRunnedTestFileCount().get() + 1);
-				System.out.println("SessionTestStateObject.getRunnedTestFileCount() : "
-						+ SessionTestStateObject.getRunnedTestFileCount());
 				break;
 
 			case "HWATP TEST":

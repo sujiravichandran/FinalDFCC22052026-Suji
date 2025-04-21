@@ -56,6 +56,7 @@ import javafx.scene.paint.Color;
 
 public class AdvancedTestingHWATPTesting {
 
+	private static final Object COMPLETED = null;
 	private GridPane tab1MainGridPane = new GridPane();
 	private VBox leftSideVBox = new VBox(20);
 	private GridPane rightSideGridPane = new GridPane();
@@ -63,10 +64,10 @@ public class AdvancedTestingHWATPTesting {
 	private ObservableList<TestCardData> stageList = FXCollections.observableArrayList();
 
 	private ObservableMap<String, String> testFileMap;
-	
+
 	private VBox searchVBox = new VBox(5);
 	private TextField testNameField = new TextField();
-	
+
 	private List<RadioButton> stageListRadioButtons = new ArrayList<>();
 	private ListView<RadioButton> stageListView = new ListView<>();
 
@@ -76,7 +77,7 @@ public class AdvancedTestingHWATPTesting {
 	private HBox buttonHBox = new HBox(5);
 	private Button startButton = new Button("Start");
 	private Button runAllButton = new Button("Run All");
-	
+
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 
@@ -87,7 +88,7 @@ public class AdvancedTestingHWATPTesting {
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
-	
+
 	private VBox buttonMainVBox = new VBox(15);
 	private HBox allButtonHBox = new HBox(15);
 	private HBox progressBarHBox = new HBox(5);
@@ -98,33 +99,33 @@ public class AdvancedTestingHWATPTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	
+
 	public AdvancedTestingHWATPTesting() {
 		initializeSearch();
 	}
-	
+
 	private void clearTextField() {
-	    if (!testNameField.getText().isEmpty()) {
-	        testNameField.clear();
-	    }
+		if (!testNameField.getText().isEmpty()) {
+			testNameField.clear();
+		}
 	}
+
 	public void initializeSearch() {
-		
-	    testNameField.setPromptText("Search...");    
-	    
-	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
-	    
-	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-	        if (!newValue) { 
-	            clearTextField();
-	        }
-	    });
-	    
+
+		testNameField.setPromptText("Search...");
+
+		testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+
+		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue) {
+				clearTextField();
+			}
+		});
+
 	}
 
 	public GridPane createAdvancedTestingTab1GridPane() {
 
-		
 		getHWATPTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
@@ -190,14 +191,15 @@ public class AdvancedTestingHWATPTesting {
 		leftSideVBox.getChildren().addAll(stageListView);
 		return leftSideVBox;
 	}
+
 	private VBox createSearchFile() {
 		searchVBox.getStyleClass().add("advanced-testing-right-text-field");
 		searchVBox.setAlignment(Pos.CENTER);
 		searchVBox.getChildren().add(testNameField);
 		return searchVBox;
-		
+
 	}
-	
+
 	private GridPane createRightSide() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -207,7 +209,7 @@ public class AdvancedTestingHWATPTesting {
 
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(58);
-		
+
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(32);
 
@@ -248,8 +250,6 @@ public class AdvancedTestingHWATPTesting {
 		setTestListViewData(testFileMap, false, stageId);
 	}
 
-	
-
 	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
 			String stageId) {
 		testListView.getItems().clear();
@@ -268,7 +268,6 @@ public class AdvancedTestingHWATPTesting {
 			}
 			checkBoxes.add(newCheckBox);
 			testListView.getItems().add(newCheckBox);
-			
 
 			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
@@ -278,37 +277,36 @@ public class AdvancedTestingHWATPTesting {
 			});
 		}
 	}
+
 	private void filterList(String keyword) {
-	    String trimmedKeyword = keyword.trim();
-	    
-	    if (trimmedKeyword.isEmpty()) {
-	        setTestListViewData(testFileMap, false, "stageId");
-	        return;
-	    }
-	    else {
-	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
-	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-	    	
-	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
-	            filteredMap.put(entry.getKey(), entry.getValue());
-	        }
-	        
-	    }
-	   
-	    setTestListViewData(filteredMap, false, "stageId");
-	    }
-	    
-	
+		String trimmedKeyword = keyword.trim();
+
+		if (trimmedKeyword.isEmpty()) {
+			setTestListViewData(testFileMap, false, "stageId");
+			return;
+		} else {
+			ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+			for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+
+				if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+					filteredMap.put(entry.getKey(), entry.getValue());
+				}
+
+			}
+
+			setTestListViewData(filteredMap, false, "stageId");
+		}
+
 	}
-	
+
 	private void showAlert() {
-	    Alert alert = new Alert(Alert.AlertType.WARNING);
-	    alert.setTitle("Input Required");
-	    alert.setHeaderText(null);
-	    alert.setContentText("Please enter a repeat count between 1 and 100.");
-	    alert.showAndWait();
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle("Input Required");
+		alert.setHeaderText(null);
+		alert.setContentText("Please enter a repeat count between 1 and 100.");
+		alert.showAndWait();
 	}
-	
+
 	private HBox createButtonBox() {
 		buttonHBox.getStyleClass().add("advanced-testing-right-container");
 		Image playImage = new Image(
@@ -349,9 +347,14 @@ public class AdvancedTestingHWATPTesting {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
-	
 
 		runAllButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(false);
+			
+			if (StateMachine.isConfirmTestFileCompleted()) {
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -360,7 +363,7 @@ public class AdvancedTestingHWATPTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
-			
+
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (!checkbox.isDisable()) {
@@ -373,8 +376,9 @@ public class AdvancedTestingHWATPTesting {
 			}
 
 			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-					
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+					|| currentState == TestState.STOPPED) {
+
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -395,14 +399,17 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(true);
 				return;
 			}
-			System.out.println("Advanced Test State" + StateMachine.getTestState() );
 			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
-		
-		
-		
-		
+
 		startButton.setOnAction(e -> {
+			
+			StateMachine.setConfirmTestStop(false);
+			
+			if (StateMachine.isConfirmTestFileCompleted()) {
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -410,7 +417,7 @@ public class AdvancedTestingHWATPTesting {
 						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
 						"clicked on Resume in HWATP/HSI Testing");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}else {
+			} else {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -418,25 +425,24 @@ public class AdvancedTestingHWATPTesting {
 						"clicked on Start in HWATP/HSI Testing");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			}
-			
-			if(repeatCountTextField == null) {
+
+			if (repeatCountTextField == null) {
 				showAlert();
 			}
-			
+
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
-				
+
 				startButton.setText("Start");
 				startButton.setDisable(true);
 				pauseButton.setDisable(false);
 				stopButton.setDisable(false);
 				return;
 			}
-			if(!checkAitessStatus.isBothAitessOn()) {
-				return ;
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
 			}
-			
-			
+
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (checkbox.isSelected()) {
@@ -449,8 +455,9 @@ public class AdvancedTestingHWATPTesting {
 			}
 
 			TestState currentState = StateMachine.getTestState();
-			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED || currentState ==  TestState.STOPPED) {
-				
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+					|| currentState == TestState.STOPPED) {
+
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -471,16 +478,14 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(true);
 				return;
 			}
-			System.out.println("Advanced Test State" + StateMachine.getTestState() );
 			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
-		
+
 		pauseButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Pause in HWATP/HSI Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Pause in HWATP/HSI Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
@@ -490,21 +495,31 @@ public class AdvancedTestingHWATPTesting {
 		});
 
 		stopButton.setOnAction(e -> {
+			if(!StateMachine.isConfirmTestStop()) {
+				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+				return;
+			}else {
+				StateMachine.setConfirmTestStop(false);
+			}
+			
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Stop in HWATP/HSI Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in HWATP/HSI Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
 			startButton.setDisable(false);
 			runAllButton.setDisable(false);
+
 		});
 
-		
 		repeatCountLabel.setText("Repeat Count");
 		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
 		repeatNotLabel.setTextFill(Color.WHITE);
@@ -514,24 +529,23 @@ public class AdvancedTestingHWATPTesting {
 		repeatCountTextField.setText("1");
 		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
-		
-		 TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
-		        String newText = change.getControlNewText();
 
-		     
-		        try {
-		            int value = Integer.parseInt(newText);
-		            if (value >= 1 && value <= 100) {
-		                return change;
-		            }
-		        } catch (NumberFormatException e) {
-		        }
+		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+			String newText = change.getControlNewText();
 
-		        return null; 
-		    });
-		
-		  repeatCountTextField.setTextFormatter(textFormatter);
-		
+			try {
+				int value = Integer.parseInt(newText);
+				if (value >= 1 && value <= 100) {
+					return change;
+				}
+			} catch (NumberFormatException e) {
+			}
+
+			return null;
+		});
+
+		repeatCountTextField.setTextFormatter(textFormatter);
+
 //		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 //		    if (!newValue.matches("\\d*")) {
 //		        repeatCountTextField.setText(oldValue);
@@ -545,14 +559,13 @@ public class AdvancedTestingHWATPTesting {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-		
+
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
 
-		
 		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
 		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
@@ -560,9 +573,9 @@ public class AdvancedTestingHWATPTesting {
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
 		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
-		
+
 		AdvancedTestStateObject.hwatpTestStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if(!newValue) {
+			if (!newValue) {
 				StateMachine.setTestState(TestState.COMPLETED);
 				AdvancedTestStateObject.hwatpTestStatusProperty().set(true);
 				startButton.setText("Start");
@@ -571,12 +584,13 @@ public class AdvancedTestingHWATPTesting {
 				startButton.setDisable(false);
 				runAllButton.setDisable(false);
 			}
-		
+
 		});
-		
+
 		AdvancedTestStateObject.runnedHWATPTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null ) {
-				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get() / AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
+			if (newValue != null) {
+				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()
+						/ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 				Platform.runLater(() -> {
 					testProgressBar.setProgress(roundedPercentage);
@@ -584,60 +598,56 @@ public class AdvancedTestingHWATPTesting {
 				});
 			}
 		});
-		
+
 		return buttonHBox;
 	}
-	
+
 	private void callStartTest(String stageId, String stageName, String testTypeId, List<String> testFileIds) {
 		Task<Response> task = new Task<Response>() {
 			@Override
 			protected Response call() throws Exception {
-				
 
-				String runConfigId = runConfigurationService.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
+				String runConfigId = runConfigurationService
+						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), testTypeId);
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
-				System.out.println("Runned Test FIle Count" + SessionTestStateObject.getRunnedTestFileCount());
 				int totalTestFileCount = testFileIds.size() * repeatCount;
-				System.out.println("Rpeat Count UI" +repeatCount );
-				System.out.println("Total Test FIle Count" + totalTestFileCount);
 
 				AdvancedTestStateObject.setTotalHWATPSelectedTestFileCount(totalTestFileCount);
-				Platform.runLater(()->{
+				Platform.runLater(() -> {
 					percentageLabel.setText("0%");
 				});
 				AdvancedTestStateObject.getRunnedHWATPTestFileCount().set(0);
-				
-				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, true, stageName, testTypeId, null);
+
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, repeatCount,
+						testFileIds, true, stageName, testTypeId, null);
 
 			}
 		};
-		
-	    task.setOnSucceeded(event -> {
-	        Response response = task.getValue(); // Get the response
-	        if (response.getResponseCode() == 0) {
-	            Debug.printDebug("HWATP Test Task Response received: " + response.getResponseMessage());
-	            
-	            StateMachine.setTestState(TestState.PENDING);
-	            runAllButton.setDisable(false);
-	            startButton.setDisable(false);
-	            pauseButton.setDisable(true);
-	            stopButton.setDisable(true);
-	            
-	            Notifications.showErrorAlert(response.getResponseMessage());
-	        }
-	    });
 
-	    task.setOnFailed(event -> {
-	    	 runAllButton.setDisable(false);
-	            startButton.setDisable(false);
-	            pauseButton.setDisable(true);
-	            stopButton.setDisable(true);
-	        Throwable exception = task.getException();
-	        Debug.printDebug("HWATP Test Task failed with exception: " + exception.getMessage());
-	    });
+		task.setOnSucceeded(event -> {
+			Response response = task.getValue(); // Get the response
+			if (response.getResponseCode() == 0) {
+				Debug.printDebug("HWATP Test Task Response received: " + response.getResponseMessage());
+				StateMachine.setTestState(TestState.PENDING);
+				runAllButton.setDisable(false);
+				startButton.setDisable(false);
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+
+				Notifications.showErrorAlert(response.getResponseMessage());
+			}
+		});
+
+		task.setOnFailed(event -> {
+			runAllButton.setDisable(false);
+			startButton.setDisable(false);
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			Throwable exception = task.getException();
+			Debug.printDebug("HWATP Test Task failed with exception: " + exception.getMessage());
+		});
 
 		new Thread(task).start();
 	}

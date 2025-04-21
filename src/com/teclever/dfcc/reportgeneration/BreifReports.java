@@ -202,6 +202,7 @@ public class BreifReports {
             resultDetailedDTO.setTpgph("TPGH" + i);
             resultDetailedDTO.setUnit("UN-" + i);
             resultDetailedDTO.setTestName("TN-" + i);
+            resultDetailedDTO.setStageName("STN-" + i);
             resultDetailedDTOList.add(resultDetailedDTO);
         }
 

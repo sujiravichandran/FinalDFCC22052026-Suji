@@ -4,7 +4,10 @@ package com.teclever.dfcc.datastore.configurationmanagement;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+
 import com.teclever.datastore.configuration.DataStoreConfiguration;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.OfpConfiguration;
@@ -274,6 +277,25 @@ public class OfpConfigurationManagement {
 			e.printStackTrace();
 			return new ArrayList<>();
 		}
+	}
+	
+	public static String getConfigFilePathById(String ofpConfigId) {
+	    try {
+	        SessionFactory sessionFactory = DataStoreConfiguration.getSessionFactory();
+	        try (Session session = sessionFactory.openSession()) {
+	            Query<OfpConfiguration> query = session.createQuery(
+	                "FROM OfpConfiguration WHERE id = :ofpConfigId AND deleteStatus = false", 
+	                OfpConfiguration.class
+	            );
+	            query.setParameter("ofpConfigId", ofpConfigId);
+	            OfpConfiguration ofpConfiguration = query.uniqueResult();
+
+	            return (ofpConfiguration != null) ? ofpConfiguration.getConfigFile() : null;
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 
 }
