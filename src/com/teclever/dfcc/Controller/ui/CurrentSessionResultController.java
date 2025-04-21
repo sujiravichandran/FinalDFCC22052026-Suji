@@ -74,7 +74,6 @@ public class CurrentSessionResultController {
 	
     public GridPane createCurrentSessionResultGridPane(String id) {
     	SESSION_ID = id ;
-    	System.out.println("SESSION_ID" + SESSION_ID);
 		getCurrentSessionResultData();
     	currentSessionResultGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
@@ -102,7 +101,6 @@ public class CurrentSessionResultController {
 		StackPane parentStackPane= (StackPane) currentSessionResultTableGridPane.getParent().getParent();
 		box.getChildren().add(progressIndicator);
 		box.setAlignment(Pos.CENTER);
-		System.out.println("Entred Show Method");
 		parentStackPane.getChildren().add(box);
 	}
 	
@@ -110,7 +108,6 @@ public class CurrentSessionResultController {
 	private void hideProgressIndicator() {
 		StackPane parentStackPane= (StackPane) currentSessionResultTableGridPane.getParent().getParent();
 		if(parentStackPane.getChildren().contains(box)) {
-			System.out.println("Entred hide Method");
 			parentStackPane.getChildren().remove(box);
 		}
 	}
@@ -178,9 +175,6 @@ public class CurrentSessionResultController {
     
 	private void getCurrentSessionResultData() {
 		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
-		System.out.println("getCurrentSessionResultData" + SESSION_ID);
-		System.out.println("Response Code" + response.getCode() );
-		System.out.println("getResultSessionStagesDetailsDTOList" + response.getResultSessionStagesDetailsDTOList().size());
 		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
 			int i = 1;
 			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
@@ -306,7 +300,6 @@ public class CurrentSessionResultController {
 	    @Override
 		protected void succeeded() {
 	    	Platform.runLater(() -> {
-            	System.out.println("Entred runlater");
             	
  	               tableScrollPane.setContent(sessionDataTableView);
  	              tableScrollPane.setFitToHeight(true);
@@ -321,7 +314,6 @@ public class CurrentSessionResultController {
 
 		@Override
 		protected void failed() {
-			System.out.println("Entred Failed");
 //			Platform.runLater(() -> {
 //				currentSessionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 //		        setControlsDisabled(currentSessionResultGridPane.getScene().getRoot(), false);

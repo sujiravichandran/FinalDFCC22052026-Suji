@@ -88,12 +88,11 @@ public class SessionTestingController {
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
 	private HBox buttonHBox = new HBox(5);
-	
+
 	private Button startButton = new Button("Start");
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 	private Button runAllButton = new Button("Run All");
-	
 
 	private VBox repeatCountVBox = new VBox();
 	private Label repeatCountLabel = new Label();
@@ -108,10 +107,9 @@ public class SessionTestingController {
 	private SessionManagement sessionManagement = new SessionManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 //	private AitessProcessControlManagement aitessProcessControlManagement = new AitessProcessControlManagement();
-	
+
 	private TextField testNameField = new TextField();
 
-	
 	private VBox searchVBox = new VBox(5);
 
 	private String selectedStageId = null;
@@ -119,41 +117,40 @@ public class SessionTestingController {
 	private boolean isTrailSession = false;
 
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
-	
+
 	private VBox buttonMainVBox = new VBox(15);
 	private HBox allButtonHBox = new HBox(5);
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
-	
+
 	private double progress = 0.1;
 
 	public SessionTestingController() {
-		
+
 		initializeSearch();
-	   
+
 	}
-	
-	
+
 	private void clearTextField() {
-	    if (!testNameField.getText().isEmpty()) {
-	        testNameField.clear();
-	        System.out.println("TextField cleared.");
-	    }
+		if (!testNameField.getText().isEmpty()) {
+			testNameField.clear();
+		}
 	}
+
 	public void initializeSearch() {
-		
-	    testNameField.setPromptText("Search...");
-	    
-//	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
-	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-	        if (!newValue) { 
-	            clearTextField();
-	        }
-	    });
-	    
+
+		testNameField.setPromptText("Search...");
+
+		testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue) {
+				clearTextField();
+			}
+		});
+
 	}
-	
+
 	public GridPane createSessionTestingGridPane(boolean status) {
 		if (status) {
 			isTrailSession = true;
@@ -227,7 +224,7 @@ public class SessionTestingController {
 		sessionTestingTreeviewGridPane.getRowConstraints().addAll(firstRow);
 
 		sessionTestingTreeviewGridPane.add(createTreeView(), 0, 0);
-		
+
 		getStatusForAllStage();
 
 		return sessionTestingTreeviewGridPane;
@@ -242,11 +239,10 @@ public class SessionTestingController {
 
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(57);
-		
+
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(33);
 
-		
 		sessionTestingListMainGridPane.getColumnConstraints().addAll(firstColumn);
 		sessionTestingListMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 		sessionTestingListMainGridPane.setHgap(5);
@@ -262,9 +258,9 @@ public class SessionTestingController {
 		searchVBox.getStyleClass().add("session-testing-right-text-field");
 		searchVBox.getChildren().add(testNameField);
 		return searchVBox;
-		
+
 	}
-	
+
 	private VBox createTestListView() {
 		testListView.getStyleClass().add("session-testing-list-view");
 
@@ -273,27 +269,24 @@ public class SessionTestingController {
 		return testListVBox;
 	}
 
-	
-	List<String> testFiles =  new ArrayList<>();
-	
+	List<String> testFiles = new ArrayList<>();
+
 //	 public void useTestFiles() {
 //	        testFiles = testProcessManagement.getTestFiles();
 //	    } 
-	 
-	 int testFileSize;
-	 
-	 
-		private void showAlert() {
-		    Alert alert = new Alert(Alert.AlertType.WARNING);
-		    alert.setTitle("Input Required");
-		    alert.setHeaderText(null);
-		    alert.setContentText("Please enter a repeat count between 1 and 100.");
-		    alert.showAndWait();
-		}
-	 
+
+	int testFileSize;
+
+	private void showAlert() {
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle("Input Required");
+		alert.setHeaderText(null);
+		alert.setContentText("Please enter a repeat count between 1 and 100.");
+		alert.showAndWait();
+	}
+
 	private HBox createButtonBox() {
 
-		
 		buttonHBox.getStyleClass().add("session-testing-right-container");
 		Image playImage = new Image(
 				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/play.png"));
@@ -334,19 +327,24 @@ public class SessionTestingController {
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		runAllButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(false);
+			if (StateMachine.isConfirmTestFileCompleted()) {
+
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Run All in Session Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Run All in Session Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
 //			List<String> testFileIds = new ArrayList<>();
-			
+
 //			int testFileLines = testProcessManagement.testFileLinesCount();
-			
+
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (!checkbox.isDisable()) {
@@ -381,7 +379,7 @@ public class SessionTestingController {
 				pauseButton.setDisable(true);
 				return;
 			}
-			
+
 //			if (DFCCConstant.entered == true) {
 //				if (aitessProcessControlManagement.checkChannelStatusBeforeAnyTest().equals(true)
 //						|| aitessProcessControlManagement.checkOnlineStatusBeforeAnyTestFile().equals(true)) {
@@ -392,14 +390,19 @@ public class SessionTestingController {
 //					stopButton.setDisable(false);
 //				}
 //			}
-			
 
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
 
 		});
 
-		startButton.setOnAction(e -> {	
+		startButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(false);
+			if (StateMachine.isConfirmTestFileCompleted()) {
+
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -407,7 +410,7 @@ public class SessionTestingController {
 						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
 						"clicked on Resume in Session Testing");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}else {
+			} else {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -423,11 +426,11 @@ public class SessionTestingController {
 				stopButton.setDisable(false);
 				return;
 			}
-			
-			if(repeatCountTextField == null) {
+
+			if (repeatCountTextField == null) {
 				showAlert();
 			}
-			
+
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -487,10 +490,9 @@ public class SessionTestingController {
 
 		pauseButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Pause in Session Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Pause in Session Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
@@ -500,11 +502,21 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
+
+			if(!StateMachine.isConfirmTestStop()) {
+				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+				return;
+			}else {
+				StateMachine.setConfirmTestStop(false);
+			}
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Stop in Session Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in Session Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
@@ -524,25 +536,23 @@ public class SessionTestingController {
 		repeatCountTextField.setText("1");
 		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
-		
+
 		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
-	        String newText = change.getControlNewText();
+			String newText = change.getControlNewText();
 
-	       
+			try {
+				int value = Integer.parseInt(newText);
+				if (value >= 1 && value <= 100) {
+					return change;
+				}
+			} catch (NumberFormatException e) {
+			}
 
-	        try {
-	            int value = Integer.parseInt(newText);
-	            if (value >= 1 && value <= 100) {
-	                return change;
-	            }
-	        } catch (NumberFormatException e) {
-	        }
+			return null;
+		});
 
-	        return null; 
-	    });
-	
-	  repeatCountTextField.setTextFormatter(textFormatter);
-		
+		repeatCountTextField.setTextFormatter(textFormatter);
+
 //		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 //			if (!newValue.matches("\\d*")) {
 //				repeatCountTextField.setText(oldValue);
@@ -562,7 +572,7 @@ public class SessionTestingController {
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
-		
+
 		buttonMainVBox.setPadding(new Insets(25, 0, 0, 0));
 		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
@@ -570,8 +580,7 @@ public class SessionTestingController {
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
 		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
-		
-		
+
 //		Before Changing 100%
 //		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
 //			if (newValue != null ) {
@@ -592,18 +601,15 @@ public class SessionTestingController {
 //		
 //		return buttonHBox;
 //	}
-	
-//	After Changing :
-	SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-	    if (newValue != null && SessionTestStateObject.getTotalSelectedTestFileCount() > 0) {
-	        double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() /  
-	                            SessionTestStateObject.getTotalSelectedTestFileCount();
-	        double roundedPercentage = Math.round(percentage * 100.0) / 100.0; 
 
-	        System.out.println("Session Test Files Count: " + SessionTestStateObject.getRunnedTestFileCount().get());
-	        System.out.println("Total Selected File Count: " + SessionTestStateObject.getTotalSelectedTestFileCount());
-	        System.out.println("Rounded Percentage: " + (roundedPercentage * 100));
-	        
+//	After Changing :
+		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && SessionTestStateObject.getTotalSelectedTestFileCount() > 0) {
+				double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get()
+						/ SessionTestStateObject.getTotalSelectedTestFileCount();
+				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+
+
 //	        if(SessionTestStateObject.getTotalSelectedTestFileCount() == 1) {
 //	        	Platform.runLater(() -> {
 //	                testProgressBar.setProgress(roundedPercentage);
@@ -611,28 +617,25 @@ public class SessionTestingController {
 //	            });
 //	        }
 
-	        if (roundedPercentage <=1.0) { // Less than 100%
-	            Platform.runLater(() -> {
-	                testProgressBar.setProgress(roundedPercentage);
-	                percentageLabel.setText((int) (roundedPercentage * 100) + "%");
-	            });
-	        } else if(roundedPercentage > 1.0){ 
-	             // Set to 100%
-	            Platform.runLater(() -> {
-	                testProgressBar.setProgress(roundedPercentage);
-	                percentageLabel.setText("100%");
-	            });
-	        }
-	    }
-	});
-	
-	return buttonHBox;
-}
-	
-	
-//	List<CheckBox> checkBoxes = new ArrayList<>();
-	
+				if (roundedPercentage <= 1.0) { // Less than 100%
+					Platform.runLater(() -> {
+						testProgressBar.setProgress(roundedPercentage);
+						percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+					});
+				} else if (roundedPercentage > 1.0) {
+					// Set to 100%
+					Platform.runLater(() -> {
+						testProgressBar.setProgress(roundedPercentage);
+						percentageLabel.setText("100%");
+					});
+				}
+			}
+		});
 
+		return buttonHBox;
+	}
+
+//	List<CheckBox> checkBoxes = new ArrayList<>();
 
 	private GridPane createSessionTestingResultsGridPane() {
 		sessionTestingResultsGridPane.getStyleClass().add("session-testing-result-container");
@@ -645,11 +648,10 @@ public class SessionTestingController {
 		sessionTestingResultsGridPane.getColumnConstraints().addAll(firstColumn);
 		sessionTestingResultsGridPane.getRowConstraints().addAll(firstRow);
 
-		sessionTestingResultsGridPane.add(createResultTableView(), 0, 0);
+		sessionTestingResultsGridPane.add(createResultTableViewSession(), 0, 0);
 
 		return sessionTestingResultsGridPane;
 	}
-
 
 	private TreeView<Label> createTreeView() {
 		TreeItem<Label> rootItem = new TreeItem<>();
@@ -824,114 +826,62 @@ public class SessionTestingController {
 
 		setTestListViewData(testFileMap, checkboxDisable, stageId);
 	}
-	
-	
-	
-//	private void filterList(String keyword) {
-//	    String trimmedKeyword = keyword.trim();
-//	    
-//	    if (trimmedKeyword.isEmpty()) {
-//	        setTestListViewData(testFileMap, false, "stageId");
-//	        System.out.println("TEST FILE LIST" + testFileMap);
-//	        return;
-//	    }
-//	    else {
-//	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
-//	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-//	    	
-//	    	System.out.println("Entry prompt"+entry);
-//	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
-//	            filteredMap.put(entry.getKey(), entry.getValue());
-//	        }
-//	        
-//	    }
-//	   
-////	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
-//	    setTestListViewData(filteredMap, false, "stageId");
-//	    }
-//	    
-//	
-//	}
-	
-//	Before Changing
-	
-	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable, String stageId) {
-	    System.out.println("Updating ListView with testFileMap: " + testFileMap);
-	    
-	    
-	    testListView.getItems().clear();
-	    checkBoxes.clear();
-	    Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-	    System.out.println("Stage Test Lists" +stageCompleteTestList );
 
-	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-	        String filePath = entry.getValue();
-	        File file = new File(filePath);
-	        CheckBox newCheckBox = new CheckBox(file.getName());
-	        newCheckBox.setMnemonicParsing(false);
-	        newCheckBox.setId(entry.getKey());
-	        newCheckBox.getStyleClass().add("session-testing-checkbox");
-	        newCheckBox.setWrapText(true);
+	private void filterList(String keyword) {
+		String trimmedKeyword = keyword.trim();
 
-	        if (checkboxDisable || (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey()))) {
-	            newCheckBox.setDisable(true);
-	        }
+		if (trimmedKeyword.isEmpty()) {
+			setTestListViewData(testFileMap, false, "stageId");
+			return;
+		} else {
+			ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+			for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
 
-	        checkBoxes.add(newCheckBox);
-	        testListView.getItems().add(newCheckBox);
+				if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+					filteredMap.put(entry.getKey(), entry.getValue());
+				}
 
-	        System.out.println("Added CheckBox: " + newCheckBox.getText());
+			}
 
-	        newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-	            boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-	            if (StateMachine.getTestState() != TestState.RUNNING) {
-	                startButton.setDisable(!anySelected);
-	            }
-	        });
-	    }
-	    
-	   
+			setTestListViewData(filteredMap, false, "stageId");
+		}
+
 	}
 
-//	After Changing
-//	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable, String stageId) {
-//		System.out.println("Updating ListView with stageId: " + stageId);
-//
-//		testListView.getItems().clear();
-//		checkBoxes.clear();
-//		Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-//		System.out.println("Stage Test Lists" + stageCompleteTestList);
-//
-//		List<Map.Entry<String, String>> sortedEntries = new ArrayList<>(testFileMap.entrySet());
-//		sortedEntries.sort((entry1, entry2) -> entry1.getValue().compareTo(entry2.getValue()));
-//
-//		for (Map.Entry<String, String> entry : sortedEntries) {
-//		    String filePath = entry.getValue();
-//		    File file = new File(filePath);
-//		    CheckBox newCheckBox = new CheckBox(file.getName());
-//		    newCheckBox.setMnemonicParsing(false);
-//		    newCheckBox.setId(entry.getKey());  
-//		    newCheckBox.getStyleClass().add("session-testing-checkbox");
-//		    newCheckBox.setWrapText(true);
-//		    
-//		    if (checkboxDisable || (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey()))) {
-//		        newCheckBox.setDisable(true);
-//		    }
-//
-//		    checkBoxes.add(newCheckBox);
-//		    testListView.getItems().add(newCheckBox);
-//
-//		    System.out.println("Added CheckBox: " + newCheckBox.getText());
-//
-//		    // Listener to manage start button enable/disable based on checkbox selection
-//		    newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-//		        boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
-//		        if (StateMachine.getTestState() != TestState.RUNNING) {
-//		            startButton.setDisable(!anySelected);
-//		        }
-//		    });
-//	}
-//	}
+	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
+			String stageId) {
+
+		testListView.getItems().clear();
+		checkBoxes.clear();
+		Set<String> stageCompleteTestList = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
+
+		for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+			String filePath = entry.getValue();
+			File file = new File(filePath);
+			CheckBox newCheckBox = new CheckBox(file.getName());
+			newCheckBox.setMnemonicParsing(false);
+			newCheckBox.setId(entry.getKey());
+			newCheckBox.getStyleClass().add("session-testing-checkbox");
+			newCheckBox.setWrapText(true);
+
+			if (checkboxDisable || (stageCompleteTestList != null && stageCompleteTestList.contains(entry.getKey()))) {
+				newCheckBox.setDisable(true);
+			}
+
+			checkBoxes.add(newCheckBox);
+			testListView.getItems().add(newCheckBox);
+
+
+			newCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+				boolean anySelected = checkBoxes.stream().anyMatch(CheckBox::isSelected);
+				if (StateMachine.getTestState() != TestState.RUNNING) {
+					startButton.setDisable(!anySelected);
+				}
+			});
+		}
+
+	}
+
 	private void disableCheckBox(String stageId) {
 //		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
 		if (selectedStageId.equals(stageId)) {
@@ -979,46 +929,49 @@ public class SessionTestingController {
 				currentSessionDetails.setRunConfigId(runConfigId);
 				String ID = stageId;
 				int repeatCount = Integer.parseInt(repeatCountTextField.getText());
-				
-				testFileSize= testFileIds.size();
-				System.out.println("Test File Size check:" + testFileSize);
+
+				testFileSize = testFileIds.size();
 				int totalTestFileCount = testFileSize * repeatCount;
-				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);	
-				Platform.runLater(()->{
+				SessionTestStateObject.setTotalSelectedTestFileCount(totalTestFileCount);
+				Platform.runLater(() -> {
 					percentageLabel.setText("0%");
 				});
 				SessionTestStateObject.getRunnedTestFileCount().set(0);
 
-				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, isContinueWithError, stageName, testTypeId, null);
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, repeatCount,
+						testFileIds, isContinueWithError, stageName, testTypeId, null);
 
 			}
 		};
-		
-	    task.setOnSucceeded(event -> {
-	        Response response = task.getValue(); // Get the response
-	        if (response.getResponseCode() == 0) {
-	            Debug.printDebug("Session Test Task Response received: " + response.getResponseMessage());
-	            
-	            StateMachine.setTestState(TestState.PENDING);
-	            runAllButton.setDisable(false);
-	            startButton.setDisable(false);
-	            pauseButton.setDisable(true);
-	            stopButton.setDisable(false);
-	            
-	            Notifications.showErrorAlert(response.getResponseMessage());
-	        }
-	    });
 
-	    task.setOnFailed(event -> {
-	        Throwable exception = task.getException();
-	        Debug.printDebug("Session Test Task failed with exception: " + exception.getMessage());
-	    });
+		task.setOnSucceeded(event -> {
+			Response response = task.getValue(); // Get the response
+			if (response.getResponseCode() == 0) {
+				Debug.printDebug("Session Test Task Response received: " + response.getResponseMessage());
+
+				StateMachine.setTestState(TestState.PENDING);
+				runAllButton.setDisable(false);
+				startButton.setDisable(false);
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+
+				Notifications.showErrorAlert(response.getResponseMessage());
+			}
+		});
+
+		task.setOnFailed(event -> {
+			runAllButton.setDisable(false);
+			startButton.setDisable(false);
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			Throwable exception = task.getException();
+			Debug.printDebug("Session Test Task failed with exception: " + exception.getMessage());
+		});
 
 		new Thread(task).start();
 	}
 
-	private TableView<SessionTestResult> createResultTableView() {
+	private TableView<SessionTestResult> createResultTableViewSession() {
 		sessionTestTable = createTableView();
 
 		return sessionTestTable;
@@ -1042,27 +995,26 @@ public class SessionTestingController {
 		fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
 		// Custom cell to show ellipsis for file path
-	    fileNameColumn.setCellFactory(new Callback<TableColumn<SessionTestResult, String>, TableCell<SessionTestResult, String>>() {
-	        @Override
-	        public TableCell<SessionTestResult, String> call(TableColumn<SessionTestResult, String> col) {
-	            return new TableCell<SessionTestResult, String>() {
-	                @Override
-	                protected void updateItem(String filePath, boolean empty) {
-	                    super.updateItem(filePath, empty);
-	                    if (empty || filePath == null) {
-	                        setText(null);
-	                    } else {
-	                    	File file = new File(filePath);
-	                    	setText(file.getName());
-	                    }
-	                }
+		fileNameColumn.setCellFactory(
+				new Callback<TableColumn<SessionTestResult, String>, TableCell<SessionTestResult, String>>() {
+					@Override
+					public TableCell<SessionTestResult, String> call(TableColumn<SessionTestResult, String> col) {
+						return new TableCell<SessionTestResult, String>() {
+							@Override
+							protected void updateItem(String filePath, boolean empty) {
+								super.updateItem(filePath, empty);
+								if (empty || filePath == null) {
+									setText(null);
+								} else {
+									File file = new File(filePath);
+									setText(file.getName());
+								}
+							}
 
-	            };
-	        }
-	    });
-		
-		
-		
+						};
+					}
+				});
+
 		TableColumn<SessionTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
 		resultColumn.setReorderable(false);
@@ -1085,62 +1037,59 @@ public class SessionTestingController {
 						}
 					}
 				});
-		
-		
+
 		// View Button Column
-	    TableColumn<SessionTestResult, Void> viewButtonColumn = new TableColumn<>();
-	    viewButtonColumn.setCellFactory(col -> new TableCell<SessionTestResult, Void>() {
-	        private final Button viewButton = new Button("View");
+		TableColumn<SessionTestResult, Void> viewButtonColumn = new TableColumn<>();
+		viewButtonColumn.setCellFactory(col -> new TableCell<SessionTestResult, Void>() {
+			private final Button viewButton = new Button("View");
 
-	        {
-	        	viewButton.setOnAction(e -> {
-	        		SessionTestResult sessionTestResult = getTableView().getItems().get(getIndex());
-				    File file = new File(sessionTestResult.getFileName());
+			{
+				viewButton.setOnAction(e -> {
+					SessionTestResult sessionTestResult = getTableView().getItems().get(getIndex());
+					File file = new File(sessionTestResult.getFileName());
 
-				    // Check if the file exists before trying to open it
-				    if (file.exists()) {
-				        try {
-				            String os = System.getProperty("os.name").toLowerCase();
-				            if (os.contains("win")) {
-				                // Windows-specific code
-				                Desktop desktop = Desktop.getDesktop();
-				                if (desktop.isSupported(Desktop.Action.OPEN)) {
-				                    desktop.open(file);
-				                } else {
-				                   Debug.printDebug("Open action not supported on this platform.");
-				                }
-				            } else if (os.contains("nix") || os.contains("nux")) {
-				                // Linux-specific code using xdg-open
-				                // Ensure the file path is absolute
-				                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
-				                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
-				            } else {
-				               Debug.printDebug("Unsupported OS: " + os);
-				            }
-				        } catch (IOException ex) {
-				           Debug.printDebug("Error opening file: " + ex.getMessage());
-				        }
-				    } else {
-				       Debug.printDebug("File does not exist: " + file.getAbsolutePath());
-				    }
+					// Check if the file exists before trying to open it
+					if (file.exists()) {
+						try {
+							String os = System.getProperty("os.name").toLowerCase();
+							if (os.contains("win")) {
+								// Windows-specific code
+								Desktop desktop = Desktop.getDesktop();
+								if (desktop.isSupported(Desktop.Action.OPEN)) {
+									desktop.open(file);
+								} else {
+									Debug.printDebug("Open action not supported on this platform.");
+								}
+							} else if (os.contains("nix") || os.contains("nux")) {
+								// Linux-specific code using xdg-open
+								// Ensure the file path is absolute
+								File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+								new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+							} else {
+								Debug.printDebug("Unsupported OS: " + os);
+							}
+						} catch (IOException ex) {
+							Debug.printDebug("Error opening file: " + ex.getMessage());
+						}
+					} else {
+						Debug.printDebug("File does not exist: " + file.getAbsolutePath());
+					}
 				});
-	        }
+			}
 
-	        @Override
-	        protected void updateItem(Void item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (empty) {
-	                setGraphic(null);
-	            } else {
-	                setGraphic(viewButton);
-	            }
-	        }
-	    });
-	    viewButtonColumn.setReorderable(false);
-	    viewButtonColumn.setSortable(false);
-	    viewButtonColumn.setMaxWidth(100);
-		
-	
+			@Override
+			protected void updateItem(Void item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty) {
+					setGraphic(null);
+				} else {
+					setGraphic(viewButton);
+				}
+			}
+		});
+		viewButtonColumn.setReorderable(false);
+		viewButtonColumn.setSortable(false);
+		viewButtonColumn.setMaxWidth(100);
 
 		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
 		tableView.setItems(SessionTestStateObject.getSessionTestResults());
@@ -1173,74 +1122,61 @@ public class SessionTestingController {
 			}
 		});
 	}
-		
+
 	private void getStatusForAllStage() {
 		List<StageObject> stageList = new ArrayList<StageObject>();
-		SessionStageMapResponse response = sessionManagement.getAllSessionStage_IdsWithResult(currentSessionDetails.getSessionId());
-		if(response.getResponse().getResponseCode() == 1 && response.getListOfStageObject() != null) {
+		SessionStageMapResponse response = sessionManagement
+				.getAllSessionStage_IdsWithResult(currentSessionDetails.getSessionId());
+		if (response.getResponse().getResponseCode() == 1 && response.getListOfStageObject() != null) {
 			stageList.addAll(response.getListOfStageObject());
-		}else {
-			System.out.println("Error : "+response.getResponse().getResponseCode()+"-"+response.getResponse().getResponseMessage());
+		} else {
 		}
 		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
 
 		observableStageList.stream().forEach(stage -> {
-			if(stage.getL1StageId() != null) {				
-				if(stage.getL2StageId() == null) {
-//					System.out.println(stage.getL1StageId()+" -> "+stage.getStatus());
+			if (stage.getL1StageId() != null) {
+				if (stage.getL2StageId() == null) {
 					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL1StageId(), stage.getStatus());
 				}
 			}
-			if(stage.getL2StageId() != null) {				
-				if(stage.getL3StageId() == null) {
-//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getStatus());
+			if (stage.getL2StageId() != null) {
+				if (stage.getL3StageId() == null) {
 					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL2StageId(), stage.getStatus());
 				}
 			}
-			if(stage.getL3StageId() != null) {				
-				if(stage.getL4StageId() == null) {
-//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getStatus());
+			if (stage.getL3StageId() != null) {
+				if (stage.getL4StageId() == null) {
 					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL3StageId(), stage.getStatus());
 				}
 			}
-			if(stage.getL4StageId() != null) {				
-				if(stage.getL5StageId() == null) {
-//					System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getL4StageId()+" -> "+stage.getStatus());
+			if (stage.getL4StageId() != null) {
+				if (stage.getL5StageId() == null) {
 					changeTreeViewBG(sessionTreeView.getRoot(), stage.getL4StageId(), stage.getStatus());
 				}
 			}
-			if(stage.getL5StageId() != null) {				
-//				System.out.println(stage.getL1StageId()+" -> "+stage.getL2StageId()+" -> "+stage.getL3StageId()+" -> "+stage.getL4StageId()+" -> "+stage.getL5StageId()+" -> "+stage.getStatus());
+			if (stage.getL5StageId() != null) {
 				changeTreeViewBG(sessionTreeView.getRoot(), stage.getL5StageId(), stage.getStatus());
 			}
-//			System.out.println("------------");
 
 		});
-		
+
 	}
-	
+
 	private void changeTreeViewBG(TreeItem<Label> item, String stageId, String status) {
-	    if (item.getValue() != null) {
-	        if(item.getValue().getId().equals(stageId)) {
-		        Label label = item.getValue();
+		if (item.getValue() != null) {
+			if (item.getValue().getId().equals(stageId)) {
+				Label label = item.getValue();
 
-		        if (!label.getStyleClass().contains(status)) {
-		            label.getStyleClass().clear();
-		            label.getStyleClass().addAll("label", "l1_stage-label", status.toLowerCase());
-		        }
-	        }
-	    }
+				if (!label.getStyleClass().contains(status)) {
+					label.getStyleClass().clear();
+					label.getStyleClass().addAll("label", "l1_stage-label", status.toLowerCase());
+				}
+			}
+		}
 
-	    for (TreeItem<Label> child : item.getChildren()) {
-	    	changeTreeViewBG(child, stageId, status);
-	    }
+		for (TreeItem<Label> child : item.getChildren()) {
+			changeTreeViewBG(child, stageId, status);
+		}
 	}
-	
+
 }
-
-
-
-
-
-
-

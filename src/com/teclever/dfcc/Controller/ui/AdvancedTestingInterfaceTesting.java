@@ -65,7 +65,7 @@ public class AdvancedTestingInterfaceTesting {
 	private VBox searchVBox = new VBox(5);
 	private TextField testNameField = new TextField();
 	private ObservableMap<String, String> testFileMap;
-	
+
 	private List<CheckBox> checkBoxes = new ArrayList<>();
 	private ListView<CheckBox> testListView = new ListView<>();
 	private VBox testListVBox = new VBox();
@@ -82,7 +82,7 @@ public class AdvancedTestingInterfaceTesting {
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
-	
+
 	private VBox buttonMainVBox = new VBox(15);
 	private HBox allButtonHBox = new HBox(15);
 	private HBox progressBarHBox = new HBox(5);
@@ -94,19 +94,11 @@ public class AdvancedTestingInterfaceTesting {
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
-	
 	public AdvancedTestingInterfaceTesting() {
 		initializeSearch();
 	}
-	
-	
-	
-	
+
 	public GridPane createAdvancedTestingTab2GridPane() {
-		
-		StateMachine.setAitess1Launched(true);
-		StateMachine.setAitess2Launched(true);
-		
 		getInterfaceTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
@@ -133,8 +125,7 @@ public class AdvancedTestingInterfaceTesting {
 		observableStageList.stream()
 				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName())
 						&& "Interface Test".equalsIgnoreCase(stage.getL2StageName()))
-				.filter(stage -> stage.getL3StageId() != null && stage.getL4StageId() != null)
-				.forEach(stage -> {
+				.filter(stage -> stage.getL3StageId() != null && stage.getL4StageId() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL4StageId(), stage.getL4StageName(),
 							stage.getTestTypeId(), null);
 					AdvancedTestStateObject.addInterfaceTestList(newCard);
@@ -142,32 +133,32 @@ public class AdvancedTestingInterfaceTesting {
 	}
 
 	private void clearTextField() {
-	    if (!testNameField.getText().isEmpty()) {
-	        testNameField.clear();
-	        System.out.println("TextField cleared.");
-	    }
+		if (!testNameField.getText().isEmpty()) {
+			testNameField.clear();
+		}
 	}
+
 	public void initializeSearch() {
-		
-	    testNameField.setPromptText("Search...");
-	    
-	    testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
-	    testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-	        if (!newValue) { 
-	            clearTextField();
-	        }
-	    });
-	    
+
+		testNameField.setPromptText("Search...");
+
+		testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
+		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue) {
+				clearTextField();
+			}
+		});
+
 	}
-	
+
 	private VBox createSearchFile() {
 		searchVBox.getStyleClass().add("advanced-testing-right-text-field");
 		searchVBox.setAlignment(Pos.CENTER);
 		searchVBox.getChildren().add(testNameField);
 		return searchVBox;
-		
+
 	}
-	
+
 	private VBox createLeftSide() {
 		ObservableList<TestCardData> interfaceTestList = AdvancedTestStateObject.getInterfaceTestList();
 
@@ -222,33 +213,27 @@ public class AdvancedTestingInterfaceTesting {
 
 		setTestListViewData(testFileMap, false, stageId);
 	}
-	
+
 	private void filterList(String keyword) {
-	    String trimmedKeyword = keyword.trim();
-	    
-	    if (trimmedKeyword.isEmpty()) {
-	        setTestListViewData(testFileMap, false, "stageId");
-	        System.out.println("TEST FILE LIST" + testFileMap);
-	        return;
-	    }
-	    else {
-	    ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
-	    for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
-	    	
-	    	System.out.println("Entry prompt"+entry);
-	        if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
-	            filteredMap.put(entry.getKey(), entry.getValue());
-	        }
-	        
-	    }
-	   
-//	    System.out.println("Entry word  Prompt  :"   +trimmedKeyword +"     Size "+ filteredMap.size()  +"     elements " +filteredMap);
-	    setTestListViewData(filteredMap, false, "stageId");
-	    }
-	    
-	
+		String trimmedKeyword = keyword.trim();
+
+		if (trimmedKeyword.isEmpty()) {
+			setTestListViewData(testFileMap, false, "stageId");
+			return;
+		} else {
+			ObservableMap<String, String> filteredMap = FXCollections.observableHashMap();
+			for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
+
+				if (entry.getValue().toLowerCase().contains(trimmedKeyword.toLowerCase())) {
+					filteredMap.put(entry.getKey(), entry.getValue());
+				}
+
+			}
+
+			setTestListViewData(filteredMap, false, "stageId");
+		}
+
 	}
-	
 
 	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
 			String stageId) {
@@ -278,15 +263,14 @@ public class AdvancedTestingInterfaceTesting {
 		}
 	}
 
-
 	private void showAlert() {
-	    Alert alert = new Alert(Alert.AlertType.WARNING);
-	    alert.setTitle("Input Required");
-	    alert.setHeaderText(null);
-	    alert.setContentText("Please enter a repeat count between 1 and 100.");
-	    alert.showAndWait();
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle("Input Required");
+		alert.setHeaderText(null);
+		alert.setContentText("Please enter a repeat count between 1 and 100.");
+		alert.showAndWait();
 	}
-	
+
 	private GridPane createRightSide() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -296,7 +280,7 @@ public class AdvancedTestingInterfaceTesting {
 
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(45);
-		
+
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(32);
 
@@ -311,7 +295,6 @@ public class AdvancedTestingInterfaceTesting {
 
 	private VBox createTestListView() {
 //		testListView.getStyleClass().add("advanced-testing-list-view");
-
 
 		testListVBox.getChildren().add(testListView);
 		testListVBox.getStyleClass().add("advanced-testing-right-container");
@@ -360,17 +343,21 @@ public class AdvancedTestingInterfaceTesting {
 		pauseButton.setDisable(true);
 
 		runAllButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(false);
+			
+			if (StateMachine.isConfirmTestFileCompleted()) {
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Run All in Interface Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Run All in Interface Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
-			
-			
+
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (!checkbox.isDisable()) {
@@ -385,7 +372,7 @@ public class AdvancedTestingInterfaceTesting {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
-		
+
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -411,6 +398,12 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		startButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(false);
+			if (StateMachine.isConfirmTestFileCompleted()) {
+
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -418,7 +411,7 @@ public class AdvancedTestingInterfaceTesting {
 						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
 						"clicked on Resume in Inteface Testing");
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}else {
+			} else {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -437,11 +430,11 @@ public class AdvancedTestingInterfaceTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
-			
-			if(repeatCountTextField == null) {
+
+			if (repeatCountTextField == null) {
 				showAlert();
 			}
-						
+
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (checkbox.isSelected()) {
@@ -456,7 +449,7 @@ public class AdvancedTestingInterfaceTesting {
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
-				
+
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
@@ -483,10 +476,9 @@ public class AdvancedTestingInterfaceTesting {
 
 		pauseButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Pause in Interface Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Pause in Interface Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
@@ -496,12 +488,21 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		stopButton.setOnAction(e -> {
+			if(!StateMachine.isConfirmTestStop()) {
+				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+				return;
+			}else {
+				StateMachine.setConfirmTestStop(false);
+			}
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Stop in Interface Testing");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in Interface Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
@@ -519,25 +520,23 @@ public class AdvancedTestingInterfaceTesting {
 		repeatCountTextField.setText("1");
 		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
-		
-		 TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
-		        String newText = change.getControlNewText();
 
-		       
+		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+			String newText = change.getControlNewText();
 
-		        try {
-		            int value = Integer.parseInt(newText);
-		            if (value >= 1 && value <= 100) {
-		                return change;
-		            }
-		        } catch (NumberFormatException e) {
-		        }
+			try {
+				int value = Integer.parseInt(newText);
+				if (value >= 1 && value <= 100) {
+					return change;
+				}
+			} catch (NumberFormatException e) {
+			}
 
-		        return null; 
-		    });
-		
-		  repeatCountTextField.setTextFormatter(textFormatter);
-		
+			return null;
+		});
+
+		repeatCountTextField.setTextFormatter(textFormatter);
+
 //		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 //		    if (!newValue.matches("\\d*")) {
 //		        repeatCountTextField.setText(oldValue);
@@ -551,14 +550,13 @@ public class AdvancedTestingInterfaceTesting {
 		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
-		
+
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
 
-		
 		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
 		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
@@ -566,9 +564,9 @@ public class AdvancedTestingInterfaceTesting {
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
 		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
-		
+
 		AdvancedTestStateObject.interfaceTestStatusProperty().addListener((observable, oldValue, newValue) -> {
-			if(!newValue) {
+			if (!newValue) {
 				StateMachine.setTestState(TestState.COMPLETED);
 				AdvancedTestStateObject.interfaceTestStatusProperty().set(true);
 				startButton.setText("Start");
@@ -577,14 +575,13 @@ public class AdvancedTestingInterfaceTesting {
 				startButton.setDisable(false);
 				runAllButton.setDisable(false);
 			}
-		
+
 		});
-		
+
 		AdvancedTestStateObject.runnedInterfaceestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null ) {
-				System.out.println("");
-				
-				double percentage = (double) AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get() / AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount();
+			if (newValue != null) {
+				double percentage = (double) AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get()
+						/ AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount();
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 				Platform.runLater(() -> {
 					testProgressBar.setProgress(roundedPercentage);
@@ -592,7 +589,7 @@ public class AdvancedTestingInterfaceTesting {
 				});
 			}
 		});
-		
+
 		return buttonHBox;
 	}
 
@@ -609,41 +606,40 @@ public class AdvancedTestingInterfaceTesting {
 
 				int totalTestFileCount = testFileIds.size() * repeatCount;
 				AdvancedTestStateObject.setTotalInterfaceSelectedTestFileCount(totalTestFileCount);
-				Platform.runLater(()->{
+				Platform.runLater(() -> {
 					percentageLabel.setText("0%");
 				});
 				AdvancedTestStateObject.getRunnedInterfaceTestFileCount().set(0);
-			
 
-				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID,
-						repeatCount, testFileIds, true, stageName, testTypeId, null);
+				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, repeatCount,
+						testFileIds, true, stageName, testTypeId, null);
 
 			}
 		};
-		
-		 task.setOnSucceeded(event -> {
-		        Response response = task.getValue(); // Get the response
-		        if (response.getResponseCode() == 0) {
-		            Debug.printDebug("Interface Test Task Response received: " + response.getResponseMessage());
-		            
-		            StateMachine.setTestState(TestState.PENDING);
-		            runAllButton.setDisable(false);
-		            startButton.setDisable(false);
-		            pauseButton.setDisable(true);
-		            stopButton.setDisable(true);
-		            
-		            Notifications.showErrorAlert(response.getResponseMessage());
-		        }
-		    });
 
-		    task.setOnFailed(event -> {
-		    	 runAllButton.setDisable(false);
-		            startButton.setDisable(false);
-		            pauseButton.setDisable(true);
-		            stopButton.setDisable(true);
-		        Throwable exception = task.getException();
-		        Debug.printDebug("Interface Test Task failed with exception: " + exception.getMessage());
-		    });
+		task.setOnSucceeded(event -> {
+			Response response = task.getValue(); // Get the response
+			if (response.getResponseCode() == 0) {
+				Debug.printDebug("Interface Test Task Response received: " + response.getResponseMessage());
+
+				StateMachine.setTestState(TestState.PENDING);
+				runAllButton.setDisable(false);
+				startButton.setDisable(false);
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+
+				Notifications.showErrorAlert(response.getResponseMessage());
+			}
+		});
+
+		task.setOnFailed(event -> {
+			runAllButton.setDisable(false);
+			startButton.setDisable(false);
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			Throwable exception = task.getException();
+			Debug.printDebug("Interface Test Task failed with exception: " + exception.getMessage());
+		});
 
 		new Thread(task).start();
 	}

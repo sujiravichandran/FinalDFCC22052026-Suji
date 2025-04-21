@@ -28,7 +28,7 @@ public class CustomFileAddManagement {
 
 	public Map<String, String> copyingListOfFiles(Path currentDir, Path pathMasterDir, List<String> fileNames) {
 
-		Map<String, String> FileNamesmsg = new HashMap<>();
+		Map<String, String> FileNamesmsg = new HashMap<String, String>();
 		/*
 		 * List<String> filesToCopy = List.of( "Checking1.txt", "Checking2.txt",
 		 * "Checking3.txt" );
@@ -38,30 +38,26 @@ public class CustomFileAddManagement {
 		 */
 
 		// Validate if source directory exists
-		System.out.println("In CustomFileAdd:currentDir:" + currentDir);
 		if (Files.notExists(currentDir)) {
 			Debug.printDebug("Source directory does not exist: " + currentDir);
-			System.out.println("NO FILES IN CURRENT DIR");
 			return FileNamesmsg;
 		}
 
 		try {
-			System.out.println("In CustomFileAdd:fileNames:" + fileNames);
+
 			for (String fileName : fileNames) {
 				Path currentFile = currentDir.resolve(fileName);
 				Path targetFile = pathMasterDir.resolve(fileName);
 
 				// Validate if the source file exists
 				if (Files.notExists(currentFile)) {
-					System.out.println("Files Not Exist in Current Dir");
 					Debug.printDebug("File does not exist: " + currentFile);
 					continue;
 				}
-				
-				System.out.println("Checking if file exists: " + targetFile);
+
 				// Skip if the target file already exists
 				if (Files.exists(targetFile)) {
-//					FileNamesmsg.put(fileName, "Already Exist");
+					 FileNamesmsg.put(fileName, "Already Exist");
 					Debug.printDebug("Already Exist" + "File Name :" + fileName);
 					continue;
 				}
@@ -72,13 +68,9 @@ public class CustomFileAddManagement {
 				}
 
 				// Copy the file
-					
-				System.out.println("Before copy: Does target exist? " + Files.exists(targetFile));
 				Files.copy(currentFile, targetFile);
-				System.out.println("After copy: Does target exist? " + Files.exists(targetFile));
 				Debug.printDebug(targetFile.toString() + "File Copied");
 				FileNamesmsg.put(fileName, "File Copied");
-				System.out.println("In CustomFileAdd:FileNamesmsg:" + FileNamesmsg);
 
 			}
 		} catch (IOException e) {
@@ -109,7 +101,6 @@ public class CustomFileAddManagement {
 			RunPathMaster runMaster = new RunPathMaster();
 			runMaster = runPathMasterService.fetchMasterPathForFiles(runId, fileType);
 			Path masterPath = Paths.get(runMaster.getLocation());
-			System.out.println("Custom File String:masterPath" + masterPath);
 
 			// To Fetch Files Name And FileNamePaths...
 			List<String> fileNames = new ArrayList<>();
@@ -124,15 +115,10 @@ public class CustomFileAddManagement {
 
 			}
 			Path currentPath = Paths.get(currentFileString);
-			
-			System.out.println("Custom File String:currentPath" + currentPath);
 
 			// To Get the Which Files are Not Available in the Path Master Location
 			Map<String, String> FilesMsg = copyingListOfFiles(currentPath, masterPath, fileNames);
 			Map<String, String> filePathCheckSumValues = new HashMap<String, String>();
-			
-			System.out.println("Custom File String:FilesMsg" + FilesMsg.size());
-			System.out.println("Custom File String:FilesMsg" + FilesMsg);
 
 			if (FilesMsg.size() < 1) {
 				res.setResponseCode(0);
@@ -282,7 +268,7 @@ public class CustomFileAddManagement {
 		Response res = new Response();
 		try
 		{
-			deleteFileByPath(filePath);
+//			deleteFileByPath(filePath);
 			if(fileType.equalsIgnoreCase("tpf"))
 			{
 				TestFileService testFileService = new TestFileService();

@@ -57,7 +57,6 @@ public class ReportGeneration {
 		Response res = new Response();
 		Document document = new Document(PageSize.A4);
 		
-		System.out.println("ENtred Brief Download method");
 
 		String fileName = "BriefReport_"
 				+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
@@ -99,11 +98,11 @@ public class ReportGeneration {
 		} else {
 //			Before changing for tecelever testing
 //			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
-//			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
+			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
 			
 //			After changing for Tecelever testing
-			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.png";
-			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.png";
+//			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.png";
+//			imagePath =  currentDirectory + File.separator + "Images"+File.separator+"BEL.png";
 		}
 
 		Image img = Image.getInstance(imagePath);
@@ -150,15 +149,13 @@ public class ReportGeneration {
 
 		// Add images and text inside the rounded rectangular box
 		String imagePath1 = "";
-		System.out.println("DFCCConstant.isJarBuild 2" + DFCCConstant.isJarBuild);
 		if (!DFCCConstant.isJarBuild) {
 //			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-			System.out.println("Entring!DFCCC");
 			imagePath1 = "C:\\Suji\\Reports\\Logo\\BEL.png";
 			
 		} else {
 		//	imagePath1 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
-			System.out.println("Entring Else");
+			
 			imagePath1 =  currentDirectory + File.separator + "Images"+File.separator+"BEL.jpeg";
 		}
 
@@ -169,9 +166,9 @@ public class ReportGeneration {
 			
 		} else {
 //			Before Changing for Tecelever Testing
-			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
-			imagePath3 =  currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";
+//			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 			
+			imagePath3 =  currentDirectory + File.separator + "Images"+File.separator+"TECLEVER_logo.png";
 			
 			
 		}
@@ -218,7 +215,6 @@ public class ReportGeneration {
 		}*/
 	  
 
-	//	System.out.println(resultExecutionDTOList.size());
 	
 		//Fetching The Session Details
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
@@ -330,8 +326,8 @@ public class ReportGeneration {
 			for (ResultExecutionDTO resultExecutionDTO : resultExecutionDTOList) {
 				
 
-					table.addCell(new Phrase(resultExecutionDTO.getTestFileName()));
-					table.addCell(new Phrase("File - :" + resultExecutionDTO.getRdfFile()));
+					table.addCell(new Phrase(resultExecutionDTO.getTestMode()));
+					table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 					table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
 					table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
 					// table.addCell(new Phrase(dto.getStageName()));
@@ -343,7 +339,6 @@ public class ReportGeneration {
 		}
 
 		document.close();
-		System.out.println("Document Closed....");
 		
 		
 		GetObjResponse sessionRes = new GetObjResponse();
@@ -383,7 +378,6 @@ public class ReportGeneration {
 		
 		res.setResponseMessage("Brief Results Report Download Successfully...!");
         res.setResponseCode(1);
-		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
 		return res;
 	}
     
@@ -561,6 +555,11 @@ public class ReportGeneration {
 		Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
 		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		// To Fetch....
+				ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+				resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);
+				List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+			    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
 		
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
@@ -618,7 +617,6 @@ public class ReportGeneration {
 
 		List<ResultDetailedDTO> resultDetailedDTOList = new ArrayList<ResultDetailedDTO>();
 	    resultDetailedDTOList = resultDetailedResponse.getResultDetailedList();
-	//	System.out.println("resultDetailedResponse.getResultDetailedList()   "+resultDetailedResponse.getResultDetailedList().size());
 	
 /*	for (int i = 0; i < 100; i++) {
 		ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
@@ -636,23 +634,29 @@ public class ReportGeneration {
 		resultDetailedDTOList.add(resultDetailedDTO);
 	}*/
 
+	    String stageName = "";
+		if (resultExecutionDTOList != null) {
+			stageName = resultExecutionDTOList.get(0).getStageName();
+
+		}
+	    
 		// Create table
-		PdfPTable table = new PdfPTable(8); // 8 columns
+		PdfPTable table = new PdfPTable(10); // 8 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
 		table.setSpacingAfter(10f); // Space after table
 
 		// Set Column widths
-		float[] columnWidths = {1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
+		float[] columnWidths = {1f, 1f, 1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
 		table.setWidths(columnWidths);
 
 			
 		// Add table header
 		Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-		String[] headers = {"File Name","TPGPH NO","STEP NO","SIGNAL NAME","Expected Value","Measured Value","FAULTY SRU","UNIT"};
+		String[] headers = {"Test Name", "RDF File","File Name","TPGPH NO","STEP NO","SIGNAL NAME","Expected Value","Measured Value","FAULTY SRU","UNIT"};
 		
-		PdfPCell mergedCell = new PdfPCell(new Paragraph("STAGE NAME"));
-		mergedCell.setColspan(8);
+		PdfPCell mergedCell = new PdfPCell(new Paragraph(stageName));
+		mergedCell.setColspan(10);
 		mergedCell.setFixedHeight(20);
 		mergedCell.setBackgroundColor(skyBlueColor);
 		mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -683,7 +687,8 @@ public class ReportGeneration {
 				table.addCell(new Phrase(dto.getSignalName()));
 				table.addCell(new Phrase(dto.getFaultyChannel()));
 				table.addCell(new Phrase(dto.getRdfName()));*/
-				
+				table.addCell(new Phrase(dto.getTestMode()));
+				table.addCell(new Phrase(dto.getRdfName()));
 				table.addCell(new Phrase(dto.getTpfFileName()));//1
 				table.addCell(new Phrase(dto.getTpgph()));//2
 				table.addCell(new Phrase(dto.getStepName()));//3
@@ -733,12 +738,9 @@ public class ReportGeneration {
 			
 			res.setResponseMessage("Details Session Results Download Successfully...!");
 	        res.setResponseCode(1);
-	        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
-	        System.out.println("PDF Copied to  PdfMarginsExample " + sessionPath.toString());
 	  
 
         res.setResponseCode(1);
-		System.out.println("Detailed Report Generated For Session Last Stage" + filePath);
 		return res;
 	}
     
@@ -765,8 +767,6 @@ public class ReportGeneration {
 		}
 		
 		res.setDownloadPath(filePath);
-		System.out.println("FILE PATH " +filePath);
-		System.out.println("FILE PATH get method " +res.getDownloadPath() );
 		
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
@@ -898,7 +898,6 @@ public class ReportGeneration {
 		}*/
 	  
 
-	//	System.out.println(resultExecutionDTOList.size());
 	//	Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
 	    
 	    //Session Details Fetching
@@ -1011,8 +1010,8 @@ public class ReportGeneration {
 			for (ResultExecutionDTO resultExecutionDTO : resultExecutionDTOList) {
 				
 
-					table.addCell(new Phrase(resultExecutionDTO.getTestFileName()));
-					table.addCell(new Phrase("File - :" + resultExecutionDTO.getRdfFile()));
+					table.addCell(new Phrase(resultExecutionDTO.getTestMode()));
+					table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 					table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
 					table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
 					// table.addCell(new Phrase(dto.getStageName()));
@@ -1061,8 +1060,6 @@ public class ReportGeneration {
 		
 		res.setResponseMessage("Breif Results Download Successfully...!");
         res.setResponseCode(1);
-		System.out.println("Breif Report For Last Stage On Session PDF saved to  :" + filePath);
-		System.out.println("Brief Report For Last Stage Copied On Session Path   :" + sessionPath.toString());
 		return res;
 	}
     
@@ -1104,6 +1101,13 @@ public class ReportGeneration {
         document.add(new Paragraph("\n"));
         document.add(new Paragraph("\n"));
         document.add(new Paragraph("\n"));
+        
+     // To Fetch....
+     		ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
+     		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+     		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSelectedStages(sessionId,stageId);
+     		List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
+     	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
 
         // To Create Header
 
@@ -1144,6 +1148,12 @@ public class ReportGeneration {
         document.newPage();
         
         res.setDownloadPath(filePath);
+        
+        String stageName = "";
+		if (resultExecutionDTOList != null) {
+			stageName = resultExecutionDTOList.get(0).getStageName();
+
+		}
 
         PdfContentByte canvas = writer.getDirectContent();
 		float x = document.leftMargin();
@@ -1253,8 +1263,10 @@ public class ReportGeneration {
         // Add text in place of the second image
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
         Font headerFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD, BaseColor.BLACK);
-        ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
     	//Map<String, String> sessionDetailsMap = resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
+     // To Fetch....
+		resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);
+	    resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
     	
         //Session Details Fetching
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
@@ -1380,13 +1392,13 @@ public class ReportGeneration {
 		}*/
        
        // Create table
-        PdfPTable table = new PdfPTable(8); // 8 columns
+        PdfPTable table = new PdfPTable(10); // 9 columns
 		table.setWidthPercentage(100); // Width 100%
 		table.setSpacingBefore(10f); // Space before table
 		table.setSpacingAfter(10f); // Space after table
 
 		// Set Column widths
-		float[] columnWidths = {1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
+		float[] columnWidths = {1f, 1f, 1f, 0.8f, 1.1f, 1.2f, 0.9f, 1f, 1f, 1f};
 		table.setWidths(columnWidths);
 
 			
@@ -1395,8 +1407,8 @@ public class ReportGeneration {
 		String[] headers = {"File Name","TPGPH NO","STEP NO","SIGNAL NAME","Expected Value","Measured Value","FAULTY SRU","UNIT"};
 		
 		   
-    	PdfPCell mergedCell = new PdfPCell(new Paragraph(stageIdName.get(stageId)));
-		mergedCell.setColspan(8);
+    	PdfPCell mergedCell = new PdfPCell(new Paragraph(stageName));
+		mergedCell.setColspan(10);
 		mergedCell.setFixedHeight(20);
 		mergedCell.setBackgroundColor(skyBlueColor);
 		mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -1427,7 +1439,8 @@ public class ReportGeneration {
 				table.addCell(new Phrase(dto.getSignalName()));
 				table.addCell(new Phrase(dto.getFaultyChannel()));
 				table.addCell(new Phrase(dto.getRdfName()));*/
-				
+				table.addCell(new Phrase(dto.getTestMode()));
+				table.addCell(new Phrase(dto.getRdfName()));
 				table.addCell(new Phrase(dto.getTpfFileName()));//1
 				table.addCell(new Phrase(dto.getTpgph()));//2
 				table.addCell(new Phrase(dto.getStepName()));//3
@@ -1480,8 +1493,6 @@ public class ReportGeneration {
 
 
         res.setResponseCode(1);
-        System.out.println("Detailed Report Generated On Selected Session Stages" + filePath);
-        System.out.println("Detailed Report Copied On Selected Session Stages On Session"+sessionPath.toString());
         
         return res;
     }
@@ -1738,7 +1749,6 @@ public class ReportGeneration {
         document.add(table);
         document.close();
 
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }*/
     
@@ -1770,45 +1780,11 @@ public class ReportGeneration {
         //To Fetch....
         ResultExecutionResponse resultExecutionResponse = new ResultExecutionResponse();
         ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForStages(sessionId);    
+        //getResultExecutionListBriefListForSession
+        resultExecutionResponse = resultExecutionManagement.getResultExecutionListBriefListForSession(sessionId);    
         List<ResultExecutionDTO> resultExecutionDTOList = new ArrayList<ResultExecutionDTO>();
         resultExecutionDTOList = resultExecutionResponse.getResultDTOList();
         
-       /* for(int i=1;i<=100;i++)
-        {
-        	ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
-        	resultExecutionDTO.setTestFileName("Test Name -"+i);
-        	resultExecutionDTO.setDStarCount(i+"");
-        	resultExecutionDTO.setRdfFile("RDF FILE NAME -"+i);
-        	resultExecutionDTO.setEndTime("End Time  -00:00:00");
-        	resultExecutionDTO.setStageName("StageName  -"+i);
-        	resultExecutionDTO.setStatus("Status - "+i);
-      
-        	if(i<=20)
-        	{
-        		resultExecutionDTO.setTestMode("Session Test-Intial1- Test 1");
-        	}
-        	else if(i<=40)
-        	{
-        		resultExecutionDTO.setTestMode("Session Test-Intial2- Test 2");
-        	}
-        	else if(i<=60)
-        	{
-        		resultExecutionDTO.setTestMode("Session Test-Intial3- Test 3 - T4");
-        	}
-        	else if(i<=80)
-        	{
-        		resultExecutionDTO.setTestMode("Session Test-Intial4- Test 4");
-        	}
-        	else
-        	{
-        		resultExecutionDTO.setTestMode("Session Test-Intial5- Test 5");
-        	}
-          	resultExecutionDTOList.add(resultExecutionDTO);
-        }*/
-        
-     //   System.out.println(resultExecutionDTOList.size());
-   //     Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
      
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
 		if (!sessionId.substring(0, 4).equals("TSSN")) {
@@ -1847,15 +1823,15 @@ public class ReportGeneration {
 
         if (resultExecutionDTOList != null) {
             // Create a table with 3 columns
-            PdfPTable table = new PdfPTable(3);
+            PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100); // Set table width to 100%
             table.setSpacingBefore(10f); // Space before table
             table.setSpacingAfter(10f); // Space after table
-            float[] columnWidths = { 2f, 2f, 1f }; // Column widths
+            float[] columnWidths = { 0.4f,2f, 2f, 1f }; // Column widths
             table.setWidths(columnWidths);
-
+            int sno = 0;
             Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-            String[] headers = { "File Name", "Time", "Result" };
+            String[] headers = { "S.No","File Name", "Time", "Result" };
 
             // Add an initial empty row at the start for spacing before the first stage
             PdfPCell emptyCell = new PdfPCell(new Phrase(""));  // Empty cell
@@ -1872,14 +1848,14 @@ public class ReportGeneration {
                 if (!currentStageTestMode.equals(previousStage)) {
                 	
                 	 PdfPCell emptyCellForSpacing = new PdfPCell(new Phrase(""));  // Empty cell
-                     emptyCellForSpacing.setColspan(3);
+                     emptyCellForSpacing.setColspan(4);
                      emptyCellForSpacing.setFixedHeight(10);  // Adjust height as needed for spacing
                      emptyCellForSpacing.setBorder(Rectangle.NO_BORDER);  // Remove border for clean spacing
                      table.addCell(emptyCellForSpacing);
 
                     // Add the current stage heading to the table
                     PdfPCell mergedCell = new PdfPCell(new Paragraph(currentStageTestMode));
-                    mergedCell.setColspan(3);
+                    mergedCell.setColspan(4);
                     mergedCell.setFixedHeight(20);
                     mergedCell.setBackgroundColor(skyBlueColor);
                     mergedCell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -1891,23 +1867,31 @@ public class ReportGeneration {
                         cell.setBackgroundColor(BaseColor.GRAY);
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                         table.addCell(cell);
+                        sno =1;
                     }
 
                     // Add an empty row for space between stages
-                    PdfPCell emptyCellForSpacing1 = new PdfPCell(new Phrase(""));  // Empty cell
-                    emptyCellForSpacing1.setColspan(3);
+                /*    PdfPCell emptyCellForSpacing1 = new PdfPCell(new Phrase(""));  // Empty cell
+                    emptyCellForSpacing1.setColspan(4);
                     emptyCellForSpacing1.setFixedHeight(10);  // Adjust height as needed for spacing
                     emptyCellForSpacing1.setBorder(Rectangle.NO_BORDER);  // Remove border for clean spacing
-                    table.addCell(emptyCellForSpacing1);
+                    table.addCell(emptyCellForSpacing1);*/
 
                     // Update previousStage with currentStageTestMode
                     previousStage = currentStageTestMode;
                 }
 
                 // Add the row data for the current stage
+                
+                table.addCell(new Phrase(sno+""));
                 table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
                 table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
-                table.addCell(new Phrase(resultExecutionDTO.getStatus()));
+				if (!resultExecutionDTO.getStatus().equals("SUCCESS")) {
+					table.addCell(new Phrase("FAIL"));
+				} else {
+					table.addCell(new Phrase("PASS"));
+				}
+				sno++;
             }
 
             // Add the table to the document after processing all results
@@ -1918,7 +1902,6 @@ public class ReportGeneration {
         document.close();  
 		res.setResponseMessage("Brief Session Results Download Successfully...!");
         res.setResponseCode(1);
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }
     
@@ -1974,7 +1957,6 @@ public class ReportGeneration {
         document.close();  
 		res.setResponseMessage("Brief Session Results Download Successfully...!");
         res.setResponseCode(1);
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
         return res;
     }
     
@@ -2128,7 +2110,6 @@ public class ReportGeneration {
         	
         }*/
         
-     //   System.out.println(resultExecutionDTOList.size());
    //     Map<String,String> sessionDetailsMap =  resultExecutionManagement.getSessionDetailsBySessionId(sessionId);
      
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
@@ -2251,7 +2232,7 @@ public class ReportGeneration {
 				if (stageName.equals(resultExecutionDTO.getStageName())) {
 					
 						table.addCell(new Phrase(resultExecutionDTO.getTestFileName()));
-						table.addCell(new Phrase("File - :" + resultExecutionDTO.getRdfFile()));
+						table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 						table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
 						table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
 						// table.addCell(new Phrase(dto.getStageName()));
@@ -2289,7 +2270,7 @@ public class ReportGeneration {
 				    
 				    
 					table.addCell(new Phrase(resultExecutionDTO.getTestFileName()));
-					table.addCell(new Phrase("File - :" + resultExecutionDTO.getRdfFile()));
+					table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 					table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
 					table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
 					// table.addCell(new Phrase(dto.getStageName()));
@@ -2346,8 +2327,6 @@ public class ReportGeneration {
         
 		res.setResponseMessage("Brief Session Results Download Successfully...!");
         res.setResponseCode(1);
-        System.out.println("Breif Report For Session PDF saved to  :" + filePath);
-        System.out.println("Brief Report Copied to SessionPath"+sessionPathString);
         return res;
     }
     
@@ -2686,7 +2665,6 @@ public class ReportGeneration {
 		
 		if (resultDetailedDTOList != null) {
 			stageName = resultDetailedDTOList.get(0).getStageId();
-			System.out.println("Result Detailed List"+resultDetailedDTOList.size() );
 		}
 		if (resultDetailedDTOList != null) {
 			PdfPTable table = new PdfPTable(10); // 10 columns
@@ -2845,8 +2823,6 @@ public class ReportGeneration {
 		
 		res.setResponseMessage("Details Session Results Download Successfully...!"); 
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
-        System.out.println("PDF Copied to  PdfMarginsExample " + sessionPath.toString());
         
         return res;
     }
@@ -3033,7 +3009,6 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
     
@@ -3237,7 +3212,6 @@ public class ReportGeneration {
         // Close the document
         document.close();
         res.setResponseCode(1);
-        System.out.println("PDF saved to  PdfMarginsExample " + filePath);
         return res;
     }
 

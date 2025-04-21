@@ -399,7 +399,6 @@ public class CurrentExecutionResultController {
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
 		Platform.runLater(() -> {
-    		System.out.println("Entred runlater Succeed1111");
     		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
     		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
         });
@@ -457,13 +456,11 @@ public class CurrentExecutionResultController {
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
-		            	System.out.println("Entred runlater Succeed");
 		            	
 		 	               tableScrollPane.setContent(briefDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
 			    	Platform.runLater(() -> {
-			    		System.out.println("Entred runlater Succeed1111");
 			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 			        });
@@ -473,7 +470,6 @@ public class CurrentExecutionResultController {
 
 				@Override
 				protected void failed() {
-					System.out.println("Entred Failed");
 					Platform.runLater(() -> {
 						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
@@ -519,7 +515,6 @@ public class CurrentExecutionResultController {
 		detailedDataList.clear();
   
 	Platform.runLater(() -> {
-		System.out.println("Entred runlater Succeed1111");
 		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
 		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
     });
@@ -557,7 +552,6 @@ public class CurrentExecutionResultController {
 				newDetailedData.setUnit(data.getUnit());
 				newDetailedData.setSignalName(data.getSignalName());
 				newDetailedData.setFaultyChannelValue(data.getFaultyChannelValue());
-				System.out.println("CurrentExe" + data.getFaultyChannelValue());
 				newDetailedData.setTestMode(data.getTestMode());
 				detailedDataList.add(newDetailedData);
 
@@ -584,13 +578,11 @@ public class CurrentExecutionResultController {
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
-		            	System.out.println("Entred runlater Succeed");
 		            	
 		 	               tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
 			    	Platform.runLater(() -> {
-			    		System.out.println("Entred runlater Succeed1111");
 			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);;
 			        });
@@ -600,7 +592,6 @@ public class CurrentExecutionResultController {
 
 				@Override
 				protected void failed() {
-					System.out.println("Entred Failed");
 					Platform.runLater(() -> {
 						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);

@@ -958,7 +958,6 @@ public class SessionManagement {
 		} catch (Exception ex) {
 			Debug.printDebug(ex.getLocalizedMessage());
 		}
-		System.out.println("Is Reconfig Status"+ getReconfigStatus());
 		return isConfig;
 	}
 	
@@ -976,9 +975,7 @@ public class SessionManagement {
 			SessionStagesTestFilesResultService s = new SessionStagesTestFilesResultService();
 			GetResponse getResponse = s.getTestResultFileByStageId(trailSessionId);
 			List<SessionStagesTestFilesResult> lst = new ArrayList();
-			System.out.println("Name"+trailSessionId);
 			lst = (List<SessionStagesTestFilesResult>) getResponse.getResponseList();
-			System.out.println(lst.size());
 			if (lst.size()>0) {
 				isReConfigAvail = false;
 			}
@@ -1011,7 +1008,11 @@ public class SessionManagement {
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			// sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
-			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
+			
+//			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
+//					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
+			
+			sessionPath = sessionPath + File.separator +"."+"output"+ File.separator+ uutIdName.get(sessionDTO.getUutId()) + File.separator
 					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
 			sessionDto.setPath(sessionPath);
 
@@ -1135,10 +1136,15 @@ public class SessionManagement {
 
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
 
+			Set<String> setOfL1Ids = new LinkedHashSet<>();
+			
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : dbSessionStages) {
 
 				// for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
 				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+				
+				
+				
 				sessionStagesMapping.setRepeatCount(1);
 				sessionStagesMapping.setRunCount(0);
 				sessionStagesMapping.setSessionId(trailSessionId);
@@ -1153,6 +1159,10 @@ public class SessionManagement {
 				sessionStagesMapping.setLevelFiveStageId(sessionToStagesMappingDTO.getLevelFiveStageId());
 				sessionStagesMapping.setPath(sessionToStagesMappingDTO.getPath());
 				sessionToStagesMappingList.add(sessionStagesMapping);
+				
+				if (!setOfL1Ids.contains(sessionToStagesMappingDTO.getLevelOneStageId())) {
+					setOfL1Ids.add(sessionToStagesMappingDTO.getLevelOneStageId());
+				}
 			}
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 			// SESSION STAGE MAPPING : ADD
@@ -1164,6 +1174,8 @@ public class SessionManagement {
 				// trailEntitySession.setRunned(true);
 				sessionService.updateRunStatus(trailSessionId);
 			}
+			
+			addStagesRemarks(setOfL1Ids);
 
 			res.setCode(1);
 			res.setMsg("Session Mapped Successfully..!");
@@ -1671,6 +1683,7 @@ public class SessionManagement {
 				dto.setRemarks(remarks.getRemarks());
 				dto.setSessionId(remarks.getSessionId());
 				dto.setReportType(remarks.getReportType());
+				
 
 				dtoList.add(dto);
 				response.setResponseCode(1);

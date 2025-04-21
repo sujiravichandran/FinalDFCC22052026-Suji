@@ -170,7 +170,6 @@ public class TestMapingController {
     	for(TestFileDto file : selectedTestFileList) {
     		selectedFiles.append(file.getTestFileName()).append("\n");
     	}
-    	System.out.println("STAGE TEST FILE ID LIST" +selectedFiles.toString() );
     	displayTextArea.setText(selectedFiles.toString());
     }
 
@@ -183,7 +182,6 @@ public class TestMapingController {
 	    }
 	    for (TestFileDto file : selectedTestFileList) {
 	    	selectedTestFileIds.add(file.getTestFileId());
-	    	System.out.println("selectedTestFileIds" + selectedTestFileIds);
 	    }
 	    if (STAGE_ID != null) {
 	        Response res = stageConfig.addTestFilesToStage(selectedTestFileIds, STAGE_ID, StageConfigurationController.UUT_ID);

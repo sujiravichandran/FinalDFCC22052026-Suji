@@ -4,11 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.StagesRemarks;
+import com.teclever.datastore.service.StagesRemarksService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.StageConfiguration;
@@ -208,6 +213,11 @@ public class TrialsConfigurationController {
 			disableDispaly();
 			getAllStagesData();
 			
+			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
+			Set<String> setOfL1Ids = new LinkedHashSet<>();
+			
+			
+			
 		} else if (response.getCode() == 0) {
 			
 			Map<String, String> dataMap = response.getStageNameMessage();
@@ -232,6 +242,18 @@ public class TrialsConfigurationController {
 			alert.showAndWait();
 		}
 	}
+	
+	//SAVE
+		public void addStagesRemarks(Set<String> setOfL1Ids) {
+			StagesRemarksService service = new StagesRemarksService();
+			for (String s : setOfL1Ids) {
+				StagesRemarks stagesRemarks = new StagesRemarks();
+				stagesRemarks.setLevelOneStageId(s);
+				stagesRemarks.setSessionId(currentSessionDetails.getSessionId());
+				stagesRemarks.setReportType("ESS");
+				service.addOrUpdateStagesRemarks(stagesRemarks);
+			}
+		}
 	
 	private void getAllStagesData() {
 		SessionStageMapResponse data = sessionManagement

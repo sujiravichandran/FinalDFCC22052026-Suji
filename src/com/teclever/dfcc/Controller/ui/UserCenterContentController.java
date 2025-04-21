@@ -360,7 +360,6 @@ public class UserCenterContentController {
 	private void initializeRdfFileCopyPopup() {
 	    SessionTestStateObject.isRdfFileCopyPopupStatusProperty().addListener((observable, oldValue, newValue) -> {
 	        if (newValue) {
-//	            System.out.println("Initialize Rdf File Copy Popup.........");
 	            Platform.runLater(() -> {
 	                try {
 	                    FXMLLoader rdfFileCopyPopup = new FXMLLoader(getClass()

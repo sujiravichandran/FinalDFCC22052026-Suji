@@ -87,7 +87,6 @@ public class AdvancedTestingCustomTesting2 {
 	private AdvanceCustom1TestingManagement advanceCustom1TestingManagement = new AdvanceCustom1TestingManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
-
 	private String selectedTestFilePath;
 	private String selectedDownloadCodeFilePath;
 	private String selectedCheckSumFilePath;
@@ -102,14 +101,14 @@ public class AdvancedTestingCustomTesting2 {
 		startAddressLabel.setDisable(true);
 		endAddressLabel.setDisable(true);
 		ipDataLabel.setDisable(true);
-		
+
 		memoryTypeComboBox.setDisable(true);
 		rwTypeComboBox.setDisable(true);
 		startAddressTextField.setDisable(true);
 		endAddressTextField.setDisable(true);
 		ipDataTextField.setDisable(true);
 		memoryTestRunButton.setDisable(true);
-		
+
 		StateMachine.setAitess2Launched(true);
 		StateMachine.setAitess1Launched(true);
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
@@ -180,7 +179,6 @@ public class AdvancedTestingCustomTesting2 {
 		addTestFileLabel.getStyleClass().add("form-label-add-button");
 		selectedTestFileName.getStyleClass().add("form-label-selected-text");
 
-		
 		selectTestFileLabel.setPrefWidth(150);
 		selectedTestFileName.setPrefWidth(480);
 		selectedTestFileName.setWrapText(true);
@@ -194,19 +192,34 @@ public class AdvancedTestingCustomTesting2 {
 
 		addTestFileLabel.setOnMouseClicked(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Test File Add button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("selectTestFile");
 		});
 
 		selectTestFileRunButton.setOnAction(e -> {
+			
+			if(!StateMachine.isConfirmTestStop()) {
+				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+				return;
+			}else {
+				StateMachine.setConfirmTestStop(false);
+			}
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
+			if (StateMachine.isConfirmTestFileCompleted()) {
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Test File Run button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleRunTestFile(true);
@@ -232,7 +245,7 @@ public class AdvancedTestingCustomTesting2 {
 		selectedDownloadCodeHBox.getChildren().add(selectedDownloadCodeName);
 		downloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
 		selectedDownloadCodeHBox.setAlignment(Pos.CENTER_LEFT);
-		
+
 //		End File
 		checkSumFileLabel.getStyleClass().add("form-label");
 		addCheckSumFileLabel.getStyleClass().add("form-label-add-button");
@@ -243,28 +256,28 @@ public class AdvancedTestingCustomTesting2 {
 		selectedCheckSumFileName.setWrapText(true);
 
 		checkSumFileHBox.getChildren().addAll(checkSumFileLabel, addCheckSumFileLabel);
-		selectedCheckSumFileHBox.getChildren().addAll(selectedCheckSumFileName,downloadCodeRunButton);
+		selectedCheckSumFileHBox.getChildren().addAll(selectedCheckSumFileName, downloadCodeRunButton);
 		checkSumFileHBox.setAlignment(Pos.CENTER_LEFT);
 		selectedCheckSumFileHBox.setAlignment(Pos.CENTER_LEFT);
 
-		downloadCodeVBox.getChildren().addAll(downloadCodeHBox,
-				selectedDownloadCodeHBox, checkSumFileHBox, selectedCheckSumFileHBox);
+		downloadCodeVBox.getChildren().addAll(downloadCodeHBox, selectedDownloadCodeHBox, checkSumFileHBox,
+				selectedCheckSumFileHBox);
 
 		addDownloadCodeLabel.setOnMouseClicked(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Download Code Add button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("downloadCode");
 		});
-		
+
 		addCheckSumFileLabel.setOnMouseClicked(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Checksum File Add button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("checksumFile");
@@ -272,14 +285,13 @@ public class AdvancedTestingCustomTesting2 {
 
 		downloadCodeRunButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Download Code Run button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleRunTestFile(false);
 		});
-		
 
 		AdvancedTestStateObject.customTest2StatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {
@@ -358,12 +370,13 @@ public class AdvancedTestingCustomTesting2 {
 	private void uploadFile(String type) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-		if (type.equalsIgnoreCase("selectTestFile")) {			
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Test File", "*.tst","*.tpf","*.com"));
-		}else if (type.equalsIgnoreCase("downloadCode")) {
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Download Code", "*.run","*.chk"));			
-		}else if (type.equalsIgnoreCase("checksumFile")) {
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CheckSum File", "*.run","*.chk"));						
+		if (type.equalsIgnoreCase("selectTestFile")) {
+			fileChooser.getExtensionFilters()
+					.add(new FileChooser.ExtensionFilter("Test File", "*.tst", "*.tpf", "*.com"));
+		} else if (type.equalsIgnoreCase("downloadCode")) {
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Download Code", "*.run", "*.chk"));
+		} else if (type.equalsIgnoreCase("checksumFile")) {
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CheckSum File", "*.run", "*.chk"));
 		}
 		File selectedFile = fileChooser.showOpenDialog(tab4MainGridPane.getScene().getWindow());
 		if (selectedFile != null) {
@@ -398,18 +411,16 @@ public class AdvancedTestingCustomTesting2 {
 	}
 
 	private void handleRunTestFile(boolean isTestFile) {
-		System.out.println("Entred Handle Run");
 		if (isTestFile) {
 			if (selectedTestFilePath != null) {
-				System.out.println("Entred Handle Run Condition");
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
-				System.out.println("User Test File ID" + stageId);
-				System.out.println("Test File Path" + selectedTestFilePath);
-				
-				if(checkAndSetTestState()) {					
-					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId,selectedTestFilePath, TEST_TYPE_ID);
+				if (checkAndSetTestState()) {
+					Response response = advanceCustom1TestingManagement.customTwoRunTestFile(stageId,
+							selectedTestFilePath, TEST_TYPE_ID);
 					if (response.getResponseCode() == 0) {
-						Debug.printDebug("Custom-2 TestFile Test Task Response received: " + response.getResponseMessage());
+						StateMachine.setTestState(TestState.STOPPED);
+						Debug.printDebug(
+								"Custom-2 TestFile Test Task Response received: " + response.getResponseMessage());
 						Notifications.showErrorAlert(response.getResponseMessage());
 					}
 				}
@@ -418,16 +429,18 @@ public class AdvancedTestingCustomTesting2 {
 			}
 		} else {
 			if (selectedDownloadCodeFilePath != null) {
-				if(selectedCheckSumFilePath != null) {					
+				if (selectedCheckSumFilePath != null) {
 					String stageId = AdvancedTestStateObject.getCustomTest2DownloadCodeTestId();
-					if(checkAndSetTestState()) {
-						Response response = advanceCustom1TestingManagement.customTwoRunDownloadFile(stageId, selectedDownloadCodeFilePath, selectedCheckSumFilePath, TEST_TYPE_ID);
+					if (checkAndSetTestState()) {
+						Response response = advanceCustom1TestingManagement.customTwoRunDownloadFile(stageId,
+								selectedDownloadCodeFilePath, selectedCheckSumFilePath, TEST_TYPE_ID);
 						if (response.getResponseCode() == 0) {
-							Debug.printDebug("Custom-2 DownloadCode Test Task Response received: " + response.getResponseMessage());
+							Debug.printDebug("Custom-2 DownloadCode Test Task Response received: "
+									+ response.getResponseMessage());
 							Notifications.showErrorAlert(response.getResponseMessage());
 						}
 					}
-				}else {
+				} else {
 					Notifications.showWarningAlert("Select a checksum file to run.");
 				}
 			} else {
@@ -435,19 +448,18 @@ public class AdvancedTestingCustomTesting2 {
 			}
 		}
 	}
-	
-	
+
 	private boolean checkAndSetTestState() {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
-	
+
 		TestState currentState = StateMachine.getTestState();
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
-			StateMachine.setTestState(TestState.STOPPED);
-//			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+			StateMachine.setTestState(TestState.RUNNING);
+			StateMachine.setRunningTestName(RunningTestName.OTHER);
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;

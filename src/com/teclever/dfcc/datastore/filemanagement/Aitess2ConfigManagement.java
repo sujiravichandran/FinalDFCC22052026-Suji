@@ -73,19 +73,15 @@ public class Aitess2ConfigManagement {
 					break;
 				case "mk1 SC temperature":
 					dfccCheckStatus.setMk1ScTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk1ScTemperatureCommand());
 					break;
 				case "mk1 AEC temperature":
 					dfccCheckStatus.setMk1AecTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getMk1AecTemperatureCommand());
 					break;
 				case "sc temperature":
 					dfccCheckStatus.setScTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getScTemperatureCommand());
 					break;
 				case "aec temperature":
 					dfccCheckStatus.setAecTemperatureCommand(dfccStatusCommand.getCommand());
-					System.out.println(dfccCheckStatus.getAecTemperatureCommand());
 					break;
 
 				case "OFPversion":

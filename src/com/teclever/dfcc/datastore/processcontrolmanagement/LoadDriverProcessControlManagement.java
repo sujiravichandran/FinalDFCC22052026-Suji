@@ -142,7 +142,6 @@ public class LoadDriverProcessControlManagement {
 				}
 
 				response.setDriverCardDetails(responseDriverCards);
-				System.out.println("---- RESPONSE LIST SIZE----" + response.getDriverCardDetails().size());
 				return response;
 
 			case CARD:
@@ -153,7 +152,6 @@ public class LoadDriverProcessControlManagement {
 					aimMil.ReadingProcess();
 					aimMilOutputProcessingThread = new Thread(() -> {
 						try {
-							System.out.println("Start of CARD Thread");
 							aimFlag = true;
 							while (aimFlag) {
 								String output = aimMilBQueue.take();
@@ -176,7 +174,6 @@ public class LoadDriverProcessControlManagement {
 							Thread.currentThread().interrupt();
 						}
 						aimMilOutputProcessingThread.interrupt();
-						System.out.println("End of CARD Thread ");
 
 					});
 					aimMilOutputProcessingThread.start();
@@ -250,14 +247,12 @@ public class LoadDriverProcessControlManagement {
 				}
 				if (endOfLoadDriverCommand == true) {
 					endOfLoadDriverCommand = false;
-					System.out.println("End of SWITCH ");
 
 					break;
 				}
 				Debug.printDebug("End of SWITCH ");
 
 			case LOGOUT:
-				System.out.println("Start of LOGOUT ");
 				aitessProcessControlManagement.exitAitess1Command();
 				aitessProcessControlManagement.exitAitess2Command();
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));

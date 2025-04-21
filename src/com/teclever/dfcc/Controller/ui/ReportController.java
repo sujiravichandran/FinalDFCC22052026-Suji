@@ -14,6 +14,7 @@ import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
 import com.teclever.dfcc.datastore.dto.SessionList;
 import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.reportgeneration.ReportGenerationNew;
 import com.teclever.dfcc.utils.Notifications;
@@ -315,7 +316,7 @@ public class ReportController {
 	private HBox createDownloadButton() {
 	    buttonBox.setAlignment(Pos.CENTER_RIGHT);
 	    buttonBox.getChildren().add(downloadButton);
-
+	    
 	    downloadButton.setOnAction(e -> {
 	        if (UUT_ID != null && SESSION_ID != null) {    
 	        	Task<Response> task = new Task<Response>() {
@@ -329,7 +330,6 @@ public class ReportController {
 	    				} else if (REPORT_TYPE.equals("ESS")) {
 	    					response = reportGenerationNew.generateEssReport(SESSION_ID);
 	    				} 
-	                    System.out.println("Rport Generation Response" + response);
 	                    return response;
 	                }
 	            };
@@ -483,7 +483,7 @@ public class ReportController {
 		});
 		
 	}
-	
+	SessionFileManagement sessionFileManagement = new SessionFileManagement();
 	private void handleDeleteReportData(String id) {
 		Response response = reportCofigurationManagement.deleteFileName(id);
 		
@@ -523,10 +523,15 @@ public class ReportController {
 			}
 			newReportConfig.setFileNameWitFullPath(selectedFilePath);
 		}
+		
 		newReportConfig.setReportType(REPORT_TYPE);
 		newReportConfig.setSessionId(SESSION_ID);
 		if(selectedFilePath.size() > 0) {			
 			handleSaveReportdData(newReportConfig);
+			
+			if(REPORT_TYPE == "DataPack") {
+				sessionFileManagement.copyToDataPack(reportData, SESSION_ID);
+			}
 		}
 	}
 

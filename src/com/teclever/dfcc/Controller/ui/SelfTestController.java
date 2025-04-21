@@ -90,7 +90,7 @@ public class SelfTestController {
 	private Label pageHeading = new Label("SELF TEST");
 	private Label rack2 = new Label("cPCI");
 	private Label rack1 = new Label("RACK-1");
-	
+
 	private int incrementCounter = 0;
 
 	private TableView<SelfTestResult> selfTestTable = new TableView<>();
@@ -100,8 +100,7 @@ public class SelfTestController {
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 	public GridPane createSelfTestMainContainerGridPane() {
-	
-		
+
 		selfTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
@@ -239,7 +238,12 @@ public class SelfTestController {
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
 		startTest.setOnAction(e -> {
+			if (StateMachine.isConfirmTestFileCompleted()) {
 
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
+			incrementCounter = 0;
 			CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
@@ -268,14 +272,10 @@ public class SelfTestController {
 				return;
 			}
 
-		
-			
 			ObservableList<TestCardData> cpciCardList = SelfTestStateObject.getSelfTestcPCICard();
-			
-			
-			System.out.println("LIST SIZE" + cpciCardList);
+
 			SelfTestStateObject.setTotalSelfTestFileCount(5);
-			
+
 			if (SelfTestStateObject.getRack1Status().get()) {
 				SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
 				callStartTesting(SelfTestStateObject.getRack1StageId(), "RACK1",
@@ -315,7 +315,7 @@ public class SelfTestController {
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
 		percentageLabel.getStyleClass().add("progress-label");
-		
+
 //		SelfTestStateObject.setTotalSelfTestFileCount(5); // Replace 10 with your total file count
 //
 //		new Thread(() -> {
@@ -335,41 +335,28 @@ public class SelfTestController {
 //		    }
 //		}).start();
 
-		
-		System.out.println("runnedSelfTestFileCountProperty" +SelfTestStateObject.runnedSelfTestFileCountProperty());
-		System.out.println("SELF TEST TOTAL FILE COUNT" + SelfTestStateObject.getTotalSelfTestFileCount());
-		
-		
-	
 
 		SelfTestStateObject.runnedSelfTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println("Enterd Run Method" + newValue);
-			
-			
-		    if (newValue != null) {
-		    	
-		    	int fileCount = SelfTestStateObject.getRunnedSelfTestFileCount().get();
-		        if (fileCount > 0) {
-		           System.out.println("RUNNED FILE COUNT" + SelfTestStateObject.getRunnedSelfTestFileCount().get());
 
-		            incrementCounter++;
-		            System.out.println("########TOTAL TEST FILE COUNTS##############"+SelfTestStateObject.getTotalSelfTestFileCount());
+			if (newValue != null) {
 
-		            System.out.println("Increment: " + incrementCounter);
+				int fileCount = SelfTestStateObject.getRunnedSelfTestFileCount().get();
+				if (fileCount > 0) {
 
-		            double percentage = (double) incrementCounter / SelfTestStateObject.getTotalSelfTestFileCount();
+					incrementCounter++;
 
-		            double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 
-		            Platform.runLater(() -> {
-		                testProgressBar.setProgress(roundedPercentage);
-		                percentageLabel.setText((int) (roundedPercentage * 100) + "%");
-		            });
-		        }
-		    }
+					double percentage = (double) incrementCounter / SelfTestStateObject.getTotalSelfTestFileCount();
+
+					double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
+
+					Platform.runLater(() -> {
+						testProgressBar.setProgress(roundedPercentage);
+						percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+					});
+				}
+			}
 		});
-
-
 
 		return topButton;
 	}
@@ -385,6 +372,7 @@ public class SelfTestController {
 
 	private void callStartTesting(String stageId, String stageName, String testTypeId) {
 		Task<Response> task = new Task<Response>() {
+
 			@Override
 			protected Response call() throws Exception {
 				String runConfigId = runConfigurationService
@@ -405,9 +393,8 @@ public class SelfTestController {
 				List<String> testFileList = new ArrayList<>(testFileMap.keySet());
 
 				int totalTestFileCount = SelfTestStateObject.getTotalSelfTestFileCount();
-				System.out.println("FILE NAMES" + testFileResponse.getTestFilesIdName());
+
 				
-				System.out.println("TEST FILE COUNT" + totalTestFileCount);
 				SelfTestStateObject.setTotalSelfTestFileCount(totalTestFileCount);
 //				Platform.runLater(() -> {
 //					percentageLabel.setText("0%");
@@ -613,13 +600,13 @@ public class SelfTestController {
 	}
 
 	private TableView<SelfTestResult> selfTestBottomContainer() {
-		selfTestTable = createTableView();
+		selfTestTable = createTableViewSelf();
 
 		return selfTestTable;
 
 	}
 
-	private TableView<SelfTestResult> createTableView() {
+	private TableView<SelfTestResult> createTableViewSelf() {
 		TableView<SelfTestResult> tableView = new TableView<>();
 		tableView.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
@@ -690,8 +677,7 @@ public class SelfTestController {
 					// Check if the file exists before trying to open it
 					if (file.exists()) {
 						try {
-							
-							
+
 							String os = System.getProperty("os.name").toLowerCase();
 							if (os.contains("win")) {
 								// Windows-specific code
