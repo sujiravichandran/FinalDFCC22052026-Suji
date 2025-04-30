@@ -398,12 +398,16 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		startButton.setOnAction(e -> {
-			StateMachine.setConfirmTestStop(false);
-			if (StateMachine.isConfirmTestFileCompleted()) {
+			
+			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setConfirmTestStop(false);
+				if (StateMachine.isConfirmTestFileCompleted()) {
 
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
-				return;
-			}
+					Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+					return;
+				}
+				}
+
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(

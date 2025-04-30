@@ -95,16 +95,22 @@ public class ViewReportController {
         }
 
         try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                Desktop.getDesktop().open(file);
-            } else {
-                // Fallback for Linux
                 String os = System.getProperty("os.name").toLowerCase();
-                if (os.contains("linux")) {
-                    new ProcessBuilder("xdg-open", file.getAbsolutePath()).start();
+            if (os.contains("win")) {
+                // Windows-specific code
+                Desktop desktop = Desktop.getDesktop();
+                if (desktop.isSupported(Desktop.Action.OPEN)) {
+                    desktop.open(file);
                 } else {
-                    System.out.println("Opening files is not supported on this OS.");
+                   Debug.printDebug("Open action not supported on this platform.");
                 }
+            } else if (os.contains("nix") || os.contains("nux")) {
+                // Linux-specific code using xdg-open
+                // Ensure the file path is absolute
+                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+            } else {
+               Debug.printDebug("Unsupported OS: " + os);
             }
 
             Stage stage = (Stage) viewButton.getScene().getWindow();

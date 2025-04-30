@@ -315,6 +315,7 @@ public class ReportsUploadController {
 		CustomTableView customTableView = driverFactory.createTableView(uploads, true, false);
 
 		customTableView.setPrefWidth(1613.0);
+		customTableView.setPrefHeight(1000.0);
 		customTableView.addEventHandler(CustomTableView.DELETE_BUTTON_CLICKED_EVENT, event -> {
 			ObservableList<Upload> selectedItems = customTableView.getSelectedItems();
 			for (Upload upload : selectedItems) {

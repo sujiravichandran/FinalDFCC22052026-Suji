@@ -397,12 +397,15 @@ public class SessionTestingController {
 		});
 
 		startButton.setOnAction(e -> {
+			if (!startButton.getText().equalsIgnoreCase("Resume")) {
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
+			}
+			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -419,6 +422,8 @@ public class SessionTestingController {
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				
+				
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
 				startButton.setDisable(true);
@@ -432,9 +437,9 @@ public class SessionTestingController {
 			}
 
 			if (!checkAitessStatus.isBothAitessOn()) {
+				
 				return;
 			}
-
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
 				if (checkbox.isSelected()) {
@@ -476,6 +481,7 @@ public class SessionTestingController {
 
 		SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {
+				System.out.println("New Value for Session Test::::" + newValue);
 				SessionTestStateObject.getRunningTestLeafStatus().set(false);
 				StateMachine.setTestState(TestState.COMPLETED);
 				startButton.setText("Start");
@@ -489,6 +495,7 @@ public class SessionTestingController {
 		});
 
 		pauseButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -882,15 +889,38 @@ public class SessionTestingController {
 
 	}
 
+//	private void disableCheckBox(String stageId) {
+////		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
+//		if (selectedStageId.equals(stageId)) {
+//			checkBoxes.forEach(e -> {
+//				String fileId = e.getId();
+//				ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
+//				if (completedFileId.contains(fileId)) {
+//					e.setSelected(false);
+//					e.setDisable(true);
+//				}
+//			});
+//		}
+//	}
+	
 	private void disableCheckBox(String stageId) {
 //		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
 		if (selectedStageId.equals(stageId)) {
 			checkBoxes.forEach(e -> {
 				String fileId = e.getId();
 				ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-				if (completedFileId.contains(fileId)) {
-					e.setSelected(false);
-					e.setDisable(true);
+				if(!StateMachine.getTestState().equals(StateMachine.TestState.STOPPED))
+				{
+					if (completedFileId.contains(fileId)) {
+						e.setSelected(false);
+						e.setDisable(true);
+						
+					}	
+				}else {
+					if (completedFileId.contains(fileId)) {
+						e.setSelected(false);
+						e.setDisable(false);
+					}
 				}
 			});
 		}

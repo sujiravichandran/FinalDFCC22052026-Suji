@@ -397,7 +397,14 @@ public class CurrentStageResultController {
 				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
-				newBriefData.setResult(data.getStatus());
+//				newBriefData.setResult(data.getStatus());
+				
+				if (!data.getStatus().equals("SUCCESS")) {
+
+					newBriefData.setResult("FAIL");
+				} else {
+					newBriefData.setResult("PASS");
+				}
 				newBriefData.setTestMode(data.getTestMode());
 
 				briefDataList.add(newBriefData);

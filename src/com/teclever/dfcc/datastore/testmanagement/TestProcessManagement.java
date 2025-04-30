@@ -32,6 +32,7 @@ import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TrailSessionEntityService;
+import com.teclever.dfcc.Controller.ui.LRUTestingController;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.dto.TestProcessDto;
@@ -890,7 +891,7 @@ public class TestProcessManagement {
 
 					} else
 					 {
-
+						StateMachine.setConfirmTestStop(true);
 						testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult.generateUniqueTestFilesResultIdId());
@@ -980,7 +981,27 @@ public class TestProcessManagement {
 		Debug.printDebug("FILE NAME : " + fileName);
 		Debug.printDebug(
 				"Befor Starting Com File -- RDF : " + tempRdfFileResult + "  -- DOTCOM : " + tempDotComFileResult);
-		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+		
+//		path="";
+//		File file = new File(fileName);
+//		String fileName1 = file.getName();
+//		fileName1.trim();
+//		path = file.getAbsolutePath();//"/opt/dfcc-mk1/HW_ATP/input/";
+//		path.trim();
+//		VIGNESH CHNAGE for path correction
+//		int indexToRemove=(path.length() - fileName1.length());
+//		path = path.substring(0,indexToRemove);
+		
+		String fileNam;
+		File file = new File(fileName);
+		
+		if(StateMachine.getInputPathTestFile()!=null) {
+		fileNam = StateMachine.getInputPathTestFile()+file.getName();
+		}
+		else {
+			fileNam = fileName;
+		}
+		try (BufferedReader br = new BufferedReader(new FileReader(fileNam))) {
 			Pattern pattern = Pattern.compile("\\b\\S+\\.com\\b");
 			
 			while ((line = br.readLine()) != null) {
@@ -998,10 +1019,19 @@ public class TestProcessManagement {
 							String comFileName = matcher.group();
 
 							// Extracting File Path. To Fetch founded Dot Com File
-							File file = new File(fileName);
+							
 							String fileName1 = file.getName();
 							fileName1.trim();
-							String path = file.getAbsolutePath();//"/opt/dfcc-mk1/HW_ATP/input/";
+							String path;
+							
+							if(StateMachine.getInputPathTestFile()!=null) {
+							   
+								path = StateMachine.getInputPathTestFile()+fileName1;					
+								}
+							else {
+								path = file.getAbsolutePath();//"/opt/dfcc-mk1/HW_ATP/input/";
+							}
+							
 							path.trim();
 //							VIGNESH CHNAGE for path correction
 							int indexToTake=(path.length() - fileName1.length());
@@ -1024,6 +1054,7 @@ public class TestProcessManagement {
 //									sessionStageMapId, lastCount, sessionStageTestFileResult);
 
 						} else {
+							StateMachine.setConfirmTestStop(true);
 							Debug.printDebug("TPF File " + line);
 							TestProcessDto testProcessDto = runTestFile(line, stageName, rdfFileLocation, stageId,
 									sessionId, rdfFileResult, dotComFileResult, continueWithError, testFileId,
@@ -1107,8 +1138,16 @@ public class TestProcessManagement {
 				File file = new File(line);								
 				String fullPath = file.getAbsolutePath();
 
+//                Change on:29-04-2025
+				if(StateMachine.getInputPathTestFile()!=null) {
+                	fileCount += countFilesRecursively(StateMachine.getInputPathTestFile()+file.getName());
+                }
+                else {
+                	fileCount += countFilesRecursively(fullPath);
+                }
+				
 				// Debugging output
-				fileCount += countFilesRecursively(fullPath);
+				
 			}
 		}
 		return fileCount;
@@ -1141,7 +1180,15 @@ public class TestProcessManagement {
 	                    fileCount++;
 	                } else if (part.endsWith(".com")) {
 	                    File nestedFile = new File(file.getParent(), part);
+	                    
+//	                    Change on:29-04-2025
+	                    if(StateMachine.getInputPathTestFile()!=null) {
+	                    	fileCount += countFilesRecursively(StateMachine.getInputPathTestFile()+nestedFile.getName());
+	                    }
+	                    else {
+	                    
 	                    fileCount += countFilesRecursively(nestedFile.getAbsolutePath());
+	                    }
 	                }
 	            }
 	        }

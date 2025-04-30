@@ -59,6 +59,9 @@ import com.teclever.dfcc.resultstore.dto.ResultDto;
 import com.teclever.dfcc.resultstore.resultmanagement.ResultManagement;
 import com.teclever.dfcc.utils.Debug;
 
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+
 public class ResultExecutionManagement {
 
 	// For Getting the List Of ExecutionFiles...For Last Stage For Current SessionId
@@ -341,6 +344,24 @@ public class ResultExecutionManagement {
 				resultExecutionDTO.setTestFileName(testFileIdName
 						.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
+				
+				 if (!sessionStagesTestFilesResult.getTestStatus().equals("SUCCESS")) {
+					 resultExecutionDTO.setStatus("FAIL");
+					 
+				 }else {
+					 resultExecutionDTO.setStatus("PASS"); 
+				 }
+				 
+				 Label statusLabel = new Label();
+				 statusLabel.setText(resultExecutionDTO.getStatus());
+
+				 if ("FAIL".equals(resultExecutionDTO.getStatus())) {
+				     statusLabel.setTextFill(Color.RED);
+				 } else if ("PASS".equals(resultExecutionDTO.getStatus())) {
+				     statusLabel.setTextFill(Color.GREEN);
+				 }
+				
+				
 				String parentName = sessionManagement.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
 				parentName = parentName.substring(0, parentName.indexOf("/"));
 				if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
@@ -1603,7 +1624,9 @@ public class ResultExecutionManagement {
 			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
 
 			if (sessionStagesTestFilesResultList != null) {
+				System.out.println("sessionStagesTestFilesResultList size: " + sessionStagesTestFilesResultList.size());
 			} else {
+				System.out.println("sessionStagesTestFilesResultList is null");
 			}
 			Map<String, String> stagesIdName = sessionManagemment.getAllStageIdName();
 			List<ResultSessionStagesDetailsDTO> resultSessionStagesDetailsDTOList = new ArrayList<ResultSessionStagesDetailsDTO>();

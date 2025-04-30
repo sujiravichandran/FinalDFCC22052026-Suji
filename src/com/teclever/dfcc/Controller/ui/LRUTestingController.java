@@ -25,6 +25,7 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
+import com.teclever.dfcc.model.SubStage;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestRunningCard;
@@ -353,7 +354,7 @@ public class LRUTestingController {
 
 	private VBox mandatoryTestVBox = new VBox(10);
 
-	private List<String> ofpDownWDMUp(String stageId, String stageName, String testTypeId) {
+	private List<String> ofpDownWDMUp(String stageId, String stageName, String testTypeId, String ofpConfig ) {
 		List<String> testFileList = new ArrayList<>();
 		Task<Response> task = new Task<Response>() {
 			@Override
@@ -426,7 +427,7 @@ public class LRUTestingController {
 		return testFileList;
 	}
 	
-	private List<String> ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
+	private List<String> ofpUpWDMUp(String stageId, String stageName, String testTypeId, String ofpConfig) {
 	    List<String> testFileList = new ArrayList<>();
 	    
 	    Task<Response> task = new Task<Response>() {
@@ -585,6 +586,8 @@ public class LRUTestingController {
 		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
 			ofpVersionList.add(ofpVersion.getOfpVersion());
 		}
+		
+		
 		OFPVersion.setItems(ofpVersionList);
 		OFPVersion.setOnAction((event) -> {
 			ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
@@ -596,8 +599,8 @@ public class LRUTestingController {
 
 	private String fetchOFPVersion(String ofpVersionName) {
 		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
-			if (ofpVersion.getOfpConfigId().equals(ofpVersionName)) {
-				return ofpVersion.getOfpConfigId();
+			if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
+				return ofpVersion.getOfpConfigId(); // return OFP_7357
 			}
 		}
 		return null;
@@ -627,6 +630,7 @@ public class LRUTestingController {
 			} 
 			firstButton = false;
 			newButton.setOnAction(e -> {
+				StateMachine.setConfirmTestStop(false);
 				if(StateMachine.isConfirmTestFileCompleted()) {
 					Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 					return;				
@@ -800,10 +804,10 @@ public class LRUTestingController {
 										} else if ("Ok".equals(result)) {
 											if (option1.isSelected()) {
 												ofpUpWDMUp(newButton.getId(), "MANDATORY",
-														newButton.getUserData().toString());
+														newButton.getUserData().toString(), ofpConfigId);
 											} else if (option2.isSelected()) {
 												ofpDownWDMUp(newButton.getId(), "MANDATORY",
-														newButton.getUserData().toString());
+														newButton.getUserData().toString(), ofpConfigId);
 											}
 										}
 									});
@@ -820,7 +824,7 @@ public class LRUTestingController {
 									Optional<ButtonType> result = alert.showAndWait();
 									if (result.isPresent() && result.get() == ButtonType.OK) {
 										ofpDownWDMUp(newButton.getId(), "MANDATORY",
-												newButton.getUserData().toString());
+												newButton.getUserData().toString(), ofpConfigId);
 
 									}
 
@@ -835,7 +839,7 @@ public class LRUTestingController {
 
 									Optional<ButtonType> result = alert.showAndWait();
 									if (result.isPresent() && result.get() == ButtonType.OK) {
-										ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+										ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString(), ofpConfigId);
 
 									}
 								}
@@ -882,7 +886,7 @@ public class LRUTestingController {
 					    String stageName = "MANDATORY"; 
 					    String testTypeId = card.getTestTypeId();
 					    
-					    List<String> pbitTestFileList = ofpUpWDMUp(stageId, stageName, testTypeId); // Get the file list from "pbit"
+					    List<String> pbitTestFileList = ofpUpWDMUp(stageId, stageName, testTypeId, ofpConfigId); // Get the file list from "pbit"
 
 					    int totalTestFileCount1 = pbitTestFileList.size();
 						LRUTestStateObject.setTotalLRUSelectedTestFileCount(totalTestFileCount1);
@@ -1200,52 +1204,50 @@ public class LRUTestingController {
 //		});
 
 //		BEFORE VIGNESH CHNAGE
-//		LRUTestStateObject.runnedLRUTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
-//		    if (newValue != null) {
-//		    	
-//		    	System.out.println("LRU Runned test File COunt" + LRUTestStateObject.getRunnedLRUTestFileCount().get());
-//		    	System.out.println("LRU Runned Total Test File Count" + LRUTestStateObject.getTotalLRUSelectedTestFileCount());
-//
-//		        double percentage = (double) LRUTestStateObject.getRunnedLRUTestFileCount().get()
-//		                / LRUTestStateObject.getTotalLRUSelectedTestFileCount();
-//		        
-//		        // Ensure percentage doesn't exceed 100%
-//		        double clampedPercentage = Math.min(percentage, 1.0); // This will clamp the value to 1.0 (100%)
-//
-//		        System.out.println(
-//		                "IN BUTTONBOX Total File Count: " + LRUTestStateObject.getTotalLRUSelectedTestFileCount());
-//		        
-//		        double roundedPercentage = Math.round(clampedPercentage * 100.0) / 100.0;
-//		        Platform.runLater(() -> {
-//		            testProgressBar.setProgress(clampedPercentage); // Set the clamped percentage to the progress bar
-//		            percentageLabel.setText((int) (roundedPercentage * 100) + "%");
-//		        });
-//		    }
-//		});
-		
 		LRUTestStateObject.runnedLRUTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
 		    if (newValue != null) {
-		        int runnedCount = LRUTestStateObject.getRunnedLRUTestFileCount().get();
-		        int totalCount = LRUTestStateObject.getTotalLRUSelectedTestFileCount();
+		    	
 
-		        if (totalCount > 0) {
-		            double percentage = (double) runnedCount / totalCount;
-		            double clampedPercentage = Math.min(percentage, 1.0);
+		        double percentage = (double) LRUTestStateObject.getRunnedLRUTestFileCount().get()
+		                / LRUTestStateObject.getTotalLRUSelectedTestFileCount();
+		        
+		        // Ensure percentage doesn't exceed 100%
+		        double clampedPercentage = Math.min(percentage, 1.0); // This will clamp the value to 1.0 (100%)
 
-		            String floatPercentage = String.format("%.1f%%", clampedPercentage * 100);
-
-		            Platform.runLater(() -> {
-		                testProgressBar.setProgress(clampedPercentage);
-		                percentageLabel.setText(floatPercentage); // e.g., "92.9%"
-		            });
-		        } else {
-		            Platform.runLater(() -> {
-		                testProgressBar.setProgress(0);
-		                percentageLabel.setText("0.0%");
-		            });
-		        }
+		        
+		        double roundedPercentage = Math.round(clampedPercentage * 100.0) / 100.0;
+		        Platform.runLater(() -> {
+		            testProgressBar.setProgress(clampedPercentage); // Set the clamped percentage to the progress bar
+		            percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+		        });
 		    }
 		});
+		
+		
+//		....
+//		LRUTestStateObject.runnedLRUTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
+//		    if (newValue != null) {
+//		        int runnedCount = LRUTestStateObject.getRunnedLRUTestFileCount().get();
+//		        int totalCount = LRUTestStateObject.getTotalLRUSelectedTestFileCount();
+//
+//		        if (totalCount > 0) {
+//		            double percentage = (double) runnedCount / totalCount;
+//		            double clampedPercentage = Math.min(percentage, 1.0);
+//
+//		            String floatPercentage = String.format("%.1f%%", clampedPercentage * 100);
+//
+//		            Platform.runLater(() -> {
+//		                testProgressBar.setProgress(clampedPercentage);
+//		                percentageLabel.setText(floatPercentage); // e.g., "92.9%"
+//		            });
+//		        } else {
+//		            Platform.runLater(() -> {
+//		                testProgressBar.setProgress(0);
+//		                percentageLabel.setText("0.0%");
+//		            });
+//		        }
+//		    }
+//		});
 
 		
 		
@@ -1257,6 +1259,13 @@ public class LRUTestingController {
 	private void initializeButtons() {
 		runAllButton.setOnAction(e -> {
 			StateMachine.setConfirmTestStop(false);
+			if (StateMachine.isConfirmTestFileCompleted()) {
+
+				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
+			
+			
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
@@ -1315,7 +1324,16 @@ public class LRUTestingController {
 		});
 
 		startButton.setOnAction(e -> {
-			StateMachine.setConfirmTestStop(false);
+			
+			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setConfirmTestStop(false);
+				if (StateMachine.isConfirmTestFileCompleted()) {
+
+					Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+					return;
+				}
+				}
+			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
@@ -1397,6 +1415,7 @@ public class LRUTestingController {
 		});
 
 		pauseButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(true);
 			StateMachine.setTestState(TestState.PAUSED);
 			startButton.setText("Resume");
 			selectAllButton.setDisable(true);
@@ -1478,66 +1497,64 @@ public class LRUTestingController {
 		return subStageTestFileIds;
 	}
 	
-	boolean lruStop;
 	private void sendSelectedSubStageData() {
-		outerLoop: for (TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
-			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
-				
-				if (StateMachine.getTestState() == StateMachine.TestState.STOPPED) {
-					lruStop=true;					
-				}
-				else
-				{
-					if (newValue != null && newValue.equals("COMPLETED")) {
-						if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 > currentIndex) {
-							currentIndex++;
-							StateMachine.setTestState(TestState.RUNNING);
-							callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(),
-									"SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
-							LRUTestStateObject.updateSelectedSubStagesList(
-									LRUTestStateObject.getSelectedSubStagesList().get(currentIndex - 1).getCardId(), null);
-						}
-						else if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 == currentIndex) {
-							LRUTestStateObject.updateSelectedSubStagesList(
-									LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
-							StateMachine.setTestState(TestState.COMPLETED);
-							currentIndex = 0;
-							startButton.setDisable(false);
-							runAllButton.setDisable(false);
-							pauseButton.setDisable(true);
-							stopButton.setDisable(true);
-							sruTestCheckBoxList.setDisable(false);
-						}
-					}
-				}
-							
-				
-			});
-			
-			if(lruStop)
-			{
-				lruStop = false;
-				
-				LRUTestStateObject.updateSelectedSubStagesList(
-						LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
-				StateMachine.setTestState(TestState.COMPLETED);
-				currentIndex = 0;
-				startButton.setDisable(false);
-				runAllButton.setDisable(false);
-				pauseButton.setDisable(true);
-				stopButton.setDisable(true);
-				sruTestCheckBoxList.setDisable(false);
-				
-				break outerLoop;
-			}
-			
+	    for (TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+	        subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 
-		}
+	            // ✅ Check for STOPPED before proceeding
+	            if (StateMachine.getTestState() == StateMachine.TestState.STOPPED) {
+	                LRUTestStateObject.updateSelectedSubStagesList(
+	                    LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
+	                StateMachine.setTestState(TestState.COMPLETED);
+	                currentIndex = 0;
+	                startButton.setDisable(false);
+	                runAllButton.setDisable(false);
+	                pauseButton.setDisable(true);
+	                stopButton.setDisable(true);
+	                sruTestCheckBoxList.setDisable(false);
+	                return; // 🔁 Stop here — no further progression
+	            }
+
+	            if ("COMPLETED".equals(newValue)) {
+	                if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 > currentIndex) {
+	                    currentIndex++;
+	                    StateMachine.setTestState(TestState.RUNNING);
+	                    callstartButton(
+	                        LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(),
+	                        "SRU",
+	                        LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId()
+	                    );
+	                    LRUTestStateObject.updateSelectedSubStagesList(
+	                        LRUTestStateObject.getSelectedSubStagesList().get(currentIndex - 1).getCardId(), null);
+	                } else if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 == currentIndex) {
+	                    LRUTestStateObject.updateSelectedSubStagesList(
+	                        LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
+	                    StateMachine.setTestState(TestState.COMPLETED);
+	                    currentIndex = 0;
+	                    startButton.setDisable(false);
+	                    runAllButton.setDisable(false);
+	                    pauseButton.setDisable(true);
+	                    stopButton.setDisable(true);
+	                    sruTestCheckBoxList.setDisable(false);
+	                }
+	            }
+
+	        });
+	    }
 	}
 
+//	Before Changing- 29-04-2025
+//	private void startSruTest() {
+//
+//		callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU",
+//				LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
+//	}
+	
+//	After Changing- 29-04-2025
 	private void startSruTest() {
-		callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU",
-				LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
+	    for (TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+	        callstartButton(subStage.getCardId(), "SRU", subStage.getTestTypeId());
+	    }
 	}
 
 	private GridPane goNOGOGridPane() {
@@ -1607,6 +1624,21 @@ public class LRUTestingController {
 					return;
 				}
 
+				if (StateMachine.getTestState() != StateMachine.TestState.PENDING &&
+					    StateMachine.getTestState() != StateMachine.TestState.COMPLETED) {
+					Dialog<ButtonType> dialog = new Dialog<>();
+					dialog.setTitle("Confirmation Dialog");
+					dialog.setContentText("Please click OK to proceed the test (or) Click Cancel");
+					dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+					Optional<ButtonType> resultButton = dialog.showAndWait();
+
+					if (resultButton.isPresent() && resultButton.get() == ButtonType.CANCEL) {
+						StateMachine.setTestState(TestState.PENDING);
+						dialog.close();
+					}
+
+					else {
+				
 				callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 
 				String testTypeIDProg = card.getTestTypeId();
@@ -1636,7 +1668,7 @@ public class LRUTestingController {
 				} else if (newButton.getText().toLowerCase().contains("pi")) {
 					LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
 				}
-
+					}}
 			});
 			goNoGoVBox.getChildren().add(newButton);
 		}
@@ -1903,6 +1935,7 @@ public class LRUTestingController {
 
 				Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
 				List<String> testFileList = new ArrayList<>(testFileMap.keySet());
+
 
 
 				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, 1,

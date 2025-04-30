@@ -27,6 +27,7 @@ import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
+import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
@@ -48,6 +49,7 @@ import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.dfcc.utils.Debug;
+import com.teclever.dfcc.utils.Notifications;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
@@ -393,10 +395,7 @@ public class AitessProcessControlManagement {
 						}
 						if (runCommands == true) {
 							if (s1.contains(">>>")) {
-								System.out.println("END LINE FOR PASSED COMMAND FOUNDED - ");
 								runCommands = false;
-								System.out.println(
-										" runCommands : " + AitessProcessControlManagement.getInstance().runCommands);
 
 							}
 						}
@@ -1449,6 +1448,7 @@ public class AitessProcessControlManagement {
 	}
 
 	public void check(String testTypeId) {
+		StateMachine.setInputPathTestFile(null);
 		Debug.printDebug("---ENTERING check() passed testTypeIdl---------------" + testTypeId);
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
@@ -1927,13 +1927,22 @@ public class AitessProcessControlManagement {
 		Debug.printDebug("responseId while pbit Test:-> " + response.getResponseCode());
 		return response;
 	}
-
+	RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 	public void check1(String testTypeId, String ofpConfigId) {		
 		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
 		String uutId = currentSessionDetails.getUutId();
 		RunConfigurationService r = new RunConfigurationService();
 		String currentRunConfigId = r.getRunConfigIdByUutIdAndTestTypeId(uutId, testTypeId);
 
+		
+//		Suji Change For Pbit Test:::29-04-2025
+		String runPathMasterId2 = runConfigurationManagement.fetchRunPathMasterIdForTestFile(ofpConfigId);
+		List<String> testFileLocation = runConfigurationManagement.fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
+		String pathStore = testFileLocation.get(0);
+		System.out.println("Checking Pbit Test Files From RunConfig:::::::::::::::::" + pathStore);
+		StateMachine.setInputPathTestFile(pathStore);
+		
+		
 		//ofpConfigFilePath based on ofpConfigId
 		String ofpConfigFilePath = OfpConfigurationManagement.getConfigFilePathById(ofpConfigId);
 		AitessConfigurationDetails currentAitess = r.getAitessDetailsByRunConfigId(currentRunConfigId);

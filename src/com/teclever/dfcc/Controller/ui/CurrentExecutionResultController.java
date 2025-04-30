@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import com.itextpdf.text.Phrase;
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -51,6 +52,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 class BriefDataTableViewFactory implements TableViewFactory<BriefData> {
 	@Override
@@ -427,7 +429,25 @@ public class CurrentExecutionResultController {
 				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
-				newBriefData.setResult(data.getStatus());
+//				newBriefData.setResult(data.getStatus());
+				
+				if (!data.getStatus().equals("SUCCESS")) {
+
+					newBriefData.setResult("FAIL");
+				} else {
+					newBriefData.setResult("PASS");
+				}
+				
+				 Label statusLabel = new Label();
+				 statusLabel.setText(newBriefData.getResult());
+
+				 if ("FAIL".equals(newBriefData.getResult())) {
+				     statusLabel.setTextFill(Color.RED);
+				 } else if ("PASS".equals(newBriefData.getResult())) {
+				     statusLabel.setTextFill(Color.GREEN);
+				 }
+
+				
 				newBriefData.setTestMode(data.getTestMode());
 				briefDataList.add(newBriefData);
 				i++;
@@ -584,7 +604,7 @@ public class CurrentExecutionResultController {
 		 	            });
 			    	Platform.runLater(() -> {
 			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);;
+			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 			        });
 		               
 		           
