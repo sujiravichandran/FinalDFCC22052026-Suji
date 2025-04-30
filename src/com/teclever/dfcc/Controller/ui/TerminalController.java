@@ -233,7 +233,7 @@ public class TerminalController {
 		if(!checkAitessStatus.isBothAitessOn()) {
 			return ;
 		}
-		Platform.runLater(()->{			
+		Platform.runLater(()->{	
 			aitessProcessControlManagement.WriteAitess1Command(command);		
 			terminalTextField.clear();
 			terminalTextField.requestFocus();

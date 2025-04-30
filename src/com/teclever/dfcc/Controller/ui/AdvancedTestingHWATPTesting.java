@@ -162,6 +162,7 @@ public class AdvancedTestingHWATPTesting {
 	private VBox createLeftSide() {
 		leftSideVBox.getStyleClass().add("advanced-testing-left-container");
 		stageListView.getStyleClass().add("advanced-testing-radio-list-view");
+		stageListView.getItems().clear();
 
 		ToggleGroup toggleGroup = new ToggleGroup();
 
@@ -169,6 +170,7 @@ public class AdvancedTestingHWATPTesting {
 
 		for (TestCardData stage : stageList) {
 			RadioButton newRadioButton = new RadioButton(stage.getCardName());
+			newRadioButton.setMnemonicParsing(false);
 			newRadioButton.setUserData(stage);
 			newRadioButton.getStyleClass().add("advanced-testing-radio-button");
 			newRadioButton.setWrapText(true);
@@ -404,12 +406,15 @@ public class AdvancedTestingHWATPTesting {
 
 		startButton.setOnAction(e -> {
 			
-			StateMachine.setConfirmTestStop(false);
+			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setConfirmTestStop(false);
+				if (StateMachine.isConfirmTestFileCompleted()) {
+
+					Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+					return;
+				}
+				}
 			
-			if (StateMachine.isConfirmTestFileCompleted()) {
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
-				return;
-			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -482,6 +487,7 @@ public class AdvancedTestingHWATPTesting {
 		});
 
 		pauseButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),

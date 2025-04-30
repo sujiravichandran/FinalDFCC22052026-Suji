@@ -1241,5 +1241,28 @@ public class StateMachine {
 		StateMachine.confirmTestStop = confirmTestStop;
 	}
 	
+//	For Macro Button
+	private static String macroSet;
 
+	public static String getMacroSet() {
+		return macroSet;
+	}
+
+	public static void setMacroSet(String macroSet) {
+		StateMachine.macroSet = macroSet;
+	}
+	
+//	Pbit Test
+	private static String inputPathTestFile;
+
+	public static String getInputPathTestFile() {
+		return inputPathTestFile;
+	}
+
+	public static void setInputPathTestFile(String inputPathTestFile) {
+		StateMachine.inputPathTestFile = inputPathTestFile;
+	}
+
+	
+	
 }

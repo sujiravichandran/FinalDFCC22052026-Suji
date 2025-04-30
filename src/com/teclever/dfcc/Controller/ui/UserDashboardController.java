@@ -39,6 +39,7 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
@@ -105,7 +106,7 @@ public class UserDashboardController {
 	private ObservableMap<String, channelSCTemp> scBoardTemperatureMapMk1;
 	private ObservableMap<String, channelSCTemp> aecBoardTemperatureMapMk1;
 	
-	
+	 private boolean allChannelsOnline;
 	
 	private List<MacroButtonMapDto> macroButtonList;
 	ChecksumManagement checksumManagement = new ChecksumManagement();
@@ -730,25 +731,66 @@ public class UserDashboardController {
 
 		return toggleSwitch;
 	}
+//	Before Suji CHange
+//	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
+//		if (!checkAitessStatus.isBothAitessOn()) {
+//			return;
+//		}
+//		if (StateMachine.isAllowToggle()) {
+//			StateMachine.setAllowToggle(false);
+//			if (dfccCheckStatus.getDfccPowerStatus().get()) {				
+//				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
+//			} else {
+//				Dialog<ButtonType> dialog = new Dialog<>();
+//				dialog.setTitle("Confirmation Dialog");
+//				dialog.setContentText("Please ensure the cooler switch is turned ON.");
+//				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+//				dialog.showAndWait();
+//				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+//			}
+//		}
+//	}
 	
+//	After Suji Change
 	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
-		if (!checkAitessStatus.isBothAitessOn()) {
-			return;
-		}
-		if (StateMachine.isAllowToggle()) {
-			StateMachine.setAllowToggle(false);
-			if (dfccCheckStatus.getDfccPowerStatus().get()) {				
-				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
-			} else {
-				Dialog<ButtonType> dialog = new Dialog<>();
-				dialog.setTitle("Confirmation Dialog");
-				dialog.setContentText("Please ensure the cooler switch is turned ON.");
-				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-				dialog.showAndWait();
-				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
-			}
-		}
+	    if (!checkAitessStatus.isBothAitessOn()) {
+	        return;
+	    }
+
+	    if (StateMachine.isAllowToggle()) {
+	        StateMachine.setAllowToggle(false);
+
+	        if (dfccCheckStatus.getDfccPowerStatus().get()) {				
+	            aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
+	        } else {
+	            Dialog<ButtonType> dialog = new Dialog<>();
+	            dialog.setTitle("Confirmation Dialog");
+	            dialog.setContentText("Please ensure the cooler switch is turned ON.");
+	            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+	            dialog.showAndWait();
+
+	            // Send ON command
+	            aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+
+	            // Now wait briefly to confirm if DFCC really turned ON
+	            PauseTransition pause = new PauseTransition(Duration.seconds(1)); // wait 1 second
+	            pause.setOnFinished(e -> {
+	                if (!dfccCheckStatus.getDfccPowerStatus().get()) {
+	                    // If still not ON after timeout, reset toggle
+	                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+	                    transition.setToX(-26);
+	                    transition.play();
+	                    background2.setFill(Color.RED);
+	                    toggleLabel.setText("OFF");
+	                    StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+	                }
+	                StateMachine.setAllowToggle(true);
+	            });
+	            pause.play();
+	        }
+	    }
 	}
+
 
 	private final Random random = new Random();
 
@@ -903,6 +945,8 @@ public class UserDashboardController {
 //			if (!checkAitessStatus.isBothAitessOn()) {
 //				return;
 //			}
+
+			
 			Platform.runLater(() -> {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -939,6 +983,7 @@ public class UserDashboardController {
 			}
 		});
 
+//		Commented by Suji -23-04-2025
 		temperatureComboBox.setValue("SC");
 		boardComboBox.setValue("DFCC_TEMP_AN2");
 
@@ -1670,29 +1715,17 @@ public class UserDashboardController {
 	}
 
 	private void checkChannelOnlineStatus() {
-	    TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
 
-	    boolean allChannelsOnline = OnlineStatus.getChannel1Status().equalsIgnoreCase("online")
+	    if(OnlineStatus.getChannel1Status().equalsIgnoreCase("online") 
 	            && OnlineStatus.getChannel2Status().equalsIgnoreCase("online")
 	            && OnlineStatus.getChannel3Status().equalsIgnoreCase("online")
-	            && OnlineStatus.getChannel4Status().equalsIgnoreCase("online");
+	            && OnlineStatus.getChannel4Status().equalsIgnoreCase("online")){
+	    	allChannelsOnline =true;
+	    } 
+	    
+	    
 
-//	    if (allChannelsOnline) {
-//	        if (!isOn) { 
-//	            transition.setToX(26);
-//	            background.setFill(Color.GREEN);
-//	            toggleLabel.setText("ON");
-//	            StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-//	            isOn = true; 
-//	        }
-//	    } else {
-//	        transition.setToX(-26);
-//	        background.setFill(Color.RED);
-//	        toggleLabel.setText("OFF");
-//	        StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-//	        isOn = false;
-//	    }
-//	    transition.play();
+
 	}
 
 
@@ -1739,6 +1772,10 @@ public class UserDashboardController {
 				label.setUserData(macroButtonList.get(i).getCommand());
 
 				box.setOnMouseClicked(e -> {
+					if(StateMachine.getTestState() == StateMachine.TestState.RUNNING) {
+						Notifications.showWarningAlert("Please try after Current Test once completes...");
+					}
+					else {
 					if (!label.getUserData().toString().equals("<NOT SET>")) {
 						if (!checkAitessStatus.isBothAitessOn()) {
 							return;
@@ -1756,7 +1793,42 @@ public class UserDashboardController {
 								"macro command " + label.getUserData().toString() + " executed");
 						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 
-						aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+						// Suji load cursor
+						Platform.runLater(() -> {
+							bottomMainGridPane.getScene().setCursor(Cursor.WAIT);
+							bottomMainGridPane.getScene().getRoot().setDisable(true);
+							
+							
+						});
+						
+						Task<Void> task = new Task<Void>() {
+							@Override
+							protected Void call() throws Exception {
+								aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+								return null;
+								
+							}
+						
+							@Override
+							protected void succeeded() {
+								Platform.runLater(() -> {
+									bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+									bottomMainGridPane.getScene().getRoot().setDisable(false);
+								});
+							}
+						
+							@Override
+							protected void failed() {
+								Platform.runLater(() -> {
+									bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+									bottomMainGridPane.getScene().getRoot().setDisable(false);
+								});
+								// optionally log error: getException()
+							}
+						};
+						
+						new Thread(task).start();
+						
 					} else {
 						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -1771,7 +1843,7 @@ public class UserDashboardController {
 								StateMachine.getCurrentUserLogin(), new Date(),
 								"no macro command found for " + macroButtonList.get(x).getButtonName());
 						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-					}
+					}}
 				});
 
 				box.getChildren().add(label);

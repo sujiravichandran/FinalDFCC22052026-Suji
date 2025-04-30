@@ -16,7 +16,7 @@
    <children>
       <VBox alignment="TOP_CENTER" prefHeight="329.0" prefWidth="710.0" spacing="10.0">
          <children>
-            <Label fx:id="headinglbl" prefHeight="36.0" prefWidth="178.0" text="VIEW REPORT" textFill="WHITE">
+            <Label fx:id="headinglbl" prefHeight="36.0" prefWidth="200.0" text="VIEW REPORT" textFill="WHITE">
                <font>
                   <Font name="Arial Bold" size="20.0" />
                </font>

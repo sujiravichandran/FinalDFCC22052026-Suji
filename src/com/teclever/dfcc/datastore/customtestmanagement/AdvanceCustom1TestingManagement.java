@@ -215,6 +215,7 @@ public class AdvanceCustom1TestingManagement {
 
 	private Response addTestFiletoStageAndStartTest(String testTypeId, String fileName, String stageId, String stageName) {
 		Response res = new Response();
+		StateMachine.setCustomTwoTest(false);
 		if(stageName.equals("CUSTOM TWO"))
 		{
 			StateMachine.setCustomTwoTest(true);

@@ -106,6 +106,7 @@ public class ResultManagement {
 	                            
 	                            // Print the formatted output
 	                        } else {
+	                            System.out.println("No content inside parentheses found.");
 	                        }
 
 	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);
