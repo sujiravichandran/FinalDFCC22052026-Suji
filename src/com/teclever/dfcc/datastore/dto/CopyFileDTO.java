@@ -10,8 +10,16 @@ public class CopyFileDTO {
 	private String copyingId;
 	private String status;
 	private String stageName;
+	private boolean flag;
 	
 	
+	
+	public boolean isFlag() {
+		return flag;
+	}
+	public void setFlag(boolean flag) {
+		this.flag = flag;
+	}
 	public String getCopyingFileId() {
 		return copyingFileId;
 	}

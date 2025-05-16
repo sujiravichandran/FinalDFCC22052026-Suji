@@ -9,6 +9,7 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.utils.Debug;
 
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,8 +28,20 @@ public class StateMachine {
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
 	}
 	 private static final ObjectProperty<TestState> testState = new SimpleObjectProperty<>(TestState.PENDING);
-	private static RunningTestName runningTestName = RunningTestName.OTHER;
+	 private static final StringProperty runningTestName = new SimpleStringProperty(RunningTestName.OTHER.toString());
 
+	 public static String getRunningTestName() {
+	     return runningTestName.get();
+	 }
+
+	 public static void setRunningTestName(RunningTestName testName) {
+	     runningTestName.set(testName.toString());
+	 }
+
+	 public static StringProperty runningTestNameProperty() {
+	     return runningTestName;
+	 }
+	 
 	 public static ObjectProperty<TestState> testStateProperty() {
 	        return testState;
 	    }
@@ -40,14 +53,6 @@ public class StateMachine {
 	public static TestState getTestState() {
         return testState.get();
     }
-	
-	public static RunningTestName getRunningTestName() {
-		return runningTestName;
-	}
-
-	public static void setRunningTestName(RunningTestName newState) {
-		runningTestName = newState;
-	}
 
 	public static class currentSessionDetails {
 		private static String userId;
@@ -1094,7 +1099,7 @@ public class StateMachine {
 
 	public static void resetStateMachine() {
 		 testState.set(TestState.PENDING);
-		runningTestName = RunningTestName.OTHER;
+		 setRunningTestName(RunningTestName.OTHER); 
 
 		// Reset currentSessionDetails
 		currentSessionDetails.setUserId(null);
@@ -1263,6 +1268,71 @@ public class StateMachine {
 		StateMachine.inputPathTestFile = inputPathTestFile;
 	}
 
+//	macroexecution
+	private static boolean macroCommand = false;
+
+	public static boolean isMacroCommand() {
+		return macroCommand;
+	}
+
+	public static void setMacroCommand(boolean macroCommand) {
+		StateMachine.macroCommand = macroCommand;
+	}
+	
+//	No Such FIle Error
+	private static boolean noSuchFile =false;
+
+	public static boolean isNoSuchFile() {
+		return noSuchFile;
+	}
+
+	public static void setNoSuchFile(boolean noSuchFile) {
+		StateMachine.noSuchFile = noSuchFile;
+	}
+	
+//	Mandatory & GoNoGo Stop
+	private static boolean mandatoryGonoGo =false;
+
+	public static boolean isMandatoryGonoGo() {
+		return mandatoryGonoGo;
+	}
+
+	public static void setMandatoryGonoGo(boolean mandatoryGonoGo) {
+		StateMachine.mandatoryGonoGo = mandatoryGonoGo;
+	}
+	
+	//SelfTest
+
+		private static final BooleanProperty selfTestOn = new SimpleBooleanProperty(false);
+
+	    public static boolean isSelfTestOn() {
+
+	        return selfTestOn.get();
+
+	    }
+
+	    public static void setSelfTestOn(boolean value) {
+
+	        selfTestOn.set(value);
+
+	    }
+
+	    public static BooleanProperty selfTestOnProperty() {
+
+	        return selfTestOn;
+
+	    }
+//	Macro Passing:::
+	    private static boolean macroPassing =false;
+
+		public static boolean isMacroPassing() {
+			return macroPassing;
+		}
+
+		public static void setMacroPassing(boolean macroPassing) {
+			StateMachine.macroPassing = macroPassing;
+		}
+	   
 	
 	
 }

@@ -117,7 +117,7 @@ public class AdvancedTestingController {
 		advancedTestingHeadingGridPane.getColumnConstraints().addAll(firstColumn);
 		advancedTestingHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
-		titleBox.setAlignment(Pos.CENTER_LEFT);
+		titleBox.setAlignment(Pos.CENTER);
 		title.setText("ADVANCED TESTING");
 		title.getStyleClass().add("advanced-testing-title");
 		titleBox.getChildren().add(title);
@@ -246,13 +246,14 @@ public class AdvancedTestingController {
 	
 	private TableView<AdvancedTestResult> createResultTableViewAdvance() {
 		TableView<AdvancedTestResult> tableView = new TableView<>();
+		
 		tableView.getStylesheets()
 		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		tableView.getStyleClass().add("check-sum-table");
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 		 tableView.setPrefHeight(900); 
-
+		 
 		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
@@ -284,6 +285,7 @@ public class AdvancedTestingController {
 	    
 		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+		
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setMaxWidth(300);

@@ -483,8 +483,20 @@ public class StageConfigurationController {
 
 		Button addBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/AddIcon.png", "ADD",
 				event -> addSubStage(stage.getId(), stage.getL_name()));
-		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
-				event -> deleteStage(stage.getId(), stage.getL_name()));
+//		Button delBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/delete.png", "DEL",
+//				event -> deleteStage(stage.getId(), stage.getL_name()));
+		
+		Button delBtn = createImageButton(
+			    DFCCConstant.JARSTRING + "/Resources/Images/delete.png", 
+			    "DEL",
+			    event -> {
+			       
+			        deleteStage(stage.getId(), stage.getL_name());
+			        System.out.println("Deleting stage: " + stage.getId() + " - " + stage.getL_name());
+			    }
+			);
+		
+		
 		Button editBtn = createImageButton(DFCCConstant.JARSTRING + "/Resources/Images/Edit.png", "Edit", event -> {
 			String testTypeName = fetchTestTypeNameById(stage.getTestType());
 			editStage(stage.getId(), stage.getpId(), stage.getL_name(), testTypeName);
@@ -507,7 +519,7 @@ public class StageConfigurationController {
 					return null;
 				}
 			}else if(stage.getId().startsWith("L3")) {
-				buttonsContainer.getChildren().addAll(editBtn);
+				buttonsContainer.getChildren().addAll(editBtn, delBtn);
 			}
 		}
 

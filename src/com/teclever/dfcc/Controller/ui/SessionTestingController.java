@@ -106,6 +106,7 @@ public class SessionTestingController {
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private SessionManagement sessionManagement = new SessionManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	private UserDashboardController userDashboardController = new UserDashboardController();
 //	private AitessProcessControlManagement aitessProcessControlManagement = new AitessProcessControlManagement();
 
 	private TextField testNameField = new TextField();
@@ -179,7 +180,12 @@ public class SessionTestingController {
 		sessionTestingMainGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		sessionTestingMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
-		sessionTestingMainGridPane.add(createHeadingBox(), 0, 0, 2, 1);
+//		sessionTestingMainGridPane.add(createHeadingBox(), 0, 0, 2, 1);
+		
+		HBox headingBoxWrapper = new HBox(createHeadingBox());
+		headingBoxWrapper.setAlignment(Pos.CENTER);
+
+		sessionTestingMainGridPane.add(headingBoxWrapper,  0, 0, 2, 1);
 		sessionTestingMainGridPane.add(createSessionTestingLeftSide(), 0, 1);
 		sessionTestingMainGridPane.add(createSessionTestingRightSide(), 1, 1);
 		sessionTestingMainGridPane.add(createSessionTestingResultsGridPane(), 0, 2, 2, 1);
@@ -327,6 +333,7 @@ public class SessionTestingController {
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		runAllButton.setOnAction(e -> {
+			sessionTestTable.getItems().clear();
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -398,6 +405,7 @@ public class SessionTestingController {
 
 		startButton.setOnAction(e -> {
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				sessionTestTable.getItems().clear();
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -509,7 +517,8 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
-
+			
+			setStateMachineCurrentL1StageId();
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -526,6 +535,8 @@ public class SessionTestingController {
 					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in Session Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
+//			Suji added for Checkbox enabling - 02-05-2025
+			
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);

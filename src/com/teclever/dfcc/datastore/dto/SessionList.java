@@ -9,6 +9,36 @@ public class SessionList {
 	private String sessionName;
 
 	private Date creationDate;
+	
+	private String sessionTypeId;
+	
+	public String getSessionTypeId() {
+		return sessionTypeId;
+	}
+
+	public void setSessionTypeId(String sessionTypeId) {
+		this.sessionTypeId = sessionTypeId;
+	}
+
+	public String getUutTypeId() {
+		return uutTypeId;
+	}
+
+	public void setUutTypeId(String uutTypeId) {
+		this.uutTypeId = uutTypeId;
+	}
+
+	public String getDfccSNo() {
+		return dfccSNo;
+	}
+
+	public void setDfccSNo(String dfccSNo) {
+		this.dfccSNo = dfccSNo;
+	}
+
+	private String uutTypeId;
+	
+	private String dfccSNo;
 
 	private String ofpConfigId;
 	

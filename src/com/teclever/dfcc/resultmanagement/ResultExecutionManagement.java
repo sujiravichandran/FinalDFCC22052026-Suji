@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.TestFile;
+import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.service.LevelFiveMasterService;
@@ -137,42 +139,66 @@ public class ResultExecutionManagement {
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 
 			// For Last Set Runned By Stage
-			/*
-			 * if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
-			 * sessionStagesSelectedTestFilesService = new
-			 * SessionStagesSelectedTestFilesService(); GetResponse getResponse =
-			 * sessionStagesSelectedTestFilesService
-			 * .getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
-			 * List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new
-			 * ArrayList<SessionStagesSelectedTestFiles>(); selectedTestFileInStages =
-			 * (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList(); if
-			 * (selectedTestFileInStages != null) { for (SessionStagesSelectedTestFiles
-			 * selectedTestFile : selectedTestFileInStages) {
-			 * selectedTestFileIdTestFileId.put(selectedTestFile.
-			 * getSessionStagesSelectedTestFilesId(), selectedTestFile.getTestFilesId()); }
-			 * } }
-			 */
+			
+			  if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
+			 sessionStagesSelectedTestFilesService = new
+			  SessionStagesSelectedTestFilesService(); GetResponse getResponse =
+			  sessionStagesSelectedTestFilesService
+			  .getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+			  List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new
+			  ArrayList<SessionStagesSelectedTestFiles>(); selectedTestFileInStages =
+			  (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList(); if
+			  (selectedTestFileInStages != null) { for (SessionStagesSelectedTestFiles
+			  selectedTestFile : selectedTestFileInStages) {
+			  selectedTestFileIdTestFileId.put(selectedTestFile.
+			  getSessionStagesSelectedTestFilesId(), selectedTestFile.getTestFilesId()); }
+			  } }
+			 
 
 			// For Fetching All The SelectedTestFileId
-			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
-			GetResponse getResponse = sessionStagesSelectedTestFilesService.getAllSelectedTestFiles();
-			List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
-			selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
-			if (selectedTestFileInStages != null) {
-				for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
-					selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
-							selectedTestFile.getTestFilesId());
-				}
-			}
-
+//			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+//			GetResponse getResponse = sessionStagesSelectedTestFilesService.getAllSelectedTestFiles();
+//			List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+//			selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+//			if (selectedTestFileInStages != null) {
+//				for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+//					selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+//							selectedTestFile.getTestFilesId());
+//				}
+//			}
+			  
+			  
+//CR
+			 
 			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
 					.collect(Collectors.toList());
+		//	 System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
+			List<String> ids=  selectedTestFileIdTestFileId.keySet().stream().collect(Collectors.toList());
+			
+			lst = lst.stream().filter(f->ids.stream().anyMatch(id->f.getSelectedtestFileId().equalsIgnoreCase(id))).collect(Collectors.toList());
 
-			List<ResultExecutionDTO> resultList = new ArrayList();
+				/*for (String Id : selectedTestFileIdTestFileId.keySet()) {
+					System.out.println("Entred 1st REsulkt MEtod ID" + Id);
+				//	System.out.println("Entred 1st REsulkt MEtod" + lst.size());
+					if (lst != null) {
+
+						lst = lst.stream().filter(filterObj -> filterObj.getSelectedtestFileId().equalsIgnoreCase(Id))
+								.collect(Collectors.toList());
+						//System.out.println("After Checking Entred 1st REsulkt MEtod" + lst.size());
+					}
+					
+			
+				}*/
+
+			List<ResultExecutionDTO> resultList = new ArrayList<ResultExecutionDTO>();
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
 				ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
 				resultExecutionDTO.setDStarCount(sessionStagesTestFilesResult.getdStarCount());
-				resultExecutionDTO.setEndTime(sessionStagesTestFilesResult.getEndTime());
+				
+				String [] e =sessionStagesTestFilesResult.getEndTime().split(" ");
+				String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+				
+				resultExecutionDTO.setEndTime(endTime);
 				resultExecutionDTO.setSessionName(sessionName);
 				resultExecutionDTO.setRdfFile(sessionStagesTestFilesResult.getRdfFileName());
 				resultExecutionDTO.setRdfFilePath(sessionStagesTestFilesResult.getRdfPath());
@@ -328,7 +354,11 @@ public class ResultExecutionManagement {
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
 				ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
 				resultExecutionDTO.setDStarCount(sessionStagesTestFilesResult.getdStarCount());
-				resultExecutionDTO.setEndTime(sessionStagesTestFilesResult.getEndTime());
+				
+				String [] e =sessionStagesTestFilesResult.getEndTime().split(" ");
+				String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+				
+				resultExecutionDTO.setEndTime(endTime);
 				resultExecutionDTO.setSessionName(sessionName);
 				resultExecutionDTO.setRdfFile(sessionStagesTestFilesResult.getRdfFileName());
 				resultExecutionDTO.setRdfFilePath(sessionStagesTestFilesResult.getRdfPath());
@@ -499,7 +529,11 @@ public class ResultExecutionManagement {
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
 				ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
 				resultExecutionDTO.setDStarCount(sessionStagesTestFilesResult.getdStarCount());
-				resultExecutionDTO.setEndTime(sessionStagesTestFilesResult.getEndTime());
+				
+				String [] e =sessionStagesTestFilesResult.getEndTime().split(" ");
+				String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+				
+				resultExecutionDTO.setEndTime(endTime);
 				resultExecutionDTO.setRdfFile(sessionStagesTestFilesResult.getRdfFileName());
 				resultExecutionDTO.setRdfFilePath(sessionStagesTestFilesResult.getRdfPath());
 				resultExecutionDTO.setSystemInfoId(sessionStagesTestFilesResult.getSystemResultInfoId());
@@ -600,6 +634,19 @@ public class ResultExecutionManagement {
 					}
 				}
 			}
+			List<String> ids=  selectedTestFileIdTestFileId.keySet().stream().collect(Collectors.toList());
+			
+//			/CR
+			
+		/*	for (String Id : selectedTestFileIdTestFileId.keySet()) {
+				if (sessionStagesTestFilesResultLst != null) {
+					sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
+							.filter(filterObj -> filterObj.getSelectedtestFileId().equalsIgnoreCase(Id))
+							.collect(Collectors.toList());
+				}
+			}*/
+			
+			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream().filter(f->ids.stream().anyMatch(id->f.getSelectedtestFileId().equalsIgnoreCase(id))).collect(Collectors.toList());
 
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
 					.filter(stage -> stage.getStageId().equals(stageId)
@@ -701,7 +748,7 @@ public class ResultExecutionManagement {
 				response.setMsg("Fetched Successfully");
 
 				Debug.printDebug("Detail List Size" + resultDetailedList.size());
-			}
+				}
 		} catch (Exception ex) {
 			response.setCode(1);
 			response.setMsg("Issue Successfully");
@@ -1654,7 +1701,9 @@ public class ResultExecutionManagement {
 
 					String startTime = "-";
 					String endTime = "-";
-
+					String startTime1 = "";
+					String endTime1 = "";
+					
 					int failedFiles = 0;
 					int files = 0;
 
@@ -1669,7 +1718,13 @@ public class ResultExecutionManagement {
 								endTime = stgesfilesList.get(stgesfilesList.size() - 1).getEndTime();
 							} else if (stgesfilesList.size() == 1) {
 								startTime = stgesfilesList.get(0).getStartTime();
+								String [] s = startTime.split(" ");
+							
+								startTime1 = s[0] +" " + s[2]+" " + s[1] +" "+ s[5] + " "+   s[3];
 								endTime = stgesfilesList.get(0).getEndTime();
+								String [] e = endTime.split(" ");
+						
+								endTime1 = e[0]+" " + e[2]+" " + e[1]+" " + e[5]+" " +   e[3];
 							}
 						}
 						for (SessionStagesTestFilesResult sessionStagesTestFilesResult : stgesfilesList) {
@@ -1681,8 +1736,8 @@ public class ResultExecutionManagement {
 					}
 					ResultSessionStagesDetailsDTO resultSessionStagesDetailsDTO = new ResultSessionStagesDetailsDTO();
 					resultSessionStagesDetailsDTO.setFailedFiles(failedFiles);
-					resultSessionStagesDetailsDTO.setEndTime(endTime);
-					resultSessionStagesDetailsDTO.setStartTime(startTime);
+					resultSessionStagesDetailsDTO.setEndTime(endTime1);
+					resultSessionStagesDetailsDTO.setStartTime(startTime1);
 					String parentName = sessionManagemment.getFullPathForLeafIds(stageId);
 					parentName = parentName.substring(0, parentName.indexOf("/"));
 					if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
@@ -1692,17 +1747,35 @@ public class ResultExecutionManagement {
 						resultSessionStagesDetailsDTO
 								.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
 					}
+//					if (!startTime.equals("-") && !endTime.equals("-")) {
+//						SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+//						Date d1 = format.parse(startTime);
+//						Date d2 = format.parse(endTime);
+//						long differenceInMillis = d1.getTime() - d2.getTime();
+//						long differenceInSeconds = differenceInMillis / 1000;
+//						long differenceInMinutes = differenceInSeconds / 60;
+//						long differenceInHours = differenceInMinutes / 60;
+//						long differenceInDays = differenceInHours / 24;
+//						resultSessionStagesDetailsDTO.setTimeTakenForExecution(differenceInMinutes + "");
+//						resultSessionStagesDetailsDTO.setStatus("COMPLETED");
+					
 					if (!startTime.equals("-") && !endTime.equals("-")) {
-						SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-						Date d1 = format.parse(startTime);
-						Date d2 = format.parse(endTime);
-						long differenceInMillis = d1.getTime() - d2.getTime();
-						long differenceInSeconds = differenceInMillis / 1000;
-						long differenceInMinutes = differenceInSeconds / 60;
-						long differenceInHours = differenceInMinutes / 60;
-						long differenceInDays = differenceInHours / 24;
-						resultSessionStagesDetailsDTO.setTimeTakenForExecution(differenceInMinutes + "");
-						resultSessionStagesDetailsDTO.setStatus("COMPLETED");
+					    
+					        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+					        Date d1 = format.parse(startTime);
+					        Date d2 = format.parse(endTime);
+					        long differenceInMillis = d2.getTime() - d1.getTime();
+
+					        long diffSeconds = (differenceInMillis / 1000) % 60;
+					        long diffMinutes = (differenceInMillis / (1000 * 60)) % 60;
+					        long diffHours = (differenceInMillis / (1000 * 60 * 60));
+
+					        String formattedDuration = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds);
+
+					        resultSessionStagesDetailsDTO.setTimeTakenForExecution(formattedDuration);
+					        resultSessionStagesDetailsDTO.setStatus("COMPLETED");
+					
+
 					} else {
 						resultSessionStagesDetailsDTO.setTimeTakenForExecution("-");
 						resultSessionStagesDetailsDTO.setStatus("Pending");
@@ -1725,6 +1798,9 @@ public class ResultExecutionManagement {
 					resultSessionStagesDetailsDTOList.add(resultSessionStagesDetailsDTO);
 					startTime = "-";
 					endTime = "-";
+					startTime1 = "";
+					endTime1 = "";
+					
 					failedFiles = 0;
 					files = 0;
 				}

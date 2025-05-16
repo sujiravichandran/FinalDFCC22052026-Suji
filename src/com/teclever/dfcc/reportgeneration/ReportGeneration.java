@@ -322,7 +322,11 @@ public class ReportGeneration {
 				table.addCell(new Phrase(resultExecutionDTO.getTestMode()));
 				table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 				table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
-				table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
+				
+				String [] e =resultExecutionDTO.getEndTime().split(" ");
+				String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+				
+				table.addCell(new Phrase(endTime));
 				// table.addCell(new Phrase(dto.getStageName()));
 //					table.addCell(new Phrase(resultExecutionDTO.getStatus()));
 				if (!resultExecutionDTO.getStatus().equals("SUCCESS")) {
@@ -1007,7 +1011,11 @@ public class ReportGeneration {
 				table.addCell(new Phrase(resultExecutionDTO.getTestMode()));
 				table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 				table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
-				table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
+				
+				String [] e =resultExecutionDTO.getEndTime().split(" ");
+				String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+				
+				table.addCell(new Phrase(endTime));
 				// table.addCell(new Phrase(dto.getStageName()));
 //					table.addCell(new Phrase(resultExecutionDTO.getStatus()));
 				if (!resultExecutionDTO.getStatus().equals("SUCCESS")) {
@@ -2156,7 +2164,11 @@ public class ReportGeneration {
 					table.addCell(new Phrase(resultExecutionDTO.getTestFileName()));
 					table.addCell(new Phrase(resultExecutionDTO.getRdfFile()));
 					table.addCell(new Phrase(resultExecutionDTO.getDStarCount()));
-					table.addCell(new Phrase(resultExecutionDTO.getEndTime()));
+
+					String [] e =resultExecutionDTO.getEndTime().split(" ");
+					String endTime = e[0] +" " + e[2]+" " + e[1] +" "+ e[5] + " "+   e[3];
+					
+					table.addCell(new Phrase(endTime));
 					// table.addCell(new Phrase(dto.getStageName()));
 //					table.addCell(new Phrase(resultExecutionDTO.getStatus()));
 					

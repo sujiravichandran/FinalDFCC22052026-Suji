@@ -65,9 +65,12 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.StageRemarksResponse;
 import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
 import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
+import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Debug;
@@ -76,6 +79,7 @@ public class SessionManagement {
 	private final static String COMPLETED ="Completed";
 	private final static String PENDING ="pending";
 	private final static String PARTIAL ="Partial";
+	private final static String COMPLETEDWITHFAILURE = "completedwithfailure";
 	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
 
 	// API:: GET ALL SESSION FOR HISTORY REPORTS
@@ -400,6 +404,9 @@ public class SessionManagement {
 				sessionList.setSessionId(trailSessionDto.getSessionId());
 				sessionList.setSessionName(trailSessionDto.getSessionName());
 				sessionList.setCreationDate(trailSessionDto.getCreationDate());
+				sessionList.setSessionTypeId(trailSessionDto.getSessionTypeMasterId());
+				sessionList.setUutTypeId(trailSessionDto.getUutId());
+				sessionList.setDfccSNo(trailSessionDto.getDfccSNo());
 				listOfSession.add(sessionList);
 
 			}
@@ -428,8 +435,11 @@ public class SessionManagement {
 				SessionList sessionList = new SessionList();
 				sessionList.setSessionId(sessionEntity.getSessionId());
 				sessionList.setSessionName(sessionEntity.getSessionName());
+				sessionList.setSessionTypeId(sessionEntity.getSessionTypeMasterId());
 				sessionList.setCreationDate(sessionEntity.getCreationDate());
 				sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+				sessionList.setUutTypeId(sessionEntity.getUutId());
+				sessionList.setDfccSNo(sessionEntity.getDfccSNo());
 				listOfSession.add(sessionList);
 
 			}
@@ -2044,5 +2054,107 @@ public class SessionManagement {
 
 		return stageObj;
 
+	}
+	
+	// Session Stages Details Update in Application LogBook
+	public void updateSessionStagesResultOnApplicationLogBook(String msg, String stageId) {
+		Map<String, String> stageIdName = new HashMap<String, String>();
+
+		// Session Details Fetching
+		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
+		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+		
+		
+		stageIdName = resultExecutionManagement.getStageIdName();
+		if (!currentSessionDetails.getSessionId().substring(0, 4).equals("TSSN")) {
+			sessionDetailsMap = resultExecutionManagement
+					.getSessionDetailsBySessionId(currentSessionDetails.getSessionId());
+		} else {
+			sessionDetailsMap = resultExecutionManagement
+					.getTrailSessionDetailsBySessionId(currentSessionDetails.getSessionId());
+
+		}
+		// sessionDetailsMap.get("sessionName"); If Need Session Name Add in the Log
+
+		String parentName = getFullPathForLeafIds(stageId);
+		parentName = parentName.substring(0, parentName.indexOf("/"));
+
+		if (parentName.equals("LRU Test") || parentName.equals("Advanced Test") || parentName.equals("Self Test")) {
+
+			parentName = parentName + "-" + stageIdName.get(stageId);
+
+		} else {
+			parentName = "SESSION TEST - " + parentName + "-" + stageIdName.get(stageId);
+
+		}
+
+		UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(), parentName + "   Executed  " + msg);
+		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+
+	}
+	
+	
+	// TO Fetch Either is Have
+	public Map<String, String> getStageIdNextLevel() {
+
+		Map<String, String> stageIdNextLevel = new HashMap<String, String>();
+		try {
+			// Map<String, String> stageIdName = new HashMap<String, String>();
+
+			// Level One Stage Master Fetching
+			LevelOneMasterService lvlOneService = new LevelOneMasterService();
+			GetResponse levOneResponse = lvlOneService.getLevelOneMaster();
+			List<LevelOneStageMaster> level1MasterList = new ArrayList<LevelOneStageMaster>();
+			level1MasterList = (List<LevelOneStageMaster>) levOneResponse.getResponseList();
+			for (LevelOneStageMaster levelOneStageMaster : level1MasterList) {
+				stageIdNextLevel.put(levelOneStageMaster.getLevelOneStageId(), levelOneStageMaster.getNextLevel());
+			}
+
+			// Level Two Stage Master Fetching
+			LevelTwoMasterService lvlTwoService = new LevelTwoMasterService();
+			GetResponse levTwoeResponse = lvlTwoService.getLevelTwoMaster();
+			List<LevelTwoStageMaster> level2MasterList = new ArrayList<LevelTwoStageMaster>();
+			level2MasterList = (List<LevelTwoStageMaster>) levTwoeResponse.getResponseList();
+			for (LevelTwoStageMaster levelTwoStageMaster : level2MasterList) {
+				stageIdNextLevel.put(levelTwoStageMaster.getLevelTwoStageId(), levelTwoStageMaster.getNextLevel());
+			}
+
+			// Level Three Stage Master Fetching
+			LevelThreeService lvlThreeService = new LevelThreeService();
+			GetResponse levTThreeResponse = lvlThreeService.getLevelThreeMaster();
+			List<LevelThreeStageMaster> level3MasterList = new ArrayList<LevelThreeStageMaster>();
+			level3MasterList = (List<LevelThreeStageMaster>) levTThreeResponse.getResponseList();
+			for (LevelThreeStageMaster levelThreeStageMaster : level3MasterList) {
+				stageIdNextLevel.put(levelThreeStageMaster.getLevelThreeStageId(), levelThreeStageMaster.getNextLevel());
+			}
+
+			// Level Four Stage Master Fetching
+			LevelFourMasterSevice lvlFourService = new LevelFourMasterSevice();
+			GetResponse levFourResponse = lvlFourService.getLevelFourMaster();
+			List<LevelFourStageMaster> level4MasterList = new ArrayList<LevelFourStageMaster>();
+			level4MasterList = (List<LevelFourStageMaster>) levFourResponse.getResponseList();
+			for (LevelFourStageMaster levelFourStageMaster : level4MasterList) {
+				stageIdNextLevel.put(levelFourStageMaster.getLevelFourStageId(), levelFourStageMaster.getNextLevel());
+			}
+
+			// TestFiles Name
+
+			// Level Five Stage Master Fetching
+			LevelFiveMasterService lvlFiveService = new LevelFiveMasterService();
+			GetResponse levFiveResponse = lvlFiveService.getLevelFiveMaster();
+			List<LevelFiveStageMaster> level5MasterList = new ArrayList<LevelFiveStageMaster>();
+			level5MasterList = (List<LevelFiveStageMaster>) levFiveResponse.getResponseList();
+			for (LevelFiveStageMaster levelFiveStageMaster : level5MasterList) {
+				stageIdNextLevel.put(levelFiveStageMaster.getLevelFiveStageId(), levelFiveStageMaster.getNextLevel());
+			}
+
+		} catch (Exception ex) {
+			Debug.printDebug(ex.getLocalizedMessage());
+		}
+
+		return stageIdNextLevel;
 	}
 }
