@@ -397,14 +397,8 @@ public class CurrentStageResultController {
 				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
-//				newBriefData.setResult(data.getStatus());
+				newBriefData.setResult(data.getStatus());
 				
-				if (!data.getStatus().equals("SUCCESS")) {
-
-					newBriefData.setResult("FAIL");
-				} else {
-					newBriefData.setResult("PASS");
-				}
 				newBriefData.setTestMode(data.getTestMode());
 
 				briefDataList.add(newBriefData);
@@ -464,33 +458,75 @@ public class CurrentStageResultController {
 		return tableScrollPane;
 	}
 
+//	Before CHnaging Color::03-04-2025
+//	private void updateBriefData(TableColumn<BriefData, String> column) {
+//		column.setCellFactory(col -> new TableCell<BriefData, String>() {
+//			private Label label;
+//
+//			@Override
+//			protected void updateItem(String item, boolean empty) {
+//				super.updateItem(item, empty);
+//				if (item == null || empty) {
+//					setText(null);
+//					setGraphic(null);
+//				} else {
+//					if (label == null) {
+//						label = new Label();
+//						label.setWrapText(false);
+//						label.setAlignment(Pos.CENTER);
+//						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//						setStyle("-fx-alignment: CENTER;");
+//					}
+//					label.setText(item);
+//					label.setStyle("-fx-text-fill: white; ");
+//					label.setMinWidth(label.getText().length() * 18);
+//					setGraphic(label);
+//					this.setMinWidth(label.getText().length() * 18);
+//					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+//				}
+//			}
+//		});
+//	}
+	
+	
+//	After CHnaging Color::03-04-2025
 	private void updateBriefData(TableColumn<BriefData, String> column) {
-		column.setCellFactory(col -> new TableCell<BriefData, String>() {
-			private Label label;
+	    column.setCellFactory(col -> new TableCell<BriefData, String>() {
+	        private Label label;
 
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item == null || empty) {
-					setText(null);
-					setGraphic(null);
-				} else {
-					if (label == null) {
-						label = new Label();
-						label.setWrapText(false);
-						label.setAlignment(Pos.CENTER);
-						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-						setStyle("-fx-alignment: CENTER;");
-					}
-					label.setText(item);
-					label.setStyle("-fx-text-fill: white; ");
-					label.setMinWidth(label.getText().length() * 18);
-					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 18);
-					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-				}
-			}
-		});
+	        @Override
+	        protected void updateItem(String item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (item == null || empty) {
+	                setText(null);
+	                setGraphic(null);
+	            } else {
+	                if (label == null) {
+	                    label = new Label();
+	                    label.setWrapText(false);
+	                    label.setAlignment(Pos.CENTER);
+	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+	                    setStyle("-fx-alignment: CENTER;");
+	                }
+
+	                label.setText(item);
+
+	                // Set color based on result
+	                if ("FAIL".equalsIgnoreCase(item)) {
+	                    label.setStyle("-fx-text-fill: red; -fx-effect: dropshadow(one-pass-box, white, 5, 2, 0, 0);");
+	                } else if ("PASS".equalsIgnoreCase(item)) {
+	                    label.setStyle("-fx-text-fill: green; -fx-effect: dropshadow(one-pass-box, white, 5, 2, 0, 0);");
+	                } else {
+	                    label.setStyle("-fx-text-fill: white;");
+	                }
+
+	                label.setMinWidth(label.getText().length() * 18);
+	                setGraphic(label);
+	                this.setMinWidth(label.getText().length() * 18);
+	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+	            }
+	        }
+	    });
 	}
 
 	public ScrollPane createDetailedDataTable() {

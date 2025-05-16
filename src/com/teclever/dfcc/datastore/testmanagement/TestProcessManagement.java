@@ -40,6 +40,7 @@ import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.resultstore.resultmanagement.RdfFileDetailsParser;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
@@ -58,13 +59,17 @@ import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
 import com.teclever.dfcc.utils.Debug;
+import com.teclever.dfcc.utils.Notifications;
 
 public class TestProcessManagement {
 
+	private static final Object PBIT = null;
 	ObjectId mongoUniqueIdentifier;
 	private String tempRdfFileResult = "OK";
 
 	private String tempDotComFileResult = "OK";
+
+	private String sessionRdfFileResult;
 
 	/**
 	 * Main method to start the test process.
@@ -83,8 +88,9 @@ public class TestProcessManagement {
 
 		
 		Response res = new Response();
-		
+
 		try {
+			System.out.println("SRU --- Entred Test ProcessControl Method ");
 			Debug.printDebug(
 					"Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
 							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError
@@ -108,7 +114,10 @@ public class TestProcessManagement {
 				ChannelStatusBeforeTestResponse channelState = AitessProcessControlManagement.getInstance()
 						.checkChannelStatusBeforeAnyTest();
 				if (channelState.getResponseCode() == 0) {
+					
+					StateMachine.setConfirmTestStop(true);
 					Debug.printDebug("Channel is Offline");
+
 					res.setResponseCode(0);
 					res.setResponseMessage(channelState.getResponseMessage());
 					return res;
@@ -134,30 +143,25 @@ public class TestProcessManagement {
 			// Fetching Selected TestFile IDs From DB.
 			Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
 			Set<String> keysSet = new HashSet<>(testFilesIdName.keySet());
-			
-			
 
 			Thread startTestProcessThread = new Thread(() -> runTestProcess(sessionId, stageId, repeatCount,
 					listOfFileId, continueWithError, stageName, sessionStageMapId, testFilesIdName, keysSet));
-			
-			
+
 			// Thread START
 			startTestProcessThread.start();
 
 			res.setResponseCode(1);
 			res.setResponseMessage("Test Started ");
-			
-			
+
 //			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 //			boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 //
 //			if (popupflag) {
-			
+
 //				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //				SessionTestStateObject.setPopupStageId(stageId);
 //			}
-			
-			
+
 		} catch (Exception e) {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 
@@ -554,7 +558,7 @@ public class TestProcessManagement {
 		Response res = new Response();
 		Map<String, String> brdresult = new HashMap<>();
 		try {
-			if (rdfFileName == null || rdfFileName.equals("USER EXIT") || rdfFileName.equals("RUN TIME ERROR")) {
+			if (rdfFileName == null || rdfFileName.equals("USER EXIT") || rdfFileName.equals("RUN TIME ERROR") || rdfFileName.equals("FILE NOT FOUND ERROR")) {
 				for (int i = 1; i <= 19; i++) {
 					SelfTestStateObject.updateSelfTestRack1Cardstatus("brd" + i, "NOT OK");
 				}
@@ -677,6 +681,9 @@ public class TestProcessManagement {
 			} else if (rdfFileName.equals("RUN TIME ERROR")) {
 				filePath = tpfFileName;
 				rdfFileStatus = "Run Time Error";
+			} else if (rdfFileName.equals("FILE NOT FOUND ERROR")) {
+				filePath = tpfFileName;
+				rdfFileStatus = "File Not Found Error";
 			}
 			SelfTestResult selfTestFile = new SelfTestResult(filePath, rdfFileStatus);
 
@@ -696,7 +703,7 @@ public class TestProcessManagement {
 			String filePath = rdfFileLocaltion + rdfFileName;
 			String rdfFileStatus;
 
-			if (rdfFileName != null && (!rdfFileName.equals("USER EXIT")) && (!rdfFileName.equals("RUN TIME ERROR"))) {
+			if (rdfFileName != null && (!rdfFileName.equals("USER EXIT")) && (!rdfFileName.equals("RUN TIME ERROR")) && (!rdfFileName.equals("FILE NOT FOUND ERROR"))) {
 
 				res.setResponseCode(1);
 
@@ -726,6 +733,11 @@ public class TestProcessManagement {
 			} else if (rdfFileName != null && (rdfFileName.equals("RUN TIME ERROR"))) {
 				filePath = tpfFileName;
 				rdfFileStatus = "Run Time Error";
+				res.setResponseCode(111);
+			} //FILE NOT FOUND ERROR
+			else if (rdfFileName != null && (rdfFileName.equals("FILE NOT FOUND ERROR"))) {
+				filePath = tpfFileName;
+				rdfFileStatus = "File Not Found Error";
 				res.setResponseCode(111);
 			} else {
 				filePath = tpfFileName;
@@ -855,9 +867,14 @@ public class TestProcessManagement {
 			}
 
 			else if (stageName.equals("SRU")) {
+				System.out.println("SRU --- Entred Total Test FIle in Run Test FIle ");
 				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
-			}
-			else if (stageName.equals("MANDATORY")) {
+
+			} else if (stageName.equals("MANDATORY")) {
+
+				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
+			} else if (stageName.equals("GO NOGO")) {
+
 				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
 			}
 			
@@ -932,6 +949,7 @@ public class TestProcessManagement {
 				stageResult = getStageResult(stageId, keysSet);
 				// Session Test Popup
 				SessionFileManagement sessionFileManagement = new SessionFileManagement();
+				SessionManagement sessionManagement = new SessionManagement();
 				boolean popupflag = sessionFileManagement.getTestFilesRunnedSuccess(sessionId, stageId);
 
 				if (popupflag) {
@@ -1267,8 +1285,8 @@ public class TestProcessManagement {
 			// Save test file result.
 			addTestFileResult(uniqueTestFilesResultIdId, sessionId, stageId, testFileId,
 					String.valueOf(mongoUniqueIdentifier), rdfFileLocation,
-					(rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
-							: "RDF NOT GENERATED",
+					(rdfFileName!="FILE NOT FOUND ERROR") ? (rdfFileName != null) ? (rdfFileName != "USER EXIT") ? rdfFileName : "RDF NOT GENERATED"
+							: "RDF NOT GENERATED":"RDF NOT GENERATED",
 					(testProcessRes.getResponse().getResponseCode() != 111) ? "SUCCESS" : "FAILURE",
 					String.valueOf(testProcessRes.getdStarCount()), startTime, endTime, sessionStageSelectedTestFileId);
 			mongoUniqueIdentifier = null;
@@ -1276,7 +1294,7 @@ public class TestProcessManagement {
 			// File Copying
 			if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 
-				if (rdfFileName != null && !rdfFileName.equals("USER EXIT") && !rdfFileName.equals("RUN TIME ERROR")) {
+				if (rdfFileName != null && !rdfFileName.equals("USER EXIT") && !rdfFileName.equals("RUN TIME ERROR") && !rdfFileName.equals("FILE NOT FOUND ERROR")) {
 					SessionFileManagement sessionFileManagement = new SessionFileManagement();
 					String rdfFile = rdfFileLocation + rdfFileName;
 

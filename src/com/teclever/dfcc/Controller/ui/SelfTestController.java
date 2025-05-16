@@ -98,9 +98,10 @@ public class SelfTestController {
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
+	UserDashboardController userDashboardController = new UserDashboardController();
 
 	public GridPane createSelfTestMainContainerGridPane() {
-
+		
 		selfTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
@@ -238,6 +239,9 @@ public class SelfTestController {
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
 		startTest.setOnAction(e -> {
+			StateMachine.setSelfTestOn(true);
+			
+			selfTestTable.getItems().clear();
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");

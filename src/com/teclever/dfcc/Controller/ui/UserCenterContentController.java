@@ -337,10 +337,16 @@ public class UserCenterContentController {
 		   
 		    break;
 		
-		}
+		
+		
+	case "Check Sum":
+		CheckSumController checkSumController = new CheckSumController();
+		checkSumController.createCheckSumDataPopup();
+	   
+	    break;
 		
 			
-		
+		}
 
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);

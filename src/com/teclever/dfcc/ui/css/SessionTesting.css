@@ -74,6 +74,10 @@
 .completed{
 	 -fx-background-color: green;
 }
+
+.completedwithfailure{
+	-fx-background-color: red;
+}
 .partial{	
 	 -fx-background-color: primary-color;	
 }

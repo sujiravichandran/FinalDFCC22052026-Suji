@@ -272,6 +272,7 @@
 
 .progress-bar {
 	-fx-min-width: 350px;
+	-fx-background-color: progress-bar-color-bg;
 }
 .progress-label{
     -fx-text-fill: primary-text-color ;

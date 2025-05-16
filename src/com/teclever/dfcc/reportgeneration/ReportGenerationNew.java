@@ -5896,6 +5896,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 				addborder(writer); // adding Margins
 				currentPageNumber++;
 			} catch (Exception e) {
+				System.out.println(e.getLocalizedMessage());
 			}
 		}
 

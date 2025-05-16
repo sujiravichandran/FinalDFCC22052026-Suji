@@ -174,7 +174,7 @@ public class TrialsConfigurationController {
 		headingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("TRIALS CONFIGURATION");
+		title.setText("TRAILS CONFIGURATION");
 		title.getStyleClass().add("trialsConfig-title");
 		titleBox.getChildren().add(title);
 

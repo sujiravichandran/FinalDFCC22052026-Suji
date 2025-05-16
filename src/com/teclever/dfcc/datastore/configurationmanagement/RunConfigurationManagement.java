@@ -474,13 +474,15 @@ public class RunConfigurationManagement {
 
 	public String getTestTypeIdForSelfTestByUUT(String uutId) {
 		TestTypeMasterDetailsService service = new TestTypeMasterDetailsService();
-		GetResponse response = service.getTestTypeIdForSelfTest(uutId);
+		GetResponse response = service.getTestTypeIdForHWATPTest(uutId);
 
 		if (response.getCode() == 1 && response.getResponseList() != null) {
 			List<?> detailsList = response.getResponseList();
 
 			if (!detailsList.isEmpty()) {
 				TestTypeMasterDetails detail = (TestTypeMasterDetails) detailsList.get(0);
+				
+			//	TestTypeMasterDetails detail = (TestTypeMasterDetails) detailsList.get(1);
 
 				return detail.getTestTypeId();
 			} else {

@@ -125,8 +125,11 @@ public class AdvancedTestingHWATPTesting {
 	}
 
 	public GridPane createAdvancedTestingTab1GridPane() {
-
-		getHWATPTestingStagesData();
+	
+			
+			getHWATPTestingStagesData();
+		
+		
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
@@ -146,28 +149,57 @@ public class AdvancedTestingHWATPTesting {
 		return tab1MainGridPane;
 	}
 
+//	Before Suji change on - 02-05-2025
 	private void getHWATPTestingStagesData() {
 		ObservableList<StageObject> observableStageList = FXCollections
 				.observableArrayList(StateMachine.getStageDatalist());
 		observableStageList.stream()
 				.filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName())
 						&& "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
-				.filter(stage -> stage.getL3StageId() != null).forEach(stage -> {
+				.filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 							stage.getTestTypeId(), null);
+					System.out.println("stage.getL3StageName()" + stage.getL3StageName());
+					System.out.println("stage.getL3StageId()" + stage.getL3StageId());
 					AdvancedTestStateObject.addHwatpTestList(newCard);
 				});
 	}
+	
+//	Before Suji change on - 02-05-2025
+//	private void getHWATPTestingStagesData() {
+//	    ObservableList<StageObject> observableStageList = FXCollections
+//	            .observableArrayList(StateMachine.getStageDatalist());
+//
+//	    observableStageList.stream()
+//	            .filter(stage -> "Advanced Test".equalsIgnoreCase(stage.getL1StageName())
+//	                    && "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
+//	            .filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null)
+//	            .forEach(stage -> {
+//	            	System.out.println("L1: " + stage.getL1StageName() +
+//	                        ", L2: " + stage.getL2StageName() +
+//	                        ", L3: " + stage.getL3StageId() +
+//	                        ", L3 Name: " + stage.getL3StageName());
+//	            	
+//	                TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
+//	                        stage.getTestTypeId(), null);
+//	                
+//	                System.out.println("stage.getL3StageId()" + stage.getL3StageId());
+//	                System.out.println("stage.getL3StageId()" + stage.getL3StageName());
+//	                AdvancedTestStateObject.addHwatpTestList(newCard);
+//	            });
+//	}
+
 
 	private VBox createLeftSide() {
 		leftSideVBox.getStyleClass().add("advanced-testing-left-container");
 		stageListView.getStyleClass().add("advanced-testing-radio-list-view");
+		stageList.clear();
 		stageListView.getItems().clear();
 
 		ToggleGroup toggleGroup = new ToggleGroup();
-
 		stageList = AdvancedTestStateObject.getHwatpTestList();
-
+		System.out.println("stageList" + stageList);
+		System.out.println("stageList" + stageList.size());
 		for (TestCardData stage : stageList) {
 			RadioButton newRadioButton = new RadioButton(stage.getCardName());
 			newRadioButton.setMnemonicParsing(false);
@@ -207,10 +239,10 @@ public class AdvancedTestingHWATPTesting {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(10);
+		firstRow.setPercentHeight(12);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(58);
+		secondRow.setPercentHeight(55);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(32);

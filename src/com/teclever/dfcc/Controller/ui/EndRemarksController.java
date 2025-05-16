@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -96,6 +97,8 @@ public class EndRemarksController {
 	}
 
 	private void saveEndremarks() {
+		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
+				.getInstance();
 		TestState currentState = StateMachine.getTestState();
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
@@ -105,7 +108,7 @@ public class EndRemarksController {
 
 						Response response = sessionmanagement.endSession(userInput, false);
 						if (response.getResponseCode() == 1) {
-
+							aitessProcessControlManagement.endAllProcessOnLogout();
 							Platform.exit();
 							System.exit(0);
 						} else {

@@ -93,6 +93,7 @@ public class AdvancedTestingInterfaceTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	private UserDashboardController userDashboardController = new UserDashboardController();
 
 	public AdvancedTestingInterfaceTesting() {
 		initializeSearch();
@@ -276,10 +277,10 @@ public class AdvancedTestingInterfaceTesting {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(10);
+		firstRow.setPercentHeight(12);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(45);
+		secondRow.setPercentHeight(55);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(32);
@@ -479,6 +480,7 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		pauseButton.setOnAction(e -> {
+			StateMachine.setTestState(TestState.RUNNING);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),

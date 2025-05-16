@@ -26,6 +26,7 @@ import com.teclever.dfcc.model.CheckSumList;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTempAEC;
@@ -45,6 +46,7 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -106,7 +108,7 @@ public class UserDashboardController {
 	private ObservableMap<String, channelSCTemp> scBoardTemperatureMapMk1;
 	private ObservableMap<String, channelSCTemp> aecBoardTemperatureMapMk1;
 	
-	 private boolean allChannelsOnline;
+	
 	
 	private List<MacroButtonMapDto> macroButtonList;
 	ChecksumManagement checksumManagement = new ChecksumManagement();
@@ -142,11 +144,11 @@ public class UserDashboardController {
 		terminalStackPane = terminalController1.createTerminalStackPane();
 //		CheckToggleStatus();
 		Platform.runLater(() -> {
-		    initialize();
+			initialize();
 		});
 		
 	}
-	
+
 	public void initialize() {
 		updateUI(StateMachine.getTestState());
 
@@ -154,17 +156,17 @@ public class UserDashboardController {
 	        updateUI(newState);
 	    });
 	}
-	
+
 	private void updateUI(TestState state) {
-	    Platform.runLater(() -> {
-	        if (state == TestState.RUNNING) {
-	            toggleButton.setDisable(true);
-	        }else {
-	        	toggleButton.setDisable(false);
-	        }
-	    });
+		Platform.runLater(() -> {
+			if (state == TestState.RUNNING) {
+				toggleButton.setDisable(true);
+			} else {
+				toggleButton.setDisable(false);
+			}
+		});
 	}
-	
+
 	public GridPane createUserDashboard() {
 		aitess2ConfigManagement.getAllDfccStatusCommand();
 		bottomMainGridPane.getStylesheets().add(getClass()
@@ -189,7 +191,7 @@ public class UserDashboardController {
 		bottomMainGridPane.add(createBottomleftGridPane(), 0, 0);
 		bottomMainGridPane.add(createBottomMidGridPane(), 1, 0);
 		bottomMainGridPane.add(createBottomRightGridPane(), 2, 0);
-		
+
 		return bottomMainGridPane;
 
 	}
@@ -325,7 +327,7 @@ public class UserDashboardController {
 		middleMenuBox.setAlignment(Pos.CENTER);
 		middleMenuBox.getStyleClass().add("middle-menu");
 
-		String[] labelsText = { "Configuration", "End Session", "Log Book" };
+		String[] labelsText = { "Configuration", "End Session", "Log Book", "Check Sum" };
 
 		for (String labelText : labelsText) {
 			Label label = new Label(labelText);
@@ -393,8 +395,7 @@ public class UserDashboardController {
 		logoutLabel.getStyleClass().add("logout-text");
 
 		logoutBox.setOnMouseClicked(e -> {
-			
-			
+
 			if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.STOPPED
 					|| StateMachine.getTestState() == TestState.COMPLETED) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -448,6 +449,20 @@ public class UserDashboardController {
 			}
 		});
 
+		VBox box = new VBox();
+		box.setAlignment(Pos.CENTER);
+		Label label1 = new Label("Check sum Info");
+		box.setCursor(Cursor.HAND);
+		box.getChildren().add(label1);
+		box.getStyleClass().add("logout-button");
+		box.getStyleClass().add("logout-text");
+
+		box.setOnMouseClicked(event -> {
+			CheckSumController checkSumController = new CheckSumController();
+			checkSumController.createCheckSumDataPopup();
+
+		});
+
 		bottomButtonGridPane.add(logoutBox, 0, 0);
 
 		return bottomButtonGridPane;
@@ -481,7 +496,6 @@ public class UserDashboardController {
 		bottomRightGridPane.add(createRightMidFirst(), 0, 1);
 		bottomRightGridPane.add(createRigthMidSecond(), 0, 2);
 		bottomRightGridPane.add(createRightBottom(), 0, 3);
-		
 
 		return bottomRightGridPane;
 	}
@@ -681,7 +695,6 @@ public class UserDashboardController {
 		return bottomRightMidFirstGridPane;
 	}
 
-
 	private HBox createToggleSwitch() {
 		background.setArcWidth(30);
 		background.setArcHeight(30);
@@ -705,92 +718,55 @@ public class UserDashboardController {
 		toggleButton.setCursor(Cursor.HAND);
 
 		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-			
+
 			TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
 			
 			if (dfccCheckStatus.getDfccPowerStatus().get()) {
+				System.out.println("Entered GREEn");
 				Platform.runLater(() -> {
-				transition.setToX(26);
-				background.setFill(Color.GREEN);
-				toggleLabel.setText("ON");
-				StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-				transition.play();
-			});
-			}
-			
-			else {
-				Platform.runLater(() -> {
-				transition.setToX(-26);
-				background.setFill(Color.RED);
-				toggleLabel.setText("OFF");
-				StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-				transition.play();
+					transition.setToX(26);
+					background.setFill(Color.GREEN);
+					toggleLabel.setText("ON");
+					StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+					transition.play();
 				});
 			}
+
+			else {
+				System.out.println("Entred RED");
+				Platform.runLater(() -> {
+					transition.setToX(-26);
+					background.setFill(Color.RED);
+					toggleLabel.setText("OFF");
+					StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+					transition.play();
+				});
+			}
+
 		});
 
 		return toggleSwitch;
 	}
-//	Before Suji CHange
-//	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
-//		if (!checkAitessStatus.isBothAitessOn()) {
-//			return;
-//		}
-//		if (StateMachine.isAllowToggle()) {
-//			StateMachine.setAllowToggle(false);
-//			if (dfccCheckStatus.getDfccPowerStatus().get()) {				
-//				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
-//			} else {
-//				Dialog<ButtonType> dialog = new Dialog<>();
-//				dialog.setTitle("Confirmation Dialog");
-//				dialog.setContentText("Please ensure the cooler switch is turned ON.");
-//				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-//				dialog.showAndWait();
-//				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
-//			}
-//		}
-//	}
 	
-//	After Suji Change
 	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
-	    if (!checkAitessStatus.isBothAitessOn()) {
-	        return;
-	    }
-
-	    if (StateMachine.isAllowToggle()) {
-	        StateMachine.setAllowToggle(false);
-
-	        if (dfccCheckStatus.getDfccPowerStatus().get()) {				
-	            aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
-	        } else {
-	            Dialog<ButtonType> dialog = new Dialog<>();
-	            dialog.setTitle("Confirmation Dialog");
-	            dialog.setContentText("Please ensure the cooler switch is turned ON.");
-	            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-	            dialog.showAndWait();
-
-	            // Send ON command
-	            aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
-
-	            // Now wait briefly to confirm if DFCC really turned ON
-	            PauseTransition pause = new PauseTransition(Duration.seconds(1)); // wait 1 second
-	            pause.setOnFinished(e -> {
-	                if (!dfccCheckStatus.getDfccPowerStatus().get()) {
-	                    // If still not ON after timeout, reset toggle
-	                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
-	                    transition.setToX(-26);
-	                    transition.play();
-	                    background2.setFill(Color.RED);
-	                    toggleLabel.setText("OFF");
-	                    StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-	                }
-	                StateMachine.setAllowToggle(true);
-	            });
-	            pause.play();
-	        }
-	    }
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return;
+		}
+		
+		if (StateMachine.isAllowToggle()) {
+			StateMachine.setAllowToggle(false);
+			if (dfccCheckStatus.getDfccPowerStatus().get()) {				
+				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
+			} else {
+				Dialog<ButtonType> dialog = new Dialog<>();
+				dialog.setTitle("Confirmation Dialog");
+				dialog.setContentText("Please ensure the cooler switch is turned ON.");
+				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+				dialog.showAndWait();
+				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
+			}
+		}
 	}
-
 
 	private final Random random = new Random();
 
@@ -945,8 +921,6 @@ public class UserDashboardController {
 //			if (!checkAitessStatus.isBothAitessOn()) {
 //				return;
 //			}
-
-			
 			Platform.runLater(() -> {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -956,7 +930,7 @@ public class UserDashboardController {
 				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 				if (currentSessionDetails.getUutId().equals("UUT1")) {
 					Platform.runLater(() -> {
-					setMK1Temp(newValue, box1, box2, box3, box4);
+						setMK1Temp(newValue, box1, box2, box3, box4);
 					});
 				} else {
 					getMK1AandMk2TempData(temperatureComboBox.getValue(), boardComboBox.getValue(), box1, box2, box3,
@@ -983,7 +957,6 @@ public class UserDashboardController {
 			}
 		});
 
-//		Commented by Suji -23-04-2025
 		temperatureComboBox.setValue("SC");
 		boardComboBox.setValue("DFCC_TEMP_AN2");
 
@@ -1021,7 +994,6 @@ public class UserDashboardController {
 				double value2 = Double.parseDouble(label2.getText());
 				double value3 = Double.parseDouble(label3.getText());
 				double value4 = Double.parseDouble(label4.getText());
-
 
 				if ((value1 <= 0 && value1 < 1) || (value2 <= 0 && value2 < 1) || (value3 <= 0 && value3 < 1)
 						|| (value4 <= 0 && value4 < 1)) {
@@ -1229,10 +1201,10 @@ public class UserDashboardController {
 		Label label2 = (Label) box2.getChildren().get(0);
 		Label label3 = (Label) box3.getChildren().get(0);
 		Label label4 = (Label) box4.getChildren().get(0);
-		
+
 		double maxValue = boardChannelTemp.getMaxValue();
 		double minValue = boardChannelTemp.getMinValue();
-		
+
 		label1.textProperty().bind(valueAdded.channel1TempProperty());
 		label2.textProperty().bind(valueAdded.channel2TempProperty());
 		label3.textProperty().bind(valueAdded.channel3TempProperty());
@@ -1326,12 +1298,9 @@ public class UserDashboardController {
 			System.err.println("Invalid numeric value in labels: " + label1.getText() + ", " + "" + label2.getText()
 					+ ", " + "" + label3.getText() + ", " + "" + label4.getText());
 		}
-		
-		
 
 	}
-	
-	
+
 //Before Suji Change
 //	private void setMK1Temp(String selectedItem, VBox box1, VBox box2, VBox box3, VBox box4) {
 //		Label label1 = (Label) box1.getChildren().get(0);
@@ -1363,120 +1332,113 @@ public class UserDashboardController {
 //						+ ", CH3: " + label3.getText() + ", CH4: " + label4.getText() + "]");
 //		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 //	}
-	
+
 //	After Change
 	private void setMK1Temp(String selectedItem, VBox box1, VBox box2, VBox box3, VBox box4) {
-        Label label1 = (Label) box1.getChildren().get(0);
-        Label label2 = (Label) box2.getChildren().get(0);
-        Label label3 = (Label) box3.getChildren().get(0);
-        Label label4 = (Label) box4.getChildren().get(0);
+		Label label1 = (Label) box1.getChildren().get(0);
+		Label label2 = (Label) box2.getChildren().get(0);
+		Label label3 = (Label) box3.getChildren().get(0);
+		Label label4 = (Label) box4.getChildren().get(0);
 
-        if (selectedItem.equalsIgnoreCase("sc")) {
-        	Platform.runLater(() -> {
-            label1.textProperty().bind(channelSCTemp.channel1TemperatureProperty());
-        	});
-        	
-        	Platform.runLater(() -> {
-            box1.styleProperty().bind(
-                Bindings.createStringBinding(() -> "-fx-background-color: " + channelSCTemp.channel1BackgroundColorProperty().get(),
-                                            channelSCTemp.channel1BackgroundColorProperty())
-            );
-        	});
-        	
-            Platform.runLater(() -> {
-            label2.textProperty().bind(channelSCTemp.channel2TemperatureProperty());
-            });
-            Platform.runLater(() -> {
-            box2.styleProperty().bind(
-                Bindings.createStringBinding(() -> "-fx-background-color: " + channelSCTemp.channel2BackgroundColorProperty().get(),
-                                            channelSCTemp.channel2BackgroundColorProperty())
-            );
-            });
-            
-            Platform.runLater(() -> {
-            label3.textProperty().bind(channelSCTemp.channel3TemperatureProperty());
-            });
-            Platform.runLater(() -> {
-            box3.styleProperty().bind(
-                Bindings.createStringBinding(() -> "-fx-background-color: " + channelSCTemp.channel3BackgroundColorProperty().get(),
-                                            channelSCTemp.channel3BackgroundColorProperty())
-            );
-            });
-            
-            
-            Platform.runLater(() -> {
-            label4.textProperty().bind(channelSCTemp.channel4TemperatureProperty());
-            });
-            
-            Platform.runLater(() -> {
-            box4.styleProperty().bind(
-                Bindings.createStringBinding(() -> "-fx-background-color: " + channelSCTemp.channel4BackgroundColorProperty().get(),
-                                            channelSCTemp.channel4BackgroundColorProperty())
-            );
-            });
-            
-            
-        } else {
-        	
-        	Platform.runLater(() -> {
-            label1.textProperty().bind(channelAECTemp.channel1TemperatureProperty());
-        	});
-            // Bind the background color of the VBox (instead of the Label)
-        	Platform.runLater(() -> {
-            box1.styleProperty().bind(
-                Bindings.createStringBinding(() -> "-fx-background-color: " + channelAECTemp.channel1BackgroundColorProperty().get(),
-                                             channelAECTemp.channel1BackgroundColorProperty())
-            );
-        	});
-        	
-        	
-            Platform.runLater(() -> {
-            label2.textProperty().bind(channelAECTemp.channel2TemperatureProperty());
-            });
-            
-            Platform.runLater(() -> {
-            box2.styleProperty().bind(
-                    Bindings.createStringBinding(() -> "-fx-background-color: " + channelAECTemp.channel2BackgroundColorProperty().get(),
-                                                channelAECTemp.channel2BackgroundColorProperty())
-                );
-            });
-            
-            
-            Platform.runLater(() -> {
-            label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
-            });
-            
-            Platform.runLater(() -> {
-            box3.styleProperty().bind(
-                    Bindings.createStringBinding(() -> "-fx-background-color: " + channelAECTemp.channel3BackgroundColorProperty().get(),
-                                                channelAECTemp.channel3BackgroundColorProperty())
-                );
-            });
-            Platform.runLater(() -> {
-            label4.textProperty().bind(channelAECTemp.channel4TemperatureProperty());
-            });
-            
-            Platform.runLater(() -> {
-            box4.styleProperty().bind(
-                    Bindings.createStringBinding(() -> "-fx-background-color: " + channelAECTemp.channel4BackgroundColorProperty().get(),
-                                                channelAECTemp.channel4BackgroundColorProperty())
-                );
-            });
-        }
-        
-      
-        
-        Platform.runLater(() -> {
-        UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-        UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
-                currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-                StateMachine.getCurrentUserLogin(), new Date(),
-                selectedItem + " temperature fetched [" + "CH1: " + label1.getText() + ", CH2: " + label2.getText()
-                        + ", CH3: " + label3.getText() + ", CH4: " + label4.getText() + "]");
-        uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-        });
-    }
-	
+		if (selectedItem.equalsIgnoreCase("sc")) {
+			Platform.runLater(() -> {
+				label1.textProperty().bind(channelSCTemp.channel1TemperatureProperty());
+			});
+
+			Platform.runLater(() -> {
+				box1.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelSCTemp.channel1BackgroundColorProperty().get(),
+								channelSCTemp.channel1BackgroundColorProperty()));
+			});
+
+			Platform.runLater(() -> {
+				label2.textProperty().bind(channelSCTemp.channel2TemperatureProperty());
+			});
+			Platform.runLater(() -> {
+				box2.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelSCTemp.channel2BackgroundColorProperty().get(),
+								channelSCTemp.channel2BackgroundColorProperty()));
+			});
+
+			Platform.runLater(() -> {
+				label3.textProperty().bind(channelSCTemp.channel3TemperatureProperty());
+			});
+			Platform.runLater(() -> {
+				box3.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelSCTemp.channel3BackgroundColorProperty().get(),
+								channelSCTemp.channel3BackgroundColorProperty()));
+			});
+
+			Platform.runLater(() -> {
+				label4.textProperty().bind(channelSCTemp.channel4TemperatureProperty());
+			});
+
+			Platform.runLater(() -> {
+				box4.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelSCTemp.channel4BackgroundColorProperty().get(),
+								channelSCTemp.channel4BackgroundColorProperty()));
+			});
+
+		} else {
+
+			Platform.runLater(() -> {
+				label1.textProperty().bind(channelAECTemp.channel1TemperatureProperty());
+			});
+			// Bind the background color of the VBox (instead of the Label)
+			Platform.runLater(() -> {
+				box1.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelAECTemp.channel1BackgroundColorProperty().get(),
+								channelAECTemp.channel1BackgroundColorProperty()));
+			});
+
+			Platform.runLater(() -> {
+				label2.textProperty().bind(channelAECTemp.channel2TemperatureProperty());
+			});
+
+			Platform.runLater(() -> {
+				box2.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelAECTemp.channel2BackgroundColorProperty().get(),
+								channelAECTemp.channel2BackgroundColorProperty()));
+			});
+
+			Platform.runLater(() -> {
+				label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
+			});
+
+			Platform.runLater(() -> {
+				box3.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelAECTemp.channel3BackgroundColorProperty().get(),
+								channelAECTemp.channel3BackgroundColorProperty()));
+			});
+			Platform.runLater(() -> {
+				label4.textProperty().bind(channelAECTemp.channel4TemperatureProperty());
+			});
+
+			Platform.runLater(() -> {
+				box4.styleProperty()
+						.bind(Bindings.createStringBinding(
+								() -> "-fx-background-color: " + channelAECTemp.channel4BackgroundColorProperty().get(),
+								channelAECTemp.channel4BackgroundColorProperty()));
+			});
+		}
+
+		Platform.runLater(() -> {
+			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
+					selectedItem + " temperature fetched [" + "CH1: " + label1.getText() + ", CH2: " + label2.getText()
+							+ ", CH3: " + label3.getText() + ", CH4: " + label4.getText() + "]");
+			uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+		});
+	}
 
 	private VBox createBottomRightMidThird() {
 		VBox bottomRightMidThirdBox = new VBox();
@@ -1691,8 +1653,8 @@ public class UserDashboardController {
 						OnlineStatus.setChannel2Status("online");
 						OnlineStatus.setChannel3Status("online");
 						OnlineStatus.setChannel4Status("online");
-						//checkChannelOnlineStatus();
-						
+						// checkChannelOnlineStatus();
+
 					});
 
 					Thread.sleep(5000);
@@ -1702,7 +1664,7 @@ public class UserDashboardController {
 						OnlineStatus.setChannel2Status("offline");
 						OnlineStatus.setChannel3Status("offline");
 						OnlineStatus.setChannel4Status("offline");
-						//checkChannelOnlineStatus();
+						// checkChannelOnlineStatus();
 					});
 					Thread.sleep(5000);
 				}
@@ -1711,20 +1673,6 @@ public class UserDashboardController {
 		Thread thread = new Thread(task);
 		thread.setDaemon(true);
 		thread.start();
-
-	}
-
-	private void checkChannelOnlineStatus() {
-
-	    if(OnlineStatus.getChannel1Status().equalsIgnoreCase("online") 
-	            && OnlineStatus.getChannel2Status().equalsIgnoreCase("online")
-	            && OnlineStatus.getChannel3Status().equalsIgnoreCase("online")
-	            && OnlineStatus.getChannel4Status().equalsIgnoreCase("online")){
-	    	allChannelsOnline =true;
-	    } 
-	    
-	    
-
 
 	}
 
@@ -1772,7 +1720,7 @@ public class UserDashboardController {
 				label.setUserData(macroButtonList.get(i).getCommand());
 
 				box.setOnMouseClicked(e -> {
-					if(StateMachine.getTestState() == StateMachine.TestState.RUNNING) {
+					if (StateMachine.getTestState() == StateMachine.TestState.RUNNING) {
 						Notifications.showWarningAlert("Please try after Current Test once completes...");
 					}
 					else {
@@ -1804,46 +1752,51 @@ public class UserDashboardController {
 						Task<Void> task = new Task<Void>() {
 							@Override
 							protected Void call() throws Exception {
-								aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
-								return null;
-								
-							}
-						
-							@Override
-							protected void succeeded() {
-								Platform.runLater(() -> {
-									bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
-									bottomMainGridPane.getScene().getRoot().setDisable(false);
-								});
-							}
-						
-							@Override
-							protected void failed() {
-								Platform.runLater(() -> {
-									bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
-									bottomMainGridPane.getScene().getRoot().setDisable(false);
-								});
-								// optionally log error: getException()
-							}
-						};
-						
-						new Thread(task).start();
-						
-					} else {
-						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-								currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-								currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-								"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
-						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-						Notifications.showErrorAlert("Macro Button Not Configured");
-						UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-						UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
-								currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-								StateMachine.getCurrentUserLogin(), new Date(),
-								"no macro command found for " + macroButtonList.get(x).getButtonName());
-						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-					}}
+								StateMachine.setMacroPassing(true);
+									aitessProcessControlManagement
+											.WriteMacroCommandToAitess2(label.getUserData().toString());
+
+									return null;
+
+								}
+
+								@Override
+								protected void succeeded() {
+									Platform.runLater(() -> {
+										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+										bottomMainGridPane.getScene().getRoot().setDisable(false);
+									});
+								}
+
+								@Override
+								protected void failed() {
+									Platform.runLater(() -> {
+										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+										bottomMainGridPane.getScene().getRoot().setDisable(false);
+									});
+									// optionally log error: getException()
+								}
+							};
+
+							new Thread(task).start();
+
+						} else {
+							ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+							ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+									currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+									currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(),
+									new Date(),
+									"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
+							appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+							Notifications.showErrorAlert("Macro Button Not Configured");
+							UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+							UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+									currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+									StateMachine.getCurrentUserLogin(), new Date(),
+									"no macro command found for " + macroButtonList.get(x).getButtonName());
+							uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+						}
+					}
 				});
 
 				box.getChildren().add(label);
@@ -1859,6 +1812,10 @@ public class UserDashboardController {
 	private GridPane createRightBottom() {
 		GridPane rightBottomGridPane = new GridPane();
 
+		rightBottomGridPane.setVgap(5);
+		rightBottomGridPane.setHgap(5);
+		rightBottomGridPane
+				.setStyle("-fx-background-color: white; -fx-background-radius: 5px; -fx-border-radius: 5px;");
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
@@ -1868,23 +1825,21 @@ public class UserDashboardController {
 		rightBottomGridPane.getColumnConstraints().addAll(firstColumn);
 		rightBottomGridPane.getRowConstraints().addAll(firstRow);
 
-		VBox box = new VBox();
-		box.setAlignment(Pos.CENTER);
-		Label label1 = new Label("Check sum Info");
-		label1.setCursor(Cursor.HAND);
-		box.getChildren().add(label1);
+		VBox box1 = new VBox();
+		box1.setAlignment(Pos.CENTER_LEFT); // Adjust alignment based on your needs
+		Label label2 = new Label("");
 
-		box.getStyleClass().add("bottom-conatiner-button");
+		label2.textProperty().bind(Bindings.createStringBinding(() -> {
+			String name = StateMachine.getRunningTestName();
+			return (name != null && !name.isEmpty()) ? "  Running Test : " + name.replace("_", " ") : "Status Bar";
+		}, StateMachine.runningTestNameProperty()));
 
-		label1.setOnMouseClicked(event -> {
-			CheckSumController checkSumController = new CheckSumController();
-			checkSumController.createCheckSumDataPopup();
-			
-			GridPane checkSumData = checkSumController.createCheckSumDataPopup();
-			bottomMainGridPane.add(checkSumData, 0, 0, 3, 1);
-		});
+		box1.setCursor(Cursor.HAND);
+		box1.getChildren().add(label2);
+		box1.setStyle("-fx-background-color: #00d9a6;-fx-font-size: 15px; -fx-background-radius: 5px;"
+				+ "-fx-border-radius: 5px;-fx-font-weight: bold; -fx-text-fill: black;");
 
-		rightBottomGridPane.add(box, 0, 0);
+		rightBottomGridPane.add(box1, 0, 0);
 
 		return rightBottomGridPane;
 	}
@@ -2034,10 +1989,10 @@ public class UserDashboardController {
 		GridPane newGridPane2 = (GridPane) newGridPane1.getChildren().get(0);
 
 		TextArea newTextArea = (TextArea) newGridPane2.getChildren().get(0);
-		if(newTextArea instanceof TextArea) {			
+		if (newTextArea instanceof TextArea) {
 			newTextArea.setScrollTop(Double.MAX_VALUE);
 		}
-		
+
 		newGridPane2.setScaleY(0.0);
 
 		ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(300), newGridPane2);
@@ -2073,7 +2028,6 @@ public class UserDashboardController {
 		return bottomMidTopGridPane;
 
 	}
-
 
 	private void setupStatusColumn(TableColumn<CheckSumList, String> statusColumn) {
 		statusColumn.setReorderable(false);
@@ -2179,8 +2133,6 @@ public class UserDashboardController {
 		return checkSumDataBox;
 	}
 
-
-
 	public GridPane getCheckSumDataUserLogin() {
 
 		if (DFCCConstant.isJarBuild) {
@@ -2246,9 +2198,7 @@ public class UserDashboardController {
 
 	}
 
-
-
-private void setupGridPane(GridPane gridPane) {
+	private void setupGridPane(GridPane gridPane) {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(2);
 		ColumnConstraints secondColumn = new ColumnConstraints();
@@ -2267,64 +2217,60 @@ private void setupGridPane(GridPane gridPane) {
 		gridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 	}
 
+	class ToggleSwitch extends HBox {
 
+		private final Label label = new Label();
+		private final Button button = new Button();
 
+		private SimpleBooleanProperty switchedOn = new SimpleBooleanProperty(false);
 
+		public SimpleBooleanProperty switchOnProperty() {
+			return switchedOn;
+		}
 
+		private void init() {
 
-class ToggleSwitch extends HBox {
+			label.setText("OFF");
 
-	private final Label label = new Label();
-	private final Button button = new Button();
+			getChildren().addAll(label, button);
+			button.setOnAction((e) -> {
+				switchedOn.set(!switchedOn.get());
+			});
+			label.setOnMouseClicked((e) -> {
+				switchedOn.set(!switchedOn.get());
+			});
+			setStyle();
+			bindProperties();
+		}
 
-	private SimpleBooleanProperty switchedOn = new SimpleBooleanProperty(false);
+		private void setStyle() {
+			// Default Width
+			setWidth(50);
+			label.setAlignment(Pos.CENTER);
+			label.setStyle("-fx-background-color: red; -fx-text-fill:black; -fx-background-radius: 10px;");
+			setAlignment(Pos.CENTER_LEFT);
+		}
 
-	public SimpleBooleanProperty switchOnProperty() {
-		return switchedOn;
+		private void bindProperties() {
+			label.prefWidthProperty().bind(widthProperty().divide(2));
+			label.prefHeightProperty().bind(heightProperty());
+			button.prefWidthProperty().bind(widthProperty().divide(2));
+			button.prefHeightProperty().bind(heightProperty());
+		}
+
+		public ToggleSwitch() {
+			init();
+			switchedOn.addListener((a, b, c) -> {
+				if (c) {
+					label.setText("ON");
+					setStyle("-fx-background-color: green;");
+					label.toFront();
+				} else {
+					label.setText("OFF");
+					setStyle("-fx-background-color: red;");
+					button.toFront();
+				}
+			});
+		}
 	}
-
-	private void init() {
-
-		label.setText("OFF");
-
-		getChildren().addAll(label, button);
-		button.setOnAction((e) -> {
-			switchedOn.set(!switchedOn.get());
-		});
-		label.setOnMouseClicked((e) -> {
-			switchedOn.set(!switchedOn.get());
-		});
-		setStyle();
-		bindProperties();
-	}
-
-	private void setStyle() {
-		// Default Width
-		setWidth(50);
-		label.setAlignment(Pos.CENTER);
-		label.setStyle("-fx-background-color: red; -fx-text-fill:black; -fx-background-radius: 10px;");
-		setAlignment(Pos.CENTER_LEFT);
-	}
-
-	private void bindProperties() {
-		label.prefWidthProperty().bind(widthProperty().divide(2));
-		label.prefHeightProperty().bind(heightProperty());
-		button.prefWidthProperty().bind(widthProperty().divide(2));
-		button.prefHeightProperty().bind(heightProperty());
-	}
-
-	public ToggleSwitch() {
-		init();
-		switchedOn.addListener((a, b, c) -> {
-			if (c) {
-				label.setText("ON");
-				setStyle("-fx-background-color: green;");
-				label.toFront();
-			} else {
-				label.setText("OFF");
-				setStyle("-fx-background-color: red;");
-				button.toFront();
-			}
-		});
-	}
-}}
+}

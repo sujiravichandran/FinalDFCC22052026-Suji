@@ -191,7 +191,179 @@ public class SessionFileManagement {
 		boolean popupShowed = false;
 		try {
 
-			// Debug.printDebug("Enter Into getTestFilesRunnedSuccess");
+			System.out.println("Enter Into getTestFilesRunnedSuccess");
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
+			List<String> fileIdsRunnedInStages = new ArrayList<String>();
+
+			if (getResponseStageTestFileResult.getCode() != 0) {
+				sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+						.getResponseList();
+				if (sessionStagesTestFilesResultServiceList != null) {
+
+					System.out.println("sessionStagesTestFilesResultServiceList Size"
+							+ sessionStagesTestFilesResultServiceList.size());
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultServiceList) {
+						fileIdsRunnedInStages.add(sessionStagesTestFilesResult.getSelectedtestFileId());
+
+					}
+				}
+
+			}
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping session = new SessionStagesMapping();
+
+			session = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = session.getSessionStagesMappingId();
+			String stagePath = session.getPath();
+			System.out.println("sessionStagesMappingId" + sessionStagesMappingId);
+			System.out.println("stagePath" + stagePath);
+			
+
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse resStagesMap = sessionStagesSelectedTestFilesService
+					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList = new ArrayList<SessionStagesSelectedTestFiles>();
+			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) resStagesMap.getResponseList();
+			Map<String, String> sessionStagesSelectedTestFilesIdAndTestFileId = new HashMap<String, String>();
+			for (SessionStagesSelectedTestFiles sssTestFiles : sessionStagesSelectedTestFilesList) {
+				sessionStagesSelectedTestFilesIdAndTestFileId.put(sssTestFiles.getSessionStagesSelectedTestFilesId(),
+						sssTestFiles.getTestFilesId());
+				System.out.println("sessionStagesSelectedTestFilesList" + sessionStagesSelectedTestFilesList.size());
+			}
+
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse getResponseFileMapping = testFilesStagesMappingService
+					.getTestFilesStagesMappingByLastLevelReference(stageId);
+			List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+			testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+			List<String> filesMappingIds = new ArrayList<String>();
+			if (getResponseFileMapping.getCode() != 0) {
+				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+				if (testFilesStagesMappingList != null) {
+					System.out.println("testFilesStagesMappingList Size" + testFilesStagesMappingList.size());
+					for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+						filesMappingIds.add(testFilesStagesMapping.getTestFileId());
+					}
+				}
+
+			}
+			List<SessionStagesTestFilesResult> lstByKeys = new ArrayList<SessionStagesTestFilesResult>();
+
+			boolean notRunnedAll = false;
+			boolean runnedAllSuccess = true;
+			if (filesMappingIds.size() > 0 && fileIdsRunnedInStages.size() > 0) {
+				for (String fileId : filesMappingIds) {
+
+					if (sessionStagesSelectedTestFilesIdAndTestFileId.values().contains(fileId)) {
+
+						List<String> keys = getKeysByValue(sessionStagesSelectedTestFilesIdAndTestFileId, fileId);
+
+						// List<SessionStagesTestFilesResult> lstByKeys = new
+						// ArrayList<SessionStagesTestFilesResult>();
+
+						for (String key : keys) {
+							System.out.println("Entered KEYS  ==");
+							List<SessionStagesTestFilesResult> lst = sessionStagesTestFilesResultServiceList.stream()
+									.filter(stage -> stage.getSelectedtestFileId().equals(key))
+									.collect(Collectors.toList());
+							if (lst != null) {
+								lstByKeys.addAll(lst);
+							}
+						}
+
+						if (lstByKeys != null) {
+
+							/*
+							 * List<SessionStagesTestFilesResult> lstFilter = lst.stream() .filter(stage ->
+							 * stage.getTestStatus().equalsIgnoreCase("failure"))
+							 * .collect(Collectors.toList()); if(lstFilter!=null) { runnedAllSuccess =
+							 * false; }
+							 */
+							System.out.println("lstByKeys -" + lstByKeys.size());
+							for (SessionStagesTestFilesResult s : lstByKeys) {
+								{
+									/*
+									 * String dStarCount = s.getdStarCount(); int dStarCountInt =
+									 * Integer.parseInt(dStarCount); if (dStarCountInt > 0) { runnedAllSuccess =
+									 * false; }
+									 */
+									String testStatus = s.getTestStatus();
+									if (testStatus != null && !testStatus.equals("")
+											&& !testStatus.equalsIgnoreCase("SUCCESS")) {
+										runnedAllSuccess = false;
+									}
+								}
+
+							}
+						}
+						/*
+						 * else { notRunnedAll = true; }
+						 */
+
+					} else {
+						notRunnedAll = true;
+					}
+				}
+			}
+			
+			
+			
+
+			if (notRunnedAll && runnedAllSuccess) {
+				// stagePath = "C:\\Users\\TECLEVER\\Downloads\\Copied\\";
+				//Added the Status to Application Log Book..Session Stage Results
+				
+				
+				//To Update the Passed Status In UUT Log Book Of Application
+				SessionManagement sessionManagement = new SessionManagement();
+				sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",stageId);
+				
+				
+				System.out.println("STAGE PATH..." + stagePath);
+				Path outputPath = Path.of(stagePath);
+				List<Path> listOfPath = new ArrayList<Path>();
+				System.out.println("lstByKeys...:" + lstByKeys.size());
+				for (SessionStagesTestFilesResult service : lstByKeys) {
+					String pathString = service.getRdfPath() + service.getRdfFileName();
+					Path path = Path.of(pathString);
+					listOfPath.add(path);
+					System.out.println("PATH...." + pathString);
+				}
+
+				copyFilesToOutputFolder(listOfPath, outputPath);
+			}
+
+			System.out.println("notRunnedAll----FLAG" + notRunnedAll);
+			System.out.println("runnedAllSuccess----FLAG" + runnedAllSuccess);
+
+			if (!notRunnedAll && !runnedAllSuccess) {
+				popupShowed = true;
+				System.out.println("Popup Showed Flag True Status Activated");
+
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return popupShowed;
+	}
+
+	
+	
+	// checking the is All Are TestFiles Runned
+	public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
+		
+		boolean popupShowed = false;
+		try {
+
+			System.out.println("Enter Into getTestFilesRunnedSuccess");
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
@@ -313,9 +485,17 @@ public class SessionFileManagement {
 				}
 			}
 
-			if (!notRunnedAll && runnedAllSuccess) {
+			if (notRunnedAll && runnedAllSuccess) {
 				// stagePath = "C:\\Users\\TECLEVER\\Downloads\\Copied\\";
-				Debug.printDebug("STAGE PATH..." + stagePath);
+				//Added the Status to Application Log Book..Session Stage Results
+				
+				
+				//To Update the Passed Status In UUT Log Book Of Application
+				SessionManagement sessionManagement = new SessionManagement();
+				sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",stageId);
+				
+				
+				System.out.println("STAGE PATH..." + stagePath);
 				Path outputPath = Path.of(stagePath);
 				List<Path> listOfPath = new ArrayList<Path>();
 				Debug.printDebug("lstByKeys...:" + lstByKeys.size());
@@ -334,14 +514,157 @@ public class SessionFileManagement {
 
 			if (!notRunnedAll && !runnedAllSuccess) {
 				popupShowed = true;
-				Debug.printDebug("Popup Showed Flag True Status Activated");
+				System.out.println("Popup Showed Flag True Status Activated");
 
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return popupShowed;
+	}
+	
+	
+	// checking the is All Are TestFiles Runned for flag To update Red Or Green
+	public boolean getTestFilesRunnedSuccessForStages(String sessionId, String stageId) {
+		boolean passed = false;
+		try {
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+
+			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+			Map<String, SessionStagesTestFilesResult> fileIdObj = new HashMap<String, SessionStagesTestFilesResult>();
+			List<String> fileIdsRunnedInStages = new ArrayList<String>();
+
+			if (getResponseStageTestFileResult.getCode() != 0) {
+				sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+						.getResponseList();
+				if (sessionStagesTestFilesResultServiceList != null) {
+
+					Debug.printDebug("sessionStagesTestFilesResultServiceList Size"
+							+ sessionStagesTestFilesResultServiceList.size());
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultServiceList) {
+						fileIdsRunnedInStages.add(sessionStagesTestFilesResult.getSelectedtestFileId());
+
+					}
+				}
+
+			}
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+			SessionStagesMapping session = new SessionStagesMapping();
+
+			session = (SessionStagesMapping) getObject.getObject();
+			String sessionStagesMappingId = session.getSessionStagesMappingId();
+			String stagePath = session.getPath();
+			Debug.printDebug("sessionStagesMappingId" + sessionStagesMappingId);
+			Debug.printDebug("stagePath" + stagePath);
+			
+
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse resStagesMap = sessionStagesSelectedTestFilesService
+					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+			List<SessionStagesSelectedTestFiles> sessionStagesSelectedTestFilesList = new ArrayList<SessionStagesSelectedTestFiles>();
+			sessionStagesSelectedTestFilesList = (List<SessionStagesSelectedTestFiles>) resStagesMap.getResponseList();
+			Map<String, String> sessionStagesSelectedTestFilesIdAndTestFileId = new HashMap<String, String>();
+			for (SessionStagesSelectedTestFiles sssTestFiles : sessionStagesSelectedTestFilesList) {
+				sessionStagesSelectedTestFilesIdAndTestFileId.put(sssTestFiles.getSessionStagesSelectedTestFilesId(),
+						sssTestFiles.getTestFilesId());
+				Debug.printDebug("sessionStagesSelectedTestFilesList" + sessionStagesSelectedTestFilesList.size());
+			}
+
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse getResponseFileMapping = testFilesStagesMappingService
+					.getTestFilesStagesMappingByLastLevelReference(stageId);
+			List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+			testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+			List<String> filesMappingIds = new ArrayList<String>();
+			if (getResponseFileMapping.getCode() != 0) {
+				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+				if (testFilesStagesMappingList != null) {
+					Debug.printDebug("testFilesStagesMappingList Size" + testFilesStagesMappingList.size());
+					for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+						filesMappingIds.add(testFilesStagesMapping.getTestFileId());
+					}
+				}
+
+			}
+			List<SessionStagesTestFilesResult> lstByKeys = new ArrayList<SessionStagesTestFilesResult>();
+
+			boolean notRunnedAll = false;
+			boolean runnedAllSuccess = true;
+			if (filesMappingIds.size() > 0 && fileIdsRunnedInStages.size() > 0) {
+				for (String fileId : filesMappingIds) {
+
+					if (sessionStagesSelectedTestFilesIdAndTestFileId.values().contains(fileId)) {
+
+						List<String> keys = getKeysByValue(sessionStagesSelectedTestFilesIdAndTestFileId, fileId);
+
+						// List<SessionStagesTestFilesResult> lstByKeys = new
+						// ArrayList<SessionStagesTestFilesResult>();
+
+						for (String key : keys) {
+							Debug.printDebug("Entered KEYS  ==");
+							List<SessionStagesTestFilesResult> lst = sessionStagesTestFilesResultServiceList.stream()
+									.filter(stage -> stage.getSelectedtestFileId().equals(key))
+									.collect(Collectors.toList());
+							if (lst != null) {
+								lstByKeys.addAll(lst);
+							}
+						}
+
+						if (lstByKeys != null) {
+
+							/*
+							 * List<SessionStagesTestFilesResult> lstFilter = lst.stream() .filter(stage ->
+							 * stage.getTestStatus().equalsIgnoreCase("failure"))
+							 * .collect(Collectors.toList()); if(lstFilter!=null) { runnedAllSuccess =
+							 * false; }
+							 */
+							Debug.printDebug("lstByKeys -" + lstByKeys.size());
+							for (SessionStagesTestFilesResult s : lstByKeys) {
+								{
+									/*
+									 * String dStarCount = s.getdStarCount(); int dStarCountInt =
+									 * Integer.parseInt(dStarCount); if (dStarCountInt > 0) { runnedAllSuccess =
+									 * false; }
+									 */
+									String testStatus = s.getTestStatus();
+									if (testStatus != null && !testStatus.equals("")
+											&& !testStatus.equalsIgnoreCase("SUCCESS")) {
+										runnedAllSuccess = false;
+										return runnedAllSuccess;
+									}
+								}
+
+							}
+						}
+						/*
+						 * else { notRunnedAll = true; }
+						 */
+
+					} else {
+						notRunnedAll = true;
+					}
+				}
+			}
+
+			if (notRunnedAll && runnedAllSuccess) {
+				passed = true;
+			}
+
+			if (!notRunnedAll && !runnedAllSuccess) {
+				//Added the Status to Application Log Book..Session Stage Results
+				passed = false;
 			}
 
 		} catch (Exception ex) {
 			Debug.printDebug(ex.getLocalizedMessage());
 		}
-		return popupShowed;
+		return passed;
 	}
 
 	public StageSummaryDetails getResultsForLevelId(String sessionId, String stageId) {
@@ -540,7 +863,59 @@ public class SessionFileManagement {
 				for (Path sourceFile : sourceFiles) {
 					Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
 					Files.copy(sourceFile, destinationFile);
+					System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+			
+				}
+			} else {
+				System.out.println("Output folder does not exist for the current session.");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	//New Method to copy a list of files to the Misc folder
+	public void copyFilesToSessionMiscFolder1(List<Path> sourceFiles,String sessionId) {
+		try {
+			
+			SessionService sessionService = new SessionService();
+
+			GetObjResponse sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+			SessionEntity sessionDto = new SessionEntity();
+			sessionDto = (SessionEntity) sessionRes.getObject();
+			Path outputFolder = Path.of(sessionDto.getPath());
+			Path newFolderPath = outputFolder.resolve("Misc");
+
+			if (!Files.exists(outputFolder)) {
+				Files.createDirectories(outputFolder);
+				Debug.printDebug("Misc Folder created at: " + outputFolder.toString());
+
+			} else {
+				Debug.printDebug("Misc Folder Already Exits On : " + outputFolder.toString());
+			}
+		
+			LocalDateTime currentDateTime = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String dateFolder = currentDateTime.format(formatter);
+
+			Path newFolderPathDate = newFolderPath.resolve(dateFolder);
+
+			if (!Files.exists(newFolderPathDate)) {
+				Files.createDirectories(newFolderPathDate);
+				Debug.printDebug("Folder created at: " + newFolderPathDate.toString());
+				
+
+			} else {
+				Debug.printDebug("Folder Already Exits On : " + newFolderPathDate.toString());
+			}
+
+			if (newFolderPathDate != null && Files.exists(newFolderPathDate)) {
+				for (Path sourceFile : sourceFiles) {
+					Path destinationFile = newFolderPathDate.resolve(sourceFile.getFileName());
+					Files.copy(sourceFile, destinationFile,StandardCopyOption.REPLACE_EXISTING);
 					Debug.printDebug("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+					deleteFile(sourceFile);
 				}
 			} else {
 				Debug.printDebug("Output folder does not exist for the current session.");
@@ -549,6 +924,55 @@ public class SessionFileManagement {
 			e.printStackTrace();
 		}
 	}
+	
+
+	public void copyFilesToSessionMiscFolder(List<Path> sourceFiles, String sessionId) {
+	    try {
+	        SessionService sessionService = new SessionService();
+	        GetObjResponse sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+	        SessionEntity sessionDto = (SessionEntity) sessionRes.getObject();
+	        Path outputFolder = Path.of(sessionDto.getPath());
+	        Path miscFolderPath = outputFolder.resolve("Misc");
+
+	        // Create Misc folder if it does not exist
+	        if (!Files.exists(miscFolderPath)) {
+	            Files.createDirectories(miscFolderPath);
+	            System.out.println("Misc Folder created at: " + miscFolderPath.toString());
+	            
+	        } else {
+	        	System.out.println("Misc Folder already exists at: " + miscFolderPath.toString());
+	        }
+
+	        // Create date-time based folder (dd-MM-yyyy_HH-mm-ss)
+	        LocalDateTime currentDateTime = LocalDateTime.now();
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
+	        String dateTimeFolderName = currentDateTime.format(formatter);
+	        Path dateTimeFolderPath = miscFolderPath.resolve(dateTimeFolderName);
+
+	        // Create dateTime folder if it does not exist
+	        if (!Files.exists(dateTimeFolderPath)) {
+	            Files.createDirectories(dateTimeFolderPath);
+	            Debug.printDebug("Folder created at: " + dateTimeFolderPath.toString());
+	        } else {
+	            Debug.printDebug("Folder already exists at: " + dateTimeFolderPath.toString());
+	        }
+	        System.out.println("Source Files"+sourceFiles.size());
+	        
+	        // Copy files to the new timestamped folder
+	        for (Path sourceFile : sourceFiles) {
+	        	System.out.println(" Source File Copying");
+	            Path destinationFile = dateTimeFolderPath.resolve(sourceFile.getFileName());
+	            Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+	            System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        System.out.println(e.getLocalizedMessage());
+	    }
+	}
+
+
 	
 
 	public void copyFilesToOutputFolder(Path sourceFile) {
@@ -706,11 +1130,28 @@ public class SessionFileManagement {
 			
 			
 			List<Path> paths = new ArrayList<Path>();
+			List<Path> unSelectedPaths = new ArrayList<Path>();
 			for (CopyFileDTO copyFileDTO : lst) {
-				paths.add(Path.of(copyFileDTO.getRdfFileNamewithPath()));
+				System.out.println(" Flag Checking===="+copyFileDTO.isFlag());
+				if (!copyFileDTO.isFlag()) {
+					System.out.println("Entered to Un Selected Pahts");
+					System.out.println("Un Sleted Path"+copyFileDTO.getRdfFileNamewithPath());
+					unSelectedPaths.add(Path.of(copyFileDTO.getRdfFileNamewithPath()));
+				} else {
+					
+					paths.add(Path.of(copyFileDTO.getRdfFileNamewithPath()));
+				}
+			}
+			if (paths != null) {
+				copyFilesToOutputFolder(paths, Path.of(stagePath));
 			}
 
-			copyFilesToOutputFolder(paths, Path.of(stagePath));
+			if (unSelectedPaths != null) {
+				System.out.println("Entered Into unSelectedPahts "+unSelectedPaths.size());
+				System.out.println("Entered Into unSelectedPahts Adresss"+unSelectedPaths);
+				copyFilesToSessionMiscFolder(unSelectedPaths, sessionId);
+			}
+			
 			response.setResponseCode(1);
 			response.setResponseMessage("Added");
 		
@@ -1252,7 +1693,7 @@ public class SessionFileManagement {
 				Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
 				Files.copy(sourceFile, destinationFile);
 				Debug.printDebug("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
-
+				deleteFile(sourceFile);
 			} else {
 				Debug.printDebug("Output folder does not exist for the current session.");
 			}
@@ -1348,6 +1789,16 @@ public class SessionFileManagement {
 	        res.setResponseMessage("Error occurred while zipping folder: " + e.getMessage());
 	    }
 	    return res;
+	}
+	
+	
+	public void deleteFile(Path sourceFile) {
+		try {
+			File deleteFile = new File(sourceFile.toString());
+			deleteFile.delete();
+		} catch (Exception ex) {
+			ex.getStackTrace();
+		}
 	}
 	
 }
