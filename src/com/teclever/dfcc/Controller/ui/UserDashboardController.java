@@ -1814,7 +1814,7 @@ public class UserDashboardController {
 							
 							
 							
-						}
+						
 
 						} else {
 							ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();

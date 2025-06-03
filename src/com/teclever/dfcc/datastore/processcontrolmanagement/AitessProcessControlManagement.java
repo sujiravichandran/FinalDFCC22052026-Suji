@@ -933,6 +933,13 @@ public class AitessProcessControlManagement {
 								String temp2 = aecTemp.getChannel2Temp().trim();
 								String temp3 = aecTemp.getChannel3Temp().trim();
 								String temp4 = aecTemp.getChannel4Temp().trim();
+								
+								
+					            // Convert to double for comparison
+					            double t1 = Double.parseDouble(temp1);
+					            double t2 = Double.parseDouble(temp2);
+					            double t3 = Double.parseDouble(temp3);
+					            double t4 = Double.parseDouble(temp4);
 
 					            // Check if each temperature is within range and determine status (OK or NOT OK)
 					            String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
@@ -1364,7 +1371,7 @@ public class AitessProcessControlManagement {
 			
 					currentCommand.set(macroCommand1);
 					aitess2ProcessControl.WritingProcess(macroCommand1 + "\n");
-				}
+				
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
