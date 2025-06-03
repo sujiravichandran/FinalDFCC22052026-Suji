@@ -1,6 +1,5 @@
 package com.teclever.dfcc.datastore.processcontrolmanagement;
 
-import java.awt.Taskbar.State;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,11 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.Controller.ui.UserDashboardController;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
@@ -321,7 +322,7 @@ public class AitessProcessControlManagement {
 		
 			
 			WriteAitess1Command("gse_conn=1" + "\n");
-	if(StateMachine.isSelfTestOn()) {
+			if(StateMachine.isSelfTestOn()) {
 				WriteAitess1Command("psc_fcc_pwr_on=0" + "\n");
 			}else {
 				WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
@@ -367,9 +368,12 @@ public class AitessProcessControlManagement {
 							if (s1.contains(">>>")) {
 								Debug.printDebug("Launch time aitess 1 end founded");
 								StateMachine.setAitess1Launched(true);
+								
 								launchAitess = false;
 							}
 						}
+						
+						
 
 						if (switchAitessMethod == true) {
 							if (s1.contains(">>>")) {
@@ -384,6 +388,7 @@ public class AitessProcessControlManagement {
 								WriteAitess1Command("ltm_syntax on" + "\n");
 
 								aitessRunning.setAitess1Switched(true);
+								
 								switchAitessMethod = false;
 							} else if (s1.contains("ValueError")) {
 								Debug.printDebug(
@@ -595,10 +600,11 @@ public class AitessProcessControlManagement {
 							if (output.contains(">>>")) {
 								Debug.printDebug("Launch time aitess 2 end founded");
 								WriteAitess2Command1();
-								StateMachine.setMacroCommand(true);
-								System.out.println("Entred Aites 2 >>>>>>>>>");
+						
 								StateMachine.setAitess2Launched(true);
 								launchAitess1 = false;
+								
+								
 							}
 						}
 
@@ -617,6 +623,18 @@ public class AitessProcessControlManagement {
 							}
 						}
 
+						if (StateMachine.isMacroPassing()) {
+							if (output.contains(">>>")) {
+								System.out.println("Macro Command Ended" + StateMachine.isMacroPassing());
+								Platform.runLater(() -> {
+								StateMachine.setMacroPassing(false);
+								});
+								StateMachine.setMacroCommand(true);
+								
+								System.out.println("After Macro Executed Check   " + StateMachine.isMacroPassing());
+							}
+						}
+						
 						cleanText = cleanOutput(output);
 						cleanText = cleanText.replaceAll("\\(B", "");
 						cleanText = cleanText.replaceAll("]104", "");
@@ -843,31 +861,39 @@ public class AitessProcessControlManagement {
 								String temp2 = scTemp.getChannel2Temp().trim();
 								String temp3 = scTemp.getChannel3Temp().trim();
 								String temp4 = scTemp.getChannel4Temp().trim();
-								// Convert to double for comparison
-								double t1 = Double.parseDouble(temp1);
-								double t2 = Double.parseDouble(temp2);
-								double t3 = Double.parseDouble(temp3);
-								double t4 = Double.parseDouble(temp4);
+					            // Convert to double for comparison
+					            double t1 = Double.parseDouble(temp1);
+					            double t2 = Double.parseDouble(temp2);
+					            double t3 = Double.parseDouble(temp3);
+					            double t4 = Double.parseDouble(temp4);
+					            tminValue = 10;tmaxValue =65;
+					            // Check if each temperature is within range and determine status (OK or NOT OK)
+					            String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status2 = (t2 < tminValue) ? "LESS" : (t2 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status3 = (t3 < tminValue) ? "LESS" : (t3 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status4 = (t4 < tminValue) ? "LESS" : (t4 > tmaxValue) ? "GREATER" : "NORMAL";
+					            
+					            
+					            
+								
+					            //COLOR
+					            String color1 = getColorForStatus(status1);
+					            String color2 = getColorForStatus(status2);
+					            String color3 = getColorForStatus(status3);
+					            String color4 = getColorForStatus(status4);
+					            
 
-								// Check if each temperature is within range and determine status (OK or NOT OK)
-								String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status2 = (t2 < tminValue) ? "LESS" : (t2 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status3 = (t3 < tminValue) ? "LESS" : (t3 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status4 = (t4 < tminValue) ? "LESS" : (t4 > tmaxValue) ? "GREATER" : "NORMAL";
+					            
 
-								// COLOR
-								String color1 = getColorForStatus(status1);
-								String color2 = getColorForStatus(status2);
-								String color3 = getColorForStatus(status3);
-								String color4 = getColorForStatus(status4);
-
-								// Set background colors for each channel to STATE MACHINE
-								channelSCTemp.setChannel1BackgroundColor(color1);
-								channelSCTemp.setChannel2BackgroundColor(color2);
-								channelSCTemp.setChannel3BackgroundColor(color3);
-								channelSCTemp.setChannel4BackgroundColor(color4);
-
-								// SETTING VALUES TO STATE MACHINE
+					            // Set background colors for each channel to STATE MACHINE
+					            channelSCTemp.setChannel1BackgroundColor(color1);
+					            channelSCTemp.setChannel2BackgroundColor(color2);
+					            channelSCTemp.setChannel3BackgroundColor(color3);
+					            channelSCTemp.setChannel4BackgroundColor(color4);
+					            
+					            
+					            
+					            //SETTING VALUES TO STATE MACHINE
 								channelSCTemp.setChannel1Temperature(temp1);
 								channelSCTemp.setChannel2Temperature(temp2);
 								channelSCTemp.setChannel3Temperature(temp3);
@@ -908,31 +934,26 @@ public class AitessProcessControlManagement {
 								String temp3 = aecTemp.getChannel3Temp().trim();
 								String temp4 = aecTemp.getChannel4Temp().trim();
 
-								// Convert to double for comparison
-								double t1 = Double.parseDouble(temp1);
-								double t2 = Double.parseDouble(temp2);
-								double t3 = Double.parseDouble(temp3);
-								double t4 = Double.parseDouble(temp4);
-
-								// Check if each temperature is within range and determine status (OK or NOT OK)
-								String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status2 = (t2 < tminValue) ? "LESS" : (t2 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status3 = (t3 < tminValue) ? "LESS" : (t3 > tmaxValue) ? "GREATER" : "NORMAL";
-								String status4 = (t4 < tminValue) ? "LESS" : (t4 > tmaxValue) ? "GREATER" : "NORMAL";
-
-								// COLOR
-								String color1 = getColorForStatus(status1);
-								String color2 = getColorForStatus(status2);
-								String color3 = getColorForStatus(status3);
-								String color4 = getColorForStatus(status4);
-
-								// Set background colors for each channel to STATE MACHINE
-								channelAECTemp.setChannel1BackgroundColor(color1);
-								channelAECTemp.setChannel2BackgroundColor(color2);
-								channelAECTemp.setChannel3BackgroundColor(color3);
-								channelAECTemp.setChannel4BackgroundColor(color4);
-
-								channelAECTemp.setChannel1Temperature(temp1);
+					            // Check if each temperature is within range and determine status (OK or NOT OK)
+					            String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status2 = (t2 < tminValue) ? "LESS" : (t2 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status3 = (t3 < tminValue) ? "LESS" : (t3 > tmaxValue) ? "GREATER" : "NORMAL";
+					            String status4 = (t4 < tminValue) ? "LESS" : (t4 > tmaxValue) ? "GREATER" : "NORMAL";
+								
+					            //COLOR
+					            String color1 = getColorForStatus(status1);
+					            String color2 = getColorForStatus(status2);
+					            String color3 = getColorForStatus(status3);
+					            String color4 = getColorForStatus(status4);
+					            
+					            // Set background colors for each channel to STATE MACHINE
+					            channelAECTemp.setChannel1BackgroundColor(color1);
+					            channelAECTemp.setChannel2BackgroundColor(color2);
+					            channelAECTemp.setChannel3BackgroundColor(color3);
+					            channelAECTemp.setChannel4BackgroundColor(color4);
+					            
+					            
+					            channelAECTemp.setChannel1Temperature(temp1);
 								channelAECTemp.setChannel2Temperature(temp2);
 								channelAECTemp.setChannel3Temperature(temp3);
 								channelAECTemp.setChannel4Temperature(temp4);
@@ -1337,20 +1358,19 @@ public class AitessProcessControlManagement {
 		macroCommand1 = macroCommand;
 		System.out.println("Entred And Macrocommand Name is::" + macroCommand1);
 		
-
+		Platform.runLater(() -> {
 			try {
 //				Suji Macro
-				if(StateMachine.isMacroPassing()) {
-					currentCommand.set("macroCommand1");
+			
+					currentCommand.set(macroCommand1);
 					aitess2ProcessControl.WritingProcess(macroCommand1 + "\n");
-					System.out.println("Passed Macrocommand::" + macroCommand1);
 				}
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		});
 		
 //		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(macroCommand + "\n"));
 	}
@@ -1360,6 +1380,7 @@ public class AitessProcessControlManagement {
 		scheduler.scheduleAtFixedRate(() -> {
 			updateUIdfccStatus(true);
 		}, 0, DFCCConstant.tempDelayTime, TimeUnit.MILLISECONDS);
+		
 	}
 
 	public void updateUIdfccStatus(boolean fromThread) {
@@ -1575,6 +1596,14 @@ public class AitessProcessControlManagement {
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+					}
+//					Suji After Config.dat changed unloading Driver And Loading Driver::::
+					Debug.printDebug("Switching Load Driver::---- " + smAitess.getDriverName() + " to ::---- "
+							+ currentAitess.getDriverName());
+					pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
+							LoadDriverProcessControlManagement.LoadMode.SWITCH);
+					if (aitessRunning.isAitess1Exited() == true && aitessRunning.isAitess2Exited() == true) {
+						switchAitess(testTypeId);
 					}
 
 					while (aets1SwitchFlagg) {

@@ -98,7 +98,6 @@ public class SelfTestController {
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
-	UserDashboardController userDashboardController = new UserDashboardController();
 
 	public GridPane createSelfTestMainContainerGridPane() {
 		

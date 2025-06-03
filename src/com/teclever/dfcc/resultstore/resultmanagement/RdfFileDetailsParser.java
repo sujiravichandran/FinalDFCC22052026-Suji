@@ -25,11 +25,19 @@ public class RdfFileDetailsParser {
 	static ObjectId o;
 
 	//SAVE API
-	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) {
+	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) throws InterruptedException {
+		
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
+	    
+	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
+	    
 	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
 	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
 	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
+	    
+	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
+	    
+	    
 
 	    MongoCollection<Document> collection1 = ResultStoreConnection.getDatabase().getCollection(sessionId);
 	    ObjectId rdfFileInfoObjectId = null; // Variable to store the ObjectId
@@ -126,6 +134,9 @@ public class RdfFileDetailsParser {
 	                    }
 	                }
 	            }
+	            
+	            System.out.println("Failed Step Object Id Map  size :"+failedStepObjectIdMap.size());
+	            System.out.println("step Object Id Map   Size   :"+stepObjectIdMap.size());
 
 	            collection.updateOne(
 	                    Filters.eq("_id", objectId),
@@ -133,6 +144,9 @@ public class RdfFileDetailsParser {
 	            );
 	        }
 	    Debug.printDebug("Returned Object Id------>>>>>    " + rdfFileInfoObjectId );
+	    
+	    
+	    
 	    return rdfFileInfoObjectId; // Return the ObjectId
 
 	    }

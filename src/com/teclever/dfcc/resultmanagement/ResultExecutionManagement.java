@@ -669,6 +669,7 @@ public class ResultExecutionManagement {
 				List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
 
 				for (String systemInfoId : systemInfoIdList) {
+					if(!systemInfoId.equals(null)) {
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
 					lstInterResults = ResultManagement.getResult(sessionId, objectId);
@@ -749,7 +750,7 @@ public class ResultExecutionManagement {
 
 				Debug.printDebug("Detail List Size" + resultDetailedList.size());
 				}
-		} catch (Exception ex) {
+		}} catch (Exception ex) {
 			response.setCode(1);
 			response.setMsg("Issue Successfully");
 			response.setMsg(ex.getLocalizedMessage());
@@ -837,6 +838,8 @@ public class ResultExecutionManagement {
 				List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
 
 				for (String systemInfoId : systemInfoIdList) {
+					if(!systemInfoId.equals("null"))
+					{
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
 					lstInterResults = ResultManagement.getResult(sessionId, objectId);
@@ -907,7 +910,7 @@ public class ResultExecutionManagement {
 				response.setMsg("Fetched Successfully");
 				Debug.printDebug(
 						"Fetched Successfully       :" + "Detail List Size          :s" + resultDetailedList.size());
-			}
+				}	}
 		} catch (Exception ex) {
 			response.setCode(0);
 			response.setMsg("Issue Successfully");
