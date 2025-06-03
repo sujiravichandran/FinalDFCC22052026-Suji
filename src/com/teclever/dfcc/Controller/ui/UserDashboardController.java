@@ -1,7 +1,10 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import com.teclever.dfcc.DFCCConstant;
@@ -47,6 +50,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -66,6 +70,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -108,7 +113,7 @@ public class UserDashboardController {
 	private ObservableMap<String, channelSCTemp> scBoardTemperatureMapMk1;
 	private ObservableMap<String, channelSCTemp> aecBoardTemperatureMapMk1;
 	
-	
+	public static StringProperty lastupdatedTime2 = new SimpleStringProperty();
 	
 	private List<MacroButtonMapDto> macroButtonList;
 	ChecksumManagement checksumManagement = new ChecksumManagement();
@@ -139,16 +144,26 @@ public class UserDashboardController {
 	
 	private MapChangeListener<String, channelSCTemp> scListenerMk1;
 	private MapChangeListener<String, channelAECTemp> aecListenerMk1;
-
+	
+	public GridPane rightMidSecondGridPane = new GridPane();
+	
 	public UserDashboardController() {
 		terminalStackPane = terminalController1.createTerminalStackPane();
+		
+		
+		
 //		CheckToggleStatus();
 		Platform.runLater(() -> {
+//		if(StateMachine.isMacroPassing() == false) {
+//			rightMidSecondGridPane.setDisable(false);
+//		}
+			
 			initialize();
 		});
 		
 	}
-
+	
+	
 	public void initialize() {
 		updateUI(StateMachine.getTestState());
 
@@ -168,6 +183,8 @@ public class UserDashboardController {
 	}
 
 	public GridPane createUserDashboard() {
+//		getAitessStatus();
+		
 		aitess2ConfigManagement.getAllDfccStatusCommand();
 		bottomMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
@@ -768,6 +785,9 @@ public class UserDashboardController {
 		}
 	}
 
+
+
+	
 	private final Random random = new Random();
 
 	private void generateData() {
@@ -875,18 +895,23 @@ public class UserDashboardController {
 		bottomRightMidSecondGridPane.setHgap(5);
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(25);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(25);
+		
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(25);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		 fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
+		firstRow.setPercentHeight(40);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		secondRow.setPercentHeight(60);
 
-		bottomRightMidSecondGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		bottomRightMidSecondGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		bottomRightMidSecondGridPane.getColumnConstraints().addAll(firstColumn, secondColumn,thirdColumn,fourthColumn);
+		bottomRightMidSecondGridPane.getRowConstraints().addAll(firstRow,secondRow);
 
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER);
@@ -911,11 +936,40 @@ public class UserDashboardController {
 		Label label4 = new Label("N/A");
 		box4.getChildren().add(label4);
 		box4.getStyleClass().add("temp-box");
+		
+		VBox labelbox = new VBox();
+		labelbox.setPadding(new Insets(5, 10, 5, 10));
+		labelbox.getStyleClass().add("label-new-box");
+		
+		Label labelnew = new Label("Last update time :");
+		labelnew.setStyle("label-box");
+		
+		HBox labelnewbox = new HBox(5);
+		
+		System.out.println("lastupdatedTime" + lastupdatedTime2);
+		Label labelnew1 = new Label();
+		
+		lastupdatedTime2.addListener((obs, oldVal, newVal) -> {
+		    Platform.runLater(() -> labelnew1.setText(newVal));
+		});
+		
+		labelnew1.setAlignment(Pos.CENTER);
+		labelnewbox.setAlignment(Pos.CENTER);
+		labelnewbox.getChildren().add(labelnew1);
+		labelnewbox.getStyleClass().add("label-new-box");
+		
+		
+		labelbox.getChildren().addAll(labelnew,labelnewbox);
+		labelbox.setAlignment(Pos.CENTER);
+		
 
 		bottomRightMidSecondGridPane.add(box1, 0, 0);
 		bottomRightMidSecondGridPane.add(box2, 1, 0);
-		bottomRightMidSecondGridPane.add(box3, 0, 1);
-		bottomRightMidSecondGridPane.add(box4, 1, 1);
+		bottomRightMidSecondGridPane.add(box3, 2, 0);
+		bottomRightMidSecondGridPane.add(box4, 3, 0);
+		bottomRightMidSecondGridPane.add(labelbox, 0, 1, 4, 1);
+
+		
 
 		temperatureComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 //			if (!checkAitessStatus.isBothAitessOn()) {
@@ -931,10 +985,13 @@ public class UserDashboardController {
 				if (currentSessionDetails.getUutId().equals("UUT1")) {
 					Platform.runLater(() -> {
 						setMK1Temp(newValue, box1, box2, box3, box4);
+						
 					});
 				} else {
+					Platform.runLater(() -> {
 					getMK1AandMk2TempData(temperatureComboBox.getValue(), boardComboBox.getValue(), box1, box2, box3,
 							box4);
+					});
 				}
 			});
 		});
@@ -970,6 +1027,8 @@ public class UserDashboardController {
 		return bottomRightMidSecondBox;
 
 	}
+
+	
 
 	private void getMK1AandMk2TempData(String temp, String board, VBox box1, VBox box2, VBox box3, VBox box4) {
 		Label label1 = (Label) box1.getChildren().get(0);
@@ -1676,9 +1735,8 @@ public class UserDashboardController {
 
 	}
 
-
-	private GridPane createRigthMidSecond() {
-		GridPane rightMidSecondGridPane = new GridPane();
+	public GridPane createRigthMidSecond() {
+		
 		rightMidSecondGridPane.setVgap(5);
 		rightMidSecondGridPane.setHgap(5);
 
@@ -1722,63 +1780,41 @@ public class UserDashboardController {
 				box.setOnMouseClicked(e -> {
 					if (StateMachine.getTestState() == StateMachine.TestState.RUNNING) {
 						Notifications.showWarningAlert("Please try after Current Test once completes...");
-					}
-					else {
-					if (!label.getUserData().toString().equals("<NOT SET>")) {
-						if (!checkAitessStatus.isBothAitessOn()) {
-							return;
+					} else {
+						if (!label.getUserData().toString().equals("<NOT SET>")) {
+							if (!checkAitessStatus.isBothAitessOn()) {
+								return;
+							}
+							ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+							ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+									currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+									currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(),
+									new Date(),
+									"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
+							appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+							UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+							UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+									currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+									StateMachine.getCurrentUserLogin(), new Date(),
+									"macro command " + label.getUserData().toString() + " executed");
+							uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+
+							// Suji load cursor
+
+							aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+							StateMachine.setMacroPassing(true);
+							
+							
+							
+//							StateMachine.setMacroCommand(true);
+							rightMidSecondGridPane.setDisable(true);
+							
+							
+
+							
+							
+							
 						}
-						ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-						ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-								currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-								currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-								"clicked on " + macroButtonList.get(x).getButtonName() + " macro button");
-						appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-						UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
-						UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
-								currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
-								StateMachine.getCurrentUserLogin(), new Date(),
-								"macro command " + label.getUserData().toString() + " executed");
-						uutLogbookManagement.addUUTLogBook(uutLogBookDto);
-
-						// Suji load cursor
-						Platform.runLater(() -> {
-							bottomMainGridPane.getScene().setCursor(Cursor.WAIT);
-							bottomMainGridPane.getScene().getRoot().setDisable(true);
-							
-							
-						});
-						
-						Task<Void> task = new Task<Void>() {
-							@Override
-							protected Void call() throws Exception {
-								StateMachine.setMacroPassing(true);
-									aitessProcessControlManagement
-											.WriteMacroCommandToAitess2(label.getUserData().toString());
-
-									return null;
-
-								}
-
-								@Override
-								protected void succeeded() {
-									Platform.runLater(() -> {
-										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
-										bottomMainGridPane.getScene().getRoot().setDisable(false);
-									});
-								}
-
-								@Override
-								protected void failed() {
-									Platform.runLater(() -> {
-										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
-										bottomMainGridPane.getScene().getRoot().setDisable(false);
-									});
-									// optionally log error: getException()
-								}
-							};
-
-							new Thread(task).start();
 
 						} else {
 							ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -1803,6 +1839,22 @@ public class UserDashboardController {
 				box.getStyleClass().add("third-conatiner-button");
 				rightMidSecondGridPane.add(box, col, row);
 				i++;
+				
+				
+			}
+			if(StateMachine.isMacroCommand()== true) {
+				Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				alert.setTitle("Success");
+				alert.setHeaderText(null);
+				alert.setContentText("Macro Executed");
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+				    // ? Perform your action here
+					rightMidSecondGridPane.setDisable(false);
+				    System.out.println("User clicked OK - performing action...");
+				}
+			
 			}
 		}
 

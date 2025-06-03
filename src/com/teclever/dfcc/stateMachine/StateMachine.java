@@ -1333,6 +1333,34 @@ public class StateMachine {
 			StateMachine.macroPassing = macroPassing;
 		}
 	   
+//	    for SRU Test File Count
+	    private static boolean sruTestFileCount = false;
+		public static boolean isSruTestFileCount() {
+			return sruTestFileCount;
+		}
+		public static void setSruTestFileCount(boolean sruTestFileCount) {
+			StateMachine.sruTestFileCount = sruTestFileCount;
+		}
 	
-	
+//		for Pbit Option Selection:
+		private static boolean pbitOption1 = false;
+
+		private static boolean pbitOption2 = false;
+
+		public static boolean isPbitOption1() {
+			return pbitOption1;
+		}
+
+		public static void setPbitOption1(boolean pbitOption1) {
+			StateMachine.pbitOption1 = pbitOption1;
+		}
+
+		public static boolean isPbitOption2() {
+			return pbitOption2;
+		}
+
+		public static void setPbitOption2(boolean pbitOption2) {
+			StateMachine.pbitOption2 = pbitOption2;
+		}
+		
 }

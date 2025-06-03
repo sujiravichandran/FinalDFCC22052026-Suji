@@ -90,7 +90,7 @@ public class TestProcessManagement {
 		Response res = new Response();
 
 		try {
-			System.out.println("SRU --- Entred Test ProcessControl Method ");
+			System.out.println("LRU SRU --- Entred Test ProcessControl Method ");
 			Debug.printDebug(
 					"Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
 							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError
@@ -199,6 +199,7 @@ public class TestProcessManagement {
 	private boolean checkAndUpdateAetsProcessStatus(String testTypeId, String ofpConfig) {
 		if (ofpConfig == null) {
 			// Check and update AETS process status
+			System.out.println("Entred Ccheckkkkkk");
 			AitessProcessControlManagement.getInstance().check(testTypeId);
 		} else if (ofpConfig != null) {
 			// Check and update AETS process status
@@ -818,6 +819,25 @@ public class TestProcessManagement {
 	}
 
 	public static List<String> fileNameforDotComList = new ArrayList<String>();
+	
+	// To Find the Total File Count On SRU:ProgressBar
+		private List<String> getTestFilesSruTotalCount(List<String> stageIds) {
+			List<String> fileIdByStages = new ArrayList<String>();
+			for (String stageId : stageIds) {
+				TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
+				TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
+				Map<String, String> testFileResponseMap = testFileResponse.getTestFilesIdName();
+				System.out.println(testFileResponseMap);
+//				List<String> fileIds = testFileResponseMap.keySet().stream().collect(Collectors.toList());
+				
+				Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
+				
+				System.out.println("testFilesIdNametestFilesIdNametestFilesIdName SUJI II " + testFilesIdName.values());
+				
+				fileIdByStages.addAll(testFilesIdName.values());
+			}
+			return fileIdByStages;
+		}
 
 	private void runTestProcess(String sessionId, String stageId, int repeatCount, List<String> listOfFileId,
 			boolean continueWithError, String stageName, String sessionStageMapId, Map<String, String> testFilesIdName,
@@ -826,6 +846,7 @@ public class TestProcessManagement {
 
 			// For generating unique test file IDs
 			SessionStagesTestFilesResultService sessionStageTestFileResult = new SessionStagesTestFilesResultService();
+			LRUTestingController LRUTestingController = new LRUTestingController();
 
 			// Fetching RDF file path from RUN PATH MASTER
 			DownloadFileService downloadFileService = new DownloadFileService();
@@ -841,18 +862,30 @@ public class TestProcessManagement {
 			int incrementNum = 0;
 			boolean lastCount = false;
 			
+			List <String> sruFIleCount = LRUTestingController.sendAllSelectedFileCount();
 
-			for (String testFileIdName1 : listOfFileIds) {
-
-				fileNameforDotComList.add(testFilesIdName.get(testFileIdName1));
-
-			}
+			//Fetch What Are Files Associated With Stages:ProgressBar
+			List<String>listOfIdsSru =	getTestFilesSruTotalCount(sruFIleCount);
+			
+			fileNameforDotComList.clear();
+			
+//			Change for:ProgressBar
+			if (!StateMachine.isSruTestFileCount() && !stageName.equals("SRU") ) {
+				for (String testFileIdName1 : listOfFileIds) {
+					fileNameforDotComList.add(testFilesIdName.get(testFileIdName1));
+				}
+			}else {
+				
+					for (String testFileIdName1 : listOfIdsSru) {
+						fileNameforDotComList.add(testFileIdName1);
+						StateMachine.setSruTestFileCount(false);
+					}
+				}
+			
 			String fullList = String.join(",", fileNameforDotComList);
 
-
 			int sflcnt = countFilesFromString(fullList);
-			fileNameforDotComList.clear();
-
+			
 			if (stageName.equals("SESSION TEST")) {
 
 				SessionTestStateObject.setTotalSelectedTestFileCount(sflcnt);

@@ -32,6 +32,7 @@
 	-fx-font-weight: bold;
 }
 
+
 .midlabel-content{
 -fx-text-fill:button-text;
 -fx-font-size: 20.0px;
@@ -145,7 +146,11 @@
     -fx-border-color: button-bg; 
 }
 
-
+.custom-radio {
+    -fx-text-fill: light-bg;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
 
 .button-image{
 	 -fx-effect: innershadow(gaussian, button-text, 10, 1.0, 0, 0);

@@ -106,7 +106,6 @@ public class SessionTestingController {
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private SessionManagement sessionManagement = new SessionManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	private UserDashboardController userDashboardController = new UserDashboardController();
 //	private AitessProcessControlManagement aitessProcessControlManagement = new AitessProcessControlManagement();
 
 	private TextField testNameField = new TextField();
@@ -333,7 +332,7 @@ public class SessionTestingController {
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		runAllButton.setOnAction(e -> {
-			sessionTestTable.getItems().clear();
+			
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -405,7 +404,6 @@ public class SessionTestingController {
 
 		startButton.setOnAction(e -> {
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
-				sessionTestTable.getItems().clear();
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -693,7 +691,7 @@ public class SessionTestingController {
 		sessionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null) {
 				Label selectedLabel = newValue.getValue();
-
+				sessionTestTable.getItems().clear();
 				if (newValue.getChildren().isEmpty()) {
 					Entry<String, StageIdName> userData = (Entry<String, StageIdName>) selectedLabel.getUserData();
 					getTestListByStageId(userData.getValue().getStageId(), userData.getValue().getTestTypeId());

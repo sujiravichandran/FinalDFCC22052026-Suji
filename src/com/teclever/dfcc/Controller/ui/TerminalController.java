@@ -47,6 +47,7 @@ public class TerminalController {
 		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 		Platform.runLater(() -> {
 			textArea.setEditable(false);
+			System.out.println("Entred Terminal Controller");
             aitessProcessControlManagement.launchAitess(currentTestDetails.getTestType(), textArea);           
         });		
 		

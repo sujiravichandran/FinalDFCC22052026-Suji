@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,8 +15,11 @@ import java.util.stream.Collectors;
 
 import org.hibernate.internal.build.AllowSysOut;
 
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -50,9 +54,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -78,6 +85,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Shape;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 public class LRUTestingController {
@@ -135,10 +145,10 @@ public class LRUTestingController {
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	UserDashboardController userDashboardController = new UserDashboardController();
 
 	private String UUT_ID;
 	private String ofpConfigId;
+	private String stageIdForView;
 
 	private ObservableList<OfpConfigurationDto> ofpVersionDataList;
 	private ObservableList<String> ofpVersionList = FXCollections.observableArrayList();
@@ -155,17 +165,17 @@ public class LRUTestingController {
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
 
-	public String getRUN_CONFIG_ID() {
-		return RUN_CONFIG_ID.get();
-	}
-
-	public void setRUN_CONFIG_ID(String rUN_CONFIG_ID) {
-		RUN_CONFIG_ID.set(rUN_CONFIG_ID);
-	}
-
-	public StringProperty runConfigIdProperty() {
-		return RUN_CONFIG_ID;
-	}
+//	public String getRUN_CONFIG_ID() {
+//		return RUN_CONFIG_ID.get();
+//	}
+//
+//	public void setRUN_CONFIG_ID(String rUN_CONFIG_ID) {
+//		RUN_CONFIG_ID.set(rUN_CONFIG_ID);
+//	}
+//
+//	public StringProperty runConfigIdProperty() {
+//		return RUN_CONFIG_ID;
+//	}
 
 	public LRUTestingController() {
 //    	 initializeTestStop() ;
@@ -187,10 +197,10 @@ public class LRUTestingController {
 		firstRow.setPercentHeight(7);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(53);
+		secondRow.setPercentHeight(60);
 
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(40);
+		thirdRow.setPercentHeight(33);
 
 		lruTestMainContainerGridPane.setVgap(5);
 
@@ -299,7 +309,7 @@ public class LRUTestingController {
 
 		lrumidContainerGridPane.getStyleClass().add("lruTest-mid-container");
 		lrumidContainerGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
-		lrumidContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		lrumidContainerGridPane.getRowConstraints().addAll(firstRow, secondRow,thirdRow);
 
 		lrumidContainerGridPane.add(midTopHbox1(), 0, 0, 3, 1);
 		lrumidContainerGridPane.add(midTopHbox2(), 3, 0);
@@ -368,7 +378,7 @@ public class LRUTestingController {
 
 	private VBox mandatoryTestVBox = new VBox(10);
 
-	private List<String> ofpDownWDMUp(String stageId, String stageName, String testTypeId) {
+	public List<String> ofpDownWDMUp(String stageId, String stageName, String testTypeId) {
 		List<String> testFileList = new ArrayList<>();
 		Task<Response> task = new Task<Response>() {
 			@Override
@@ -439,7 +449,7 @@ public class LRUTestingController {
 		return testFileList;
 	}
 
-	private List<String> ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
+	public List<String> ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
 		List<String> testFileList = new ArrayList<>();
 
 		Task<Response> task = new Task<Response>() {
@@ -585,6 +595,8 @@ public class LRUTestingController {
 //		new Thread(task).start();
 //		
 //	}
+	
+	
 
 	private void initializeOfpVersionComboBox() {
 		ofpVersionList.clear();
@@ -722,6 +734,7 @@ public class LRUTestingController {
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
+							stageIdForView =newButton.getId(); 
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 							
 						} else if (newButton.getText().toLowerCase().contains("pbit")) {
@@ -733,6 +746,7 @@ public class LRUTestingController {
 								pauseButton.setDisable(false);
 								stopButton.setDisable(false);
 								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+								stageIdForView =newButton.getId(); 
 								callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 								
 							} else {
@@ -744,119 +758,161 @@ public class LRUTestingController {
 								}
 
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 300) {
+									try {
+									    FXMLLoader loader = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/PbitPopup.fxml"));
+									    Parent root = loader.load();
 
-									OFPVersion.setPromptText("select OFP Version");
-									OFPVersion.setVisible(false);
+									    // Get the controller that is linked to the FXML
+									    PbitOfpSelectionController controller = loader.getController();
 
-									Dialog<String> dialog2 = new Dialog<>();
-									dialog2.setWidth(500);
-									dialog2.setTitle("Check Status");
+									    Stage stage = new Stage();
+									    stage.setTitle("Edit User");
+									    stage.initModality(Modality.APPLICATION_MODAL);
+									    stage.initStyle(StageStyle.UNDECORATED);
+									    stage.setScene(new Scene(root));
+									    stage.showAndWait();
+									    
+									    System.out.println("StateMachine1: " + StateMachine.isPbitOption1());
+									    System.out.println("StateMachine2: " + StateMachine.isPbitOption2());
 
-									ButtonType okButton = ButtonType.OK;
-									ButtonType cancelButton = ButtonType.CANCEL;
-									dialog2.getDialogPane().getButtonTypes().addAll(okButton, cancelButton);
-
-									Button okButtonNode = (Button) dialog2.getDialogPane().lookupButton(okButton);
-
-									dialog2.setResultConverter(dialogButton -> {
-										if (dialogButton == ButtonType.OK) {
-											return "Ok";
-										} else if (dialogButton == ButtonType.CANCEL) {
-											StateMachine.setTestState(TestState.PENDING);
-											dialog2.close();
-											return "Cancel";
-										}
-										return null;
-									});
-
-									Label ch1Label = new Label("Ch1:");
-									Label ch1Field = new Label(StateMachine.WDMStatus.getChannel1Status());
-
-									Label ch2Label = new Label("Ch2:");
-									Label ch2Field = new Label(StateMachine.WDMStatus.getChannel2Status());
-
-									Label ch3Label = new Label("Ch3:");
-									Label ch3Field = new Label(StateMachine.WDMStatus.getChannel3Status());
-
-									Label ch4Label = new Label("Ch4:");
-									Label ch4Field = new Label(StateMachine.WDMStatus.getChannel4Status());
-
-									GridPane channelsGrid = new GridPane();
-									channelsGrid.setHgap(10);
-									channelsGrid.setVgap(10);
-									channelsGrid.setAlignment(Pos.CENTER_LEFT);
-
-									channelsGrid.add(ch1Label, 0, 0);
-									channelsGrid.add(ch1Field, 1, 0);
-									channelsGrid.add(ch2Label, 2, 0);
-									channelsGrid.add(ch2Field, 3, 0);
-
-									channelsGrid.add(ch3Label, 0, 1);
-									channelsGrid.add(ch3Field, 1, 1);
-									channelsGrid.add(ch4Label, 2, 1);
-									channelsGrid.add(ch4Field, 3, 1);
-
-									RadioButton option1 = new RadioButton("Execute PBIT without loading OFP");
-									RadioButton option2 = new RadioButton("Download OFP and Execute PBIT");
-									ToggleGroup group = new ToggleGroup();
-									option1.setToggleGroup(group);
-									option2.setToggleGroup(group);
-
-									HBox ofpSelection = new HBox();
-									ofpSelection.setAlignment(Pos.CENTER_LEFT);
-									ofpSelection.setSpacing(30);
-
-									ofpSelection.getChildren().addAll(option2, OFPVersion);
-
-									VBox vbox = new VBox(option1, ofpSelection, channelsGrid);
-									vbox.setSpacing(10);
-									dialog2.getDialogPane().setContent(vbox);
-
-									option2.setOnAction(event -> {
-										OFPVersion.setVisible(true);
-										initializeOfpVersionComboBox();
-									});
-
-									option1.setOnAction(event -> {
-
-										OFPVersion.setVisible(false);
-									});
-
-									group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-										if (newValue != null) {
-											okButtonNode.setDisable(false);
-										}
-									});
-
-									okButtonNode.setOnAction(event -> {
-										if (group.getSelectedToggle() == null) {
-											Alert alert = new Alert(Alert.AlertType.WARNING);
-											alert.setTitle("Selection Required");
-											alert.setHeaderText(null);
-											alert.setContentText("Please select an option before proceeding.");
-											alert.showAndWait();
-										} else {
-											tableView.getItems().clear();
-											StateMachine.setMandatoryGonoGo(true);
-											pauseButton.setDisable(false);
-											stopButton.setDisable(false);
-											dialog2.setResult("Ok");
-											dialog2.close();
-										}
-									});
-
-									dialog2.showAndWait().ifPresent(result -> {
-										if ("Cancel".equals(result)) {
-										} else if ("Ok".equals(result)) {
-											if (option1.isSelected()) {
-												ofpUpWDMUp(newButton.getId(), "MANDATORY",
-														newButton.getUserData().toString());
-											} else if (option2.isSelected()) {
-												ofpDownWDMUp(newButton.getId(), "MANDATORY",
-														newButton.getUserData().toString());
-											}
-										}
-									});
+									    if (StateMachine.isPbitOption1()) {
+									        ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+									        StateMachine.setPbitOption1(false);
+									        stageIdForView =newButton.getId(); 
+									    } else if (StateMachine.isPbitOption2()) {
+									        System.out.println("Option2 Selection UIIII");
+									        ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+									        StateMachine.setPbitOption2(false);
+									        stageIdForView =newButton.getId(); 
+									    }
+									    tableView.getItems().clear();
+										StateMachine.setMandatoryGonoGo(true);
+										pauseButton.setDisable(false);
+										stopButton.setDisable(false);
+									    
+									    ofpConfigId =controller.getRUN_CONFIG_ID() ;
+									    System.out.println("controller Rung Config Id Check" + ofpConfigId);
+									} catch (IOException e1) {
+									    e1.printStackTrace();
+									}
+								
+									
+									//before New Popup Change
+//									OFPVersion.setPromptText("select OFP Version");
+//									OFPVersion.setVisible(false);
+//
+//									Dialog<String> dialog2 = new Dialog<>();
+//									dialog2.setWidth(500);
+//									dialog2.setTitle("Check Status");
+//
+//									ButtonType okButton = ButtonType.OK;
+//									ButtonType cancelButton = ButtonType.CANCEL;
+//									dialog2.getDialogPane().getButtonTypes().addAll(okButton, cancelButton);
+//
+//									Button okButtonNode = (Button) dialog2.getDialogPane().lookupButton(okButton);
+//
+//									dialog2.setResultConverter(dialogButton -> {
+//										if (dialogButton == ButtonType.OK) {
+//											return "Ok";
+//										} else if (dialogButton == ButtonType.CANCEL) {
+//											StateMachine.setTestState(TestState.PENDING);
+//											dialog2.close();
+//											return "Cancel";
+//										}
+//										return null;
+//									});
+//
+//									Label ch1Label = new Label("Ch1:");
+//									Label ch1Field = new Label(StateMachine.WDMStatus.getChannel1Status());
+//
+//									Label ch2Label = new Label("Ch2:");
+//									Label ch2Field = new Label(StateMachine.WDMStatus.getChannel2Status());
+//
+//									Label ch3Label = new Label("Ch3:");
+//									Label ch3Field = new Label(StateMachine.WDMStatus.getChannel3Status());
+//
+//									Label ch4Label = new Label("Ch4:");
+//									Label ch4Field = new Label(StateMachine.WDMStatus.getChannel4Status());
+//
+//									GridPane channelsGrid = new GridPane();
+//									channelsGrid.setHgap(10);
+//									channelsGrid.setVgap(10);
+//									channelsGrid.setAlignment(Pos.CENTER_LEFT);
+//
+//									channelsGrid.add(ch1Label, 0, 0);
+//									channelsGrid.add(ch1Field, 1, 0);
+//									channelsGrid.add(ch2Label, 2, 0);
+//									channelsGrid.add(ch2Field, 3, 0);
+//
+//									channelsGrid.add(ch3Label, 0, 1);
+//									channelsGrid.add(ch3Field, 1, 1);
+//									channelsGrid.add(ch4Label, 2, 1);
+//									channelsGrid.add(ch4Field, 3, 1);
+//
+//									RadioButton option1 = new RadioButton("Execute PBIT without loading OFP");
+//									RadioButton option2 = new RadioButton("Download OFP and Execute PBIT");
+//									ToggleGroup group = new ToggleGroup();
+//									option1.setToggleGroup(group);
+//									option2.setToggleGroup(group);
+//
+//									HBox ofpSelection = new HBox();
+//									ofpSelection.setAlignment(Pos.CENTER_LEFT);
+//									ofpSelection.setSpacing(30);
+//
+//									ofpSelection.getChildren().addAll(option2, OFPVersion);
+//
+//									VBox vbox = new VBox(option1, ofpSelection, channelsGrid);
+//									vbox.setSpacing(10);
+//									dialog2.getDialogPane().setContent(vbox);
+//
+//									option2.setOnAction(event -> {
+//										OFPVersion.setVisible(true);
+//										initializeOfpVersionComboBox();
+//									});
+//
+//									option1.setOnAction(event -> {
+//
+//										OFPVersion.setVisible(false);
+//									});
+//
+//									group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+//										if (newValue != null) {
+//											okButtonNode.setDisable(false);
+//										}
+//									});
+//
+//									okButtonNode.setOnAction(event -> {
+//										if (group.getSelectedToggle() == null) {
+//											Alert alert = new Alert(Alert.AlertType.WARNING);
+//											alert.setTitle("Selection Required");
+//											alert.setHeaderText(null);
+//											alert.setContentText("Please select an option before proceeding.");
+//											alert.showAndWait();
+//										} else {
+//											tableView.getItems().clear();
+//											StateMachine.setMandatoryGonoGo(true);
+//											pauseButton.setDisable(false);
+//											stopButton.setDisable(false);
+//											dialog2.setResult("Ok");
+//											dialog2.close();
+//										}
+//									});
+//
+//									dialog2.showAndWait().ifPresent(result -> {
+//										if ("Cancel".equals(result)) {
+//										} else if ("Ok".equals(result)) {
+//											if (option1.isSelected()) {
+//												ofpUpWDMUp(newButton.getId(), "MANDATORY",
+//														newButton.getUserData().toString());
+//											} else if (option2.isSelected()) {
+//												ofpDownWDMUp(newButton.getId(), "MANDATORY",
+//														newButton.getUserData().toString());
+//											}
+//										}
+//									});
+									
+									
+									
 								}
 
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
@@ -873,6 +929,7 @@ public class LRUTestingController {
 										StateMachine.setMandatoryGonoGo(true);
 										pauseButton.setDisable(false);
 										stopButton.setDisable(false);
+										stageIdForView =newButton.getId(); 
 										ofpDownWDMUp(newButton.getId(), "MANDATORY",
 												newButton.getUserData().toString());
 
@@ -893,6 +950,7 @@ public class LRUTestingController {
 										StateMachine.setMandatoryGonoGo(true);
 										pauseButton.setDisable(false);
 										stopButton.setDisable(false);
+										stageIdForView =newButton.getId(); 
 										ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 									}
@@ -904,6 +962,7 @@ public class LRUTestingController {
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
+							stageIdForView =newButton.getId(); 
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 						} else if (newButton.getText().toLowerCase().contains("power")) {
 							tableView.getItems().clear();
@@ -911,6 +970,7 @@ public class LRUTestingController {
 							ofpConfigId = null;
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
+							stageIdForView =newButton.getId(); 
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
 
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
@@ -920,6 +980,7 @@ public class LRUTestingController {
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.AD_DA_INTERFACE);
+							stageIdForView =newButton.getId(); 
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 						}
 
@@ -1200,12 +1261,13 @@ public class LRUTestingController {
 			newButton.setDisable(true);
 
 			newButton.setOnAction(e -> {
+				stageIdForView =newButton.getId(); 
 				if (StateMachine.isConfirmTestFileCompleted()) {
 					Notifications.showWarningAlert(
 							"Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
 					return;
 				}
-
+				tableView.getItems().clear();
 				TestState currentState = StateMachine.getTestState();
 				if (currentState != TestState.RUNNING && currentState != TestState.PAUSED) {
 					getSRUSubStage(newButton.getId(), newButton.getText());
@@ -1384,7 +1446,7 @@ public class LRUTestingController {
 
 	private void initializeButtons() {
 		runAllButton.setOnAction(e -> {
-			tableView.getItems().clear();
+			
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -1424,6 +1486,10 @@ public class LRUTestingController {
 
 				sendSelectedSubStageData();
 				startSruTest();
+				
+				StateMachine.setSruTestFileCount(true);
+				sendAllSelectedFileCount();
+				
 				selectAllButton.setDisable(true);
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
@@ -1454,7 +1520,6 @@ public class LRUTestingController {
 			
 
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
-				tableView.getItems().clear();
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -1637,29 +1702,20 @@ public class LRUTestingController {
 	}
 
 	private void sendSelectedSubStageData() {
+
 		for (TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
+
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 
-				// ✅ Check for STOPPED before proceeding
-				if (StateMachine.getTestState() == StateMachine.TestState.STOPPED) {
-					LRUTestStateObject.updateSelectedSubStagesList(
-							LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(), null);
-					StateMachine.setTestState(TestState.COMPLETED);
-					currentIndex = 0;
-					startButton.setDisable(false);
-					runAllButton.setDisable(false);
-					pauseButton.setDisable(true);
-					stopButton.setDisable(true);
-					sruTestCheckBoxList.setDisable(false);
-					return; // 🔁 Stop here — no further progression
-				}
+				if (newValue != null && newValue.equals("COMPLETED")) {
 
-				if ("COMPLETED".equals(newValue)) {
 					if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 > currentIndex) {
 						currentIndex++;
 						StateMachine.setTestState(TestState.RUNNING);
 						callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId(),
+
 								"SRU", LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getTestTypeId());
+
 						LRUTestStateObject.updateSelectedSubStagesList(
 								LRUTestStateObject.getSelectedSubStagesList().get(currentIndex - 1).getCardId(), null);
 					} else if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 == currentIndex) {
@@ -1674,16 +1730,34 @@ public class LRUTestingController {
 						sruTestCheckBoxList.setDisable(false);
 					}
 				}
-
 			});
 		}
 	}
-
-//	Before Changing- 29-04-2025
+	
 	private void startSruTest() {
 
 		callstartButton(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), "SRU",
 				LRUTestStateObject.getSelectedSubStagesList().get(0).getTestTypeId());
+	}
+	
+	
+//	This is for Getting SRU Test File Count for Progressbar
+	public static String sruFileCount;
+	public List<String> sendAllSelectedFileCount() {
+		System.out.println("Entred SRU FILE COUNT METHOD" );
+	
+		List<String>stageIds = new ArrayList<String>();
+		
+		
+		for(TestCardData t:LRUTestStateObject.getSelectedSubStagesList())
+		{
+		System.out.println("Test File Id"+t.getCardId());
+			stageIds.add(t.getCardId());
+		}
+//		LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId();
+		
+			sruFileCount= LRUTestStateObject.getSelectedSubStagesList().toString();
+			 return stageIds;
 	}
 
 
@@ -1798,66 +1872,92 @@ public class LRUTestingController {
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.COMPLETE_TEST);
+							stageIdForView =newButton.getId(); 
 							callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 						} else if (newButton.getText().toLowerCase().contains("ofp")) {
 							tableView.getItems().clear();
-							initializeOfpVersionComboBox();
+//							Before Changing Popup:
+//							initializeOfpVersionComboBox();
+//
+//							Label selectOfp = new Label("Select OFP");
+//							Dialog<String> dialog2 = new Dialog<>();
+//							dialog2.setWidth(500);
+//							dialog2.setTitle("Check Status");
+//
+//							ButtonType okButton = ButtonType.OK;
+//							ButtonType cancelButton = ButtonType.CANCEL;
+//							dialog2.getDialogPane().getButtonTypes().addAll(okButton, cancelButton);
+//
+//							Button okButtonNode = (Button) dialog2.getDialogPane().lookupButton(okButton);
+//
+//							dialog2.setResultConverter(dialogButton -> {
+//								if (dialogButton == ButtonType.OK) {
+//									return "Ok";
+//								} else if (dialogButton == ButtonType.CANCEL) {
+//									StateMachine.setTestState(TestState.PENDING);
+//									dialog2.close();
+//									return "Cancel";
+//								}
+//								return null;
+//							});
+//
+//							HBox ofpSelection = new HBox();
+//							ofpSelection.setAlignment(Pos.CENTER_LEFT);
+//							ofpSelection.setSpacing(30);
+//
+//							ofpSelection.getChildren().addAll(selectOfp, OFPVersion);
+//
+//							VBox vbox = new VBox(ofpSelection);
+//							vbox.setSpacing(10);
+//							dialog2.getDialogPane().setContent(vbox);
+//
+//							okButtonNode.setOnAction(event -> {
+////								if (group.getSelectedToggle() == null) {
+////									Alert alert = new Alert(Alert.AlertType.WARNING);
+////									alert.setTitle("Selection Required");
+////									alert.setHeaderText(null);
+////									alert.setContentText("Please select an OFP before proceeding.");
+////									alert.showAndWait();
+////								} else {
+//								StateMachine.setMandatoryGonoGo(true);
+//								pauseButton.setDisable(false);
+//								stopButton.setDisable(false);
+//								dialog2.setResult("Ok");
+//								dialog2.close();
+//
+//							});
+//
+//							dialog2.showAndWait().ifPresent(result -> {
+//								if ("Cancel".equals(result)) {
+//								} else if ("Ok".equals(result)) {
+//									callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
+//								}
+//							});
+							
+							try {
+							    FXMLLoader loader = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/OfpLoadinPopup.fxml"));
+							    Parent root = loader.load();
 
-							Label selectOfp = new Label("Select OFP");
-							Dialog<String> dialog2 = new Dialog<>();
-							dialog2.setWidth(500);
-							dialog2.setTitle("Check Status");
+							    // Get the controller that is linked to the FXML
+							    PbitOfpSelectionController controller = loader.getController();
 
-							ButtonType okButton = ButtonType.OK;
-							ButtonType cancelButton = ButtonType.CANCEL;
-							dialog2.getDialogPane().getButtonTypes().addAll(okButton, cancelButton);
+							    Stage stage = new Stage();
+							    stage.setTitle("Edit User");
+							    stage.initModality(Modality.APPLICATION_MODAL);
+							    stage.initStyle(StageStyle.UNDECORATED);
+							    stage.setScene(new Scene(root));
+							    stage.showAndWait();
 
-							Button okButtonNode = (Button) dialog2.getDialogPane().lookupButton(okButton);
-
-							dialog2.setResultConverter(dialogButton -> {
-								if (dialogButton == ButtonType.OK) {
-									return "Ok";
-								} else if (dialogButton == ButtonType.CANCEL) {
-									StateMachine.setTestState(TestState.PENDING);
-									dialog2.close();
-									return "Cancel";
-								}
-								return null;
-							});
-
-							HBox ofpSelection = new HBox();
-							ofpSelection.setAlignment(Pos.CENTER_LEFT);
-							ofpSelection.setSpacing(30);
-
-							ofpSelection.getChildren().addAll(selectOfp, OFPVersion);
-
-							VBox vbox = new VBox(ofpSelection);
-							vbox.setSpacing(10);
-							dialog2.getDialogPane().setContent(vbox);
-
-							okButtonNode.setOnAction(event -> {
-//								if (group.getSelectedToggle() == null) {
-//									Alert alert = new Alert(Alert.AlertType.WARNING);
-//									alert.setTitle("Selection Required");
-//									alert.setHeaderText(null);
-//									alert.setContentText("Please select an OFP before proceeding.");
-//									alert.showAndWait();
-//								} else {
 								StateMachine.setMandatoryGonoGo(true);
 								pauseButton.setDisable(false);
 								stopButton.setDisable(false);
-								dialog2.setResult("Ok");
-								dialog2.close();
-
-							});
-
-							dialog2.showAndWait().ifPresent(result -> {
-								if ("Cancel".equals(result)) {
-								} else if ("Ok".equals(result)) {
-									callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
-								}
-							});
-
+							    
+							    ofpConfigId =controller.getRUN_CONFIG_ID() ;
+							    System.out.println("controller Rung Config Id Check" + ofpConfigId);
+							} catch (IOException e1) {
+							    e1.printStackTrace();
+							}
+							stageIdForView =newButton.getId(); 
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
 						} else if (newButton.getText().toLowerCase().contains("pi")) {
 							tableView.getItems().clear();
@@ -1866,6 +1966,7 @@ public class LRUTestingController {
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PI_CHECK);
+							stageIdForView =newButton.getId(); 
 							callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 						}
 
@@ -2075,31 +2176,83 @@ public class LRUTestingController {
 					File file = new File(lruTestResult.getFileName());
 
 					// Check if the file exists before trying to open it
-					if (file.exists()) {
-						try {
-							String os = System.getProperty("os.name").toLowerCase();
-							if (os.contains("win")) {
-								// Windows-specific code
-								Desktop desktop = Desktop.getDesktop();
-								if (desktop.isSupported(Desktop.Action.OPEN)) {
-									desktop.open(file);
-								} else {
-									Debug.printDebug("Open action not supported on this platform.");
-								}
-							} else if (os.contains("nix") || os.contains("nux")) {
-								// Linux-specific code using xdg-open
-								// Ensure the file path is absolute
-								File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
-								new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
-							} else {
-								Debug.printDebug("Unsupported OS: " + os);
-							}
-						} catch (IOException ex) {
-							Debug.printDebug("Error opening file: " + ex.getMessage());
-						}
+					
+//					old
+//					if (file.exists()) {
+//						try {
+//							String os = System.getProperty("os.name").toLowerCase();
+//							if (os.contains("win")) {
+//								// Windows-specific code
+//								Desktop desktop = Desktop.getDesktop();
+//								if (desktop.isSupported(Desktop.Action.OPEN)) {
+//									desktop.open(file);
+//								} else {
+//									Debug.printDebug("Open action not supported on this platform.");
+//								}
+//							} else if (os.contains("nix") || os.contains("nux")) {
+//								// Linux-specific code using xdg-open
+//								// Ensure the file path is absolute
+//								File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+//								new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+//							} else {
+//								Debug.printDebug("Unsupported OS: " + os);
+//							}
+//						} catch (IOException ex) {
+//							Debug.printDebug("Error opening file: " + ex.getMessage());
+//						}
+//					} else {
+//						Debug.printDebug("File does not exist: " + file.getAbsolutePath());
+//					}
+					
+//					View Button disable:::
+					// Check if the file exists
+					if (file != null && file.exists()) {
+					    viewButton.setDisable(false); // Enable the button if file exists
+
+					    try {
+					        String os = System.getProperty("os.name").toLowerCase();
+					        if (os.contains("win")) {
+					            Desktop desktop = Desktop.getDesktop();
+					            if (desktop.isSupported(Desktop.Action.OPEN)) {
+					                desktop.open(file);
+					            } else {
+					                Debug.printDebug("Open action not supported on this platform.");
+					            }
+					        } else if (os.contains("nix") || os.contains("nux")) {
+					            File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+					            new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+					        } else {
+					            Debug.printDebug("Unsupported OS: " + os);
+					        }
+					    } catch (IOException e1) {
+					        e1.printStackTrace();
+					        Debug.printDebug("Error while opening file: " + e1.getMessage());
+					    }
+
 					} else {
-						Debug.printDebug("File does not exist: " + file.getAbsolutePath());
+						File file1 = new File(lruTestResult.getFileName());
+						
+						
+						Path rdfName = Path.of(lruTestResult.getFileName());
+						String rdfFileName = rdfName.getFileName().toString();
+						
+						SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+						GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(StateMachine.currentSessionDetails.getSessionId(), stageIdForView);
+						SessionStagesMapping session = new SessionStagesMapping();
+
+						session = (SessionStagesMapping) getObject.getObject();
+						String sessionStagesMappingId = session.getSessionStagesMappingId();
+						String stagePath = session.getPath();
+						System.out.println("sessionStagesMappingId" + sessionStagesMappingId);
+						System.out.println("stagePath" + stagePath);
+						System.out.println("SessionId"  + StateMachine.currentSessionDetails.getSessionId() +"      Stage Id   :"+stageIdForView);
+						stagePath = stagePath+rdfFileName;
+						
+					
+					    viewButton.setDisable(true); // Disable the button if file does not exist
+					    Debug.printDebug("File does not exist: " + file1);
 					}
+
 				});
 			}
 

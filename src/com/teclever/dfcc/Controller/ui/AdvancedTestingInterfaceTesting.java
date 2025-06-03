@@ -93,7 +93,6 @@ public class AdvancedTestingInterfaceTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	private UserDashboardController userDashboardController = new UserDashboardController();
 
 	public AdvancedTestingInterfaceTesting() {
 		initializeSearch();

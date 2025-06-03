@@ -127,6 +127,7 @@ public class SessionManagement {
 			sessionDto.setSessionTypeMasterId(sessionDTO.getSessionTypeMasterId());
 			sessionDto.setUserId(sessionDTO.getUserId());
 			sessionDto.setUutId(sessionDTO.getUutId());
+			System.out.println("StartDate  :"+sessionDTO.getStartDate());
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
