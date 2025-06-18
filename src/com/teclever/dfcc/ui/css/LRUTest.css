@@ -1,7 +1,7 @@
 @import url("Global.css");
 
 .lruTest-main-container{
-	-fx-background-color: light-bg;
+	-fx-background-color: secondary-color;
 	-fx-background-radius: 5px;	
 }
 
@@ -27,26 +27,25 @@
 }
 
 .midheader-label{
-	-fx-text-fill:light-bg;
+	-fx-text-fill:secondary-text-color;
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
 }
 
-
 .midlabel-content{
 -fx-text-fill:button-text;
--fx-font-size: 20.0px;
+-fx-font-size: 19.0px;
 -fx-font-weight: bold;
 }
 
 .midheader-hbox{
-	-fx-background-color:dark-bg ;
+	-fx-background-color:lru-test-bg ;
 	-fx-background-radius: 5px;
 }
 
 .mid-Gridepane-content{
 	
--fx-background-color:dark-bg;
+-fx-background-color:lru-test-bg;
 -fx-background-radius: 5px;
 }
 
@@ -58,7 +57,8 @@
 .test-Button-vbox{
 
 -fx-background-radius: 5px;
--fx-background-color:dark-bg;
+-fx-background-color:primary-color;
+-fx-border-color:border2-color;
 }
 
 .checkBox-midcontainer{
@@ -136,21 +136,17 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
 	-fx-pref-height: 35px;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }
 
-.custom-radio {
-    -fx-text-fill: light-bg;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-}
+
 
 .button-image{
 	 -fx-effect: innershadow(gaussian, button-text, 10, 1.0, 0, 0);
@@ -162,7 +158,7 @@
 	-fx-min-width: 400px;
 }
 .progress-label{
-    -fx-text-fill: primary-text-color ;
+    -fx-text-fill:secondary-text-color ;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }

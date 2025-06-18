@@ -7,11 +7,15 @@ import java.io.IOException;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.Debug;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -39,6 +43,8 @@ public class AdvancedTestingController {
 	
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
+	
+	TableView<AdvancedTestResult> tableView = new TableView<>();
 	
 	private TabPane advancedTestingTabPane = new TabPane();
 	
@@ -244,8 +250,7 @@ public class AdvancedTestingController {
 		return advancedTestingResultsGridPane;
 	}
 	
-	private TableView<AdvancedTestResult> createResultTableViewAdvance() {
-		TableView<AdvancedTestResult> tableView = new TableView<>();
+	public TableView<AdvancedTestResult> createResultTableViewAdvance() {
 		
 		tableView.getStylesheets()
 		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
@@ -253,7 +258,7 @@ public class AdvancedTestingController {
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 		 tableView.setPrefHeight(900); 
-		 
+
 		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
 		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 		fileNameColumn.setReorderable(false);
@@ -285,13 +290,15 @@ public class AdvancedTestingController {
 	    
 		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
 		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
-		
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);
 		resultColumn.setMaxWidth(300);
 		resultColumn.setMinWidth(300);
 		resultColumn.setStyle("-fx-alignment: CENTER;");
 		rewriteColumn(resultColumn);
+		
+		
+		
 		
 		// View Button Column
 	    TableColumn<AdvancedTestResult, Void> viewButtonColumn = new TableColumn<>();

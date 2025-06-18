@@ -492,7 +492,7 @@ public class StageConfigurationController {
 			    event -> {
 			       
 			        deleteStage(stage.getId(), stage.getL_name());
-			        System.out.println("Deleting stage: " + stage.getId() + " - " + stage.getL_name());
+//			        System.out.println("Deleting stage: " + stage.getId() + " - " + stage.getL_name());
 			    }
 			);
 		

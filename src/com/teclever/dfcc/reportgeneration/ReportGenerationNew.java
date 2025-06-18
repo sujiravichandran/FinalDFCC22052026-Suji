@@ -838,6 +838,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 //				
 ////				After Suji
 //				String annexureFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/" + "Annexure" + annexureCount + ".pdf";
+//				System.out.println("For Annexure Error" + annexureFilePath);
 //				File annexureFile = new File(annexureFilePath);
 //				if (checkPdf) {
 //					if (annexureFile.exists()) {
@@ -857,6 +858,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 //					pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
 //				}
 //				annexureCount++;
+//				System.out.println("annexureCount" + annexureCount);
 //			}
 //
 //			Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
@@ -940,9 +942,11 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 //
 //			res.setResponseCode(1);
 //			res.setResponseMessage("PQT Report Download Successfully...!");
+//			System.out.println("PDFs Created successfully In Path...!" + filePath);
 //
 //		} catch (Exception e) {
 //			e.printStackTrace();
+//			System.out.println("PDFs Created Not successfully In Path...!!!!!!!!!!!!!!!!!");
 //		}
 //		return res;
 //	}
@@ -2207,6 +2211,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 //					reportTitle = secondCell.toString();
 
 					reportTitle = uutType;
+//					 System.out.println("ESSS::::::UUTReport Title" + reportTitle);
 
 				}
 
@@ -4978,15 +4983,22 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String content = subEntry.getKey();
 
 					String sep = content;
+					// System.out.println("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
+					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
+					// System.out.println("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
+					// System.out.println("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
+					// System.out.println("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
+						// System.out.println("Line Separting Length" + lineSeparting.length);
+						// System.out.println("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 
@@ -5278,16 +5290,24 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 					String subheading = subEntry.getKey();
 					String content = subEntry.getKey();
 
+					// System.out.println("Content In Table:" + content);
 					String sep = content;
+					// System.out.println("sub Heading :" + subheading);
 					String[] subheadinglines = subheading.split("\n");
 
+					// System.out.println("Content Spilt :"+Arrays.toString(contentSpilt));
+					// System.out.println("subheadinglines Length" + subheadinglines.length);
 
 					String lines = subheadinglines[0];
+					// System.out.println("Lines " + lines);
 
 					String[] lineArray = lines.split("|");
+					// System.out.println("Line Array Length" + lineArray.length);
 
 					for (int i = 0; i <= subheadinglines.length - 1; i++) {
 						String[] lineSeparting = subheadinglines[i].split(";");
+						// System.out.println("Line Separting Length" + lineSeparting.length);
+						// System.out.println("subheadinglines---> Index" + i + "---" +
 						// subheadinglines[i]);
 						PdfPTable table1 = new PdfPTable(lineSeparting.length);
 

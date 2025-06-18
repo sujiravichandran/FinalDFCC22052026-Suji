@@ -412,7 +412,7 @@ public class CurrentStageResultController {
 			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
 			briefDataTableView.setPlaceholder(tablePlaceholderLabel);
 		
-
+		
 		briefDataTableView.getColumns().forEach(column -> {
 			column.setMinWidth(column.getText().length() * 18);
 			updateBriefData((TableColumn<BriefData, String>) column);
@@ -491,25 +491,24 @@ public class CurrentStageResultController {
 	
 //	After CHnaging Color::03-04-2025
 	private void updateBriefData(TableColumn<BriefData, String> column) {
-	    column.setCellFactory(col -> new TableCell<BriefData, String>() {
-	        private Label label;
+		column.setCellFactory(col -> new TableCell<BriefData, String>() {
+			private Label label;
 
-	        @Override
-	        protected void updateItem(String item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (item == null || empty) {
-	                setText(null);
-	                setGraphic(null);
-	            } else {
-	                if (label == null) {
-	                    label = new Label();
-	                    label.setWrapText(false);
-	                    label.setAlignment(Pos.CENTER);
-	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;");
-	                }
-
-	                label.setText(item);
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setGraphic(null);
+				} else {
+					if (label == null) {
+						label = new Label();
+						label.setWrapText(false);
+						label.setAlignment(Pos.CENTER);
+						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+						setStyle("-fx-alignment: CENTER;");
+					}
+					label.setText(item);
 
 	                // Set color based on result
 	                if ("FAIL".equalsIgnoreCase(item)) {
@@ -517,16 +516,16 @@ public class CurrentStageResultController {
 	                } else if ("PASS".equalsIgnoreCase(item)) {
 	                    label.setStyle("-fx-text-fill: green; -fx-effect: dropshadow(one-pass-box, white, 5, 2, 0, 0);");
 	                } else {
-	                    label.setStyle("-fx-text-fill: white;");
+					label.setStyle("-fx-text-fill: #000000; ");
 	                }
 
-	                label.setMinWidth(label.getText().length() * 18);
-	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 18);
-	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-	            }
-	        }
-	    });
+					label.setMinWidth(label.getText().length() * 18);
+					setGraphic(label);
+					this.setMinWidth(label.getText().length() * 18);
+					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+				}
+			}
+		});
 	}
 
 	public ScrollPane createDetailedDataTable() {
@@ -648,7 +647,7 @@ public class CurrentStageResultController {
 						setStyle("-fx-alignment: CENTER;");
 					}
 					label.setText(item);
-					label.setStyle("-fx-text-fill: white;");
+					label.setStyle("-fx-text-fill: #000000;");
 					label.setMinWidth(label.getText().length() * 14);
 					setGraphic(label);
 					this.setMinWidth(label.getText().length() * 14);

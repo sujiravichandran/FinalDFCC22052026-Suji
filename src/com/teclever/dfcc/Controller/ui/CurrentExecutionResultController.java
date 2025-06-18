@@ -400,6 +400,7 @@ public class CurrentExecutionResultController {
 	
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
+		
 		Platform.runLater(() -> {
     		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
     		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
@@ -438,6 +439,8 @@ public class CurrentExecutionResultController {
 					newBriefData.setResult("PASS");
 				}
 				
+
+
 				
 				newBriefData.setTestMode(data.getTestMode());
 				briefDataList.add(newBriefData);
@@ -529,25 +532,24 @@ public class CurrentExecutionResultController {
 	
 //	After CHnaging Color::03-04-2025
 	private void updateBriefData(TableColumn<BriefData, String> column) {
-	    column.setCellFactory(col -> new TableCell<BriefData, String>() {
-	        private Label label;
+		column.setCellFactory(col -> new TableCell<BriefData, String>() {
+			private Label label;
 
-	        @Override
-	        protected void updateItem(String item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (item == null || empty) {
-	                setText(null);
-	                setGraphic(null);
-	            } else {
-	                if (label == null) {
-	                    label = new Label();
-	                    label.setWrapText(false);
-	                    label.setAlignment(Pos.CENTER);
-	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-	                    setStyle("-fx-alignment: CENTER;");
-	                }
-
-	                label.setText(item);
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setGraphic(null);
+				} else {
+					if (label == null) {
+						label = new Label();
+						label.setWrapText(false);
+						label.setAlignment(Pos.CENTER);
+						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+						setStyle("-fx-alignment: CENTER;");
+					}
+					label.setText(item);
 
 	                // Set color based on result
 	                if ("FAIL".equalsIgnoreCase(item)) {
@@ -555,18 +557,17 @@ public class CurrentExecutionResultController {
 	                } else if ("PASS".equalsIgnoreCase(item)) {
 	                    label.setStyle("-fx-text-fill: green; -fx-effect: dropshadow(one-pass-box, white, 5, 2, 0, 0);");
 	                } else {
-	                    label.setStyle("-fx-text-fill: white;");
+					label.setStyle("-fx-text-fill: black; ");
 	                }
 
-	                label.setMinWidth(label.getText().length() * 18);
-	                setGraphic(label);
-	                this.setMinWidth(label.getText().length() * 18);
-	                col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
-	            }
-	        }
-	    });
+					label.setMinWidth(label.getText().length() * 18);
+					setGraphic(label);
+					this.setMinWidth(label.getText().length() * 18);
+					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+				}
+			}
+		});
 	}
-
 
 	public ScrollPane createDetailedDataTable() {
 		detailedDataList.clear();
@@ -679,7 +680,7 @@ public class CurrentExecutionResultController {
 						setStyle("-fx-alignment: CENTER;");
 					}
 					label.setText(item);
-					label.setStyle("-fx-text-fill: white;");
+					label.setStyle("-fx-text-fill: black;");
 					label.setMinWidth(label.getText().length() * 14);
 					setGraphic(label);
 					this.setMinWidth(label.getText().length() * 14);

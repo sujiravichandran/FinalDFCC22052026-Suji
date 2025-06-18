@@ -48,35 +48,22 @@ public class StepParser {
 
 	    File file = new File(filePath);
 	 
-	    System.out.println("Length Of File Wait  :"+file.length());
-	    try
-	    {
-//	    Mani Check:::
-		if (file.exists()) {
-			if (file.length() < 1) {
-				Thread.sleep(2000);
-				System.out.println("Length Of First   :"+file.length());
-			}
-			
-			if (file.length() < 1) {
-				Thread.sleep(3000);
-				System.out.println("Length Of Second   :"+file.length());
-			}
-		}
-	    }
-	    catch(Exception ex)
-	    {
-	    	ex.printStackTrace();
-	    }
-	    
-//		K1 Check::
-//		int maxAttempts = 20;
-//		int attempts = 0;
-//
-//		while (file.length() < 1 && attempts < maxAttempts) {
-//		    Thread.sleep(100); // wait for 100 milliseconds
-//		    attempts++;
+	    System.out.println("Length Of File Before Wait  :"+file.length());
+//		if (file.exists()) {
+//			if (file.length() < 1) {
+//				Thread.sleep(5000);
+//				System.out.println("Length Of First Thread Sleep 1st :"+file.length());
+//			}
+//			
+//			if (file.length() < 1) {
+//				Thread.sleep(3000);
+//				System.out.println("Length Of Second  Thread Sleep 2nd :"+file.length());
+//			}
 //		}
+	    
+	    Thread.sleep(5000);
+
+	    System.out.println("Length Of File After Wait  :"+file.length());
 			    
 	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 	        String line;

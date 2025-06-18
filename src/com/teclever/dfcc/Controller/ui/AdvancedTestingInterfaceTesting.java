@@ -11,13 +11,16 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -75,7 +78,7 @@ public class AdvancedTestingInterfaceTesting {
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 
-	private VBox repeatCountVBox = new VBox();
+	private HBox repeatCountHBox = new HBox();
 	private Label repeatCountLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
 	private Label repeatNotLabel = new Label();
@@ -83,8 +86,8 @@ public class AdvancedTestingInterfaceTesting {
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
 
-	private VBox buttonMainVBox = new VBox(15);
-	private HBox allButtonHBox = new HBox(15);
+	private HBox buttonMainHBox = new HBox(15);
+	private HBox allButtonHBox = new HBox(5);
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
@@ -93,6 +96,8 @@ public class AdvancedTestingInterfaceTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	
+	private AdvancedTestingController advancedTestingController;
 
 	public AdvancedTestingInterfaceTesting() {
 		initializeSearch();
@@ -106,15 +111,18 @@ public class AdvancedTestingInterfaceTesting {
 		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		firstRow.setPercentHeight(78.5);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(21.5);
 
 		tab2MainGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		tab2MainGridPane.getRowConstraints().addAll(firstRow);
+		tab2MainGridPane.getRowConstraints().addAll(firstRow,secondRow);
 
 		tab2MainGridPane.setHgap(5);
-
+		tab2MainGridPane.setVgap(5);
 		tab2MainGridPane.add(createLeftSide(), 0, 0);
 		tab2MainGridPane.add(createRightSide(), 1, 0);
+		tab2MainGridPane.add(createButtonBox(),0,1,2, 1);
 
 		return tab2MainGridPane;
 	}
@@ -159,6 +167,8 @@ public class AdvancedTestingInterfaceTesting {
 
 	}
 
+	
+//	AdvancedTestingController a = new AdvancedTestingController();
 	private VBox createLeftSide() {
 		ObservableList<TestCardData> interfaceTestList = AdvancedTestStateObject.getInterfaceTestList();
 
@@ -186,6 +196,13 @@ public class AdvancedTestingInterfaceTesting {
 				getTestListByStageId(selectedData.getCardId(), selectedData.getTestTypeId());
 				selectedStageId = selectedData.getCardId();
 				selectedTestTypeId = selectedData.getTestTypeId();
+				
+//				For Clearing Table ADta and Moving Confirmation Flag:
+				if (StateMachine.getTestState() != TestState.RUNNING) {
+//					System.out.println("Entred Clearing method after selection");
+					StateMachine.setAdvancedTestInterfaceOk(true);
+
+				}
 			}
 		});
 
@@ -279,17 +296,17 @@ public class AdvancedTestingInterfaceTesting {
 		firstRow.setPercentHeight(12);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(55);
+		secondRow.setPercentHeight(88);
 
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(32);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(32);
 
 		rightSideGridPane.getColumnConstraints().addAll(firstColumn);
-		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow);
 		rightSideGridPane.setVgap(5);
 		rightSideGridPane.add(createSearchFile(), 0, 0);
 		rightSideGridPane.add(createTestListView(), 0, 1);
-		rightSideGridPane.add(createButtonBox(), 0, 2);
+//		rightSideGridPane.add(createButtonBox(), 0, 2);
 		return rightSideGridPane;
 	}
 
@@ -400,6 +417,47 @@ public class AdvancedTestingInterfaceTesting {
 		startButton.setOnAction(e -> {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				
+				if (StateMachine.isAdvancedTestInterfaceOk()) {
+
+					// Checking With List
+					boolean popupRDFFiles = false;
+					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+								popupRDFFiles = true;
+
+							}
+						}
+
+						if (popupRDFFiles) {
+//							System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+							}
+							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						} else {
+							SessionFileManagement session = new SessionFileManagement();
+//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//									+ DFCCConstant.FailedStagesRdfPaths.size());
+							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						}
+					}
+//
+//					System.out.println("Entred Clear Advanced Interface OK");
+//					System.out.println("Before Advanced Interface table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
+			        StateMachine.setAdvancedTestOk(false);
+					 advancedTestingController.createResultTableViewAdvance().getItems().clear();
+//					 System.out.println("After Advanced Interface table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
+
+					StateMachine.setAdvancedTestInterfaceOk(false);
+				}
+				
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -493,6 +551,7 @@ public class AdvancedTestingInterfaceTesting {
 		});
 
 		stopButton.setOnAction(e -> {
+			
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -502,6 +561,7 @@ public class AdvancedTestingInterfaceTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -516,14 +576,14 @@ public class AdvancedTestingInterfaceTesting {
 			runAllButton.setDisable(false);
 		});
 
-		repeatCountLabel.setText("Repeat Count");
-		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
+		repeatCountLabel.setText("Repeat Count(1 to 100)");
+		//repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
 		repeatNotLabel.setTextFill(Color.WHITE);
 		repeatNotLabel.setWrapText(true);
 		repeatCountLabel.getStyleClass().add("advanced-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("advanced-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
-		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
+		repeatCountHBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
 
 		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
@@ -550,11 +610,12 @@ public class AdvancedTestingInterfaceTesting {
 //		    }
 //		});
 
-		repeatCountVBox.setAlignment(Pos.CENTER);
-		repeatCountVBox.setPadding(new Insets(5));
-		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
+		repeatCountHBox.setAlignment(Pos.CENTER);
+		//repeatCountVBox.setPadding(new Insets(5));
+		repeatCountHBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
+		allButtonHBox.setAlignment(Pos.CENTER);
 
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
@@ -562,13 +623,13 @@ public class AdvancedTestingInterfaceTesting {
 
 		progressBarHBox.setAlignment(Pos.CENTER);
 
-		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
-		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
+//		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
+//		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
-		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+		buttonMainHBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
-		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
+		buttonHBox.getChildren().addAll(repeatCountHBox, buttonMainHBox);
 
 		AdvancedTestStateObject.interfaceTestStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {

@@ -70,7 +70,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -106,12 +105,15 @@ public class UserDashboardController {
 	private GridPane bottomMainGridPane = new GridPane();
 	private GridPane bottomGridPane = new GridPane();
 	private GridPane bottomMidTopGridPane = new GridPane();
+	
+	private GridPane lastUpdateTime = new GridPane();
 
 	private ObservableMap<String, ChannelTemperature> scBoardTemperatureMap;
 	private ObservableMap<String, ChannelTemperature> aecBoardTemperatureMap;
-	
+
 	private ObservableMap<String, channelSCTemp> scBoardTemperatureMapMk1;
 	private ObservableMap<String, channelSCTemp> aecBoardTemperatureMapMk1;
+
 	
 	public static StringProperty lastupdatedTime2 = new SimpleStringProperty();
 	
@@ -138,10 +140,10 @@ public class UserDashboardController {
 	private StackPane stack = new StackPane();
 	private HBox toggleSwitch = new HBox();
 	TerminalController terminalController1 = new TerminalController();
-	
+
 	private MapChangeListener<String, ChannelTemperature> scListener;
 	private MapChangeListener<String, ChannelTemperature> aecListener;
-	
+
 	private MapChangeListener<String, channelSCTemp> scListenerMk1;
 	private MapChangeListener<String, channelAECTemp> aecListenerMk1;
 	
@@ -149,10 +151,8 @@ public class UserDashboardController {
 	
 	public UserDashboardController() {
 		terminalStackPane = terminalController1.createTerminalStackPane();
-		
-		
-		
 //		CheckToggleStatus();
+		
 		Platform.runLater(() -> {
 //		if(StateMachine.isMacroPassing() == false) {
 //			rightMidSecondGridPane.setDisable(false);
@@ -160,16 +160,15 @@ public class UserDashboardController {
 			
 			initialize();
 		});
-		
+
 	}
-	
-	
+
 	public void initialize() {
 		updateUI(StateMachine.getTestState());
 
-	    StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
-	        updateUI(newState);
-	    });
+		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
+			updateUI(newState);
+		});
 	}
 
 	private void updateUI(TestState state) {
@@ -183,8 +182,6 @@ public class UserDashboardController {
 	}
 
 	public GridPane createUserDashboard() {
-//		getAitessStatus();
-		
 		aitess2ConfigManagement.getAllDfccStatusCommand();
 		bottomMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
@@ -376,6 +373,7 @@ public class UserDashboardController {
 							"session " + currentSessionDetails.getSessionName() + " closed");
 					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				}
+
 				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null, labelText);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
@@ -429,6 +427,10 @@ public class UserDashboardController {
 							SessionFileManagement session = new SessionFileManagement();
 							LogOutFileCopyResponse response = session
 									.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+							
+							
+							
+							
 							if (response.getCode() == 1) {
 								aitessProcessControlManagement.endAllProcessOnLogout();
 								Platform.exit();
@@ -570,13 +572,16 @@ public class UserDashboardController {
 		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(38);
+		secondRow.setPercentHeight(23);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(26);
 
 		RowConstraints fourthRow = new RowConstraints();
 		fourthRow.setPercentHeight(26);
+		
+		RowConstraints fifthRow = new RowConstraints();
+		fifthRow.setPercentHeight(15);
 
 		bottomRightMidGridPane.getColumnConstraints().add(firstColumn);
 		bottomRightMidGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow);
@@ -585,10 +590,40 @@ public class UserDashboardController {
 		bottomRightMidGridPane.add(createBottomRightMidSecond(), 0, 1);
 		bottomRightMidGridPane.add(createBottomRightMidThird(), 0, 2);
 		bottomRightMidGridPane.add(createBottomRightMidFourth(), 0, 3);
+		bottomRightMidGridPane.add(createBottomRightLastUpdateTime(), 0, 4);
+		
 
 		bottomRightMidPane.getChildren().add(bottomRightMidGridPane);
 		return bottomRightMidGridPane;
 	}
+	
+	private HBox createBottomRightLastUpdateTime() {
+		HBox labelbox = new HBox();
+		labelbox.getStyleClass().add("label-box");
+		
+		Label labelnew = new Label("Last update time :");
+		
+		
+		HBox labelnewbox = new HBox(5);
+		Label labelnew1 = new Label();
+		
+		lastupdatedTime2.addListener((obs, oldVal, newVal) -> {
+		    Platform.runLater(() -> labelnew1.setText(newVal));
+		});
+		
+		labelnew1.setAlignment(Pos.CENTER);
+		labelnewbox.setAlignment(Pos.CENTER);
+		labelnewbox.getChildren().add(labelnew1);
+		labelnewbox.getStyleClass().add("label-new-box");
+		
+		
+		labelbox.getChildren().addAll(labelnew,labelnewbox);
+		labelbox.setAlignment(Pos.CENTER);
+		lastUpdateTime.getChildren().add(labelbox);
+		
+		return labelbox;
+	}
+	
 
 	private GridPane createBottomRightMidFirst() {
 //		GridPane bottomRightMidFirstGridPane = new GridPane();
@@ -731,15 +766,15 @@ public class UserDashboardController {
 
 		toggleButton.setOnMouseClicked(event -> {
 			onClickToggle(background, toggleButton, toggleLabel);
+
 		});
 		toggleButton.setCursor(Cursor.HAND);
 
 		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
 
 			TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
-			
+
 			if (dfccCheckStatus.getDfccPowerStatus().get()) {
-				System.out.println("Entered GREEn");
 				Platform.runLater(() -> {
 					transition.setToX(26);
 					background.setFill(Color.GREEN);
@@ -750,7 +785,6 @@ public class UserDashboardController {
 			}
 
 			else {
-				System.out.println("Entred RED");
 				Platform.runLater(() -> {
 					transition.setToX(-26);
 					background.setFill(Color.RED);
@@ -764,7 +798,8 @@ public class UserDashboardController {
 
 		return toggleSwitch;
 	}
-	
+
+//	Before Suji CHange
 	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return;
@@ -772,7 +807,7 @@ public class UserDashboardController {
 		
 		if (StateMachine.isAllowToggle()) {
 			StateMachine.setAllowToggle(false);
-			if (dfccCheckStatus.getDfccPowerStatus().get()) {				
+			if (dfccCheckStatus.getDfccPowerStatus().get()) {
 				aitessProcessControlManagement.WriteDfccPowerOffCommandToAitess2();
 			} else {
 				Dialog<ButtonType> dialog = new Dialog<>();
@@ -783,11 +818,33 @@ public class UserDashboardController {
 				aitessProcessControlManagement.WriteDfccPowerOnCommandToAitess2();
 			}
 		}
+		
+
+		if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
+				&& OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
+				&& OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
+				&& OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
+			Platform.runLater(() -> {
+				
+				TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+				transition.setToX(-26);
+				background.setFill(Color.RED);
+				toggleLabel.setText("OFF");
+				StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+				transition.play();
+				
+				 // Show popup alert
+		        Alert alert = new Alert(Alert.AlertType.WARNING);
+		        alert.setTitle("DFCC Power Alert");
+		        alert.setHeaderText(null);
+		        alert.setContentText("All channels are offline. Please check that DFCC is turned ON.");
+		        alert.showAndWait();
+				
+			});
+		}
+		
 	}
 
-
-
-	
 	private final Random random = new Random();
 
 	private void generateData() {
@@ -905,13 +962,13 @@ public class UserDashboardController {
 		 fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(40);
+		firstRow.setPercentHeight(100);
 
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(60);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(60);
 
 		bottomRightMidSecondGridPane.getColumnConstraints().addAll(firstColumn, secondColumn,thirdColumn,fourthColumn);
-		bottomRightMidSecondGridPane.getRowConstraints().addAll(firstRow,secondRow);
+		bottomRightMidSecondGridPane.getRowConstraints().addAll(firstRow);
 
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER);
@@ -937,37 +994,14 @@ public class UserDashboardController {
 		box4.getChildren().add(label4);
 		box4.getStyleClass().add("temp-box");
 		
-		VBox labelbox = new VBox();
-		labelbox.setPadding(new Insets(5, 10, 5, 10));
-		labelbox.getStyleClass().add("label-new-box");
 		
-		Label labelnew = new Label("Last update time :");
-		labelnew.setStyle("label-box");
-		
-		HBox labelnewbox = new HBox(5);
-		
-		System.out.println("lastupdatedTime" + lastupdatedTime2);
-		Label labelnew1 = new Label();
-		
-		lastupdatedTime2.addListener((obs, oldVal, newVal) -> {
-		    Platform.runLater(() -> labelnew1.setText(newVal));
-		});
-		
-		labelnew1.setAlignment(Pos.CENTER);
-		labelnewbox.setAlignment(Pos.CENTER);
-		labelnewbox.getChildren().add(labelnew1);
-		labelnewbox.getStyleClass().add("label-new-box");
-		
-		
-		labelbox.getChildren().addAll(labelnew,labelnewbox);
-		labelbox.setAlignment(Pos.CENTER);
 		
 
 		bottomRightMidSecondGridPane.add(box1, 0, 0);
 		bottomRightMidSecondGridPane.add(box2, 1, 0);
 		bottomRightMidSecondGridPane.add(box3, 2, 0);
 		bottomRightMidSecondGridPane.add(box4, 3, 0);
-		bottomRightMidSecondGridPane.add(labelbox, 0, 1, 4, 1);
+		//bottomRightMidSecondGridPane.add(labelbox, 0, 1, 4, 1);
 
 		
 
@@ -985,7 +1019,6 @@ public class UserDashboardController {
 				if (currentSessionDetails.getUutId().equals("UUT1")) {
 					Platform.runLater(() -> {
 						setMK1Temp(newValue, box1, box2, box3, box4);
-						
 					});
 				} else {
 					Platform.runLater(() -> {
@@ -1027,8 +1060,6 @@ public class UserDashboardController {
 		return bottomRightMidSecondBox;
 
 	}
-
-	
 
 	private void getMK1AandMk2TempData(String temp, String board, VBox box1, VBox box2, VBox box3, VBox box4) {
 		Label label1 = (Label) box1.getChildren().get(0);
@@ -1410,7 +1441,6 @@ public class UserDashboardController {
 								() -> "-fx-background-color: " + channelSCTemp.channel1BackgroundColorProperty().get(),
 								channelSCTemp.channel1BackgroundColorProperty()));
 			});
-
 			Platform.runLater(() -> {
 				label2.textProperty().bind(channelSCTemp.channel2TemperatureProperty());
 			});
@@ -1420,7 +1450,6 @@ public class UserDashboardController {
 								() -> "-fx-background-color: " + channelSCTemp.channel2BackgroundColorProperty().get(),
 								channelSCTemp.channel2BackgroundColorProperty()));
 			});
-
 			Platform.runLater(() -> {
 				label3.textProperty().bind(channelSCTemp.channel3TemperatureProperty());
 			});
@@ -1430,7 +1459,6 @@ public class UserDashboardController {
 								() -> "-fx-background-color: " + channelSCTemp.channel3BackgroundColorProperty().get(),
 								channelSCTemp.channel3BackgroundColorProperty()));
 			});
-
 			Platform.runLater(() -> {
 				label4.textProperty().bind(channelSCTemp.channel4TemperatureProperty());
 			});
@@ -1454,7 +1482,6 @@ public class UserDashboardController {
 								() -> "-fx-background-color: " + channelAECTemp.channel1BackgroundColorProperty().get(),
 								channelAECTemp.channel1BackgroundColorProperty()));
 			});
-
 			Platform.runLater(() -> {
 				label2.textProperty().bind(channelAECTemp.channel2TemperatureProperty());
 			});
@@ -1465,7 +1492,6 @@ public class UserDashboardController {
 								() -> "-fx-background-color: " + channelAECTemp.channel2BackgroundColorProperty().get(),
 								channelAECTemp.channel2BackgroundColorProperty()));
 			});
-
 			Platform.runLater(() -> {
 				label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
 			});
@@ -1511,18 +1537,22 @@ public class UserDashboardController {
 		bottomRightMidThirdGridPane.setHgap(5);
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(25);
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(25);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(50);
+		thirdColumn.setPercentWidth(25);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
+		firstRow.setPercentHeight(100);
 
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(50);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(50);
 
-		bottomRightMidThirdGridPane.getColumnConstraints().addAll(firstColumn, thirdColumn);
-		bottomRightMidThirdGridPane.getRowConstraints().addAll(firstRow, thirdRow);
+		bottomRightMidThirdGridPane.getColumnConstraints().addAll(firstColumn,secondColumn, thirdColumn,fourthColumn);
+		bottomRightMidThirdGridPane.getRowConstraints().addAll(firstRow);
 
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER);
@@ -1590,8 +1620,8 @@ public class UserDashboardController {
 
 		bottomRightMidThirdGridPane.add(box1, 0, 0);
 		bottomRightMidThirdGridPane.add(box2, 1, 0);
-		bottomRightMidThirdGridPane.add(box3, 0, 1);
-		bottomRightMidThirdGridPane.add(box4, 1, 1);
+		bottomRightMidThirdGridPane.add(box3, 2, 0);
+		bottomRightMidThirdGridPane.add(box4, 3, 0);
 
 		bottomRightMidThirdBox.getChildren().addAll(titleLabel, bottomRightMidThirdGridPane);
 
@@ -1610,18 +1640,22 @@ public class UserDashboardController {
 		bottomRightMidFourthGridPane.setHgap(5);
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(25);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(25);
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(25);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
+		firstRow.setPercentHeight(100);
 
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(50);
 
-		bottomRightMidFourthGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		bottomRightMidFourthGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		bottomRightMidFourthGridPane.getColumnConstraints().addAll(firstColumn, secondColumn,thirdColumn,fourthColumn);
+		bottomRightMidFourthGridPane.getRowConstraints().addAll(firstRow);
 
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER);
@@ -1693,8 +1727,8 @@ public class UserDashboardController {
 
 		bottomRightMidFourthGridPane.add(box1, 0, 0);
 		bottomRightMidFourthGridPane.add(box2, 1, 0);
-		bottomRightMidFourthGridPane.add(box3, 0, 1);
-		bottomRightMidFourthGridPane.add(box4, 1, 1);
+		bottomRightMidFourthGridPane.add(box3, 2, 0);
+		bottomRightMidFourthGridPane.add(box4, 3, 0);
 
 		bottomRightMidFourthBox.getChildren().addAll(titleLabel, bottomRightMidFourthGridPane);
 
@@ -1762,6 +1796,8 @@ public class UserDashboardController {
 				"Check OFP 2", "Check WDM 2" };
 
 		macroButtonList = macroConfigurationManagement.getAllMacroButtonsByUutId(currentSessionDetails.getUutId());
+		
+		
 
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 2; col++) {
@@ -1801,20 +1837,91 @@ public class UserDashboardController {
 
 							// Suji load cursor
 
-							aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
-							StateMachine.setMacroPassing(true);
-							
-							
+//							aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+//							StateMachine.setMacroPassing(true);
+//							rightMidSecondGridPane.setDisable(true);
+//							
 							
 //							StateMachine.setMacroCommand(true);
-							rightMidSecondGridPane.setDisable(true);
 							
+							Task<Void> macroTask = new Task<Void>() {
+							    @Override
+							    protected Void call() throws Exception {
+							        // Perform the macro command in the background
+							        aitessProcessControlManagement.WriteMacroCommandToAitess2(label.getUserData().toString());
+							        StateMachine.setMacroPassing(true);
+							        rightMidSecondGridPane.setDisable(true);
+							        // Optional: Sleep or simulate processing if needed
+							        // Thread.sleep(500); 
+
+							        return null;
+							    }
+
+							    @Override
+							    protected void succeeded() {
+							        // This runs on the JavaFX Application Thread
+							      
+
+							        if (StateMachine.isMacroCommand()) {
+							            Notifications.showSuccessAlert("Macro Executed..");
+							            rightMidSecondGridPane.setDisable(false);
+							        }
+							    }
+
+							    @Override
+							    protected void failed() {
+							        // Optional: Show failure message
+							        Notifications.showErrorAlert("Failed to execute macro.");
+							        
+							    }
+							};
+
+							// Run the task in a background thread
+							new Thread(macroTask).start();
 							
 
 							
 							
 							
-						
+//							Platform.runLater(() -> {
+//								bottomMainGridPane.getScene().setCursor(Cursor.WAIT);
+//								bottomMainGridPane.getScene().getRoot().setDisable(true);
+//
+//							});
+
+//							Task<Void> task = new Task<Void>() {
+//								@Override
+//								protected Void call() throws Exception {
+//
+//									aitessProcessControlManagement
+//											.WriteMacroCommandToAitess2(label.getUserData().toString());
+//									StateMachine.setMacroPassing(true);
+//									System.out.println(
+//											"Check is Macro in User Dashboard" + StateMachine.isMacroPassing());
+//									return call();
+//
+//								}
+//
+//								@Override
+//								protected void succeeded() {
+//									Platform.runLater(() -> {
+//										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+//										bottomMainGridPane.getScene().getRoot().setDisable(false);
+//
+//									});
+//								}
+//
+//								@Override
+//								protected void failed() {
+//									Platform.runLater(() -> {
+//										bottomMainGridPane.getScene().setCursor(Cursor.DEFAULT);
+//										bottomMainGridPane.getScene().getRoot().setDisable(false);
+//									});
+//									// optionally log error: getException()
+//								}
+//							};
+//
+//							new Thread(task).start();
 
 						} else {
 							ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -1833,8 +1940,12 @@ public class UserDashboardController {
 							uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 						}
 					}
+					
+					
+					
 				});
-
+				
+				
 				box.getChildren().add(label);
 				box.getStyleClass().add("third-conatiner-button");
 				rightMidSecondGridPane.add(box, col, row);
@@ -1842,20 +1953,7 @@ public class UserDashboardController {
 				
 				
 			}
-			if(StateMachine.isMacroCommand()== true) {
-				Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				alert.setTitle("Success");
-				alert.setHeaderText(null);
-				alert.setContentText("Macro Executed");
-
-				Optional<ButtonType> result = alert.showAndWait();
-				if (result.isPresent() && result.get() == ButtonType.OK) {
-				    // ? Perform your action here
-					rightMidSecondGridPane.setDisable(false);
-				    System.out.println("User clicked OK - performing action...");
-				}
 			
-			}
 		}
 
 		return rightMidSecondGridPane;
