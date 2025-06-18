@@ -7,12 +7,41 @@ public class RdfFileCopy {
 	
 	private String filePath;
 	private String status;
+	private String stageId;
+	private String stagePath;
 	private BooleanProperty selected = new SimpleBooleanProperty(false);
 
-	public RdfFileCopy(String filePath, String status, boolean selected) {
+	public RdfFileCopy(String filePath, String status, boolean selected,String stageId,String stagePath) {
 		this.filePath = filePath;
 		this.status = status;
 		this.selected.set(selected);
+		this.stageId = stageId;
+		this.stagePath = stagePath;
+		
+	}
+
+	public String getStagePath() {
+		return stagePath;
+	}
+
+	public void setStagePath(String stagePath) {
+		this.stagePath = stagePath;
+	}
+
+	public String getStageId() {
+		return stageId;
+	}
+
+	public void setStageId(String stageId) {
+		this.stageId = stageId;
+	}
+
+	public BooleanProperty getSelected() {
+		return selected;
+	}
+
+	public void setSelected(BooleanProperty selected) {
+		this.selected = selected;
 	}
 
 	public String getFilePath() {

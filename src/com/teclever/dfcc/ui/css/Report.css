@@ -19,7 +19,7 @@
 }
 
 .report-top-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: report-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
@@ -32,7 +32,7 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
 }
 

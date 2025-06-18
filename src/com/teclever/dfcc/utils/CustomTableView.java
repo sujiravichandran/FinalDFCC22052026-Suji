@@ -259,7 +259,7 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 		Button button = new Button();
 		button.setGraphic(imageView);
 		button.setStyle(
-				"-fx-background-color: transparent; -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
+				"-fx-background-color: transparent; -fx-effect: innershadow(gaussian, black, 10, 1.0, 0, 0); -fx-border-color: transparent;-fx-padding: 0; -fx-margin: 0;-fx-cursor:hand;");
 		button.setOnAction(event -> {
 			tableView.getSelectedItems().clear();
 			T rowData = getTableView().getItems().get(getIndex());

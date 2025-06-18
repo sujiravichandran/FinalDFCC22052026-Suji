@@ -11,7 +11,7 @@
 	-fx-text-fill:heading-text-color;
 }
 .current-execution-result-tabs-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
@@ -25,8 +25,8 @@
     -fx-background-radius:5px;
 }
 .tab-pane .tab {
-    -fx-background-color: button-bg;
-    -fx-text-fill: button-text;
+    -fx-background-color: light-bg;
+    -fx-text-fill: secondary-text-color;
     -fx-padding: 0; 
     -fx-pref-height: 40px; 
     -fx-border-color: transparent; 
@@ -34,12 +34,12 @@
 .tab-pane .tab-label {
     -fx-font-size: 17px;
     -fx-font-weight:bold;
-    -fx-text-fill: light-bg;
+    -fx-text-fill: secondary-text-color;
     -fx-alignment: center; 
 }
 .tab-pane .tab:selected {
     -fx-border-color: transparent; 
-    -fx-background-color: light-bg;
+    -fx-background-color: complementary-color;
     -fx-text-fill: secondary-text-color;
 }
 
@@ -57,8 +57,9 @@
 }
 
 .tab-content-container{
-	-fx-background-color: white;
+	-fx-background-color: custom-table-bg;
 	-fx-padding:5px;
+	-fx-text-fill: secondary-text-color;
 }
 
 .combo-box {
@@ -82,11 +83,11 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }

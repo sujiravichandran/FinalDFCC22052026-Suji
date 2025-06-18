@@ -1,12 +1,13 @@
 @import url("Global.css");
 
 .login-title{
-	-fx-text-fill: form-title;
+	-fx-text-fill: secondary-text-color;
 	-fx-font-size: 35px;
 	-fx-font-weight: bold;
+/* 	-fx-font-family:"Roboto"; */
 }
 .login-label{
-	-fx-text-fill: form-label;
+	-fx-text-fill: secondary-text-color;
 	-fx-font-size: 20px;
 	-fx-font-weight: bold;
 }
@@ -18,15 +19,16 @@
 	-fx-padding: 15px;
 }
 .checkbox-label{
-	-fx-text-fill:form-label;
+	-fx-text-fill:secondary-text-color;
 	-fx-font-size: 16px; 
 	-fx-cursor:hand;
 }
 .login-btn-box{
-    -fx-background-color: button-bg ; 
+    -fx-background-color: light-bg ; 
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
 	-fx-cursor:hand;
+	-fx-border-color:border2-color;
 }
 .login-btn{
     -fx-font-size: 18px;
@@ -34,8 +36,8 @@
     -fx-text-fill:button-text; 
 }
 .login-btn-box:hover { 
-    -fx-background-color:button-text; 
-    -fx-border-color: button-bg; 
+    -fx-background-color:new-button; 
+    -fx-border-color: border2-color; 
 }
 .login-btn-box:hover .login-btn {
     -fx-text-fill: button-bg;
@@ -99,7 +101,7 @@
 	-fx-padding: 5px 15px;
 }
 .check-sum-title{
-	-fx-text-fill:primary-text-color;
+	-fx-text-fill:secondary-text-color;
 	-fx-font-size: 24px; 
 	-fx-font-weight: bold;
 	-fx-padding: 5px;
@@ -124,12 +126,13 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
+	-fx-border-color:border-color;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }
 

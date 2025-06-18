@@ -9,7 +9,7 @@
 	-fx-font-weight: bold;
 }
 .stageConfig-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: new-bg;
 	-fx-background-radius: 10px;
 	
 }
@@ -128,12 +128,12 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
 }
 .button:hover {
     -fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }
 

@@ -363,6 +363,7 @@ public class UserManagementModule {
 			if(loginSessionResponse.getObject()!=null) {
 				LoginSession loginSession = (LoginSession) loginSessionResponse.getObject();
 				currentSessionDetails.setLoginSessionId(loginSession.getLoginSessionId());
+				currentSessionDetails.setLoginSessionDate(loginSession.getLoginTime());
 			}
 			res.setResponseCode(loginSessionResponse.getResponse().getResponseCode());
 			res.setResponseMessage(loginSessionResponse.getResponse().getResponseMessage());

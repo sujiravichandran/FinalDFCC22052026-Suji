@@ -384,7 +384,7 @@ public class CurrentSessionResultController {
 	                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 	                }
 	                label.setText(item);
-	                label.setStyle("-fx-text-fill: white;");
+	                label.setStyle("-fx-text-fill: #000000;");
 	                label.setMinWidth(label.getText().length() * 12);
 	                setGraphic(label);
 	                this.setMinWidth(label.getText().length() * 12);
