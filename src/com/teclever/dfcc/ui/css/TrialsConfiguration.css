@@ -13,7 +13,7 @@
 }
 
 .trialsConfig-container {
-	-fx-background-color: dark-bg;
+	-fx-background-color: trials-config-bg;
 	-fx-background-radius: 10px;
 }
 

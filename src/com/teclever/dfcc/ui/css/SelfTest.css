@@ -1,7 +1,7 @@
 @import url("Global.css");
 
 .selfTest-main-container{
-	-fx-background-color: light-bg;
+	-fx-background-color: secondary-color;
 	-fx-background-radius: 10px;	
 }
 
@@ -13,7 +13,7 @@
 .selfTest-Container{
 	-fx-border-width: 1.0px;
     -fx-border-radius: 10.0px;
-	-fx-background-color: dark-bg;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 }
 
@@ -32,7 +32,18 @@
 	-fx-text-fill:button-text;
 	-fx-font-weight: bold;
 	-fx-border-width: 1.0px;
-	-fx-background-color: button-bg;
+	-fx-background-color:light-bg;
+	-fx-border-radius: 5.0px;
+	-fx-font-size: 17.0px;
+	-fx-background-radius: 5px;
+	-fx-alignment: center_right;
+}
+
+.selTest-label-left-new{
+	-fx-text-fill:button-text;
+	-fx-font-weight: bold;
+	-fx-border-width: 1.0px;
+	-fx-background-color:light-bg;
 	-fx-border-radius: 5.0px;
 	-fx-font-size: 17.0px;
 	-fx-background-radius: 5px;
@@ -42,15 +53,29 @@
 .selfTest-mid-Container{
 	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
+	
+}
+
+.selfTest-mid-left-Container{
+	-fx-border-color:border2-color;
+	-fx-border-radius:10px;
+	-fx-background-radius:10px;
+}
+
+
+.selfTest-mid-right-Container{
+	-fx-border-color:border2-color;
+	-fx-border-radius:10px;
+	-fx-background-radius:10px;
 }
 
 .selfTest-bottom-Container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 }
 
 .selfTest-Container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 }
 
@@ -61,19 +86,19 @@
 }
 
 .racklabel{
-	-fx-text-fill:light-bg;
+	-fx-text-fill:secondary-text-color;
 	-fx-font-size: 25.0px;
 	-fx-font-weight: bold;
 
 }
 
 .rackVbox{
-	-fx-background-color:dark-bg ;
+	-fx-background-color:self-test-rack-bg ;
 	-fx-background-radius: 10px;
 }
 
 .selftest-sum-title{
-	-fx-text-fill:#FFFFFF;
+	-fx-text-fill:secondary-text-color;
 	-fx-font-size: 24px; 
 	-fx-font-weight: bold;
 	-fx-padding: 5px;
@@ -88,7 +113,8 @@
 
 .rackhbox{
 
-	-fx-background-color:dark-bg;
+	-fx-background-color:self-test-rack-bg;
+	-fx-border-radius: 10px;
 	-fx-background-radius: 10px;
 }
 
@@ -100,13 +126,13 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color ; 
 	-fx-cursor:hand;
 }
 
 .button:hover {
 	-fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }
 
@@ -133,7 +159,16 @@
 }
 
 .default-status {
-    -fx-background-color: default-bg;
+    -fx-background-color: border2-color;
+}
+
+.progress-bar {
+	-fx-min-width: 400px;
+}
+.progress-label{
+    -fx-text-fill: secondary-text-color ;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 .progress-bar {

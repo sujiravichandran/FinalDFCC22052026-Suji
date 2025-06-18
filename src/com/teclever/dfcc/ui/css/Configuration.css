@@ -12,7 +12,7 @@
 	-fx-font-weight: bold;
 }
 .configuration-tabs-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: configuration-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
@@ -59,7 +59,7 @@
 }
 
 .configuration-Container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: configuration-bg;
 	-fx-background-radius: 10px;
 }
 .configuration-custom-tab-container{
@@ -85,7 +85,7 @@
 }
 
 .configuration-code-Container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: configuration-bg;
 	-fx-background-radius: 10px;
 }
 
