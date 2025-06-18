@@ -15,8 +15,10 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
@@ -26,6 +28,7 @@ import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestResult;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -100,7 +103,7 @@ public class SelfTestController {
 	RunConfigurationService runConfigurationService = new RunConfigurationService();
 
 	public GridPane createSelfTestMainContainerGridPane() {
-		
+
 		selfTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
 		selfTestMainContainerGridPane.getStyleClass().add("selfTest-main-container");
@@ -138,6 +141,7 @@ public class SelfTestController {
 
 		observableStageList.stream().filter(stage -> "Self Test".equalsIgnoreCase(stage.getL1StageName()))
 				.filter(stage -> stage.getL3StageId() != null).sorted((stage1, stage2) -> {
+
 					int id1 = Integer.parseInt(stage1.getL3StageId().split("_")[1]);
 					int id2 = Integer.parseInt(stage2.getL3StageId().split("_")[1]);
 					return Integer.compare(id1, id2);
@@ -238,7 +242,43 @@ public class SelfTestController {
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
 		startTest.setOnAction(e -> {
-			StateMachine.setSelfTestOn(true);
+//			StateMachine.setSelfTestOn(true);
+			if (OnlineStatus.getChannel1Status().equalsIgnoreCase("online")
+					&& OnlineStatus.getChannel2Status().equalsIgnoreCase("online")
+					&& OnlineStatus.getChannel3Status().equalsIgnoreCase("online")
+					&& OnlineStatus.getChannel4Status().equalsIgnoreCase("online")) {
+				
+				Notifications.showErrorAlert("DFCC is On please turn off DFCC and start the test");
+				
+				return;
+			}
+			//Checking With List
+			boolean popupRDFFiles = false;
+			if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+				for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+					if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+						popupRDFFiles = true;
+
+					}
+				}
+
+				if (popupRDFFiles) {
+//					System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+					for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
+					{
+						RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+					}
+					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+				} else {
+					SessionFileManagement session = new SessionFileManagement();
+//					System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+				}
+			}
 			
 			selfTestTable.getItems().clear();
 			if (StateMachine.isConfirmTestFileCompleted()) {
@@ -397,7 +437,6 @@ public class SelfTestController {
 
 				int totalTestFileCount = SelfTestStateObject.getTotalSelfTestFileCount();
 
-				
 				SelfTestStateObject.setTotalSelfTestFileCount(totalTestFileCount);
 //				Platform.runLater(() -> {
 //					percentageLabel.setText("0%");

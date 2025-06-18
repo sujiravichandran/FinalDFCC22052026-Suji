@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
-import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.model.RdfFileCopy;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
@@ -17,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -28,7 +27,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -56,128 +54,137 @@ public class RdfFileCopyPopupController {
 	private Label currentDirPath = new Label("----");
 	private Label copyDirLabel = new Label("Copy Directory");
 	private Label copyDirPath = new Label("----");
-
+	
+	
+	
 	private ObservableList<RdfFileCopy> tableData = FXCollections.observableArrayList();
 	private String sessionId = currentSessionDetails.getSessionId();
 	private String stageId = SessionTestStateObject.getPopupStageId();
+	public static List <CopyFileDTO>rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+	
 
 	private SessionFileManagement sessionFileManagement = new SessionFileManagement();
 
 	@FXML
 	private void initialize() {
-
+		
+		
 		currentDirPath.setWrapText(true);
-		copyDirPath.setWrapText(true);
+	    copyDirPath.setWrapText(true);
 
-		currentDirPath.prefWidthProperty().bind(currentDirHBox.widthProperty());
-		copyDirPath.prefWidthProperty().bind(copyDirHBox.widthProperty());
+	    currentDirPath.prefWidthProperty().bind(currentDirHBox.widthProperty());
+	    copyDirPath.prefWidthProperty().bind(copyDirHBox.widthProperty());
 
-		headingLabel.getStyleClass().add("title");
+		
+		
+	    headingLabel.getStyleClass().add("title");
+		
+	    rdfFileCopyHeadingHBox.getChildren().add(headingLabel);
+	    rdfFileCopyHeadingHBox.setAlignment(Pos.CENTER);
+	    createMidContainer();
+	    getRdfFileDetails();
 
-		rdfFileCopyHeadingHBox.getChildren().add(headingLabel);
-		rdfFileCopyHeadingHBox.setAlignment(Pos.CENTER);
-		createMidContainer();
-		getRdfFileDetails();
-
-		// Center the popup window
-		Platform.runLater(() -> centerPopupWindow());
+	    // Center the popup window
+	    Platform.runLater(() -> centerPopupWindow());
 	}
 
 	private void centerPopupWindow() {
+		
+	    Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
 
-		Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+	    // Get screen dimensions
+	    double screenWidth = Screen.getPrimary().getBounds().getWidth();
+	    double screenHeight = Screen.getPrimary().getBounds().getHeight();
 
-		// Get screen dimensions
-		double screenWidth = Screen.getPrimary().getBounds().getWidth();
-		double screenHeight = Screen.getPrimary().getBounds().getHeight();
+	    // Get popup dimensions
+	    double windowWidth = stage.getWidth();
+	    double windowHeight = stage.getHeight();
 
-		// Get popup dimensions
-		double windowWidth = stage.getWidth();
-		double windowHeight = stage.getHeight();
+	    // Calculate center position
+	    double centerX = (screenWidth - windowWidth) / 2;
+	    double centerY = (screenHeight - windowHeight) / 2;
 
-		// Calculate center position
-		double centerX = (screenWidth - windowWidth) / 2;
-		double centerY = (screenHeight - windowHeight) / 2;
-
-		// Set the popup's position
-		stage.setX(centerX);
-		stage.setY(centerY);
+	    // Set the popup's position
+	    stage.setX(centerX);
+	    stage.setY(centerY);
 	}
 
 	public void createMidContainer() {
-		tableView.getStyleClass().add("rdf-file-table");
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+	    tableView.getStyleClass().add("rdf-file-table");
+	    tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-		TableColumn<RdfFileCopy, Boolean> selectColumn = new TableColumn<>("");
-		selectColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-		selectColumn.setReorderable(false);
-		selectColumn.setSortable(false);
-		selectColumn.setStyle("-fx-alignment: CENTER;");
+	    TableColumn<RdfFileCopy, Boolean> selectColumn = new TableColumn<>("");
+	    selectColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+	    selectColumn.setReorderable(false);
+	    selectColumn.setSortable(false);
+	    selectColumn.setStyle("-fx-alignment: CENTER;");
 
-		selectColumn.setPrefWidth(60);
-		selectColumn.setMinWidth(60);
-		selectColumn.setMaxWidth(60);
+	    selectColumn.setPrefWidth(60);
+	    selectColumn.setMinWidth(60);
+	    selectColumn.setMaxWidth(60);
 
-		// Custom rendering for the checkbox
-		selectColumn.setCellFactory(tc -> new TableCell<RdfFileCopy, Boolean>() {
-			private final CheckBox checkBox = new CheckBox();
+	    // Custom rendering for the checkbox
+	    selectColumn.setCellFactory(tc -> new TableCell<RdfFileCopy, Boolean>() {
+	        private final CheckBox checkBox = new CheckBox();
 
-			@Override
-			protected void updateItem(Boolean item, boolean empty) {
-				super.updateItem(item, empty);
-				if (empty) {
-					setGraphic(null);
-				} else {
-					checkBox.setSelected(item != null && item);
-					checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
-						RdfFileCopy rdfFileCopy = getTableRow().getItem();
-						if (rdfFileCopy != null) {
-							rdfFileCopy.setSelected(isNowSelected);
-						}
-					});
-					setGraphic(checkBox);
-				}
-			}
-		});
+	        @Override
+	        protected void updateItem(Boolean item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (empty) {
+	                setGraphic(null);
+	            } else {
+	                checkBox.setSelected(item != null && item);
+	                checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+	                    RdfFileCopy rdfFileCopy = getTableRow().getItem();
+	                    if (rdfFileCopy != null) {
+	                        rdfFileCopy.setSelected(isNowSelected);
+	                    }
+	                });
+	                setGraphic(checkBox);
+	            }
+	        }
+	    });
 
-		TableColumn<RdfFileCopy, String> fileNameColumn = new TableColumn<>("File Path");
-		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("filePath"));
-		fileNameColumn.setReorderable(false);
-		fileNameColumn.setSortable(false);
-		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+	    TableColumn<RdfFileCopy, String> fileNameColumn = new TableColumn<>("File Path");
+	    fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("filePath"));
+	    fileNameColumn.setReorderable(false);
+	    fileNameColumn.setSortable(false);
+	    fileNameColumn.setStyle("-fx-alignment: CENTER;");
 
-		TableColumn<RdfFileCopy, String> statusColumn = new TableColumn<>("Status");
-		statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+	    TableColumn<RdfFileCopy, String> statusColumn = new TableColumn<>("Status");
+	    statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-		tableView.getColumns().addAll(selectColumn, fileNameColumn, statusColumn);
+	    tableView.getColumns().addAll(selectColumn, fileNameColumn, statusColumn);
+	    
 
-		// Create "Select All" Button
-		Button selectAllButton = new Button("Select All");
-		selectAllButton.setOnAction(e -> {
-			boolean allSelected = tableView.getItems().stream().allMatch(RdfFileCopy::isSelected);
+	    // Create "Select All" Button
+	    Button selectAllButton = new Button("Select All");
+	    selectAllButton.setOnAction(e -> {
+	        boolean allSelected = tableView.getItems().stream().allMatch(RdfFileCopy::isSelected);
 
-			if (allSelected) {
+	        if (allSelected) {
+	           
+	            for (RdfFileCopy item : tableView.getItems()) {
+	                item.setSelected(false);
+	            }
+	            selectAllButton.setText("Select All");
+	        } else {
+	           
+	        for (RdfFileCopy item : tableView.getItems()) {
+	            item.setSelected(true);
+	        }
+	            selectAllButton.setText("Deselect All");
+	        }
+	        tableView.refresh();
+	    });
 
-				for (RdfFileCopy item : tableView.getItems()) {
-					item.setSelected(false);
-				}
-				selectAllButton.setText("Select All");
-			} else {
+	    HBox buttonBox = createButtonBox();
+	    buttonBox.getChildren().add(0, selectAllButton); // Add the button at the beginning
 
-				for (RdfFileCopy item : tableView.getItems()) {
-					item.setSelected(true);
-				}
-				selectAllButton.setText("Deselect All");
-			}
-			tableView.refresh();
-		});
-
-		HBox buttonBox = createButtonBox();
-		buttonBox.getChildren().add(0, selectAllButton); // Add the button at the beginning
-
-		rdfFileCopyMidVBox.setSpacing(70);
-		rdfFileCopyMidVBox.getChildren().addAll(tableView, createLabelBox(), buttonBox);
+	    rdfFileCopyMidVBox.setSpacing(70);	    
+	    rdfFileCopyMidVBox.getChildren().addAll(tableView, createLabelBox(), buttonBox);
 	}
+
 
 	private VBox createLabelBox() {
 		currentDirLabel.setPrefWidth(500);
@@ -219,22 +226,21 @@ public class RdfFileCopyPopupController {
 		// After Suji Change
 		copyButton.setOnAction(e -> {
 			List<CopyFileDTO> pathList = new ArrayList<>();
-
 			for (RdfFileCopy rdfFile : tableView.getItems()) {
 				CopyFileDTO newFilePath = new CopyFileDTO();
 				if (rdfFile.isSelected()) {
 					newFilePath.setFlag(true);
+					newFilePath.setStageId(rdfFile.getStageId());
 
 				} else {
 					newFilePath.setFlag(false);
+					newFilePath.setStageId(rdfFile.getStageId());
 
 				}
-
+				newFilePath.setStagePath(rdfFile.getStagePath());
 				newFilePath.setRdfFileNamewithPath(rdfFile.getFilePath());
-				newFilePath.setFlag(rdfFile.isSelected()); // true if selected, false otherwise
 				pathList.add(newFilePath);
 			}
-
 			handleCopyingRdfFiles(pathList);
 		});
 
@@ -242,75 +248,99 @@ public class RdfFileCopyPopupController {
 	}
 
 	private void handleClosePopup(boolean showAlert) {
-		if (showAlert) {
-			Notifications.showConfirmationDialog("Confirmation Window",
-					"Some RDF files have failed, close the window without copying them?", () -> {
-						if (SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
-							SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
-						}
-						Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
-						stage.close();
-					});
-		} else {
+		if(showAlert) {			
+			Notifications.showConfirmationDialog("Confirmation Window", "Some RDF files have failed, close the window without copying them?", ()->{
+				if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+					SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
+				}
+				DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+				Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+				stage.close();
+			});
+		}else {
+//			System.out.println("Closing Popup........");
 			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
+			DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 			stage.close();
-			if (SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+//			System.out.println("Closed...........");
+			if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
 				SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
 			}
 		}
 	}
 
 	private void getRdfFileDetails() {
+	
+//		System.out.println("SessionId : "+sessionId+"   "+"StageId : "+stageId);
+//		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
+		
+		
+		
 
-		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
-
-		if (response.getCode() == 1) {
-			List<CopyFileDTO> rdfList = response.getLst();
-			if (rdfList != null) {
-				for (CopyFileDTO rdfFile : rdfList) {
+	
+		//	List<CopyFileDTO> rdfList = response.getLst();
+//		System.out.println("DFCCConstant.FailedStagesRdfPaths.size"+rdfFilesListtoShow);
+		String outPut = "";
+				String stagePath = "";
+			if (rdfFilesListtoShow.size()>0) {
+				for (CopyFileDTO rdfFile : rdfFilesListtoShow) {
+					
+					outPut = rdfFile.getRdfFilePath();
+					stagePath = rdfFile.getStagePath();
+					
+					
+//					System.out.println("PowerAutoStageId"+rdfFile.getStageId());
 					RdfFileCopy newRdfFile = new RdfFileCopy(rdfFile.getRdfFileNamewithPath(), rdfFile.getStatus(),
-							false);
+							false,rdfFile.getStageId(),rdfFile.getStagePath());
 					tableData.add(newRdfFile);
 				}
-
-				currentDirPath.setText("-" + response.getFromPath());
-				copyDirPath.setText("-" + response.getToPath());
+				
+//				System.out.println("Current Dir Path Check:   " + outPut );
+//				System.out.println("Copy Dir Path Check:   " + stagePath );
+				
+				
+				currentDirPath.setText("-" + outPut);
+				copyDirPath.setText("-" +stagePath );
 //				
 //				currentDirPath.setPrefWidth(500);
 //				copyDirPath.setPrefWidth(500);
-
+				
+				
+				
 				tableView.setItems(tableData);
 			} else {
 				Platform.runLater(() -> Notifications.showErrorAlert("RDF files are empty"));
 			}
 
-		} else if (response.getCode() == 0) {
-			Platform.runLater(() -> Notifications.showErrorAlert(response.getCodeMsg()));
-		}
+	
 	}
+
 
 	private void handleCopyingRdfFiles(List<CopyFileDTO> pathList) {
 		if (pathList.size() > 0) {
 			Task<Void> copyTask = new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
+			    @Override
+			    protected Void call() throws Exception {
+//			        Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
+			        Response response = sessionFileManagement.copyingSelectedFile(pathList);
 
-					if (response.getResponseCode() == 1) {
-						Platform.runLater(() -> handleClosePopup(false));
-					} else if (response.getResponseCode() == 0) {
-						Platform.runLater(() -> Notifications.showErrorAlert(response.getResponseMessage()));
-						if (SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
-							SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
-						}
-					}
-
-					return null;
-				}
+//			        System.out.println("Response code after copying rdf files : "+ response.getResponseCode());
+			        
+			        if (response.getResponseCode() == 1) {
+			        	Platform.runLater(() -> handleClosePopup(false));	           
+			        } else if (response.getResponseCode() == 0) {
+			            Platform.runLater(() -> Notifications.showErrorAlert(response.getResponseMessage()));
+			            if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
+			    			SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
+			    		}
+			        }
+			        
+			        return null;
+			    }
 			};
 
 			new Thread(copyTask).start();
-		} else {
+		}else {
 			Notifications.showWarningAlert("Please select an RDF file to copy. No file has been selected.");
 		}
 	}

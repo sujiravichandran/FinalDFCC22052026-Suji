@@ -1,9 +1,14 @@
 * {
-    primary-color: #00B0F5;
-    secondary-color: #0091C2;
+    primary-color: #bdc3c7;
+    secondary-color: #F8F8F8;
     
     secondary-color-2: #00E0FF;
-    complementary-color: #F54B00;
+    complementary-color: #3498db;
+    
+    tree-hover:#bdc3c7;
+    
+    
+    new-button:#068EC1;
     
     primary-text-color: #FFFFFF;
     secondary-text-color: #0F1728;
@@ -17,34 +22,64 @@
     
     light-bg: #FFFFFF;
     dark-bg: #0091C2;
+    self-test-rack-bg:  #e4e7e9;
     
-    button-bg: #005C7A;
-    button-text: #FFFFFF;
-    login-button-bg: #FFFFFF;
+    lru-test-bg:#bdc3c7;
+    
+    session-test-bg:  #bdc3c7;
+    session-tree-selected-bg: #373737 ;
+    
+    advanced-test-bg:  #bdc3c7;
+    
+    report-bg:  #bdc3c7;
+    
+    trials-config-bg:#bdc3c7;
+    
+    custom-table-bg:#bdc3c7;
+    
+    configuration-bg:#bdc3c7;
+    
+    logbook-bg:#bdc3c7;
+    
+    new-bg:#bdc3c7;
+    
+    button-bg: #F8F8F8;
+    button2-bg:#bdc3c7;
+    button-hover:#000000;
+    
+    button-text: rgb(0, 0, 0);
+    login-button-bg: #F5B7B1;
+    login-button-border:#EE0E00;
     login-button-text: #EE0E00;
-    selected-menu-bg: #E0F7FF;
+    selected-menu-bg: #3498db;
     selected-menu-text: #0F1728;
-    hover-menu-bg: #B3E6FF;
+    hover-menu-bg: #5dade2;
     hover-menu-text: #0F1728;
-    right-card-bg: #FFFFFF;
+    right-card-bg: #F8F8F8;
     right-card-text: #0F1728;
     right-card-button-bg: #FFFFFF;
     right-card-button-text: #0F1728;
+    power-box-off:#FACECA;
+    power-box-off-border:#EE0E00;
+    power-box-on-border:green;
+    power-box-on:#BBFFBB;
     
     form-bg: #0F1728;
     form-label: #FFFFFF;
     form-title: #FFFFFF;
     form-input: #FFFFFF;
     
-    table-bg: #005c7a;
-    table-header-bg: #0073a5;
-    table-row-bg:#00a3d4;
-    
-  progress-bar-color-bg: #99c944;
+    table-bg: #FFFFFF;
+    table-header-bg: rgb(192, 192, 192);
+    table-row-bg:#FFFFFF;
     
     success-bg: green;
     failure-bg: red;
     default-bg: #005C7A;
+    
+    select-checkbox:#2ecc71;
+    
+    check-box-mark:#ffffff;
     
     
 }

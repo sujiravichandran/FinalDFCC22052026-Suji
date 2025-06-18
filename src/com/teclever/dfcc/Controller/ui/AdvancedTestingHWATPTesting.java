@@ -11,8 +11,10 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
@@ -81,7 +83,7 @@ public class AdvancedTestingHWATPTesting {
 	private Button stopButton = new Button("Stop");
 	private Button pauseButton = new Button("Pause");
 
-	private VBox repeatCountVBox = new VBox();
+	private HBox repeatCountHBox = new HBox();
 	private Label repeatCountLabel = new Label();
 	private Label repeatNotLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
@@ -89,8 +91,8 @@ public class AdvancedTestingHWATPTesting {
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
 
-	private VBox buttonMainVBox = new VBox(15);
-	private HBox allButtonHBox = new HBox(15);
+	private HBox buttonMainHBox = new HBox(15);
+	private HBox allButtonHBox = new HBox(5);
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
@@ -99,6 +101,8 @@ public class AdvancedTestingHWATPTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	
+	private AdvancedTestingController advancedTestingController;
 
 	public AdvancedTestingHWATPTesting() {
 		initializeSearch();
@@ -127,7 +131,7 @@ public class AdvancedTestingHWATPTesting {
 	public GridPane createAdvancedTestingTab1GridPane() {
 	
 			
-			getHWATPTestingStagesData();
+		getHWATPTestingStagesData();
 		
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -136,15 +140,21 @@ public class AdvancedTestingHWATPTesting {
 		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		firstRow.setPercentHeight(78);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(22);
 
 		tab1MainGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		tab1MainGridPane.getRowConstraints().addAll(firstRow);
+		tab1MainGridPane.getRowConstraints().addAll(firstRow, secondRow);
 
 		tab1MainGridPane.setHgap(5);
+		tab1MainGridPane.setVgap(5);
+		
+		
 
 		tab1MainGridPane.add(createLeftSide(), 0, 0);
 		tab1MainGridPane.add(createRightSide(), 1, 0);
+		tab1MainGridPane.add(createButtonBox(),0,1, 2, 1);
 
 		return tab1MainGridPane;
 	}
@@ -159,8 +169,8 @@ public class AdvancedTestingHWATPTesting {
 				.filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 							stage.getTestTypeId(), null);
-					System.out.println("stage.getL3StageName()" + stage.getL3StageName());
-					System.out.println("stage.getL3StageId()" + stage.getL3StageId());
+//					System.out.println("stage.getL3StageName()" + stage.getL3StageName());
+//					System.out.println("stage.getL3StageId()" + stage.getL3StageId());
 					AdvancedTestStateObject.addHwatpTestList(newCard);
 				});
 	}
@@ -189,8 +199,11 @@ public class AdvancedTestingHWATPTesting {
 //	            });
 //	}
 
-
+	
 	private VBox createLeftSide() {
+		
+			
+		
 		leftSideVBox.getStyleClass().add("advanced-testing-left-container");
 		stageListView.getStyleClass().add("advanced-testing-radio-list-view");
 		stageList.clear();
@@ -198,8 +211,9 @@ public class AdvancedTestingHWATPTesting {
 
 		ToggleGroup toggleGroup = new ToggleGroup();
 		stageList = AdvancedTestStateObject.getHwatpTestList();
-		System.out.println("stageList" + stageList);
-		System.out.println("stageList" + stageList.size());
+
+	
+		
 		for (TestCardData stage : stageList) {
 			RadioButton newRadioButton = new RadioButton(stage.getCardName());
 			newRadioButton.setMnemonicParsing(false);
@@ -213,11 +227,20 @@ public class AdvancedTestingHWATPTesting {
 
 		toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null) {
+			
 				RadioButton selectedRadioButton = (RadioButton) newValue;
 				TestCardData stageData = (TestCardData) selectedRadioButton.getUserData();
 				getTestListByStageId(stageData.getCardId(), stageData.getTestTypeId());
 				selectedStageId = stageData.getCardId();
 				selectedTestTypeId = stageData.getTestTypeId();
+				
+				
+//				For Clearing Table ADta and Moving Confirmation Flag:
+				if (StateMachine.getTestState() != TestState.RUNNING) {
+//					System.out.println("Entred Clearing method after selection");
+					StateMachine.setAdvancedTestOk(true);
+
+				}
 			}
 		});
 
@@ -242,17 +265,17 @@ public class AdvancedTestingHWATPTesting {
 		firstRow.setPercentHeight(12);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(55);
+		secondRow.setPercentHeight(88);
 
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(32);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(32);
 
 		rightSideGridPane.getColumnConstraints().addAll(firstColumn);
-		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		rightSideGridPane.getRowConstraints().addAll(firstRow, secondRow);
 		rightSideGridPane.setVgap(5);
 		rightSideGridPane.add(createSearchFile(), 0, 0);
 		rightSideGridPane.add(createTestListView(), 0, 1);
-		rightSideGridPane.add(createButtonBox(), 0, 2);
+		//rightSideGridPane.add(createButtonBox(), 0, 2);
 		return rightSideGridPane;
 	}
 
@@ -439,6 +462,54 @@ public class AdvancedTestingHWATPTesting {
 		startButton.setOnAction(e -> {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				
+				if (StateMachine.isAdvancedTestOk()) {
+
+					// Checking With List
+					boolean popupRDFFiles = false;
+					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+								popupRDFFiles = true;
+
+							}
+						}
+
+						if (popupRDFFiles) {
+//							System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+							}
+							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						} else {
+							SessionFileManagement session = new SessionFileManagement();
+//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//									+ DFCCConstant.FailedStagesRdfPaths.size());
+							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						}
+					}
+
+//					System.out.println("Entered Clear Advanced HWAT OK");
+//			        System.out.println("Before Advanced table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
+					if (advancedTestingController != null && advancedTestingController.tableView != null) {
+						
+					    advancedTestingController.createResultTableViewAdvance().getItems().clear();
+					} else {
+					    System.out.println("Controller or TableView is null. Cannot clear.");
+					}
+//					 System.out.println("After Advanced table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
+			        StateMachine.setAdvancedTestOk(false);
+				}
+				
+				
+				
+				
+				
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -558,14 +629,14 @@ public class AdvancedTestingHWATPTesting {
 
 		});
 
-		repeatCountLabel.setText("Repeat Count");
-		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
+		repeatCountLabel.setText("Repeat Count(1 to 100)");
+		//repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
 		repeatNotLabel.setTextFill(Color.WHITE);
 		repeatNotLabel.setWrapText(true);
 		repeatCountLabel.getStyleClass().add("advanced-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("advanced-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
-		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
+		repeatCountHBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
 
 		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
@@ -592,9 +663,9 @@ public class AdvancedTestingHWATPTesting {
 //		    }
 //		});
 
-		repeatCountVBox.setAlignment(Pos.CENTER);
-		repeatCountVBox.setPadding(new Insets(5));
-		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
+		repeatCountHBox.setAlignment(Pos.CENTER);
+		//repeatCountVBox.setPadding(new Insets(5));
+		repeatCountHBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
 
 		buttonHBox.setAlignment(Pos.CENTER);
 
@@ -603,14 +674,15 @@ public class AdvancedTestingHWATPTesting {
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
+		allButtonHBox.setAlignment(Pos.CENTER);
 
-		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
-		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
+//		buttonMainVBox.setPadding(new Insets(20, 0, 0, 0));
+//		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
-		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+		buttonMainHBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
-		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
+		buttonHBox.getChildren().addAll(repeatCountHBox, buttonMainHBox);
 
 		AdvancedTestStateObject.hwatpTestStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {

@@ -1,6 +1,7 @@
 package com.teclever.dfcc.stateMachine;
 
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.utils.Debug;
 
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,32 +27,33 @@ public class StateMachine {
 	public enum RunningTestName {
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
 	}
-	 private static final ObjectProperty<TestState> testState = new SimpleObjectProperty<>(TestState.PENDING);
-	 private static final StringProperty runningTestName = new SimpleStringProperty(RunningTestName.OTHER.toString());
 
-	 public static String getRunningTestName() {
-	     return runningTestName.get();
-	 }
+	private static final ObjectProperty<TestState> testState = new SimpleObjectProperty<>(TestState.PENDING);
+	private static final StringProperty runningTestName = new SimpleStringProperty(RunningTestName.OTHER.toString());
 
-	 public static void setRunningTestName(RunningTestName testName) {
-	     runningTestName.set(testName.toString());
-	 }
+	public static String getRunningTestName() {
+		return runningTestName.get();
+	}
 
-	 public static StringProperty runningTestNameProperty() {
-	     return runningTestName;
-	 }
-	 
-	 public static ObjectProperty<TestState> testStateProperty() {
-	        return testState;
-	    }
+	public static void setRunningTestName(RunningTestName testName) {
+		runningTestName.set(testName.toString());
+	}
 
-	 public static void setTestState(TestState newState) {
-	        testState.set(newState);
-	    }
+	public static StringProperty runningTestNameProperty() {
+		return runningTestName;
+	}
+
+	public static ObjectProperty<TestState> testStateProperty() {
+		return testState;
+	}
+
+	public static void setTestState(TestState newState) {
+		testState.set(newState);
+	}
 
 	public static TestState getTestState() {
-        return testState.get();
-    }
+		return testState.get();
+	}
 
 	public static class currentSessionDetails {
 		private static String userId;
@@ -65,9 +66,17 @@ public class StateMachine {
 		private static String sessionTypeName;
 		private static String runConfigId;
 		private static int loginSessionId;
+		private static Date loginSessionDate;
+
+		public static Date getLoginSessionDate() {
+			return loginSessionDate;
+		}
+
+		public static void setLoginSessionDate(Date loginSessionDate) {
+			currentSessionDetails.loginSessionDate = loginSessionDate;
+		}
+
 		private static String dfccPartNo;
-		
-		
 
 		public static String getDfccPartNo() {
 			return dfccPartNo;
@@ -824,8 +833,8 @@ public class StateMachine {
 		public static void setBoardTemperatureMap(ObservableMap<String, ChannelTemperature> boardTemperatureMap) {
 			boardChannelTemp.boardTemperatureMap.clear();
 			boardChannelTemp.boardTemperatureMap.putAll(boardTemperatureMap);
-		}	
-	
+		}
+
 		public static double minValue;
 		public static double maxValue;
 
@@ -844,7 +853,7 @@ public class StateMachine {
 		public static double setMaxValue(double maxValue) {
 			return boardChannelTemp.maxValue = maxValue;
 		}
-		
+
 	}
 
 	public static class boardChannelTempAEC {
@@ -864,7 +873,7 @@ public class StateMachine {
 			boardChannelTempAEC.boardTemperatureMap.clear();
 			boardChannelTempAEC.boardTemperatureMap.putAll(boardTemperatureMap);
 		}
-		
+
 		public static double minValue;
 		public static double maxValue;
 
@@ -883,15 +892,14 @@ public class StateMachine {
 		public static void setMaxValue(double maxValue) {
 			boardChannelTempAEC.maxValue = maxValue;
 		}
-		
-		
+
 	}
-	
-	//COLOR
+
+	// COLOR
 	private static StringProperty lessBackgroundColor = new SimpleStringProperty("#ADD8E6");
 	private static StringProperty greaterBackgroundColor = new SimpleStringProperty("#FF0000");
 	private static StringProperty normalBackgroundColor = new SimpleStringProperty("#32CD32");
-	
+
 	public static StringProperty LessBackgroundColor() {
 		return lessBackgroundColor;
 	}
@@ -906,7 +914,7 @@ public class StateMachine {
 
 	public static void setGreaterBackgroundColor(String greaterBackgroundColor) {
 		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
-		
+
 	}
 
 	public static StringProperty NormalBackgroundColor() {
@@ -914,7 +922,8 @@ public class StateMachine {
 	}
 
 	public static void setNormalBackgroundColor(String normalBackgroundColor) {
-		StateMachine.normalBackgroundColor.set(normalBackgroundColor);;
+		StateMachine.normalBackgroundColor.set(normalBackgroundColor);
+		;
 	}
 
 	// FOR RDF FILE PARSER
@@ -1098,8 +1107,8 @@ public class StateMachine {
 	}
 
 	public static void resetStateMachine() {
-		 testState.set(TestState.PENDING);
-		 setRunningTestName(RunningTestName.OTHER); 
+		testState.set(TestState.PENDING);
+		setRunningTestName(RunningTestName.OTHER);
 
 		// Reset currentSessionDetails
 		currentSessionDetails.setUserId(null);
@@ -1202,17 +1211,19 @@ public class StateMachine {
 		runCommand = false;
 		aitess1CommandFinished = false;
 	}
-	
+
 	private static boolean allowToggle = true;
+
 	public static boolean isAllowToggle() {
 		return allowToggle;
 	}
+
 	public static void setAllowToggle(boolean allowToggle) {
 		StateMachine.allowToggle = allowToggle;
 	}
-	
+
 //	For Custom Two Test
-	
+
 	private static boolean customTwoTest = false;
 
 	public static boolean isCustomTwoTest() {
@@ -1222,9 +1233,9 @@ public class StateMachine {
 	public static void setCustomTwoTest(boolean customTwoTest) {
 		StateMachine.customTwoTest = customTwoTest;
 	}
-	
+
 //	For Test Completed Confirmation
-	
+
 	private static boolean confirmTestFileCompleted = false;
 
 	public static boolean isConfirmTestFileCompleted() {
@@ -1234,7 +1245,7 @@ public class StateMachine {
 	public static void setConfirmTestFileCompleted(boolean confirmTestFileCompleted) {
 		StateMachine.confirmTestFileCompleted = confirmTestFileCompleted;
 	}
-	
+
 //	For Conform Test Stop
 	private static boolean confirmTestStop = false;
 
@@ -1245,7 +1256,7 @@ public class StateMachine {
 	public static void setConfirmTestStop(boolean confirmTestStop) {
 		StateMachine.confirmTestStop = confirmTestStop;
 	}
-	
+
 //	For Macro Button
 	private static String macroSet;
 
@@ -1256,7 +1267,7 @@ public class StateMachine {
 	public static void setMacroSet(String macroSet) {
 		StateMachine.macroSet = macroSet;
 	}
-	
+
 //	Pbit Test
 	private static String inputPathTestFile;
 
@@ -1278,9 +1289,9 @@ public class StateMachine {
 	public static void setMacroCommand(boolean macroCommand) {
 		StateMachine.macroCommand = macroCommand;
 	}
-	
+
 //	No Such FIle Error
-	private static boolean noSuchFile =false;
+	private static boolean noSuchFile = false;
 
 	public static boolean isNoSuchFile() {
 		return noSuchFile;
@@ -1289,9 +1300,9 @@ public class StateMachine {
 	public static void setNoSuchFile(boolean noSuchFile) {
 		StateMachine.noSuchFile = noSuchFile;
 	}
-	
+
 //	Mandatory & GoNoGo Stop
-	private static boolean mandatoryGonoGo =false;
+	private static boolean mandatoryGonoGo = false;
 
 	public static boolean isMandatoryGonoGo() {
 		return mandatoryGonoGo;
@@ -1300,67 +1311,142 @@ public class StateMachine {
 	public static void setMandatoryGonoGo(boolean mandatoryGonoGo) {
 		StateMachine.mandatoryGonoGo = mandatoryGonoGo;
 	}
-	
-	//SelfTest
 
-		private static final BooleanProperty selfTestOn = new SimpleBooleanProperty(false);
+	// SelfTest
 
-	    public static boolean isSelfTestOn() {
+	private static boolean selfTestOn = false;
 
-	        return selfTestOn.get();
+	public static boolean isSelfTestOn() {
+		return selfTestOn;
+	}
 
-	    }
+	public static void setSelfTestOn(boolean selfTestOn) {
+		StateMachine.selfTestOn = selfTestOn;
+	}
 
-	    public static void setSelfTestOn(boolean value) {
-
-	        selfTestOn.set(value);
-
-	    }
-
-	    public static BooleanProperty selfTestOnProperty() {
-
-	        return selfTestOn;
-
-	    }
+	// private static final BooleanProperty selfTestOn = new
+	// SimpleBooleanProperty(false);
+//
+//	    public static boolean isSelfTestOn() {
+//
+//	        return selfTestOn.get();
+//
+//	    }
+//
+//	    public static void setSelfTestOn(boolean value) {
+//
+//	        selfTestOn.set(value);
+//
+//	    }
+//
+//	    public static BooleanProperty selfTestOnProperty() {
+//
+//	        return selfTestOn;
+//
+//	    }
 //	Macro Passing:::
-	    private static boolean macroPassing =false;
+	private static boolean macroPassing = false;
 
-		public static boolean isMacroPassing() {
-			return macroPassing;
-		}
+	public static boolean isMacroPassing() {
+		return macroPassing;
+	}
 
-		public static void setMacroPassing(boolean macroPassing) {
-			StateMachine.macroPassing = macroPassing;
-		}
-	   
+	public static void setMacroPassing(boolean macroPassing) {
+		StateMachine.macroPassing = macroPassing;
+	}
+
 //	    for SRU Test File Count
-	    private static boolean sruTestFileCount = false;
-		public static boolean isSruTestFileCount() {
-			return sruTestFileCount;
-		}
-		public static void setSruTestFileCount(boolean sruTestFileCount) {
-			StateMachine.sruTestFileCount = sruTestFileCount;
-		}
+	private static boolean sruTestFileCount = false;
+
+	public static boolean isSruTestFileCount() {
+		return sruTestFileCount;
+	}
+
+	public static void setSruTestFileCount(boolean sruTestFileCount) {
+		StateMachine.sruTestFileCount = sruTestFileCount;
+	}
+
+//		FOr SRU Option Selection
+	private static boolean pbitOption1 = false;
+
+	public static boolean isPbitOption1() {
+		return pbitOption1;
+	}
+
+	public static void setPbitOption1(boolean pbitOption1) {
+		StateMachine.pbitOption1 = pbitOption1;
+	}
+
+	private static boolean pbitOption2 = false;
+
+	public static boolean isPbitOption2() {
+		return pbitOption2;
+	}
+
+	public static void setPbitOption2(boolean pbitOption2) {
+		StateMachine.pbitOption2 = pbitOption2;
+	}
+
+//	FOr Session Testing Clearing Stage table data and moving files
+
+	private static boolean sessionTestOk = false;
+
+	public static boolean isSessionTestOk() {
+		return sessionTestOk;
+	}
+
+	public static void setSessionTestOk(boolean sessionTestOk) {
+		StateMachine.sessionTestOk = sessionTestOk;
+	}
+
+//	FOr SRU Testing Clearing Stage table data and moving files
+
+	private static boolean sruTestOk = false;
+
+	public static boolean isSruTestOk() {
+		return sruTestOk;
+	}
+
+	public static void setSruTestOk(boolean sruTestOk) {
+		StateMachine.sruTestOk = sruTestOk;
+	}
 	
-//		for Pbit Option Selection:
-		private static boolean pbitOption1 = false;
+//	For Advanced HWATP test clear:::
+	
+	private static boolean advancedTestOk = false;
 
-		private static boolean pbitOption2 = false;
+	
 
-		public static boolean isPbitOption1() {
-			return pbitOption1;
-		}
+	public static boolean isAdvancedTestOk() {
+		return advancedTestOk;
+	}
 
-		public static void setPbitOption1(boolean pbitOption1) {
-			StateMachine.pbitOption1 = pbitOption1;
-		}
+	public static void setAdvancedTestOk(boolean advancedTestOk) {
+		StateMachine.advancedTestOk = advancedTestOk;
+	}
 
-		public static boolean isPbitOption2() {
-			return pbitOption2;
-		}
+//	For Advanced Interface test clear:::
+	
+	private static boolean advancedTestInterfaceOk = false;
+	
+	
+	public static boolean isAdvancedTestInterfaceOk() {
+		return advancedTestInterfaceOk;
+	}
 
-		public static void setPbitOption2(boolean pbitOption2) {
-			StateMachine.pbitOption2 = pbitOption2;
-		}
-		
+	public static void setAdvancedTestInterfaceOk(boolean advancedTestInterfaceOk) {
+		StateMachine.advancedTestInterfaceOk = advancedTestInterfaceOk;
+	}
+
+	// Stage for table Data Clearing & Moving Files:
+	private static String stageName;
+
+	public static String getStageName() {
+		return stageName;
+	}
+
+	public static void setStageName(String stageName) {
+		StateMachine.stageName = stageName;
+	}
+
 }

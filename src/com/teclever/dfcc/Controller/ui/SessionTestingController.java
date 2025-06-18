@@ -3,31 +3,28 @@ package com.teclever.dfcc.Controller.ui;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
-import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
-import com.teclever.dfcc.datastore.dto.TestFileDto;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
+import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
-import com.teclever.dfcc.model.SessionDetails;
 import com.teclever.dfcc.model.StageIdName;
-import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
@@ -94,7 +91,7 @@ public class SessionTestingController {
 	private Button pauseButton = new Button("Pause");
 	private Button runAllButton = new Button("Run All");
 
-	private VBox repeatCountVBox = new VBox();
+	private HBox repeatCountHBox = new HBox();
 	private Label repeatCountLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
 	private Label repeatNotLabel = new Label();
@@ -115,10 +112,12 @@ public class SessionTestingController {
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
 	private boolean isTrailSession = false;
+	
+	private String lastStageId;
 
 	private TableView<SessionTestResult> sessionTestTable = new TableView<>();
 
-	private VBox buttonMainVBox = new VBox(15);
+	private HBox buttonMainHBox = new HBox(15);
 	private HBox allButtonHBox = new HBox(5);
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
@@ -127,7 +126,7 @@ public class SessionTestingController {
 	private double progress = 0.1;
 
 	public SessionTestingController() {
-
+		StateMachine.setStageName("SESSION TEST");
 		initializeSearch();
 
 	}
@@ -169,15 +168,17 @@ public class SessionTestingController {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(7);
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(60);
+		secondRow.setPercentHeight(50);
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(33);
+		thirdRow.setPercentHeight(10);
+		RowConstraints fourthRow = new RowConstraints();
+		fourthRow.setPercentHeight(33);
 
 		sessionTestingMainGridPane.setPadding(new Insets(5));
 		sessionTestingMainGridPane.setVgap(5);
 		sessionTestingMainGridPane.setHgap(5);
 		sessionTestingMainGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		sessionTestingMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		sessionTestingMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow,fourthRow);
 
 //		sessionTestingMainGridPane.add(createHeadingBox(), 0, 0, 2, 1);
 		
@@ -187,8 +188,8 @@ public class SessionTestingController {
 		sessionTestingMainGridPane.add(headingBoxWrapper,  0, 0, 2, 1);
 		sessionTestingMainGridPane.add(createSessionTestingLeftSide(), 0, 1);
 		sessionTestingMainGridPane.add(createSessionTestingRightSide(), 1, 1);
-		sessionTestingMainGridPane.add(createSessionTestingResultsGridPane(), 0, 2, 2, 1);
-
+		sessionTestingMainGridPane.add(createButtonBox(), 0, 2, 2, 1);
+		sessionTestingMainGridPane.add(createSessionTestingResultsGridPane(), 0, 3, 2, 1);
 		return sessionTestingMainGridPane;
 	}
 
@@ -243,24 +244,25 @@ public class SessionTestingController {
 		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(57);
+		secondRow.setPercentHeight(90);
 
-		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(33);
+//		RowConstraints thirdRow = new RowConstraints();
+//		thirdRow.setPercentHeight(33);
 
 		sessionTestingListMainGridPane.getColumnConstraints().addAll(firstColumn);
-		sessionTestingListMainGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
+		sessionTestingListMainGridPane.getRowConstraints().addAll(firstRow, secondRow);
 		sessionTestingListMainGridPane.setHgap(5);
 		sessionTestingListMainGridPane.setVgap(5);
 		sessionTestingListMainGridPane.add(createSearchFile(), 0, 0);
 		sessionTestingListMainGridPane.add(createTestListView(), 0, 1);
-		sessionTestingListMainGridPane.add(createButtonBox(), 0, 2);
+		//sessionTestingListMainGridPane.add(createButtonBox(), 0, 2);
 
 		return sessionTestingListMainGridPane;
 	}
 
 	private VBox createSearchFile() {
 		searchVBox.getStyleClass().add("session-testing-right-text-field");
+		searchVBox.setAlignment(Pos.CENTER);
 		searchVBox.getChildren().add(testNameField);
 		return searchVBox;
 
@@ -292,7 +294,7 @@ public class SessionTestingController {
 
 	private HBox createButtonBox() {
 
-		buttonHBox.getStyleClass().add("session-testing-right-container");
+		buttonHBox.getStyleClass().add("session-testing-right-button-container");
 		Image playImage = new Image(
 				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/play.png"));
 		Image stopImage = new Image(
@@ -332,7 +334,8 @@ public class SessionTestingController {
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		runAllButton.setOnAction(e -> {
-			
+		
+			sessionTestTable.getItems().clear();
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -357,6 +360,39 @@ public class SessionTestingController {
 					testFileIds.add(checkbox.getId());
 				}
 			}
+//			System.out.println("Moving Files   ::::"+lastStageId);
+			
+			
+			//CondtionChecking
+			if(DFCCConstant.logOutmoveFiles.size()>0)
+			{
+//				System.out.println("Moving Files   ::::"+lastStageId);
+				if(DFCCConstant.logOutmoveFiles.containsKey(lastStageId))
+				{
+					
+				}
+			}
+			
+			
+//			//Condtion Checking
+//			if (DFCCConstant.rdfsPaths.size() > 0) {
+//
+//				SessionFileManagement sessionFileManagement = new SessionFileManagement();
+//				sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths, DFCCConstant.outPut);
+//				DFCCConstant.rdfsPaths = new ArrayList<Path>();
+//			}
+//			
+//			
+//			if(DFCCConstant.FailedStagesRdfPaths.size()>0)
+//			{
+//				//When Failed Its Open 
+//				 System.out.println("Entred in failed file condition:::::::Session" + DFCCConstant.FailedStagesRdfPaths.size());
+//				 SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+//				 DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//			}
+			
+			
+			
 			if (testFileIds.size() == 0) {
 				Notifications.showWarningAlert("Please Select Test File...");
 				return;
@@ -403,7 +439,46 @@ public class SessionTestingController {
 		});
 
 		startButton.setOnAction(e -> {
+			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+			
+				if(StateMachine.isSessionTestOk()) {
+//					System.out.println("<<<<<<<<<<<Entred isSeesion condiontion  + Stage ID>>>>>>>" + lastStageId);
+					//Checking With List
+					boolean popupRDFFiles = false;
+					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+								popupRDFFiles = true;
+
+							}
+						}
+
+						if (popupRDFFiles) {
+//							System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
+							{
+//								System.out.println("StageId Popup"+copyFileDTO.getStageId());
+								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+							}
+							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						} else {
+							SessionFileManagement session = new SessionFileManagement();
+//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						}
+					}
+
+					
+					sessionTestTable.getItems().clear();
+					
+					StateMachine.setSessionTestOk(false);
+				}
+				
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
@@ -413,6 +488,7 @@ public class SessionTestingController {
 			}
 			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
+			
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
@@ -487,7 +563,7 @@ public class SessionTestingController {
 
 		SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {
-				System.out.println("New Value for Session Test::::" + newValue);
+//				System.out.println("New Value for Session Test::::" + newValue);
 				SessionTestStateObject.getRunningTestLeafStatus().set(false);
 				StateMachine.setTestState(TestState.COMPLETED);
 				startButton.setText("Start");
@@ -499,6 +575,8 @@ public class SessionTestingController {
 				getStatusForAllStage();
 			}
 		});
+		
+		
 
 		pauseButton.setOnAction(e -> {
 			StateMachine.setConfirmTestStop(true);
@@ -515,8 +593,10 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
-			
+			Platform.runLater(() -> {
 			setStateMachineCurrentL1StageId();
+			});
+			
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -542,15 +622,15 @@ public class SessionTestingController {
 			runAllButton.setDisable(false);
 		});
 
-		repeatCountLabel.setText("Repeat Count");
-		repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
+		repeatCountLabel.setText("Repeat Count(1 to 100)");
+		//repeatNotLabel.setText("(Note:Enter Value from 1 to 100)");
 		repeatNotLabel.setTextFill(Color.WHITE);
 		repeatNotLabel.setWrapText(true);
 		repeatNotLabel.getStyleClass().add("session-testing-repeat-count-label-info");
 		repeatCountLabel.getStyleClass().add("session-testing-repeat-count-label");
 		repeatCountTextField.getStyleClass().add("session-testing-repeat-count-input");
 		repeatCountTextField.setText("1");
-		repeatCountVBox.getStyleClass().add("repeat-count-vbox");
+		repeatCountHBox.getStyleClass().add("repeat-count-vbox");
 		repeatCountTextField.setAlignment(Pos.CENTER);
 
 		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
@@ -577,9 +657,9 @@ public class SessionTestingController {
 //			}
 //		});
 
-		repeatCountVBox.setAlignment(Pos.CENTER);
-		repeatCountVBox.setPadding(new Insets(5));
-		repeatCountVBox.getChildren().addAll(repeatCountLabel, repeatCountTextField, repeatNotLabel);
+		repeatCountHBox.setAlignment(Pos.CENTER);
+		//repeatCountHBox.setPadding(new Insets(5));
+		repeatCountHBox.getChildren().addAll(repeatCountLabel, repeatCountTextField);
 
 		buttonHBox.setAlignment(Pos.CENTER);
 
@@ -588,14 +668,15 @@ public class SessionTestingController {
 		percentageLabel.getStyleClass().add("progress-label");
 
 		progressBarHBox.setAlignment(Pos.CENTER);
+		allButtonHBox.setAlignment(Pos.CENTER);
 
-		buttonMainVBox.setPadding(new Insets(25, 0, 0, 0));
-		progressBarHBox.setPadding(new Insets(5, 0, 0, 0));
+		//buttonMainHBox.setPadding(new Insets(20, 0, 0, 0));
+		//progressBarHBox.setPadding(new Insets(0, 0, 0, 0));
 		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
-		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
+		buttonMainHBox.getChildren().addAll( allButtonHBox,progressBarHBox);
 
-		buttonHBox.getChildren().addAll(repeatCountVBox, buttonMainVBox);
+		buttonHBox.getChildren().addAll(repeatCountHBox, buttonMainHBox);
 
 //		Before Changing 100%
 //		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
@@ -669,7 +750,7 @@ public class SessionTestingController {
 		return sessionTestingResultsGridPane;
 	}
 
-	private TreeView<Label> createTreeView() {
+	public TreeView<Label> createTreeView() {
 		TreeItem<Label> rootItem = new TreeItem<>();
 		rootItem.setExpanded(true);
 		rootItem.setGraphic(null);
@@ -691,13 +772,39 @@ public class SessionTestingController {
 		sessionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null) {
 				Label selectedLabel = newValue.getValue();
-				sessionTestTable.getItems().clear();
+//				System.out.println("New Value check" +newValue.getValue() );
+				
+
+				
 				if (newValue.getChildren().isEmpty()) {
 					Entry<String, StageIdName> userData = (Entry<String, StageIdName>) selectedLabel.getUserData();
 					getTestListByStageId(userData.getValue().getStageId(), userData.getValue().getTestTypeId());
 					selectedStageId = userData.getValue().getStageId();
 					selectedTestTypeId = userData.getValue().getTestTypeId();
 				}
+//				System.out.println("Before Stage ID Confirmation Check:::" + lastStageId);
+				
+				if(!selectedStageId.equals(oldValue)) {
+					String old = oldValue.toString();
+					
+					old.substring(3,10);
+//					System.out.println("old::::"+ old);
+					
+					lastStageId= old;
+//					System.out.println("<<<<<<<<<<<<<<<<In New If Condition check>>>>>>>>>>>>>>>>" + lastStageId);
+				}
+				
+//				For Clearing Table ADta and Moving Confirmation Flag:
+					if(StateMachine.getTestState() != TestState.RUNNING && StateMachine.getStageName() == "SESSION TEST"){
+//					System.out.println("Entred Clearing method after selection");
+						StateMachine.setSessionTestOk(true);
+						
+						
+						
+//						System.out.println("Inside Stage ID Confirmation Check:::" + lastStageId);
+						
+					}
+//					System.out.println("After ID Confirmation Check:::" + lastStageId);
 			}
 		});
 
@@ -931,11 +1038,13 @@ public class SessionTestingController {
 						e.setDisable(false);
 					}
 				}
+			
 			});
 		}
 	}
 
 	private void setStateMachineCurrentL1StageId() {
+//		System.out.println("Entred to Enable the stages");
 		boolean founded = false;
 		for (Entry<String, ObservableList<String>> l1Stage : SessionTestStateObject.getL1StagesWithEndLeadId()
 				.entrySet()) {

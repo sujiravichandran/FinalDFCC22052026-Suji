@@ -10,7 +10,9 @@ public class CopyFileDTO {
 	private String copyingId;
 	private String status;
 	private String stageName;
+	private String stageId;
 	private boolean flag;
+	private int dStarCount;
 	
 	
 	
@@ -67,6 +69,18 @@ public class CopyFileDTO {
 	}
 	public void setStageName(String stageName) {
 		this.stageName = stageName;
+	}
+	public String getStageId() {
+		return stageId;
+	}
+	public void setStageId(String stageId) {
+		this.stageId = stageId;
+	}
+	public int getdStarCount() {
+		return dStarCount;
+	}
+	public void setdStarCount(int dStarCount) {
+		this.dStarCount = dStarCount;
 	}
 	
 	

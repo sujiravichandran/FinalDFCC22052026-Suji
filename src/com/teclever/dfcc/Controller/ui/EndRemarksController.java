@@ -115,6 +115,8 @@ public class EndRemarksController {
 							Notifications.showErrorAlert(response.getResponseMessage());
 						}
 					});
+			
+		
 
 		} else if (currentState == TestState.PAUSED || currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert("Please stop the " + StateMachine.getRunningTestName()

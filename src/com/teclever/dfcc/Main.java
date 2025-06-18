@@ -9,8 +9,10 @@ import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import com.itextpdf.text.DocumentException;
@@ -23,6 +25,8 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.resultstore.dto.StepDto;
+import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -35,8 +39,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
@@ -67,7 +71,40 @@ public class Main extends Application {
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-		//COM FILE
+	
+		
+//		SessionTestingController sessionTestingController = new SessionTestingController();
+//		sessionTestingController.createTreeView();
+		
+		//COM FILES
+//		List<StepDto> lst = new ArrayList<StepDto>();
+//		try {
+//			lst = StepParser.parseStepContextNEW("D:\\June 2025\\pwrauto_ess_mod.rdf;01");
+//			System.out.println("List Size"+lst.size());
+//			
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+//		RdfFileDetailsParser.saveProjectDetailsToMongoDB("SASN00042","C:\\dstarissuefiles\\dio_ess.rdf;00" );
+		
+//		List<CopyFileDTO> lst = new ArrayList<CopyFileDTO>();
+//		
+//		CopyFileDTO copy1  = new CopyFileDTO();
+//		copy1.setStageId("L1_001");
+//		copy1.setStagePath("C:\\LatestFX_anuj\\BEL-DFCC-new\\BEL-DFCC-new\\target\\MK-1\\1160 000 395 75\\MK-1_2334_Mod-A_TESTEND_25-10-2024 11 19 16\\LRU Test\\Mandatory Test\\PBIT Test");
+//		lst.add(copy1);
+//		
+//		CopyFileDTO copy2 = new CopyFileDTO();
+//		copy1.setStageId("L1_002");
+//		copy1.setStagePath("C:\\LatestFX_anuj\\BEL-DFCC-new\\BEL-DFCC-new\\target\\MK-1\\1160 000 395 75\\MK-1_2334_Mod-A_TESTEND_25-10-2024 11 19 16\\LRU Test\\Mandatory Test\\SPIL LINK");
+//		lst.add(copy2);
+//		
+//		
+//		SessionFileManagement session = new SessionFileManagement();
+//		session.copyFilesToOutputFolderWhilePlayButton(lst);
+		
   		Main.launch(args);
 
 	}

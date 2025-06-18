@@ -146,7 +146,7 @@ public class PbitOfpSelectionController {
 	@FXML
 	void onClickOption2(ActionEvent event) {
 		OFPVersion.setVisible(true);
-		System.out.println("Entred Option2 method");
+//		System.out.println("Entred Option2 method");
 
 		initializeOfpVersionComboBox();
 	}
@@ -154,10 +154,10 @@ public class PbitOfpSelectionController {
 	@FXML
 	private void handleSaveButtonAction() {
 		if (option1.isSelected()) {
-			System.out.println("Check Option1");
+//			System.out.println("Check Option1");
 			StateMachine.setPbitOption1(true);
 		} else if (option2.isSelected()) {
-			System.out.println("Check Option2");
+//			System.out.println("Check Option2");
 			StateMachine.setPbitOption2(true);
 		}
 		if (!option1.isSelected() && !option2.isSelected()) {
@@ -193,7 +193,7 @@ public class PbitOfpSelectionController {
 		OFPVersion.setOnAction((event) -> {
 			ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
 			this.RUN_CONFIG_ID.set(ofpConfigId);
-			System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
+//			System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
 
 		});
 

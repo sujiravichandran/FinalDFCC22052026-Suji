@@ -29,7 +29,6 @@ import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.TestFile;
-import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.service.LevelFiveMasterService;
@@ -251,6 +250,8 @@ public class ResultExecutionManagement {
 			response.seteMsg("Not Fetched");
 			response.seteMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
+			
+			System.out.println(ex.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -311,7 +312,7 @@ public class ResultExecutionManagement {
 			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
-
+			System.out.println("Entred 2nd Method result");
 			/*
 			 * if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
 			 * sessionStagesSelectedTestFilesService = new
@@ -338,7 +339,7 @@ public class ResultExecutionManagement {
 							selectedTestFile.getTestFilesId());
 				}
 			}
-
+			 System.out.println("Entred 2nd REsulkt MEtod" );
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse resTestFiles = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
@@ -473,6 +474,7 @@ public class ResultExecutionManagement {
 					"--------------------------------" + resTestFiles.getCode() + "  Msg" + resTestFiles.getMsg());
 			List<SessionStagesTestFilesResult> lst = new ArrayList<SessionStagesTestFilesResult>();
 			lst = (List<SessionStagesTestFilesResult>) resTestFiles.getResponseList();
+			System.out.println("Entred 3rd REsulkt MEtod" );
 
 			if (lst.size() < 1) {
 				response.setMsg("Tests Need to be performed to diplay data");
@@ -593,6 +595,7 @@ public class ResultExecutionManagement {
 			 */
 
 			// Fetching the SessionId
+			System.out.println("Entred sessionId ");
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
@@ -648,6 +651,8 @@ public class ResultExecutionManagement {
 			
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream().filter(f->ids.stream().anyMatch(id->f.getSelectedtestFileId().equalsIgnoreCase(id))).collect(Collectors.toList());
 
+			
+			
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
 					.filter(stage -> stage.getStageId().equals(stageId)
 							&& !stage.getSystemResultInfoId().equalsIgnoreCase("null"))
@@ -749,12 +754,13 @@ public class ResultExecutionManagement {
 				response.setMsg("Fetched Successfully");
 
 				Debug.printDebug("Detail List Size" + resultDetailedList.size());
-				}
-		}} catch (Exception ex) {
+				}}
+		} catch (Exception ex) {
 			response.setCode(1);
 			response.setMsg("Issue Successfully");
 			response.setMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
+			System.out.println(ex.getLocalizedMessage());
 
 		}
 		return response;
@@ -780,6 +786,8 @@ public class ResultExecutionManagement {
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 
+			System.out.println("Entred sessionId,stageId ");
+			
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse res = sessionStagesTestFilesResultService.getTestResultFileBySessionIdAndStageId(sessionId,
 					stageId);
@@ -838,7 +846,7 @@ public class ResultExecutionManagement {
 				List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
 
 				for (String systemInfoId : systemInfoIdList) {
-					if(!systemInfoId.equals("null"))
+					if(!systemInfoId.equals(null))
 					{
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
@@ -910,7 +918,7 @@ public class ResultExecutionManagement {
 				response.setMsg("Fetched Successfully");
 				Debug.printDebug(
 						"Fetched Successfully       :" + "Detail List Size          :s" + resultDetailedList.size());
-				}	}
+			}}
 		} catch (Exception ex) {
 			response.setCode(0);
 			response.setMsg("Issue Successfully");
@@ -936,6 +944,7 @@ public class ResultExecutionManagement {
 			 * sessionEntityList.get(sessionEntityList.size() - 1); String sessionId =
 			 * sessionDto.getSessionId(); String sessionName = sessionDto.getSessionName();
 			 */
+			System.out.println("Entred Session2nd");
 			SessionManagement sessionManagement = new SessionManagement();
 			// Fetching the SessionId
 			List<String> systemInfoIdList = new ArrayList<String>();
@@ -1706,7 +1715,7 @@ public class ResultExecutionManagement {
 					String endTime = "-";
 					String startTime1 = "";
 					String endTime1 = "";
-					
+
 					int failedFiles = 0;
 					int files = 0;
 
@@ -1719,6 +1728,9 @@ public class ResultExecutionManagement {
 							if (stgesfilesList.size() > 1) {
 								startTime = stgesfilesList.get(0).getStartTime();
 								endTime = stgesfilesList.get(stgesfilesList.size() - 1).getEndTime();
+								
+								
+								
 							} else if (stgesfilesList.size() == 1) {
 								startTime = stgesfilesList.get(0).getStartTime();
 								String [] s = startTime.split(" ");
@@ -1764,9 +1776,9 @@ public class ResultExecutionManagement {
 					
 					if (!startTime.equals("-") && !endTime.equals("-")) {
 					    
-					        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-					        Date d1 = format.parse(startTime);
-					        Date d2 = format.parse(endTime);
+					    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+						Date d1 = format.parse(startTime);
+						Date d2 = format.parse(endTime);
 					        long differenceInMillis = d2.getTime() - d1.getTime();
 
 					        long diffSeconds = (differenceInMillis / 1000) % 60;
@@ -1776,9 +1788,7 @@ public class ResultExecutionManagement {
 					        String formattedDuration = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds);
 
 					        resultSessionStagesDetailsDTO.setTimeTakenForExecution(formattedDuration);
-					        resultSessionStagesDetailsDTO.setStatus("COMPLETED");
-					
-
+						resultSessionStagesDetailsDTO.setStatus("COMPLETED");
 					} else {
 						resultSessionStagesDetailsDTO.setTimeTakenForExecution("-");
 						resultSessionStagesDetailsDTO.setStatus("Pending");
