@@ -1714,6 +1714,10 @@ public class ResultExecutionManagement {
 					// Getting the Stage Id
 					String stageId = levelId;
 					String levelName = stagesIdName.get(levelId);
+					
+					
+					System.out.println("Level Id   :"+levelId);
+					System.out.println("Level Id Name   :"+stageIdName.get(stageId));
 
 					String startTime = "-";
 					String endTime = "-";
@@ -1762,9 +1766,13 @@ public class ResultExecutionManagement {
 					if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
 							|| parentName.equals("Self Test")) {
 						resultSessionStagesDetailsDTO.setTestMode(parentName + "-" + stageIdName.get(stageId));
+				
+						resultSessionStagesDetailsDTO.setTestType(parentName);
 					} else {
 						resultSessionStagesDetailsDTO
 								.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
+						resultSessionStagesDetailsDTO.setTestType("SESSION");
+				
 					}
 //					if (!startTime.equals("-") && !endTime.equals("-")) {
 //						SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
@@ -1827,7 +1835,23 @@ public class ResultExecutionManagement {
 			} else {
 				response.setTotalNoOfStages(0);
 			}
-			response.setResultSessionStagesDetailsDTOList(resultSessionStagesDetailsDTOList);
+			
+			//Filter By Session Name
+			List<ResultSessionStagesDetailsDTO> sessionStagesList = new ArrayList<ResultSessionStagesDetailsDTO>();
+			sessionStagesList = resultSessionStagesDetailsDTOList.stream().filter(ls->ls.getTestType().equals("SESSION")).collect(Collectors.toList());
+			
+			//Filter By No File Executed
+			List<ResultSessionStagesDetailsDTO> sessionStagesListRunnedList = new ArrayList<ResultSessionStagesDetailsDTO>();
+			sessionStagesListRunnedList  = resultSessionStagesDetailsDTOList.stream().filter(ls->!ls.getTestType().equals("SESSION") && ls.getNoOfFilesExecuted()>0).collect(Collectors.toList());			
+			
+			
+			//Add Both Files In Result DTO List...
+			List<ResultSessionStagesDetailsDTO>finalList = new ArrayList<ResultSessionStagesDetailsDTO>();
+			finalList.addAll(sessionStagesList);
+			finalList.addAll(sessionStagesListRunnedList);
+			
+			
+			response.setResultSessionStagesDetailsDTOList(finalList);
 			response.setCode(1);
 			response.setMsg("Fetched");
 		} catch (Exception ex) {

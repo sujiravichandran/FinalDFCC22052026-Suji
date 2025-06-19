@@ -1,6 +1,8 @@
 package com.teclever.dfcc.datastore.sessionmanagement;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,9 +78,9 @@ import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Debug;
 
 public class SessionManagement {
-	private final static String COMPLETED ="Completed";
-	private final static String PENDING ="pending";
-	private final static String PARTIAL ="Partial";
+	private final static String COMPLETED = "Completed";
+	private final static String PENDING = "pending";
+	private final static String PARTIAL = "Partial";
 	private final static String COMPLETEDWITHFAILURE = "completedwithfailure";
 	List<SessionToStagesMappingDTO> sessionStages = new ArrayList<>();
 
@@ -131,8 +133,9 @@ public class SessionManagement {
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
-			sessionPath = sessionPath + File.separator +"."+"output"+ File.separator+ uutIdName.get(sessionDTO.getUutId()) + File.separator
-					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
+			sessionPath = sessionPath + File.separator + "." + "output" + File.separator
+					+ uutIdName.get(sessionDTO.getUutId()) + File.separator + sessionDTO.getDfccPartNo()
+					+ File.separator + sessionDTO.getSessionName();
 			sessionDto.setPath(sessionPath);
 			// SESSION ENTITY : ADD
 			GetObjResponse resObj = sessionService.addSession(sessionDto);
@@ -253,7 +256,7 @@ public class SessionManagement {
 			addCurrentlyUsingSessionId(sessionId);
 
 			addStagesRemarks(setOfL1Ids);
-			
+
 			res.setResponseCode(1);
 			res.setResponseMessage("Session Created Successfully..!");
 
@@ -265,7 +268,6 @@ public class SessionManagement {
 		}
 		return res;
 	}
-	
 
 	// AT FIRST TIME SESSION CREATION
 	public StageMasterLevelOneResponse getLevelOneStageMasterBySessionId(String uutId, String sessionId) {
@@ -758,9 +760,8 @@ public class SessionManagement {
 	 * l2.getLevelTwoStageId(); } }
 	 * 
 	 * // Debug.printDebug("advanceLevelOne  " + advanceLevelOne +
-	 * "   lruLevelOneId " + lruLevelOneId); //
-	 * Debug.printDebug("advanceLevelTwo  " + advanceLevelTwo +
-	 * "   lruLevelTwoId " + lruLevelTwoId);
+	 * "   lruLevelOneId " + lruLevelOneId); // Debug.printDebug("advanceLevelTwo  "
+	 * + advanceLevelTwo + "   lruLevelTwoId " + lruLevelTwoId);
 	 * 
 	 * LevelThreeService levelThreeService = new LevelThreeService(); Map<String,
 	 * List<LevelThreeStageMaster>> levelThreeMap =
@@ -972,9 +973,7 @@ public class SessionManagement {
 		}
 		return isConfig;
 	}
-	
-	
-	
+
 	public boolean getReconfigStatus() {
 		boolean isReConfigAvail = true;
 		try {
@@ -988,7 +987,7 @@ public class SessionManagement {
 			GetResponse getResponse = s.getTestResultFileByStageId(trailSessionId);
 			List<SessionStagesTestFilesResult> lst = new ArrayList();
 			lst = (List<SessionStagesTestFilesResult>) getResponse.getResponseList();
-			if (lst.size()>0) {
+			if (lst.size() > 0) {
 				isReConfigAvail = false;
 			}
 
@@ -996,7 +995,7 @@ public class SessionManagement {
 			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return isReConfigAvail;
-	}	
+	}
 
 	// Trail Method - To Save The Trails Entity
 	public GetObjResponse saveTrailSessionEntity(SessionDTO sessionDTO) {
@@ -1020,14 +1019,15 @@ public class SessionManagement {
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			sessionDto.setEndDate(sessionDTO.getEndDate());
-			
+
 			// sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
-			
+
 //			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
 //					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
-			
-			sessionPath = sessionPath + File.separator +"."+"output"+ File.separator+ uutIdName.get(sessionDTO.getUutId()) + File.separator
-					+ sessionDTO.getDfccPartNo() + File.separator + sessionDTO.getSessionName();
+
+			sessionPath = sessionPath + File.separator + "." + "output" + File.separator
+					+ uutIdName.get(sessionDTO.getUutId()) + File.separator + sessionDTO.getDfccPartNo()
+					+ File.separator + sessionDTO.getSessionName();
 			sessionDto.setPath(sessionPath);
 
 			// SESSION ENTITY : ADD
@@ -1151,14 +1151,12 @@ public class SessionManagement {
 			List<SessionStagesMapping> sessionToStagesMappingList = new ArrayList<SessionStagesMapping>();
 
 			Set<String> setOfL1Ids = new LinkedHashSet<>();
-			
+
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : dbSessionStages) {
 
 				// for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
 				SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
-				
-				
-				
+
 				sessionStagesMapping.setRepeatCount(1);
 				sessionStagesMapping.setRunCount(0);
 				sessionStagesMapping.setSessionId(trailSessionId);
@@ -1173,7 +1171,7 @@ public class SessionManagement {
 				sessionStagesMapping.setLevelFiveStageId(sessionToStagesMappingDTO.getLevelFiveStageId());
 				sessionStagesMapping.setPath(sessionToStagesMappingDTO.getPath());
 				sessionToStagesMappingList.add(sessionStagesMapping);
-				
+
 				if (!setOfL1Ids.contains(sessionToStagesMappingDTO.getLevelOneStageId())) {
 					setOfL1Ids.add(sessionToStagesMappingDTO.getLevelOneStageId());
 				}
@@ -1188,7 +1186,7 @@ public class SessionManagement {
 				// trailEntitySession.setRunned(true);
 				sessionService.updateRunStatus(trailSessionId);
 			}
-			
+
 			addStagesRemarks(setOfL1Ids);
 
 			res.setCode(1);
@@ -1333,10 +1331,11 @@ public class SessionManagement {
 			StageLevelResponse stagelevelResponse = levelOneService.getLevelTOneMasterBySessionId(uutId, "ST4");
 
 			List<LevelOneResponseDto> lst = (List<LevelOneResponseDto>) stagelevelResponse.getStageLevelList();
-			
-			//Filter the Advance Flag and Mandatory Flag
 
-			lst = lst.stream().filter(filterObj -> filterObj.isAdvanceTestStatus()==false && filterObj.isDefaultStatus()==false )
+			// Filter the Advance Flag and Mandatory Flag
+
+			lst = lst.stream().filter(
+					filterObj -> filterObj.isAdvanceTestStatus() == false && filterObj.isDefaultStatus() == false)
 					.collect(Collectors.toList());
 
 			Map<String, List<String>> firstLevelIdFinLeaf = new HashMap<String, List<String>>();
@@ -1615,13 +1614,13 @@ public class SessionManagement {
 //		return res;
 //
 //	}
-	
+
 //	After Anuj Change
-	public Response endSession(String endRemarks,boolean islogout) {
+	public Response endSession(String endRemarks, boolean islogout) {
 		Response res = new Response();
 		try {
-			if(islogout) {
-			AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
+			if (islogout) {
+				AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
 			}
 			String sessionId = currentSessionDetails.getSessionId();
 			if (sessionId.substring(0, 4).equals("TSSN")) {
@@ -1638,7 +1637,13 @@ public class SessionManagement {
 				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 				ss.setEndDate(sqlDate);
 				ss.setEndRemarks(endRemarks);
-				ss.setEndDateTime(new Date().toString());
+
+				LocalDateTime now = LocalDateTime.now();
+
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+				String formattedDateTime = now.format(formatter);
+
+				ss.setEndDateTime(formattedDateTime);
 				res = sessionService.updateSession(ss);
 			}
 		} catch (Exception e) {
@@ -1664,8 +1669,8 @@ public class SessionManagement {
 		StagesRemarksResponse serviceResponse = service.updateStagesRemarks(remarkList);
 		return serviceResponse;
 	}
-	
-	//SAVE
+
+	// SAVE
 	public void addStagesRemarks(Set<String> setOfL1Ids) {
 		StagesRemarksService service = new StagesRemarksService();
 		for (String s : setOfL1Ids) {
@@ -1676,7 +1681,7 @@ public class SessionManagement {
 			service.addOrUpdateStagesRemarks(stagesRemarks);
 		}
 	}
-	
+
 	// GET
 	public StageRemarksResponse getStagesRemarks(String sessionId, String reportType) {
 		StagesRemarksService service = new StagesRemarksService();
@@ -1698,7 +1703,6 @@ public class SessionManagement {
 				dto.setRemarks(remarks.getRemarks());
 				dto.setSessionId(remarks.getSessionId());
 				dto.setReportType(remarks.getReportType());
-				
 
 				dtoList.add(dto);
 				response.setResponseCode(1);
@@ -1714,8 +1718,8 @@ public class SessionManagement {
 
 		return response;
 	}
-	
-	//  BASED ON ROLE ID FETCH SESSION DATA
+
+	// BASED ON ROLE ID FETCH SESSION DATA
 	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
 		SessionListResponse sessionListResponse = new SessionListResponse();
 		Response res = new Response();
@@ -1761,7 +1765,7 @@ public class SessionManagement {
 
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
-				
+
 				if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
 
 					SessionList sessionList = new SessionList();
@@ -2046,10 +2050,7 @@ public class SessionManagement {
 //		return sessionStageMapResponse;
 //	}
 
-	
-	
-	
-	//Before Suji Change
+	// Before Suji Change
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS
 	public SessionStageMapResponse getAllSessionStage_IdsWithResult1(String sessionEntityId) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
@@ -2064,20 +2065,23 @@ public class SessionManagement {
 				return sessionStageMapResponse;
 			}
 			Set<String> levelOneIds = new LinkedHashSet<>();
-			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value: [L2_219, L2_220, L2_221]
-			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:  [L3_160, L3_161]
-			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178  , Value:  [L4_207]
-			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203  , Value:  [L5_050]
-			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050  , Value:  pending
+			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value:
+																						// [L2_219, L2_220, L2_221]
+			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:
+																						// [L3_160, L3_161]
+			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178 , Value:
+																						// [L4_207]
+			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203 , Value:
+																						// [L5_050]
+			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050 , Value: pending
 
-			
 			for (Object object : getResponse.getResponseList()) {
-				
+
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-				
+
 				// Add L1 IDs
 				levelOneIds.add(sessionStage.getLevelOneStageId());
-				
+
 				// Add L2 IDs
 				if (sessionStage.getLevelTwoStageId() != null) {
 					if (levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId()) != null) {
@@ -2093,9 +2097,11 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelOneStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelOneStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
-				
+
 				// Add L3 IDs
 				if (sessionStage.getLevelThreeStageId() != null) {
 					if (levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId()) != null) {
@@ -2111,7 +2117,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelTwoStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelTwoStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L4 IDs
@@ -2129,7 +2137,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelThreeStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelThreeStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L5 IDs
@@ -2145,48 +2155,51 @@ public class SessionManagement {
 						levelFiveIds.add(sessionStage.getLevelFiveStageId());
 						levelfiveIdsWithParantId.put(sessionStage.getLevelFourStageId(), levelFiveIds);
 					}
-					leafStageResult.put(sessionStage.getLevelFiveStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFiveStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				} else {
-					leafStageResult.put(sessionStage.getLevelFourStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFourStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 			}
 
-
 			List<StageObject> listOfStageObject = new ArrayList<>();
-			// L1 Start 
+			// L1 Start
 			for (String levelOneId : levelOneIds) {
 				StageObject stageObject = new StageObject();
 				if (levelTwoIdsWithParantId.get(levelOneId) != null) {
 					String l1Status = PENDING;
 					boolean pending1 = false;
 					boolean completed1 = false;
-					
-					// L2 Start 
+
+					// L2 Start
 					for (String levelTwo : levelTwoIdsWithParantId.get(levelOneId)) {
 						StageObject stageObjectL2 = new StageObject();
 						if (levelThreeIdsWithParantId.get(levelTwo) != null) {
 							String l2Status = PENDING;
 							boolean pending2 = false;
 							boolean completed2 = false;
-							
-							// L3 Start 
+
+							// L3 Start
 							for (String levelThreeId : levelThreeIdsWithParantId.get(levelTwo)) {
 								StageObject stageObjectL3 = new StageObject();
 								if (levelfourIdsWithParantId.get(levelThreeId) != null) {
 									String l3Status = PENDING;
 									boolean pending3 = false;
 									boolean completed3 = false;
-									
-									// L4 Start 
+
+									// L4 Start
 									for (String levelFourId : levelfourIdsWithParantId.get(levelThreeId)) {
 										StageObject stageObjectL4 = new StageObject();
 										if (levelfiveIdsWithParantId.get(levelFourId) != null) {
 											String l4Status = PENDING;
 											boolean pending4 = false;
 											boolean completed4 = false;
-											
-											// L5 Start 
+
+											// L5 Start
 											for (String levelFiveId : levelfiveIdsWithParantId.get(levelFourId)) {
 												StageObject stageObjectL5 = new StageObject();
 
@@ -2199,8 +2212,8 @@ public class SessionManagement {
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
-											}// L5 End 
-											
+											} // L5 End
+
 											boolean failCheck4 = false;
 											if (pending4 && completed4) {
 												l4Status = PARTIAL;
@@ -2208,12 +2221,11 @@ public class SessionManagement {
 											} else if (completed4) {
 												l4Status = COMPLETED;
 											}
-											
-											if(failCheck4)
-											{
+
+											if (failCheck4) {
 												l4Status = COMPLETEDWITHFAILURE;
 											}
-											
+
 											leafStageResult.put(levelFourId, l4Status);
 											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 													levelFourId, null, l4Status);
@@ -2233,7 +2245,7 @@ public class SessionManagement {
 										} else if (leafStageResult.get(levelFourId).equals(PARTIAL)) {
 											l3Status = PARTIAL;
 										}
-									}// L4 End 
+									} // L4 End
 									boolean failCheck3 = false;
 									if (l3Status.equals(PARTIAL)) {
 										l3Status = PARTIAL;
@@ -2243,12 +2255,11 @@ public class SessionManagement {
 									} else if (completed3) {
 										l3Status = COMPLETED;
 									}
-									
-									if(failCheck3)
-									{
+
+									if (failCheck3) {
 										l3Status = COMPLETEDWITHFAILURE;
 									}
-									
+
 									leafStageResult.put(levelThreeId, l3Status);
 									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
 											leafStageResult.get(levelThreeId));
@@ -2262,12 +2273,13 @@ public class SessionManagement {
 
 								if (leafStageResult.get(levelThreeId).equals(PENDING)) {
 									pending2 = true;
-								} else if (leafStageResult.get(levelThreeId).toLowerCase().startsWith(COMPLETED.toLowerCase())) {
+								} else if (leafStageResult.get(levelThreeId).toLowerCase()
+										.startsWith(COMPLETED.toLowerCase())) {
 									completed2 = true;
 								} else if (leafStageResult.get(levelThreeId).equals(PARTIAL)) {
 									l2Status = PARTIAL;
 								}
-							}// L3 End 
+							} // L3 End
 							boolean failCheck2 = false;
 							if (l2Status.equals(PARTIAL)) {
 								l2Status = PARTIAL;
@@ -2277,8 +2289,7 @@ public class SessionManagement {
 							} else if (completed2) {
 								l2Status = COMPLETED;
 							}
-							if(failCheck2)
-							{
+							if (failCheck2) {
 								l2Status = COMPLETEDWITHFAILURE;
 							}
 							leafStageResult.put(levelTwo, l2Status);
@@ -2298,8 +2309,8 @@ public class SessionManagement {
 						} else if (leafStageResult.get(levelTwo).equals(PARTIAL)) {
 							l1Status = PARTIAL;
 						}
-					}// L2 End 
-					
+					} // L2 End
+
 					boolean failCheck1 = false;
 					if (l1Status.equals(PARTIAL)) {
 						l1Status = PARTIAL;
@@ -2309,14 +2320,12 @@ public class SessionManagement {
 					} else if (completed1) {
 						l1Status = COMPLETED;
 					}
-					
-					//Checking With Complered and Failure....
-					if(failCheck1)
-					{
+
+					// Checking With Complered and Failure....
+					if (failCheck1) {
 						l1Status = COMPLETEDWITHFAILURE;
 					}
-					
-					
+
 					leafStageResult.put(levelOneId, l1Status);
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
 					pending1 = false;
@@ -2325,8 +2334,8 @@ public class SessionManagement {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
-			}// L1 End 
-			
+			} // L1 End
+
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull ");
@@ -2339,7 +2348,7 @@ public class SessionManagement {
 		}
 		return sessionStageMapResponse;
 	}
-	
+
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS
 	public SessionStageMapResponse getAllSessionStage_IdsWithResult(String sessionEntityId) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
@@ -2354,20 +2363,23 @@ public class SessionManagement {
 				return sessionStageMapResponse;
 			}
 			Set<String> levelOneIds = new LinkedHashSet<>();
-			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value: [L2_219, L2_220, L2_221]
-			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:  [L3_160, L3_161]
-			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178  , Value:  [L4_207]
-			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203  , Value:  [L5_050]
-			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050  , Value:  pending
+			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value:
+																						// [L2_219, L2_220, L2_221]
+			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:
+																						// [L3_160, L3_161]
+			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178 , Value:
+																						// [L4_207]
+			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203 , Value:
+																						// [L5_050]
+			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050 , Value: pending
 
-			
 			for (Object object : getResponse.getResponseList()) {
-				
+
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-				
+
 				// Add L1 IDs
 				levelOneIds.add(sessionStage.getLevelOneStageId());
-				
+
 				// Add L2 IDs
 				if (sessionStage.getLevelTwoStageId() != null) {
 					if (levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId()) != null) {
@@ -2383,9 +2395,11 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelOneStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelOneStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
-				
+
 				// Add L3 IDs
 				if (sessionStage.getLevelThreeStageId() != null) {
 					if (levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId()) != null) {
@@ -2401,7 +2415,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelTwoStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelTwoStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L4 IDs
@@ -2419,7 +2435,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelThreeStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelThreeStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L5 IDs
@@ -2435,48 +2453,51 @@ public class SessionManagement {
 						levelFiveIds.add(sessionStage.getLevelFiveStageId());
 						levelfiveIdsWithParantId.put(sessionStage.getLevelFourStageId(), levelFiveIds);
 					}
-					leafStageResult.put(sessionStage.getLevelFiveStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFiveStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				} else {
-					leafStageResult.put(sessionStage.getLevelFourStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFourStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 			}
 
-
 			List<StageObject> listOfStageObject = new ArrayList<>();
-			// L1 Start 
+			// L1 Start
 			for (String levelOneId : levelOneIds) {
 				StageObject stageObject = new StageObject();
 				if (levelTwoIdsWithParantId.get(levelOneId) != null) {
 					String l1Status = PENDING;
 					boolean pending1 = false;
 					boolean completed1 = false;
-					
-					// L2 Start 
+
+					// L2 Start
 					for (String levelTwo : levelTwoIdsWithParantId.get(levelOneId)) {
 						StageObject stageObjectL2 = new StageObject();
 						if (levelThreeIdsWithParantId.get(levelTwo) != null) {
 							String l2Status = PENDING;
 							boolean pending2 = false;
 							boolean completed2 = false;
-							
-							// L3 Start 
+
+							// L3 Start
 							for (String levelThreeId : levelThreeIdsWithParantId.get(levelTwo)) {
 								StageObject stageObjectL3 = new StageObject();
 								if (levelfourIdsWithParantId.get(levelThreeId) != null) {
 									String l3Status = PENDING;
 									boolean pending3 = false;
 									boolean completed3 = false;
-									
-									// L4 Start 
+
+									// L4 Start
 									for (String levelFourId : levelfourIdsWithParantId.get(levelThreeId)) {
 										StageObject stageObjectL4 = new StageObject();
 										if (levelfiveIdsWithParantId.get(levelFourId) != null) {
 											String l4Status = PENDING;
 											boolean pending4 = false;
 											boolean completed4 = false;
-											
-											// L5 Start 
+
+											// L5 Start
 											for (String levelFiveId : levelfiveIdsWithParantId.get(levelFourId)) {
 												StageObject stageObjectL5 = new StageObject();
 
@@ -2489,8 +2510,8 @@ public class SessionManagement {
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
-											}// L5 End 
-											
+											} // L5 End
+
 											if (pending4 && completed4) {
 												l4Status = PARTIAL;
 											} else if (completed4) {
@@ -2515,8 +2536,8 @@ public class SessionManagement {
 										} else if (leafStageResult.get(levelFourId).equals(PARTIAL)) {
 											l3Status = PARTIAL;
 										}
-									}// L4 End 
-									
+									} // L4 End
+
 									if (l3Status.equals(PARTIAL)) {
 										l3Status = PARTIAL;
 									} else if (pending3 && completed3) {
@@ -2537,13 +2558,14 @@ public class SessionManagement {
 
 								if (leafStageResult.get(levelThreeId).equals(PENDING)) {
 									pending2 = true;
-								} else if (leafStageResult.get(levelThreeId).toLowerCase().startsWith(COMPLETED.toLowerCase())) {
+								} else if (leafStageResult.get(levelThreeId).toLowerCase()
+										.startsWith(COMPLETED.toLowerCase())) {
 									completed2 = true;
 								} else if (leafStageResult.get(levelThreeId).equals(PARTIAL)) {
 									l2Status = PARTIAL;
 								}
-							}// L3 End 
-							
+							} // L3 End
+
 							if (l2Status.equals(PARTIAL)) {
 								l2Status = PARTIAL;
 							} else if (pending2 && completed2) {
@@ -2568,8 +2590,8 @@ public class SessionManagement {
 						} else if (leafStageResult.get(levelTwo).equals(PARTIAL)) {
 							l1Status = PARTIAL;
 						}
-					}// L2 End 
-					
+					} // L2 End
+
 					if (l1Status.equals(PARTIAL)) {
 						l1Status = PARTIAL;
 					} else if (pending1 && completed1) {
@@ -2585,8 +2607,8 @@ public class SessionManagement {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
-			}// L1 End 
-			
+			} // L1 End
+
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull ");
@@ -2599,7 +2621,7 @@ public class SessionManagement {
 		}
 		return sessionStageMapResponse;
 	}
-	
+
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS
 	public SessionStageMapResponse getAllSessionStage_IdsWithResultNew(String sessionEntityId) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
@@ -2615,20 +2637,24 @@ public class SessionManagement {
 				return sessionStageMapResponse;
 			}
 			Set<String> levelOneIds = new LinkedHashSet<>();
-			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value: [L2_219, L2_220, L2_221]
-			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:  [L3_160, L3_161]
-			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178  , Value:  [L4_207]
-			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203  , Value:  [L5_050]
-			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050  , Value:  pending
-			Map<String,String> leafIdTestFileFlag = new HashMap<String,String>();	
-			leafIdTestFileFlag =getStageIdNextLevel();
+			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value:
+																						// [L2_219, L2_220, L2_221]
+			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:
+																						// [L3_160, L3_161]
+			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178 , Value:
+																						// [L4_207]
+			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203 , Value:
+																						// [L5_050]
+			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050 , Value: pending
+			Map<String, String> leafIdTestFileFlag = new HashMap<String, String>();
+			leafIdTestFileFlag = getStageIdNextLevel();
 			for (Object object : getResponse.getResponseList()) {
-				
+
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-				
+
 				// Add L1 IDs
 				levelOneIds.add(sessionStage.getLevelOneStageId());
-				
+
 				// Add L2 IDs
 				if (sessionStage.getLevelTwoStageId() != null) {
 					if (levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId()) != null) {
@@ -2644,9 +2670,11 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelOneStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelOneStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
-				
+
 				// Add L3 IDs
 				if (sessionStage.getLevelThreeStageId() != null) {
 					if (levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId()) != null) {
@@ -2662,7 +2690,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelTwoStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelTwoStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L4 IDs
@@ -2680,7 +2710,9 @@ public class SessionManagement {
 					}
 
 				} else {
-					leafStageResult.put(sessionStage.getLevelThreeStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelThreeStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 				// Add L5 IDs
@@ -2696,48 +2728,51 @@ public class SessionManagement {
 						levelFiveIds.add(sessionStage.getLevelFiveStageId());
 						levelfiveIdsWithParantId.put(sessionStage.getLevelFourStageId(), levelFiveIds);
 					}
-					leafStageResult.put(sessionStage.getLevelFiveStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFiveStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				} else {
-					leafStageResult.put(sessionStage.getLevelFourStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					leafStageResult.put(sessionStage.getLevelFourStageId(),
+							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
+									: PENDING);
 				}
 
 			}
 
-
 			List<StageObject> listOfStageObject = new ArrayList<>();
-			// L1 Start 
+			// L1 Start
 			for (String levelOneId : levelOneIds) {
 				StageObject stageObject = new StageObject();
 				if (levelTwoIdsWithParantId.get(levelOneId) != null) {
 					String l1Status = PENDING;
 					boolean pending1 = false;
 					boolean completed1 = false;
-					
-					// L2 Start 
+
+					// L2 Start
 					for (String levelTwo : levelTwoIdsWithParantId.get(levelOneId)) {
 						StageObject stageObjectL2 = new StageObject();
 						if (levelThreeIdsWithParantId.get(levelTwo) != null) {
 							String l2Status = PENDING;
 							boolean pending2 = false;
 							boolean completed2 = false;
-							
-							// L3 Start 
+
+							// L3 Start
 							for (String levelThreeId : levelThreeIdsWithParantId.get(levelTwo)) {
 								StageObject stageObjectL3 = new StageObject();
 								if (levelfourIdsWithParantId.get(levelThreeId) != null) {
 									String l3Status = PENDING;
 									boolean pending3 = false;
 									boolean completed3 = false;
-									
-									// L4 Start 
+
+									// L4 Start
 									for (String levelFourId : levelfourIdsWithParantId.get(levelThreeId)) {
 										StageObject stageObjectL4 = new StageObject();
 										if (levelfiveIdsWithParantId.get(levelFourId) != null) {
 											String l4Status = PENDING;
 											boolean pending4 = false;
 											boolean completed4 = false;
-											
-											// L5 Start 
+
+											// L5 Start
 											for (String levelFiveId : levelfiveIdsWithParantId.get(levelFourId)) {
 												StageObject stageObjectL5 = new StageObject();
 
@@ -2750,11 +2785,11 @@ public class SessionManagement {
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
-											}// L5 End 
-											
+											} // L5 End
+
 											if (pending4 && completed4) {
 												l4Status = PARTIAL;
-												
+
 												// Completed With Failure Check - L4 Stage
 												String levelFourIdNextLvl = (leafIdTestFileFlag.get(levelFourId));
 												if (!levelFourIdNextLvl.equalsIgnoreCase("Y")) {
@@ -2765,7 +2800,7 @@ public class SessionManagement {
 														l4Status = COMPLETEDWITHFAILURE;
 													}
 												}
-												
+
 											} else if (completed4) {
 												l4Status = COMPLETED;
 											}
@@ -2788,24 +2823,23 @@ public class SessionManagement {
 										} else if (leafStageResult.get(levelFourId).equals(PARTIAL)) {
 											l3Status = PARTIAL;
 										}
-									}// L4 End 
-									
+									} // L4 End
+
 									if (l3Status.equals(PARTIAL)) {
 										l3Status = PARTIAL;
 									} else if (pending3 && completed3) {
 										l3Status = PARTIAL;
-										
+
 										// Completed With Failure Check - L3 Stage
 										String levelThreeIdNextLvl = (leafIdTestFileFlag.get(levelThreeId));
 										if (!levelThreeIdNextLvl.equalsIgnoreCase("Y")) {
 											boolean passedAllFiles = sessionFileManagement
-													.getTestFilesRunnedSuccessForStages(sessionEntityId,
-															levelThreeId);
+													.getTestFilesRunnedSuccessForStages(sessionEntityId, levelThreeId);
 											if (!passedAllFiles) {
 												l3Status = COMPLETEDWITHFAILURE;
 											}
 										}
-										
+
 									} else if (completed3) {
 										l3Status = COMPLETED;
 									}
@@ -2822,24 +2856,24 @@ public class SessionManagement {
 
 								if (leafStageResult.get(levelThreeId).equals(PENDING)) {
 									pending2 = true;
-								} else if (leafStageResult.get(levelThreeId).toLowerCase().startsWith(COMPLETED.toLowerCase())) {
+								} else if (leafStageResult.get(levelThreeId).toLowerCase()
+										.startsWith(COMPLETED.toLowerCase())) {
 									completed2 = true;
 								} else if (leafStageResult.get(levelThreeId).equals(PARTIAL)) {
 									l2Status = PARTIAL;
 								}
-							}// L3 End 
-							
+							} // L3 End
+
 							if (l2Status.equals(PARTIAL)) {
 								l2Status = PARTIAL;
 							} else if (pending2 && completed2) {
 								l2Status = PARTIAL;
-								
+
 								// Completed With Failure Check - L2 Stage
 								String levelTwoIdNextLvl = (leafIdTestFileFlag.get(levelTwo));
 								if (!levelTwoIdNextLvl.equalsIgnoreCase("Y")) {
 									boolean passedAllFiles = sessionFileManagement
-											.getTestFilesRunnedSuccessForStages(sessionEntityId,
-													levelTwo);
+											.getTestFilesRunnedSuccessForStages(sessionEntityId, levelTwo);
 									if (!passedAllFiles) {
 										l2Status = COMPLETEDWITHFAILURE;
 									}
@@ -2865,8 +2899,8 @@ public class SessionManagement {
 						} else if (leafStageResult.get(levelTwo).equals(PARTIAL)) {
 							l1Status = PARTIAL;
 						}
-					}// L2 End 
-					
+					} // L2 End
+
 					if (l1Status.equals(PARTIAL)) {
 						l1Status = PARTIAL;
 					} else if (pending1 && completed1) {
@@ -2894,8 +2928,8 @@ public class SessionManagement {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
-			}// L1 End 
-			
+			} // L1 End
+
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull ");
@@ -2908,8 +2942,7 @@ public class SessionManagement {
 		}
 		return sessionStageMapResponse;
 	}
-	
-	
+
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS
 	public SessionStageMapResponse getAllSessionStage_IdsWithResultCheckedCompleted(String sessionEntityId) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
@@ -2924,20 +2957,23 @@ public class SessionManagement {
 				return sessionStageMapResponse;
 			}
 			Set<String> levelOneIds = new LinkedHashSet<>();
-			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value: [L2_219, L2_220, L2_221]
-			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:  [L3_160, L3_161]
-			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178  , Value:  [L4_207]
-			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203  , Value:  [L5_050]
-			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050  , Value:  pending
+			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value:
+																						// [L2_219, L2_220, L2_221]
+			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:
+																						// [L3_160, L3_161]
+			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178 , Value:
+																						// [L4_207]
+			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203 , Value:
+																						// [L5_050]
+			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050 , Value: pending
 
-			
 			for (Object object : getResponse.getResponseList()) {
-				
+
 				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-				
+
 				// Add L1 IDs
 				levelOneIds.add(sessionStage.getLevelOneStageId());
-				
+
 				// Add L2 IDs
 				if (sessionStage.getLevelTwoStageId() != null) {
 					if (levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId()) != null) {
@@ -2972,7 +3008,7 @@ public class SessionManagement {
 					// sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?
 					// COMPLETED:PENDING);
 				}
-				
+
 				// Add L3 IDs
 				if (sessionStage.getLevelThreeStageId() != null) {
 					if (levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId()) != null) {
@@ -2988,7 +3024,7 @@ public class SessionManagement {
 					}
 
 				} else {
-					
+
 					String resu = sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
 							: PENDING;
 					if (resu.equalsIgnoreCase(COMPLETED)) {
@@ -3003,8 +3039,9 @@ public class SessionManagement {
 					} else {
 						leafStageResult.put(sessionStage.getLevelTwoStageId(), PENDING);
 					}
-					
-					//leafStageResult.put(sessionStage.getLevelTwoStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+
+					// leafStageResult.put(sessionStage.getLevelTwoStageId(),
+					// sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
 				}
 
 				// Add L4 IDs
@@ -3026,8 +3063,8 @@ public class SessionManagement {
 							: PENDING;
 					if (resu.equalsIgnoreCase(COMPLETED)) {
 						SessionFileManagement sessionFileManagement = new SessionFileManagement();
-						boolean passedAllFiles = sessionFileManagement
-								.getTestFilesRunnedSuccessForStages(sessionEntityId, sessionStage.getLevelThreeStageId());
+						boolean passedAllFiles = sessionFileManagement.getTestFilesRunnedSuccessForStages(
+								sessionEntityId, sessionStage.getLevelThreeStageId());
 						if (!passedAllFiles) {
 							leafStageResult.put(sessionStage.getLevelThreeStageId(), COMPLETEDWITHFAILURE);
 						} else {
@@ -3036,11 +3073,10 @@ public class SessionManagement {
 					} else {
 						leafStageResult.put(sessionStage.getLevelThreeStageId(), PENDING);
 					}
-					
-					
-				//	leafStageResult.put(sessionStage.getLevelThreeStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
-				
-				
+
+					// leafStageResult.put(sessionStage.getLevelThreeStageId(),
+					// sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?COMPLETED:PENDING);
+
 				}
 
 				// Add L5 IDs
@@ -3060,8 +3096,8 @@ public class SessionManagement {
 							: PENDING;
 					if (resu.equalsIgnoreCase(COMPLETED)) {
 						SessionFileManagement sessionFileManagement = new SessionFileManagement();
-						boolean passedAllFiles = sessionFileManagement
-								.getTestFilesRunnedSuccessForStages(sessionEntityId, sessionStage.getLevelFiveStageId());
+						boolean passedAllFiles = sessionFileManagement.getTestFilesRunnedSuccessForStages(
+								sessionEntityId, sessionStage.getLevelFiveStageId());
 						if (!passedAllFiles) {
 							leafStageResult.put(sessionStage.getLevelFiveStageId(), COMPLETEDWITHFAILURE);
 						} else {
@@ -3070,14 +3106,16 @@ public class SessionManagement {
 					} else {
 						leafStageResult.put(sessionStage.getLevelFiveStageId(), PENDING);
 					}
-					//leafStageResult.put(sessionStage.getLevelFiveStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					// leafStageResult.put(sessionStage.getLevelFiveStageId(),
+					// sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?
+					// COMPLETED:PENDING);
 				} else {
 					String resu = sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
 							: PENDING;
 					if (resu.equalsIgnoreCase(COMPLETED)) {
 						SessionFileManagement sessionFileManagement = new SessionFileManagement();
-						boolean passedAllFiles = sessionFileManagement
-								.getTestFilesRunnedSuccessForStages(sessionEntityId, sessionStage.getLevelFourStageId());
+						boolean passedAllFiles = sessionFileManagement.getTestFilesRunnedSuccessForStages(
+								sessionEntityId, sessionStage.getLevelFourStageId());
 						if (!passedAllFiles) {
 							leafStageResult.put(sessionStage.getLevelFourStageId(), COMPLETEDWITHFAILURE);
 						} else {
@@ -3086,14 +3124,15 @@ public class SessionManagement {
 					} else {
 						leafStageResult.put(sessionStage.getLevelFourStageId(), PENDING);
 					}
-					//leafStageResult.put(sessionStage.getLevelFourStageId(), sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())? COMPLETED:PENDING);
+					// leafStageResult.put(sessionStage.getLevelFourStageId(),
+					// sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase())?
+					// COMPLETED:PENDING);
 				}
 
 			}
 
-
 			List<StageObject> listOfStageObject = new ArrayList<>();
-			// L1 Start 
+			// L1 Start
 			for (String levelOneId : levelOneIds) {
 				StageObject stageObject = new StageObject();
 				if (levelTwoIdsWithParantId.get(levelOneId) != null) {
@@ -3101,8 +3140,8 @@ public class SessionManagement {
 					boolean pending1 = false;
 					boolean completed1 = false;
 					boolean completedwithfailure1 = false;
-					
-					// L2 Start 
+
+					// L2 Start
 					for (String levelTwo : levelTwoIdsWithParantId.get(levelOneId)) {
 						StageObject stageObjectL2 = new StageObject();
 						if (levelThreeIdsWithParantId.get(levelTwo) != null) {
@@ -3110,7 +3149,7 @@ public class SessionManagement {
 							boolean pending2 = false;
 							boolean completed2 = false;
 							boolean completedwithfailure2 = false;
-							// L3 Start 
+							// L3 Start
 							for (String levelThreeId : levelThreeIdsWithParantId.get(levelTwo)) {
 								StageObject stageObjectL3 = new StageObject();
 								if (levelfourIdsWithParantId.get(levelThreeId) != null) {
@@ -3118,8 +3157,8 @@ public class SessionManagement {
 									boolean pending3 = false;
 									boolean completed3 = false;
 									boolean completedwithfailure3 = false;
-									
-									// L4 Start 
+
+									// L4 Start
 									for (String levelFourId : levelfourIdsWithParantId.get(levelThreeId)) {
 										StageObject stageObjectL4 = new StageObject();
 										if (levelfiveIdsWithParantId.get(levelFourId) != null) {
@@ -3127,7 +3166,7 @@ public class SessionManagement {
 											boolean pending4 = false;
 											boolean completed4 = false;
 											boolean completedwithfailure4 = false;
-											// L5 Start 
+											// L5 Start
 											for (String levelFiveId : levelfiveIdsWithParantId.get(levelFourId)) {
 												StageObject stageObjectL5 = new StageObject();
 
@@ -3136,21 +3175,21 @@ public class SessionManagement {
 												} else if (leafStageResult.get(levelFiveId).toLowerCase()
 														.startsWith(COMPLETED.toLowerCase())) {
 													completed4 = true;
-												}else if (leafStageResult.get(levelFiveId).toLowerCase()
+												} else if (leafStageResult.get(levelFiveId).toLowerCase()
 														.startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
 													completedwithfailure4 = true;
 												}
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
-												
-											}// L5 End 
-											
+
+											} // L5 End
+
 											if (pending4 && completed4) {
 												l4Status = PARTIAL;
 											} else if (completed4) {
 												l4Status = COMPLETED;
-											}else if(completedwithfailure4) {
+											} else if (completedwithfailure4) {
 												l4Status = COMPLETEDWITHFAILURE;
 											}
 											leafStageResult.put(levelFourId, l4Status);
@@ -3172,12 +3211,12 @@ public class SessionManagement {
 											completed3 = true;
 										} else if (leafStageResult.get(levelFourId).equals(PARTIAL)) {
 											l3Status = PARTIAL;
-										}else if (leafStageResult.get(levelFourId).toLowerCase()
+										} else if (leafStageResult.get(levelFourId).toLowerCase()
 												.startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
 											completedwithfailure3 = true;
 										}
-									}// L4 End 
-									
+									} // L4 End
+
 									if (l3Status.equals(PARTIAL)) {
 										l3Status = PARTIAL;
 									} else if (pending3 && completed3) {
@@ -3201,23 +3240,24 @@ public class SessionManagement {
 
 								if (leafStageResult.get(levelThreeId).equals(PENDING)) {
 									pending2 = true;
-								} else if (leafStageResult.get(levelThreeId).toLowerCase().startsWith(COMPLETED.toLowerCase())) {
+								} else if (leafStageResult.get(levelThreeId).toLowerCase()
+										.startsWith(COMPLETED.toLowerCase())) {
 									completed2 = true;
 								} else if (leafStageResult.get(levelThreeId).equals(PARTIAL)) {
 									l2Status = PARTIAL;
-								}else if (leafStageResult.get(levelThreeId).toLowerCase().startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
+								} else if (leafStageResult.get(levelThreeId).toLowerCase()
+										.startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
 									completedwithfailure2 = true;
 								}
-							}// L3 End 
-							
+							} // L3 End
+
 							if (l2Status.equals(PARTIAL)) {
 								l2Status = PARTIAL;
 							} else if (pending2 && completed2) {
 								l2Status = PARTIAL;
 							} else if (completed2) {
 								l2Status = COMPLETED;
-							} else if(completedwithfailure2)
-							{
+							} else if (completedwithfailure2) {
 								l2Status = COMPLETEDWITHFAILURE;
 							}
 							leafStageResult.put(levelTwo, l2Status);
@@ -3237,18 +3277,19 @@ public class SessionManagement {
 							completed1 = true;
 						} else if (leafStageResult.get(levelTwo).equals(PARTIAL)) {
 							l1Status = PARTIAL;
-						}else if (leafStageResult.get(levelTwo).toLowerCase().startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
+						} else if (leafStageResult.get(levelTwo).toLowerCase()
+								.startsWith(COMPLETEDWITHFAILURE.toLowerCase())) {
 							completedwithfailure1 = true;
 						}
-					}// L2 End 
-					
+					} // L2 End
+
 					if (l1Status.equals(PARTIAL)) {
 						l1Status = PARTIAL;
 					} else if (pending1 && completed1) {
 						l1Status = PARTIAL;
 					} else if (completed1) {
 						l1Status = COMPLETED;
-					}else if (completed1) {
+					} else if (completed1) {
 						l1Status = COMPLETEDWITHFAILURE;
 					}
 					leafStageResult.put(levelOneId, l1Status);
@@ -3260,8 +3301,8 @@ public class SessionManagement {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
-			}// L1 End 
-			
+			} // L1 End
+
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);
 			res.setResponseMessage("Fetch Data Successfull ");
@@ -3275,9 +3316,7 @@ public class SessionManagement {
 		return sessionStageMapResponse;
 	}
 
-	
-	private StageObject stageObjCreation(String l1, String l2, String l3, String l4, String l5,
-			String status) {
+	private StageObject stageObjCreation(String l1, String l2, String l3, String l4, String l5, String status) {
 
 		StageObject stageObj = new StageObject();
 		stageObj.setL1StageId(l1);
@@ -3290,7 +3329,7 @@ public class SessionManagement {
 		return stageObj;
 
 	}
-	
+
 	// Session Stages Details Update in Application LogBook
 	public void updateSessionStagesResultOnApplicationLogBook(String msg, String stageId) {
 		Map<String, String> stageIdName = new HashMap<String, String>();
@@ -3298,8 +3337,7 @@ public class SessionManagement {
 		// Session Details Fetching
 		Map<String, String> sessionDetailsMap = new HashMap<String, String>();
 		ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
-		
-		
+
 		stageIdName = resultExecutionManagement.getStageIdName();
 		if (!currentSessionDetails.getSessionId().substring(0, 4).equals("TSSN")) {
 			sessionDetailsMap = resultExecutionManagement
@@ -3330,8 +3368,7 @@ public class SessionManagement {
 		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 
 	}
-	
-	
+
 	// TO Fetch Either is Have
 	public Map<String, String> getStageIdNextLevel() {
 
@@ -3363,7 +3400,8 @@ public class SessionManagement {
 			List<LevelThreeStageMaster> level3MasterList = new ArrayList<LevelThreeStageMaster>();
 			level3MasterList = (List<LevelThreeStageMaster>) levTThreeResponse.getResponseList();
 			for (LevelThreeStageMaster levelThreeStageMaster : level3MasterList) {
-				stageIdNextLevel.put(levelThreeStageMaster.getLevelThreeStageId(), levelThreeStageMaster.getNextLevel());
+				stageIdNextLevel.put(levelThreeStageMaster.getLevelThreeStageId(),
+						levelThreeStageMaster.getNextLevel());
 			}
 
 			// Level Four Stage Master Fetching

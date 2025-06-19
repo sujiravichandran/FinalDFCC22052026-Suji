@@ -14,9 +14,15 @@ public class ResultSessionStagesDetailsDTO {
 	private int noOfFilesExecuted;
 	private int failedFiles;
 	private String testMode;
+	private String testType;
 	
 	
-	
+	public String getTestType() {
+		return testType;
+	}
+	public void setTestType(String testType) {
+		this.testType = testType;
+	}
 	public String getTestMode() {
 		return testMode;
 	}

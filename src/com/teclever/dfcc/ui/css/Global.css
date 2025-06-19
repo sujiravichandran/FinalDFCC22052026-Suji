@@ -8,6 +8,8 @@
     tree-hover:#bdc3c7;
     
     
+  
+    
     new-button:#068EC1;
     
     primary-text-color: #FFFFFF;
@@ -81,5 +83,10 @@
     
     check-box-mark:#ffffff;
     
-    
+
+}
+
+      .root {
+    -fx-font-family: "Calibri";   /* Replace with your desired font */
+
 }

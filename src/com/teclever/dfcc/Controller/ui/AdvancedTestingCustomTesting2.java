@@ -202,12 +202,12 @@ public class AdvancedTestingCustomTesting2 {
 
 		selectTestFileRunButton.setOnAction(e -> {
 			
-			if(!StateMachine.isConfirmTestStop()) {
-				Notifications.showErrorAlert("Please Wait Aitess is Switching");
-				return;
-			}else {
+//			if(!StateMachine.isConfirmTestStop()) {
+//				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+//				return;
+//			}else {
 				StateMachine.setConfirmTestStop(false);
-			}
+//			}
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}

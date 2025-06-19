@@ -181,6 +181,7 @@ public class LRUTestingController {
 
 	public GridPane createlruTestMainContainerGridPane() {
 
+	
 		lruTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
 		lruTestMainContainerGridPane.getStyleClass().add("lruTest-main-container");
@@ -637,6 +638,11 @@ public class LRUTestingController {
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
+			
+//			After IV&V:
+			if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
+				newButton.setDisable(true);
+			}
 
 			if (!firstButton) {
 				newButton.setDisable(true);

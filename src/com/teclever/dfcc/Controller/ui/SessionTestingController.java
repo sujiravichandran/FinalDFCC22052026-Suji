@@ -142,11 +142,11 @@ public class SessionTestingController {
 		testNameField.setPromptText("Search...");
 
 		testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
-		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-			if (!newValue) {
-				clearTextField();
-			}
-		});
+//		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//			if (!newValue) {
+//				clearTextField();
+//			}
+//		});
 
 	}
 
@@ -333,15 +333,67 @@ public class SessionTestingController {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
+		
+//		After IV&V:
+		if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
+			runAllButton.setDisable(true);
+			startButton.setDisable(true);
+			stopButton.setDisable(true);
+			pauseButton.setDisable(true);
+			sessionTreeView.setDisable(true);
+		}else {
+		sessionTreeView.setDisable(false);
+		}
+		
+		
+		
 		runAllButton.setOnAction(e -> {
 		
-			sessionTestTable.getItems().clear();
+		
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
+			
+			if(StateMachine.isSessionTestOk()) {
+//				System.out.println("<<<<<<<<<<<Entred isSeesion condiontion  + Stage ID>>>>>>>" + lastStageId);
+				//Checking With List
+				boolean popupRDFFiles = false;
+				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+							popupRDFFiles = true;
+
+						}
+					}
+
+					if (popupRDFFiles) {
+//						System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+						for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
+						{
+//							System.out.println("StageId Popup"+copyFileDTO.getStageId());
+							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+						}
+						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					} else {
+						SessionFileManagement session = new SessionFileManagement();
+//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					}
+				}
+
+				
+				sessionTestTable.getItems().clear();
+				
+				StateMachine.setSessionTestOk(false);
+			}
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -793,6 +845,8 @@ public class SessionTestingController {
 					lastStageId= old;
 //					System.out.println("<<<<<<<<<<<<<<<<In New If Condition check>>>>>>>>>>>>>>>>" + lastStageId);
 				}
+				
+				clearTextField();
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
 					if(StateMachine.getTestState() != TestState.RUNNING && StateMachine.getStageName() == "SESSION TEST"){
