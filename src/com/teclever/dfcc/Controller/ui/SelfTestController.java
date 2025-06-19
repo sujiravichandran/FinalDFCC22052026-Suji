@@ -241,8 +241,19 @@ public class SelfTestController {
 		topButton.setPadding(new Insets(0, 5, 0, 0));
 		topButton.setAlignment(Pos.CENTER_RIGHT);
 		topButton.getChildren().add(startTest);
+		
+//		After IV&V:
+		CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+		if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
+			startTest.setDisable(true);
+		
+		}
+		
+		
 		startTest.setOnAction(e -> {
-//			StateMachine.setSelfTestOn(true);
+//			After IV&V:
+			StateMachine.setSelfTestOn(true);
+			
 			if (OnlineStatus.getChannel1Status().equalsIgnoreCase("online")
 					&& OnlineStatus.getChannel2Status().equalsIgnoreCase("online")
 					&& OnlineStatus.getChannel3Status().equalsIgnoreCase("online")
@@ -287,10 +298,13 @@ public class SelfTestController {
 				return;
 			}
 			incrementCounter = 0;
-			CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+//			After IV&V:
+			StateMachine.setSelfTestOn(false);
+			
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {

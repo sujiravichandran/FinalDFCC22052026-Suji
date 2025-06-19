@@ -1,7 +1,7 @@
 @import url("Global.css");
 
 .session-testing-container{
-	-fx-background-color: light-bg;
+	-fx-background-color: secondary-color;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
@@ -12,7 +12,7 @@
 	-fx-text-fill:heading-text-color;
 }
 .session-testing-left-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: session-test-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 	-fx-padding : 10px;
@@ -20,24 +20,24 @@
 .l1_stage-label{
 	-fx-padding: 3px 15px;
     -fx-background-radius: 10px;
-    -fx-text-fill: primary-text-color;
+    -fx-text-fill: secondary-text-color;
     -fx-font-size:18px;
     -fx-font-weight:bold;
 }
 
 .tree-view {
-    -fx-background-color: dark-bg ;
+    -fx-background-color: session-test-bg ;
     -fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
 .tree-cell {
-    -fx-background-color: dark-bg ;
-    -fx-text-fill: primary-text-color ;
+    -fx-background-color: session-test-bg ;
+    -fx-text-fill: secondary-text-color ;
     -fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }
 .tree-cell:hover {
-    -fx-background-color: hover-menu-bg;
+    -fx-background-color: selected-menu-bg;
 }
 .tree-cell:hover .l1_stage-label{
      -fx-text-fill: hover-menu-text ;
@@ -49,7 +49,7 @@
     -fx-padding :13px 10px 0 20px;
 }
 .tree-cell > .tree-disclosure-node > .arrow {
-    -fx-background-color: primary-text-color;
+    -fx-background-color: secondary-text-color;
     -fx-scale-x: 1.8; 
     -fx-scale-y: 1.8; 
     -fx-cursor: hand;
@@ -66,10 +66,10 @@
 }
 
 .tree-cell:selected {
-    -fx-background-color: selected-menu-bg;
+    -fx-background-color:selected-menu-bg;
 }
 .tree-cell:selected .l1_stage-label {
-    -fx-text-fill: selected-menu-text;
+    -fx-text-fill: heading-text-color;
 }
 .completed{
 	 -fx-background-color: green;
@@ -82,39 +82,58 @@
 	 -fx-background-color: primary-color;	
 }
 .pending{
-	 -fx-background-color: grey;	
+	 -fx-background-color: light-bg;	
 }
 
 
 .session-testing-right-container{
-	-fx-background-color: dark-bg;
+	-fx-background-color: secondary-color;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 	-fx-padding : 10px 5px;
+	-fx-border-color:border2-color;
+}
+
+
+.session-testing-right-button-container{
+	-fx-background-color: primary-color;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+	
+	-fx-border-color:border2-color;
+	
 }
 
 .session-testing-right-text-field{
-	-fx-background-color: dark-bg;
+	-fx-background-color: session-test-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
-	-fx-padding : 10px 5px;
+	-fx-border-color:border2-color;
 	-fx-font-weight:bold;
+}
+
+
+.textfieldbox {
+    -fx-background-color: transparent;   
+    -fx-border-color: transparent;       
+    -fx-pref-width: 400px;               
+    -fx-font-size: 14px;                
 }
 
 .session-testing-list-view{
 	-fx-border-color: transparent;
-	-fx-border-width: 0; 
+	 -fx-background-color: transparent;  
 }
 
 .session-testing-list-view .list-cell {
 	-fx-border-color: transparent;
-    -fx-background-color: light-bg;
+    -fx-background-color:  transparent;
     -fx-padding: 4px;
     -fx-border-color: transparent; 
     -fx-border-width: 0px; 
 }
 .session-testing-list-view .list-cell:selected {
-    -fx-background-color: #0078d4; 
+    -fx-background-color: #000000; 
     -fx-text-fill: white;
 }
 
@@ -128,14 +147,19 @@
 	-fx-text-fill: primary-text-color; 
     -fx-font-size:18px;
     -fx-font-weight:bold;
+     
+}
+.session-testing-checkbox .box {
+    -fx-background-color: light-bg;
+    -fx-border-color:border2-color; 
 }
 
 .session-testing-checkbox:selected .box {
-    -fx-background-color: #2ecc71; 
+    -fx-background-color:  select-checkbox; 
 }
 
 .session-testing-checkbox:selected .mark {
-    -fx-background-color: #ffffff;
+    -fx-background-color: check-box-mark;
 }
 
 .session-testing-repeat-count-label{
@@ -150,7 +174,7 @@
 }
 
 .session-testing-repeat-count-label-info{
-	-fx-text-fill: primary-text-color; 
+	-fx-text-fill: secondary-text-color; 
     -fx-font-size:14px;
     -fx-font-weight:bold;
 }
@@ -163,15 +187,19 @@
     -fx-font-weight: bold;
     -fx-border-radius: 10px; 
     -fx-background-radius: 10px;
-    -fx-border-color: transparent; 
+    -fx-border-color: border2-color; 
 	-fx-cursor:hand;
 	-fx-pref-height: 35px;
 }
 .button:hover {
 	-fx-text-fill:button-bg; 
-    -fx-background-color:button-text; 
+    -fx-background-color:selected-menu-bg; 
     -fx-border-color: button-bg; 
 }
+.button:selected{
+	-fx-background-color:selected-menu-bg;
+}
+
 
 
 .button-image{
@@ -190,17 +218,17 @@
 
 
 .progress-bar {
-	-fx-min-width: 400px;
+	-fx-min-width: 350px;
 }
 .progress-label{
-    -fx-text-fill: primary-text-color ;
+    -fx-text-fill: secondary-text-color ;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
 .repeat-count-vbox{
-	-fx-border-color: light-bg;
-	-fx-border-width: 2px;
+	
+	
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 }

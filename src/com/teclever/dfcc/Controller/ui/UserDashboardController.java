@@ -15,6 +15,7 @@ import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.CheckSum;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.MacroButtonMapDto;
+import com.teclever.dfcc.datastore.dto.SessionDTOResponse;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.dto.ValidateResponse;
 import com.teclever.dfcc.datastore.filemanagement.Aitess2ConfigManagement;
@@ -81,6 +82,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -102,6 +104,8 @@ public class UserDashboardController {
 
 	protected static final TestState RUNNING = null;
 	private static final TestState PENDING = null;
+
+	private static final Background Blue = null;
 	private GridPane bottomMainGridPane = new GridPane();
 	private GridPane bottomGridPane = new GridPane();
 	private GridPane bottomMidTopGridPane = new GridPane();
@@ -182,6 +186,8 @@ public class UserDashboardController {
 	}
 
 	public GridPane createUserDashboard() {
+		
+		
 		aitess2ConfigManagement.getAllDfccStatusCommand();
 		bottomMainGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/UserDashboard.css").toExternalForm());
@@ -496,10 +502,10 @@ public class UserDashboardController {
 		bottomRightColumn.setPercentWidth(100);
 
 		RowConstraints bottomRightTopRow = new RowConstraints();
-		bottomRightTopRow.setPercentHeight(15);
+		bottomRightTopRow.setPercentHeight(30);
 
 		RowConstraints bottomRightMidRow = new RowConstraints();
-		bottomRightMidRow.setPercentHeight(60);
+		bottomRightMidRow.setPercentHeight(45);
 
 		RowConstraints bottomRightBottomRow = new RowConstraints();
 		bottomRightBottomRow.setPercentHeight(28);
@@ -519,43 +525,124 @@ public class UserDashboardController {
 		return bottomRightGridPane;
 	}
 
-	private VBox createRightTop() {
+
+
+	private GridPane createRightTop() {
 		VBox bottomRightTopBox = new VBox();
-		bottomRightTopBox.setAlignment(Pos.CENTER_LEFT);
-		bottomRightTopBox.getStyleClass().add("right-first-container");
+		bottomRightTopBox.setAlignment(Pos.CENTER);
+	
 
 		Label titleLabel = new Label("Session Details");
 		titleLabel.getStyleClass().add("right-top-title");
-
+		bottomRightTopBox.getChildren().add(titleLabel);
+		
+		Label serialNo = new Label("Serial No: ");
+		Label sessionType = new Label("Session Type: ");
+		Label startTime = new Label("Start Time: ");
+		Label sessionName = new Label("Session Name: ");
+		
+		serialNo.setAlignment(Pos.CENTER_LEFT);
+		sessionType.setAlignment(Pos.CENTER_LEFT);
+		startTime.setAlignment(Pos.CENTER_LEFT);
+		sessionName.setAlignment(Pos.CENTER_LEFT);
+		
+		
+		serialNo.getStyleClass().add("session-name-label");
+		sessionType.getStyleClass().add("session-name-label");
+		startTime.getStyleClass().add("session-name-label");
+		sessionName.getStyleClass().add("session-name-label");
+		
+		Label serialNo1 = new Label();
+		Label sessionType1 = new Label();
+		Label startTime1 = new Label();
+		Label sessionName1 = new Label();
+		
+		serialNo1.setAlignment(Pos.CENTER_LEFT);
+		sessionType1.setAlignment(Pos.CENTER_LEFT);
+		startTime1.setAlignment(Pos.CENTER_LEFT);
+		sessionName1.setAlignment(Pos.CENTER_LEFT);
+		
+		serialNo1.getStyleClass().add("session-name-label1");
+		sessionType1.getStyleClass().add("session-name-label1");
+		startTime1.getStyleClass().add("session-name-label1");
+		sessionName1.getStyleClass().add("session-name-label1");
+		
+		
+		serialNo1.setText(currentSessionDetails.getDfccSerialNumber());
+		serialNo1.setWrapText(true);
+		sessionType1.setText(currentSessionDetails.getSessionTypeName());
+		sessionType1.setWrapText(true);
+	    SessionManagement sessionManagment = new SessionManagement();
+		SessionDTOResponse response  = sessionManagment. getSessionDetailById(currentSessionDetails.getSessionId()) ;
+		System.out.println("Start Time" +response.getStartDateTime() );
+		if(response.getStartDateTime()!=null) {
+			startTime1.setText(response.getStartDateTime());	
+		}else {
+			startTime1.setText("-");
+		}
+		
+		startTime1.setWrapText(true);
+		sessionName1.setText(currentSessionDetails.getSessionName());
+		sessionName1.setWrapText(true);
+		
 		GridPane bottomRightTopGridPane = new GridPane();
 		bottomRightTopGridPane.setVgap(5);
 		bottomRightTopGridPane.setHgap(5);
-
+		bottomRightTopGridPane.getStyleClass().add("right-first-container");
+		
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(40);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(60);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		firstRow.setPercentHeight(20);
+		RowConstraints secondRow = new RowConstraints();
+		secondRow.setPercentHeight(20);
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(20);
+		RowConstraints fourthRow = new RowConstraints();
+		fourthRow.setPercentHeight(20);
+		RowConstraints fivthRow = new RowConstraints();
+		fivthRow.setPercentHeight(20);
 
-		bottomRightTopGridPane.getColumnConstraints().addAll(firstColumn);
-		bottomRightTopGridPane.getRowConstraints().addAll(firstRow);
-
+		bottomRightTopGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+//		bottomRightTopGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow );
+		
+		bottomRightTopGridPane.add(bottomRightTopBox, 0, 0,2,1);
+		bottomRightTopGridPane.add(serialNo, 0, 1);
+		bottomRightTopGridPane.add(sessionType, 0, 2);
+		bottomRightTopGridPane.add(startTime, 0, 3);
+		bottomRightTopGridPane.add(sessionName, 0, 4);
+		
+		bottomRightTopGridPane.add(serialNo1, 1, 1);
+		bottomRightTopGridPane.add(sessionType1, 1, 2);
+		bottomRightTopGridPane.add(startTime1, 1, 3);
+		bottomRightTopGridPane.add(sessionName1, 1, 4);
+		
 		Label newLabel = new Label();
-
+		
+	
+		newLabel.getStyleClass().add("session-name-label");
+		
+		
+		
+		
 		Tooltip tooltip = new Tooltip(currentSessionDetails.getSessionName());
 		Tooltip.install(newLabel, tooltip);
 		tooltip.setShowDelay(Duration.ZERO);
 		tooltip.setHideDelay(Duration.ZERO);
 
-		newLabel.setText(currentSessionDetails.getSessionName());
-		newLabel.setPrefWidth(290);
-		newLabel.setWrapText(true);
-		newLabel.setPadding(new Insets(0, 0, 0, 5));
-		newLabel.getStyleClass().add("session-name-label");
+//		newLabel.setText(currentSessionDetails.getSessionName());
+//		newLabel.setPrefWidth(290);
+//		newLabel.setWrapText(true);
+//		newLabel.setPadding(new Insets(0, 0, 0, 5));
+//		newLabel.getStyleClass().add("session-name-label");
 
-		bottomRightTopBox.getChildren().addAll(titleLabel, newLabel);
+//		bottomRightTopBox.getChildren().addAll(titleLabel, newLabel);
 
-		return bottomRightTopBox;
+		return bottomRightTopGridPane;
 	}
 
 	private Pane createRightMidFirst() {
@@ -1430,6 +1517,12 @@ public class UserDashboardController {
 		Label label3 = (Label) box3.getChildren().get(0);
 		Label label4 = (Label) box4.getChildren().get(0);
 
+		
+		if (channelSCTemp.channel1TemperatureProperty() != null 
+			    && "true".equals(channelSCTemp.channel1TemperatureProperty().get()) && channelSCTemp.channel2TemperatureProperty() != null 
+					    && "true".equals(channelSCTemp.channel2TemperatureProperty().get()) && channelSCTemp.channel3TemperatureProperty() != null 
+							    && "true".equals(channelSCTemp.channel3TemperatureProperty().get()) && channelSCTemp.channel1TemperatureProperty() != null 
+									    && "true".equals(channelSCTemp.channel1TemperatureProperty().get())) {
 		if (selectedItem.equalsIgnoreCase("sc")) {
 			Platform.runLater(() -> {
 				label1.textProperty().bind(channelSCTemp.channel1TemperatureProperty());
@@ -1513,7 +1606,7 @@ public class UserDashboardController {
 								channelAECTemp.channel4BackgroundColorProperty()));
 			});
 		}
-
+		}
 		Platform.runLater(() -> {
 			UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
 			UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
@@ -1978,16 +2071,33 @@ public class UserDashboardController {
 		VBox box1 = new VBox();
 		box1.setAlignment(Pos.CENTER_LEFT); // Adjust alignment based on your needs
 		Label label2 = new Label("");
+		box1.setAlignment(Pos.CENTER);
+		
+		String commonStyle = "-fx-font-size: 15px; -fx-background-radius: 5px;"
+                + "-fx-border-radius: 5px; -fx-font-weight: bold; -fx-text-fill: black;";
+		
+		//		After IV&V:
+			if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
+			
+				label2.setText("Aitess is Loading...");
+				box1.setStyle(commonStyle + "-fx-background-color: #e5350e");
+				
+			}else if(StateMachine.getTestState()==TestState.RUNNING){
 
 		label2.textProperty().bind(Bindings.createStringBinding(() -> {
 			String name = StateMachine.getRunningTestName();
 			return (name != null && !name.isEmpty()) ? "  Running Test : " + name.replace("_", " ") : "Status Bar";
 		}, StateMachine.runningTestNameProperty()));
-
+		
+		box1.setStyle(commonStyle +  "-fx-background-color: #0fbd03");
+			}else {
+				label2.setText("Ready");
+				box1.setStyle(commonStyle + "-fx-background-color: #037ce6");
+	}
+			
 		box1.setCursor(Cursor.HAND);
 		box1.getChildren().add(label2);
-		box1.setStyle("-fx-background-color: #00d9a6;-fx-font-size: 15px; -fx-background-radius: 5px;"
-				+ "-fx-border-radius: 5px;-fx-font-weight: bold; -fx-text-fill: black;");
+	
 
 		rightBottomGridPane.add(box1, 0, 0);
 

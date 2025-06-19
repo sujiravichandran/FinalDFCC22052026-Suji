@@ -135,13 +135,21 @@
 	-fx-font-weight: bold;
 } 
 .session-name-label{
-	 -fx-background-color: #DBFFDB;
-    -fx-font-size: 18px;
+	 
+    -fx-font-size: 14px;
 	-fx-font-weight: bold;
 	-fx-padding:5px;
 	-fx-background-radius: 10px;
     -fx-border-radius: 10px;
-    -fx-text-fill:#019D00;
+    -fx-text-fill: #000000;
+}
+
+.session-name-label1{
+    -fx-font-size: 14px;
+	-fx-padding:5px;
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-text-fill: #000000;
 }
 .online-card-box{	
     -fx-background-color: #DBFFDB;

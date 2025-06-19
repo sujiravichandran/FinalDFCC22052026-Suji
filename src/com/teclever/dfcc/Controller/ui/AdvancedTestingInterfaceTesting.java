@@ -151,11 +151,11 @@ public class AdvancedTestingInterfaceTesting {
 		testNameField.setPromptText("Search...");
 
 		testNameField.textProperty().addListener((observable, oldValue, newValue) -> filterList(newValue));
-		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-			if (!newValue) {
-				clearTextField();
-			}
-		});
+//		testNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//			if (!newValue) {
+//				clearTextField();
+//			}
+//		});
 
 	}
 
@@ -196,6 +196,8 @@ public class AdvancedTestingInterfaceTesting {
 				getTestListByStageId(selectedData.getCardId(), selectedData.getTestTypeId());
 				selectedStageId = selectedData.getCardId();
 				selectedTestTypeId = selectedData.getTestTypeId();
+				
+				clearTextField();
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
 				if (StateMachine.getTestState() != TestState.RUNNING) {
@@ -358,6 +360,18 @@ public class AdvancedTestingInterfaceTesting {
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
+		
+//		After IV&V:
+		if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
+			runAllButton.setDisable(true);
+			startButton.setDisable(true);
+			stopButton.setDisable(true);
+			pauseButton.setDisable(true);
+			stageListView.setDisable(true);
+		
+		}else {
+		stageListView.setDisable(false);
+		}
 
 		runAllButton.setOnAction(e -> {
 			StateMachine.setConfirmTestStop(false);
@@ -366,6 +380,42 @@ public class AdvancedTestingInterfaceTesting {
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
+			
+			if (StateMachine.isAdvancedTestInterfaceOk()) {
+
+				// Checking With List
+				boolean popupRDFFiles = false;
+				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+							popupRDFFiles = true;
+
+						}
+					}
+
+					if (popupRDFFiles) {
+//						System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+						}
+						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					} else {
+						SessionFileManagement session = new SessionFileManagement();
+//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//								+ DFCCConstant.FailedStagesRdfPaths.size());
+						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					}
+				}
+
+				AdvancedTestStateObject.clearAdvancedTestResultsList();
+				StateMachine.setAdvancedTestInterfaceOk(false);
+			}
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -448,13 +498,8 @@ public class AdvancedTestingInterfaceTesting {
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						}
 					}
-//
-//					System.out.println("Entred Clear Advanced Interface OK");
-//					System.out.println("Before Advanced Interface table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
-			        StateMachine.setAdvancedTestOk(false);
-					 advancedTestingController.createResultTableViewAdvance().getItems().clear();
-//					 System.out.println("After Advanced Interface table size check |||" +  advancedTestingController.createResultTableViewAdvance().getItems().size());
 
+					AdvancedTestStateObject.clearAdvancedTestResultsList();
 					StateMachine.setAdvancedTestInterfaceOk(false);
 				}
 				

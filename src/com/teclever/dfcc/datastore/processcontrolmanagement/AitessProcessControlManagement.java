@@ -1613,6 +1613,11 @@ public class AitessProcessControlManagement {
 						WriteAitess1Command("sudo cp -r " + sourcePath + " " + destiPath + "\n");
 						
 						Thread.sleep(500);
+						
+//						After IV&V: Suji Added for BEL Comment for Point no:64
+						System.out.println("Suji Check for Point No 64 for driver unload and load after config.dat changed");
+						pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
+								LoadDriverProcessControlManagement.LoadMode.SWITCH);
 
 						// load aitess
 						launcherFuture1.thenRun(() -> aitess1ProcessControl
