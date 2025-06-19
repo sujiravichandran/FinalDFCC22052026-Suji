@@ -282,6 +282,7 @@ public class TestProcessManagement {
 					Date utilDate = new Date();
 					java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 					sessionEntity.setStartDate(sqlDate);
+					sessionEntity.setStartDateTime(new Date().toString());
 					res = sessionService.updateSession(sessionEntity);
 
 				} else {
@@ -303,11 +304,8 @@ public class TestProcessManagement {
 			if (sessionEntity.getStartDate() == null) {
 				Date utilDate = new Date();
 				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-			 
-				
-				
-				
 				sessionEntity.setStartDate(sqlDate);
+				sessionEntity.setStartDateTime(new Date().toString());
 				res = sessionService.updateSession(sessionEntity);
 
 			} else {

@@ -17,6 +17,8 @@ public class SessionDTOResponse {
 	private Date creationDate;
 	private Date startDate;
 	private Date endDate;
+	private String startDateTime;
+	private String endDateTime;
 	private String ofpConfigId;
 	private String startRemarks;
 	private List<StageObject> sessionStagesList;
@@ -151,6 +153,22 @@ public class SessionDTOResponse {
 
 	public void setFaultCodeOnOFPVersion(List<FaultCodeDTO> faultCodeOnOFPVersion) {
 		this.faultCodeOnOFPVersion = faultCodeOnOFPVersion;
+	}
+
+	public String getStartDateTime() {
+		return startDateTime;
+	}
+
+	public void setStartDateTime(String startDateTime) {
+		this.startDateTime = startDateTime;
+	}
+
+	public String getEndDateTime() {
+		return endDateTime;
+	}
+
+	public void setEndDateTime(String endDateTime) {
+		this.endDateTime = endDateTime;
 	}
 	
 	

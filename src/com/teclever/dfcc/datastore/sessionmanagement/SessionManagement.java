@@ -553,6 +553,8 @@ public class SessionManagement {
 					sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
 					sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
 					sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
+					sessionDtoResponse.setStartDateTime(sessionEntity.getStartDateTime());
+					sessionDtoResponse.setEndDateTime(sessionEntity.getEndDateTime());
 					Response res1 = new Response();
 					res1.setResponseCode(getObjResponse.getResponse().getResponseCode());
 					res1.setResponseMessage(getObjResponse.getResponse().getResponseMessage());
@@ -1017,6 +1019,8 @@ public class SessionManagement {
 			sessionDto.setUutId(sessionDTO.getUutId());
 			sessionDto.setStartDate(sessionDTO.getStartDate());
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
+			sessionDto.setEndDate(sessionDTO.getEndDate());
+			
 			// sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
 			
 //			sessionPath = sessionPath + File.separator + uutIdName.get(sessionDTO.getUutId()) + File.separator
@@ -1634,6 +1638,7 @@ public class SessionManagement {
 				java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 				ss.setEndDate(sqlDate);
 				ss.setEndRemarks(endRemarks);
+				ss.setEndDateTime(new Date().toString());
 				res = sessionService.updateSession(ss);
 			}
 		} catch (Exception e) {

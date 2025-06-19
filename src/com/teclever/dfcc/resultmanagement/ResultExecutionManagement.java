@@ -1532,12 +1532,14 @@ public class ResultExecutionManagement {
 							&& setOfUserLoginId.contains(sessionDetails.getUserId())) {
 						ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
 						if (sessionDetails.getEndDate() != null) {
-							resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDate().toString());
+							//resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDate().toString());
+							resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDateTime());
 						} else {
 							resultUnitSessionDetailsDTO.setEndTime("Not Done");
 						}
 						if (sessionDetails.getStartDate() != null) {
-							resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDate().toString());
+							//resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDate().toString());
+							resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDateTime());
 						} else {
 							resultUnitSessionDetailsDTO.setStartTime("Not Started");
 						}
@@ -1586,13 +1588,15 @@ public class ResultExecutionManagement {
 						ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
 						// Set end time and start time
 						if (trailsessionDetails.getEndDate() != null) {
-							resultUnitSessionDetailsDTO.setEndTime(trailsessionDetails.getEndDate().toString());
+							//resultUnitSessionDetailsDTO.setEndTime(trailsessionDetails.getEndDate().toString());
+							resultUnitSessionDetailsDTO.setEndTime(trailsessionDetails.getEndDateTime());
 						} else {
 							resultUnitSessionDetailsDTO.setEndTime("Not Done");
 						}
 
 						if (trailsessionDetails.getStartDate() != null) {
-							resultUnitSessionDetailsDTO.setStartTime(trailsessionDetails.getStartDate().toString());
+							//resultUnitSessionDetailsDTO.setStartTime(trailsessionDetails.getStartDate().toString());
+							resultUnitSessionDetailsDTO.setStartTime(trailsessionDetails.getStartDateTime());
 						} else {
 							resultUnitSessionDetailsDTO.setStartTime("Not Started");
 						}
