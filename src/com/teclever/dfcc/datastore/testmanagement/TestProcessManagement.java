@@ -167,6 +167,8 @@ public class TestProcessManagement {
 			return createErrorResponse("Test Start Unsuccessfull.. ");
 
 		}
+		
+		System.out.println("Test ");
 		return res;
 	}
 
@@ -725,7 +727,7 @@ public class TestProcessManagement {
 				// Calling Parsing Method
 				// StepParser.parseStepContext(filePath);
 
-				// RDF Issue
+				// RDF Issue	
 				// Thread.sleep(5000);
 				mongoUniqueIdentifier = RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId, filePath);
 				dStartCount = rdfFileParser.getDStarCount();

@@ -18,6 +18,7 @@ import com.teclever.datastore.dto.LevelOneResponseDto;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.SessionStagesListResponse;
 import com.teclever.datastore.dto.StageLevelResponse;
 import com.teclever.datastore.dto.TrailSessionDto;
 import com.teclever.datastore.dto.TrailSessionResponse;
@@ -28,6 +29,7 @@ import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.SessionStagesStatus;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.StagesRemarks;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
@@ -43,6 +45,7 @@ import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.SessionStagesStatusService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.StagesRemarksService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
@@ -62,10 +65,12 @@ import com.teclever.dfcc.datastore.dto.SessionList;
 import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.SessionToStagesMappingDTO;
+import com.teclever.dfcc.datastore.dto.StageFilesStateDTO;
 import com.teclever.dfcc.datastore.dto.StageMasterLevelOneResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.StageRemarksResponse;
 import com.teclever.dfcc.datastore.dto.StagesRemarksDto;
+import com.teclever.dfcc.datastore.dto.StagesTestFilesDetailDTO;
 import com.teclever.dfcc.datastore.dto.TrailSaveResponse;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.filemanagement.FaultCodeConfiguration;
@@ -170,16 +175,23 @@ public class SessionManagement {
 			// For Adding Path In Table
 			List<SessionToStagesMappingDTO> dbSessionStages = new ArrayList<SessionToStagesMappingDTO>();
 
+			//For Adding Status In Status In Table To Session Stages 
+			List<SessionStagesStatus>sessionStagesStatusList = new ArrayList<SessionStagesStatus>();
+			
 			List<List<String>> levels = new ArrayList<List<String>>();
 			for (SessionToStagesMappingDTO sessionToStagesMappingDTO : sessionStages) {
+				
+				SessionStagesStatus	sessionStagesStatus = new SessionStagesStatus();
 				List<String> subLevels = new ArrayList<String>();
 				String path = sessionPath;
+				String stageId = "";
 				path = path + File.separator + levelOneStage.get(sessionToStagesMappingDTO.getLevelOneStageId());
 				subLevels.add(levelOneStage.get(sessionToStagesMappingDTO.getLevelOneStageId()));
 				if (sessionToStagesMappingDTO.getLevelTwoStageId() != null
 						&& !sessionToStagesMappingDTO.getLevelTwoStageId().equals("")) {
 					path = path + File.separator + levelTwoStage.get(sessionToStagesMappingDTO.getLevelTwoStageId());
 					subLevels.add(levelTwoStage.get(sessionToStagesMappingDTO.getLevelTwoStageId()));
+					stageId = sessionToStagesMappingDTO.getLevelTwoStageId();
 
 				}
 
@@ -188,24 +200,50 @@ public class SessionManagement {
 					path = path + File.separator
 							+ levelThreeStage.get(sessionToStagesMappingDTO.getLevelThreeStageId());
 					subLevels.add(levelThreeStage.get(sessionToStagesMappingDTO.getLevelThreeStageId()));
-
+					stageId = sessionToStagesMappingDTO.getLevelThreeStageId();
 				}
 				if (sessionToStagesMappingDTO.getLevelFourStageId() != null
 						&& !sessionToStagesMappingDTO.getLevelFourStageId().equals("")) {
 					path = path + File.separator + levelFourStage.get(sessionToStagesMappingDTO.getLevelFourStageId());
 					subLevels.add(levelFourStage.get(sessionToStagesMappingDTO.getLevelFourStageId()));
-
+					stageId = sessionToStagesMappingDTO.getLevelFourStageId();
 				}
 				if (sessionToStagesMappingDTO.getLevelFiveStageId() != null
 						&& !sessionToStagesMappingDTO.getLevelFiveStageId().equals("")) {
 					path = path + File.separator + levelFiveStage.get(sessionToStagesMappingDTO.getLevelFiveStageId());
 					subLevels.add(levelFiveStage.get(sessionToStagesMappingDTO.getLevelFiveStageId()));
+					stageId = sessionToStagesMappingDTO.getLevelFiveStageId();
 				}
 				path = path + File.separator;
 				levels.add(subLevels);
 				sessionToStagesMappingDTO.setPath(path);
+				sessionToStagesMappingDTO.setStagelLevelId(stageId);
 				dbSessionStages.add(sessionToStagesMappingDTO);
+				
+				
+				
+				
+				
+				
+				//Adding For Status 
+				sessionStagesStatus.setLevelStageFiveId(sessionToStagesMappingDTO.getLevelFiveStageId());
+				sessionStagesStatus.setLevelStageFourId(sessionToStagesMappingDTO.getLevelFourStageId());
+				sessionStagesStatus.setLevelStageThreeId(sessionToStagesMappingDTO.getLevelThreeStageId());
+				sessionStagesStatus.setLevelStageTwoId(sessionToStagesMappingDTO.getLevelTwoStageId());
+				sessionStagesStatus.setLevelStageOneId(sessionToStagesMappingDTO.getLevelOneStageId());
+				sessionStagesStatus.setStageId(stageId);
+				sessionStagesStatus.setSessionId(sessionId);
+				sessionStagesStatus.setStageStatus("pending");
+				sessionStagesStatusList.add(sessionStagesStatus);
+			
+				
+				
+				
 			}
+			
+			//For Adding Stages in Status Table
+			SessionStagesStatusService sessionStagesStatusService =new SessionStagesStatusService();
+			sessionStagesStatusService.addSessionStagesStatus(sessionStagesStatusList);
 
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			String uutName = uutIdName.get(sessionDTO.getUutId());
@@ -2348,266 +2386,157 @@ public class SessionManagement {
 		}
 		return sessionStageMapResponse;
 	}
+	
+	//SESSION STAGE Updated In the State
+	public void setSessionStageStatus(String sessionEntityId) {
+
+		SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+		List<SessionStagesStatus> lst = new ArrayList<SessionStagesStatus>();
+		SessionStagesListResponse sessionStagesListResponse = sessionStagesStatusService
+				.getSessionStagesStatus(sessionEntityId);
+		lst = sessionStagesListResponse.getSessionStagesList();
+
+		LevelOneMasterService levelOneMasterService = new LevelOneMasterService();
+		GetResponse responseLevelOne = levelOneMasterService.getLevelOneMaster();
+		List<LevelOneStageMaster> lstLevelOne = new ArrayList<LevelOneStageMaster>();
+		lstLevelOne = (List<LevelOneStageMaster>) responseLevelOne.getResponseList();
+		Map<String, Boolean> stageIdContinueWithError = new HashMap<String, Boolean>();
+		for (LevelOneStageMaster levelOneStageMaster : lstLevelOne) {
+			stageIdContinueWithError.put(levelOneStageMaster.getLevelOneStageId(),
+					levelOneStageMaster.isContinuewitheror());
+		}
+
+		List<String> stageIds = new ArrayList<String>();
+		Map<String,String>stageIdStatus = new HashMap<String,String>();
+		Map<String,String> stageIdLevelOneId = new HashMap<String,String>();
+		for (SessionStagesStatus sessionStagesStatus : lst) {
+			stageIds.add(sessionStagesStatus.getStageId());
+			stageIdStatus.put(sessionStagesStatus.getStageId(),sessionStagesStatus.getStageStatus());
+			stageIdLevelOneId.put(sessionStagesStatus.getStageId(), sessionStagesStatus.getLevelStageOneId());
+		}
+		Map<String,List<String>>stageIdFilesIds = new HashMap<String,List<String>>();
+		
+		for (String stageId : stageIds) {
+			List<String> testFiles = getTestFilesOnStage(stageId);
+			stageIdFilesIds.put(stageId, testFiles);
+		}
+		
+		for (String stageId : stageIds) {
+			StageFilesStateDTO stageFilesStateDTO = new StageFilesStateDTO();
+			
+			String status = stageIdStatus.get(stageId);
+			
+			if (status.contains("COMPLETED")) {
+				stageFilesStateDTO.setStageStatus("C");
+				stageFilesStateDTO.setStageColurStatus(stageIdStatus.get(stageId));
+				DFCCConstant.sessionStagesResultsState.put(stageId, stageFilesStateDTO);
+			} else {
+				stageFilesStateDTO.setStageStatus("P");
+				stageFilesStateDTO.setContinueWithError(stageIdContinueWithError.containsKey(stageId));
+				List<StagesTestFilesDetailDTO> testFileList = new ArrayList<StagesTestFilesDetailDTO>();
+				List<String>testFileIds = stageIdFilesIds.get(stageId);
+				List<StagesTestFilesDetailDTO> testFilesDTOList = new ArrayList<StagesTestFilesDetailDTO>();
+				for(String testFileId:testFileIds)
+				{
+					
+					StagesTestFilesDetailDTO stagesTestFilesDetailDTO = new StagesTestFilesDetailDTO();
+					stagesTestFilesDetailDTO.setTestFileId(testFileId);
+					stagesTestFilesDetailDTO.setTestFileStatus("P");
+					stagesTestFilesDetailDTO.setDisableFlag(false);
+					testFilesDTOList.add(stagesTestFilesDetailDTO);
+				}
+				stageFilesStateDTO.setLst(testFilesDTOList);
+				DFCCConstant.sessionStagesResultsState.put(stageId, stageFilesStateDTO);
+			}//End Loop Of TestFiles...
+			
+			
+		}//End Loop Of Stages..
+		
+	}
+	
+	
+	//Selected Files Checking and Update For Pass Or Fail when Run Stages On Session Testing  
+	public void updateSessionStagesResultsState(String stageId, List<String> testFileIds, String sessionMappingId,
+			int repeatCount,boolean continueWithFlag) {
+
+		StageFilesStateDTO stageFilesStateDTO = new StageFilesStateDTO();
+
+		stageFilesStateDTO = DFCCConstant.sessionStagesResultsState.get(stageId);
+
+		List<StagesTestFilesDetailDTO> fileDetailsList = stageFilesStateDTO.getLst();
+		
+		
+		
+		if (continueWithFlag) {
+			for (StagesTestFilesDetailDTO fileDetail : fileDetailsList) {
+
+				if (testFileIds.contains(fileDetail.getTestFileId())) {
+					fileDetail.setTestFileStatus("COMPLETED");
+					fileDetail.setDisableFlag(true);
+
+				}
+			}
+		} else {
+
+			
+			
+			
+		}
+		
+		
+		
+		
+
+		
+		
+
+	}
+	
+	
+	private List<String> getTestFilesOnStage(String stageId) {
+
+		List<String> testFileIdsInStage = new ArrayList<>();
+		try {
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse getResponseFileMapping = testFilesStagesMappingService
+					.getTestFilesStagesMappingByLastLevelReference(stageId);
+			List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+			testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+
+			for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+				testFileIdsInStage.add(testFilesStagesMapping.getTestFileId());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return testFileIdsInStage;
+	}
+	
 
 	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS
-	public SessionStageMapResponse getAllSessionStage_IdsWithResult(String sessionEntityId) {
+		public SessionStageMapResponse getAllSessionStage_IdsWithResult(String sessionEntityId) {
 		SessionStageMapResponse sessionStageMapResponse = new SessionStageMapResponse();
 		Response res = new Response();
 		try {
-			SessionSelectedStagesService sessionSelectedStages = new SessionSelectedStagesService();
-			GetResponse getResponse = sessionSelectedStages.getAllSessionStagesBySessionStageId(sessionEntityId);
-			if (getResponse.getCode() == 0) {
-				res.setResponseCode(0);
-				res.setResponseMessage(getResponse.geteMsg());
-				sessionStageMapResponse.setResponse(res);
-				return sessionStageMapResponse;
-			}
-			Set<String> levelOneIds = new LinkedHashSet<>();
-			Map<String, Set<String>> levelTwoIdsWithParantId = new LinkedHashMap<>(); // Example- Key : L1_018 , Value:
-																						// [L2_219, L2_220, L2_221]
-			Map<String, Set<String>> levelThreeIdsWithParantId = new LinkedHashMap<>();// Example- Key : L2_221 , Value:
-																						// [L3_160, L3_161]
-			Map<String, Set<String>> levelfourIdsWithParantId = new LinkedHashMap<>();// Example- Key : L3_178 , Value:
-																						// [L4_207]
-			Map<String, Set<String>> levelfiveIdsWithParantId = new LinkedHashMap<>();// Example- Key : L4_203 , Value:
-																						// [L5_050]
-			Map<String, String> leafStageResult = new LinkedHashMap<>();// Example- Key : L2_050 , Value: pending
-
-			for (Object object : getResponse.getResponseList()) {
-
-				SessionStagesMapping sessionStage = (SessionStagesMapping) object;
-
-				// Add L1 IDs
-				levelOneIds.add(sessionStage.getLevelOneStageId());
-
-				// Add L2 IDs
-				if (sessionStage.getLevelTwoStageId() != null) {
-					if (levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId()) != null) {
-						if (!levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId())
-								.contains(sessionStage.getLevelTwoStageId())) {
-							levelTwoIdsWithParantId.get(sessionStage.getLevelOneStageId())
-									.add(sessionStage.getLevelTwoStageId());
-						}
-					} else {
-						Set<String> levelTwoIds = new LinkedHashSet<>();
-						levelTwoIds.add(sessionStage.getLevelTwoStageId());
-						levelTwoIdsWithParantId.put(sessionStage.getLevelOneStageId(), levelTwoIds);
-					}
-
-				} else {
-					leafStageResult.put(sessionStage.getLevelOneStageId(),
-							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
-									: PENDING);
-				}
-
-				// Add L3 IDs
-				if (sessionStage.getLevelThreeStageId() != null) {
-					if (levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId()) != null) {
-						if (!levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId())
-								.contains(sessionStage.getLevelThreeStageId())) {
-							levelThreeIdsWithParantId.get(sessionStage.getLevelTwoStageId())
-									.add(sessionStage.getLevelThreeStageId());
-						}
-					} else {
-						Set<String> levelThreeIds = new LinkedHashSet<>();
-						levelThreeIds.add(sessionStage.getLevelThreeStageId());
-						levelThreeIdsWithParantId.put(sessionStage.getLevelTwoStageId(), levelThreeIds);
-					}
-
-				} else {
-					leafStageResult.put(sessionStage.getLevelTwoStageId(),
-							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
-									: PENDING);
-				}
-
-				// Add L4 IDs
-				if (sessionStage.getLevelFourStageId() != null) {
-					if (levelfourIdsWithParantId.get(sessionStage.getLevelThreeStageId()) != null) {
-						if (!levelfourIdsWithParantId.get(sessionStage.getLevelThreeStageId())
-								.contains(sessionStage.getLevelFourStageId())) {
-							levelfourIdsWithParantId.get(sessionStage.getLevelThreeStageId())
-									.add(sessionStage.getLevelFourStageId());
-						}
-					} else {
-						Set<String> levelFourIds = new LinkedHashSet<>();
-						levelFourIds.add(sessionStage.getLevelFourStageId());
-						levelfourIdsWithParantId.put(sessionStage.getLevelThreeStageId(), levelFourIds);
-					}
-
-				} else {
-					leafStageResult.put(sessionStage.getLevelThreeStageId(),
-							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
-									: PENDING);
-				}
-
-				// Add L5 IDs
-				if (sessionStage.getLevelFiveStageId() != null) {
-					if (levelfiveIdsWithParantId.get(sessionStage.getLevelFourStageId()) != null) {
-						if (!levelfiveIdsWithParantId.get(sessionStage.getLevelFourStageId())
-								.contains(sessionStage.getLevelFiveStageId())) {
-							levelfiveIdsWithParantId.get(sessionStage.getLevelFourStageId())
-									.add(sessionStage.getLevelFiveStageId());
-						}
-					} else {
-						Set<String> levelFiveIds = new LinkedHashSet<>();
-						levelFiveIds.add(sessionStage.getLevelFiveStageId());
-						levelfiveIdsWithParantId.put(sessionStage.getLevelFourStageId(), levelFiveIds);
-					}
-					leafStageResult.put(sessionStage.getLevelFiveStageId(),
-							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
-									: PENDING);
-				} else {
-					leafStageResult.put(sessionStage.getLevelFourStageId(),
-							sessionStage.getStatus().toLowerCase().contains(COMPLETED.toLowerCase()) ? COMPLETED
-									: PENDING);
-				}
-
-			}
 
 			List<StageObject> listOfStageObject = new ArrayList<>();
 			// L1 Start
-			for (String levelOneId : levelOneIds) {
+			SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+			List<SessionStagesStatus> lst = new ArrayList<SessionStagesStatus>();
+			SessionStagesListResponse sessionStagesListResponse = sessionStagesStatusService
+					.getSessionStagesStatus(sessionEntityId);
+			lst = sessionStagesListResponse.getSessionStagesList();
+
+			for (SessionStagesStatus sessionStagesStatus : lst) {
 				StageObject stageObject = new StageObject();
-				if (levelTwoIdsWithParantId.get(levelOneId) != null) {
-					String l1Status = PENDING;
-					boolean pending1 = false;
-					boolean completed1 = false;
 
-					// L2 Start
-					for (String levelTwo : levelTwoIdsWithParantId.get(levelOneId)) {
-						StageObject stageObjectL2 = new StageObject();
-						if (levelThreeIdsWithParantId.get(levelTwo) != null) {
-							String l2Status = PENDING;
-							boolean pending2 = false;
-							boolean completed2 = false;
+				stageObject = stageObjCreation(sessionStagesStatus.getLevelStageOneId(),
+						sessionStagesStatus.getLevelStageTwoId(), sessionStagesStatus.getLevelStageThreeId(),
+						sessionStagesStatus.getLevelStageFourId(), sessionStagesStatus.getLevelStageFiveId(),
+						sessionStagesStatus.getStageStatus());
 
-							// L3 Start
-							for (String levelThreeId : levelThreeIdsWithParantId.get(levelTwo)) {
-								StageObject stageObjectL3 = new StageObject();
-								if (levelfourIdsWithParantId.get(levelThreeId) != null) {
-									String l3Status = PENDING;
-									boolean pending3 = false;
-									boolean completed3 = false;
-
-									// L4 Start
-									for (String levelFourId : levelfourIdsWithParantId.get(levelThreeId)) {
-										StageObject stageObjectL4 = new StageObject();
-										if (levelfiveIdsWithParantId.get(levelFourId) != null) {
-											String l4Status = PENDING;
-											boolean pending4 = false;
-											boolean completed4 = false;
-
-											// L5 Start
-											for (String levelFiveId : levelfiveIdsWithParantId.get(levelFourId)) {
-												StageObject stageObjectL5 = new StageObject();
-
-												if (leafStageResult.get(levelFiveId).equals(PENDING)) {
-													pending4 = true;
-												} else if (leafStageResult.get(levelFiveId).toLowerCase()
-														.startsWith(COMPLETED.toLowerCase())) {
-													completed4 = true;
-												}
-												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
-														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
-												listOfStageObject.add(stageObjectL5);
-											} // L5 End
-
-											if (pending4 && completed4) {
-												l4Status = PARTIAL;
-											} else if (completed4) {
-												l4Status = COMPLETED;
-											}
-											leafStageResult.put(levelFourId, l4Status);
-											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
-													levelFourId, null, l4Status);
-											pending4 = false;
-											completed4 = false;
-										} else {
-											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
-													levelFourId, null, leafStageResult.get(levelFourId));
-										}
-										listOfStageObject.add(stageObjectL4);
-
-										if (leafStageResult.get(levelFourId).equals(PENDING)) {
-											pending3 = true;
-										} else if (leafStageResult.get(levelFourId).toLowerCase()
-												.startsWith(COMPLETED.toLowerCase())) {
-											completed3 = true;
-										} else if (leafStageResult.get(levelFourId).equals(PARTIAL)) {
-											l3Status = PARTIAL;
-										}
-									} // L4 End
-
-									if (l3Status.equals(PARTIAL)) {
-										l3Status = PARTIAL;
-									} else if (pending3 && completed3) {
-										l3Status = PARTIAL;
-									} else if (completed3) {
-										l3Status = COMPLETED;
-									}
-									leafStageResult.put(levelThreeId, l3Status);
-									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
-											leafStageResult.get(levelThreeId));
-									pending3 = false;
-									completed3 = false;
-								} else {
-									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
-											leafStageResult.get(levelThreeId));
-								}
-								listOfStageObject.add(stageObjectL3);
-
-								if (leafStageResult.get(levelThreeId).equals(PENDING)) {
-									pending2 = true;
-								} else if (leafStageResult.get(levelThreeId).toLowerCase()
-										.startsWith(COMPLETED.toLowerCase())) {
-									completed2 = true;
-								} else if (leafStageResult.get(levelThreeId).equals(PARTIAL)) {
-									l2Status = PARTIAL;
-								}
-							} // L3 End
-
-							if (l2Status.equals(PARTIAL)) {
-								l2Status = PARTIAL;
-							} else if (pending2 && completed2) {
-								l2Status = PARTIAL;
-							} else if (completed2) {
-								l2Status = COMPLETED;
-							}
-							leafStageResult.put(levelTwo, l2Status);
-							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
-									leafStageResult.get(levelTwo));
-							pending2 = false;
-							completed2 = false;
-						} else {
-							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
-									leafStageResult.get(levelTwo));
-						}
-						listOfStageObject.add(stageObjectL2);
-						if (leafStageResult.get(levelTwo).equals(PENDING)) {
-							pending1 = true;
-						} else if (leafStageResult.get(levelTwo).toLowerCase().startsWith(COMPLETED.toLowerCase())) {
-							completed1 = true;
-						} else if (leafStageResult.get(levelTwo).equals(PARTIAL)) {
-							l1Status = PARTIAL;
-						}
-					} // L2 End
-
-					if (l1Status.equals(PARTIAL)) {
-						l1Status = PARTIAL;
-					} else if (pending1 && completed1) {
-						l1Status = PARTIAL;
-					} else if (completed1) {
-						l1Status = COMPLETED;
-					}
-					leafStageResult.put(levelOneId, l1Status);
-					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-					pending1 = false;
-					completed1 = false;
-				} else {
-					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-				}
 				listOfStageObject.add(stageObject);
-			} // L1 End
+			}
 
 			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 			res.setResponseCode(1);

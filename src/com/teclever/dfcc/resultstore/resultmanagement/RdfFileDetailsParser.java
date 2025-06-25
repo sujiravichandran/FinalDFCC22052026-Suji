@@ -27,14 +27,17 @@ public class RdfFileDetailsParser {
 	//SAVE API
 	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) throws InterruptedException {
 		
+		
+		Thread.sleep(5000);
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
 	    
 	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
 	    
 	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
 	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
-	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
 	    
+	    
+	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
 	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
 	    
 	    

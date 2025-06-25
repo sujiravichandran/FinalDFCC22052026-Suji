@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
+import com.teclever.dfcc.datastore.dto.StageFilesStateDTO;
 
 public class DFCCConstant {
     private static Map uutIdNameMap;
@@ -24,6 +25,7 @@ public class DFCCConstant {
     public static List<Path>rdfsPaths = new ArrayList<Path>();
     public static List<CopyFileDTO> FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
     public static Path  outPut ;
+    public static Map<String,StageFilesStateDTO> sessionStagesResultsState = new HashMap<String,StageFilesStateDTO>();
     
     
     public static class UutTypeConstants {
