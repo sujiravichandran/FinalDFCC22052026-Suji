@@ -41,13 +41,14 @@ import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.Controller.ui.RdfFileCopyPopupController;
 import com.teclever.dfcc.DFCCConstant.UutTypeConstants;
+import com.teclever.dfcc.Controller.ui.RdfFileCopyPopupController;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.SessionStagesFileCopyingDTO;
+import com.teclever.dfcc.datastore.dto.SessionStagesRunningStatusDTO;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.StageSummaryDetails;
@@ -859,6 +860,245 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		return popupShowed;
 	}
 	
+
+
+//Selected Files Checking For Pass Or Fail when Run Stages On Session Testing 
+		public SessionStagesRunningStatusDTO getStatusOfSelectedFile(String sessionId, String stageId,String sessionStagesMappingId,int repeatCount) {
+
+			SessionStagesRunningStatusDTO response = new SessionStagesRunningStatusDTO();
+			try {
+				
+				//Session Selected Stages Mapping Service 
+//				SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+//				GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+//				SessionStagesMapping session = new SessionStagesMapping();
+	//
+//				session = (SessionStagesMapping) getObject.getObject();
+//				String sessionStagesMappingId = session.getSessionStagesMappingId();
+//				int repeatCount = session.getRepeatCount();			
+				
+			
+				// Collecting the All Test FileId in the Stages
+				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+				GetResponse getResponseFileMapping = testFilesStagesMappingService
+						.getTestFilesStagesMappingByLastLevelReference(stageId);
+				List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+
+				List<String> testFileIdsInStage = new ArrayList<>();
+				for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+					testFileIdsInStage.add(testFilesStagesMapping.getTestFileId());
+				}
+				
+				
+				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+				GetResponse selectedGetResponse = sessionStagesSelectedTestFilesService.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+				
+				List<SessionStagesSelectedTestFiles> selectTestFileIds = new ArrayList();
+				selectTestFileIds = (List<SessionStagesSelectedTestFiles>) selectedGetResponse.getResponseList();
+				List<String> selectedFileIds = new ArrayList<String>();
+				List<String> fileIdsSelected = new ArrayList<String>();
+				Map<String,String> selectedTestFileIdTestFileId = new HashMap<String,String>();
+				for(SessionStagesSelectedTestFiles sessionStagesSelectedTestFiles:selectTestFileIds)
+				{
+					
+				//	if(sessionStagesSelectedTestFiles.getTestFilesId().equals(testFileId))
+					selectedFileIds.add(sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId());
+					fileIdsSelected.add(sessionStagesSelectedTestFiles.getTestFilesId());
+					selectedTestFileIdTestFileId.put(sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId(), sessionStagesSelectedTestFiles.getTestFilesId());
+				}
+				
+				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			    GetResponse responseTestFile = sessionStagesTestFilesResultService.getSelectedTestFilesByIds(selectedFileIds) ;
+				List<SessionStagesTestFilesResult> testFileResults = new ArrayList<>();
+				testFileResults = (List<SessionStagesTestFilesResult>) responseTestFile.getResponseList();
+				int testFileResultCount = 0;
+				int filterTestCount = 0;
+				
+				
+				//Files Count  : 10
+				//Repeat Count : 2
+				//TotalFiles   : 20
+				
+				
+				if(repeatCount>1)
+				{
+					testFileResultCount =testFileResults.size();
+					filterTestCount = testFileResultCount/repeatCount;
+					testFileResults	= testFileResults.subList(filterTestCount, testFileResultCount); 	
+				}
+				
+				//Filter Based On The Repeat Count..
+				
+			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
+			failureList = testFileResults.stream().filter(ses->!ses.getTestStatus().equals("SUCCESS")).collect(Collectors.toList());
+			
+			if (failureList.size() > 0) {
+				response.setResultFlag(false);
+			} else {
+				response.setResultFlag(true);
+			}
+			
+			List<CopyFileDTO> failedFiles = new ArrayList<CopyFileDTO>();
+			
+//			if(failureList.size()>0)
+//			{
+//				for(SessionStagesTestFilesResult sessionStagesTestFilesResult:failureList)
+//				{
+//					CopyFileDTO copyFileDTO = new CopyFileDTO();
+//					
+//					
+//					
+//				}
+//			}
+				
+			} catch (Exception ex) {
+				System.out.println(ex.getLocalizedMessage());
+				response.setResponseCode(1001);
+			}
+			
+			response.setResponseCode(1111);
+			return response;
+
+		}
+		
+		
+		
+		public Response updateSessionStageStatus() {
+			Response response = new Response();
+			try {
+				
+			} catch (Exception ex) {
+
+			}
+			return response;
+		}
+		
+		
+		public SessionStagesRunningStatusDTO getTestFilesRunnedSuccessStatus(String sessionId, String stageId) {
+
+			SessionStagesRunningStatusDTO response = new SessionStagesRunningStatusDTO();
+			try {
+
+				// Session Stages Test Files Result
+				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+				GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+						.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+				List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+				if (getResponseStageTestFileResult.getCode() != 0) {
+					sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+							.getResponseList();
+				}
+
+				List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+
+				// Filtering By Result For Current Login Session
+				if (sessionStagesTestFilesResultServiceList != null) {
+					SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+
+					Date inputDate = fullDateFormat
+							.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
+
+					filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList.stream()
+							.filter(res -> {
+								try {
+									Date startTime = fullDateFormat.parse(res.getStartTime());
+									return startTime.compareTo(inputDate) >= 0;
+								} catch (ParseException e) {
+									e.printStackTrace();
+									return false;
+								}
+							}).collect(Collectors.toList());
+				}
+
+				// Collecting the All Test FileId in the Stages
+				TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+				GetResponse getResponseFileMapping = testFilesStagesMappingService
+						.getTestFilesStagesMappingByLastLevelReference(stageId);
+				List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+
+				List<String> testFileIdsInStage = new ArrayList<>();
+				for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+					testFileIdsInStage.add(testFilesStagesMapping.getTestFileId());
+				}
+
+				// Files Calculation
+				boolean allFilesRunned = true;
+				Map<String, String> resultIdSelectedTestFileId = new HashMap<String, String>();
+				Map<String, String> selectedTestFileIdResult = new HashMap<String, String>();
+				// For Picking TestResultId and SelectedTestFileId
+				if (filtersessionStagesTestFilesResultServiceList != null) {
+
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : filtersessionStagesTestFilesResultServiceList) {
+						resultIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSessionStagesTestFilesResultId(),
+								sessionStagesTestFilesResult.getSelectedtestFileId());
+						selectedTestFileIdResult.put(sessionStagesTestFilesResult.getSelectedtestFileId(),
+								sessionStagesTestFilesResult.getTestStatus());
+					}
+				}
+
+				List<String> runnedTestFileIds = new ArrayList<>();
+				Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
+				Map<String, String> testFileIdSelectedTestFileId = new HashMap<String, String>();
+
+				// By SelectedTestFileId Fetching TestFileId By SelectedTestFileId
+				if (resultIdSelectedTestFileId.size() > 0) {
+					List<String> selectedTestFileIds = new ArrayList<>(resultIdSelectedTestFileId.values());
+					SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+					List<SessionStagesSelectedTestFiles> selectedTestFilelst = new ArrayList<SessionStagesSelectedTestFiles>();
+					GetResponse selectedFilesResponseList = sessionStagesSelectedTestFilesService
+							.getSelectedTestFilesByIds(selectedTestFileIds);
+					selectedTestFilelst = (List<SessionStagesSelectedTestFiles>) selectedFilesResponseList
+							.getResponseList();
+
+					for (SessionStagesSelectedTestFiles sessionStagesSelectedTestFiles : selectedTestFilelst) {
+						runnedTestFileIds.add(sessionStagesSelectedTestFiles.getTestFilesId());
+						selectedTestFileIdTestFileId.put(
+								sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId(),
+								sessionStagesSelectedTestFiles.getTestFilesId());
+
+						testFileIdSelectedTestFileId.put(sessionStagesSelectedTestFiles.getTestFilesId(),
+								sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId());
+					}
+
+				}
+
+				int filesRunCount = 0;
+
+				for (String testFileId : testFileIdsInStage) {
+					if (selectedTestFileIdTestFileId.containsValue(testFileId)) {
+						filesRunCount++;
+					} else {
+						allFilesRunned = false;
+						break;
+					}
+				}
+
+				// Checking On Runned Files On File On Stages..
+				if (allFilesRunned) {
+
+					// Whether Checking Runned All Files Are Passes Not
+					if (!selectedTestFileIdResult.values().contains("FAILURE")) {
+
+						response.setStageResult("FAIL");
+					} else {
+						// In Stage Some Failure Files Are There
+						System.out.println("Some Files Are Failed AND ADDED In The Failed Stages Rdf Paths");
+						response.setStageResult("PASS");
+					}
+
+				} else {
+					System.out.println("All Files Not Runned");
+					response.setStageResult("NR");
+				}
+
+			} catch (Exception ex) {
+				System.out.println(ex.getLocalizedMessage());
+			}
+			return response;
+
+		}
 	
 	// checking the is All Are TestFiles Runned for flag To update Red Or Green
 	public boolean getTestFilesRunnedSuccessForStages(String sessionId, String stageId) {

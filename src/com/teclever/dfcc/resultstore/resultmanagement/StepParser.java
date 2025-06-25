@@ -61,7 +61,7 @@ public class StepParser {
 //			}
 //		}
 	    
-	    Thread.sleep(5000);
+	  
 
 	    System.out.println("Length Of File After Wait  :"+file.length());
 			    
