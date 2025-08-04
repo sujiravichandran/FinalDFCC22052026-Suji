@@ -1,6 +1,5 @@
 package com.teclever.dfcc.datastore.processcontrolmanagement;
 
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +46,6 @@ public class LoadDriverProcessControlManagement {
 	private ProcessControl aimMil;
 	private ProcessControl kill;
 	private ProcessControl aux;
-	
-	
 
 	CompletableFuture<Void> launcherFuture = new CompletableFuture<>();
 	CompletableFuture<Void> launcherFuture1 = new CompletableFuture<>();
@@ -156,54 +153,21 @@ public class LoadDriverProcessControlManagement {
 					aimMilOutputProcessingThread = new Thread(() -> {
 						try {
 							aimFlag = true;
-							int emptyCount = 0;
-							//boolean flag_c = false;
-							//Edited By Mani And K1 For Intial Driver loading...For AIML Issue
 							while (aimFlag) {
 								String output = aimMilBQueue.take();
 //								System.out.println("aimMil :: " + output);
 
-								DriverCard aimMil = dm.parseLineAIM(output, unloadCommand);
-								
-								
+								DriverCard aimMil = dm.parseLineAIM(output);
 								if (aimMil.getResponse().getResponseCode() == 1) {
-
-									aimMil.setCardName("1553B MODULE");
+									aimMil.setCardName("aim_mil");
 									aimMil.setMsg("OK");
-									//flag_c = true;
-									aimFlag = false;
 									responseDriverCards.add(aimMil);
 								}
-//								} else if (aimMil.getResponse().getResponseCode() == 0 && !flag_c)  {
-//									aimMil.setCardName("1553B MODULE");
-//									aimMil.setMsg("NOT OK");
-//									responseDriverCards.add(aimMil);
-//								}
-								
+
+//								System.out.println(output);
 								if (output.contains("aim_mil")) {
 									aimFlag = false;
 								}
-
-								System.out.println(output);
-								//if (output.contains(unloadCommand)) {
-//								if (output.contains("root#")) {
-//									//aimFlag = false;
-//									emptyCount++;
-//								}
-								
-//								if (output.equals(null) || (output.equals(""))) {
-//									emptyCount++;
-//									System.out.println("aimMil IF CONT :: " + output);
-//									System.out.println("aimMil IF CONT emptyCount:: " + emptyCount);
-//								} else {
-//									emptyCount = 0;
-//									System.out.println("else IF CONT :: " + output);
-//								}
-//
-//								if (emptyCount > 2) {
-//									aimFlag = false;
-//								}
-								
 							}
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
@@ -271,12 +235,9 @@ public class LoadDriverProcessControlManagement {
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
 				Thread.sleep(2000);
-				Debug.printDebug("Strting of unloadCommand");
 
 				launcherFuture
 						.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-				
-				Debug.printDebug("Strting of loadCommand");
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
 
@@ -324,16 +285,13 @@ public class LoadDriverProcessControlManagement {
 					outputProcessingThread.start();
 				});
 
-				Debug.printDebug("before \u0003");
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
-				Thread.sleep(200);
-				Debug.printDebug("before Unload driver :" + "sudo " + unloadCommand);
+				Thread.sleep(2000);
 
 				launcherFuture
 						.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-				Debug.printDebug("before load driver :" + "sudo " + command);
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
 

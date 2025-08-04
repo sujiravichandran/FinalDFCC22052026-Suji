@@ -4,8 +4,6 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +13,6 @@ import java.util.Set;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
@@ -32,7 +29,6 @@ import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
-import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
@@ -82,6 +78,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 public class SessionTestingController {
+	private static final Object SESSION_TEST = null;
 	private GridPane sessionTestingMainGridPane = new GridPane();
 	private GridPane sessionTestingHeadingGridPane = new GridPane();
 	private GridPane sessionTestingTreeviewGridPane = new GridPane();
@@ -142,29 +139,23 @@ public class SessionTestingController {
 		StateMachine.setStageName("SESSION TEST");
 		initializeSearch();
 		
-	
+		
 //		Edited By: SUJI
 //		Change Made for Point: 4&39(Mail:7 July status)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println("Before WDM Status changed:Session Test" +newVal);
-			System.out.println("Before WDM Status changed:Session Test Name" +StateMachine.getRunningTestName());
-			if(newVal) {
-			System.out.println("After WDM Status changed:Session Test Inside " + newVal);
+			if(newVal && StateMachine.getRunningTestName().equals(SESSION_TEST)) {
+			System.out.println("WDM Status changed:Advaned Interface " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
-			 Platform.runLater(() -> {
 			popupDialoguShow.wdmStatusPopup();
-			StateMachine.setWdmStatusOfflineCheck(false);
-			 });
 			}
+			StateMachine.setWdmStatusOfflineCheck(false);
 		});
 
 //		Exit;
 //	    Point: 4&39
 
 	}
-	
-	
 
 	private void clearTextField() {
 		if (!testNameField.getText().isEmpty()) {
@@ -194,8 +185,6 @@ public class SessionTestingController {
 		if (status) {
 			isTrailSession = true;
 		}
-	
-		
 //		getSessionTestData();
 		setStateMachineCurrentL1StageId();
 		sessionTestingMainGridPane.getStylesheets().add(getClass()
@@ -235,49 +224,6 @@ public class SessionTestingController {
 		return sessionTestingMainGridPane;
 	}
 
-	
-	// Edited By: SUJI
-//		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
-//		Change Made on:During initial loading of testing window,Update Status Bar
-		public void initialize() {
-			StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS1 changed to: " + newVal);
-			    aitess1Updated = true;
-			    checkBothAitessLaunched();
-			});
-
-			StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS2 changed to: " + newVal);
-			    aitess2Updated = true;
-			    checkBothAitessLaunched();
-			});
-			
-		}
-		
-		// Method to check both
-			private boolean aitess1Updated = false;
-			private boolean aitess2Updated = false;
-			
-			private void checkBothAitessLaunched() {
-			    if (aitess1Updated && aitess2Updated) {
-			        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
-			                                 && StateMachine.aitess2LaunchedProperty().get();
-			        if (bothLaunched) {
-			            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
-
-			            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
-			            Platform.runLater(() -> {
-
-			        		
-			            	sessionTestingMainGridPane.setDisable(false);
-			        			
-
-			            });
-			        }
-			    }
-			}
-//			Exit;
-//			Point: 52,72,74
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -415,10 +361,28 @@ public class SessionTestingController {
 		pauseButton.setGraphic(pauseImageView);
 		pauseButton.setGraphicTextGap(10);
 
+		runAllButton.setDisable(true);
 		startButton.setDisable(true);
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		
+		// Edited By: SUJI
+//		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//		Change Made on:During initial loading of testing window,Update Status Bar
+		
+		BooleanBinding bothAitessLaunched = StateMachine.aitess1LaunchedProperty()
+			    .and(StateMachine.aitess2LaunchedProperty());
+
+			bothAitessLaunched.addListener((obs, wasTrue, isNowTrue) -> {
+			    if (isNowTrue) {
+			        System.out.println("Both AITESS1 and AITESS2 are launched.");
+			    	startButton.setDisable(false);
+					runAllButton.setDisable(false);
+			    }
+			});
+		
+//		Exit;
+//		Point: 52,72,74
 		
 		runAllButton.setOnAction(e -> {
 		
@@ -436,47 +400,8 @@ public class SessionTestingController {
 				if(StateMachine.isSessionTestOk()) {
 //					System.out.println("<<<<<<<<<<<Entred isSeesion condiontion  + Stage ID>>>>>>>" + lastStageId);
 					//Checking With List
-					
-					
-					//09-07-2025
-					// UPDATING TIME TO DB
-//					LocalDateTime currentDateTime = LocalDateTime.now();
-//					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//					String formattedDate = currentDateTime.format(formatter);
-//					StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-//					//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-//					//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-//					
-//					SessionTimingService s = new SessionTimingService();
-//					//LOGIC FOR UPDATING SESSION TIMING TABLE
-//					if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//						//System.out.println("1");
-//						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-//						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, formattedDate, "",0,0);
-//
-//					}else {
-//						//System.out.println("2 -- both update");
-//						
-//						
-//						int failedFiles = 0;
-//					for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-//					{
-//						if(!copy.getStatus().equals("SUCCESS"))
-//						{
-//							failedFiles++;
-//						}
-//					}
-//						
-//						s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", formattedDate,DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-//						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,formattedDate, "",0,0);
-//						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-//
-//					}
-					
 					boolean popupRDFFiles = false;
-					System.out.println("Entred Session Copyfile Before" + DFCCConstant.FailedStagesRdfPaths.size());
 					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
-						System.out.println("Entred Session Copyfile After" + DFCCConstant.FailedStagesRdfPaths.size());
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
 							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
@@ -486,13 +411,7 @@ public class SessionTestingController {
 						}
 
 						if (popupRDFFiles) {
-							
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
-							
-							System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 							{
@@ -502,11 +421,6 @@ public class SessionTestingController {
 							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						} else {
-							
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
 							SessionFileManagement session = new SessionFileManagement();
 //							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -521,8 +435,6 @@ public class SessionTestingController {
 				}
 				// Exit
 				// Point No:3
-				
-				
 				
 			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -588,7 +500,6 @@ public class SessionTestingController {
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
 				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
-				StateMachine.setStatusBarRunningTestName(StatusBarTestName.SESSION_TEST);
 				stopButton.setDisable(false);
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
@@ -630,40 +541,6 @@ public class SessionTestingController {
                 // Point No:3
 				// Change Made on rdf file moving
 					if(StateMachine.isSessionTestOk()) {
-						
-						//09-07-2025
-						// UPDATING TIME TO DB
-//						LocalDateTime currentDateTime = LocalDateTime.now();
-//						StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-//						//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-//						//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-//						
-//						SessionTimingService s = new SessionTimingService();
-//						//LOGIC FOR UPDATING SESSION TIMING TABLE
-//						if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//							//System.out.println("1");
-//							StateMachine.setPreviouslySelectedStageId(selectedStageId);
-//							s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
-//
-//						}else {
-//							//System.out.println("2 -- both update");
-//							
-//							
-//							int failedFiles = 0;
-//						for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-//						{
-//							if(!copy.getStatus().equals("SUCCESS"))
-//							{
-//								failedFiles++;
-//							}
-//						}
-//							
-//							s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-//							s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
-//							StateMachine.setPreviouslySelectedStageId(selectedStageId);
-//
-//						}
-						
 //						System.out.println("<<<<<<<<<<<Entred isSeesion condiontion  + Stage ID>>>>>>>" + lastStageId);
 						//Checking With List
 						boolean popupRDFFiles = false;
@@ -677,11 +554,6 @@ public class SessionTestingController {
 							}
 
 							if (popupRDFFiles) {
-								
-								//Logbook the Stage Results
-								SessionManagement sessionManagement = new SessionManagement();
-								sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-								
 //								System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 								RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 								for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -692,11 +564,6 @@ public class SessionTestingController {
 								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 							} else {
-								
-								//Logbook the Stage Results
-								SessionManagement sessionManagement = new SessionManagement();
-								sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-								
 								SessionFileManagement session = new SessionFileManagement();
 //								System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 								session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -711,8 +578,6 @@ public class SessionTestingController {
 					}
 					// Exit
 					// Point No:3
-					
-					
 				
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
@@ -775,7 +640,6 @@ public class SessionTestingController {
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
 				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
-				StateMachine.setStatusBarRunningTestName(StatusBarTestName.SESSION_TEST);
 				stopButton.setDisable(false);
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
@@ -1309,10 +1173,7 @@ public class SessionTestingController {
 	private void disableCheckBox(String stageId) {
 //		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
 		if (selectedStageId.equals(stageId)) {
-			System.out.println("Checked Boxes"+checkBoxes.size());
 			checkBoxes.forEach(e -> {
-				
-			
 				String fileId = e.getId();
 				ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 				if (!StateMachine.getTestState().equals(StateMachine.TestState.STOPPED)) {
@@ -1330,15 +1191,15 @@ public class SessionTestingController {
 					StateMachine.setDissableEnable(false);
 				}
 
-				//System.out.println("DFCC CONstatn" + DFCCConstant.colourFlag);
+				System.out.println("DFCC CONstatn" + DFCCConstant.colourFlag);
 
 				StateMachine.updateColorProperty().addListener((obs, oldValue, newValue) -> {
-					//System.out.println("Update color value check :: oldValue" +oldValue );
-					//System.out.println("Update color value check :: newValue" +newValue );
+					System.out.println("Update color value check :: oldValue" +oldValue );
+					System.out.println("Update color value check :: newValue" +newValue );
 					if (newValue) {
 						getStatusForAllStage();
 					}else {
-						//System.out.println("Entred else in diable check");
+						System.out.println("Entred else in diable check");
 						getStatusForAllStage();
 					}
 
@@ -1458,8 +1319,6 @@ public class SessionTestingController {
 							@Override
 							protected void updateItem(String filePath, boolean empty) {
 								super.updateItem(filePath, empty);
-								System.out.println("filePath"+filePath);
-								System.out.println();
 								if (empty || filePath == null) {
 									setText(null);
 								} else {

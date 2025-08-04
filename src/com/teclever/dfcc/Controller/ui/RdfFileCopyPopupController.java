@@ -7,8 +7,10 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.model.RdfFileCopy;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -49,11 +51,16 @@ public class RdfFileCopyPopupController {
 	private VBox pathLabelVBox = new VBox(5);
 	private HBox currentDirHBox = new HBox(5);
 	private HBox copyDirHBox = new HBox(5);
+	private HBox noteHBox = new HBox(5);
 
 	private Label currentDirLabel = new Label("Current Directory");
 	private Label currentDirPath = new Label("----");
 	private Label copyDirLabel = new Label("Copy Directory");
 	private Label copyDirPath = new Label("----");
+	private Label noteLabel = new Label("Note:\n"
+			+ " *Click the Move option to move the selected files to the respective output folder.\n"
+			+" *Click the Close option to return to the application.\n" 
+			+" *Unselected files will be moved to the Miscellaneous folder.");
 	
 	
 	
@@ -72,6 +79,7 @@ public class RdfFileCopyPopupController {
 		currentDirPath.setWrapText(true);
 	    copyDirPath.setWrapText(true);
 
+	    
 	    currentDirPath.prefWidthProperty().bind(currentDirHBox.widthProperty());
 	    copyDirPath.prefWidthProperty().bind(copyDirHBox.widthProperty());
 
@@ -181,7 +189,7 @@ public class RdfFileCopyPopupController {
 	    HBox buttonBox = createButtonBox();
 	    buttonBox.getChildren().add(0, selectAllButton); // Add the button at the beginning
 
-	    rdfFileCopyMidVBox.setSpacing(70);	    
+	    rdfFileCopyMidVBox.setSpacing(50);	    
 	    rdfFileCopyMidVBox.getChildren().addAll(tableView, createLabelBox(), buttonBox);
 	}
 
@@ -189,16 +197,20 @@ public class RdfFileCopyPopupController {
 	private VBox createLabelBox() {
 		currentDirLabel.setPrefWidth(500);
 		copyDirLabel.setPrefWidth(500);
+		
 
 		currentDirLabel.getStyleClass().add("rdf-file-path-label");
 		currentDirPath.getStyleClass().add("rdf-file-path-label");
 		copyDirLabel.getStyleClass().add("rdf-file-path-label");
 		copyDirPath.getStyleClass().add("rdf-file-path-label");
-
+		copyDirPath.getStyleClass().add("rdf-file-path-label");
+		noteLabel.getStyleClass().add("rdf-file-path-label");
+		
+		noteHBox.getChildren().addAll(noteLabel);
 		currentDirHBox.getChildren().addAll(currentDirLabel, currentDirPath);
 		copyDirHBox.getChildren().addAll(copyDirLabel, copyDirPath);
 
-		pathLabelVBox.getChildren().addAll(currentDirHBox, copyDirHBox);
+		pathLabelVBox.getChildren().addAll(noteHBox, currentDirHBox, copyDirHBox);
 
 		return pathLabelVBox;
 	}
@@ -208,8 +220,10 @@ public class RdfFileCopyPopupController {
 		buttonHBox.getChildren().addAll(copyButton, closeButton);
 
 		closeButton.setOnAction(e -> {
+			StateMachine.setRdfCopy(true);
 			handleClosePopup(true);
 		});
+		
 //Before Suji Change
 //		copyButton.setOnAction(e -> {
 //			List<CopyFileDTO> pathList = new ArrayList<>();
@@ -225,6 +239,44 @@ public class RdfFileCopyPopupController {
 
 		// After Suji Change
 		copyButton.setOnAction(e -> {
+			
+			boolean atLeastOneSelected = tableView.getItems().stream().anyMatch(RdfFileCopy::isSelected);
+		    if (!atLeastOneSelected) {
+		        Notifications.showErrorAlert("Please select at least one file before moving.");
+		        return;
+		    }
+			
+			AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
+					.getInstance();
+			
+			StateMachine.rdfMoveLogoutProperty().addListener((obs, oldValue, newValue) -> {
+				if (newValue) {
+					
+					List<CopyFileDTO> pathList1 = new ArrayList<>();
+					for (RdfFileCopy rdfFile : tableView.getItems()) {
+						CopyFileDTO newFilePath = new CopyFileDTO();
+						if (rdfFile.isSelected()) {
+							newFilePath.setFlag(true);
+							newFilePath.setStageId(rdfFile.getStageId());
+
+						} else {
+							newFilePath.setFlag(false);
+							newFilePath.setStageId(rdfFile.getStageId());
+
+						}
+						newFilePath.setStagePath(rdfFile.getStagePath());
+						newFilePath.setRdfFileNamewithPath(rdfFile.getFilePath());
+						pathList1.add(newFilePath);
+					}
+					handleCopyingRdfFiles(pathList1);
+					System.out.println("Entred RDF Logout Front");
+					aitessProcessControlManagement.endAllProcessOnLogout();
+					Platform.exit();
+					System.exit(0);
+				}
+			StateMachine.setRdfMoveLogout(false);
+			});
+			
 			List<CopyFileDTO> pathList = new ArrayList<>();
 			for (RdfFileCopy rdfFile : tableView.getItems()) {
 				CopyFileDTO newFilePath = new CopyFileDTO();

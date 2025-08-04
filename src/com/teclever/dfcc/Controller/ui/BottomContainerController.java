@@ -1,7 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
-import com.teclever.dfcc.DFCCConstant;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.CheckSum;
+import com.teclever.dfcc.datastore.dto.ValidateResponse;
+import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
+import com.teclever.dfcc.model.CheckSumList;
+import com.teclever.dfcc.utils.Notifications;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,6 +28,9 @@ public class BottomContainerController {
 	private Pane bottomPane = new Pane();
 	private Pane bottomSubPane = new Pane();
 	private GridPane bottomGridPane = new GridPane();
+	private final SystemConfigManagement systemConfigManagement = new SystemConfigManagement();
+	
+	
 	
 	public StackPane createBottomGridPane() {	
 		bottomStackPane.setId("bottomStackpane");
@@ -65,9 +79,32 @@ public class BottomContainerController {
 	   
 	    bottomStackPane.getChildren().add(backgroundImageView);
 	    bottomStackPane.getChildren().add(loginFormController.createLoginForm());
-//	    bottomStackPane.getChildren().add(loginFormController.getCheckSumData());
-	    loginFormController.getCheckSumData();
+	    
+	    
+	 // Edited By: SUJI
+//		Change Made for Point:103(Mail:7-Jul-Observations_in_testing_Teclever_Date_SAT))
+//		Change Made on successful macro execution pop-up message
+	    ValidateResponse checkSumData = systemConfigManagement.validateConfig();
+		List<CheckSum> checkSumDataList = checkSumData.getCheckSumList();
+		List<String> allCheckSums = new ArrayList<>();
+		
+		if (checkSumData.getResponse().getResponseCode() == 1) {
+			for (CheckSum data : checkSumDataList) {
+				allCheckSums.add(data.getMsg());
+			}
+		
+		}
+		
+		boolean allOk = allCheckSums.stream()
+			    .allMatch(msg -> msg != null && msg.trim().equalsIgnoreCase("OK"));
 
+			if (!allOk) {
+			    bottomStackPane.getChildren().add(loginFormController.getCheckSumData());
+			}
+		 loginFormController.getCheckSumData();
+		 
+//			Exit;
+//			Point: 103
 	    return bottomStackPane;
 	}
 }

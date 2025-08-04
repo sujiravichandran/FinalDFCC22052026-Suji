@@ -12,6 +12,7 @@ public class TestProcessDto {
 	private String dotComFileResult;
 	
 	private int responseCode;
+	
 	private List<String> onlineStatus;
 
 

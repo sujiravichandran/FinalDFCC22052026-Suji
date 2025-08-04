@@ -202,13 +202,13 @@ public class UserDashboardController {
 		});
 
 		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println(" User Dashborad AITESS1 changed to: " + newVal);
+			System.out.println("AITESS1 changed to: " + newVal);
 			aitess1Updated = true;
 			checkBothAitessLaunched();
 		});
 
 		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println("User Dashborad List AITESS2 changed to: " + newVal);
+			System.out.println("AITESS2 changed to: " + newVal);
 			aitess2Updated = true;
 			checkBothAitessLaunched();
 		});
@@ -217,8 +217,7 @@ public class UserDashboardController {
 
 	private void updateUI(TestState state) {
 		Platform.runLater(() -> {
-			//Updated By ON BEL 31-07-2025
-			if ((state == TestState.RUNNING)||(state == TestState.PAUSED)) {
+			if (state == TestState.RUNNING) {
 				toggleButton.setDisable(true);
 			} else {
 				toggleButton.setDisable(false);
@@ -442,8 +441,7 @@ public class UserDashboardController {
 					uutLogbookManagement.addUUTLogBook(uutLogBookDto);
 				}
 
-//				Changed by Vignesh 31-07-25 for showing stage name in result page
-				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null, null);
+				centerContentController.createUserCenterContent(bottomMidTopGridPane, labelText, null, labelText);
 				for (Node node : middleMenuBox.getChildren()) {
 					if (node instanceof Label) {
 						((Label) node).getStyleClass().remove("selected");
@@ -802,8 +800,7 @@ public class UserDashboardController {
 		HBox labelnewbox = new HBox(5);
 		Label labelnew1 = new Label();
 
-// 		Changed by Vignesh 31-07-25 update temp last checked time
-		StateMachine.tempLastCheckedTimeProperty().addListener((obs, oldVal, newVal) -> {
+		lastupdatedTime2.addListener((obs, oldVal, newVal) -> {
 			Platform.runLater(() -> labelnew1.setText(newVal));
 		});
 
@@ -934,15 +931,6 @@ public class UserDashboardController {
 		titleLabel.getStyleClass().add("dfcc-title");
 
 		HBox toggleSwitch = createToggleSwitch();
-
-		// 31/7/25 srini
-		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
-		    if (newState == TestState.RUNNING || newState == TestState.PAUSED) {
-		        toggleSwitch.setDisable(true);
-		    } else {
-		        toggleSwitch.setDisable(false);
-		    }
-		});
 
 		firstRowBox.getChildren().addAll(titleLabel, toggleSwitch);
 		bottomRightMidFirstGridPane.add(firstRowBox, 0, 0);
@@ -1248,14 +1236,9 @@ public class UserDashboardController {
 
 		if (currentSessionDetails.getUutId().equals("UUT1")) {
 			bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, bottomRightMidSecondGridPane);
-//			Changed by Vignesh 31-07-25 - calling for displaying temp initially
-			setMK1Temp("sc", box1, box2, box3, box4);
 		} else {
 			bottomRightMidSecondBox.getChildren().addAll(temperatureTitleHBox, boardTitleHBox,
 					bottomRightMidSecondGridPane);
-//			Changed by Vignesh 31-07-25 - calling for displaying temp initially
-			getMK1AandMk2TempData(temperatureComboBox.getValue(), boardComboBox.getValue(), box1, box2,
-					box3, box4);
 		}
 
 		return bottomRightMidSecondBox;
@@ -2003,16 +1986,6 @@ public class UserDashboardController {
 
 		macroButtonList = macroConfigurationManagement.getAllMacroButtonsByUutId(currentSessionDetails.getUutId());
 
-//		31/07/25 Srini changes
-		StateMachine.testStateProperty().addListener((obs, oldVal, newVal) -> {
-		    boolean shouldDisable = newVal == TestState.RUNNING || newVal == TestState.PAUSED;
-		    for (Node node : rightMidSecondGridPane.getChildren()) {
-		        if (node instanceof VBox) {
-		            node.setDisable(shouldDisable);
-		        }
-		    }
-		});
-		
 		// Edited By: SUJI
 //		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on:During initial loading of testing window,Update Status Bar

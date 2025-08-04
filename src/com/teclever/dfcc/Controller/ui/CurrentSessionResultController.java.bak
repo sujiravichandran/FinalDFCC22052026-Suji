@@ -9,7 +9,6 @@ import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultSessionStagesDetailsResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.model.SessionData;
-import com.teclever.dfcc.model.UnitData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -182,7 +181,6 @@ public class CurrentSessionResultController {
 				SessionData newSessionData = new SessionData();
 				
 				newSessionData.setId(data.getStageId());
-	
 				newSessionData.setTestMode(data.getTestMode());
 				newSessionData.setSlNo(String.valueOf(i));
 				newSessionData.setStage(data.getStage());
@@ -276,16 +274,6 @@ public class CurrentSessionResultController {
 	            tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
 	            sessionDataTableView.setPlaceholder(tablePlaceholderLabel);
 
-//	    		Changed by Vignesh 31-07-25 for moving icon location
-	    		if(!sessionDataTableView.getColumns().isEmpty()) {
-	    			TableColumn<SessionData, ?> lastColumn = sessionDataTableView.getColumns().get(sessionDataTableView.getColumns().size() - 1);
-	    			//sessionDataTableView.getColumns().removeLast();
-	    			//Mani Changes By Vignesh Comment
-	    			sessionDataTableView.getColumns().remove(lastColumn);
-
-	    			sessionDataTableView.getColumns().add(0, lastColumn);	
-	    		}
-
 	            sessionDataTableView.getColumns().forEach(column -> {   
 	    			if(!column.getText().isEmpty()) {				
 	    				column.setMinWidth(column.getText().length()*14);
@@ -297,10 +285,7 @@ public class CurrentSessionResultController {
 	                ObservableList<SessionData> selectedItems = sessionDataTableView.getSelectedItems();
 	                for (SessionData rowData : selectedItems) {
 	                    GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
-//	                    Changed by Vignesh 31-07-25 for displaying stage name in stage result
-	                    userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID, rowData);
-	                    System.out.println(rowData);
-	                    System.out.println("Session Name"+SESSION_ID);
+	                    userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID, rowData.getId());
 	                    break;
 	                }
 	            });

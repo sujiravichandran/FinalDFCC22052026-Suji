@@ -8,7 +8,6 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
-import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.model.StageIdName;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
@@ -87,8 +86,7 @@ public class UserCenterContentController {
 		}
 		return instance;
 	}
-//	Changed by Vignesh 31-07-25 for showing stage name in result page
-	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String sessionId, SessionData rowData) {
+	public void createUserCenterContent(GridPane bottomMidTopGridPane, String selectedMenu ,String sessionId, String stageId) {
 		
 		GridPane main = (GridPane) bottomMidTopGridPane.getParent().getParent();
 		GridPane child = (GridPane) main.getChildren().get(0);
@@ -250,15 +248,14 @@ public class UserCenterContentController {
 		case "Stage Results" :	
 			CurrentStageResultController currentStageResultController = new CurrentStageResultController();
 			if (centerStackPane.getChildren().contains(currentStageResultStackPane)) {
-				if(sessionId == null && rowData == null) {
+				if(sessionId == null && stageId == null) {
 					currentStageResultStackPane.toFront();
 					break ;
 				}
 				currentStageResultStackPane.getChildren().clear();
 				centerStackPane.getChildren().remove(currentStageResultStackPane);
 			}
-//			Changed by Vignesh 31-07-25 for showing stage name in result page
-			currentStageResultStackPane.getChildren().add(currentStageResultController.createCurrentExecutionResultGridPane(sessionId,rowData));
+			currentStageResultStackPane.getChildren().add(currentStageResultController.createCurrentExecutionResultGridPane(sessionId,stageId));
 			centerStackPane.getChildren().add(currentStageResultStackPane);	
 			
 			break;

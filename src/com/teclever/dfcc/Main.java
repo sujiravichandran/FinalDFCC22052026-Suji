@@ -296,13 +296,6 @@ public class Main extends Application {
 					Platform.exit();
 					});
 				}
-	        	
-	        	
-	        	
-	        	
-	        	
-	        	
-	        	
 	            // User confirmed exit - perform any cleanup if needed
 	            System.out.println("Application is closing...");
 	            // (Optional) Save data, close connections, etc.

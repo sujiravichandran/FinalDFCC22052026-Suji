@@ -20,6 +20,7 @@ import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControl
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
+import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
@@ -27,6 +28,7 @@ import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -111,6 +113,11 @@ public class AdvancedTestingCustomTesting1 {
 	private String UUT_ID;
 	private String TEST_TYPE_ID;
 
+	private boolean aitess1Updated = false;
+	private boolean aitess2Updated = false;
+
+
+
 	public GridPane createAdvancedTestingTab3GridPane() {
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
@@ -138,6 +145,42 @@ public class AdvancedTestingCustomTesting1 {
 		tab3MainGridPane.add(createRightTextArea(), 1, 1, 1, 2);
 		return tab3MainGridPane;
 	}
+
+	// Edited By: SUJI
+//		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//		Change Made on:During initial loading of testing window,Update Status Bar
+	public void initialize() {
+		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+			aitess1Updated = true;
+			checkBothAitessLaunched();
+		});
+
+		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+			aitess2Updated = true;
+			checkBothAitessLaunched();
+		});
+
+	}
+
+	// Method to check both
+
+	private void checkBothAitessLaunched() {
+		if (aitess1Updated && aitess2Updated) {
+			boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
+					&& StateMachine.aitess2LaunchedProperty().get();
+			if (bothLaunched) {
+
+				// ✅ This ensures all UI updates are done on the JavaFX Application Thread
+				Platform.runLater(() -> {
+
+					userTestRunButton.setDisable(false);
+
+				});
+			}
+		}
+	}
+//			Exit;
+//			Point: 52,72,74
 
 	private HBox createLeftSideTitle() {
 		leftTitleHBox.getStyleClass().add("advanced-testing-custom-tab-container");
@@ -275,9 +318,9 @@ public class AdvancedTestingCustomTesting1 {
 
 		terminalAddButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Terminal Add button in Custom Testing-1");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSymbolAddOrRun(false);
@@ -285,9 +328,9 @@ public class AdvancedTestingCustomTesting1 {
 
 		terminalRunButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Terminal Run button in Custom Testing-1");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleSymbolAddOrRun(true);
@@ -340,20 +383,18 @@ public class AdvancedTestingCustomTesting1 {
 
 		macroAddButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Macro Add button in Custom Testing-1");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Macro Add button in Custom Testing-1");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleMacroAddOrRun(false);
 		});
 
 		macroRunButton.setOnAction(e -> {
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-					currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-					currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-					"clicked on Macro Run button in Custom Testing-1");
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Macro Run button in Custom Testing-1");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			handleMacroAddOrRun(true);
 		});
@@ -449,10 +490,10 @@ public class AdvancedTestingCustomTesting1 {
 
 	private void getDataByUUTandTestId() {
 		clearFiledValues();
-		 Platform.runLater(() -> {
-			 tab3MainGridPane.getScene().setCursor(Cursor.WAIT);
-			 tab3MainGridPane.getScene().getRoot().setDisable(true);
-		 });
+		Platform.runLater(() -> {
+			tab3MainGridPane.getScene().setCursor(Cursor.WAIT);
+			tab3MainGridPane.getScene().getRoot().setDisable(true);
+		});
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -486,17 +527,17 @@ public class AdvancedTestingCustomTesting1 {
 					}
 				});
 				Platform.runLater(() -> {
-		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
-		        	tab3MainGridPane.getScene().getRoot().setDisable(false);
-		        });
+					tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
+					tab3MainGridPane.getScene().getRoot().setDisable(false);
+				});
 			}
 
 			@Override
 			protected void failed() {
 				Platform.runLater(() -> {
-		        	tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
-		        	tab3MainGridPane.getScene().getRoot().setDisable(false);
-		        });
+					tab3MainGridPane.getScene().setCursor(Cursor.DEFAULT);
+					tab3MainGridPane.getScene().getRoot().setDisable(false);
+				});
 				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 			}
 		};
@@ -660,20 +701,20 @@ public class AdvancedTestingCustomTesting1 {
 							TEST_TYPE_ID);
 				}
 			};
-			
-			 task.setOnSucceeded(event -> {
-			        Response response = task.getValue(); // Get the response
-			        if (response.getResponseCode() == 0) {
-			            Debug.printDebug("Custom-1 Test Task Response received: " + response.getResponseMessage());			            
-			            Notifications.showErrorAlert(response.getResponseMessage());
-			        }
-			    });
 
-			    task.setOnFailed(event -> {
-			        Throwable exception = task.getException();
-			        Debug.printDebug("Custom-1 Test Task failed with exception: " + exception.getMessage());
-			    });
-			    
+			task.setOnSucceeded(event -> {
+				Response response = task.getValue(); // Get the response
+				if (response.getResponseCode() == 0) {
+					Debug.printDebug("Custom-1 Test Task Response received: " + response.getResponseMessage());
+					Notifications.showErrorAlert(response.getResponseMessage());
+				}
+			});
+
+			task.setOnFailed(event -> {
+				Throwable exception = task.getException();
+				Debug.printDebug("Custom-1 Test Task failed with exception: " + exception.getMessage());
+			});
+
 			new Thread(task).start();
 		}
 	}
@@ -687,9 +728,15 @@ public class AdvancedTestingCustomTesting1 {
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
-			
+
 			StateMachine.setTestState(TestState.STOPPED);
-//			StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+
+			// Excel Name:7-July-Observation
+			// Point No:18
+			// Change Made on Status Bar Test Name
+			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST);
+			// Exit
+			// Point No:18
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;
@@ -701,7 +748,5 @@ public class AdvancedTestingCustomTesting1 {
 
 		return true;
 	}
-	
-
 
 }

@@ -21,10 +21,6 @@ public class DFCCConstant {
     public static boolean entered = true;
     public static boolean colourFlag = false;
     
-    //Mani Changes Added
-    public static int cardCount = 0;
-    public static int currentCount = 0;
-    
     public static Map<String,List<String>> stageCompletedFiles = new HashMap<String,List<String>>();
     public static Map<String,List<String>> stageActualFiles = new HashMap<String,List<String>>();
 
@@ -33,7 +29,7 @@ public class DFCCConstant {
     public static List<Path>rdfsPaths = new ArrayList<Path>();
     public static List<CopyFileDTO> FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
     public static Path  outPut ;
-    public static Map<String,StageFilesStateDTO> sessionStagesResultsState = new HashMap<String,StageFilesStateDTO>();
+    public static Map<String,List<StageFilesStateDTO>> sessionStagesResultsState = new HashMap<String,List<StageFilesStateDTO>>();
     
     
     public static class UutTypeConstants {

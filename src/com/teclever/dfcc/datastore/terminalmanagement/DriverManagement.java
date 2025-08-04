@@ -15,6 +15,7 @@ import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
 
 public class DriverManagement {
+	
 
 	public List<DbDriverCard> getDriverCardDetailsBasedOnAitess(int aitessId) {
 		List<DbDriverCard> driverCardDetails = new ArrayList<>();
@@ -28,11 +29,14 @@ public class DriverManagement {
 			query.setParameter("aitessId", aitessId);
 			query.setParameter("deleteStatus", false);
 			List<Object[]> results = query.list();
+			//Edited By Anuj For AIML Loading Issues...
 			for (Object[] result : results) {
 				String cardName = (String) result[0];
-				String totalNumberOfCards = String.valueOf(result[1]);
-				String cardIdentificationText = (String) result[2];
-				driverCardDetails.add(new DbDriverCard(cardName, totalNumberOfCards, cardIdentificationText));
+				if (!cardName.equals("1553B MODULE")) {
+					String totalNumberOfCards = String.valueOf(result[1]);
+					String cardIdentificationText = (String) result[2];
+					driverCardDetails.add(new DbDriverCard(cardName, totalNumberOfCards, cardIdentificationText));
+				}
 			}
 			session.getTransaction().commit();
 		} catch (Exception ex) {
@@ -71,19 +75,20 @@ public class DriverManagement {
 	}
 
 	
-	public DriverCard parseLineAIM(String outputLine) {
-	    Response response = new Response();
-        String dbCardName = "aim_mil"; 
+	public DriverCard parseLineAIM(String outputLine,String cardText) {
+		Response response = new Response();
+		String dbCardName = "1553B MODULE";
 
-	    if (outputLine != null && outputLine.contains("aim_mil")) {
-	        response.setResponseCode(1);
-	        response.setResponseMessage("SUCCESS");
-	        return new DriverCard(dbCardName, "CARD MATCHED", response);
-	    }
+		System.out.println("cardText  ::"+cardText);
+		if (outputLine != null && outputLine.contains(cardText)) {
+			response.setResponseCode(1);
+			response.setResponseMessage("SUCCESS");
+			return new DriverCard(dbCardName, "CARD MATCHED", response);
+		}
 
-	    response.setResponseCode(0);
-	    response.setResponseMessage("FAILURE: aim_mil not found");
-	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
+		response.setResponseCode(0);
+		response.setResponseMessage("FAILURE: aim_mil not found");
+		return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
 	}
 
 	

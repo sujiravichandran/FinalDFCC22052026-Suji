@@ -2,7 +2,6 @@ package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +18,6 @@ import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
-import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
@@ -112,23 +110,19 @@ public class AdvancedTestingHWATPTesting {
 	private boolean aitess2Updated = false;
 
 	public AdvancedTestingHWATPTesting() {
-		StateMachine.setStageName("ADVANCED HWATP TEST");
-	
 		initializeSearch();
-
-		
+		initialize();
 		
 //		Edited By: SUJI
 //		Change Made for Point: 4&39(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-			if(newVal) {
+			if(newVal && StateMachine.getStatusBarRunningTestName().equals(ADVANCED_TEST_HWATP_TEST)) {
+			System.out.println("WDM Status changed:Advaned HWATp " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
-			 Platform.runLater(() -> {
-					popupDialoguShow.wdmStatusPopup();
-					StateMachine.setWdmStatusOfflineCheck(false);
-					 });
+			popupDialoguShow.wdmStatusPopup();
 			}
+			StateMachine.setWdmStatusOfflineCheck(false);
 		});
 
 //		Exit;
@@ -166,6 +160,7 @@ public class AdvancedTestingHWATPTesting {
 	
 	public GridPane createAdvancedTestingTab1GridPane() {
 	
+		tab1MainGridPane.setDisable(true);
 		getHWATPTestingStagesData();
 		
 		
@@ -199,17 +194,15 @@ public class AdvancedTestingHWATPTesting {
 //	Change Made on:During initial loading of testing window,Update Status Bar
 	public void initialize() {
 		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+		    System.out.println("AITESS1 changed to: " + newVal);
 		    aitess1Updated = true;
-		    Platform.runLater(() -> {
-			    checkBothAitessLaunched();
-			    });
+		    checkBothAitessLaunched();
 		});
 
 		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+		    System.out.println("AITESS2 changed to: " + newVal);
 		    aitess2Updated = true;
-		    Platform.runLater(() -> {
 		    checkBothAitessLaunched();
-		    });
 		});
 		
 	}
@@ -222,6 +215,7 @@ public class AdvancedTestingHWATPTesting {
 		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
 		                                 && StateMachine.aitess2LaunchedProperty().get();
 		        if (bothLaunched) {
+		            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
 
 		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
 		            Platform.runLater(() -> {
@@ -247,6 +241,8 @@ public class AdvancedTestingHWATPTesting {
 				.filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 							stage.getTestTypeId(), null);
+//					System.out.println("stage.getL3StageName()" + stage.getL3StageName());
+//					System.out.println("stage.getL3StageId()" + stage.getL3StageId());
 					AdvancedTestStateObject.addHwatpTestList(newCard);
 				});
 	}
@@ -261,10 +257,16 @@ public class AdvancedTestingHWATPTesting {
 //	                    && "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
 //	            .filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null)
 //	            .forEach(stage -> {
+//	            	System.out.println("L1: " + stage.getL1StageName() +
+//	                        ", L2: " + stage.getL2StageName() +
+//	                        ", L3: " + stage.getL3StageId() +
+//	                        ", L3 Name: " + stage.getL3StageName());
 //	            	
 //	                TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 //	                        stage.getTestTypeId(), null);
 //	                
+//	                System.out.println("stage.getL3StageId()" + stage.getL3StageId());
+//	                System.out.println("stage.getL3StageId()" + stage.getL3StageName());
 //	                AdvancedTestStateObject.addHwatpTestList(newCard);
 //	            });
 //	}
@@ -308,6 +310,7 @@ public class AdvancedTestingHWATPTesting {
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
 				if (StateMachine.getTestState() != TestState.RUNNING) {
+//					System.out.println("Entred Clearing method after selection");
 					StateMachine.setAdvancedTestOk(true);
 
 				}
@@ -490,61 +493,19 @@ public class AdvancedTestingHWATPTesting {
 			// Change Made on rdf file moving
 			if (StateMachine.isAdvancedTestOk()) {
 
-				//09-07-2025
-				// UPDATING TIME TO DB
-				LocalDateTime currentDateTime = LocalDateTime.now();
-//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//				String formattedDate = currentDateTime.format(formatter);
-				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-				
-				SessionTimingService s = new SessionTimingService();
-				//LOGIC FOR UPDATING SESSION TIMING TABLE
-				if (StateMachine.getPreviouslySelectedStageId() == null
-						|| StateMachine.getCurrentlySelectedStageId()
-								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-					StateMachine.setPreviouslySelectedStageId(selectedStageId);
-					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							currentDateTime.toString(), "", 0, 0);
-
-				} else {
-
-					int failedFiles = 0;
-					for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
-						if (!copy.getStatus().equals("SUCCESS")) {
-							failedFiles++;
-						}
-					}
-
-					s.addSessionTime(currentSessionDetails.getSessionId(),
-							StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),
-							DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
-					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							currentDateTime.toString(), "", 0, 0);
-					StateMachine.setPreviouslySelectedStageId(selectedStageId);
-
-				}
-				
-				
-				
 				// Checking With List
 				boolean popupRDFFiles = false;
 				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
 					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
 						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
 							popupRDFFiles = true;
+
 						}
 					}
-					
-				
-					
 
 					if (popupRDFFiles) {
-						//Logbook the Stage Results
-						SessionManagement sessionManagement = new SessionManagement();
-						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-
-						
-						
+//						System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
 						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -553,10 +514,9 @@ public class AdvancedTestingHWATPTesting {
 						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					} else {
-						SessionManagement sessionManagement = new SessionManagement();
-						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-
 						SessionFileManagement session = new SessionFileManagement();
+//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//								+ DFCCConstant.FailedStagesRdfPaths.size());
 						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					}
@@ -570,8 +530,6 @@ public class AdvancedTestingHWATPTesting {
 			
 			// Exit
 			// Point No:3
-			
-			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -633,46 +591,8 @@ public class AdvancedTestingHWATPTesting {
 	            // Point No:3
 				// Change Made on rdf file moving
 				if (StateMachine.isAdvancedTestOk()) {
-					
-					
-					//09-07-2025
-					// UPDATING TIME TO DB
-					LocalDateTime currentDateTime = LocalDateTime.now();
-//					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//					String formattedDate = currentDateTime.format(formatter);
-					StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-					
-					SessionTimingService s = new SessionTimingService();
-					//LOGIC FOR UPDATING SESSION TIMING TABLE
-					if (StateMachine.getPreviouslySelectedStageId() == null
-							|| StateMachine.getCurrentlySelectedStageId()
-									.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-								currentDateTime.toString(), "", 0, 0);
 
-					} else {
-
-						int failedFiles = 0;
-						for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
-							if (!copy.getStatus().equals("SUCCESS")) {
-								failedFiles++;
-							}
-						}
-
-						s.addSessionTime(currentSessionDetails.getSessionId(),
-								StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),
-								DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
-						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-								currentDateTime.toString(), "", 0, 0);
-						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-
-					}
-					
-					
-
-					
-					//Checking With List
+					// Checking With List
 					boolean popupRDFFiles = false;
 					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
@@ -681,33 +601,25 @@ public class AdvancedTestingHWATPTesting {
 								popupRDFFiles = true;
 
 							}
-							
 						}
 
 						if (popupRDFFiles) {
-							
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
+//							System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
 							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
-							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
-							{
+							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
 								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
 							}
 							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						} else {
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
 							SessionFileManagement session = new SessionFileManagement();
+//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//									+ DFCCConstant.FailedStagesRdfPaths.size());
 							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						}
 					}
-
 
 
 					AdvancedTestStateObject.clearAdvancedTestResultsList();
@@ -718,6 +630,27 @@ public class AdvancedTestingHWATPTesting {
 				// Exit
 				// Point No:3
 				
+				//09-07-2025
+				// UPDATING TIME TO DB
+				LocalDateTime currentDateTime = LocalDateTime.now();
+				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
+				//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
+				//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
+				
+				SessionTimingService s = new SessionTimingService();
+				//LOGIC FOR UPDATING SESSION TIMING TABLE
+				if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+					//System.out.println("1");
+					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
+
+				}else {
+					//System.out.println("2 -- both update");
+					s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString());
+					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "");
+					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+
+				}
 				
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
@@ -801,9 +734,6 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(true);
 				return;
 			}
-			
-			
-			
 			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
 

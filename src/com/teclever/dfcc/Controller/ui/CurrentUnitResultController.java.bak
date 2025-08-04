@@ -222,15 +222,6 @@ public class CurrentUnitResultController {
 	private ScrollPane createCurrentUnitResultTable() {
 
 		unitDataTableView = unitDataFactory.createTableView(unitDataList, true, false);
-		
-//		Changed by Vignesh 31-07-25 for moving icon location
-		if(!unitDataTableView.getColumns().isEmpty()) {
-			TableColumn<UnitData, ?> lastColumn = unitDataTableView.getColumns().get(unitDataTableView.getColumns().size() - 1);
-			//unitDataTableView.getColumns().removeLast();
-			//Mani Changes By Vignesh Comment
-			unitDataTableView.getColumns().remove(lastColumn);
-			unitDataTableView.getColumns().add(0, lastColumn);	
-		}
 
 		unitDataTableView.getColumns().forEach(column -> {
 			if (!column.getText().isEmpty()) {

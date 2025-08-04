@@ -61,11 +61,12 @@ public class ReportGeneration {
 
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Suji\\Reports\\" + fileName;
+			filePath = "D:\\Images\\" + fileName;
 		} else {
 			// filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" +
 			// fileName;
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+			System.out.println("Reportpath Check:" + filePath);
 
 		}
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -90,8 +91,9 @@ public class ReportGeneration {
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
+			System.out.println("Entred 1st");
 //			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-			imagePath = "C:\\Suji\\Reports\\Logo\\BEL.png";
+			imagePath = "D:\\Images\\BEL.jpeg";
 
 		} else {
 //			Before changing for tecelever testing
@@ -149,7 +151,8 @@ public class ReportGeneration {
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
 //			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-			imagePath1 = "C:\\Suji\\Reports\\Logo\\BEL.png";
+			System.out.println("Entred 2nd");
+			imagePath1 = "D:\\Images\\" + fileName;
 
 		} else {
 			// imagePath1 =
@@ -161,7 +164,8 @@ public class ReportGeneration {
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
 //			imagePath3 = "C:\\Users\\Teclever\\Downloads\\TECLEVER_logo.png";
-			imagePath3 = "C:\\Suji\\Reports\\Logo\\TECLEVER_logo.png";
+			System.out.println("Entred 3rd");
+			imagePath3 = "D:\\Images\\" + fileName;
 
 		} else {
 //			Before Changing for Tecelever Testing
@@ -375,6 +379,7 @@ public class ReportGeneration {
 
 		res.setResponseMessage("Brief Results Report Download Successfully...!");
 		res.setResponseCode(1);
+		System.out.println("Brief result download check::" + res.getResponseMessage());
 		return res;
 	}
 
@@ -756,7 +761,7 @@ public class ReportGeneration {
 			// fileName;
 
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
-
+			System.out.println("Reportpath Check:" + filePath);
 		}
 
 		res.setDownloadPath(filePath);
@@ -2257,6 +2262,7 @@ public class ReportGeneration {
 		sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
 
 		res.setResponseMessage("Brief Session Results Download Successfully...!");
+		System.out.println("Check Response Method:"+res) ;
 		res.setResponseCode(1);
 		return res;
 	}

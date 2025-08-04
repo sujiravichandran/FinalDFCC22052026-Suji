@@ -14,12 +14,15 @@ import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControl
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
+import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -93,7 +96,13 @@ public class AdvancedTestingCustomTesting2 {
 
 	private String UUT_ID;
 	private String TEST_TYPE_ID;
+	
+	private boolean aitess1Updated = false;
+	private boolean aitess2Updated = false;
 
+	
+	
+	
 	public GridPane createAdvancedTestingTab4GridPane() {
 		memoryTestLabel.setDisable(true);
 		memoryTypeLabel.setDisable(true);
@@ -109,8 +118,7 @@ public class AdvancedTestingCustomTesting2 {
 		ipDataTextField.setDisable(true);
 		memoryTestRunButton.setDisable(true);
 
-		StateMachine.setAitess2Launched(true);
-		StateMachine.setAitess1Launched(true);
+		
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -137,6 +145,44 @@ public class AdvancedTestingCustomTesting2 {
 
 		return tab4MainGridPane;
 	}
+	
+	// Edited By: SUJI
+//	Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//	Change Made on:During initial loading of testing window,Update Status Bar
+	public void initialize() {
+		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+		    aitess1Updated = true;
+		    checkBothAitessLaunched();
+		});
+
+		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+		    aitess2Updated = true;
+		    checkBothAitessLaunched();
+		});
+		
+	}
+	
+	// Method to check both
+	
+		
+		private void checkBothAitessLaunched() {
+		    if (aitess1Updated && aitess2Updated) {
+		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
+		                                 && StateMachine.aitess2LaunchedProperty().get();
+		        if (bothLaunched) {
+
+		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
+		            Platform.runLater(() -> {
+
+		            	 selectTestFileRunButton.setDisable(false);
+		        		
+
+		            });
+		        }
+		    }
+		}
+//		Exit;
+//		Point: 52,72,74
 
 	private HBox createTestTypeComboBox() {
 		testTypeHBox.getStyleClass().add("advanced-testing-custom-tab-container");
@@ -199,6 +245,7 @@ public class AdvancedTestingCustomTesting2 {
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("selectTestFile");
 		});
+		
 
 		selectTestFileRunButton.setOnAction(e -> {
 			
@@ -460,6 +507,12 @@ public class AdvancedTestingCustomTesting2 {
 				|| currentState == TestState.STOPPED) {
 			StateMachine.setTestState(TestState.RUNNING);
 			StateMachine.setRunningTestName(RunningTestName.OTHER);
+			// Excel Name:7-July-Observation
+            // Point No:18
+			// Change Made on Status Bar Test Name
+			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM2_TEST);
+			// Exit
+            //Point No:18
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;
