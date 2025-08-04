@@ -1,9 +1,7 @@
 package com.teclever.dfcc.datastore.filemanagement;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +21,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -2525,97 +2520,46 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		return res;
 	}
 	
-//	//NOT Using 
-//	private Response copyFolder(String sourceFolder, String destinationFolder, String sessionName) throws IOException {
-//	    Response res = new Response();
-//	    try {
-//	        Path source = Paths.get(sourceFolder);
-//	        Path zipFilePath = Paths.get(destinationFolder + File.separator + sessionName + ".zip");
-//
-//	        // Create parent directories if they don't exist
-//	        if (!Files.exists(zipFilePath.getParent())) {
-//	            Files.createDirectories(zipFilePath.getParent());
-//	        }
-//
-//	        // Create the ZIP file
-//	        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
-//	            Files.walk(source).forEach(sourcePath -> {
-//	                try {
-//	                    String zipEntryName = source.relativize(sourcePath).toString();
-//	                    if (Files.isDirectory(sourcePath)) {
-//	                        // Add a directory entry to the ZIP file
-//	                        if (!zipEntryName.isEmpty()) {
-//	                            zipOut.putNextEntry(new ZipEntry(zipEntryName + "/"));
-//	                            zipOut.closeEntry();
-//	                        }
-//	                    } else {
-//	                        // Add a file entry to the ZIP file
-//	                        zipOut.putNextEntry(new ZipEntry(zipEntryName));
-//	                        Files.copy(sourcePath, zipOut);
-//	                        zipOut.closeEntry();
-//	                    }
-//	                } catch (IOException e) {
-//	                    throw new RuntimeException("Error zipping file: " + sourcePath, e);
-//	                }
-//	            });
-//	        }
-//
-//	        res.setResponseCode(1);
-//	        res.setResponseMessage("Folder successfully zipped to: " + zipFilePath.toString());
-//	    } catch (Exception e) {
-//	        res.setResponseCode(0);
-//	        res.setResponseMessage("Error occurred while zipping folder: " + e.getMessage());
-//	    }
-//	    return res;
-//	}
-	
-	// Updated method for creating tar.gz file  on 31 July 2025 by Sai
-	
+	//NOT Using 
 	private Response copyFolder(String sourceFolder, String destinationFolder, String sessionName) throws IOException {
 	    Response res = new Response();
 	    try {
 	        Path source = Paths.get(sourceFolder);
-	        Path tarGzPath = Paths.get(destinationFolder + File.separator + sessionName + ".tar.gz");
-
+	        Path zipFilePath = Paths.get(destinationFolder + File.separator + sessionName + ".zip");
 
 	        // Create parent directories if they don't exist
-	        if (!Files.exists(tarGzPath.getParent())) {
-	            Files.createDirectories(tarGzPath.getParent());
+	        if (!Files.exists(zipFilePath.getParent())) {
+	            Files.createDirectories(zipFilePath.getParent());
 	        }
 
-	        try (
-	            OutputStream fOut = Files.newOutputStream(tarGzPath);
-	            BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
-	            GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(buffOut);
-	            TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzOut)
-	        ) {
-	            tarOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-
+	        // Create the ZIP file
+	        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
 	            Files.walk(source).forEach(sourcePath -> {
 	                try {
-	                    String relativePath = source.relativize(sourcePath).toString();
-	                    TarArchiveEntry entry = new TarArchiveEntry(sourcePath.toFile(), relativePath);
-
-	                    tarOut.putArchiveEntry(entry);
-
-	                    if (!Files.isDirectory(sourcePath)) {
-	                        Files.copy(sourcePath, tarOut);
+	                    String zipEntryName = source.relativize(sourcePath).toString();
+	                    if (Files.isDirectory(sourcePath)) {
+	                        // Add a directory entry to the ZIP file
+	                        if (!zipEntryName.isEmpty()) {
+	                            zipOut.putNextEntry(new ZipEntry(zipEntryName + "/"));
+	                            zipOut.closeEntry();
+	                        }
+	                    } else {
+	                        // Add a file entry to the ZIP file
+	                        zipOut.putNextEntry(new ZipEntry(zipEntryName));
+	                        Files.copy(sourcePath, zipOut);
+	                        zipOut.closeEntry();
 	                    }
-
-	                    tarOut.closeArchiveEntry();
 	                } catch (IOException e) {
-	                    throw new RuntimeException("Error adding file to tar.gz: " + sourcePath, e);
+	                    throw new RuntimeException("Error zipping file: " + sourcePath, e);
 	                }
 	            });
-
-	            tarOut.finish();
 	        }
 
 	        res.setResponseCode(1);
-	        res.setResponseMessage("Folder successfully archived to: " + tarGzPath.toString());
+	        res.setResponseMessage("Folder successfully zipped to: " + zipFilePath.toString());
 	    } catch (Exception e) {
 	        res.setResponseCode(0);
-	        res.setResponseMessage("Error occurred while archiving folder: " + e.getMessage());
+	        res.setResponseMessage("Error occurred while zipping folder: " + e.getMessage());
 	    }
 	    return res;
 	}
@@ -2708,9 +2652,6 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
 			failureList = testFileResults.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
 					.collect(Collectors.toList());
-			System.out.println("Failure List Size"+failureList.size());
-			
-			boolean rDFNotGeneratedError = false;
 
 			if (failureList.size() > 0) {
 				response = false;
@@ -2755,16 +2696,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 
 			} else {
 				if (continueWithError) {
-					
-					List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
-					errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
-							.collect(Collectors.toList());
-					
-					if (errorList.size() > 0) {
-						System.out.println("Failed File Are There So No Need to Disable");
-						return false;
-					}
-					
+
 					if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
 						List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
 						testFiles.addAll(nonDuplicatedFileIds);
@@ -2834,11 +2766,6 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 					}
 
 					return true;
-				}
-				else
-				{
-					System.out.println("Coming to Else Part But Failure is there");
-					return false;
 				}
 			}
 

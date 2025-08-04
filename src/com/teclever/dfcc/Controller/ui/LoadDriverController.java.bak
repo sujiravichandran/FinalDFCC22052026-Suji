@@ -218,7 +218,6 @@ public class LoadDriverController {
 					parent.getChildren().add(userDashboardController.createUserDashboard());
 			} else {
 				Platform.exit();
-				//TODO If In Future Force Shutdown Happens need to comment below line
 				System.exit(0);
 			}
 		});

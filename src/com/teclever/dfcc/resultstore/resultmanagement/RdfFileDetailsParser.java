@@ -28,7 +28,7 @@ public class RdfFileDetailsParser {
 	public static ObjectId saveProjectDetailsToMongoDB(String sessionId, String filePath) throws InterruptedException {
 		
 		
-		Thread.sleep(5000);
+		
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
 	    
 	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());

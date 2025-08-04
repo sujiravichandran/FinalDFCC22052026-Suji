@@ -3,8 +3,6 @@ package com.teclever.dfcc.Controller.ui;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,11 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.internal.build.AllowSysOut;
-
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
-import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -31,7 +26,6 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.LRUTestStateObject.LRUTestResult;
@@ -150,7 +144,6 @@ public class LRUTestingController {
 	private GridPane bottomGridPane = new GridPane();
 
 	private int currentIndex = 0;
-	
 
 	TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	TestProcessManagement testProcessManagement = new TestProcessManagement();
@@ -175,13 +168,9 @@ public class LRUTestingController {
 	private HBox progressBarHBox = new HBox(5);
 	private ProgressBar testProgressBar = new ProgressBar();
 	private Label percentageLabel = new Label("0%");
-	
 
 	
 	PopupDialoguShow popupDialoguShow = new PopupDialoguShow();
-	
-	private boolean aitess1Updated = false;
-	private boolean aitess2Updated = false;
 //	public String getRUN_CONFIG_ID() {
 //		return RUN_CONFIG_ID.get();
 //	}
@@ -195,38 +184,29 @@ public class LRUTestingController {
 //	}
 
 	public LRUTestingController() {
-		
-		
 //    	 initializeTestStop() ;
+
 		
 //		Edited By: SUJI
 //		Change Made for Point: 4&39(Mail:7 July status)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-			if(newVal) {
+			if(newVal && StateMachine.getStatusBarRunningTestName().equals(LRU_SRU_TEST_MANDATORY_TEST) || StateMachine.getRunningTestName().equals(LRU_SRU_TEST_SRU_TEST)
+					|| LRU_SRU_TEST_GO_NOGO_TEST) {
 			System.out.println("WDM Status changed:Advaned Interface " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
-			 Platform.runLater(() -> {
-					popupDialoguShow.wdmStatusPopup();
-					StateMachine.setWdmStatusOfflineCheck(false);
-					 });
+			popupDialoguShow.wdmStatusPopup();
 			}
-			
+			StateMachine.setWdmStatusOfflineCheck(false);
 		});
 
 //		Exit;
 //	    Point: 4&39
 	}
-	
-	
 
 	public GridPane createlruTestMainContainerGridPane() {
-		
-	
 
-		
-		
-		
+
 		lruTestMainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/LRUTest.css").toExternalForm());
 		lruTestMainContainerGridPane.getStyleClass().add("lruTest-main-container");
@@ -262,46 +242,6 @@ public class LRUTestingController {
 		return lruTestMainContainerGridPane;
 
 	}
-	
-	// Edited By: SUJI
-//		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
-//		Change Made on:During initial loading of testing window,Update Status Bar
-		public void initialize() {
-			StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS1 changed to:LRUSRU " + newVal);
-			    aitess1Updated = true;
-			    checkBothAitessLaunched();
-			});
-
-			StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS2 changed to:LRU SRU " + newVal);
-			    aitess2Updated = true;
-			    checkBothAitessLaunched();
-			});
-			
-		}
-		
-		// Method to check both
-			
-			
-			private void checkBothAitessLaunched() {
-			    if (aitess1Updated && aitess2Updated) {
-			        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
-			                                 && StateMachine.aitess2LaunchedProperty().get();
-			        if (bothLaunched) {
-			            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize in LRU SRU");
-
-			
-			            Platform.runLater(() -> {
-			            	lruTestMainContainerGridPane.setDisable(false);
-                        });
-
-			            
-			        }
-			    }
-			}
-//			Exit;
-//			Point: 52,72,74
 
 	private void getLruCradData() {
 		List<StageObject> stageList = StateMachine.getStageDatalist();
@@ -726,6 +666,23 @@ public class LRUTestingController {
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
 
+			// Edited By: SUJI
+//			Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//			Change Made on:During initial loading of testing window,Update Status Bar
+			
+			BooleanBinding bothAitessLaunched = StateMachine.aitess1LaunchedProperty()
+				    .and(StateMachine.aitess2LaunchedProperty());
+
+				bothAitessLaunched.addListener((obs, wasTrue, isNowTrue) -> {
+				    if (isNowTrue) {
+				        System.out.println("Both AITESS1 and AITESS2 are launched.");
+				        newButton.setDisable(true);
+				    }
+				});
+			
+//			Exit;
+//			Point: 52,72,74
+
 			if (!firstButton) {
 				newButton.setDisable(true);
 			}
@@ -765,7 +722,7 @@ public class LRUTestingController {
 //			    }
 
 				if (!checkAitessStatus.isBothAitessOn()) {
-					newButton.setDisable(false);
+
 					return;
 				} else {
 					newButton.setDisable(false);
@@ -778,8 +735,12 @@ public class LRUTestingController {
 					selectAllButton.setDisable(true);
 					StateMachine.setTestState(TestState.RUNNING);
 					StateMachine.setRunningTestName(RunningTestName.LRU_SRU_TEST);
-					
+					// Excel Name:7-July-Observation
+	                // Point No:18
+					// Change Made on Status Bar Test Name
 					StateMachine.setStatusBarRunningTestName(StatusBarTestName.LRU_SRU_TEST_MANDATORY_TEST);
+					// Exit
+	                //Point No:18
 					
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 					ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -798,6 +759,20 @@ public class LRUTestingController {
 					dialog.setTitle("Confirmation Dialog");
 					dialog.setContentText("Please click OK to proceed the test (or) Click Cancel");
 					dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+//					Edited By: SUJI
+//					Change Made for Point: 104:User closed the alert using X button or pressed ESC
+//					Change Made on: Test Confirmation popup, if the user clicks the 'X' (close) button, the test state changes to 'Test Running'.
+					dialog.setOnShowing(ev -> {
+					    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+					    stage.setOnCloseRequest(Event::consume);
+					});
+					
+//					Exit
+//					Point: 104
+					
+					
+
 					Optional<ButtonType> resultButton = dialog.showAndWait();
 
 					if (resultButton.isPresent() && resultButton.get() == ButtonType.CANCEL) {
@@ -807,8 +782,7 @@ public class LRUTestingController {
 
 					else {
 						if (newButton.getText().toLowerCase().contains("spil")) {
-							System.out.println("Spil ID CHECK ::" +newButton.getId());
-							
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -854,46 +828,12 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
 
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
-							
+							// Excel Name:7-July-Observation
+                            // Point No:3
+							// Change Made on rdf file moving
 							//Checking With List
 							boolean popupRDFFiles = false;
-							System.out.println("LRU MANdatory copy check size::" + DFCCConstant.FailedStagesRdfPaths.size());
 							if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
 								for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -901,16 +841,9 @@ public class LRUTestingController {
 										popupRDFFiles = true;
 
 									}
-									
-									System.out.println("Entred loop" + popupRDFFiles);
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -920,11 +853,6 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -934,15 +862,27 @@ public class LRUTestingController {
 							
 							
 							tableView.getItems().clear();
-							
-							
-							
+
+							// Exit
+							// Point No:3
 							
 							Dialog<ButtonType> dialog1 = new Dialog<>();
 							dialog1.setTitle("Confirmation Dialog");
 							dialog1.setContentText(
 									"Please ensure the Rack Power is ON, the DFCC is powered ON, and the cooler switch is turned ON.");
 							dialog1.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+							
+//							Edited By: SUJI
+//							Change Made for Point: 104:User closed the alert using X button or pressed ESC
+//							Change Made on : Test Confirmation popup, if the user clicks the 'X' (close) button, the test state changes to 'Test Running'."
+							dialog.setOnShowing(ev -> {
+							    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+							    stage.setOnCloseRequest(Event::consume);
+							});
+							
+//							Exit
+//							Point: 104
+							
 							dialog1.showAndWait();
 
 							StateMachine.setMandatoryGonoGo(true);
@@ -950,16 +890,13 @@ public class LRUTestingController {
 							stopButton.setDisable(false);
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.SPIL_LINK);
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
-							
-							
-							
 
 						} else if (newButton.getText().toLowerCase().contains("pbit")) {
-							
+
 							UUT_ID = StateMachine.currentSessionDetails.getUutId();
-							System.out.println("PBIt ID CHECK ::" +newButton.getId());
+
 //							System.out.println("DFCCConstant.rdfsPaths.size()"+DFCCConstant.rdfsPaths.size());
-							
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -978,7 +915,7 @@ public class LRUTestingController {
 //								}
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-							
+
 //							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
@@ -1013,42 +950,9 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
-
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
+							// Excel Name:7-July-Observation
+                            // Point No:3
+							// Change Made on rdf file moving
 							//Checking With List
 							boolean popupRDFFiles = false;
 							if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
@@ -1061,11 +965,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -1075,36 +974,27 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
-								
 							}
 							
 							
-							
-							
-							
-							
 							tableView.getItems().clear();
-							
-							
-							
+
+							// Exit
+							// Point No:3
+
+							tableView.getItems().clear();
 							if ("UUT2".equals(StateMachine.currentSessionDetails.getUutId())
 									|| "UUT3".equals(StateMachine.currentSessionDetails.getUutId())) {
 								StateMachine.setMandatoryGonoGo(true);
 								pauseButton.setDisable(false);
 								stopButton.setDisable(false);
 								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-								
+
 //								if (DFCCConstant.rdfsPaths.size() > 0) {
 //									sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //											DFCCConstant.outPut);
@@ -1124,9 +1014,8 @@ public class LRUTestingController {
 //									
 //									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //								}
-								
-								
-								//System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+
+								// System.out.println(" Size"+DFCCConstant.logOutmoveFiles.size());
 //								if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //									List<Path> paths = new ArrayList<Path>();
@@ -1159,79 +1048,87 @@ public class LRUTestingController {
 //									}
 //
 //								}
-								
-								
-								//Checking With List
-							
-								
+
+								// Checking With List
+
 								callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 							} else {
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 500) {
 
-//									Notifications.showErrorAlert("DFCC Status is OFF");
 									try {
-									    FXMLLoader loader = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/PbitPopup2.fxml"));
-									    Parent root = loader.load();
+										FXMLLoader loader = new FXMLLoader(getClass().getResource(
+												DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/PbitPopup2.fxml"));
+										Parent root = loader.load();
 
-									    // Get the controller that is linked to the FXML
-//									    PbitOfpSelectionController controller = loader.getController();
+										// Get the controller that is linked to the FXML
+										PbitPopup2Controller controller = loader.getController();
 
-									    Stage stage = new Stage();
-									    stage.setTitle("Edit User");
-									    stage.initModality(Modality.APPLICATION_MODAL);
-									    stage.initStyle(StageStyle.UNDECORATED);
-									    stage.setScene(new Scene(root));
-									    stage.showAndWait();
+										Stage stage = new Stage();
+										stage.setTitle("Edit User");
+										stage.initModality(Modality.APPLICATION_MODAL);
+										stage.initStyle(StageStyle.UNDECORATED);
+										stage.setScene(new Scene(root));
+										stage.showAndWait();
 
-									
-									StateMachine.setTestState(TestState.PENDING);
-
-								}catch (IOException e1) {
-								    e1.printStackTrace();
+										controller.initialize();
+										
+										
+										tableView.getItems().clear();
+										StateMachine.setMandatoryGonoGo(true);
+										pauseButton.setDisable(true);
+										stopButton.setDisable(true);
+										
+									}catch(IOException e1) {
+										e1.printStackTrace();
 									}
+									
+
 								}
+
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 300) {
 									try {
-									    FXMLLoader loader = new FXMLLoader(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/PbitPopup.fxml"));
-									    Parent root = loader.load();
+										FXMLLoader loader = new FXMLLoader(getClass().getResource(
+												DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/PbitPopup.fxml"));
+										Parent root = loader.load();
 
-									    // Get the controller that is linked to the FXML
-									    PbitOfpSelectionController controller = loader.getController();
+										// Get the controller that is linked to the FXML
+										PbitOfpSelectionController controller = loader.getController();
 
-									    Stage stage = new Stage();
-									    stage.setTitle("Edit User");
-									    stage.initModality(Modality.APPLICATION_MODAL);
-									    stage.initStyle(StageStyle.UNDECORATED);
-									    stage.setScene(new Scene(root));
-									    stage.showAndWait();
+										Stage stage = new Stage();
+										stage.setTitle("Edit User");
+										stage.initModality(Modality.APPLICATION_MODAL);
+										stage.initStyle(StageStyle.UNDECORATED);
+										stage.setScene(new Scene(root));
+										stage.showAndWait();
 
 //									    System.out.println("StateMachine1: " + StateMachine.isPbitOption1());
 //									    System.out.println("StateMachine2: " + StateMachine.isPbitOption2());
 
-									    if (StateMachine.isPbitOption1()) {
-									        ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
-									        StateMachine.setPbitOption1(false);
-									        stageIdForView =newButton.getId(); 
-									    } else if (StateMachine.isPbitOption2()) {
+										if (StateMachine.isPbitOption1()) {
+											ofpUpWDMUp(newButton.getId(), "MANDATORY",
+													newButton.getUserData().toString());
+											StateMachine.setPbitOption1(false);
+											stageIdForView = newButton.getId();
+										} else if (StateMachine.isPbitOption2()) {
 //									        System.out.println("Option2 Selection UIIII");
-									        ofpDownWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
-									        StateMachine.setPbitOption2(false);
-									        stageIdForView =newButton.getId(); 
+											ofpDownWDMUp(newButton.getId(), "MANDATORY",
+													newButton.getUserData().toString());
+											StateMachine.setPbitOption2(false);
+											stageIdForView = newButton.getId();
 										}
-											tableView.getItems().clear();
-											StateMachine.setMandatoryGonoGo(true);
-											pauseButton.setDisable(false);
-											stopButton.setDisable(false);
-									    
-									    ofpConfigId = controller.getRUN_CONFIG_ID() ;
+										tableView.getItems().clear();
+										StateMachine.setMandatoryGonoGo(true);
+										pauseButton.setDisable(false);
+										stopButton.setDisable(false);
+
+										ofpConfigId = controller.getRUN_CONFIG_ID();
 //									    System.out.println("controller Rung Config Id Check" + ofpConfigId);
 									} catch (IOException e1) {
-									    e1.printStackTrace();
-										}
+										e1.printStackTrace();
+									}
 
-									
-									//before New Popup Change
+									// before New Popup Change
 //									OFPVersion.setPromptText("select OFP Version");
 //									OFPVersion.setVisible(false);
 //
@@ -1345,8 +1242,7 @@ public class LRUTestingController {
 //										}
 //									});
 //									
-									
-									
+
 								}
 
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
@@ -1356,19 +1252,29 @@ public class LRUTestingController {
 									alert.setHeaderText(null);
 									alert.setContentText(
 											"OFP is not present, PBIT test will continue after downloading the Latest OFP");
+									
+//									Edited By: SUJI
+//									Change Made for Point: 104:User closed the alert using X button or pressed ESC
+//									Change Made on: Test Confirmation popup, if the user clicks the 'X' (close) button, the test state changes to 'Test Running'."
+									alert.setOnShowing(ev -> {
+									    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+									    stage.setOnCloseRequest(Event::consume);
+									});
+									
+//									Exit
+//									Point: 104
 
 									Optional<ButtonType> result = alert.showAndWait();
 									if (result.isPresent() && result.get() == ButtonType.OK) {
+										// User clicked OK - proceed with the test
 										tableView.getItems().clear();
 										StateMachine.setMandatoryGonoGo(true);
 										pauseButton.setDisable(false);
 										stopButton.setDisable(false);
-										stageIdForView =newButton.getId(); 
+										stageIdForView = newButton.getId();
 										ofpDownWDMUp(newButton.getId(), "MANDATORY",
 												newButton.getUserData().toString());
-
-									}
-
+									} 
 								}
 
 								if (aitessProcessControlManagement.pbitCheck().getResponseCode() == 200) {
@@ -1377,6 +1283,17 @@ public class LRUTestingController {
 									alert.setHeaderText(null);
 									alert.setContentText(
 											"OFP is Present, and WDM is also Present PBIT test is going to execute");
+									
+//									Edited By: SUJI
+//									Change Made for Point: 104:User closed the alert using X button or pressed ESC
+//									Change Made on: Test Confirmation popup, if the user clicks the 'X' (close) button, the test state changes to 'Test Running'."
+									alert.setOnShowing(ev -> {
+									    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+									    stage.setOnCloseRequest(Event::consume);
+									});
+									
+//									Exit
+//									Point: 104
 
 									Optional<ButtonType> result = alert.showAndWait();
 									if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -1384,14 +1301,14 @@ public class LRUTestingController {
 										StateMachine.setMandatoryGonoGo(true);
 										pauseButton.setDisable(false);
 										stopButton.setDisable(false);
-										stageIdForView =newButton.getId(); 
+										stageIdForView = newButton.getId();
 										ofpUpWDMUp(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 
 									}
 								}
 							}
 						} else if (newButton.getText().toLowerCase().contains("initialize")) {
-							
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -1403,7 +1320,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-							
+
 //							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
@@ -1438,44 +1355,10 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
 
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
-							
+							// Excel Name:7-July-Observation
+                            // Point No:3
+							// Change Made on rdf file moving
 							//Checking With List
 							boolean popupRDFFiles = false;
 							if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
@@ -1488,11 +1371,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -1502,22 +1380,18 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
-							
 							}
-						
-							tableView.getItems().clear();
 							
-						
+							
+							tableView.getItems().clear();
+
+							// Exit
+							// Point No:3
 							StateMachine.setMandatoryGonoGo(true);
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
@@ -1570,43 +1444,10 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
 
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
-							
+							// Excel Name:7-July-Observation
+                            // Point No:3
+							// Change Made on rdf file moving
 							//Checking With List
 							boolean popupRDFFiles = false;
 							if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
@@ -1619,11 +1460,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -1633,24 +1469,18 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
-								
 							}
 							
-						
+							
 							tableView.getItems().clear();
-							
-							
-							
+
+							// Exit
+							// Point No:3
 							StateMachine.setMandatoryGonoGo(true);
 							ofpConfigId = null;
 							pauseButton.setDisable(false);
@@ -1658,9 +1488,9 @@ public class LRUTestingController {
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.POWER_SUPPLY);
 
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
-							
+
 						} else if (newButton.getText().toLowerCase().contains("interface")) {
-							
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -1706,42 +1536,10 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
 
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
+							// Excel Name:7-July-Observation
+                            // Point No:3
+							// Change Made on rdf file moving
 							//Checking With List
 							boolean popupRDFFiles = false;
 							if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
@@ -1754,11 +1552,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -1768,22 +1561,18 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passes",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
 							}
-						
+							
+							
 							tableView.getItems().clear();
-							
-							
-							
+
+							// Exit
+							// Point No:3
 							StateMachine.setMandatoryGonoGo(true);
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
@@ -1850,25 +1639,22 @@ public class LRUTestingController {
 			if (!newValue) {
 				Button pbitButton = (Button) mandatoryTestVBox.lookup("#" + mandatoryCardList.get(1).getCardId());
 				if (checkMandatoryStatus("spil")) {
-					if(StateMachine.getTestState()==TestState.STOPPED)
-					{
-					pbitButton.setDisable(true);
-					StateMachine.setTestState(TestState.PENDING);
-					LRUTestStateObject.getSpilLinkStatus().set(false);
-					}
-					else {
+					if (StateMachine.getTestState() == TestState.STOPPED) {
+						pbitButton.setDisable(true);
+						StateMachine.setTestState(TestState.PENDING);
+						LRUTestStateObject.getSpilLinkStatus().set(false);
+					} else {
 						pbitButton.setDisable(false);
 						StateMachine.setTestState(TestState.COMPLETED);
 						LRUTestStateObject.getSpilLinkStatus().set(true);
 					}
 				}
-				
-				
+
 				pauseButton.setDisable(true);
 				stopButton.setDisable(true);
-				
+
 			}
-			
+
 		});
 		LRUTestStateObject.pbitStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {
@@ -1876,9 +1662,9 @@ public class LRUTestingController {
 					Button initializeLRUButton = (Button) mandatoryTestVBox
 							.lookup("#" + mandatoryCardList.get(2).getCardId());
 //					Edited By: SUJI
-//					Change Made for Point: 69A
+//					Change Made for Point: 69
 //					Change Made On: If Pbit Test gets failed next test is getting enabling it,it should not enable
-//					if (checkMandatoryStatus("pbit")) {
+					if (checkMandatoryStatus("pbit")) {
 						if (StateMachine.getTestState() == TestState.STOPPED) {
 //						System.out.println("Entred Into Stop State");
 							initializeLRUButton.setDisable(true);
@@ -1890,13 +1676,14 @@ public class LRUTestingController {
 							StateMachine.setTestState(TestState.COMPLETED);
 							LRUTestStateObject.getPbitStatus().set(true);
 						}
-//					}
+					}
 //					Exit;
+//					Point: 69,97
 				} else {
 //					Edited By: SUJI
-//					Change Made for Point: 69A
+//					Change Made for Point: 69,97
 //					Change Made On: If Pbit Test gets failed next test is getting enabling it,it should not enable
-//					if (checkMandatoryStatus("pbit")) {
+					if (checkMandatoryStatus("pbit")) {
 						Button powerSupplyButton = (Button) mandatoryTestVBox
 								.lookup("#" + mandatoryCardList.get(2).getCardId());
 						if (StateMachine.getTestState() == TestState.STOPPED) {
@@ -1909,37 +1696,36 @@ public class LRUTestingController {
 							StateMachine.setTestState(TestState.COMPLETED);
 							LRUTestStateObject.getPbitStatus().set(true);
 						}
-//					}
+					}
 					
 //					Exit;
+//					Change Made for Point: 69,97
 				}
-				
 				pauseButton.setDisable(true);
 				stopButton.setDisable(true);
 			}
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
-			
+
 		});
 		LRUTestStateObject.initializeLRUStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {
 				Button powerSupplyButton = (Button) mandatoryTestVBox
 						.lookup("#" + mandatoryCardList.get(3).getCardId());
 				if (checkMandatoryStatus("initialize")) {
-					
-					if(StateMachine.getTestState()==TestState.STOPPED) {
+
+					if (StateMachine.getTestState() == TestState.STOPPED) {
 						powerSupplyButton.setDisable(true);
 						StateMachine.setTestState(TestState.PENDING);
 						LRUTestStateObject.getInitializeLRUStatus().set(false);
-					}else {
+					} else {
 						powerSupplyButton.setDisable(false);
 						StateMachine.setTestState(TestState.COMPLETED);
 						LRUTestStateObject.getInitializeLRUStatus().set(true);
 					}
-					
-					
+
 				}
-		
+
 				pauseButton.setDisable(true);
 				stopButton.setDisable(true);
 			}
@@ -1951,23 +1737,23 @@ public class LRUTestingController {
 				int index = LRUTestStateObject.getIsMandatoryFifthCardStatus().get() ? 4 : 3;
 				Button ad_daInterfaceButton = (Button) mandatoryTestVBox
 						.lookup("#" + mandatoryCardList.get(index).getCardId());
-				
+
 				if (checkMandatoryStatus("power")) {
-					if(StateMachine.getTestState()==TestState.STOPPED) {
+					if (StateMachine.getTestState() == TestState.STOPPED) {
 						ad_daInterfaceButton.setDisable(true);
 						StateMachine.setTestState(TestState.PENDING);
 						LRUTestStateObject.getPowerSupplyStatus().set(false);
-					
-					}else {
-					
-					ad_daInterfaceButton.setDisable(false);
-					StateMachine.setTestState(TestState.COMPLETED);
-					LRUTestStateObject.getPowerSupplyStatus().set(true);
+
+					} else {
+
+						ad_daInterfaceButton.setDisable(false);
+						StateMachine.setTestState(TestState.COMPLETED);
+						LRUTestStateObject.getPowerSupplyStatus().set(true);
+					}
+
 				}
-				
-			}
 				pauseButton.setDisable(true);
-				stopButton.setDisable(true);	
+				stopButton.setDisable(true);
 			}
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
@@ -1975,18 +1761,18 @@ public class LRUTestingController {
 		LRUTestStateObject.ad_daInterfaceStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {
 				Debug.printDebug("insid-----");
-				if(StateMachine.getTestState()==TestState.STOPPED) {
+				if (StateMachine.getTestState() == TestState.STOPPED) {
 					LRUTestStateObject.getAd_daInterfaceStatus().set(false);
 					StateMachine.setTestState(TestState.PENDING);
 				}
-				
+
 				LRUTestStateObject.getAd_daInterfaceStatus().set(true);
 				pauseButton.setDisable(true);
 				stopButton.setDisable(true);
 			}
 			pauseButton.setDisable(true);
 			stopButton.setDisable(true);
-			
+
 			boolean allCardsStatusOk = true;
 
 			for (TestCardData card : mandatoryCardList) {
@@ -2161,10 +1947,6 @@ public class LRUTestingController {
 			newButton.setDisable(true);
 
 			newButton.setOnAction(e -> {
-				
-			
-
-				selectAllButton.setText("Select All");
 
 				if (StateMachine.isConfirmTestFileCompleted()) {
 					Notifications.showWarningAlert(
@@ -2305,7 +2087,7 @@ public class LRUTestingController {
 			selectAllButton.setText(selectAll ? "Deselect All" : "Select All");
 		});
 
-		allButtonHBox.getChildren().addAll(startButton, pauseButton, stopButton, selectAllButton);
+		allButtonHBox.getChildren().addAll(runAllButton, startButton, pauseButton, stopButton, selectAllButton);
 		progressBarHBox.getChildren().addAll(testProgressBar, percentageLabel);
 		buttonMainVBox.getChildren().addAll(allButtonHBox, progressBarHBox);
 
@@ -2373,7 +2155,6 @@ public class LRUTestingController {
 	}
 
 	private void initializeButtons() {
-//		RunnAll Button for SRU Not In Use
 		runAllButton.setOnAction(e -> {
 
 			StateMachine.setConfirmTestStop(false);
@@ -2388,43 +2169,7 @@ public class LRUTestingController {
 				return;
 			}
 
-			System.out.println("SRU CHECK ID CHECK RUN ALL ::" +LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
 			if (StateMachine.isSruTestOk()) {
-				
-				//09-07-2025
-				// UPDATING TIME TO DB
-				LocalDateTime currentDateTime = LocalDateTime.now();
-//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//				String formattedDate = currentDateTime.format(formatter);
-				StateMachine.setCurrentlySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId()); 
-				//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-				//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-				
-				SessionTimingService s = new SessionTimingService();
-				//LOGIC FOR UPDATING SESSION TIMING TABLE
-				if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-					//System.out.println("1");
-					StateMachine.setPreviouslySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
-					s.addSessionTime(currentSessionDetails.getSessionId(), LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), currentDateTime.toString(), "",0,0);
-
-				}else {
-					//System.out.println("2 -- both update");
-					
-					
-					int failedFiles = 0;
-				for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-				{
-					if(!copy.getStatus().equals("SUCCESS"))
-					{
-						failedFiles++;
-					}
-				}
-					
-					s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-					s.addSessionTime(currentSessionDetails.getSessionId(), LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(),currentDateTime.toString(), "",0,0);
-					StateMachine.setPreviouslySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
-
-				}
 
 				// Excel Name:7-July-Observation
                 // Point No:3
@@ -2454,8 +2199,6 @@ public class LRUTestingController {
 
 				StateMachine.setSruTestOk(false);
 			}
-			
-			
 
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
@@ -2526,111 +2269,45 @@ public class LRUTestingController {
 		startButton.setOnAction(e -> {
 
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
-				
-				StateMachine.setConfirmTestStop(false);
-				if (StateMachine.isConfirmTestFileCompleted()) {
 
-					Notifications
-							.showWarningAlert("Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
-					return;
-				}
-
-				if (!checkAitessStatus.isBothAitessOn()) {
-					return;
-				}
 				if (StateMachine.isSruTestOk()) {
-					//09-07-2025
-					// UPDATING TIME TO DB
-					LocalDateTime currentDateTime = LocalDateTime.now();
-//					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//					String formattedDate = currentDateTime.format(formatter);
-					StateMachine.setCurrentlySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId()); 
-					//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-					//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-					
-					SessionTimingService s = new SessionTimingService();
-					//LOGIC FOR UPDATING SESSION TIMING TABLE
-					if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-						//System.out.println("1");
-						StateMachine.setPreviouslySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
-						s.addSessionTime(currentSessionDetails.getSessionId(), LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(), currentDateTime.toString(), "",0,0);
-
-					}else {
-						//System.out.println("2 -- both update");
-						
-						
-						int failedFiles = 0;
-					for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-					{
-						if(!copy.getStatus().equals("SUCCESS"))
-						{
-							failedFiles++;
-						}
-					}
-						
-						s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-						s.addSessionTime(currentSessionDetails.getSessionId(), LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId(),currentDateTime.toString(), "",0,0);
-						StateMachine.setPreviouslySelectedStageId(LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
-
-					}
-					
 
 					// Excel Name:7-July-Observation
                     // Point No:3
 					// Change Made on rdf file moving
-					//Checking With List
-					boolean popupRDFFiles = false;
-					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
-						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
-
-							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
-								popupRDFFiles = true;
-
-							}
-						}
-
-						if (popupRDFFiles) {
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
+					SessionFileManagement session = new SessionFileManagement();
+					boolean popupRDFFiles = session.getPopupShownStatus();
+				
+					if (popupRDFFiles) {
 //							System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
-							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
-							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
-							{
-								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
-							}
-							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
-							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
-						} else {
-							
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							SessionFileManagement session = new SessionFileManagement();
-//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
-							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
-							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
 						}
-					}
-					
-					
-					tableView.getItems().clear();
+						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					} else {
 
+//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+					}
 					// Exit
 					// Point No:3
+
+//					System.out.println("Entred Clear SRU OK");
+					tableView.getItems().clear();
+
 					StateMachine.setSruTestOk(false);
 				}
-				
-				
 
-//				StateMachine.setConfirmTestStop(false);
-//				if (StateMachine.isConfirmTestFileCompleted()) {
-//
-//					Notifications.showWarningAlert(
-//							"Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
-//					return;
-//				}
+				StateMachine.setConfirmTestStop(false);
+				if (StateMachine.isConfirmTestFileCompleted()) {
+
+					Notifications.showWarningAlert(
+							"Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
+					return;
+				}
 			}
 
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
@@ -2643,9 +2320,9 @@ public class LRUTestingController {
 				stopButton.setDisable(false);
 				return;
 			}
-//			if (!checkAitessStatus.isBothAitessOn()) {
-//				return;
-//			}
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
 
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
@@ -2817,42 +2494,12 @@ public class LRUTestingController {
 	}
 
 	private void sendSelectedSubStageData() {
-		//For Enabling the DFCC Power ON OFF
-		//Added By Mani...
-		DFCCConstant.cardCount = LRUTestStateObject.getSelectedSubStagesList().size();
-		System.out.println("Checking LRU Count Of Selected Stages :::"+LRUTestStateObject.getSelectedSubStagesList().size());
 		for (TestCardData subStage : LRUTestStateObject.getSelectedSubStagesList()) {
 			subStage.statusProperty().addListener((observable, oldValue, newValue) -> {
 
 				if (newValue != null && newValue.equals("COMPLETED")) {
 					//DIGITAL TEST STOP CONDITION
 					if(StateMachine.getTestState()!=TestState.STOPPED) {
-						if (StateMachine.getTestState() == TestState.PAUSED) {
-							boolean loopFlag = true;
-							while (loopFlag) {
-								Debug.printDebug(StateMachine.getTestState());
-								System.out.println("UI Pause" + StateMachine.getTestState());
-								if (StateMachine.getTestState() == TestState.RUNNING) {
-									System.out.println("UI Running");
-									Debug.printDebug(StateMachine.getTestState());
-									loopFlag = false;
-								} else if (StateMachine.getTestState() == TestState.STOPPED) {
-									System.out.println("UI Running");
-									loopFlag = false;
-									Debug.printDebug(StateMachine.getTestState());
-									break;
-								}
-							}
-
-						} else if (StateMachine.getTestState() == TestState.STOPPED) {
-							//Added By Mani...
-							DFCCConstant.cardCount = 0;
-							DFCCConstant.currentCount =0;
-							// System.out.println("handle Stop Test Method condition");
-							Debug.printDebug(StateMachine.getTestState());
-							// System.out.println("Entred Stop Test )))))))))))))))))");
-							return;
-						}
 						
 						if (LRUTestStateObject.getSelectedSubStagesList().size() - 1 > currentIndex) {
 							currentIndex++;
@@ -2874,7 +2521,7 @@ public class LRUTestingController {
 							stopButton.setDisable(true);
 							sruTestCheckBoxList.setDisable(false);
 						}
-					} else { //Karthik
+					} else {
 						currentIndex = 0;
 						startButton.setDisable(false);
 						runAllButton.setDisable(false);
@@ -3020,7 +2667,7 @@ public class LRUTestingController {
 //						LRUTestStateObject.getRunnedLRUTestFileCount().set(0);
 
 						if (newButton.getText().toLowerCase().contains("complete")) {
-							System.out.println("COMPLETE TEST ID ::" +newButton.getId());
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -3066,43 +2713,6 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
-
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
-							
 							// Excel Name:7-July-Observation
                             // Point No:3
 							// Change Made on rdf file moving
@@ -3118,11 +2728,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -3132,26 +2737,15 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
 							}
-							
-							
-							tableView.getItems().clear();
 
-							// Exit
-							// Point No:3
-							
-							
-							
+
+							tableView.getItems().clear();
 							StateMachine.setMandatoryGonoGo(true);
 							pauseButton.setDisable(false);
 							stopButton.setDisable(false);
@@ -3159,7 +2753,7 @@ public class LRUTestingController {
 							stageIdForView = newButton.getId();
 							callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 						} else if (newButton.getText().toLowerCase().contains("ofp")) {
-							System.out.println("OFP TEST ID ::" +newButton.getId());
+
 							try {
 								FXMLLoader loader = new FXMLLoader(getClass().getResource(
 										DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/OfpLoadinPopup.fxml"));
@@ -3229,42 +2823,6 @@ public class LRUTestingController {
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
-
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
-							
 
 							// Excel Name:7-July-Observation
                             // Point No:3
@@ -3281,12 +2839,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -3296,11 +2848,6 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -3309,12 +2856,8 @@ public class LRUTestingController {
 							}
 							
 							
-							tableView.getItems().clear();
 
-							// Exit
-							// Point No:3
-							
-							
+							tableView.getItems().clear();
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.OFP_LOADING);
 							callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 
@@ -3377,7 +2920,7 @@ public class LRUTestingController {
 //							});
 
 						} else if (newButton.getText().toLowerCase().contains("pi")) {
-							System.out.println("PI TEST ID ::" +newButton.getId());
+
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -3423,41 +2966,6 @@ public class LRUTestingController {
 //								}
 //
 //							}
-							
-							//09-07-2025
-							// UPDATING TIME TO DB
-							LocalDateTime currentDateTime = LocalDateTime.now();
-//							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//							String formattedDate = currentDateTime.format(formatter);
-							StateMachine.setCurrentlySelectedStageId(newButton.getId()); 
-							//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-							//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-							
-							SessionTimingService s = new SessionTimingService();
-							//LOGIC FOR UPDATING SESSION TIMING TABLE
-							if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-								//System.out.println("1");
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(), currentDateTime.toString(), "",0,0);
-
-							}else {
-								//System.out.println("2 -- both update");
-								
-								
-								int failedFiles = 0;
-							for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
-							{
-								if(!copy.getStatus().equals("SUCCESS"))
-								{
-									failedFiles++;
-								}
-							}
-								
-								s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
-								s.addSessionTime(currentSessionDetails.getSessionId(), newButton.getId(),currentDateTime.toString(), "",0,0);
-								StateMachine.setPreviouslySelectedStageId(newButton.getId());
-
-							}
 
 							// Excel Name:7-July-Observation
                             // Point No:3
@@ -3474,12 +2982,6 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
-									
 //									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -3489,11 +2991,6 @@ public class LRUTestingController {
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
-									
-									//Logbook the Stage Results
-									SessionManagement sessionManagement = new SessionManagement();
-									sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-									
 									SessionFileManagement session = new SessionFileManagement();
 //									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -3501,13 +2998,8 @@ public class LRUTestingController {
 								}
 							}
 							
-							
-							tableView.getItems().clear();
 
-							// Exit
-							// Point No:3
-							
-							
+							tableView.getItems().clear();
 							StateMachine.setMandatoryGonoGo(true);
 							ofpConfigId = null;
 							pauseButton.setDisable(false);
@@ -3916,12 +3408,7 @@ public class LRUTestingController {
 		});
 
 		task.setOnFailed(event -> {
-			runAllButton.setDisable(false);
-			startButton.setDisable(false);
-			pauseButton.setDisable(true);
-			stopButton.setDisable(true);
 			Throwable exception = task.getException();
-			
 			Debug.printDebug(stageName + " Task failed with exception: " + exception.getMessage());
 		});
 

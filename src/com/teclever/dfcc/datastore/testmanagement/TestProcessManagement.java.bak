@@ -457,18 +457,7 @@ public class TestProcessManagement {
 			case "SRU":
 				LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 				LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
-				//Mani Added For DFCC Power ON Enabling
-				System.out.println("Card COUNT On Seleted SRU"+DFCCConstant.cardCount);
-				if (DFCCConstant.cardCount == DFCCConstant.currentCount) {
-					StateMachine.setTestState(TestState.COMPLETED);
-					DFCCConstant.cardCount = 0;
-					DFCCConstant.currentCount = 0;
-				} else {
-					DFCCConstant.currentCount++;
-				}
-				System.out.println("After Checking COUNT On Seleted SRU"+DFCCConstant.currentCount);
-				//Comented By Mani 
-				//StateMachine.setTestState(TestState.COMPLETED);
+				StateMachine.setTestState(TestState.COMPLETED);
 				Debug.printDebug("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
 				StateMachine.setConfirmTestFileCompleted(false);
 				break;
@@ -778,7 +767,6 @@ public class TestProcessManagement {
 			else if (rdfFileName != null && (rdfFileName.equals("FILE NOT FOUND ERROR"))) {
 				filePath = tpfFileName;
 				rdfFileStatus = "File Not Found Error";
-				dStartCount = (-1);
 				Notifications.showErrorAlert("File Not Found Error");
 
 				res.setResponseCode(111);
@@ -830,8 +818,6 @@ public class TestProcessManagement {
 		return testProcessResponse;
 	}
 
-	
-	//K2 Method to
 	private boolean waitFileUptoWrite(String filePath) {
 		boolean ret = false;
 		try {
@@ -945,9 +931,6 @@ public class TestProcessManagement {
 
 			boolean shouldBreakAll = false; // NR
 
-			// VIJAY : 31-JULY : Change 1:: To Know Test is STOPPED In com File.
-			boolean comFileTestFlag = false;  // change 1: END
-
 			List<String> sruFIleCount = LRUTestingController.sendAllSelectedFileCount();
 
 			// Fetch What Are Files Associated With Stages:ProgressBar
@@ -1027,23 +1010,12 @@ public class TestProcessManagement {
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult);
 
-						// VIJAY : 31-JULY : Change 2:: To Know Test is STOPPED In Com File.
-						if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
-							
-							comFileTestFlag = true; 
-						}
-						//change 2:END
-
 					} else {
 						StateMachine.setConfirmTestStop(true);
 						testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult.generateUniqueTestFilesResultIdIdOld());
 					}
-					
-					//Anuj : 31-JULY :: It will not run while running dotcom file
-					AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
-					
 					// check TestState From Response if it stop then exit from the loop.
 					if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
 //						System.out.println("Entred outer loop");
@@ -1073,12 +1045,6 @@ public class TestProcessManagement {
 				}
 
 			} // Outer loop
-			// VIJAY : 31-JULY : Change 3:: To Know Test is STOPPED In Com File.
-			if(comFileTestFlag==true) {
-				rdfFileResult="NOT OK";
-				comFileTestFlag = false; // Reseting Flag
-			}
-			// Change 3: END
 
 			// Determine stage result
 			String stageResult = rdfFileResult.equals("OK") ? "COMPLETED with Success"
@@ -1219,16 +1185,6 @@ public class TestProcessManagement {
 					} else {
 						Debug.printDebug("Command is  " + line + " , runCommands : "
 								+ AitessProcessControlManagement.getInstance().runCommands);
-						
-						// VIJAY : 31-JULY : Change 4:: To Stop running of Macro or command.
-						if (handleTestState()) {
-							TestProcessDto testProcessDto =new TestProcessDto();
-							testProcessDto.setTestState("STOPED");
-							 
-							StateMachine.setTextArea(true);
-							return testProcessDto;
-						} // change 4 :END
-						
 						// Call writing command to Terminal
 						AitessProcessControlManagement.getInstance().runCommands = true;
 
@@ -1433,8 +1389,7 @@ public class TestProcessManagement {
 			// Getting RDF file Name from PerformTest()
 			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
 
-			//Anuj : 31-JULY :: Commented
-//			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
+			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
 			TestProcessResponse testProcessRes = getRdfFileResult(stageName, rdfFileLocation, rdfFileName, testFileName,
 					stageId, sessionId);
 

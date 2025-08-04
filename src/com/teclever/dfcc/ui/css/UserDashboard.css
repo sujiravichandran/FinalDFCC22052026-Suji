@@ -221,7 +221,7 @@
 }
 .temp-box{
 	-fx-background-color: #FAEB5B;
-	-fx-font-size: 10px;
+	-fx-font-size: 12px;
 	-fx-font-weight: bold;
 	-fx-background-radius: 10px;
     -fx-border-radius: 10px;
@@ -230,7 +230,7 @@
 }
 .temp-box-off{
     -fx-background-color: #FF0000;
-    -fx-font-size: 18px;
+    -fx-font-size: 12px;
 	-fx-font-weight: bold;
 	-fx-background-radius: 10px;
     -fx-border-radius: 10px;
@@ -239,7 +239,7 @@
     -fx-font-weight: bold;
     -fx-border-color:border2-color;
     -fx-border-width:1px;
-    -fx-min-width: 150px;
+   
 }
 
 .label-new-box{
@@ -249,21 +249,17 @@
     -fx-padding:5px;
     -fx-text-fill:#0F1728;
     -fx-font-weight: bold;
-    -fx-border-radius: 10px;
+ 
     -fx-min-width: 150px;
 }
 
 .label-box{
-	-fx-background-color: light-bg;
 	-fx-font-size: 12px;
 	-fx-font-weight: bold;
     -fx-padding:5px;
     -fx-text-fill:#0F1728;
     -fx-font-weight: bold;
-    -fx-border-radius: 10px;
-    -fx-border-color:#0F1728;
-    -fx-border-width:1px;
-    -fx-min-width: 170px;
+    -fx-min-width: 150px;
 }
 
 .label-new-lastupdatetime{

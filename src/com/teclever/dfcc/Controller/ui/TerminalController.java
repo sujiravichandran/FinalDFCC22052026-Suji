@@ -2,6 +2,7 @@ package com.teclever.dfcc.Controller.ui;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentTestDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 
@@ -170,8 +171,27 @@ public class TerminalController {
 	    });
 	    
 	    yesButton.setOnAction( e ->{
-	    	handleSendCommand("Y" + "\n"); 	
+	    	
+//		    Edited By: SUJI
+//			Change Made for Point:22(Mail:7-Jul-Observations_in_testing_Teclever_Date_SAT))
+//			Change Made On:When 'Y' is pressed it is not immediately displayed in terminal window.
+		
+			
+			StateMachine.setResponceYesTerminal(true);
+			handleSendCommand("Y" + "\n");
+//			yesButton.setDisable(true);
+
+//			StateMachine.yesFromTerminalProperty().addListener((observable, oldValue, newValue) -> {
+//				System.out.println("yesFromTerminal changed from " + oldValue + " to " + newValue);
+//
+//				if (newValue) {
+//					yesButton.setDisable(false);
+//				}
+//			});
 	    });
+	    
+//		Exit;
+//		Point:22
 	    
 	    noButton.setOnAction( e ->{
 	    	handleSendCommand("N" + "\n"); 	

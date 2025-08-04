@@ -12,6 +12,7 @@ import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.model.BriefData;
 import com.teclever.dfcc.model.DetailedData;
+import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.reportgeneration.ReportGeneration;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
@@ -99,10 +100,18 @@ public class CurrentStageResultController {
 
 	private String SESSION_ID;
 	private String STAGE_ID;
+//	Changed by Vignesh 31-07-25 for showing stage name in result page
+	private String STAGE_NAME;
+	private HBox stageTitleBox = new HBox();
+	private Label stageTitle = new Label();
 
-	public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId) {
+//	Changed by Vignesh 31-07-25 for showing stage name in result page
+	public GridPane createCurrentExecutionResultGridPane(String sessionId, SessionData rowData) {
 		SESSION_ID = sessionId;
-		STAGE_ID = stageId;
+		STAGE_ID = rowData.getId();
+		
+		System.out.println("CURRENT STAGE ID"+STAGE_ID);
+		STAGE_NAME = rowData.getStage();
 
 		currentExecutionResultGridPane.getStylesheets()
 				.add(getClass()
@@ -129,15 +138,19 @@ public class CurrentStageResultController {
 
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(30);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(40);
+
+//		Changed by Vignesh 31-07-25 for showing stage name in result page
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(30);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
@@ -145,8 +158,15 @@ public class CurrentStageResultController {
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 
+//		Changed by Vignesh 31-07-25 for showing stage name in result page
+		stageTitleBox.setAlignment(Pos.CENTER);
+		stageTitle.setText(STAGE_NAME);
+		stageTitle.getStyleClass().add("current-execution-result-title");
+		stageTitleBox.getChildren().add(stageTitle);
+
 		currentExecutionResultHeadingGridPane.add(titleBox, 0, 0);
-		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		currentExecutionResultHeadingGridPane.add(stageTitleBox, 1, 0);
+		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 2, 0);
 
 		return currentExecutionResultHeadingGridPane;
 	}
@@ -361,10 +381,10 @@ public class CurrentStageResultController {
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
 		
-		Platform.runLater(() -> {
-    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
-        });
+//		Platform.runLater(() -> {
+//    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+//    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+//        });
 		
 		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
 		   Task<Void> task = new Task<Void>() {
@@ -381,10 +401,10 @@ public class CurrentStageResultController {
 			response = resultExecutionManagement.getResultExecutionListBriefListForStages(SESSION_ID);
 		}
 		
-		Platform.runLater(() -> {
-			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
-		 });
+//		Platform.runLater(() -> {
+//			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+//			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+//		 });
 
 	 
 		if (response.getCode() == 1 && response.getResultDTOList() != null) {
@@ -398,6 +418,14 @@ public class CurrentStageResultController {
 				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
+				
+//				if (!data.getStatus().equals("SUCCESS")) {
+//
+//					newBriefData.setResult("FAIL");
+//				} else {
+//					newBriefData.setResult("PASS");
+//				}
+				
 				
 				newBriefData.setTestMode(data.getTestMode());
 
@@ -436,20 +464,20 @@ public class CurrentStageResultController {
 	 	               tableScrollPane.setContent(briefDataTableView);
 	 	              tableScrollPane.setFitToHeight(true);
 	 	            });
-		    	Platform.runLater(() -> {
-		    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-		    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-		        });
+//		    	Platform.runLater(() -> {
+//		    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//		    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//		        });
 	               
 	           
 			}
 
 			@Override
 			protected void failed() {
-				Platform.runLater(() -> {
-					currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-					currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-		        });
+//				Platform.runLater(() -> {
+//					currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//					currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//		        });
 				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 			}
 		};
@@ -531,10 +559,10 @@ public class CurrentStageResultController {
 	public ScrollPane createDetailedDataTable() {
 		detailedDataList.clear();
 		
-		Platform.runLater(() -> {
-			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
-	    });
+//		Platform.runLater(() -> {
+//			currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+//			currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
+//	    });
 		
 		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
 		 Task<Void> task = new Task<Void>() {
@@ -603,20 +631,20 @@ public class CurrentStageResultController {
 		 	               tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
-			    	Platform.runLater(() -> {
-			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//			    	Platform.runLater(() -> {
+//			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 		               
 		           
 				}
 
 				@Override
 				protected void failed() {
-					Platform.runLater(() -> {
-						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//					Platform.runLater(() -> {
+//						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 				}
 			};

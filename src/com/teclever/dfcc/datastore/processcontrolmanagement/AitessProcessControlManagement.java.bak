@@ -512,7 +512,7 @@ public class AitessProcessControlManagement {
 
 //							Debug.printDebug("aitess1 finalLine:: " + finalLine);
 
-							else if (finalLine.contains("Parse Error")) {
+							if (finalLine.contains("Parse Error")) {
 
 //								Debug.printDebug("aitess1 result1:: " + result);
 								if (result.equals("")) {
@@ -1416,7 +1416,6 @@ public class AitessProcessControlManagement {
 
 	}
 
-	//Anuj - 30/07/2025 -- For 2mins temperature thread
 	public void updateUIdfccStatus(boolean fromThread) {
 		long currentTime = System.currentTimeMillis();
 		if (fromThread && StateMachine.getTestState() == TestState.RUNNING) {
@@ -1530,10 +1529,7 @@ public class AitessProcessControlManagement {
 						String lastupdatedTime = now.format(formatter);
 //						    System.out.println("Current date and time: " + lastupdatedTime);
 
-//						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
-						
-//						Vignesh changed  31-07-25 for display time
-						StateMachine.setTempLastCheckedTime(lastupdatedTime);
+						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
 						
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -4,8 +4,6 @@ public class SessionData {
 	
 	private String id;
 	private String slNo;
-//	Changed by Vignesh 31-07-25 for moving testMode location	
-	private String testMode;
 	private String stage;
 	private String startTime;
 	private String endTime;
@@ -14,6 +12,7 @@ public class SessionData {
 	private String timeTakenForExecution;
 	private String noOfFilesExecuted;
 	private String failedFiles;
+	private String testMode;
 	
 	
 	public String getTestMode() {

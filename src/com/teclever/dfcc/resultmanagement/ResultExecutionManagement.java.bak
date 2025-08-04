@@ -1,10 +1,6 @@
 package com.teclever.dfcc.resultmanagement;
 
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -32,7 +28,6 @@ import com.teclever.datastore.entities.SessionMaster;
 import com.teclever.datastore.entities.SessionStagesMapping;
 import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
-import com.teclever.datastore.entities.SessionTiming;
 import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.entities.TrailSessionEntity;
 import com.teclever.datastore.entities.UserLoginDetails;
@@ -46,7 +41,6 @@ import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
-import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.service.UserLoginDetailsService;
@@ -1864,96 +1858,9 @@ public class ResultExecutionManagement {
 			//Add Both Files In Result DTO List...
 			List<ResultSessionStagesDetailsDTO>finalList = new ArrayList<ResultSessionStagesDetailsDTO>();
 			finalList.addAll(sessionStagesList);
-			//finalList.addAll(sessionStagesListRunnedList);
+			finalList.addAll(sessionStagesListRunnedList);
 			
 			
-			SessionTimingService SessionTimingService = new SessionTimingService();
-			List<SessionTiming>otherStagesList =	SessionTimingService.getSessionTimeBySessionId(sessionId);
-			List<ResultSessionStagesDetailsDTO> otherStagesListRunnedList = new ArrayList<ResultSessionStagesDetailsDTO>(); 
-			
-			for(SessionTiming sessionTiming:otherStagesList)
-			{
-				ResultSessionStagesDetailsDTO otherStages = new ResultSessionStagesDetailsDTO();
-
-				if (!sessionTiming.getEndDateTime().equals("")&&!sessionTiming.getStartDateTime().equals("")) {
-
-					DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT; // Use ISO_INSTANT for Instant parsing
-
-					// Parse both start and end times as Instant (supports nanoseconds).
-					String startDateTime = sessionTiming.getStartDateTime();
-					String endDateTime = sessionTiming.getEndDateTime();
-
-					if (!startDateTime.endsWith("Z")) {
-						startDateTime += "Z";
-					}
-					if (!endDateTime.endsWith("Z")) {
-						endDateTime += "Z";
-					}
-
-					Instant d1 = Instant.from(formatter.parse(startDateTime));
-					Instant d2 = Instant.from(formatter.parse(endDateTime));
-
-					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-
-					// Format the parsed instants into the desired format
-					String formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
-					String formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
-
-					// Now, formattedStartDateTime and formattedEndDateTime will be in the desired
-					// format
-					System.out.println(formattedStartDateTime); // Example: 08/08/2024 11:10:08
-					System.out.println(formattedEndDateTime);
-
-					otherStages.setStartTime(formattedStartDateTime);
-					otherStages.setEndTime(formattedEndDateTime);
-					otherStages.setStageId(sessionTiming.getStageId());
-			
-					// Calculate the difference in milliseconds
-					Duration duration = Duration.between(d1, d2);
-
-					// Convert the duration to hours, minutes, seconds
-					long diffHours = duration.toHours();
-					long diffMinutes = duration.toMinutes() % 60;
-					long diffSeconds = duration.getSeconds() % 60;
-
-					// Format the result as HH:mm:ss
-					String formattedDuration = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds);
-
-					otherStages.setTimeTakenForExecution(formattedDuration);
-					otherStages.setStatus("COMPLETED");
-				} else {
-					otherStages.setTimeTakenForExecution("-");
-					otherStages.setStatus("Pending");
-				}
-
-				String parentName = sessionManagemment.getFullPathForLeafIds(sessionTiming.getStageId());
-				parentName = parentName.substring(0, parentName.indexOf("/"));
-				if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
-						|| parentName.equals("Self Test")) {
-					otherStages.setTestMode(parentName + "-" + stageIdName.get(sessionTiming.getStageId()));
-
-					otherStages.setTestType(parentName);
-				} else {
-					otherStages.setTestMode(
-							"SESSION TEST - " + parentName + "-" + stageIdName.get(sessionTiming.getStageId()));
-					otherStages.setTestType("SESSION");
-
-				}
-
-				// otherStages.setStartTime(sessionTiming.getStartDateTime());
-				// otherStages.setEndTime(sessionTiming.getEndDateTime());
-				otherStages.setNoOfFilesExecuted(sessionTiming.getNoOfFileExecuted());
-				otherStages.setFailedFiles(sessionTiming.getNoOfFailedExecuted());
-				if (sessionTiming.getNoOfFailedExecuted() == 0) {
-					otherStages.setResult("Success");
-				} else {
-					otherStages.setResult("Failed");
-				}
-				otherStages.setStage(stagesIdName.get(sessionTiming.getStageId()));
-				otherStagesListRunnedList.add(otherStages);
-			}
-			
-			finalList.addAll(otherStagesListRunnedList);	
 			response.setResultSessionStagesDetailsDTOList(finalList);
 			response.setCode(1);
 			response.setMsg("Fetched");

@@ -45,6 +45,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -71,7 +72,8 @@ class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
 }
 
 public class CurrentExecutionResultController {
-
+	
+	
 	private GridPane currentExecutionResultGridPane = new GridPane();
 	private GridPane currentExecutionResultHeadingGridPane = new GridPane();
 	private GridPane currentExecutionResultTabsGridPane = new GridPane();
@@ -341,46 +343,90 @@ public class CurrentExecutionResultController {
 		return currentExecutionResultTabsGridPane;
 	}
 
+//	private TabPane createCurrentExecutionResultTabs() {
+//		Tab tab1 = new Tab("Brief Data");
+//		Tab tab2 = new Tab("Detailed Data");
+//
+//		
+//		StackPane tab1StackPane = createTab1Content();
+//		tab1.setContent(tab1StackPane);
+//		tab1.setClosable(false);
+//
+//		StackPane tab2StackPane = createTab2Content();
+//		tab2.setContent(tab2StackPane);
+//		tab2.setClosable(false);
+//
+//		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+//
+//		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+//			if (newTab == tab2) {
+////				createTab2Content();
+//				currentTab = "tab2";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Detailed data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}
+//				else {
+////				createTab1Content();
+//				currentTab = "tab1";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Brief data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}
+//		});
+//
+////		createTab1Content();
+//
+//		return currentExecutionResultTabPane;
+//	}
+	
+//	Added for Detailed Data is populating 2 time to avoid newly changed by SUJI on16-07-2025:::Using flag i have done it
+	private boolean detailedTabLoaded = false;
 	private TabPane createCurrentExecutionResultTabs() {
-		Tab tab1 = new Tab("Brief Data");
-		Tab tab2 = new Tab("Detailed Data");
+	    Tab tab1 = new Tab("Brief Data");
+	    Tab tab2 = new Tab("Detailed Data");
 
-		StackPane tab2StackPane = createTab2Content();
-		StackPane tab1StackPane = createTab1Content();
+	    StackPane tab1StackPane = createTab1Content();
+	    tab1.setContent(tab1StackPane);
+	    tab1.setClosable(false);
 
-		tab1.setContent(tab1StackPane);
-		tab1.setClosable(false);
+	    tab2.setClosable(false); // ❗ Do not load tab2 content yet
 
-		tab2.setContent(tab2StackPane);
-		tab2.setClosable(false);
+	    currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
 
-		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+	    currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+	        ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+	        ApplicationLogBookDto applicationLogBookDto;
 
-		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-			if (newTab == tab2) {
-				createTab2Content();
-				currentTab = "tab2";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Detailed data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			} else {
-				createTab1Content();
-				currentTab = "tab1";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Brief data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}
-		});
+	        if (newTab == tab2) {
+	            currentTab = "tab2";
+	            if (!detailedTabLoaded) {
+	                StackPane tab2StackPane = createTab2Content();  // ❗ Now we call it
+	                tab2.setContent(tab2StackPane);
+	                detailedTabLoaded = true;
+	            }
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Detailed data button");
+	        } else {
+	            currentTab = "tab1";
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Brief data button");
+	        }
 
-//		createTab1Content();
+	        appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+	    });
 
-		return currentExecutionResultTabPane;
+	    return currentExecutionResultTabPane;
 	}
 
 	private StackPane createTab1Content() {
@@ -401,10 +447,11 @@ public class CurrentExecutionResultController {
 	private ScrollPane createBriefDataTable() {
 		briefDataList.clear();
 		
-		Platform.runLater(() -> {
-    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
-        });
+//		Platform.runLater(() -> {
+//    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+//    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+//        });
+//		
 		
 		ScrollPane tableScrollPane = new ScrollPane(briefDataTableView);
 		 Task<Void> task = new Task<Void>() {
@@ -474,20 +521,20 @@ public class CurrentExecutionResultController {
 		 	               tableScrollPane.setContent(briefDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
-			    	Platform.runLater(() -> {
-			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//			    	Platform.runLater(() -> {
+//			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 		               
 		           
 				}
 
 				@Override
 				protected void failed() {
-					Platform.runLater(() -> {
-						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//					Platform.runLater(() -> {
+//						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 				}
 			};
@@ -568,33 +615,45 @@ public class CurrentExecutionResultController {
 			}
 		});
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	public ScrollPane createDetailedDataTable() {
 		detailedDataList.clear();
-  
-	Platform.runLater(() -> {
-		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
-		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);;
-    });
 		
+//		Platform.runLater(() -> {
+//    		currentExecutionResultGridPane.getScene().setCursor(Cursor.WAIT);
+//    		currentExecutionResultGridPane.getScene().getRoot().setDisable(true);
+//        });
+//		
 		
 		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
 		 Task<Void> task = new Task<Void>() {
 		        @Override
 		        protected Void call() throws Exception {
-		ResultDetailedResponse response = null;
-		
+		ResultDetailedResponse response = new ResultDetailedResponse();
+	
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
 		} else if(STAGE_ID == null && SESSION_ID != null){
 			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
 		} else {
+			
 			response = resultExecutionManagement
 					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
 		}
 
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
+//			detailedDataList.clear();
+//			int listSize = response.getResultDetailedList().size();
 			for (ResultDetailedDTO data : response.getResultDetailedList()) {
 
 				DetailedData newDetailedData = new DetailedData();
@@ -618,48 +677,57 @@ public class CurrentExecutionResultController {
 		}else if(response.getCode() == 0) {
 			Notifications.showErrorAlert(response.getMsg());
 		}
-
+		
 		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
-
+		
 
 		detailedDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 14);
+			column.setMinWidth(column.getText().length() * 18);
 			updateDetailedData((TableColumn<DetailedData, String>) column);
 		});
 
-		ScrollPane tableScrollPane = new ScrollPane(detailedDataTableView);
-		tableScrollPane.setFitToHeight(true);
 		
-		return null;  
+
+
+		if(detailedDataList.size() == 0) {
+			tableScrollPane.setFitToWidth(true);
+		}
+		
+		tableScrollPane.setFitToHeight(true);
+		 return null;  
 		        }
 			
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
 		            	
-		 	               tableScrollPane.setContent(detailedDataTableView);
+		 	              tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
-			    	Platform.runLater(() -> {
-			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//			    	Platform.runLater(() -> {
+//			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 		               
 		           
 				}
 
 				@Override
 				protected void failed() {
-					Platform.runLater(() -> {
-						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-			        });
+//					Platform.runLater(() -> {
+//						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
+//						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
+//			        });
 					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 				}
 			};
 			new Thread(task).start();
+		
 		return tableScrollPane;
 	}
+	
+	
+
 
 	private void updateDetailedData(TableColumn<DetailedData, String> column) {
 		column.setCellFactory(col -> new TableCell<DetailedData, String>() {

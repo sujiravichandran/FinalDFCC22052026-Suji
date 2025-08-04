@@ -73,7 +73,6 @@ public class StateMachine {
 	}
 
 	public static void setTestState(TestState newState) {
-		System.out.println("setTestState :: " + newState);
 		testState.set(newState);
 	}
 
@@ -1640,21 +1639,6 @@ public class StateMachine {
 		StateMachine.currentlySelectedStageId = currentlySelectedStageId;
 	}
 
-//	Changed by Vignesh 31-07-25 - showing last temp checked time
-	private static StringProperty tempLastCheckedTime = new SimpleStringProperty();
-	
-	
-	public static StringProperty tempLastCheckedTimeProperty() {
-		return tempLastCheckedTime;
-	}
-
-	public static void setTempLastCheckedTime(String tempLastCheckedTime) {
-		StateMachine.tempLastCheckedTime.set(tempLastCheckedTime);;
-	}
-	
-	public static String getTempLastCheckedTime() {
-		return tempLastCheckedTime.get();
-	}
 
 	
 	

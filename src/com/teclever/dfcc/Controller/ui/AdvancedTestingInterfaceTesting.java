@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,34 +10,36 @@ import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
-import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
+import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
+import com.teclever.dfcc.utils.PopupDialoguShow;
 
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -58,6 +62,7 @@ import javafx.scene.paint.Color;
 
 public class AdvancedTestingInterfaceTesting {
 
+	private static final Object ADVANCED_TEST_INTERFACE_TEST = null;
 	private GridPane tab2MainGridPane = new GridPane();
 	private VBox leftSideVBox = new VBox(20);
 	private GridPane rightSideGridPane = new GridPane();
@@ -96,14 +101,37 @@ public class AdvancedTestingInterfaceTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
+	PopupDialoguShow popupDialoguShow = new PopupDialoguShow();
 	
-	private AdvancedTestingController advancedTestingController;
+	private boolean aitess1Updated = false;
+	private boolean aitess2Updated = false;
 
 	public AdvancedTestingInterfaceTesting() {
 		initializeSearch();
+//		Edited By: SUJI
+//		Change Made for Point: 4&39(Mail:7 July status)
+//		Change Made on WDM Status off: popup confirmation Test to proceed or not:
+		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
+			if(newVal) {
+			StateMachine.setTestState(TestState.PAUSED);
+			 Platform.runLater(() -> {
+					popupDialoguShow.wdmStatusPopup();
+					StateMachine.setWdmStatusOfflineCheck(false);
+					 });
+			}
+			
+		});
+
+//		Exit;
+//	    Point: 4&39
+		
 	}
+		
+		
+	
 
 	public GridPane createAdvancedTestingTab2GridPane() {
+		
 		getInterfaceTestingStagesData();
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(50);
@@ -146,6 +174,10 @@ public class AdvancedTestingInterfaceTesting {
 		}
 	}
 
+	
+	// Edited By: SUJI
+//	Change Made for Point: 79(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//	Change Made on Search bar is not working properly.
 	public void initializeSearch() {
 
 		testNameField.setPromptText("Search...");
@@ -158,7 +190,10 @@ public class AdvancedTestingInterfaceTesting {
 //		});
 
 	}
-
+//	Exit;
+//	Change Made for Point:  79
+	
+	
 	private VBox createSearchFile() {
 		searchVBox.getStyleClass().add("advanced-testing-right-text-field");
 		searchVBox.setAlignment(Pos.CENTER);
@@ -176,16 +211,23 @@ public class AdvancedTestingInterfaceTesting {
 		stageListView.getStyleClass().add("advanced-testing-radio-list-view");
 
 		ToggleGroup toggleGroup = new ToggleGroup();
-
+		
+		//Last Line Not Shown In The JAR Added By Mani
+		if (DFCCConstant.isJarBuild) {
+			TestCardData test1 = new TestCardData("", "", "", "");
+			interfaceTestList.add(test1);
+		}
+	
 		for (TestCardData test : interfaceTestList) {
-			RadioButton newRadioButton = new RadioButton(test.getCardName());
-			newRadioButton.setId(test.getCardId());
-			newRadioButton.setUserData(test);
-			newRadioButton.getStyleClass().add("advanced-testing-radio-button");
-			newRadioButton.setWrapText(true);
-			newRadioButton.setToggleGroup(toggleGroup);
-			stageListRadioButtons.add(newRadioButton);
-			stageListView.getItems().add(newRadioButton);
+				RadioButton newRadioButton = new RadioButton(test.getCardName());
+				newRadioButton.setId(test.getCardId());
+				newRadioButton.setUserData(test);
+				newRadioButton.getStyleClass().add("advanced-testing-radio-button");
+				newRadioButton.setWrapText(true);
+				newRadioButton.setToggleGroup(toggleGroup);
+				stageListRadioButtons.add(newRadioButton);
+				stageListView.getItems().add(newRadioButton);
+	
 		}
 
 		toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
@@ -201,7 +243,6 @@ public class AdvancedTestingInterfaceTesting {
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
 				if (StateMachine.getTestState() != TestState.RUNNING) {
-//					System.out.println("Entred Clearing method after selection");
 					StateMachine.setAdvancedTestInterfaceOk(true);
 
 				}
@@ -212,6 +253,45 @@ public class AdvancedTestingInterfaceTesting {
 		leftSideVBox.getChildren().addAll(stageListView);
 		return leftSideVBox;
 	}
+	
+	// Edited By: SUJI
+//		Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
+//		Change Made on:During initial loading of testing window,Update Status Bar
+		public void initialize() {
+			StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+			    aitess1Updated = true;
+			    checkBothAitessLaunched();
+			});
+
+			StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+			    aitess2Updated = true;
+			    checkBothAitessLaunched();
+			});
+			
+		}
+		
+		// Method to check both
+			
+			
+			private void checkBothAitessLaunched() {
+			    if (aitess1Updated && aitess2Updated) {
+			        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
+			                                 && StateMachine.aitess2LaunchedProperty().get();
+			        if (bothLaunched) {
+
+			            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
+			            Platform.runLater(() -> {
+
+			        		
+			            	tab2MainGridPane.setDisable(false);
+			        			
+
+			            });
+			        }
+			    }
+			}
+//			Exit;
+//			Point: 52,72,74
 
 	private void getTestListByStageId(String stageId, String testTypeId) {
 
@@ -361,17 +441,6 @@ public class AdvancedTestingInterfaceTesting {
 		stopButton.setDisable(true);
 		pauseButton.setDisable(true);
 		
-//		After IV&V:
-		if(!StateMachine.isAitess1Launched() && !StateMachine.isAitess2Launched()) {
-			runAllButton.setDisable(true);
-			startButton.setDisable(true);
-			stopButton.setDisable(true);
-			pauseButton.setDisable(true);
-			stageListView.setDisable(true);
-		
-		}else {
-		stageListView.setDisable(false);
-		}
 
 		runAllButton.setOnAction(e -> {
 			StateMachine.setConfirmTestStop(false);
@@ -380,8 +449,42 @@ public class AdvancedTestingInterfaceTesting {
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
-			
+			// Excel Name:7-July-Observation
+            // Point No:3
+			// Change Made on rdf file moving
 			if (StateMachine.isAdvancedTestInterfaceOk()) {
+				
+				//09-07-2025
+				// UPDATING TIME TO DB
+				LocalDateTime currentDateTime = LocalDateTime.now();
+//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//				String formattedDate = currentDateTime.format(formatter);
+				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
+				
+				SessionTimingService s = new SessionTimingService();
+				//LOGIC FOR UPDATING SESSION TIMING TABLE
+				if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
+
+				}else {
+					
+					
+					int failedFiles = 0;
+				for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
+				{
+					if(!copy.getStatus().equals("SUCCESS"))
+					{
+						failedFiles++;
+					}
+				}
+					
+					s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
+					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,currentDateTime.toString(), "",0,0);
+					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+
+				}
+				
 
 				// Checking With List
 				boolean popupRDFFiles = false;
@@ -395,7 +498,11 @@ public class AdvancedTestingInterfaceTesting {
 					}
 
 					if (popupRDFFiles) {
-//						System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+						
+						//Logbook the Stage Results
+						SessionManagement sessionManagement = new SessionManagement();
+						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+						
 						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -404,9 +511,12 @@ public class AdvancedTestingInterfaceTesting {
 						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					} else {
+						
+						//Logbook the Stage Results
+						SessionManagement sessionManagement = new SessionManagement();
+						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+						
 						SessionFileManagement session = new SessionFileManagement();
-//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
-//								+ DFCCConstant.FailedStagesRdfPaths.size());
 						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					}
@@ -415,6 +525,10 @@ public class AdvancedTestingInterfaceTesting {
 				AdvancedTestStateObject.clearAdvancedTestResultsList();
 				StateMachine.setAdvancedTestInterfaceOk(false);
 			}
+			// Exit
+			// Point No:3
+			
+			
 			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
@@ -443,7 +557,13 @@ public class AdvancedTestingInterfaceTesting {
 				startButton.setDisable(true);
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
-				StateMachine.setRunningTestName(RunningTestName.SESSION_TEST);
+				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+				// Excel Name:7-July-Observation
+	            // Point No:18
+				// Change Made on Status Bar Test Name
+				StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_INTERFACE_TEST);
+				// Exit
+	            //Point No:18
 				stopButton.setDisable(false);
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
@@ -468,8 +588,46 @@ public class AdvancedTestingInterfaceTesting {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
 				
+				
+				
+				// Excel Name:7-July-Observation
+	            // Point No:3
+				// Change Made on rdf file moving
 				if (StateMachine.isAdvancedTestInterfaceOk()) {
 
+					//09-07-2025
+					// UPDATING TIME TO DB
+					LocalDateTime currentDateTime = LocalDateTime.now();
+//					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//					String formattedDate = currentDateTime.format(formatter);
+					StateMachine.setCurrentlySelectedStageId(selectedStageId); 
+					
+					SessionTimingService s = new SessionTimingService();
+					//LOGIC FOR UPDATING SESSION TIMING TABLE
+					if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+						StateMachine.setPreviouslySelectedStageId(selectedStageId);
+						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
+
+					}else {
+						
+						
+					int failedFiles = 0;
+					for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
+					{
+						if(!copy.getStatus().equals("SUCCESS"))
+						{
+							failedFiles++;
+						}
+					}
+						
+						s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
+						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,currentDateTime.toString(), "",0,0);
+						StateMachine.setPreviouslySelectedStageId(selectedStageId);
+
+					}
+					
+					
+					
 					// Checking With List
 					boolean popupRDFFiles = false;
 					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
@@ -482,7 +640,12 @@ public class AdvancedTestingInterfaceTesting {
 						}
 
 						if (popupRDFFiles) {
-//							System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+							
+							//Logbook the Stage Results
+							SessionManagement sessionManagement = new SessionManagement();
+							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+							
+							
 							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -491,9 +654,12 @@ public class AdvancedTestingInterfaceTesting {
 							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						} else {
+							
+							//Logbook the Stage Results
+							SessionManagement sessionManagement = new SessionManagement();
+							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+							
 							SessionFileManagement session = new SessionFileManagement();
-//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
-//									+ DFCCConstant.FailedStagesRdfPaths.size());
 							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						}
@@ -502,6 +668,11 @@ public class AdvancedTestingInterfaceTesting {
 					AdvancedTestStateObject.clearAdvancedTestResultsList();
 					StateMachine.setAdvancedTestInterfaceOk(false);
 				}
+				// Exit
+				// Point No:3
+				
+				
+				
 				
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
@@ -561,6 +732,12 @@ public class AdvancedTestingInterfaceTesting {
 				runAllButton.setDisable(true);
 				StateMachine.setTestState(TestState.RUNNING);
 				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+				// Excel Name:7-July-Observation
+	            // Point No:18
+				// Change Made on Status Bar Test Name
+				StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_INTERFACE_TEST);
+				// Exit
+	            //Point No:18
 				stopButton.setDisable(false);
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
@@ -632,21 +809,35 @@ public class AdvancedTestingInterfaceTesting {
 		repeatCountTextField.setAlignment(Pos.CENTER);
 
 		TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
-			String newText = change.getControlNewText();
+		    String newText = change.getControlNewText();
 
-			try {
-				int value = Integer.parseInt(newText);
-				if (value >= 1 && value <= 100) {
-					return change;
-				}
-			} catch (NumberFormatException e) {
-			}
+		    // Allow empty string while typing (but fix on focus lost)
+		    if (newText.isEmpty()) {
+		        return change;
+		    }
 
-			return null;
+		    try {
+		        int value = Integer.parseInt(newText);
+		        if (value >= 1 && value <= 100) {
+		            return change;
+		        }
+		    } catch (NumberFormatException e) {
+		        // Invalid characters like "a", etc.
+		    }
+
+		    return null; // Reject the change
 		});
-
 		repeatCountTextField.setTextFormatter(textFormatter);
 
+		// On focus lost, reset to "1" if the field is empty or invalid
+		repeatCountTextField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+		    if (!newVal) {
+		        String text = repeatCountTextField.getText();
+		        if (text == null || text.isEmpty()) {
+		            repeatCountTextField.setText("1");
+		        }
+		    }
+		});
 //		repeatCountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 //		    if (!newValue.matches("\\d*")) {
 //		        repeatCountTextField.setText(oldValue);
@@ -694,11 +885,11 @@ public class AdvancedTestingInterfaceTesting {
 				double percentage = (double) AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get()
 						/ AdvancedTestStateObject.getTotalInterfaceSelectedTestFileCount();
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
-				Platform.runLater(() -> {
-					testProgressBar.setProgress(roundedPercentage);
-					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
-				});
-			}
+					Platform.runLater(() -> {
+						testProgressBar.setProgress(roundedPercentage);
+						percentageLabel.setText((int) (roundedPercentage * 100) + "%");
+					});
+				}
 		});
 
 		return buttonHBox;

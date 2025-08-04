@@ -305,6 +305,14 @@ public class SessionManagement {
 		return res;
 	}
 	
+	public void updateStateSessionStages(String sessionId)
+	{
+		
+		
+		
+	}
+	
+
 	// AT FIRST TIME SESSION CREATION
 	public StageMasterLevelOneResponse getLevelOneStageMasterBySessionId(String uutId, String sessionId) {
 		StageMasterLevelOneResponse stageMasterLevelOne = new StageMasterLevelOneResponse();
@@ -620,9 +628,6 @@ public class SessionManagement {
 			sessionDtoResponse.setCreationDate(sessionEntity.getCreationDate());
 			sessionDtoResponse.setStartDate(sessionEntity.getStartDate());
 			sessionDtoResponse.setEndDate(sessionEntity.getEndDate());
-			//For Start Time Added On The Trail But In The Session
-			sessionDtoResponse.setStartDateTime(sessionEntity.getStartDateTime());
-			sessionDtoResponse.setEndDateTime(sessionEntity.getEndDateTime());
 			sessionDtoResponse.setStartRemarks(sessionEntity.getStartRemarks());
 			sessionDtoResponse.setOfpConfigId(sessionEntity.getOfpConfigId());
 
@@ -2669,6 +2674,7 @@ public class SessionManagement {
 		Response res = new Response();
 		try {
 			
+			System.out.println("RED ENTERED::::::::");
 			List<StageObject> listOfStageObject = new ArrayList<>();
 			// L1 Start
 			SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();

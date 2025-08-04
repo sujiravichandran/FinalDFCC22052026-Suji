@@ -25,7 +25,6 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
@@ -371,11 +370,6 @@ public class SelfTestController {
 				}
 
 				if (popupRDFFiles) {
-					
-					//Logbook the Stage Results
-					SessionManagement sessionManagement = new SessionManagement();
-					sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-					
 //					System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 					for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
@@ -385,11 +379,6 @@ public class SelfTestController {
 					SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 				} else {
-					
-					//Logbook the Stage Results
-					SessionManagement sessionManagement = new SessionManagement();
-					sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-					
 					SessionFileManagement session = new SessionFileManagement();
 //					System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
@@ -486,15 +475,8 @@ public class SelfTestController {
 		            SelfTestStateObject.getRs422_1Status().set(true);
 		        }
 		    });
-			SelfTestStateObject.rs422_2StatusProperty().addListener((observable, oldValue, newValue) -> {
-				if (!newValue) {
-					StateMachine.setTestState(TestState.COMPLETED);
-					startTest.setDisable(false);
-					SelfTestStateObject.getrS422_2Status().set(true);
-				}
 		});
 
-		});
 
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
