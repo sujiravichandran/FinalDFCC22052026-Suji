@@ -48,6 +48,7 @@ import javafx.stage.StageStyle;
 public class UserCenterContentController {
 
 	private static UserCenterContentController instance;
+	static String currentSessionName="";
 	
 	private StackPane centerStackPane = new StackPane();
 	private StackPane dashboardStackPane = new StackPane();

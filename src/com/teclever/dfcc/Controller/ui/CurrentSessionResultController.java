@@ -1,5 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,31 +76,80 @@ public class CurrentSessionResultController {
 	private UserCenterContentController userCenterContentController = UserCenterContentController.getInstance();
 
 	
-    public GridPane createCurrentSessionResultGridPane(String id) {
-    	SESSION_ID = id ;
-		getCurrentSessionResultData();
-    	currentSessionResultGridPane.getStylesheets()
-				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
-    	currentSessionResultGridPane.getStyleClass().add("current-execution-result-container");
+//    public GridPane createCurrentSessionResultGridPane(String id) {
+//    	SESSION_ID = id ;
+//		getCurrentSessionResultData();
+//    	currentSessionResultGridPane.getStylesheets()
+//				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/CurrentExecutionResults.css").toExternalForm());
+//    	currentSessionResultGridPane.getStyleClass().add("current-execution-result-container");
+//
+//        ColumnConstraints firstColumn = new ColumnConstraints();
+//        firstColumn.setPercentWidth(100);
+//
+//        RowConstraints firstRow = new RowConstraints();
+//        firstRow.setPercentHeight(7);
+//		RowConstraints secondRow = new RowConstraints();
+//		secondRow.setPercentHeight(93);
+//
+//		currentSessionResultGridPane.setPadding(new Insets(5));
+//		currentSessionResultGridPane.getColumnConstraints().addAll(firstColumn);
+//		currentSessionResultGridPane.getRowConstraints().addAll(firstRow, secondRow);
+//
+//
+////		currentSessionResultGridPane.add(createHeadingBox(), 0, 0);
+//		Label stageNameLabel = new Label(UserCenterContentController.currentSessionName);
+//		stageNameLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+//		HBox titleBar = new HBox(stageNameLabel);
+//		titleBar.setAlignment(Pos.CENTER);
+//		titleBar.setPadding(new Insets(10, 0, 10, 0));
+//		currentExecutionResultGridPane.add(titleBar, 0, 0);
+//
+//		currentSessionResultGridPane.add(createCurrentSessionResultTableGridPane(), 0, 2);
+//        return currentSessionResultGridPane;
+//    }
+	// srini 2/8/25
+	public GridPane createCurrentSessionResultGridPane(String id) {
+	    SESSION_ID = id;
 
-        ColumnConstraints firstColumn = new ColumnConstraints();
-        firstColumn.setPercentWidth(100);
+	    // Step 1: Fetch session data BEFORE UI components are loaded.
+	    getCurrentSessionResultData();
 
-        RowConstraints firstRow = new RowConstraints();
-        firstRow.setPercentHeight(7);
-		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(93);
+	    // Step 2: Apply CSS styles
+	    currentSessionResultGridPane.getStylesheets()
+	            .add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/CurrentExecutionResults.css")
+	            .toExternalForm());
+	    currentSessionResultGridPane.getStyleClass().add("current-execution-result-container");
 
-		currentSessionResultGridPane.setPadding(new Insets(5));
-		currentSessionResultGridPane.getColumnConstraints().addAll(firstColumn);
-		currentSessionResultGridPane.getRowConstraints().addAll(firstRow, secondRow);
+	    // Step 3: Configure layout constraints
+	    ColumnConstraints column = new ColumnConstraints();
+	    column.setPercentWidth(100);
+	    currentSessionResultGridPane.getColumnConstraints().add(column);
 
+	    RowConstraints row1 = new RowConstraints();
+	    row1.setPercentHeight(7);
+	    RowConstraints row2 = new RowConstraints();
+	    row2.setPercentHeight(93);
+	    currentSessionResultGridPane.getRowConstraints().addAll(row1, row2);
 
-		currentSessionResultGridPane.add(createHeadingBox(), 0, 0);
-		currentSessionResultGridPane.add(createCurrentSessionResultTableGridPane(), 0, 1);
-        return currentSessionResultGridPane;
-    }
-    
+	    currentSessionResultGridPane.setPadding(new Insets(5));
+
+	    // Step 4: Create and add TitleBar (with session name)
+	    
+	    currentSessionResultGridPane.add(createHeadingBox(), 0, 0);
+
+	    Label sessionTitleLabel = new Label(UserCenterContentController.currentSessionName);
+	    sessionTitleLabel.setStyle("-fx-font-size: 25px; -fx-font-weight: bold;");
+	    HBox titleBar = new HBox(sessionTitleLabel);
+	    titleBar.setAlignment(Pos.CENTER);
+	    titleBar.setPadding(new Insets(10, 0, 10, 0));
+	    currentSessionResultGridPane.add(titleBar, 0, 0); // Title at Row 0
+
+	    // Step 5: Add table (in a wrapper GridPane)
+	    currentSessionResultGridPane.add(createCurrentSessionResultTableGridPane(), 0, 1); // Table at Row 1
+
+	    return currentSessionResultGridPane;
+	}
+  
     private void showProgressIndicator() {
 		StackPane parentStackPane= (StackPane) currentSessionResultTableGridPane.getParent().getParent();
 		box.getChildren().add(progressIndicator);
@@ -179,6 +231,42 @@ public class CurrentSessionResultController {
 		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
 			int i = 1;
 			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
+				
+				
+				//Karthik
+				String formattedStartDateTime = "";
+				String formattedEndDateTime = "";
+
+				if (!data.getStartTime().equals("") && !data.getEndTime().equals("")) {
+
+					DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT; // Use ISO_INSTANT for Instant parsing
+
+					// Parse both start and end times as Instant (supports nanoseconds).
+					String startDateTime = data.getStartTime();
+					String endDateTime = data.getEndTime();
+
+					if (!startDateTime.endsWith("Z")) {
+						startDateTime += "Z";
+					}
+					if (!endDateTime.endsWith("Z")) {
+						endDateTime += "Z";
+					}
+
+					Instant d1 = Instant.from(formatter.parse(startDateTime));
+					Instant d2 = Instant.from(formatter.parse(endDateTime));
+					// MANI
+					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+					// Format the parsed instants into the desired format
+					formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
+					formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
+				} else {
+					formattedStartDateTime = data.getStartTime();  // Setting empty string for now need to revisit
+					formattedEndDateTime = data.getEndTime();
+					
+				}
+				
+				 
+				
 				SessionData newSessionData = new SessionData();
 				
 				newSessionData.setId(data.getStageId());
@@ -186,8 +274,10 @@ public class CurrentSessionResultController {
 				newSessionData.setTestMode(data.getTestMode());
 				newSessionData.setSlNo(String.valueOf(i));
 				newSessionData.setStage(data.getStage());
-				newSessionData.setStartTime(data.getStartTime());
-				newSessionData.setEndTime(data.getEndTime());
+//				newSessionData.setStartTime(data.getStartTime());
+//				newSessionData.setEndTime(data.getEndTime());
+				newSessionData.setStartTime(formattedStartDateTime);  //Karthik
+				newSessionData.setEndTime(formattedEndDateTime);	//Karthik
 				newSessionData.setStatus(data.getStatus());
 				newSessionData.setResult(data.getResult());
 				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());

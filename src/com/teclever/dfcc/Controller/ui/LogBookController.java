@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.HashSet;
 
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
@@ -28,6 +29,8 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -39,6 +42,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.Priority;
+
 
 public class LogBookController {
 	private GridPane logBookMainGridPane = new GridPane();
@@ -63,7 +68,7 @@ public class LogBookController {
 	private HBox bottomButtonHBox = new HBox();
 	private HBox refreshButtonHBox = new HBox();
 	private Button bottomSubmitButton = new Button("Submit");
-	private Button refreshButton = new Button("Refresh");
+	private Button refreshButton = new Button("Update");
 	private Label bottomLabel = new Label("User Input");
 
 	
@@ -95,9 +100,16 @@ public class LogBookController {
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
-	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
+	
+// changed by srini 2/08/25
+//	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
+	private ObservableSet<String> dfccSNSet = FXCollections.observableSet(new HashSet<>());
+
 	private Map<String, String> sessionNameId = new HashMap<String, String>();
 	private Map<String, String> sessionDfccId = new HashMap<String, String>();
+// till this, srini 2/08/25
+
+	
 	List<SessionDto> sessionList = new ArrayList<SessionDto>();
 
 	String selectedUUTType;
@@ -199,10 +211,13 @@ public class LogBookController {
 		fifthColumn.setPercentWidth(20);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
+		firstRow.setPercentHeight(50);//50
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		secondRow.setPercentHeight(50);//50
+		
+		
+		
 
 		logBookSelectionGridPane.setPadding(new Insets(5));
 
@@ -217,7 +232,27 @@ public class LogBookController {
 		logBookSelectionGridPane.add(createToDatePickerComboBox(), 4, 0);
 		logBookSelectionGridPane.add(createFromTimePicker(), 3, 1);
 		logBookSelectionGridPane.add(createToTimePicker(), 4, 1);
-		logBookSelectionGridPane.add(createRefreshButton(), 2, 1);
+		
+	
+// instruction label spanning columns 1 and 2 changed by srini 4/8/25		
+		
+//		logBookSelectionGridPane.add(createRefreshButton(), 2, 1);
+		
+		// Create instruction label
+		Label instructionLabel = new Label("After selecting UUT Type, UUT S/N, and Session, click 'Update'.");
+		instructionLabel.setStyle("-fx-font-size: 15px;");
+
+		// Create HBox to hold both refresh button and label
+		HBox refreshAndInstructionBox = new HBox(10); // 10 is spacing between button and label
+		refreshAndInstructionBox.setAlignment(Pos.CENTER_LEFT);
+		refreshAndInstructionBox.getChildren().addAll(createRefreshButton(), instructionLabel);
+
+		// Add the HBox to the GridPane
+		logBookSelectionGridPane.add(refreshAndInstructionBox, 0, 1); // Row 1, Column 0
+		GridPane.setColumnSpan(refreshAndInstructionBox, 4); // Spans columns 0 to 3
+		GridPane.setMargin(refreshAndInstructionBox, new Insets(0, 0, 0, 10));
+
+//....
 
 		return logBookSelectionGridPane;
 	}
@@ -408,20 +443,48 @@ public class LogBookController {
 		return selectionBoxSESSION;
 	}
 
-//  // UUT SESSION DFCC S/N FIELD
+  // UUT SESSION DFCC S/N FIELD
+	// changed by srini 2/08/25 for shows unique serialno
 	private void initializeDfccSNComboBox(String uutTypeId) {
-		dfccSNList.clear();
+		
+//		dfccSNList.clear();
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
+//				.collect(Collectors.toList());
+//
+//		for (SessionDto dfccSn : filterSessionList) {
+//			dfccSNList.add(dfccSn.getDfccSNo());
+//		}
+//
+//		
+////		initializeSessionComboBox(uutId);
+//
+//		uutSerialNoField.setOnAction(event -> {
+//		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
+//		    if (selectedSerialNo != null) {
+//		        initializeSessionComboBox(selectedSerialNo);
+//		    }
+//		});
+//
+//		
+//		uutSerialNoField.setItems(dfccSNList);
+		
+		dfccSNSet.clear(); // clear old entries
 
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
-				.collect(Collectors.toList());
+		List<SessionDto> filterSessionList = sessionList.stream()
+		        .filter(t -> t.getUutId().equals(uutTypeId))
+		        .collect(Collectors.toList());
 
 		for (SessionDto dfccSn : filterSessionList) {
-			dfccSNList.add(dfccSn.getDfccSNo());
+		    dfccSNSet.add(dfccSn.getDfccSNo()); // no duplicates
 		}
 
-		
-//		initializeSessionComboBox(uutId);
+		// Now convert Set to ObservableList for ComboBox
+		ObservableList<String> dfccSNObservableList = FXCollections.observableArrayList(dfccSNSet);
 
+		// Set to ComboBox
+		uutSerialNoField.setItems(dfccSNObservableList);
+
+		// Handle ComboBox selection
 		uutSerialNoField.setOnAction(event -> {
 		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
 		    if (selectedSerialNo != null) {
@@ -429,8 +492,6 @@ public class LogBookController {
 		    }
 		});
 
-		
-		uutSerialNoField.setItems(dfccSNList);
 	}
 
 //    // UUT SESSION NAME TYPE FIELD
@@ -469,16 +530,28 @@ public class LogBookController {
 
 		return datePickerToHBox;
 	}
-
+// changed by srini 02/08/25
 	private HBox createRefreshButton() {
-		refreshButton.getStyleClass().add("logBook-container");
-		refreshButtonHBox.setAlignment(Pos.CENTER);
-		refreshButtonHBox.getChildren().add(refreshButton);
-		refreshButton.setOnAction(e -> {
-			refreshButton();
-		});
-		return refreshButtonHBox;
+	    // Style and align the refresh button container
+	    refreshButton.getStyleClass().add("logBook-container");
+
+	    refreshButtonHBox.setAlignment(Pos.CENTER_LEFT); // Align to left
+	    refreshButtonHBox.setPadding(new Insets(0, 0, 0, 15));
+	    refreshButtonHBox.setSpacing(10); // Space between button and label
+
+	    
+	    // Add button and label to HBox
+	    refreshButtonHBox.getChildren().add(refreshButton);
+
+	    // Button action
+	    refreshButton.setOnAction(e -> {
+	        refreshButton();
+	    });
+
+	    return refreshButtonHBox;
 	}
+	// till this line
+
 
 	private void refreshButton() {
 
