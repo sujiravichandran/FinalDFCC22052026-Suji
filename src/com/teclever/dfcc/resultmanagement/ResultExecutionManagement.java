@@ -1892,13 +1892,12 @@ public class ResultExecutionManagement {
 
 					Instant d1 = Instant.from(formatter.parse(startDateTime));
 					Instant d2 = Instant.from(formatter.parse(endDateTime));
-
+					// MANI
 					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-
 					// Format the parsed instants into the desired format
 					String formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
 					String formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
-
+					
 					// Now, formattedStartDateTime and formattedEndDateTime will be in the desired
 					// format
 					System.out.println(formattedStartDateTime); // Example: 08/08/2024 11:10:08

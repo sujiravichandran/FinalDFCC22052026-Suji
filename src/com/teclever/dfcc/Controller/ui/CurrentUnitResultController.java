@@ -251,6 +251,8 @@ public class CurrentUnitResultController {
 
 				GridPane bottomMidTopGridPane = (GridPane) currentUnitResultGridPane.getParent().getParent()
 						.getParent();
+				UserCenterContentController.currentSessionName = rowData.getSessionName(); // srini 2/8/25
+
 				userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Session Results",
 						rowData.getId(), null);
 				break;
