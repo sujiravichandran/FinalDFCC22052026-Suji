@@ -498,7 +498,11 @@ public class UserDashboardController {
 
 				Notifications.showConfirmationDialog("Logout Confirmation",
 						"Are you sure you want to log out and close the application?", () -> {
+							//Anuj : 05/08/2025 -- Changed Pattern for Date and Time
 							LocalDateTime currentDateTime = LocalDateTime.now();
+							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+							String formattedDate = currentDateTime.format(formatter);
+							
 							SessionFileManagement session = new SessionFileManagement();
 							LogOutFileCopyResponse response = session
 									.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
@@ -506,11 +510,6 @@ public class UserDashboardController {
 
 							if (response.getCode() == 1) {
 
-								// 09-07-2025
-								// UPDATING TIME TO DB
-//								LocalDateTime currentDateTime = LocalDateTime.now();
-//								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//								String formattedDate = currentDateTime.format(formatter);
 								SessionTimingService s = new SessionTimingService();
 
 								int failedFiles = 0;
@@ -519,9 +518,8 @@ public class UserDashboardController {
 										failedFiles++;
 									}
 								}
-								System.out.println("currentDateTime.toString() 1" + currentDateTime.toString());
 								s.addSessionTime(currentSessionDetails.getSessionId(),
-										StateMachine.getCurrentlySelectedStageId(), "", currentDateTime.toString(),
+										StateMachine.getCurrentlySelectedStageId(), "", formattedDate,
 										DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
 								aitessProcessControlManagement.endAllProcessOnLogout();
 								Platform.exit();
@@ -531,11 +529,6 @@ public class UserDashboardController {
 								alert.setTitle("Error Dialog");
 								alert.setHeaderText(null);
 								alert.setContentText("Something went wrong! The application will now close.");
-								// 09-07-2025
-								// UPDATING TIME TO DB
-//								LocalDateTime currentDateTime = LocalDateTime.now();
-//								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//								String formattedDate = currentDateTime.format(formatter);
 								SessionTimingService s = new SessionTimingService();
 								int failedFiles = 0;
 								for(CopyFileDTO copy	:DFCCConstant.FailedStagesRdfPaths)
@@ -547,8 +540,7 @@ public class UserDashboardController {
 								}
 									
 									
-								System.out.println("currentDateTime.toString() 2" + currentDateTime.toString());
-								s.addSessionTime(currentSessionDetails.getSessionId(),StateMachine.getCurrentlySelectedStageId(), "",currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
+								s.addSessionTime(currentSessionDetails.getSessionId(),StateMachine.getCurrentlySelectedStageId(), "",formattedDate,DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
 								alert.setOnCloseRequest(event -> {
 									aitessProcessControlManagement.endAllProcessOnLogout();
 									Platform.exit();
@@ -566,11 +558,7 @@ public class UserDashboardController {
 												System.out.println("Entred !!!");
 											}
 										});
-								// 09-07-2025
-								// UPDATING TIME TO DB
-								
-//								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//								String formattedDate = currentDateTime.format(formatter);
+
 								SessionTimingService s = new SessionTimingService();
 
 								int failedFiles = 0;
@@ -584,8 +572,7 @@ public class UserDashboardController {
 								
 								
 								
-								System.out.println("currentDateTime.toString() 3" + currentDateTime.toString());
-								s.addSessionTime(currentSessionDetails.getSessionId(),StateMachine.getCurrentlySelectedStageId(), "", currentDateTime.toString(),DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
+								s.addSessionTime(currentSessionDetails.getSessionId(),StateMachine.getCurrentlySelectedStageId(), "", formattedDate,DFCCConstant.FailedStagesRdfPaths.size(),failedFiles);
 								System.out.println("Entred out");
 								SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
 								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
@@ -972,32 +959,84 @@ public class UserDashboardController {
 
 		});
 		toggleButton.setCursor(Cursor.HAND);
+		
+		TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+		
+//		Before Suji CHange on:(05-08-2025)
 
+//		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
+//
+//			TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
+//
+//			if (dfccCheckStatus.getDfccPowerStatus().get()) {
+//				Platform.runLater(() -> {
+//					transition.setToX(26);
+//					background.setFill(Color.GREEN);
+//					toggleLabel.setText("ON");
+//					StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+//					transition.play();
+//				});
+//			}
+//
+//			else {
+//				Platform.runLater(() -> {
+//					transition.setToX(-26);
+//					background.setFill(Color.RED);
+//					toggleLabel.setText("OFF");
+//					StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+//					transition.play();
+//				});
+//			}
+//
+//		});
+		
+		
+//		After Suji Changing for Updating toggle status based on Channel status(05-08-2025)::
+		
 		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-
-			TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
-
-			if (dfccCheckStatus.getDfccPowerStatus().get()) {
-				Platform.runLater(() -> {
-					transition.setToX(26);
-					background.setFill(Color.GREEN);
-					toggleLabel.setText("ON");
-					StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-					transition.play();
-				});
-			}
-
-			else {
-				Platform.runLater(() -> {
-					transition.setToX(-26);
-					background.setFill(Color.RED);
-					toggleLabel.setText("OFF");
-					StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-					transition.play();
-				});
-			}
-
+		    String sessionType = currentSessionDetails.getSessionTypeID();
+		    if ("ST2".equals(sessionType)) {
+		        if (OnlineStatus.getChannel1Status().equalsIgnoreCase("online")
+		                && OnlineStatus.getChannel2Status().equalsIgnoreCase("online")
+		                && OnlineStatus.getChannel3Status().equalsIgnoreCase("online")
+		                && OnlineStatus.getChannel4Status().equalsIgnoreCase("online")) {
+		            Platform.runLater(() -> {
+		                transition.setToX(26);
+		                background.setFill(Color.GREEN);
+		                toggleLabel.setText("ON");
+		                StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+		                transition.play();
+		            });
+		        } else {
+		            Platform.runLater(() -> {
+		                transition.setToX(-26);
+		                background.setFill(Color.RED);
+		                toggleLabel.setText("OFF");
+		                StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+		                transition.play();
+		            });
+		        }
+		    } else {
+		        if (dfccCheckStatus.getDfccPowerStatus().get()) {
+		            Platform.runLater(() -> {
+		                transition.setToX(26);
+		                background.setFill(Color.GREEN);
+		                toggleLabel.setText("ON");
+		                StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+		                transition.play();
+		            });
+		        } else {
+		            Platform.runLater(() -> {
+		                transition.setToX(-26);
+		                background.setFill(Color.RED);
+		                toggleLabel.setText("OFF");
+		                StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+		                transition.play();
+		            });
+		        }
+		    }
 		});
+//		Exit::
 
 		return toggleSwitch;
 	}
