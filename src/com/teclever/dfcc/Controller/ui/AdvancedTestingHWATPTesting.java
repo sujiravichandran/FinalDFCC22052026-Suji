@@ -493,8 +493,9 @@ public class AdvancedTestingHWATPTesting {
 				//09-07-2025
 				// UPDATING TIME TO DB
 				LocalDateTime currentDateTime = LocalDateTime.now();
-//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//				String formattedDate = currentDateTime.format(formatter);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+				String formattedDate = currentDateTime.format(formatter);
+				
 				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
 				
 				SessionTimingService s = new SessionTimingService();
@@ -504,7 +505,7 @@ public class AdvancedTestingHWATPTesting {
 								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
 					StateMachine.setPreviouslySelectedStageId(selectedStageId);
 					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							currentDateTime.toString(), "", 0, 0);
+							formattedDate, "", 0, 0);
 
 				} else {
 
@@ -516,10 +517,10 @@ public class AdvancedTestingHWATPTesting {
 					}
 
 					s.addSessionTime(currentSessionDetails.getSessionId(),
-							StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),
+							StateMachine.getPreviouslySelectedStageId(), "", formattedDate,
 							DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
 					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							currentDateTime.toString(), "", 0, 0);
+							formattedDate, "", 0, 0);
 					StateMachine.setPreviouslySelectedStageId(selectedStageId);
 
 				}

@@ -380,10 +380,12 @@ public class AitessProcessControlManagement {
 									System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
 									StateMachine.setSelfTestOn(false);
 									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
-								} else {
-									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
-									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
-								}
+								} 
+								//AnujK : 05/08/2025 -- commented
+//								else {
+//									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+//									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
+//								}
 								WriteAitess1Command("ltm_syntax on" + "\n");
 
 								aitessRunning.setAitess1Switched(true);
@@ -623,7 +625,13 @@ public class AitessProcessControlManagement {
 						if (switchAitess1Method == true) {
 							if (output.contains(">>>")) {
 								Debug.printDebug("END FOR AITESS 2 FOUNDED ---------**********-----------");
-
+								
+								//AnujK : 05/08/2025 -- For Aitess 2 also , we have to pass psc_fcc_pwr_on=0
+								if (StateMachine.isSelfTestOn()) {
+									WriteAitess1Command("psc_fcc_pwr_on=0" + "\n");
+									StateMachine.setSelfTestOn(false);
+								}
+								
 								aitessRunning.setAitess2Switched(true);
 								switchAitess1Method = false;
 							} else if (output.contains("ValueError")) {
@@ -1251,7 +1259,30 @@ public class AitessProcessControlManagement {
 		launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess(command));
 	}
 
-	// NEW LOGIC**
+	//AnujK : 05/08/2025 Discussion based on Sridhar
+	/**
+	 * Executes the DFCC Power (OFF TO ON).
+	 * 
+	 * Sequence:
+	 * 1. Sends initial power-on and syntax commands.
+	 * 2. Send "power_on_status" command.
+	 * 3. If session type is BLS (ST2):
+	 *    - Sends WDM command to check all channel statuses.
+	 *    - If all channels are "online":
+	 *        - Sends "initdfcc" command.
+	 *        - Sends SC and AEC temperature commands based on UUT type.
+	 *        - Updates temperature and last check timestamp.
+	 *    - Else: No further action.
+	 * 4. If its other than BLS session:
+	 * 	- If all channels are ON in "power_on_status", proceed.
+	 * 	- Sends WDM command to check the online status of all channels.
+	 * 	- If all channels are "online":
+	 *    - Sends "initdfcc" command.
+	 *    - Based on UUT type:
+	 *        - For UUT1 (MK1): Send Mk1 SC and AEC temperature commands.
+	 *        - For MK1A/MK2: Send generic SC and AEC temperature commands.
+	 *     - Updates temperature and last check timestamp.
+	 */
 	public void WriteDfccPowerOnCommandToAitess2() {
 
 		try {
@@ -1263,25 +1294,148 @@ public class AitessProcessControlManagement {
 			launcherFuture2.thenRun(
 					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnCommand() + "\n"));
 			Thread.sleep(300);
+			
 			// gse_conn=1
 			currentCommand.set("");
 			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n"));
 			Thread.sleep(300);
+			
 			// ltm_syntax on
 			currentCommand.set("");
 			launcherFuture2.thenRun(() -> aitess2ProcessControl.WritingProcess("ltm_syntax on" + "\n"));
 			Thread.sleep(300);
 
+			//macname = power_on_status
 			currentCommand.set("dfccPowerOnStatus");
 			launcherFuture2
 					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnStatus() + "\n"));
 			Thread.sleep(300);
 
-			currentCommand.set("WDMversion");
-			launcherFuture2
-					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
-			Thread.sleep(300);
+			
+			if(currentSessionDetails.getSessionTypeID()=="ST2") {
+			//only for BLS Session
+				//wdm
+				currentCommand.set("WDMversion");
+				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+							
+				
+				// Continue Temperature Calculation based on Online Status, If all are online then only 
+				if (OnlineStatus.getChannel1Status().equals("online") &&
+					    OnlineStatus.getChannel2Status().equals("online") &&
+					    OnlineStatus.getChannel3Status().equals("online") &&
+					    OnlineStatus.getChannel4Status().equals("online")) {
+					
+					//initdfcc
+					aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n");
+					
+					if ("UUT1".equals(currentSessionDetails.getUutId())) {
 
+						// MK1
+						// SC
+						Mk1SCtemperatureMonitoring.set(true);
+						currentCommand.set("Mk1ScTemperatureCommand");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+						Thread.sleep(300);
+
+						currentCommand.set("Mk1AecTemperatureCommand");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+						Thread.sleep(100);
+
+					} else {
+						// MK1A MK2
+						// SC
+						SCtemperatureMonitoring.set(true);
+						currentCommand.set("scTemp");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
+						Thread.sleep(300);
+
+						// AEC
+						currentCommand.set("aecTemp");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
+						Thread.sleep(100);
+					}
+					
+					//Last Updated Time ...
+					LocalDateTime now = LocalDateTime.now();
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+					String lastupdatedTime = now.format(formatter);
+					
+//					Vignesh changed  31-07-25 for display time
+					StateMachine.setTempLastCheckedTime(lastupdatedTime);
+				}
+				
+			}else {
+			//other session
+				//If all channels are ON in power_on_status, then go for wdm status
+				if (allChannelsOnline) {
+					try {					
+						//wdm
+						currentCommand.set("WDMversion");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+						try {
+							Thread.sleep(300);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+									
+						// Continue Temperature Calculation based on Online Status, If all are online then only 
+						if (OnlineStatus.getChannel1Status().equals("online") &&
+							    OnlineStatus.getChannel2Status().equals("online") &&
+							    OnlineStatus.getChannel3Status().equals("online") &&
+							    OnlineStatus.getChannel4Status().equals("online")) {
+							
+							//initdfcc
+							aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n");
+							
+							if ("UUT1".equals(currentSessionDetails.getUutId())) {
+
+								// MK1
+								// SC
+								Mk1SCtemperatureMonitoring.set(true);
+								currentCommand.set("Mk1ScTemperatureCommand");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+								Thread.sleep(300);
+
+								currentCommand.set("Mk1AecTemperatureCommand");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+								Thread.sleep(100);
+
+							} else {
+								// MK1A MK2
+								// SC
+								SCtemperatureMonitoring.set(true);
+								currentCommand.set("scTemp");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
+								Thread.sleep(300);
+
+								// AEC
+								currentCommand.set("aecTemp");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
+								Thread.sleep(100);
+							}
+							
+							//Last Updated Time ...
+							LocalDateTime now = LocalDateTime.now();
+							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+							String lastupdatedTime = now.format(formatter);
+							
+//							Vignesh changed  31-07-25 for display time
+							StateMachine.setTempLastCheckedTime(lastupdatedTime);
+							
+						}
+								
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} // end of if
+				
+			}
+	
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -1295,23 +1449,6 @@ public class AitessProcessControlManagement {
 				|| OnlineStatus.getChannel3Status() == "offline" || OnlineStatus.getChannel4Status() == "offline") {
 
 			dfccCheckStatus.getDfccPowerStatus().set(false);
-
-		}
-	}
-
-	// check before any test is get started
-	public void checkChannelStatus() {
-		dfccCheckStstusStarted.set(true);
-		launcherFuture2
-				.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOnlineStatusCommand() + "\n"));
-		dfccCheckStstusStarted.set(false);
-
-		// -------------- here for mk1a and mk2 what to do?
-		if (OnlineStatus.getChannel1Status() == "offline" || OnlineStatus.getChannel2Status() == "offline"
-				|| OnlineStatus.getChannel3Status() == "offline" || OnlineStatus.getChannel4Status() == "offline") {
-
-			WriteDfccPowerOnCommandToAitess2();
-		} else {
 
 		}
 	}
@@ -1358,18 +1495,33 @@ public class AitessProcessControlManagement {
 		}
 	}
 
+	//AnujK : 05/08/2025 Discussion based on Sridhar
+	/**
+	 * Executes the DFCC Power (ON TO OFF).
+	 * 
+	 * Sequence:
+	 * 1. Sends initial power-off and syntax commands.
+	 * 2. Sends power_on_status command.
+	 * 3. Sends wdm status command
+	 */
 	public void WriteDfccPowerOffCommandToAitess2() {
 		try {
 			dfccCheckStstusStarted.set(true);
 			powerOnStatus.set(true);
 			currentCommand.set("");
+			
+			//psc_fcc_pwr_on = 0
 			launcherFuture2.thenRun(
 					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOffCommand() + "\n"));
 			Thread.sleep(300);
 			currentCommand.set("dfccPowerOnStatus");
+			
+			//macname = power_on_status
 			aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnStatus() + "\n");
 			Thread.sleep(300);
 			currentCommand.set("WDMversion");
+			
+			//wdm status
 			launcherFuture2
 					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
 			Thread.sleep(300);
@@ -1416,7 +1568,7 @@ public class AitessProcessControlManagement {
 
 	}
 
-	//Anuj - 30/07/2025 -- For 2mins temperature thread
+	//Anuj - 30/07/2025 -- For 3mins temperature thread
 	public void updateUIdfccStatus(boolean fromThread) {
 		long currentTime = System.currentTimeMillis();
 		if (fromThread && StateMachine.getTestState() == TestState.RUNNING) {
@@ -1429,7 +1581,28 @@ public class AitessProcessControlManagement {
 		executeDfccStatusCommandsToAitess2();
 		lastExecutedTime = currentTime;
 	}
-
+	
+	
+	//AnujK : 05/08/2025 : NEW LOGIC FOR TEMPERATURE AS DISCUSSED BY SRIDHAR 
+	/**
+	 * 3 minutes temperature logic
+	 * 
+	 * Sequence:
+	 * 1. Sends initial power-on and syntax commands.
+	 * 2. Send "power_on_status" command.
+	 * 3. If session type is BLS (ST2):
+	 *    - Sends WDM command to check all channel statuses.
+	 *    - If all channels are "online":
+	 *        - Sends SC and AEC temperature commands based on UUT type.
+	 *        - Updates temperature and last check timestamp.
+	 *    - Else: No further action.
+	 * 4. If its other than BLS session:
+	 * 	- If all channels are ON in "power_on_status", proceed.
+	 * 	- Sends WDM command to check the online status of all channels.
+	 * 	- If all channels are "online":
+		   - Sends SC and AEC temperature commands based on UUT type.
+	 *     - Updates temperature and last check timestamp.
+	 */
 	public void executeDfccStatusCommandsToAitess2() {
 
 		dfccCheckStatusThread = new Thread(() -> {
@@ -1438,108 +1611,137 @@ public class AitessProcessControlManagement {
 			dfccCheckStstusStarted.set(true);
 			powerOnStatus.set(true);
 
-			// POWER ON STATUS
 			launcherFuture2.thenRun(() -> {
-
 				aitess2ProcessControl.WritingProcess("ltm_syntax on" + "\n");
-
 				currentCommand.set("dfccPowerOnStatus");
 				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnStatus() + "\n");
-
-				// ANuj-14-07-2025:Sridhar
 				currentCommand.set("");
 				aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
+				
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
-//				
-
-				currentCommand.set("WDMversion");
-				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				// if all power on channels are online then only
-				if (allChannelsOnline) {
+				if(currentSessionDetails.getSessionTypeID()=="ST2") {
+					//only for BLS session
 					try {
-//						currentCommand.set("");
-//						aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
-//						Thread.sleep(100);
-//						currentCommand.set("WDMversion");
-//						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
-//						Thread.sleep(100);
-						// Check if any channel is offline, return 0 if any are offline
-//						if (WDMStatus.getChannel1Status().equals("offline")
-//								|| WDMStatus.getChannel2Status().equals("offline")
-//								|| WDMStatus.getChannel3Status().equals("offline")
-//								|| WDMStatus.getChannel4Status().equals("offline")) {
-//							// Stop
-//						} else {
-						// Continue only if all are not offline
-						if ("UUT1".equals(currentSessionDetails.getUutId())) {
+						//wdm
+						currentCommand.set("WDMversion");
+						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+						Thread.sleep(100);
 
-							// MK1
-							// SC
-							Mk1SCtemperatureMonitoring.set(true);
-							currentCommand.set("Mk1ScTemperatureCommand");
-							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
-							Thread.sleep(300);
+						// Continue Temperature Calculation based on Online Status, If all are online then only 
+						if (OnlineStatus.getChannel1Status().equals("online") &&
+							    OnlineStatus.getChannel2Status().equals("online") &&
+							    OnlineStatus.getChannel3Status().equals("online") &&
+							    OnlineStatus.getChannel4Status().equals("online")) {
+							
+							// Continue only if all are not offline
+							if ("UUT1".equals(currentSessionDetails.getUutId())) {
 
-							currentCommand.set("Mk1AecTemperatureCommand");
-							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
-							Thread.sleep(100);
+								// MK1
+								// SC
+								Mk1SCtemperatureMonitoring.set(true);
+								currentCommand.set("Mk1ScTemperatureCommand");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+								Thread.sleep(300);
 
-							// old
-//								currentCommand.set("Mk1ScTemperatureCommand");
-//								aitess2ProcessControl
-//										.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
-//								Thread.sleep(500);
-//								currentCommand.set("");
-//								Thread.sleep(100);
-//								// AEC
-//								currentCommand.set("Mk1AecTemperatureCommand");
-//								aitess2ProcessControl
-//										.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
-//								Thread.sleep(100);
-						} else {
-							// MK1A MK2
-							// SC
-							SCtemperatureMonitoring.set(true);
-							currentCommand.set("scTemp");
-							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
-							Thread.sleep(300);
+								currentCommand.set("Mk1AecTemperatureCommand");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+								Thread.sleep(100);
 
-							// AEC
-							currentCommand.set("aecTemp");
-							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
-							Thread.sleep(100);
-							// }
+							} else {
+								// MK1A MK2
+								// SC
+								SCtemperatureMonitoring.set(true);
+								currentCommand.set("scTemp");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
+								Thread.sleep(300);
+
+								// AEC
+								currentCommand.set("aecTemp");
+								aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
+								Thread.sleep(100);
+							}
+							
+							//Last Updated Time ...
+							LocalDateTime now = LocalDateTime.now();
+							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+							String lastupdatedTime = now.format(formatter);
+							
+//							Vignesh changed  31-07-25 for display time
+							StateMachine.setTempLastCheckedTime(lastupdatedTime);
 						}
-						
-						//Last Updated Time ...
-						LocalDateTime now = LocalDateTime.now();
-						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
-						String lastupdatedTime = now.format(formatter);
-//						    System.out.println("Current date and time: " + lastupdatedTime);
-
-//						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
-						
-//						Vignesh changed  31-07-25 for display time
-						StateMachine.setTempLastCheckedTime(lastupdatedTime);
-						
-					} catch (Exception e) {
+					}catch (Exception e) {
 						e.printStackTrace();
 					}
-				} // end of if
+				}else {
+					//other session
+					// if all power on channels are ON then only
+					if (allChannelsOnline) {
+						try {
+							
+							//wdm
+							currentCommand.set("WDMversion");
+							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							
+							// Continue Temperature Calculation based on Online Status, If all are online then only 
+							if (OnlineStatus.getChannel1Status().equals("online") &&
+								    OnlineStatus.getChannel2Status().equals("online") &&
+								    OnlineStatus.getChannel3Status().equals("online") &&
+								    OnlineStatus.getChannel4Status().equals("online")) {
+								
+								// Continue only if all are not offline
+								if ("UUT1".equals(currentSessionDetails.getUutId())) {
 
+									// MK1
+									// SC
+									Mk1SCtemperatureMonitoring.set(true);
+									currentCommand.set("Mk1ScTemperatureCommand");
+									aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+									Thread.sleep(300);
+
+									currentCommand.set("Mk1AecTemperatureCommand");
+									aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+									Thread.sleep(100);
+
+								} else {
+									// MK1A MK2
+									// SC
+									SCtemperatureMonitoring.set(true);
+									currentCommand.set("scTemp");
+									aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
+									Thread.sleep(300);
+
+									// AEC
+									currentCommand.set("aecTemp");
+									aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
+									Thread.sleep(100);
+								}
+								
+								//Last Updated Time ...
+								LocalDateTime now = LocalDateTime.now();
+								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+								String lastupdatedTime = now.format(formatter);
+								
+//								Vignesh changed  31-07-25 for display time
+								StateMachine.setTempLastCheckedTime(lastupdatedTime);
+
+							}
+							
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} // end of if
+				}
+		
 			});
 
 			dfccCheckStstusStarted.set(false);
@@ -1547,6 +1749,125 @@ public class AitessProcessControlManagement {
 		});
 		dfccCheckStatusThread.start();
 	}
+
+	//Old Logic
+//	public void executeDfccStatusCommandsToAitess2() {
+//
+//		dfccCheckStatusThread = new Thread(() -> {
+//
+//			StateMachine.setTextArea(false);
+//			dfccCheckStstusStarted.set(true);
+//			powerOnStatus.set(true);
+//
+//			// POWER ON STATUS
+//			launcherFuture2.thenRun(() -> {
+//
+//				aitess2ProcessControl.WritingProcess("ltm_syntax on" + "\n");
+//
+//				currentCommand.set("dfccPowerOnStatus");
+//				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnStatus() + "\n");
+//
+//				// ANuj-14-07-2025:Sridhar
+//				currentCommand.set("");
+//				aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//
+////				
+//
+//				currentCommand.set("WDMversion");
+//				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//
+//				// if all power on channels are online then only
+//				if (allChannelsOnline) {
+//					try {
+////						currentCommand.set("");
+////						aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
+////						Thread.sleep(100);
+////						currentCommand.set("WDMversion");
+////						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+////						Thread.sleep(100);
+//						// Check if any channel is offline, return 0 if any are offline
+////						if (WDMStatus.getChannel1Status().equals("offline")
+////								|| WDMStatus.getChannel2Status().equals("offline")
+////								|| WDMStatus.getChannel3Status().equals("offline")
+////								|| WDMStatus.getChannel4Status().equals("offline")) {
+////							// Stop
+////						} else {
+//						// Continue only if all are not offline
+//						if ("UUT1".equals(currentSessionDetails.getUutId())) {
+//
+//							// MK1
+//							// SC
+//							Mk1SCtemperatureMonitoring.set(true);
+//							currentCommand.set("Mk1ScTemperatureCommand");
+//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+//							Thread.sleep(300);
+//
+//							currentCommand.set("Mk1AecTemperatureCommand");
+//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+//							Thread.sleep(100);
+//
+//							// old
+////								currentCommand.set("Mk1ScTemperatureCommand");
+////								aitess2ProcessControl
+////										.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+////								Thread.sleep(500);
+////								currentCommand.set("");
+////								Thread.sleep(100);
+////								// AEC
+////								currentCommand.set("Mk1AecTemperatureCommand");
+////								aitess2ProcessControl
+////										.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+////								Thread.sleep(100);
+//						} else {
+//							// MK1A MK2
+//							// SC
+//							SCtemperatureMonitoring.set(true);
+//							currentCommand.set("scTemp");
+//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
+//							Thread.sleep(300);
+//
+//							// AEC
+//							currentCommand.set("aecTemp");
+//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
+//							Thread.sleep(100);
+//							// }
+//						}
+//						
+//						//Last Updated Time ...
+//						LocalDateTime now = LocalDateTime.now();
+//						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+//						String lastupdatedTime = now.format(formatter);
+////						    System.out.println("Current date and time: " + lastupdatedTime);
+//
+////						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
+//						
+////						Vignesh changed  31-07-25 for display time
+//						StateMachine.setTempLastCheckedTime(lastupdatedTime);
+//						
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				} // end of if
+//
+//			});
+//
+//			dfccCheckStstusStarted.set(false);
+//			StateMachine.setTextArea(true);
+//		});
+//		dfccCheckStatusThread.start();
+//	}
 
 	public void check(String testTypeId) {
 		StateMachine.setInputPathTestFile(null);

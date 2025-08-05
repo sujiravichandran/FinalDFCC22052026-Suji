@@ -17,7 +17,8 @@ public class DFCCConstant {
     public static String JARSTRING = "";
     public static String filePath = "";
     public static boolean isDebug = false;
-    public static long tempDelayTime = 120000; //2mins
+    //AnujK : 05/08/2025 -- Changed to 3mins
+    public static long tempDelayTime = 180000; //3mins
     public static boolean entered = true;
     public static boolean colourFlag = false;
     
