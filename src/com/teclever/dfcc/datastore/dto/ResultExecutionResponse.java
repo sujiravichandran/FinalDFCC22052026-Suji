@@ -10,10 +10,21 @@ public class ResultExecutionResponse {
 	private String eMsg;
 	private String sessionName;
 	private String stageName;
+	private String systemInfoId;
 	private Map<String,String>stageIdName;
 	private Map<String,String>testFileIdName;
 	private Map<String,String>sessionIdName;
 	private String stageId;
+	
+	
+
+	public String getSystemInfoId() {
+		return systemInfoId;
+	}
+
+	public void setSystemInfoId(String systemInfoId) {
+		this.systemInfoId = systemInfoId;
+	}
 
 	public List<ResultExecutionDTO> getResultDTOList() {
 		return resultDTOList;

@@ -133,7 +133,7 @@
     -fx-border-width: 0px; 
 }
 .session-testing-list-view .list-cell:selected {
-    -fx-background-color: #000000; 
+    -fx-background-color: complementary-color; 
     -fx-text-fill: white;
 }
 

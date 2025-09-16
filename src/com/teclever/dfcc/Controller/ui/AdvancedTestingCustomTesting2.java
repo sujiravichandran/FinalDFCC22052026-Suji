@@ -149,38 +149,38 @@ public class AdvancedTestingCustomTesting2 {
 	// Edited By: SUJI
 //	Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //	Change Made on:During initial loading of testing window,Update Status Bar
-	public void initialize() {
-		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    aitess1Updated = true;
-		    checkBothAitessLaunched();
-		});
-
-		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    aitess2Updated = true;
-		    checkBothAitessLaunched();
-		});
-		
-	}
+//	public void initialize() {
+//		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+//		    aitess1Updated = true;
+//		    checkBothAitessLaunched();
+//		});
+//
+//		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
+//		    aitess2Updated = true;
+//		    checkBothAitessLaunched();
+//		});
+//		
+//	}
 	
 	// Method to check both
 	
 		
-		private void checkBothAitessLaunched() {
-		    if (aitess1Updated && aitess2Updated) {
-		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
-		                                 && StateMachine.aitess2LaunchedProperty().get();
-		        if (bothLaunched) {
-
-		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
-		            Platform.runLater(() -> {
-
-		            	 selectTestFileRunButton.setDisable(false);
-		        		
-
-		            });
-		        }
-		    }
-		}
+//		private void checkBothAitessLaunched() {
+//		    if (aitess1Updated && aitess2Updated) {
+//		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
+//		                                 && StateMachine.aitess2LaunchedProperty().get();
+//		        if (bothLaunched) {
+//
+//		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
+//		            Platform.runLater(() -> {
+//
+//		            	 selectTestFileRunButton.setDisable(false);
+//		        		
+//
+//		            });
+//		        }
+//		    }
+//		}
 //		Exit;
 //		Point: 52,72,74
 

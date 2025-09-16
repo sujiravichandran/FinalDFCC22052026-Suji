@@ -184,7 +184,19 @@ public class SessionTestStateObject {
 			stageIdWithFileIds.put(stageId, setOfFileIds);
 		}
 	}
-
+	// VIJAY: CONTINUE WITH ERROR AND COLOR CHANGE
+	public static void removeFileIDsWithStageID(String stageId, String fileId) {
+		if (stageIdWithFileIds.containsKey(stageId)) {
+			ObservableSet<String> setOfFileIds = stageIdWithFileIds.get(stageId);
+			setOfFileIds.remove(fileId);
+			stageIdWithFileIds.remove(stageId);
+			stageIdWithFileIds.put(stageId, setOfFileIds);
+		} else {
+			ObservableSet<String> setOfFileIds = FXCollections.observableSet(new LinkedHashSet<>());
+			setOfFileIds.add(fileId);
+			stageIdWithFileIds.put(stageId, setOfFileIds);
+		}
+	}
 	public static void clearStageIdWithFileIds() {
 		stageIdWithFileIds.clear();
 	}

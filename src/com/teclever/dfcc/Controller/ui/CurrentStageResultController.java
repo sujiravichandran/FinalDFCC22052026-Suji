@@ -108,10 +108,21 @@ public class CurrentStageResultController {
 //	Changed by Vignesh 31-07-25 for showing stage name in result page
 	public GridPane createCurrentExecutionResultGridPane(String sessionId, SessionData rowData) {
 		SESSION_ID = sessionId;
-		STAGE_ID = rowData.getId();
+//		SUJI ADDED for Rowdata null value ::
+		if (rowData != null) {
+			STAGE_ID = rowData.getId();
+			DFCCConstant.resultStageType =rowData.getSessionType();
+			DFCCConstant.resultEndTime = rowData.getEndTime();
+			DFCCConstant.resultStartTime = rowData.getStartTime();
+			STAGE_NAME = rowData.getStage();
+		} else {
+		    Notifications.showErrorAlert("Please Select a Stage in Session Result");
+		}
 		
-		System.out.println("CURRENT STAGE ID"+STAGE_ID);
-		STAGE_NAME = rowData.getStage();
+		
+		
+//		System.out.println("CURRENT STAGE ID"+STAGE_ID);
+		
 
 		currentExecutionResultGridPane.getStylesheets()
 				.add(getClass()
@@ -313,48 +324,91 @@ public class CurrentStageResultController {
 		currentExecutionResultTabsGridPane.add(createCurrentExecutionResultTabs(), 0, 0);
 		return currentExecutionResultTabsGridPane;
 	}
-
+	
+//	Added for Detailed Data is populating 2 time to avoid newly changed by SUJI on16-07-2025:::Using flag i have done it
+	private boolean detailedTabLoaded = false;
 	private TabPane createCurrentExecutionResultTabs() {
-		Tab tab1 = new Tab("Brief Data");
-		Tab tab2 = new Tab("Detailed Data");
+	    Tab tab1 = new Tab("Brief Data");
+	    Tab tab2 = new Tab("Detailed Data");
 
-		StackPane tab2StackPane = createTab2Content();
-		StackPane tab1StackPane = createTab1Content();
+	    StackPane tab1StackPane = createTab1Content();
+	    tab1.setContent(tab1StackPane);
+	    tab1.setClosable(false);
 
-		tab1.setContent(tab1StackPane);
-		tab1.setClosable(false);
+	    tab2.setClosable(false); // ❗ Do not load tab2 content yet
 
-		tab2.setContent(tab2StackPane);
-		tab2.setClosable(false);
+	    currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
 
-		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+	    currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+	        ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+	        ApplicationLogBookDto applicationLogBookDto;
 
-		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-			if (newTab == tab2) {
-				createTab2Content();
-				currentTab = "tab2";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Detailed data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			} else {
-				createTab1Content();
-				currentTab = "tab1";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Brief data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}
-		});
+	        if (newTab == tab2) {
+	            currentTab = "tab2";
+	            if (!detailedTabLoaded) {
+	                StackPane tab2StackPane = createTab2Content();  // ❗ Now we call it
+	                tab2.setContent(tab2StackPane);
+	                detailedTabLoaded = true;
+	            }
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Detailed data button");
+	        } else {
+	            currentTab = "tab1";
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Brief data button");
+	        }
 
-//		createTab1Content();
+	        appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+	    });
 
-		return currentExecutionResultTabPane;
+	    return currentExecutionResultTabPane;
 	}
+
+//	private TabPane createCurrentExecutionResultTabs() {
+//		Tab tab1 = new Tab("Brief Data");
+//		Tab tab2 = new Tab("Detailed Data");
+//
+//		StackPane tab2StackPane = createTab2Content();
+//		StackPane tab1StackPane = createTab1Content();
+//
+//		tab1.setContent(tab1StackPane);
+//		tab1.setClosable(false);
+//
+//		tab2.setContent(tab2StackPane);
+//		tab2.setClosable(false);
+//
+//		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+//
+//		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+//			if (newTab == tab2) {
+//				createTab2Content();
+//				currentTab = "tab2";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Detailed data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			} else {
+//				createTab1Content();
+//				currentTab = "tab1";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Brief data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}
+//		});
+//
+////		createTab1Content();
+//
+//		return currentExecutionResultTabPane;
+//	}
 
 	private StackPane createTab1Content() {
 		briefDataStackPane.getStyleClass().add("tab-content-container");
@@ -419,12 +473,12 @@ public class CurrentStageResultController {
 				newBriefData.setTimeOfExecution(data.getEndTime());
 				newBriefData.setResult(data.getStatus());
 				
-//				if (!data.getStatus().equals("SUCCESS")) {
-//
-//					newBriefData.setResult("FAIL");
-//				} else {
-//					newBriefData.setResult("PASS");
-//				}
+				if (!data.getStatus().equals("SUCCESS")) {
+
+					newBriefData.setResult("FAIL");
+				} else {
+					newBriefData.setResult("PASS");
+				}
 				
 				
 				newBriefData.setTestMode(data.getTestMode());
@@ -442,7 +496,37 @@ public class CurrentStageResultController {
 		
 		
 		briefDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 18);
+//			column.setMinWidth(column.getText().length() * 14);
+			String colNamne=column.getText();
+//			System.out.println(colNamne);
+			switch (colNamne) {
+			case "SL NO":
+				column.setMinWidth(100);
+				column.setMaxWidth(100);
+				break;
+			case "TEST MODE":
+				column.setMinWidth(320);
+				column.setMaxWidth(320);
+				break;
+			case "EXECUTED FILE NAME":
+				column.setMinWidth(420);
+				column.setMaxWidth(420);
+				break;
+			case "TIME OF EXECUTION":
+				column.setMinWidth(250);
+				column.setMaxWidth(250);
+				break;
+			case "RESULT":
+				column.setMinWidth(130);
+				column.setMaxWidth(130);
+				break;
+
+
+			default:
+				column.setMinWidth(120);
+				column.setMaxWidth(120);
+				break;
+			}
 			updateBriefData((TableColumn<BriefData, String>) column);
 		});
 
@@ -531,7 +615,13 @@ public class CurrentStageResultController {
 				} else {
 					if (label == null) {
 						label = new Label();
-						label.setWrapText(false);
+//						SAI CHANGED FOR RESULT TAB
+						if ("TEST MODE".equalsIgnoreCase(column.getText())||"EXECUTED FILE NAME".equalsIgnoreCase(column.getText())) {
+							label.setWrapText(true);
+						}else {
+							label.setWrapText(false);
+						}
+//						label.setWrapText(false);
 						label.setAlignment(Pos.CENTER);
 						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 						setStyle("-fx-alignment: CENTER;");
@@ -547,10 +637,10 @@ public class CurrentStageResultController {
 					label.setStyle("-fx-text-fill: #000000; ");
 	                }
 
-					label.setMinWidth(label.getText().length() * 18);
+//					label.setMinWidth(label.getText().length() * 18);
 					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 18);
-					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+//					this.setMinWidth(label.getText().length() * 18);
+//					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 				}
 			}
 		});

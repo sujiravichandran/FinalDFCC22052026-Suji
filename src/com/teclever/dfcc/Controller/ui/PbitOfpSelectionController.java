@@ -1,36 +1,31 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.io.IOException;
+import java.util.List;
 
-import javax.management.Notification;
-
-import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
+import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class PbitOfpSelectionController {
 
@@ -66,6 +61,9 @@ public class PbitOfpSelectionController {
 
 	@FXML
 	private RadioButton option2;
+	
+	@FXML
+	private ToggleGroup optionGroup;
 
 	@FXML
 	private AnchorPane selcetOfp;
@@ -91,9 +89,39 @@ public class PbitOfpSelectionController {
 	private String ofpCh2 = StateMachine.OFPversionStatus.getChannel2Status();
 	private String ofpCh3 = StateMachine.OFPversionStatus.getChannel3Status();
 	private String ofpCh4 = StateMachine.OFPversionStatus.getChannel4Status();
-
+	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
+		
 	@FXML
 	public void initialize() {
+		
+///		Suji Added for Radio button selection based on options::
+		optionGroup = new ToggleGroup();
+
+	    option1.setToggleGroup(optionGroup);
+	    option2.setToggleGroup(optionGroup);
+//	    Exit::
+	    
+//	    Suji Added for OFP Selection popup resuse::
+	    aitessProcessControlManagement.pbitCheck();
+		
+		List <String> ofpList = StateMachine.getOfpList();
+		System.out.println("Popup Ofp List" +ofpList );
+		String ofpValueCheck = StateMachine.getOfpValueCheck();
+		System.out.println("Popup Version" + ofpValueCheck);
+//		System.out.println("OFP  Response Cod Check " + aitessProcessControlManagement.pbitCheck().getResponseCode());
+
+		if (!ofpList.contains(ofpValueCheck) ||
+				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 500 ||
+				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
+			System.out.println("Entred OFP .." + aitessProcessControlManagement.pbitCheck().getResponseCode());
+			option1.setDisable(true);
+		}else {
+			System.out.println("Entred OFP Else" + aitessProcessControlManagement.pbitCheck().getResponseCode());
+			option1.setDisable(false);
+		}
+//		Exit::
+		
+		
 		oKButton.setOnAction(e -> handleSaveButtonAction());
 		cancel_button.setOnAction(e -> handleCancelButtonAction());
 
@@ -132,6 +160,7 @@ public class PbitOfpSelectionController {
 	private String fetchOFPVersion(String ofpVersionName) {
 		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
 			if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
+				System.out.println("OFP CHECK SUSPECT ::" + ofpVersion);
 				return ofpVersion.getOfpConfigId(); // return OFP_7357
 			}
 		}
@@ -192,18 +221,38 @@ public class PbitOfpSelectionController {
 		OFPVersion.setItems(ofpVersionList);
 		OFPVersion.setOnAction((event) -> {
 			ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
+			StateMachine.setOfpList(ofpVersionList);
 			this.RUN_CONFIG_ID.set(ofpConfigId);
 //			System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
 
 		});
 
 	}
+	
+	
 
+//	@FXML
+//	private void handleCancelButtonAction() {
+//		Stage stage = (Stage) cancel_button.getScene().getWindow();
+//		StateMachine.setTestState(TestState.PENDING);
+//		stage.close();
+//
+//	}
+	
+//	Suji Changed for Popup when user selects cancel test:::
+	
 	@FXML
 	private void handleCancelButtonAction() {
 		Stage stage = (Stage) cancel_button.getScene().getWindow();
+//		StateMachine.setConfirmTestStop(true);
+		StateMachine.setTestState(TestState.STOPPED);
+		StateMachine.setConfirmTestFileCompleted(false);
+		StateMachine.setCancelTest(true);
 		stage.close();
 
 	}
+	
+	
+	
 
 }

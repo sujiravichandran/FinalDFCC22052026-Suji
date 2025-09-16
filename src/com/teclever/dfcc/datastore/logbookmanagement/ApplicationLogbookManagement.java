@@ -1,5 +1,6 @@
 package com.teclever.dfcc.datastore.logbookmanagement;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,18 +42,23 @@ public class ApplicationLogbookManagement {
 	        if (response.getResponseCode() == 1) {
 	            List<ApplicationLogBook> applicationlogBooks = response.getApplicationLogBooks();
 
-	            for (ApplicationLogBook appLogBook : applicationlogBooks) {
-	                ApplicationLogBookDto dto = new ApplicationLogBookDto();
-	                dto.setAppLogId(appLogBook.getAppLogId());
-	                dto.setUutId(appLogBook.getUutId());
-	                dto.setUutSerialNumber(appLogBook.getUutSerialNumber());
-	                dto.setSessionId(appLogBook.getSessionId());
-	                dto.setUsername(appLogBook.getUsername());
-	                dto.setTimestamp(appLogBook.getTimestamp());
-	                dto.setDetails(appLogBook.getDetails());
+				for (ApplicationLogBook appLogBook : applicationlogBooks) {
+					ApplicationLogBookDto dto = new ApplicationLogBookDto();
+					dto.setAppLogId(appLogBook.getAppLogId());
+					dto.setUutId(appLogBook.getUutId());
+					dto.setUutSerialNumber(appLogBook.getUutSerialNumber());
+					dto.setSessionId(appLogBook.getSessionId());
+					dto.setUsername(appLogBook.getUsername());
 
-	                dtoList.add(dto);
-	            }
+					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+					String formattedTimestamp = formatter.format(appLogBook.getTimestamp());
+					System.out.println("Formated Date Time" + formattedTimestamp);
+					dto.setFormatedTimeStamp(formattedTimestamp);
+					dto.setTimestamp(appLogBook.getTimestamp());
+					dto.setDetails(appLogBook.getDetails());
+
+					dtoList.add(dto);
+				}
 	        } else {
 	            System.err.println("Failed to fetch Application log books: " + response.getResponseMessage());
 	        }

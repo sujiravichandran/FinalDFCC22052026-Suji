@@ -31,6 +31,7 @@ public class SessionToStagesMappingDTO {
 	private String status;
 	
 	private String path;
+	
 		
 	
 

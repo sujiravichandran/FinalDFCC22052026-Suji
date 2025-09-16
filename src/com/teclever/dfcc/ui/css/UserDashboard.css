@@ -81,7 +81,8 @@
 
 
 .logout-button{
-    -fx-background-color: login-button-bg; 
+    /*-fx-background-color: login-button-bg; */
+    -fx-background-color:#ffffff;
 	-fx-background-radius: 5px;
     -fx-border-radius: 5px;
     -fx-cursor: hand;
@@ -463,4 +464,30 @@
 
 .toggle-on{
 	-fx-fill:success-bg;
+}
+
+.glossy-button {
+    -fx-background-color: 
+        linear-gradient(#f0f0f0, #d9d9d9),
+        radial-gradient(center 50% 0%, radius 100%, #ffffff, #e6e6e6);
+    -fx-background-radius: 10;
+    -fx-background-insets: 0, 1;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-padding: 8 20 8 20;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0, 0, 1);
+}
+
+.glossy-button:hover {
+    -fx-background-color:
+        linear-gradient(#e0e0e0, #c0c0c0),
+        radial-gradient(center 50% 0%, radius 100%, #ffffff, #dcdcdc);
+}
+
+.glossy-button:pressed {
+    -fx-background-color:
+        linear-gradient(#c0c0c0, #a0a0a0),
+        radial-gradient(center 50% 0%, radius 100%, #d9d9d9, #bfbfbf);
 }

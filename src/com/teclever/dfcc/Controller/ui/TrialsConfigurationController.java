@@ -174,7 +174,7 @@ public class TrialsConfigurationController {
 		headingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
-		title.setText("TRAILS CONFIGURATION");
+		title.setText("TRIALS CONFIGURATION");
 		title.getStyleClass().add("trialsConfig-title");
 		titleBox.getChildren().add(title);
 
@@ -203,6 +203,8 @@ public class TrialsConfigurationController {
 		String contentText = "Are you sure you want to finalize trials configuration? Once finalized, it cannot be modified.";
 		Notifications.showConfirmationDialog(title, contentText, () -> finalizedSaving());
 	}
+	
+
 
 	private void finalizedSaving() {
 		TrailSaveResponse response = sessionManagement.finalize(SESSION_ID);

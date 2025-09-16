@@ -220,8 +220,10 @@ public class RdfFileCopyPopupController {
 		buttonHBox.getChildren().addAll(copyButton, closeButton);
 
 		closeButton.setOnAction(e -> {
-			StateMachine.setRdfCopy(true);
-			handleClosePopup(true);
+			
+			Stage stage = (Stage) closeButton.getScene().getWindow();
+			stage.close();
+//			handleClosePopup(true);
 		});
 		
 //Before Suji Change
@@ -239,19 +241,18 @@ public class RdfFileCopyPopupController {
 
 		// After Suji Change
 		copyButton.setOnAction(e -> {
-			
-			boolean atLeastOneSelected = tableView.getItems().stream().anyMatch(RdfFileCopy::isSelected);
-		    if (!atLeastOneSelected) {
-		        Notifications.showErrorAlert("Please select at least one file before moving.");
-		        return;
-		    }
+//			System.out.println("Entred Move File Button Clikc Method");
+//			boolean atLeastOneSelected = tableView.getItems().stream().anyMatch(RdfFileCopy::isSelected);
+//		    if (!atLeastOneSelected) {
+//		        Notifications.showErrorAlert("Please select at least one file before moving.");
+//		        return;
+//		    }
 			
 			AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
 					.getInstance();
 			
-			StateMachine.rdfMoveLogoutProperty().addListener((obs, oldValue, newValue) -> {
-				if (newValue) {
-					
+				if (StateMachine.isRdfMoveLogout()) {
+					System.out.println("Entred RDF Logout NEW VALUE" + StateMachine.isRdfMoveLogout());
 					List<CopyFileDTO> pathList1 = new ArrayList<>();
 					for (RdfFileCopy rdfFile : tableView.getItems()) {
 						CopyFileDTO newFilePath = new CopyFileDTO();
@@ -273,9 +274,11 @@ public class RdfFileCopyPopupController {
 					aitessProcessControlManagement.endAllProcessOnLogout();
 					Platform.exit();
 					System.exit(0);
+				StateMachine.setRdfMoveLogout(false);
+				return;
 				}
-			StateMachine.setRdfMoveLogout(false);
-			});
+				
+		
 			
 			List<CopyFileDTO> pathList = new ArrayList<>();
 			for (RdfFileCopy rdfFile : tableView.getItems()) {

@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.resultstore.configuration.ResultStoreConnection;
 import com.teclever.dfcc.resultstore.dto.RdfFileDetailsDto;
 import com.teclever.dfcc.resultstore.dto.StepDto;
@@ -33,7 +34,9 @@ public class RdfFileDetailsParser {
 	    
 	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
 	    
-	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath);
+	    //Mani Detail Data Change 26-AUG
+	    
+	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath)+"_"+DFCCConstant.testFileResultId;
 	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
 	    
 	    

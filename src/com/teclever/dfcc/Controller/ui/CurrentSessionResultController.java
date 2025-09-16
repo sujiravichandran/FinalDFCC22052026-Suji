@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.teclever.dfcc.DFCCConstant;
@@ -138,7 +139,7 @@ public class CurrentSessionResultController {
 	    currentSessionResultGridPane.add(createHeadingBox(), 0, 0);
 
 	    Label sessionTitleLabel = new Label(UserCenterContentController.currentSessionName);
-	    sessionTitleLabel.setStyle("-fx-font-size: 25px; -fx-font-weight: bold;");
+	    sessionTitleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
 	    HBox titleBar = new HBox(sessionTitleLabel);
 	    titleBar.setAlignment(Pos.CENTER);
 	    titleBar.setPadding(new Insets(10, 0, 10, 0));
@@ -165,131 +166,133 @@ public class CurrentSessionResultController {
 		}
 	}
     
-//    private void getCurrentSessionResultData() {
-//        Task<Void> task = new Task<Void>() {
-//            @Override
-//            protected Void call() throws Exception {
-//                
-//                	ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
+    private void getCurrentSessionResultData() {
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                
+                	ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
 //            		System.out.println("getCurrentSessionResultData" + SESSION_ID);
 //            		System.out.println("Response Code" + response.getCode() );
 //            		System.out.println("getResultSessionStagesDetailsDTOList" + response.getResultSessionStagesDetailsDTOList().size());
-//            		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
-//            			int i = 1;
-//            			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
-//            				SessionData newSessionData = new SessionData();
-//            				
-//            				newSessionData.setId(data.getStageId());
-//            				newSessionData.setTestMode(data.getTestMode());
-//            				newSessionData.setSlNo(String.valueOf(i));
-//            				newSessionData.setStage(data.getStage());
-//            				newSessionData.setStartTime(data.getStartTime());
-//            				newSessionData.setEndTime(data.getEndTime());
-//            				newSessionData.setStatus(data.getStatus());
-//            				newSessionData.setResult(data.getResult());
-//            				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
-//            				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
-//            				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
-//            				i++;
-//            				sessionDataList.add(newSessionData);
-//            			}
+            		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
+            			int i = 1;
+            			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
+            				SessionData newSessionData = new SessionData();
+            				
+            				newSessionData.setId(data.getStageId());
+            				newSessionData.setTestMode(data.getTestMode());
+            				newSessionData.setSlNo(String.valueOf(i));
+            				newSessionData.setStage(data.getStage());
+            				newSessionData.setStatus(data.getStatus());
+            				newSessionData.setResult(data.getResult());
+            				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
+            				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
+            				newSessionData.setStartTime(data.getStartTime());
+            				newSessionData.setEndTime(data.getEndTime());
+            				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
+            				newSessionData.setSessionType(data.getStageMappingId());
+            				i++;
+            				sessionDataList.add(newSessionData);
+            			}
+            			
 //            			System.out.println("sessionDataList" + sessionDataList.size());
-//            		}else if(response.getCode() == 0) {
-//            			Notifications.showErrorAlert(response.geteMsg());
-//            		}
-//                  
-//                if (sessionDataList.size() > 0) {
+            		}else if(response.getCode() == 0) {
+            			Notifications.showErrorAlert(response.geteMsg());
+            		}
+                  
+                if (sessionDataList.size() > 0) {
 //                	System.out.println("sessionDataList Inside" + sessionDataList.size());
-//	                Platform.runLater(() -> createCurrentSessionResultTable());
-//	            }
-//                
-//                return null;
-//            }
-//        };
-//
-//        task.setOnFailed(evt -> {
-//            hideProgressIndicator();
+	                Platform.runLater(() -> createCurrentSessionResultTable());
+	            }
+                
+                return null;
+            }
+        };
+
+        task.setOnFailed(evt -> {
+            hideProgressIndicator();
 //            System.out.println("Entred setOnFailed");
-//            task.getException().printStackTrace();
-//        });
-//
-//        task.setOnSucceeded(evt ->
-//        hideProgressIndicator());
-//
-//        task.setOnRunning(evt -> {
-//            if (DFCCConstant.isJarBuild) {
+            task.getException().printStackTrace();
+        });
+
+        task.setOnSucceeded(evt ->
+        hideProgressIndicator());
+
+        task.setOnRunning(evt -> {
+            if (DFCCConstant.isJarBuild) {
 //            	System.out.println("Entred setOnRunning");
-//                showProgressIndicator();
-//            }
-//        });
-//
-//        new Thread(task).start();
-//    }
+                showProgressIndicator();
+            }
+        });
+
+        new Thread(task).start();
+    }
     
-	private void getCurrentSessionResultData() {
-		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
-		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
-			int i = 1;
-			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
-				
-				
-				//Karthik
-				String formattedStartDateTime = "";
-				String formattedEndDateTime = "";
-
-				if (!data.getStartTime().equals("") && !data.getEndTime().equals("")) {
-
-					DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT; // Use ISO_INSTANT for Instant parsing
-
-					// Parse both start and end times as Instant (supports nanoseconds).
-					String startDateTime = data.getStartTime();
-					String endDateTime = data.getEndTime();
-
-					if (!startDateTime.endsWith("Z")) {
-						startDateTime += "Z";
-					}
-					if (!endDateTime.endsWith("Z")) {
-						endDateTime += "Z";
-					}
-
-					Instant d1 = Instant.from(formatter.parse(startDateTime));
-					Instant d2 = Instant.from(formatter.parse(endDateTime));
-					// MANI
-					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-					// Format the parsed instants into the desired format
-					formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
-					formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
-				} else {
-					formattedStartDateTime = data.getStartTime();  // Setting empty string for now need to revisit
-					formattedEndDateTime = data.getEndTime();
-					
-				}
-				
-				 
-				
-				SessionData newSessionData = new SessionData();
-				
-				newSessionData.setId(data.getStageId());
-	
-				newSessionData.setTestMode(data.getTestMode());
-				newSessionData.setSlNo(String.valueOf(i));
-				newSessionData.setStage(data.getStage());
-//				newSessionData.setStartTime(data.getStartTime());
-//				newSessionData.setEndTime(data.getEndTime());
-				newSessionData.setStartTime(formattedStartDateTime);  //Karthik
-				newSessionData.setEndTime(formattedEndDateTime);	//Karthik
-				newSessionData.setStatus(data.getStatus());
-				newSessionData.setResult(data.getResult());
-				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
-				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
-				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
-				i++;
-				sessionDataList.add(newSessionData);
-			}
-		}else if(response.getCode() == 0) {
-			Notifications.showErrorAlert(response.geteMsg());
-		}
-	}
+//	private void getCurrentSessionResultData() {
+//		ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
+//		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
+//			int i = 1;
+//			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
+//				
+//				
+//				//Karthik
+//				String formattedStartDateTime = "";
+//				String formattedEndDateTime = "";
+//
+//				if (!data.getStartTime().equals("") && !data.getEndTime().equals("")) {
+//
+//					DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT; // Use ISO_INSTANT for Instant parsing
+//
+//					// Parse both start and end times as Instant (supports nanoseconds).
+//					String startDateTime = data.getStartTime();
+//					String endDateTime = data.getEndTime();
+//
+//					if (!startDateTime.endsWith("Z")) {
+//						startDateTime += "Z";
+//					}
+//					if (!endDateTime.endsWith("Z")) {
+//						endDateTime += "Z";
+//					}
+//
+//					Instant d1 = Instant.from(formatter.parse(startDateTime));
+//					Instant d2 = Instant.from(formatter.parse(endDateTime));
+//					// MANI
+//					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+//					// Format the parsed instants into the desired format
+//					formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
+//					formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
+//				} else {
+//					formattedStartDateTime = data.getStartTime();  // Setting empty string for now need to revisit
+//					formattedEndDateTime = data.getEndTime();
+//					
+//				}
+//				
+//				 
+//				
+//				SessionData newSessionData = new SessionData();
+//				
+//				newSessionData.setId(data.getStageId());
+//	
+//				newSessionData.setTestMode(data.getTestMode());
+//				newSessionData.setSlNo(String.valueOf(i));
+//				newSessionData.setStage(data.getStage());
+////				newSessionData.setStartTime(data.getStartTime());
+////				newSessionData.setEndTime(data.getEndTime());
+//				newSessionData.setStartTime(formattedStartDateTime);  //Karthik
+//				newSessionData.setEndTime(formattedEndDateTime);	//Karthik
+//				newSessionData.setStatus(data.getStatus());
+//				newSessionData.setResult(data.getResult());
+//				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
+//				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
+//				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
+//				i++;
+//				sessionDataList.add(newSessionData);
+//			}
+//		}else if(response.getCode() == 0) {
+//			Notifications.showErrorAlert(response.geteMsg());
+//		}
+//	}
     
    
 
@@ -312,7 +315,7 @@ public class CurrentSessionResultController {
 		titleBox.getChildren().add(title);
 		
 		currentSessionResultHeadingGridPane.add(titleBox, 0, 0);
-		currentSessionResultHeadingGridPane.add(createViewAllButtonButton(), 1, 0);
+//		currentSessionResultHeadingGridPane.add(createViewAllButtonButton(), 1, 0);
 		
 		return currentSessionResultHeadingGridPane;
 	}
@@ -372,17 +375,78 @@ public class CurrentSessionResultController {
 	    			//sessionDataTableView.getColumns().removeLast();
 	    			//Mani Changes By Vignesh Comment
 	    			sessionDataTableView.getColumns().remove(lastColumn);
-
 	    			sessionDataTableView.getColumns().add(0, lastColumn);	
 	    		}
 
 	            sessionDataTableView.getColumns().forEach(column -> {   
-	    			if(!column.getText().isEmpty()) {				
-	    				column.setMinWidth(column.getText().length()*14);
+	    			if(!column.getText().isEmpty()) {
+//	    				SAI ADDED
+	    	            String colName=column.getText();
+//	    	            System.out.println("Sai :"  + colName);
+	    	           
+	    				
+//	    				column.setMinWidth(column.getText().length()*14);
+	    	            switch (colName) {
+		    			case "SL NO":
+		    				column.setMinWidth(100);
+		    				column.setMaxWidth(100);
+		    				break;
+		    			case "TEST MODE":
+		    				column.setMinWidth(300);
+		    				column.setMaxWidth(300);
+		    				break;
+		    			case "STAGE":
+		    				column.setMinWidth(150);
+		    				column.setMaxWidth(150);
+		    				break;
+		    			case "STATUS":
+		    				column.setMinWidth(140);
+		    				column.setMaxWidth(140);
+		    				break;
+		    			case "RESULT":
+		    				column.setMinWidth(120);
+		    				column.setMaxWidth(120);
+		    				break;
+		    			case "NO OF FILES EXECUTED":
+		    				column.setMinWidth(210);
+		    				column.setMaxWidth(210);
+		    				break;
+		    			case "FAILED FILES":
+		    				column.setMinWidth(120);
+		    				column.setMaxWidth(120);
+		    				break;
+		    			case "START TIME":
+		    				column.setMinWidth(250);
+		    				column.setMaxWidth(250);
+		    				break;
+		    			case "END TIME":
+		    				column.setMinWidth(250);
+		    				column.setMaxWidth(250);
+		    				break;
+		    			case "TIME TAKEN FOR EXECUTION":
+		    				column.setMinWidth(270);
+		    				column.setMaxWidth(270);
+		    				break;
+		    		
+
+		    			default:
+		    				column.setMinWidth(120);
+		    				column.setMaxWidth(120);
+		    				break;
+		    			}
 	    				updateSessionData((TableColumn<SessionData, String>) column);
+	    				
+	    				
+	    				
+	    				
 	    			}
 	            });
 
+	            sessionDataTableView.getColumns().removeIf(column -> 
+	            column.getText().equalsIgnoreCase("Session Type") || 
+	            column.getId() != null && column.getId().equalsIgnoreCase("sessionType")
+	        );
+	            
 	            sessionDataTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
 	                ObservableList<SessionData> selectedItems = sessionDataTableView.getSelectedItems();
 	                for (SessionData rowData : selectedItems) {
@@ -390,10 +454,12 @@ public class CurrentSessionResultController {
 //	                    Changed by Vignesh 31-07-25 for displaying stage name in stage result
 	                    userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID, rowData);
 	                    System.out.println(rowData);
-	                    System.out.println("Session Name"+SESSION_ID);
+//	                    System.out.println("Session Name"+SESSION_ID);
 	                    break;
 	                }
 	            });
+
+
 
 	           
 	            
@@ -476,7 +542,14 @@ public class CurrentSessionResultController {
 	            } else {
 	                if (label == null) {
 	                    label = new Label();
-	                    label.setWrapText(false);
+	                    if ("TEST MODE".equalsIgnoreCase(column.getText())||"STAGE".equalsIgnoreCase(column.getText())) {
+	                    	Platform.runLater(() -> {
+							label.setWrapText(true);
+	                    	});
+						}else {
+							label.setWrapText(false);
+						}
+//	                    label.setWrapText(false);
 
 	                    if (column.getText().equalsIgnoreCase("stage")) {
 	                        label.setAlignment(Pos.CENTER_LEFT); 

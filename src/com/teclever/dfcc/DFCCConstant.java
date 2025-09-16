@@ -15,12 +15,38 @@ public class DFCCConstant {
     private static Map uutNameIdMap;
     public static boolean isJarBuild = false;
     public static String JARSTRING = "";
+    public static String testTypeId = "";
+
     public static String filePath = "";
     public static boolean isDebug = false;
+    public static String testFileResultId = "";
+    public static String testStarttime = "";
+    public static String testEndTime = "";
+    public static int totalFilesCount = 0;
+    public static int failedFilesCount = 0;
+    
     //AnujK : 05/08/2025 -- Changed to 3mins
     public static long tempDelayTime = 180000; //3mins
     public static boolean entered = true;
     public static boolean colourFlag = false;
+    public static boolean stopColourFlag = false;
+    public static boolean continueWithErrorFlag = false;
+    public static Map <String,String>stageIdStatus = new HashMap<String,String>();
+    
+    public static Map<String,String> sessionIdDfccSlNo = new HashMap<String,String>();
+    
+    public static String resultStartTime = "";
+    public static String resultEndTime = "";
+    public static String resultStageType = "";
+    
+    //For Date Time Issue
+    public static String endTime = "";
+    
+    //For Enabling Disabling Issue
+    public static int repeatCount = 0;
+    public static String stageId= "";
+    public static String sessionStageMapId = "";
+    
     
     //Mani Changes Added
     public static int cardCount = 0;

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.SessionTiming;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
@@ -22,6 +23,8 @@ import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagemen
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.datastore.testmanagement.TestProcessManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
+import com.teclever.dfcc.stateMachine.LRUTestStateObject;
+import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
@@ -34,8 +37,8 @@ import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.PopupDialoguShow;
 
+
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -92,6 +95,8 @@ public class AdvancedTestingHWATPTesting {
 	private Label repeatCountLabel = new Label();
 	private Label repeatNotLabel = new Label();
 	private TextField repeatCountTextField = new TextField();
+	
+	private boolean testFileCount = false;
 
 	private String selectedStageId = null;
 	private String selectedTestTypeId = null;
@@ -106,7 +111,7 @@ public class AdvancedTestingHWATPTesting {
 	private TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 	private TestProcessManagement testProcessManagement = new TestProcessManagement();
 	private CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
-	PopupDialoguShow popupDialoguShow = new PopupDialoguShow();
+	private PopupDialoguShow popupDialoguShow = new PopupDialoguShow();
 	
 	private boolean aitess1Updated = false;
 	private boolean aitess2Updated = false;
@@ -116,23 +121,61 @@ public class AdvancedTestingHWATPTesting {
 	
 		initializeSearch();
 
-		
+//		SUJI added for resetting the progress bar once test file are moved::
+		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
+			Platform.runLater(() -> {
+	    		System.out.println("Entred resetting Progress in Advanced test");
+	    	testProgressBar.setProgress(0);
+	    	percentageLabel.setText("0%");
+	    	StateMachine.setResettingProgressBar(false);
+	    	});
+		});
 		
 //		Edited By: SUJI
 //		Change Made for Point: 4&39(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-			if(newVal) {
+			System.out.println("WDM Status changed:Advaced HWATP " + newVal);
+			if(newVal && (StateMachine.getStatusBarRunningTestName().equals("ADVANCED_TEST_HWATP_TEST"))) {
+				
 			StateMachine.setTestState(TestState.PAUSED);
 			 Platform.runLater(() -> {
 					popupDialoguShow.wdmStatusPopup();
 					StateMachine.setWdmStatusOfflineCheck(false);
 					 });
 			}
+		
 		});
-
+		
+		StateMachine.cancelTestProperty().addListener((obs, oldVal, newVal) -> {
+			
+			if(newVal && (StateMachine.getStatusBarRunningTestName().equals("ADVANCED_TEST_HWATP_TEST"))) {
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				runAllButton.setDisable(false);
+				
+			}
+			StateMachine.setCancelTest(false);
+		});
+		
+	
 //		Exit;
 //	    Point: 4&39
+		
+//		SUJI ADDED:
+		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
+			if (newState == TestState.STOPPED && !StateMachine.isConfirmTestFileCompleted()) {
+			applyUiStatus(StateMachine.getTestState());
+			}
+		});
+		
+		
+		StateMachine.confirmTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
+			applyUiState(newVal); 
+		});
+//		EXIT::
 		
 	}
 	
@@ -163,6 +206,26 @@ public class AdvancedTestingHWATPTesting {
 	}
 //	Exit;
 //	Change Made for Point:  79
+	
+//	SUJI ADDED::
+	private void applyUiStatus(TestState currentState) {
+		
+	    Platform.runLater(() -> {
+             leftSideVBox.setDisable(false);
+			 rightSideGridPane.setDisable(false);
+	    });
+	}
+	
+	private void applyUiState(boolean isTestFileCompleted) {
+	    Platform.runLater(() -> {
+	        if (!isTestFileCompleted) {
+	        	 leftSideVBox.setDisable(false);
+				 rightSideGridPane.setDisable(false);
+	        }
+	    });
+	}
+	
+//	EXIT::
 	
 	public GridPane createAdvancedTestingTab1GridPane() {
 	
@@ -307,10 +370,10 @@ public class AdvancedTestingHWATPTesting {
 				clearTextField();
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
-				if (StateMachine.getTestState() != TestState.RUNNING) {
-					StateMachine.setAdvancedTestOk(true);
-
-				}
+//				if (StateMachine.getTestState() != TestState.RUNNING) {
+//					StateMachine.setAdvancedTestOk(true);
+//
+//				}
 			}
 		});
 
@@ -485,89 +548,150 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 			
+			
+			// Set current stage ID
+		    StateMachine.setCurrentlySelectedStageId(selectedStageId);
+
+		    // Get previous and current stage IDs
+		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
+
+		    // If previous stage is null, initialize it
+		    if (previousStageId == null) {
+		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+		    } else if (!currentStageId.equalsIgnoreCase(previousStageId)) {
+		        // Stage has changed — execute RDF block
+
+		        if (!DFCCConstant.FailedStagesRdfPaths.isEmpty()) {
+		            boolean popupRDFFiles = false;
+
+		            for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+		                if ("FAILURE".equalsIgnoreCase(copyFileDTO.getStatus())) {
+		                    popupRDFFiles = true;
+		                    break;
+		                }
+		            }
+
+		            SessionManagement sessionManagement = new SessionManagement();
+
+		            if (popupRDFFiles) {
+		                // Log failed stage
+		                sessionManagement.updateSessionStagesResultOnApplicationLogBook(
+		                    "Failed", DFCCConstant.FailedStagesRdfPaths.get(0).getStageId()
+		                );
+
+		                RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<>(DFCCConstant.FailedStagesRdfPaths);
+		                SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+		            } else {
+		                // Log passed stage
+		                sessionManagement.updateSessionStagesResultOnApplicationLogBook(
+		                    "Passed", DFCCConstant.FailedStagesRdfPaths.get(0).getStageId()
+		                );
+
+		                SessionFileManagement session = new SessionFileManagement();
+		                session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+		            }
+
+		            // Clear the list after processing
+		            DFCCConstant.FailedStagesRdfPaths.clear();
+		            StateMachine.setResettingProgressBar(true);
+		        }
+
+		        // Clear advanced test result list on stage change
+		        SessionTestStateObject.clearSessionTestResults();
+		        SelfTestStateObject.clearselfTestResults();
+		        AdvancedTestStateObject.clearAdvancedTestResultsList();
+		        LRUTestStateObject.clearlruTestResultsList();
+
+		        // Update previous stage ID to current after processing
+		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+		    }
+			
 			// Excel Name:7-July-Observation
             // Point No:3
 			// Change Made on rdf file moving
-			if (StateMachine.isAdvancedTestOk()) {
-
-				//09-07-2025
-				// UPDATING TIME TO DB
-				LocalDateTime currentDateTime = LocalDateTime.now();
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
-				String formattedDate = currentDateTime.format(formatter);
-				
-				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-				
-				SessionTimingService s = new SessionTimingService();
-				//LOGIC FOR UPDATING SESSION TIMING TABLE
-				if (StateMachine.getPreviouslySelectedStageId() == null
-						|| StateMachine.getCurrentlySelectedStageId()
-								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-					StateMachine.setPreviouslySelectedStageId(selectedStageId);
-					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							formattedDate, "", 0, 0);
-
-				} else {
-
-					int failedFiles = 0;
-					for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
-						if (!copy.getStatus().equals("SUCCESS")) {
-							failedFiles++;
-						}
-					}
-
-					s.addSessionTime(currentSessionDetails.getSessionId(),
-							StateMachine.getPreviouslySelectedStageId(), "", formattedDate,
-							DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
-					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-							formattedDate, "", 0, 0);
-					StateMachine.setPreviouslySelectedStageId(selectedStageId);
-
-				}
-				
-				
-				
-				// Checking With List
-				boolean popupRDFFiles = false;
-				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
-					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
-						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
-							popupRDFFiles = true;
-						}
-					}
-					
-				
-					
-
-					if (popupRDFFiles) {
-						//Logbook the Stage Results
-						SessionManagement sessionManagement = new SessionManagement();
-						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-
-						
-						
-						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
-						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
-
-							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
-						}
-						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
-						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
-					} else {
-						SessionManagement sessionManagement = new SessionManagement();
-						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-
-						SessionFileManagement session = new SessionFileManagement();
-						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
-						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
-					}
-				}
-
-
-				AdvancedTestStateObject.clearAdvancedTestResultsList();
-				
-		        StateMachine.setAdvancedTestOk(false);
-			}
+//			if (StateMachine.isAdvancedTestOk()) {
+//			SUJI CHANGED CONDITION FOR MOVING BASED ON STAGE ID::(03092025)
+			
+//			if (StateMachine.getPreviouslySelectedStageId() == null
+//					|| StateMachine.getCurrentlySelectedStageId()
+//							.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+//				StateMachine.setPreviouslySelectedStageId(selectedStageId);
+//			}
+//			
+//			
+//			if(StateMachine.getCurrentlySelectedStageId() != StateMachine.getPreviouslySelectedStageId()) {
+//
+//				//09-07-2025
+//				// UPDATING TIME TO DB
+//				LocalDateTime currentDateTime = LocalDateTime.now();
+//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+//				String formattedDate = currentDateTime.format(formatter);
+//				
+//				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
+//				
+//				SessionTimingService s = new SessionTimingService();
+//				//LOGIC FOR UPDATING SESSION TIMING TABLE
+//				if (StateMachine.getPreviouslySelectedStageId() == null
+//						|| StateMachine.getCurrentlySelectedStageId()
+//								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+//					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+//					
+//				} else {
+//
+//					int failedFiles = 0;
+//					for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
+//						if (!copy.getStatus().equals("SUCCESS")) {
+//							failedFiles++;
+//						}
+//					}
+//					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+//
+//				}
+//				
+//				
+//				
+//				// Checking With List
+//				boolean popupRDFFiles = false;
+//				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+//					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+//						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+//							popupRDFFiles = true;
+//						}
+//					}
+//					
+//				
+//					
+//
+//					if (popupRDFFiles) {
+//						//Logbook the Stage Results
+//						SessionManagement sessionManagement = new SessionManagement();
+//						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+//
+//						
+//						
+//						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+//						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+//
+//							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+//						}
+//						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+//						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//					} else {
+//						SessionManagement sessionManagement = new SessionManagement();
+//						sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+//
+//						SessionFileManagement session = new SessionFileManagement();
+//						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+//						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//					}
+//				}
+//
+//
+//				AdvancedTestStateObject.clearAdvancedTestResultsList();
+//				
+////		        StateMachine.setAdvancedTestOk(false);
+//			}
 			
 			// Exit
 			// Point No:3
@@ -589,9 +713,20 @@ public class AdvancedTestingHWATPTesting {
 				}
 			}
 			if (testFileIds.size() == 0) {
+				testFileCount = true;
 				Notifications.showWarningAlert("Please Select Test File...");
 				return;
 			}
+			
+//			SUJI ADDED for DISABLE ENABLE LEFT & RIGHT window:
+			if(!testFileCount) {
+				 Platform.runLater(() -> {
+					 leftSideVBox.setDisable(true);
+					 rightSideGridPane.setDisable(true);
+				testFileCount=false;
+				 });
+				}
+//			EXIT
 
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
@@ -629,104 +764,161 @@ public class AdvancedTestingHWATPTesting {
 		startButton.setOnAction(e -> {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
-				
-				// Excel Name:7-July-Observation
-	            // Point No:3
-				// Change Made on rdf file moving
-				if (StateMachine.isAdvancedTestOk()) {
-					
-					
-					//09-07-2025
-					// UPDATING TIME TO DB
-					LocalDateTime currentDateTime = LocalDateTime.now();
-//					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//					String formattedDate = currentDateTime.format(formatter);
-					StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-					
-					SessionTimingService s = new SessionTimingService();
-					//LOGIC FOR UPDATING SESSION TIMING TABLE
-					if (StateMachine.getPreviouslySelectedStageId() == null
-							|| StateMachine.getCurrentlySelectedStageId()
-									.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-								currentDateTime.toString(), "", 0, 0);
 
-					} else {
+//				// Excel Name:7-July-Observation
+//				// Point No:3
+//				// Change Made on rdf file moving
+//				
+//				// New Implemented.....Mani
+////				SUJI CHANGED CONDITION FOR MOVING BASED ON STAGE ID::(03092025)
+////				if (StateMachine.isAdvancedTestOk()) {
+//				
+//				if (StateMachine.getPreviouslySelectedStageId() == null
+//						|| StateMachine.getCurrentlySelectedStageId()
+//								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+//					StateMachine.setPreviouslySelectedStageId(selectedStageId);
+//				}
+//				
+//				if(StateMachine.getCurrentlySelectedStageId() != StateMachine.getPreviouslySelectedStageId()) {
+//
+//
+//					// 09-07-2025
+//					// UPDATING TIME TO DB
+//					LocalDateTime currentDateTime = LocalDateTime.now();
+////					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+////					String formattedDate = currentDateTime.format(formatter);
+//					StateMachine.setCurrentlySelectedStageId(selectedStageId);
+//
+//					SessionTimingService s = new SessionTimingService();
+//					// LOGIC FOR UPDATING SESSION TIMING TABLE
+//					if (StateMachine.getPreviouslySelectedStageId() == null
+//							|| StateMachine.getCurrentlySelectedStageId()
+//									.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
+//						StateMachine.setPreviouslySelectedStageId(selectedStageId);
+//
+//
+//					} else {
+//
+//						int failedFiles = 0;
+//						for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
+//							if (!copy.getStatus().equals("SUCCESS")) {
+//								failedFiles++;
+//							}
+//						}
+//						
+//					}
+//
+//					// Checking With List
+//					boolean popupRDFFiles = false;
+//					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+//						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+//
+//							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+//								popupRDFFiles = true;
+//
+//							}
+//
+//						}
+//
+//						if (popupRDFFiles) {
+//
+//							// Logbook the Stage Results
+//							SessionManagement sessionManagement = new SessionManagement();
+//							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",
+//									DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+//
+//							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+//							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+//								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+//							}
+//							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+//							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//						} else {
+//							// Logbook the Stage Results
+//							SessionManagement sessionManagement = new SessionManagement();
+//							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",
+//									DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
+//
+//							SessionFileManagement session = new SessionFileManagement();
+//							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+//							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//						}
+//					}
+//
+//					AdvancedTestStateObject.clearAdvancedTestResultsList();
+//
+//					StateMachine.setAdvancedTestOk(false);
+//				}
 
-						int failedFiles = 0;
-						for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
-							if (!copy.getStatus().equals("SUCCESS")) {
-								failedFiles++;
-							}
-						}
-
-						s.addSessionTime(currentSessionDetails.getSessionId(),
-								StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString(),
-								DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
-						s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId,
-								currentDateTime.toString(), "", 0, 0);
-						StateMachine.setPreviouslySelectedStageId(selectedStageId);
-
-					}
-					
-					
-
-					
-					//Checking With List
-					boolean popupRDFFiles = false;
-					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
-						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
-
-							if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
-								popupRDFFiles = true;
-
-							}
-							
-						}
-
-						if (popupRDFFiles) {
-							
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
-							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
-							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
-							{
-								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
-							}
-							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
-							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
-						} else {
-							//Logbook the Stage Results
-							SessionManagement sessionManagement = new SessionManagement();
-							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
-							
-							SessionFileManagement session = new SessionFileManagement();
-							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
-							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
-						}
-					}
-
-
-
-					AdvancedTestStateObject.clearAdvancedTestResultsList();
-					
-			        StateMachine.setAdvancedTestOk(false);
-				}
-				
 				// Exit
 				// Point No:3
-				
-				
+
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
 
-					Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+					Notifications.showWarningAlert(
+							"Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
 					return;
 				}
-				}
+			}
+			
+			// Set current stage ID
+		    StateMachine.setCurrentlySelectedStageId(selectedStageId);
+
+		    // Get previous and current stage IDs
+		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
+
+		    // If previous stage is null, initialize it
+		    if (previousStageId == null) {
+		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+		    } else if (!currentStageId.equalsIgnoreCase(previousStageId)) {
+		        // Stage has changed — execute RDF block
+
+		        if (!DFCCConstant.FailedStagesRdfPaths.isEmpty()) {
+		            boolean popupRDFFiles = false;
+
+		            for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+		                if ("FAILURE".equalsIgnoreCase(copyFileDTO.getStatus())) {
+		                    popupRDFFiles = true;
+		                    break;
+		                }
+		            }
+
+		            SessionManagement sessionManagement = new SessionManagement();
+
+		            if (popupRDFFiles) {
+		                // Log failed stage
+		                sessionManagement.updateSessionStagesResultOnApplicationLogBook(
+		                    "Failed", DFCCConstant.FailedStagesRdfPaths.get(0).getStageId()
+		                );
+
+		                RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<>(DFCCConstant.FailedStagesRdfPaths);
+		                SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+		            } else {
+		                // Log passed stage
+		                sessionManagement.updateSessionStagesResultOnApplicationLogBook(
+		                    "Passed", DFCCConstant.FailedStagesRdfPaths.get(0).getStageId()
+		                );
+
+		                SessionFileManagement session = new SessionFileManagement();
+		                session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
+		            }
+
+		            // Clear the list after processing
+		            DFCCConstant.FailedStagesRdfPaths.clear();
+		            StateMachine.setResettingProgressBar(true);
+		        }
+
+		        // Clear advanced test result list on stage change
+		        SessionTestStateObject.clearSessionTestResults();
+		        SelfTestStateObject.clearselfTestResults();
+		        AdvancedTestStateObject.clearAdvancedTestResultsList();
+		        LRUTestStateObject.clearlruTestResultsList();
+
+		        // Update previous stage ID to current after processing
+		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+		    }
 			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -768,10 +960,21 @@ public class AdvancedTestingHWATPTesting {
 				}
 			}
 			if (testFileIds.size() == 0) {
+				testFileCount = true;
 				Notifications.showWarningAlert("Please Select Test File...");
 				return;
 			}
-
+			
+//			SUJI ADDED for DISABLE ENABLE LEFT & RIGHT window:
+			if(!testFileCount) {
+				 Platform.runLater(() -> {
+					 leftSideVBox.setDisable(true);
+					 rightSideGridPane.setDisable(true);
+					 testFileCount=false;
+				 });
+				}
+//			EXIT
+			
 			TestState currentState = StateMachine.getTestState();
 			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 					|| currentState == TestState.STOPPED) {
@@ -930,18 +1133,28 @@ public class AdvancedTestingHWATPTesting {
 			}
 
 		});
+		
 
 		AdvancedTestStateObject.runnedHWATPTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null) {
 				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()
 						/ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
+				
+				System.out.println("IN ADvanced TEST PROGRESS BAR TOAL FILE COUNT CHECK "
+						+ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount());
+				System.out.println("IN ADvanced TEST PROGRESS BAR Runned File Count"
+						+ AdvancedTestStateObject.getRunnedHWATPTestFileCount().get());
+				
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 				Platform.runLater(() -> {
 					testProgressBar.setProgress(roundedPercentage);
 					percentageLabel.setText((int) (roundedPercentage * 100) + "%");
 				});
 			}
+			
 		});
+
+
 
 		return buttonHBox;
 	}

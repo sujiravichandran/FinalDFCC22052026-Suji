@@ -330,7 +330,7 @@ public class SessionFileManagement {
 					String stagePath = session.getPath();
 //					System.out.println("sessionStagesMappingId" + sessionStagesMappingId);
 //					System.out.println("stagePath" + stagePath);
-					System.out.println("Logbook Added Check" + stageId);
+//					System.out.println("Logbook Added Check" + stageId);
 					SessionManagement sessionManagement = new SessionManagement();
 					sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed", stageId);
 
@@ -349,7 +349,7 @@ public class SessionFileManagement {
 
 				} else {
 					// In Stage Some Failure Files Are There
-					System.out.println("Some Files Are Failed AND ADDED In The Failed Stages Rdf Paths ALLL SUJI");
+//					System.out.println("Some Files Are Failed AND ADDED In The Failed Stages Rdf Paths ALLL SUJI");
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					for (SessionStagesTestFilesResult sesStageTFR :filtersessionStagesTestFilesResultServiceList ) {
 						CopyFileDTO copyFileDTO = new CopyFileDTO();
@@ -564,8 +564,8 @@ public void getTestFilesRunnedSuccessSRULRU(String sessionId, String stageId) {
 		
 		
 		
-		System.out.println("Size of Current SessionMapping "+selectedTestFileIdResult.size());
-		System.out.println(selectedTestFileIdResult);
+//		System.out.println("Size of Current SessionMapping "+selectedTestFileIdResult.size());
+//		System.out.println(selectedTestFileIdResult);
 
 		
 		// Taking All Configured Test File By The Stage Id
@@ -606,8 +606,8 @@ public void getTestFilesRunnedSuccessSRULRU(String sessionId, String stageId) {
 			// Whether Checking Runned All Files Are Passes Not
 			if (!selectedTestFileIdResult.values().contains("FAILURE")) {
 				// All Files Are Passed
-				System.out.println("ALL Files Are Passed AND ADDED In The Rdf Paths List" + stageId);
-				System.out.println("Logbook Added Check" + stageId);
+//				System.out.println("ALL Files Are Passed AND ADDED In The Rdf Paths List" + stageId);
+//				System.out.println("Logbook Added Check" + stageId);
 				SessionManagement sessionManagement = new SessionManagement();
 				sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed", stageId);
 
@@ -690,19 +690,7 @@ public void getTestFilesRunnedSuccessSRULRU(String sessionId, String stageId) {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-	
-	
+		
 	// checking the is All Are TestFiles Runned
 public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		
@@ -765,7 +753,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			if (getResponseFileMapping.getCode() != 0) {
 				testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
 				if (testFilesStagesMappingList != null) {
-					System.out.println("testFilesStagesMappingList Size" + testFilesStagesMappingList.size());
+//					System.out.println("testFilesStagesMappingList Size" + testFilesStagesMappingList.size());
 					for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
 						filesMappingIds.add(testFilesStagesMapping.getTestFileId());
 					}
@@ -834,7 +822,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			if (notRunnedAll && runnedAllSuccess) {
 				// stagePath = "C:\\Users\\TECLEVER\\Downloads\\Copied\\";
 				//Added the Status to Application Log Book..Session Stage Results
-				System.out.println("Logbook Added Check" + stageId);
+//				System.out.println("Logbook Added Check" + stageId);
 				
 				//To Update the Passed Status In UUT Log Book Of Application
 				SessionManagement sessionManagement = new SessionManagement();
@@ -849,7 +837,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 					String pathString = service.getRdfPath() + service.getRdfFileName();
 					Path path = Path.of(pathString);
 					listOfPath.add(path);
-					System.out.println("PATH...." + pathString);
+//					System.out.println("PATH...." + pathString);
 				}
 
 				copyFilesToOutputFolder(listOfPath, outputPath);
@@ -1212,7 +1200,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 					Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
 //					Files.copy(sourceFile, destinationFile,StandardCopyOption.REPLACE_EXISTING);
 					Files.move(sourceFile, destinationFile,StandardCopyOption.REPLACE_EXISTING);
-					System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+//					System.out.println("Copied file REPORT 1 " + sourceFile.getFileName() + " to " + destinationFile);
 					//Delete File 
 					//deleteFile(sourceFile);
 			
@@ -1444,7 +1432,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 //				Files.copy(sourceFile, destinationFile);
 				Files.move(sourceFile, destinationFile);
 //				System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
-				Debug.printDebug("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+				Debug.printDebug("Copied file REPORT 2 " + sourceFile.getFileName() + " to " + destinationFile);
 			} else {
 				Debug.printDebug("Output folder does not exist for current session.");
 			}
@@ -1875,7 +1863,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		            Path destinationFile = dateTimeFolderPath.resolve(sourceFile.getFileName());
 //		            Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
 		            Files.move(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-		            Debug.printDebug("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+		            Debug.printDebug("Copied file REPORT 3 " + sourceFile.getFileName() + " to " + destinationFile);
 		        }
 
 		    } catch (IOException e) {
@@ -2411,7 +2399,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 				}
 
 				if (popupRDFFiles) {
-					System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+//					System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
 					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 						RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
@@ -2421,13 +2409,15 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 					res.setCopyFileDTOList(DFCCConstant.FailedStagesRdfPaths);
 					res.setMsg("User Action Needs");
 					res.setFlag(true);
-					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//					if(!StateMachine.isRdfCopy()) {
+//					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//					}
 				} else {
 					SessionFileManagement session = new SessionFileManagement();
-					System.out.println(
-							"DFCCConstant.FailedStagesRdfPaths  Size" + DFCCConstant.FailedStagesRdfPaths.size());
+//					System.out.println(
+//							"DFCCConstant.FailedStagesRdfPaths  Size" + DFCCConstant.FailedStagesRdfPaths.size());
 					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
-					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					res.setCode(1);
 					res.setMsg("Internally All Are Copied");
 					return res;
@@ -2468,9 +2458,10 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			if (newFolderPath != null && Files.exists(newFolderPath)) {
 
 				Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
-//				Files.copy(sourceFile, destinationFile);
-				Files.move(sourceFile, destinationFile);
-				Debug.printDebug("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+//				Suji Commented .move and un Commented .copy(09-08-2025)
+				Files.copy(sourceFile, destinationFile);
+//				Files.move(sourceFile, destinationFile);
+				Debug.printDebug("Copied file REPORT 4 " + sourceFile.getFileName() + " to " + destinationFile);
 				//deleteFile(sourceFile);
 			} else {
 				Debug.printDebug("Output folder does not exist for the current session.");
@@ -2630,17 +2621,32 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		}
 	}
 	
+	//New Method For Colur Change Checking For Stage 
+	public void changeStageStatus(String sessionId, String stageId,boolean continueWithError)
+	{
+		
+		if(continueWithError)
+		{
+			
+		}else
+		{
+			
+		}	
+	}
 	
 	
+	
+	
+	//New Colour Changes Method Done By Ma...
 	public boolean getStatusFlagOfSelectedFile(String sessionId, String stageId, String sessionStagesMappingId,
-			int repeatCount, boolean continueWithError) {
+			int repeatCount, boolean continueWithError,boolean removeFileCheck) {
 
 		boolean response = false;
 		try {
-
-			System.out.println("Sequence BE:::");
-			System.out.println("Stage ID for Runned :: " +stageId );
-			System.out.println("SessionSTage Map ID:::" +sessionStagesMappingId );
+//			System.out.println("GetStatusFlagOfSelectedFile");
+//			System.out.println("Sequence BE:::");
+//			System.out.println("Stage ID for Runned :: " +stageId );
+//			System.out.println("SessionSTage Map ID:::" +sessionStagesMappingId );
 			// Session Selected Stages Mapping Service
 //			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 //			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
@@ -2708,7 +2714,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
 			failureList = testFileResults.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
 					.collect(Collectors.toList());
-			System.out.println("Failure List Size"+failureList.size());
+//			System.out.println(" Failure List Size"+failureList.size());
 			
 			boolean rDFNotGeneratedError = false;
 
@@ -2717,11 +2723,116 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 			} else {
 				response = true;
 			}
+			
+			//For Remove file Checking...
+			if(removeFileCheck)
+			{
+				if (response) {
+					return false;
+				} else {
+					return true;
+				}
+
+			}
+			
+			//Continue With Error Checking For All Conditions
+			if (continueWithError) {
+				
+				List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
+				errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
+						.collect(Collectors.toList());
+				
+				if (errorList.size() > 0) {
+//					System.out.println("Failed File Are There So No Need to Disable");
+					return false;
+				}
+				
+				if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
+					List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
+					testFiles.addAll(nonDuplicatedFileIds);
+					DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
+				} else {
+					DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
+
+				}
+
+				int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
+				
+//				System.out.println("After Runned Files Count:::" +afterRunnedFilesCount);
+
+				if (afterRunnedFilesCount == testFileIdsInStage.size()) {
+//					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+					SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+					// Need to Check the All File Status
+
+					// Session Stages Test Files Result
+					GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+							.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+					List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+					if (getResponseStageTestFileResult.getCode() != 0) {
+						sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+								.getResponseList();
+					}
+
+					List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+
+					// Filtering By Result For Current Login Session
+					if (sessionStagesTestFilesResultServiceList != null) {
+						SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
+								Locale.ENGLISH);
+
+						Date inputDate = fullDateFormat
+								.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
+
+						filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList
+								.stream().filter(res -> {
+									try {
+										Date startTime = fullDateFormat.parse(res.getStartTime());
+										return startTime.compareTo(inputDate) >= 0;
+									} catch (ParseException e) {
+										e.printStackTrace();
+										return false;
+									}
+								}).collect(Collectors.toList());
+					}
+					
+					List<SessionStagesTestFilesResult> failureList1 = new ArrayList<SessionStagesTestFilesResult>();
+					failureList1 = filtersessionStagesTestFilesResultServiceList.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
+							.collect(Collectors.toList());
+
+					filtersessionStagesTestFilesResultServiceList = filtersessionStagesTestFilesResultServiceList
+							.stream().filter(c -> !c.getTestStatus().equals("SUCCESS"))
+							.collect(Collectors.toList());                   
+					
+//					System.out.println("filtersessionStagesTestFilesResultServiceList Size"+filtersessionStagesTestFilesResultServiceList.size());
+//					System.out.println("failureList1 Size"+failureList1.size());
+					String stageStatus = "";
+					
+					
+				
+
+					if (filtersessionStagesTestFilesResultServiceList.size() > 0) {
+						stageStatus = "completedwithfailure";
+//						System.out.println("GetStatusFlagOfSelectedFile CompletedWithfailure");
+					} else {
+						stageStatus = "completed";
+//						System.out.println("GetStatusFlagOfSelectedFile Completed");
+					}
+
+					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
+					
+					DFCCConstant.colourFlag = true;
+					StateMachine.setUpdateColor(true);
+					
+				}
+
+				return true;
+			}
 
 			
 
 			if (response) {
-				System.out.println(" Condition"+response);
+//				System.out.println("GetStatusFlagOfSelectedFile Condition"+response);
 				
 				
 				
@@ -2729,117 +2840,136 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 				if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
 					List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
 					testFiles.addAll(nonDuplicatedFileIds);
-					System.out.println("FileIds Selected Size ::"+fileIdsSelected.size());
+//					System.out.println("GetStatusFlagOfSelectedFile FileIds Selected Size ::"+fileIdsSelected.size());
 					DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
 				} else {
-					System.out.println(" INSIDE THE ESLE ALL IN ONE SHOT");
+//					System.out.println("GetStatusFlagOfSelectedFile INSIDE THE ESLE ALL IN ONE SHOT");
 					DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
 
 				}
 				
-				System.out.println(" Condition File After Count"+DFCCConstant.stageCompletedFiles.get(stageId).size());
+//				System.out.println(" Condition File After Count"+DFCCConstant.stageCompletedFiles.get(stageId).size());
 				
 				
-				System.out.println("SIZe of completed Files"+DFCCConstant.stageCompletedFiles.get(stageId).size());
+//				System.out.println("GetStatusFlagOfSelectedFile SIZe of completed Files"+DFCCConstant.stageCompletedFiles.get(stageId).size());
 				int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
 
 				if (afterRunnedFilesCount == testFileIdsInStage.size()) {
-					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+//					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
 					SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
 					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, "completed");
 					
 					StateMachine.setUpdateColor(true);
-					System.out.println("TRUEEEEEEEEE");
+//					System.out.println("TRUEEEEEEEEE");
 					
 				}
 
 			} else {
 				if (continueWithError) {
 					
-					List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
-					errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
-							.collect(Collectors.toList());
-					
-					if (errorList.size() > 0) {
-						System.out.println("Failed File Are There So No Need to Disable");
-						return false;
-					}
-					
-					if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
-						List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
-						testFiles.addAll(nonDuplicatedFileIds);
-						DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
-					} else {
-						DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
-
-					}
-
-					int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
-					
-					System.out.println("After Runned Files Count:::" +afterRunnedFilesCount);
-
-					if (afterRunnedFilesCount == testFileIdsInStage.size()) {
-						System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
-						SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
-						// Need to Check the All File Status
-
-						// Session Stages Test Files Result
-						GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
-								.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
-						List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
-						if (getResponseStageTestFileResult.getCode() != 0) {
-							sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
-									.getResponseList();
-						}
-
-						List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
-
-						// Filtering By Result For Current Login Session
-						if (sessionStagesTestFilesResultServiceList != null) {
-							SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
-									Locale.ENGLISH);
-
-							Date inputDate = fullDateFormat
-									.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
-
-							filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList
-									.stream().filter(res -> {
-										try {
-											Date startTime = fullDateFormat.parse(res.getStartTime());
-											return startTime.compareTo(inputDate) >= 0;
-										} catch (ParseException e) {
-											e.printStackTrace();
-											return false;
-										}
-									}).collect(Collectors.toList());
-						}
-
-						filtersessionStagesTestFilesResultServiceList = filtersessionStagesTestFilesResultServiceList
-								.stream().filter(c -> !c.getTestStatus().equals("SUCCESS"))
-								.collect(Collectors.toList());
-
-						String stageStatus = "";
-
-						if (filtersessionStagesTestFilesResultServiceList.size() > 0) {
-							stageStatus = "completedwithfailure";
-						} else {
-							stageStatus = "completed";
-						}
-
-						sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
-						
-						DFCCConstant.colourFlag = true;
-						StateMachine.setUpdateColor(true);
-						
-					}
-
-					return true;
+//					List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
+//					errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
+//							.collect(Collectors.toList());
+//					
+//					if (errorList.size() > 0) {
+//						System.out.println("Failed File Are There So No Need to Disable");
+//						return false;
+//					}
+//					
+//					if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
+//						List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
+//						testFiles.addAll(nonDuplicatedFileIds);
+//						DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
+//					} else {
+//						DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
+//
+//					}
+//
+//					int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
+//					
+//					System.out.println("After Runned Files Count:::" +afterRunnedFilesCount);
+//
+//					if (afterRunnedFilesCount == testFileIdsInStage.size()) {
+//						System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+//						SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+//						// Need to Check the All File Status
+//
+//						// Session Stages Test Files Result
+//						GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+//								.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+//						List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+//						if (getResponseStageTestFileResult.getCode() != 0) {
+//							sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+//									.getResponseList();
+//						}
+//
+//						List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+//
+//						// Filtering By Result For Current Login Session
+//						if (sessionStagesTestFilesResultServiceList != null) {
+//							SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
+//									Locale.ENGLISH);
+//
+//							Date inputDate = fullDateFormat
+//									.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
+//
+//							filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList
+//									.stream().filter(res -> {
+//										try {
+//											Date startTime = fullDateFormat.parse(res.getStartTime());
+//											return startTime.compareTo(inputDate) >= 0;
+//										} catch (ParseException e) {
+//											e.printStackTrace();
+//											return false;
+//										}
+//									}).collect(Collectors.toList());
+//						}
+//						
+//						List<SessionStagesTestFilesResult> failureList1 = new ArrayList<SessionStagesTestFilesResult>();
+//						failureList1 = filtersessionStagesTestFilesResultServiceList.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
+//								.collect(Collectors.toList());
+//
+//						filtersessionStagesTestFilesResultServiceList = filtersessionStagesTestFilesResultServiceList
+//								.stream().filter(c -> !c.getTestStatus().equals("SUCCESS"))
+//								.collect(Collectors.toList());                   
+//						
+//						System.out.println("filtersessionStagesTestFilesResultServiceList Size"+filtersessionStagesTestFilesResultServiceList.size());
+//						System.out.println("failureList1 Size"+failureList1.size());
+//						String stageStatus = "";
+//						
+//						
+//					
+//
+//						if (filtersessionStagesTestFilesResultServiceList.size() > 0) {
+//							stageStatus = "completedwithfailure";
+//							System.out.println("GetStatusFlagOfSelectedFile CompletedWithfailure");
+//						} else {
+//							stageStatus = "completed";
+//							System.out.println("GetStatusFlagOfSelectedFile Completed");
+//						}
+//
+//						sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
+//						
+//						DFCCConstant.colourFlag = true;
+//						StateMachine.setUpdateColor(true);
+//						
+//					}
+//
+//					return true;
 				}
 				else
 				{
-					System.out.println("Coming to Else Part But Failure is there");
+					
+					
+//					System.out.println("Coming to Else Part But Failure is there");
 					return false;
 				}
+				
+				//
+				
+				
+				
+				
 			}
 
 		} catch (Exception ex) {
@@ -2851,6 +2981,361 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 	
 	
 	
+	//OLD Colour Changes...
+	public boolean getStatusFlagOfSelectedFileOld(String sessionId, String stageId, String sessionStagesMappingId,
+			int repeatCount, boolean continueWithError,boolean removeFileCheck) {
+
+		boolean response = false;
+		try {
+//			System.out.println("GetStatusFlagOfSelectedFile");
+//			System.out.println("Sequence BE:::");
+//			System.out.println("Stage ID for Runned :: " +stageId );
+//			System.out.println("SessionSTage Map ID:::" +sessionStagesMappingId );
+			// Session Selected Stages Mapping Service
+//			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+//			GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
+//			SessionStagesMapping session = new SessionStagesMapping();
+			//
+//			session = (SessionStagesMapping) getObject.getObject();
+//			String sessionStagesMappingId = session.getSessionStagesMappingId();
+//			int repeatCount = session.getRepeatCount();			
+
+			// Collecting the All Test FileId in the Stages
+			TestFilesStagesMappingService testFilesStagesMappingService = new TestFilesStagesMappingService();
+			GetResponse getResponseFileMapping = testFilesStagesMappingService
+					.getTestFilesStagesMappingByLastLevelReference(stageId);
+			List<TestFilesStagesMapping> testFilesStagesMappingList = new ArrayList();
+			testFilesStagesMappingList = (List<TestFilesStagesMapping>) getResponseFileMapping.getResponseList();
+
+			List<String> testFileIdsInStage = new ArrayList<>();
+			for (TestFilesStagesMapping testFilesStagesMapping : testFilesStagesMappingList) {
+				testFileIdsInStage.add(testFilesStagesMapping.getTestFileId());
+			}
+
+			SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+			GetResponse selectedGetResponse = sessionStagesSelectedTestFilesService
+					.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+
+			List<SessionStagesSelectedTestFiles> selectTestFileIds = new ArrayList();
+			selectTestFileIds = (List<SessionStagesSelectedTestFiles>) selectedGetResponse.getResponseList();
+			List<String> selectedFileIds = new ArrayList<String>();
+			List<String> fileIdsSelected = new ArrayList<String>();
+			List<String> nonDuplicatedFileIds = new ArrayList<String>();
+			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
+			for (SessionStagesSelectedTestFiles sessionStagesSelectedTestFiles : selectTestFileIds) {
+
+				// if(sessionStagesSelectedTestFiles.getTestFilesId().equals(testFileId))
+				selectedFileIds.add(sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId());
+				fileIdsSelected.add(sessionStagesSelectedTestFiles.getTestFilesId());
+				selectedTestFileIdTestFileId.put(sessionStagesSelectedTestFiles.getSessionStagesSelectedTestFilesId(),
+						sessionStagesSelectedTestFiles.getTestFilesId());
+				if(!nonDuplicatedFileIds.contains(sessionStagesSelectedTestFiles.getTestFilesId()))
+				{
+					nonDuplicatedFileIds.add(sessionStagesSelectedTestFiles.getTestFilesId());
+				}
+			}
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse responseTestFile = sessionStagesTestFilesResultService
+					.getSelectedTestFilesByIds(selectedFileIds);
+			List<SessionStagesTestFilesResult> testFileResults = new ArrayList<>();
+			testFileResults = (List<SessionStagesTestFilesResult>) responseTestFile.getResponseList();
+			int testFileResultCount = 0;
+			int filterTestCount = 0;
+
+			// Files Count : 10
+			// Repeat Count : 2
+			// TotalFiles : 20
+
+			if (repeatCount > 1) {
+				testFileResultCount = testFileResults.size();
+				filterTestCount = testFileResultCount / repeatCount;
+				testFileResults = testFileResults.subList(filterTestCount, testFileResultCount);
+			}
+
+			// Filter Based On The Repeat Count..
+
+			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
+			failureList = testFileResults.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
+					.collect(Collectors.toList());
+//			System.out.println(" Failure List Size"+failureList.size());
+			
+			boolean rDFNotGeneratedError = false;
+
+			if (failureList.size() > 0) {
+				response = false;
+			} else {
+				response = true;
+			}
+			
+			//For Remove file Checking...
+			if(removeFileCheck)
+			{
+				if (response) {
+					return false;
+				} else {
+					return true;
+				}
+
+			}
+			
+			//Continue With Error Checking For All Conditions
+			if (continueWithError) {
+				
+				List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
+				errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
+						.collect(Collectors.toList());
+				
+				if (errorList.size() > 0) {
+//					System.out.println("Failed File Are There So No Need to Disable");
+					return false;
+				}
+				
+				if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
+					List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
+					testFiles.addAll(nonDuplicatedFileIds);
+					DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
+				} else {
+					DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
+
+				}
+
+				int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
+				
+//				System.out.println("After Runned Files Count:::" +afterRunnedFilesCount);
+
+				if (afterRunnedFilesCount == testFileIdsInStage.size()) {
+//					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+					SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+					// Need to Check the All File Status
+
+					// Session Stages Test Files Result
+					GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+							.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+					List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+					if (getResponseStageTestFileResult.getCode() != 0) {
+						sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+								.getResponseList();
+					}
+
+					List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+
+					// Filtering By Result For Current Login Session
+					if (sessionStagesTestFilesResultServiceList != null) {
+						SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
+								Locale.ENGLISH);
+
+						Date inputDate = fullDateFormat
+								.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
+
+						filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList
+								.stream().filter(res -> {
+									try {
+										Date startTime = fullDateFormat.parse(res.getStartTime());
+										return startTime.compareTo(inputDate) >= 0;
+									} catch (ParseException e) {
+										e.printStackTrace();
+										return false;
+									}
+								}).collect(Collectors.toList());
+					}
+					
+					List<SessionStagesTestFilesResult> failureList1 = new ArrayList<SessionStagesTestFilesResult>();
+					failureList1 = filtersessionStagesTestFilesResultServiceList.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
+							.collect(Collectors.toList());
+
+					filtersessionStagesTestFilesResultServiceList = filtersessionStagesTestFilesResultServiceList
+							.stream().filter(c -> !c.getTestStatus().equals("SUCCESS"))
+							.collect(Collectors.toList());                   
+					
+//					System.out.println("filtersessionStagesTestFilesResultServiceList Size"+filtersessionStagesTestFilesResultServiceList.size());
+//					System.out.println("failureList1 Size"+failureList1.size());
+					String stageStatus = "";
+					
+					
+				
+
+					if (filtersessionStagesTestFilesResultServiceList.size() > 0) {
+						stageStatus = "completedwithfailure";
+//						System.out.println("GetStatusFlagOfSelectedFile CompletedWithfailure");
+					} else {
+						stageStatus = "completed";
+//						System.out.println("GetStatusFlagOfSelectedFile Completed");
+					}
+
+					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
+					
+					DFCCConstant.colourFlag = true;
+					StateMachine.setUpdateColor(true);
+					
+				}
+
+				return true;
+			}
+
+			
+
+			if (response) {
+//				System.out.println("GetStatusFlagOfSelectedFile Condition"+response);
+				
+				
+				
+			//	
+				if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
+					List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
+					testFiles.addAll(nonDuplicatedFileIds);
+//					System.out.println("GetStatusFlagOfSelectedFile FileIds Selected Size ::"+fileIdsSelected.size());
+					DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
+				} else {
+//					System.out.println("GetStatusFlagOfSelectedFile INSIDE THE ESLE ALL IN ONE SHOT");
+					DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
+
+				}
+				
+//				System.out.println(" Condition File After Count"+DFCCConstant.stageCompletedFiles.get(stageId).size());
+				
+				
+//				System.out.println("GetStatusFlagOfSelectedFile SIZe of completed Files"+DFCCConstant.stageCompletedFiles.get(stageId).size());
+				int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
+
+				if (afterRunnedFilesCount == testFileIdsInStage.size()) {
+//					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+					SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, "completed");
+					
+					StateMachine.setUpdateColor(true);
+//					System.out.println("TRUEEEEEEEEE");
+					
+				}
+
+			} else {
+				if (continueWithError) {
+					
+//					List<SessionStagesTestFilesResult> errorList = new ArrayList<SessionStagesTestFilesResult>();
+//					errorList = testFileResults.stream().filter(ses -> ses.getRdfFileName().equals("RDF NOT GENERATED"))
+//							.collect(Collectors.toList());
+//					
+//					if (errorList.size() > 0) {
+//						System.out.println("Failed File Are There So No Need to Disable");
+//						return false;
+//					}
+//					
+//					if (DFCCConstant.stageCompletedFiles.containsKey(stageId)) {
+//						List<String> testFiles = DFCCConstant.stageCompletedFiles.get(stageId);
+//						testFiles.addAll(nonDuplicatedFileIds);
+//						DFCCConstant.stageCompletedFiles.put(stageId, testFiles);
+//					} else {
+//						DFCCConstant.stageCompletedFiles.put(stageId, nonDuplicatedFileIds);
+//
+//					}
+//
+//					int afterRunnedFilesCount = DFCCConstant.stageCompletedFiles.get(stageId).size();
+//					
+//					System.out.println("After Runned Files Count:::" +afterRunnedFilesCount);
+//
+//					if (afterRunnedFilesCount == testFileIdsInStage.size()) {
+//						System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
+//						SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+//						// Need to Check the All File Status
+//
+//						// Session Stages Test Files Result
+//						GetResponse getResponseStageTestFileResult = sessionStagesTestFilesResultService
+//								.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
+//						List<SessionStagesTestFilesResult> sessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+//						if (getResponseStageTestFileResult.getCode() != 0) {
+//							sessionStagesTestFilesResultServiceList = (List<SessionStagesTestFilesResult>) getResponseStageTestFileResult
+//									.getResponseList();
+//						}
+//
+//						List<SessionStagesTestFilesResult> filtersessionStagesTestFilesResultServiceList = new ArrayList<SessionStagesTestFilesResult>();
+//
+//						// Filtering By Result For Current Login Session
+//						if (sessionStagesTestFilesResultServiceList != null) {
+//							SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
+//									Locale.ENGLISH);
+//
+//							Date inputDate = fullDateFormat
+//									.parse(StateMachine.currentSessionDetails.getLoginSessionDate().toString());
+//
+//							filtersessionStagesTestFilesResultServiceList = sessionStagesTestFilesResultServiceList
+//									.stream().filter(res -> {
+//										try {
+//											Date startTime = fullDateFormat.parse(res.getStartTime());
+//											return startTime.compareTo(inputDate) >= 0;
+//										} catch (ParseException e) {
+//											e.printStackTrace();
+//											return false;
+//										}
+//									}).collect(Collectors.toList());
+//						}
+//						
+//						List<SessionStagesTestFilesResult> failureList1 = new ArrayList<SessionStagesTestFilesResult>();
+//						failureList1 = filtersessionStagesTestFilesResultServiceList.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
+//								.collect(Collectors.toList());
+//
+//						filtersessionStagesTestFilesResultServiceList = filtersessionStagesTestFilesResultServiceList
+//								.stream().filter(c -> !c.getTestStatus().equals("SUCCESS"))
+//								.collect(Collectors.toList());                   
+//						
+//						System.out.println("filtersessionStagesTestFilesResultServiceList Size"+filtersessionStagesTestFilesResultServiceList.size());
+//						System.out.println("failureList1 Size"+failureList1.size());
+//						String stageStatus = "";
+//						
+//						
+//					
+//
+//						if (filtersessionStagesTestFilesResultServiceList.size() > 0) {
+//							stageStatus = "completedwithfailure";
+//							System.out.println("GetStatusFlagOfSelectedFile CompletedWithfailure");
+//						} else {
+//							stageStatus = "completed";
+//							System.out.println("GetStatusFlagOfSelectedFile Completed");
+//						}
+//
+//						sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
+//						
+//						DFCCConstant.colourFlag = true;
+//						StateMachine.setUpdateColor(true);
+//						
+//					}
+//
+//					return true;
+				}
+				else
+				{
+					
+					
+//					System.out.println("Coming to Else Part But Failure is there");
+					return false;
+				}
+				
+				//
+				
+				
+				
+				
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+
+		}
+		return response;
+	}
+	
+	public long getRunnedSeconds(String startTimeStr, String endTimeStr) {
+	    try {
+	        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+	        Date startDate = sdf.parse(startTimeStr);
+	        Date endDate = sdf.parse(endTimeStr);
+
+	        long durationMillis = endDate.getTime() - startDate.getTime();
+	        return durationMillis / 1000; // convert to seconds
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return 0;
+	    }
+	}
 	
 	public boolean getPopupShownStatus() {
 		boolean popupRDFFiles = false;

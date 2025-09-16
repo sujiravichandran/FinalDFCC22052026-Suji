@@ -234,7 +234,7 @@ public class CurrentUnitResultController {
 
 		unitDataTableView.getColumns().forEach(column -> {
 			if (!column.getText().isEmpty()) {
-				column.setMinWidth(column.getText().length() * 12);
+				column.setMinWidth(column.getText().length() * 14);
 //				updateUnitData((TableColumn<UnitData, String>) column);
 			}
 		});

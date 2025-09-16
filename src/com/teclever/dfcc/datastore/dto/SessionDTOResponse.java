@@ -4,6 +4,8 @@ import java.sql.Date;
 import java.util.List;
 
 import com.teclever.datastore.dto.Response;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class SessionDTOResponse {
 
@@ -17,7 +19,7 @@ public class SessionDTOResponse {
 	private Date creationDate;
 	private Date startDate;
 	private Date endDate;
-	private String startDateTime;
+	private final StringProperty startDateTime = new SimpleStringProperty(this, "startDateTime");
 	private String endDateTime;
 	private String ofpConfigId;
 	private String startRemarks;
@@ -155,13 +157,17 @@ public class SessionDTOResponse {
 		this.faultCodeOnOFPVersion = faultCodeOnOFPVersion;
 	}
 
-	public String getStartDateTime() {
-		return startDateTime;
-	}
+	 public String getStartDateTime() {
+	        return startDateTime.get();
+	    }
 
-	public void setStartDateTime(String startDateTime) {
-		this.startDateTime = startDateTime;
-	}
+	    public void setStartDateTime(String startDateTime) {
+	        this.startDateTime.set(startDateTime);
+	    }
+
+	    public StringProperty startDateTimeProperty() {
+	        return startDateTime;
+	    }
 
 	public String getEndDateTime() {
 		return endDateTime;

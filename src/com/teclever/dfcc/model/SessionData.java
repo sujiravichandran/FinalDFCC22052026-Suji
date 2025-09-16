@@ -7,13 +7,14 @@ public class SessionData {
 //	Changed by Vignesh 31-07-25 for moving testMode location	
 	private String testMode;
 	private String stage;
-	private String startTime;
-	private String endTime;
 	private String status;
 	private String result;
-	private String timeTakenForExecution;
 	private String noOfFilesExecuted;
 	private String failedFiles;
+	private String startTime;
+	private String endTime;
+	private String timeTakenForExecution;
+	private String sessionType;
 	
 	
 	public String getTestMode() {
@@ -81,6 +82,12 @@ public class SessionData {
 	}
 	public void setFailedFiles(String failedFiles) {
 		this.failedFiles = failedFiles;
+	}
+	public String getSessionType() {
+		return sessionType;
+	}
+	public void setSessionType(String sessionType) {
+		this.sessionType = sessionType;
 	}
 	
 	
