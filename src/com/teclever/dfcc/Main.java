@@ -30,6 +30,7 @@ import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -71,7 +72,9 @@ public class Main extends Application {
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
 		}
-	
+		
+
+		
 		
 //		SessionTestingController sessionTestingController = new SessionTestingController();
 //		sessionTestingController.createTreeView();
@@ -222,6 +225,7 @@ public class Main extends Application {
 	            new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/DFCC-Logo.png")));
 	    primaryStage.setMaximized(true);
 	    primaryStage.initStyle(StageStyle.UNDECORATED);
+	    primaryStage.setTitle("DFCC");
 	    primaryStage.setScene(scene);
 	    primaryStage.show();
 	    // Add your CSS

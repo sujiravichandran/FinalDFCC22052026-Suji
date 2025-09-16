@@ -1,10 +1,7 @@
 package com.teclever.dfcc.resultmanagement;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -51,6 +48,7 @@ import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.ReportDetails;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
@@ -67,7 +65,6 @@ import com.teclever.dfcc.resultstore.resultmanagement.ResultManagement;
 import com.teclever.dfcc.utils.Debug;
 
 import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
 
 public class ResultExecutionManagement {
 
@@ -145,19 +142,19 @@ public class ResultExecutionManagement {
 
 			// For Last Set Runned By Stage
 			
-			  if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
-			 sessionStagesSelectedTestFilesService = new
-			  SessionStagesSelectedTestFilesService(); GetResponse getResponse =
-			  sessionStagesSelectedTestFilesService
-			  .getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
-			  List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new
-			  ArrayList<SessionStagesSelectedTestFiles>(); selectedTestFileInStages =
-			  (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList(); if
-			  (selectedTestFileInStages != null) { for (SessionStagesSelectedTestFiles
-			  selectedTestFile : selectedTestFileInStages) {
-			  selectedTestFileIdTestFileId.put(selectedTestFile.
-			  getSessionStagesSelectedTestFilesId(), selectedTestFile.getTestFilesId()); }
-			  } }
+			if (sessionStagesMappingId != null) {
+				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+				GetResponse getResponse = sessionStagesSelectedTestFilesService
+						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+				List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+				selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+				if (selectedTestFileInStages != null) {
+					for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+						selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+								selectedTestFile.getTestFilesId());
+					}
+				}
+			}
 			 
 
 			// For Fetching All The SelectedTestFileId
@@ -257,7 +254,7 @@ public class ResultExecutionManagement {
 			response.seteMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
 			
-			System.out.println(ex.getLocalizedMessage());
+//			System.out.println(ex.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -318,7 +315,7 @@ public class ResultExecutionManagement {
 			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
-			System.out.println("Entred 2nd Method result");
+//			System.out.println("Entred 2nd Method result");
 			/*
 			 * if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
 			 * sessionStagesSelectedTestFilesService = new
@@ -345,7 +342,7 @@ public class ResultExecutionManagement {
 							selectedTestFile.getTestFilesId());
 				}
 			}
-			 System.out.println("Entred 2nd REsulkt MEtod" );
+//			 System.out.println("Entred 2nd REsulkt MEtod" );
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse resTestFiles = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
@@ -356,6 +353,50 @@ public class ResultExecutionManagement {
 				response.setCode(0);
 				return response;
 			}
+			
+			
+//			System.out.println("Selected Stage Type :::"+DFCCConstant.resultStageType);
+			
+			//Filter Based On OtherType Stages On Start And End Time...
+			if(DFCCConstant.resultStageType.equals("OTHER"))
+			{
+				
+				if (lst != null) {
+				    SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+
+				    try {
+				        Date inputDate = fullDateFormat.parse(DFCCConstant.resultStartTime);
+
+				        // Replace this with your actual end time (e.g., from session or elsewhere)
+				        Date endTime = fullDateFormat.parse(DFCCConstant.resultEndTime);
+
+				        lst = lst
+				                .stream()
+				                .filter(res -> {
+				                    try {
+				                        Date startTime = fullDateFormat.parse(res.getStartTime());
+				                        return startTime.compareTo(inputDate) >= 0 && startTime.compareTo(endTime) <= 0;
+				                    } catch (ParseException e) {
+				                        e.printStackTrace();
+				                        return false;
+				                    }
+				                })
+				                .collect(Collectors.toList());
+
+				    } catch (ParseException e) {
+				        e.printStackTrace();
+				    }
+				}
+
+				
+			}
+			
+			
+			
+			
+			
+			
+			
 
 			List<ResultExecutionDTO> resultList = new ArrayList();
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
@@ -382,21 +423,21 @@ public class ResultExecutionManagement {
 						.get(selectedTestFileIdTestFileId.get(sessionStagesTestFilesResult.getSelectedtestFileId())));
 				resultExecutionDTO.setStatus(sessionStagesTestFilesResult.getTestStatus());
 				
-				 if (!sessionStagesTestFilesResult.getTestStatus().equals("SUCCESS")) {
-					 resultExecutionDTO.setStatus("FAIL");
-					 
-				 }else {
-					 resultExecutionDTO.setStatus("PASS"); 
-				 }
+//				 if (!sessionStagesTestFilesResult.getTestStatus().equals("SUCCESS")) {
+//					 resultExecutionDTO.setStatus("FAIL");
+//					 
+//				 }else {
+//					 resultExecutionDTO.setStatus("PASS"); 
+//				 }
 				 
 				 Label statusLabel = new Label();
 				 statusLabel.setText(resultExecutionDTO.getStatus());
 
-				 if ("FAIL".equals(resultExecutionDTO.getStatus())) {
-				     statusLabel.setTextFill(Color.RED);
-				 } else if ("PASS".equals(resultExecutionDTO.getStatus())) {
-				     statusLabel.setTextFill(Color.GREEN);
-				 }
+//				 if ("FAIL".equals(resultExecutionDTO.getStatus())) {
+//				     statusLabel.setTextFill(Color.RED);
+//				 } else if ("PASS".equals(resultExecutionDTO.getStatus())) {
+//				     statusLabel.setTextFill(Color.GREEN);
+//				 }
 				
 				
 				String parentName = sessionManagement.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
@@ -480,7 +521,7 @@ public class ResultExecutionManagement {
 					"--------------------------------" + resTestFiles.getCode() + "  Msg" + resTestFiles.getMsg());
 			List<SessionStagesTestFilesResult> lst = new ArrayList<SessionStagesTestFilesResult>();
 			lst = (List<SessionStagesTestFilesResult>) resTestFiles.getResponseList();
-			System.out.println("Entred 3rd REsulkt MEtod" );
+//			System.out.println("Entred 3rd REsulkt MEtod" );
 
 			if (lst.size() < 1) {
 				response.setMsg("Tests Need to be performed to diplay data");
@@ -601,7 +642,7 @@ public class ResultExecutionManagement {
 			 */
 
 			// Fetching the SessionId
-			System.out.println("Entred sessionId ");
+//			System.out.println("Entred sessionId ");
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
@@ -617,6 +658,7 @@ public class ResultExecutionManagement {
 
 			// TestFiles Fetching
 			Map<String, String> testFileIdName = getTestFileIdName();
+//			System.out.println("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			Debug.printDebug("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			SessionStagesTestFilesResult lastSessionStagesTestFilesResult = sessionStagesTestFilesResultLst
 					.get(sessionStagesTestFilesResultLst.size() - 1);
@@ -658,115 +700,162 @@ public class ResultExecutionManagement {
 			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream().filter(f->ids.stream().anyMatch(id->f.getSelectedtestFileId().equalsIgnoreCase(id))).collect(Collectors.toList());
 
 			
+		//	sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream().filter(s->s.getStageId().equals(stageId)).collect(Collectors.toList());
+	
 			
-			sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream()
-					.filter(stage -> stage.getStageId().equals(stageId)
-							&& !stage.getSystemResultInfoId().equalsIgnoreCase("null"))
-					.collect(Collectors.toList());
+//			System.out.println("Current After Filter :::"+sessionStagesTestFilesResultLst.size());
+			
+			List<ResultDto> lstResults = new ArrayList<ResultDto>();
+			List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
 			Map<String, String> objectIdTestFileId = new HashMap<String, String>();
 			Map<String, String> objectIdstageId = new HashMap<String, String>();
 			Map<String, String> objectIdSelectedTestFileId = new HashMap<String, String>();
+			Map<String, String> objectIdStageId = new HashMap<String,String>();
+			Map<String, String> objectIdRdfFileName = new HashMap<String,String>();
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
-				systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
-				objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
-						sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
-				objectIdstageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
-						sessionStagesTestFilesResult.getStageId());
-				objectIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
-						sessionStagesTestFilesResult.getSelectedtestFileId());
+//				System.out.println("System Info Id Outside "+sessionStagesTestFilesResult.getSystemResultInfoId());
+//				System.out.println("System Info Id Outside Test Status"+sessionStagesTestFilesResult.getTestStatus());
+				if(sessionStagesTestFilesResult.getTestStatus().equals("FAILURE")) {
+			//	if (!sessionStagesTestFilesResult.getSystemResultInfoId().equals("null")) {
+//					System.out.println("System Info Id Inside Test Status"+sessionStagesTestFilesResult.getTestStatus());
+//					System.out.println("System Info Id Inside Null"+sessionStagesTestFilesResult.getSystemResultInfoId());
+					
+//					System.out.println("File Id  :::"+sessionStagesTestFilesResult.getSystemResultInfoId()+"Stage Id "+sessionStagesTestFilesResult.getStageId());
+					
+					systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
 
-				Debug.printDebug("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
-				List<ResultDto> lstResults = new ArrayList<ResultDto>();
-				List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
-
-				for (String systemInfoId : systemInfoIdList) {
-					if(!systemInfoId.equals("null")) {
-					ObjectId objectId = new ObjectId(systemInfoId);
-					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-					lstInterResults = ResultManagement.getResult(sessionId, objectId);
-					// lstResults.addAll(lstInterResults);
-					if (lstInterResults != null) {
-						Debug.printDebug("List Inter Results Size" + lstInterResults.size());
-					}
-
-					for (ResultDto resultDto : lstInterResults) {
-						ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-
-						Map<String, String> fac = resultDto.getFaultyChannel();
-						String channelValues = "";
-						for (String s : fac.keySet()) {
-							Debug.printDebug("S=" + s);
-							channelValues = channelValues + s + "=" + fac.get(s) + ";";
-						}
-
-						List<String> dChannels = resultDto.getdStarChannels();
-
-						String dStarValue = String.join(";", dChannels); // Join with semicolon as separator
-						Debug.printDebug("Concatenated Values: " + dStarValue);
-						resultDetailedDTO.setFaultyChannel(channelValues);
-						channelValues = channelValues.replaceAll("Channel", "CH");
-						resultDetailedDTO.setFaultyChannel(channelValues);
-						Debug.printDebug(resultDto.getFaultyChannel());
-						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
-						Debug.printDebug(resultDto.getExpectedValue());
-						resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
-						Debug.printDebug(resultDto.getMeasuredValue());
-						resultDetailedDTO.setRdfName(resultDto.getFileName());
-						Debug.printDebug(resultDto.getFileName());
-						resultDetailedDTO.setSignalName(resultDto.getSignalName());
-						Debug.printDebug(resultDto.getSignalName());
-						resultDetailedDTO.setStepName(resultDto.getStepName());
-						Debug.printDebug(resultDto.getStepName());
-						resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
-						resultDetailedDTO.setTpfFileName(testFileIdName
-								.get(selectedTestFileIdTestFileId.get(objectIdSelectedTestFileId.get(systemInfoId))));
-						resultDetailedDTO.setTpgph(resultDto.getTpgph());
-						resultDetailedDTO.setUnit(resultDto.getUnit());
-						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
-						resultDetailedDTO.setFaultyChannelValue(dStarValue);
-						if (sessionStagesTestFilesResult.getStageId() != null
-								|| !sessionStagesTestFilesResult.getStageId().equals("")) {
-							resultDetailedDTO.setStageId(sessionStagesTestFilesResult.getStageId());
-							resultDetailedDTO.setStageName(stageIdName.get(sessionStagesTestFilesResult.getStageId()));
-							
-
-						}
-						
-						String parentName = sessionManagement
-								.getFullPathForLeafIds(sessionStagesTestFilesResult.getStageId());
-						parentName = parentName.substring(0, parentName.indexOf("/"));
-
-						if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
-								|| parentName.equals("Self Test")) {
-							resultDetailedDTO.setTestMode(
-									parentName + "-" + stageIdName.get(sessionStagesTestFilesResult.getStageId()));
-
-						} else {
-							resultDetailedDTO.setTestMode("SESSION TEST - " + parentName + "-"
-									+ stageIdName.get(sessionStagesTestFilesResult.getStageId()));
-
-						}
-
-						Debug.printDebug(resultDto.getFaultySRU());
-						Debug.printDebug("ResultDto--->" + resultDto.getFileName());
-						resultDetailedList.add(resultDetailedDTO);
-					}
+					objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+							sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
+					objectIdstageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+							sessionStagesTestFilesResult.getStageId());
+					objectIdSelectedTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+							sessionStagesTestFilesResult.getSelectedtestFileId());
+					objectIdStageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+							sessionStagesTestFilesResult.getStageId());
+					objectIdRdfFileName.put(sessionStagesTestFilesResult.getSystemResultInfoId(), sessionStagesTestFilesResult.getRdfFileName());
 				}
-				response.setStageId(stageId);
-				Debug.printDebug("resultDetailedList" + resultDetailedList.size());
-				response.setStageName(stageIdName.get(stageId));
-				response.setCode(1);
-				response.setResultDetailedList(resultDetailedList);
-				response.setMsg("Fetched Successfully");
 
-				Debug.printDebug("Detail List Size" + resultDetailedList.size());
-				}}
+			}
+//			System.out.println("systemInfoIdList Size ::"+systemInfoIdList.size());
+			
+			//Iterate the List
+			for (String systemInfoId : systemInfoIdList) {
+				
+				
+//				System.out.println("System Info Id"+systemInfoId);
+				if(!systemInfoId.equals("null")) {
+				ObjectId objectId = new ObjectId(systemInfoId);
+				List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
+				lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
+				// lstResults.addAll(lstInterResults);
+				if (lstInterResults != null) {
+					Debug.printDebug("List Inter Results Size" + lstInterResults.size());
+				}
+
+				for (ResultDto resultDto : lstInterResults) {
+					ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+
+					Map<String, String> fac = resultDto.getFaultyChannel();
+//					System.out.println("Detailed Data Faulty Channels::" + resultDto.getFaultyChannel());
+					String channelValues = "";
+					for (String s : fac.keySet()) {
+						Debug.printDebug("S=" + s);
+//						System.out.println("Check S=" + s);
+						channelValues = channelValues + s + "=" + fac.get(s) + ";";
+					}
+
+					List<String> dChannels = resultDto.getdStarChannels();
+
+					String dStarValue = String.join(";", dChannels); // Join with semicolon as separator
+					Debug.printDebug("Concatenated Values: " + dStarValue);
+					resultDetailedDTO.setFaultyChannel(channelValues);
+					channelValues = channelValues.replaceAll("Channel", "CH");
+					resultDetailedDTO.setFaultyChannel(channelValues);
+					Debug.printDebug(resultDto.getFaultyChannel());
+					resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+					Debug.printDebug(resultDto.getExpectedValue());
+					resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
+					Debug.printDebug(resultDto.getMeasuredValue());
+					resultDetailedDTO.setRdfName(resultDto.getFileName());
+					Debug.printDebug(resultDto.getFileName());
+					resultDetailedDTO.setSignalName(resultDto.getSignalName());
+					Debug.printDebug(resultDto.getSignalName());
+					resultDetailedDTO.setStepName(resultDto.getStepName());
+//					System.out.println("DEtailed data check Step No:" + resultDto.getStepName());
+					Debug.printDebug(resultDto.getStepName());
+					resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
+					resultDetailedDTO.setTpfFileName(testFileIdName
+							.get(selectedTestFileIdTestFileId.get(objectIdSelectedTestFileId.get(systemInfoId))));
+					resultDetailedDTO.setTpgph(resultDto.getTpgph());
+					resultDetailedDTO.setUnit(resultDto.getUnit());
+					resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+					resultDetailedDTO.setFaultyChannelValue(dStarValue);
+					
+					String	curStageId = objectIdStageId.get(systemInfoId);
+					if (curStageId!= null
+							|| !curStageId.equals("")) {
+						resultDetailedDTO.setStageId(curStageId);
+						resultDetailedDTO.setStageName(stageIdName.get(curStageId));
+						
+
+					}
+					
+					String parentName = sessionManagement
+							.getFullPathForLeafIds(curStageId);
+					parentName = parentName.substring(0, parentName.indexOf("/"));
+
+					if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
+							|| parentName.equals("Self Test")) {
+						resultDetailedDTO.setTestMode(
+								parentName + "-" + stageIdName.get(curStageId));
+
+					} else {
+						resultDetailedDTO.setTestMode("SESSION TEST - " + parentName + "-"
+								+ stageIdName.get(curStageId));
+
+					}
+
+					Debug.printDebug(resultDto.getFaultySRU());
+					Debug.printDebug("ResultDto--->" + resultDto.getFileName());
+					resultDetailedList.add(resultDetailedDTO);
+							
+					
+				}
+				
+//				System.out.println("Check Details Data  Stage:: D* Count  :::"+ stageIdName.get(objectIdstageId.get(systemInfoId)  +resultDetailedList.size()));
+//				System.out.println("Check Details Data RDF File Name::"+  objectIdRdfFileName.get(systemInfoId) );
+			}
+				
+				
+			response.setStageId(stageId);
+			Debug.printDebug("resultDetailedList" + resultDetailedList.size());
+			response.setStageName(stageIdName.get(stageId));
+			response.setCode(1);
+			response.setResultDetailedList(resultDetailedList);
+			response.setMsg("Fetched Successfully");
+
+			Debug.printDebug("Detail List Size" + resultDetailedList.size());
+			}
+			
+		
+		
+		
+		
 		} catch (Exception ex) {
 			response.setCode(1);
 			response.setMsg("Issue Successfully");
 			response.setMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
-			System.out.println(ex.getLocalizedMessage());
+//			System.out.println(ex.getLocalizedMessage());
 			
 
 
@@ -794,7 +883,7 @@ public class ResultExecutionManagement {
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 
-			System.out.println("Entred sessionId,stageId ");
+//			System.out.println("Entred sessionId,stageId ");
 			
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse res = sessionStagesTestFilesResultService.getTestResultFileBySessionIdAndStageId(sessionId,
@@ -835,9 +924,45 @@ public class ResultExecutionManagement {
 
 			// TestFiles Fetching
 			Map<String, String> testFileIdName = getTestFileIdName();
+//			System.out.println("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			Debug.printDebug("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			Map<String, String> objectIdTestFileId = new HashMap<String, String>();
 			Map<String, String> objectIdstageId = new HashMap<String, String>();
+			
+			
+			if(DFCCConstant.resultStageType.equals("OTHER"))
+			{
+
+				if (sessionStagesTestFilesResultLst != null) {
+					SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy",
+							Locale.ENGLISH);
+
+					try {
+						Date inputDate = fullDateFormat.parse(DFCCConstant.resultStartTime);
+
+						// Replace this with your actual end time (e.g., from session or elsewhere)
+						Date endTime = fullDateFormat.parse(DFCCConstant.resultEndTime);
+
+						sessionStagesTestFilesResultLst = sessionStagesTestFilesResultLst.stream().filter(res1 -> {
+							try {
+								Date startTime = fullDateFormat.parse(res1.getStartTime());
+								return startTime.compareTo(inputDate) >= 0 && startTime.compareTo(endTime) <= 0;
+							} catch (ParseException e) {
+								e.printStackTrace();
+								return false;
+							}
+						}).collect(Collectors.toList());
+
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+			
+			
+			
+			
 			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
 				systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
 				objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
@@ -848,6 +973,8 @@ public class ResultExecutionManagement {
 						sessionStagesTestFilesResult.getSelectedtestFileId());
 				objectIdSelectedTestfileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
 						sessionStagesTestFilesResult.getSelectedtestFileId());
+				
+//				System.out.println("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
 
 				Debug.printDebug("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
 				List<ResultDto> lstResults = new ArrayList<ResultDto>();
@@ -858,12 +985,16 @@ public class ResultExecutionManagement {
 					{
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-					lstInterResults = ResultManagement.getResult(sessionId, objectId);
+					lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
+//					System.out.println("Detailed Data Check " + ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId)));
+//					System.out.println("Detailed Data Check lstInterResults" + lstInterResults);
 					// lstResults.addAll(lstInterResults);
 
 					for (ResultDto resultDto : lstInterResults) {
 						ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
 						Map<String, String> fac = resultDto.getFaultyChannel();
+//						System.out.println("Check faulty Channels" + resultDto.getFaultyChannel());
+						
 						String channelValues = "";
 						for (String s : fac.keySet()) {
 							Debug.printDebug("S=" + s);
@@ -884,12 +1015,15 @@ public class ResultExecutionManagement {
 						resultDetailedDTO.setRdfName(resultDto.getFileName());
 						resultDetailedDTO.setSignalName(resultDto.getSignalName());
 						resultDetailedDTO.setStepName(resultDto.getStepName());
+//						System.out.println("Detailed Data Step NAme" +resultDto.getStepName() );
 						resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
 						String selectedTestFileId = objectIdSelectedTestfileId.get(systemInfoId);
 						resultDetailedDTO.setTpfFileName(
 								testFileIdName.get(selectedTestFileIdTestFileId.get(selectedTestFileId)));
 						resultDetailedDTO.setTpgph(resultDto.getTpgph());
 						resultDetailedDTO.setUnit(resultDto.getUnit());
+//						System.out.println("sessionStagesTestFilesResult" + sessionStagesTestFilesResult.getStageId());
+//						System.out.println("getFaultySRU" + resultDto.getFileName());
 						Debug.printDebug("ResultDto--->" + resultDto.getFileName());
 						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 						if (sessionStagesTestFilesResult.getStageId() != null
@@ -922,6 +1056,7 @@ public class ResultExecutionManagement {
 				}
 
 				response.setCode(1);
+//				System.out.println("Check Result Data Size");
 				response.setResultDetailedList(resultDetailedList);
 				response.setMsg("Fetched Successfully");
 				Debug.printDebug(
@@ -958,7 +1093,7 @@ public class ResultExecutionManagement {
 			 * sessionEntityList.get(sessionEntityList.size() - 1); String sessionId =
 			 * sessionDto.getSessionId(); String sessionName = sessionDto.getSessionName();
 			 */
-			System.out.println("Entred Session2nd");
+//			System.out.println("Entred Session2nd");
 			SessionManagement sessionManagement = new SessionManagement();
 			// Fetching the SessionId
 			List<String> systemInfoIdList = new ArrayList<String>();
@@ -976,6 +1111,7 @@ public class ResultExecutionManagement {
 
 			// TestFiles Fetching
 			Map<String, String> testFileIdName = getTestFileIdName();
+//			System.out.println("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			Debug.printDebug("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
 			/*
 			 * SessionStagesTestFilesResult lastSessionStagesTestFilesResult =
@@ -1002,7 +1138,7 @@ public class ResultExecutionManagement {
 				for (String systemInfoId : systemInfoIdList) {
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-					lstInterResults = ResultManagement.getResult(sessionId, objectId);
+					lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
 					// lstResults.addAll(lstInterResults);
 
 					for (ResultDto resultDto : lstInterResults) {
@@ -1163,7 +1299,7 @@ public class ResultExecutionManagement {
 				for (String systemInfoId : systemInfoIdList) {
 					ObjectId objectId = new ObjectId(systemInfoId);
 					List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-					lstInterResults = ResultManagement.getResult(sessionId, objectId);
+					lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
 					// lstResults.addAll(lstInterResults);
 
 					for (ResultDto resultDto : lstInterResults) {
@@ -1356,10 +1492,10 @@ public class ResultExecutionManagement {
 	}
 
 	// To Get Details From Mongo DB For Current Execution
-	public List<ResultDto> getResultForSingleTpfExecution(String sessionId, String systemInfoId) {
+	public List<ResultDto> getResultForSingleTpfExecution(String sessionId, String systemInfoId,String testFileId) {
 		List<ResultDto> lstResults = new ArrayList<ResultDto>();
 		ObjectId objectId = new ObjectId(systemInfoId);
-		lstResults = ResultManagement.getResult(sessionId, objectId);
+		lstResults = ResultManagement.getResult(sessionId, objectId,testFileId);
 		return lstResults;
 	}
 
@@ -1372,13 +1508,19 @@ public class ResultExecutionManagement {
 		GetResponse res = sessionStagesTestFilesResultService.getTestResultFileByStageId(sessionId);
 		List<SessionStagesTestFilesResult> sessionStagesTestFilesResultLst = new ArrayList<SessionStagesTestFilesResult>();
 		sessionStagesTestFilesResultLst = (List<SessionStagesTestFilesResult>) res.getResponseList();
+		Map<String,String> objectIdTestFileId = new HashMap<String,String>();
 		for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
 			systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
+			objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(), sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
 		}
 		for (String systemInfoId : systemInfoIdList) {
+			
+			
+			
 			ObjectId objectId = new ObjectId(systemInfoId);
 			List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-			lstInterResults = ResultManagement.getResult(sessionId, objectId);
+			lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
+			
 			lstResults.addAll(lstInterResults);
 		}
 		return lstResults;
@@ -1397,13 +1539,15 @@ public class ResultExecutionManagement {
 				.collect(Collectors.toList());
 
 		List<String> systemInfoIdList = new ArrayList<String>();
-		for (SessionStagesTestFilesResult SessionStagesTestFilesResult : stagesTestFilesResultLst) {
-			systemInfoIdList.add(SessionStagesTestFilesResult.getSystemResultInfoId());
+		Map<String,String> objectIdTestFileId = new HashMap<String,String>();
+		for (SessionStagesTestFilesResult sessionStagesTestFilesResult : stagesTestFilesResultLst) {
+			systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
+			objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(), sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
 		}
 		for (String systemInfoId : systemInfoIdList) {
 			ObjectId objectId = new ObjectId(systemInfoId);
 			List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
-			lstInterResults = ResultManagement.getResult(sessionId, objectId);
+			lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
 			lstResults.addAll(lstInterResults);
 		}
 		return lstResults;
@@ -1683,247 +1827,38 @@ public class ResultExecutionManagement {
 		}
 		return res;
 	}
+	
+	public void updateSessionTiming(String sessionId)
+	{
+		
+		
+		
+		
+		
+		
+	}
 
 	// For Getting Session Stages...
 	public ResultSessionStagesDetailsResponse getStagesDetailsForSession(String sessionId) {
 		ResultSessionStagesDetailsResponse response = new ResultSessionStagesDetailsResponse();
 		try {
-			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
-			GetResponse getStagesResponse = sessionSelectedStagesService.getAllSessionStagesBySessionStageId(sessionId);
-			List<SessionStagesMapping> stagesDetailsList = new ArrayList<SessionStagesMapping>();
-			stagesDetailsList = (List<SessionStagesMapping>) getStagesResponse.getResponseList();
+
+			// Add Both Files In Result DTO List...
+			List<ResultSessionStagesDetailsDTO> finalList = new ArrayList<ResultSessionStagesDetailsDTO>();
+
+			// finalList.addAll(sessionStagesListRunnedList);
 			SessionManagement sessionManagemment = new SessionManagement();
 			Map<String, String> stageIdName = sessionManagemment.getAllStageIdName();
 
-			// Fetching the All Result Files By Session-Id
-			GetResponse res1 = new GetResponse();
-			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
-			List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = new ArrayList<SessionStagesTestFilesResult>();
-			res1 = sessionStagesTestFilesResultService.getTestResultFileBySessionIdOrderByDate(sessionId);
-			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
-
-			if (sessionStagesTestFilesResultList != null) {
-				System.out.println("sessionStagesTestFilesResultList size: " + sessionStagesTestFilesResultList.size());
-			} else {
-				System.out.println("sessionStagesTestFilesResultList is null");
-			}
-			Map<String, String> stagesIdName = sessionManagemment.getAllStageIdName();
-			List<ResultSessionStagesDetailsDTO> resultSessionStagesDetailsDTOList = new ArrayList<ResultSessionStagesDetailsDTO>();
-
-			if (stagesDetailsList != null) {
-				for (SessionStagesMapping sessionStagesMapping : stagesDetailsList) {
-
-					// Know the Stage Id's Of Session
-					String levelId = null;
-					if (sessionStagesMapping.getLevelTwoStageId() != null) {
-						levelId = sessionStagesMapping.getLevelTwoStageId();
-					}
-					if (sessionStagesMapping.getLevelThreeStageId() != null) {
-						levelId = sessionStagesMapping.getLevelThreeStageId();
-					}
-					if (sessionStagesMapping.getLevelFourStageId() != null) {
-						levelId = sessionStagesMapping.getLevelFourStageId();
-					}
-					if (sessionStagesMapping.getLevelFiveStageId() != null) {
-						levelId = sessionStagesMapping.getLevelFiveStageId();
-					}
-					// Getting the Stage Id
-					String stageId = levelId;
-					String levelName = stagesIdName.get(levelId);
-					
-					
-//					System.out.println("Level Id   :"+levelId);
-//					System.out.println("Level Id Name   :"+stageIdName.get(stageId));
-
-					String startTime = "-";
-					String endTime = "-";
-					String startTime1 = "";
-					String endTime1 = "";
-
-					int failedFiles = 0;
-					int files = 0;
-
-					if (sessionStagesTestFilesResultList != null && stageId != null) {
-						// Filter the Results File By the Stage Id
-						List<SessionStagesTestFilesResult> stgesfilesList = sessionStagesTestFilesResultList.stream()
-								.filter(ses -> ses.getStageId().equals(stageId)).collect(Collectors.toList());
-
-						if (stgesfilesList != null) {
-							if (stgesfilesList.size() > 1) {
-								startTime = stgesfilesList.get(0).getStartTime();
-								endTime = stgesfilesList.get(stgesfilesList.size() - 1).getEndTime();
-								
-								
-								
-							} else if (stgesfilesList.size() == 1) {
-								startTime = stgesfilesList.get(0).getStartTime();
-								String [] s = startTime.split(" ");
-							
-								startTime1 = s[0] +" " + s[2]+" " + s[1] +" "+ s[5] + " "+   s[3];
-								endTime = stgesfilesList.get(0).getEndTime();
-								String [] e = endTime.split(" ");
-						
-								endTime1 = e[0]+" " + e[2]+" " + e[1]+" " + e[5]+" " +   e[3];
-							}
-						}
-						for (SessionStagesTestFilesResult sessionStagesTestFilesResult : stgesfilesList) {
-							if (!sessionStagesTestFilesResult.getTestStatus().equalsIgnoreCase("SUCCESS")) {
-								failedFiles++;
-							}
-							files++;
-						}
-					}
-					ResultSessionStagesDetailsDTO resultSessionStagesDetailsDTO = new ResultSessionStagesDetailsDTO();
-					resultSessionStagesDetailsDTO.setFailedFiles(failedFiles);
-					resultSessionStagesDetailsDTO.setEndTime(endTime1);
-					resultSessionStagesDetailsDTO.setStartTime(startTime1);
-					String parentName = sessionManagemment.getFullPathForLeafIds(stageId);
-					parentName = parentName.substring(0, parentName.indexOf("/"));
-					if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
-							|| parentName.equals("Self Test")) {
-						resultSessionStagesDetailsDTO.setTestMode(parentName + "-" + stageIdName.get(stageId));
-				
-						resultSessionStagesDetailsDTO.setTestType(parentName);
-					} else {
-						resultSessionStagesDetailsDTO
-								.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(stageId));
-						resultSessionStagesDetailsDTO.setTestType("SESSION");
-				
-					}
-//					if (!startTime.equals("-") && !endTime.equals("-")) {
-//						SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-//						Date d1 = format.parse(startTime);
-//						Date d2 = format.parse(endTime);
-//						long differenceInMillis = d1.getTime() - d2.getTime();
-//						long differenceInSeconds = differenceInMillis / 1000;
-//						long differenceInMinutes = differenceInSeconds / 60;
-//						long differenceInHours = differenceInMinutes / 60;
-//						long differenceInDays = differenceInHours / 24;
-//						resultSessionStagesDetailsDTO.setTimeTakenForExecution(differenceInMinutes + "");
-//						resultSessionStagesDetailsDTO.setStatus("COMPLETED");
-					
-					if (!startTime.equals("-") && !endTime.equals("-")) {
-					    
-					    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-						Date d1 = format.parse(startTime);
-						Date d2 = format.parse(endTime);
-					        long differenceInMillis = d2.getTime() - d1.getTime();
-
-					        long diffSeconds = (differenceInMillis / 1000) % 60;
-					        long diffMinutes = (differenceInMillis / (1000 * 60)) % 60;
-					        long diffHours = (differenceInMillis / (1000 * 60 * 60));
-
-					        String formattedDuration = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds);
-
-					        resultSessionStagesDetailsDTO.setTimeTakenForExecution(formattedDuration);
-						resultSessionStagesDetailsDTO.setStatus("COMPLETED");
-					} else {
-						resultSessionStagesDetailsDTO.setTimeTakenForExecution("-");
-						resultSessionStagesDetailsDTO.setStatus("Pending");
-					}
-					if (failedFiles > 0) {
-						resultSessionStagesDetailsDTO.setResult("Failed");
-					} else if (resultSessionStagesDetailsDTO.getStatus().equalsIgnoreCase("Pending")) {
-						resultSessionStagesDetailsDTO.setResult("-");
-					} else if (failedFiles == 0
-							&& resultSessionStagesDetailsDTO.getStatus().equalsIgnoreCase("COMPLETED")) {
-						resultSessionStagesDetailsDTO.setResult("Success");
-					}
-					resultSessionStagesDetailsDTO.setStageMappingId(sessionStagesMapping.getSessionStagesMappingId());
-					resultSessionStagesDetailsDTO.setStageId(levelId);
-					resultSessionStagesDetailsDTO.setStage(stagesIdName.get(levelId));
-					resultSessionStagesDetailsDTO.setFailedFiles(failedFiles);
-
-					resultSessionStagesDetailsDTO.setNoOfFilesExecuted(files);
-
-					resultSessionStagesDetailsDTOList.add(resultSessionStagesDetailsDTO);
-					startTime = "-";
-					endTime = "-";
-					startTime1 = "";
-					endTime1 = "";
-					
-					failedFiles = 0;
-					files = 0;
-				}
-			}
-			if (stagesDetailsList != null) {
-				response.setTotalNoOfStages(stagesDetailsList.size());
-			} else {
-				response.setTotalNoOfStages(0);
-			}
-			
-			//Filter By Session Name
-			List<ResultSessionStagesDetailsDTO> sessionStagesList = new ArrayList<ResultSessionStagesDetailsDTO>();
-			sessionStagesList = resultSessionStagesDetailsDTOList.stream().filter(ls->ls.getTestType().equals("SESSION")).collect(Collectors.toList());
-			
-			//Filter By No File Executed
-			List<ResultSessionStagesDetailsDTO> sessionStagesListRunnedList = new ArrayList<ResultSessionStagesDetailsDTO>();
-			sessionStagesListRunnedList  = resultSessionStagesDetailsDTOList.stream().filter(ls->!ls.getTestType().equals("SESSION") && ls.getNoOfFilesExecuted()>0).collect(Collectors.toList());			
-			
-			
-			//Add Both Files In Result DTO List...
-			List<ResultSessionStagesDetailsDTO>finalList = new ArrayList<ResultSessionStagesDetailsDTO>();
-			finalList.addAll(sessionStagesList);
-			//finalList.addAll(sessionStagesListRunnedList);
-			
-			
 			SessionTimingService SessionTimingService = new SessionTimingService();
-			List<SessionTiming>otherStagesList =	SessionTimingService.getSessionTimeBySessionId(sessionId);
-			List<ResultSessionStagesDetailsDTO> otherStagesListRunnedList = new ArrayList<ResultSessionStagesDetailsDTO>(); 
-			
-			for(SessionTiming sessionTiming:otherStagesList)
-			{
+			List<SessionTiming> otherStagesList = SessionTimingService.getSessionTimeBySessionId(sessionId);
+			List<ResultSessionStagesDetailsDTO> otherStagesListRunnedList = new ArrayList<ResultSessionStagesDetailsDTO>();
+
+			Map<String, String> stageIdStatus = new HashMap<String, String>();
+			stageIdStatus = sessionManagemment.getStageIdStatus(sessionId);
+
+			for (SessionTiming sessionTiming : otherStagesList) {
 				ResultSessionStagesDetailsDTO otherStages = new ResultSessionStagesDetailsDTO();
-
-				if (!sessionTiming.getEndDateTime().equals("")&&!sessionTiming.getStartDateTime().equals("")) {
-
-					DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT; // Use ISO_INSTANT for Instant parsing
-
-					// Parse both start and end times as Instant (supports nanoseconds).
-					String startDateTime = sessionTiming.getStartDateTime();
-					String endDateTime = sessionTiming.getEndDateTime();
-
-					if (!startDateTime.endsWith("Z")) {
-						startDateTime += "Z";
-					}
-					if (!endDateTime.endsWith("Z")) {
-						endDateTime += "Z";
-					}
-
-					Instant d1 = Instant.from(formatter.parse(startDateTime));
-					Instant d2 = Instant.from(formatter.parse(endDateTime));
-					// MANI
-					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-					// Format the parsed instants into the desired format
-					String formattedStartDateTime = d1.atZone(ZoneId.of("UTC")).format(outputFormatter);
-					String formattedEndDateTime = d2.atZone(ZoneId.of("UTC")).format(outputFormatter);
-					
-					// Now, formattedStartDateTime and formattedEndDateTime will be in the desired
-					// format
-					System.out.println(formattedStartDateTime); // Example: 08/08/2024 11:10:08
-					System.out.println(formattedEndDateTime);
-
-					otherStages.setStartTime(formattedStartDateTime);
-					otherStages.setEndTime(formattedEndDateTime);
-					otherStages.setStageId(sessionTiming.getStageId());
-			
-					// Calculate the difference in milliseconds
-					Duration duration = Duration.between(d1, d2);
-
-					// Convert the duration to hours, minutes, seconds
-					long diffHours = duration.toHours();
-					long diffMinutes = duration.toMinutes() % 60;
-					long diffSeconds = duration.getSeconds() % 60;
-
-					// Format the result as HH:mm:ss
-					String formattedDuration = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds);
-
-					otherStages.setTimeTakenForExecution(formattedDuration);
-					otherStages.setStatus("COMPLETED");
-				} else {
-					otherStages.setTimeTakenForExecution("-");
-					otherStages.setStatus("Pending");
-				}
 
 				String parentName = sessionManagemment.getFullPathForLeafIds(sessionTiming.getStageId());
 				parentName = parentName.substring(0, parentName.indexOf("/"));
@@ -1939,20 +1874,56 @@ public class ResultExecutionManagement {
 
 				}
 
-				// otherStages.setStartTime(sessionTiming.getStartDateTime());
-				// otherStages.setEndTime(sessionTiming.getEndDateTime());
+				otherStages.setStartTime(sessionTiming.getStartDateTime());
+				otherStages.setEndTime(sessionTiming.getEndDateTime());
 				otherStages.setNoOfFilesExecuted(sessionTiming.getNoOfFileExecuted());
 				otherStages.setFailedFiles(sessionTiming.getNoOfFailedExecuted());
+				otherStages.setTimeTakenForExecution(formatSecondsToHHMMSS(sessionTiming.getRunnedSeconds()));
+
 				if (sessionTiming.getNoOfFailedExecuted() == 0) {
 					otherStages.setResult("Success");
 				} else {
 					otherStages.setResult("Failed");
 				}
-				otherStages.setStage(stagesIdName.get(sessionTiming.getStageId()));
-				otherStagesListRunnedList.add(otherStages);
+
+				if (!sessionTiming.getStageType().equals("OTHER")) {
+					if (!stageIdStatus.get(sessionTiming.getStageId()).equals("pending")) {
+
+						if (stageIdStatus.get(sessionTiming.getStageId()).equals("completed")) {
+							// if (sessionTiming.getStageId().equals("completed")) {
+							otherStages.setStatus("Completed");
+							otherStages.setResult("Pass");
+						} else {
+							otherStages.setResult("Fail");
+							otherStages.setStatus("Completed");
+						}
+
+					} else {
+						otherStages.setResult("pending");
+						otherStages.setStatus("pending");
+					}
+				} else {
+					if (sessionTiming.getNoOfFailedExecuted() == 0 && sessionTiming.getNoOfFileExecuted() == 0) {
+						otherStages.setStatus("running");
+						otherStages.setResult("running");
+					} else {
+						otherStages.setResult("Completed");
+						if (sessionTiming.getNoOfFailedExecuted() > 0) {
+							otherStages.setStatus("Completed");
+							otherStages.setResult("Fail");
+						} else {
+							otherStages.setStatus("Completed");
+							otherStages.setResult("Pass");
+						}
+					}
+				}
+
+				otherStages.setStageId(sessionTiming.getStageId());
+				otherStages.setStage(stageIdName.get(sessionTiming.getStageId()));
+				otherStages.setStageMappingId(sessionTiming.getStageType());
+				finalList.add(otherStages);
 			}
-			
-			finalList.addAll(otherStagesListRunnedList);	
+
 			response.setResultSessionStagesDetailsDTOList(finalList);
 			response.setCode(1);
 			response.setMsg("Fetched");
@@ -1965,6 +1936,19 @@ public class ResultExecutionManagement {
 		}
 		return response;
 	}
+
+	
+	
+	
+	public  String formatSecondsToHHMMSS(long totalSeconds) {
+	    long hours = totalSeconds / 3600;
+	    long minutes = (totalSeconds % 3600) / 60;
+	    long seconds = totalSeconds % 60;
+
+	    return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+	}
+
+	
 
 	// For Getting Session Stages...
 
@@ -2087,5 +2071,129 @@ public class ResultExecutionManagement {
 	}
 
 	// For Getting Session Stages...
+	
+	
+	
+	// DashBoard Changes Current Unit Detailed Report
+			public ResultDetailedResponse getResultExecutionListDetailedListForUnit(String uUtTypeId,String slNo) {
+				ResultDetailedResponse response = new ResultDetailedResponse();
+				try {
+					// Session Details
+					SessionService sessionService = new SessionService();
+					SessionResponse s = sessionService.getAllSession();
+					List<SessionDto> sessionList = new ArrayList<SessionDto>();
+					sessionList = s.getListOfSession();
+					sessionList = sessionList.stream().filter(session -> session.getUutId().equals(uUtTypeId))
+							.collect(Collectors.toList());
+					
+					sessionList = sessionList.stream().filter(session -> session.getDfccSNo().equals(slNo))
+							.collect(Collectors.toList());
+					List<String> sessionIds = new ArrayList<String>();
+					Map<String, Map<String, String>> sessionObjMap = new HashMap<String, Map<String, String>>();
+					for (SessionDto sessionDto : sessionList) {
+						Map<String, String> inObj = new HashMap<String, String>();
+						inObj.put("sessionId", sessionDto.getSessionId());
+						inObj.put("dfccSNo", sessionDto.getDfccSNo());
+						inObj.put("dfccPartNo", sessionDto.getDfccPartNo());
+						inObj.put("sessionName", sessionDto.getSessionName());
+						inObj.put("startRemarks", sessionDto.getStartRemarks());
+						inObj.put("endRemarks", sessionDto.getEndRemarks());
+						inObj.put("uUtId", sessionDto.getUutId());
+						sessionObjMap.put(sessionDto.getSessionId(), inObj);
+						sessionIds.add(sessionDto.getSessionId());
+					}
+					/*
+					 * SessionResponse sessionResponse = sessionService.getAllSession();
+					 * List<SessionDto> sessionEntityList = new ArrayList<SessionDto>();
+					 * sessionEntityList = sessionResponse.getListOfSession(); if
+					 * (sessionEntityList.size() > 1) { response.setMsg("No Sessions...");
+					 * response.setCode(0); return response; } SessionDto sessionDto =
+					 * sessionEntityList.get(sessionEntityList.size() - 1); String sessionId =
+					 * sessionDto.getSessionId(); String sessionName = sessionDto.getSessionName();
+					 */
+					// Fetching the SessionId
+					List<String> systemInfoIdList = new ArrayList<String>();
+					SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+					List<SessionStagesTestFilesResult> sessionStagesTestFilesResultLst = new ArrayList<SessionStagesTestFilesResult>();
+					sessionStagesTestFilesResultLst = sessionStagesTestFilesResultService
+							.getTestResultFileByStageIdByUutyType(sessionIds);
+					if (sessionStagesTestFilesResultLst.size() < 1) {
+						response.setMsg("Tests Need to be performed to diplay data");
+						response.setCode(0);
+						return response;
+					}
+					
+					response.setLastTestedDate(sessionStagesTestFilesResultLst.getLast().getEndTime());
+					Map<String, String> stageIdName = getStageIdName();
+					// TestFiles Fetching
+					Map<String, String> testFileIdName = getTestFileIdName();
+					Debug.printDebug("Before Stage Id Filter Size" + sessionStagesTestFilesResultLst.size());
+					/*
+					 * SessionStagesTestFilesResult lastSessionStagesTestFilesResult =
+					 * sessionStagesTestFilesResultLst .get(sessionStagesTestFilesResultLst.size() -
+					 * 1); String stageId = lastSessionStagesTestFilesResult.getStageId();
+					 * Debug.printDebug("Stage Id"+ stageId); sessionStagesTestFilesResultLst =
+					 * sessionStagesTestFilesResultLst.stream() .filter(stage ->
+					 * stage.getStageId().equals(stageId)).collect(Collectors.toList());
+					 */
+					Map<String, String> objectIdTestFileId = new HashMap<String, String>();
+					Map<String, String> objectIdstageId = new HashMap<String, String>();
+					for (SessionStagesTestFilesResult sessionStagesTestFilesResult : sessionStagesTestFilesResultLst) {
+						systemInfoIdList.add(sessionStagesTestFilesResult.getSystemResultInfoId());
+						objectIdTestFileId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+								sessionStagesTestFilesResult.getSessionStagesTestFilesResultId());
+						objectIdstageId.put(sessionStagesTestFilesResult.getSystemResultInfoId(),
+								sessionStagesTestFilesResult.getStageId());
+					}
+					Debug.printDebug("Size Of Test File Execution" + sessionStagesTestFilesResultLst.size());
+					List<ResultDto> lstResults = new ArrayList<ResultDto>();
+					List<ResultDetailedDTO> resultDetailedList = new ArrayList<ResultDetailedDTO>();
+					for (String sessionId : sessionIds) {
+						for (String systemInfoId : systemInfoIdList) {
+							ObjectId objectId = new ObjectId(systemInfoId);
+							List<ResultDto> lstInterResults = new ArrayList<ResultDto>();
+							lstInterResults = ResultManagement.getResult(sessionId, objectId,objectIdTestFileId.get(systemInfoId));
+							// lstResults.addAll(lstInterResults);
+							for (ResultDto resultDto : lstInterResults) {
+								ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+								Map<String, String> fac = resultDto.getFaultyChannel();
+								String channelValues = "";
+								for (String s1 : fac.keySet()) {
+									channelValues = s1 + "-" + fac.get(s1) + ";";
+								}
+								resultDetailedDTO.setFaultyChannel(channelValues);
+								channelValues = channelValues.replaceAll("Channel", "CH");
+								resultDetailedDTO.setFaultyChannel(channelValues);
+								resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+								resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
+								resultDetailedDTO.setRdfName(resultDto.getFileName());
+								resultDetailedDTO.setSignalName(resultDto.getSignalName());
+								resultDetailedDTO.setStepName(resultDto.getStepName());
+								resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
+								resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
+								resultDetailedDTO.setTpgph(resultDto.getTpgph());
+								resultDetailedDTO.setUnit(resultDto.getUnit());
+								resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+								Debug.printDebug("ResultDto--->" + resultDto.getFileName());
+								resultDetailedList.add(resultDetailedDTO);
+							}
+						}
+					}
+					response.setCode(1);
+					response.setResultDetailedList(resultDetailedList);
+					response.setMsg("Fetched Successfully");
+				} catch (Exception ex) {
+					response.setCode(1);
+					response.setMsg("Issue Successfully");
+					response.setMsg(ex.getLocalizedMessage());
+					Debug.printDebug(ex.getLocalizedMessage());
+					
+				}
+				return response;
+			}
+	
+	
+	
+	
 
 }

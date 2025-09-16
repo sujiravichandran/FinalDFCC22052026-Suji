@@ -1,12 +1,14 @@
 package com.teclever.dfcc.stateMachine;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.StageObject;
+import com.teclever.dfcc.stateMachine.StateMachine.channelAECTemp;
 import com.teclever.dfcc.utils.Debug;
 
 import javafx.application.Platform;
@@ -332,6 +334,9 @@ public class StateMachine {
 	public static class dfccCheckStatus {
 
 		private static BooleanProperty dfccPowerStatus = new SimpleBooleanProperty(false);
+		
+		private static BooleanProperty dfccOnlineStatus = new SimpleBooleanProperty(false);
+		
 		private static String dfccPowerOnCommand;
 		private static String dfccPowerOffCommand;
 		private static String onlineStatusCommand;
@@ -345,6 +350,8 @@ public class StateMachine {
 		private static String wdmStatusCommand;
 
 		private static String dfccPowerOnStatus;
+		
+		
 
 		public static String getDfccPowerOnStatus() {
 			return dfccPowerOnStatus;
@@ -353,7 +360,23 @@ public class StateMachine {
 		public static void setDfccPowerOnStatus(String dfccPowerOnStatus) {
 			dfccCheckStatus.dfccPowerOnStatus = dfccPowerOnStatus;
 		}
+		
+//	Suji Added for Getting updated the toggle automaticaly after all channels gets online::(06-08-2025)
+		
+		public static BooleanProperty dfccOnlineStatusProperty() {
+		    return dfccOnlineStatus;
+		}
 
+		public static BooleanProperty getDfccOnlineStatus() {
+		    return dfccOnlineStatus;
+		}
+
+		public static void setDfccOnlineStatus(BooleanProperty dfccOnlineStatus) {
+		    dfccCheckStatus.dfccOnlineStatus = dfccOnlineStatus;
+		}
+		
+//Exit::(06-08-2025)
+		
 		public static BooleanProperty dfccPowerStatusProperty() {
 			return dfccPowerStatus;
 		}
@@ -772,7 +795,9 @@ public class StateMachine {
 		}
 
 		public static void setChannel1Temperature(String channel1Temperature) {
-			channelAECTemp.channel1Temperature.set(channel1Temperature);
+//			channelAECTemp.channel1Temperature.set(channel1Temperature);
+			Platform.runLater(() ->channelAECTemp.channel1Temperature.set(channel1Temperature));
+//			System.out.println("SUJI IN STATEMACHINE AEC 1:: "+channel1Temperature);
 		}
 
 		public static StringProperty channel2TemperatureProperty() {
@@ -784,7 +809,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel2Temperature(String channel2Temperature) {
-			channelAECTemp.channel2Temperature.set(channel2Temperature);
+//			channelAECTemp.channel2Temperature.set(channel2Temperature);
+			Platform.runLater(() ->channelAECTemp.channel2Temperature.set(channel2Temperature));
 		}
 
 		public static StringProperty channel3TemperatureProperty() {
@@ -796,7 +822,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel3Temperature(String channel3Temperature) {
-			channelAECTemp.channel3Temperature.set(channel3Temperature);
+//			channelAECTemp.channel3Temperature.set(channel3Temperature);
+			Platform.runLater(() ->channelAECTemp.channel3Temperature.set(channel3Temperature));
 		}
 
 		public static StringProperty channel4TemperatureProperty() {
@@ -808,7 +835,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel4Temperature(String channel4Temperature) {
-			channelAECTemp.channel4Temperature.set(channel4Temperature);
+//			channelAECTemp.channel4Temperature.set(channel4Temperature);
+			Platform.runLater(() ->channelAECTemp.channel4Temperature.set(channel4Temperature));
 		}
 
 		// COLOR
@@ -822,7 +850,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel1BackgroundColor(String color) {
-			channelAECTemp.channel1BackgroundColor.set(color);
+//			channelAECTemp.channel1BackgroundColor.set(color);
+			Platform.runLater(() ->channelAECTemp.channel1BackgroundColor.set(color));
 		}
 
 		public static StringProperty channel2BackgroundColorProperty() {
@@ -830,7 +859,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel2BackgroundColor(String color) {
-			channelAECTemp.channel2BackgroundColor.set(color);
+//			channelAECTemp.channel2BackgroundColor.set(color);
+			Platform.runLater(() ->channelAECTemp.channel2BackgroundColor.set(color));
 		}
 
 		public static StringProperty channel3BackgroundColorProperty() {
@@ -838,7 +868,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel3BackgroundColor(String color) {
-			channelAECTemp.channel3BackgroundColor.set(color);
+			Platform.runLater(() ->channelAECTemp.channel3BackgroundColor.set(color));
+//			channelAECTemp.channel3BackgroundColor.set(color);
 		}
 
 		public static StringProperty channel4BackgroundColorProperty() {
@@ -846,7 +877,8 @@ public class StateMachine {
 		}
 
 		public static void setChannel4BackgroundColor(String color) {
-			channelAECTemp.channel4BackgroundColor.set(color);
+			Platform.runLater(() ->channelAECTemp.channel4BackgroundColor.set(color));
+//			channelAECTemp.channel4BackgroundColor.set(color);
 		}
 
 	}
@@ -940,7 +972,9 @@ public class StateMachine {
 	}
 
 	public static void setLessBackgroundColor(String lessBackgroundColor) {
-		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
+//		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
+		Platform.runLater(() ->StateMachine.lessBackgroundColor.set(lessBackgroundColor));
+		System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
 	}
 
 	public static StringProperty GreaterBackgroundColor() {
@@ -948,7 +982,9 @@ public class StateMachine {
 	}
 
 	public static void setGreaterBackgroundColor(String greaterBackgroundColor) {
-		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
+//		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
+		Platform.runLater(() ->StateMachine.greaterBackgroundColor.set(greaterBackgroundColor));
+//		System.out.println("SUJI CHECK FOR MK1A COLOR GREATER ::" +StateMachine.greaterBackgroundColor.toString() );
 
 	}
 
@@ -957,8 +993,10 @@ public class StateMachine {
 	}
 
 	public static void setNormalBackgroundColor(String normalBackgroundColor) {
-		StateMachine.normalBackgroundColor.set(normalBackgroundColor);
-		;
+//		StateMachine.normalBackgroundColor.set(normalBackgroundColor);
+		Platform.runLater(() ->StateMachine.normalBackgroundColor.set(normalBackgroundColor));
+//		System.out.println("SUJI CHECK FOR MK1A COLOR NORMAL ::" +StateMachine.normalBackgroundColor.toString() );
+		
 	}
 
 	// FOR RDF FILE PARSER
@@ -1271,15 +1309,50 @@ public class StateMachine {
 
 //	For Test Completed Confirmation
 
-	private static boolean confirmTestFileCompleted = false;
+//	private static boolean confirmTestFileCompleted = false;
+//
+//	public static boolean isConfirmTestFileCompleted() {
+//		return confirmTestFileCompleted;
+//	}
+//
+//	public static void setConfirmTestFileCompleted(boolean confirmTestFileCompleted) {
+//		StateMachine.confirmTestFileCompleted = confirmTestFileCompleted;
+//	}
+//	for resetting the progressbar once the file has been move and cleared the result view table::
+	private static BooleanProperty resettingProgressBar = new SimpleBooleanProperty(false);
+	
+	public static BooleanProperty resettingProgressBarProperty() {
+	    return resettingProgressBar;
+	}
+
+	public static void setResettingProgressBar(boolean value) {
+	    resettingProgressBar.set(value);
+	}
+
+	public static boolean isResettingProgressBar() {
+	    return resettingProgressBar.get();
+	}
+
+	
+	private static BooleanProperty confirmTestFileCompleted = new SimpleBooleanProperty(false);
+
+	
+	public static BooleanProperty confirmTestFileCompletedProperty() {
+	    return confirmTestFileCompleted;
+	}
+
+
+	public static void setConfirmTestFileCompleted(boolean value) {
+	    confirmTestFileCompleted.set(value);
+	}
+
 
 	public static boolean isConfirmTestFileCompleted() {
-		return confirmTestFileCompleted;
+	    return confirmTestFileCompleted.get();
 	}
 
-	public static void setConfirmTestFileCompleted(boolean confirmTestFileCompleted) {
-		StateMachine.confirmTestFileCompleted = confirmTestFileCompleted;
-	}
+	
+	
 
 //	For Conform Test Stop
 	private static boolean confirmTestStop = false;
@@ -1347,6 +1420,46 @@ public class StateMachine {
 	public static void setSelfTestOn(boolean selfTestOn) {
 		StateMachine.selfTestOn = selfTestOn;
 	}
+
+	private static boolean selfTestOn2 = false;
+
+	
+	public static boolean isSelfTestOn2() {
+		return selfTestOn2;
+	}
+
+	public static void setSelfTestOn2(boolean selfTestOn2) {
+		StateMachine.selfTestOn2 = selfTestOn2;
+	}
+
+	private static boolean selfTestOnL1 = false;
+	
+	
+
+
+	public static boolean isSelfTestOnL1() {
+		return selfTestOnL1;
+	}
+
+	public static void setSelfTestOnL1(boolean selfTestOnL1) {
+		StateMachine.selfTestOnL1 = selfTestOnL1;
+	}
+
+
+	private static boolean selfTestOnL2 = false;
+	
+	
+
+	public static boolean isSelfTestOnL2() {
+		return selfTestOnL2;
+	}
+
+	public static void setSelfTestOnL2(boolean selfTestOnL2) {
+		StateMachine.selfTestOnL2 = selfTestOnL2;
+	}
+
+
+
 
 	// private static final BooleanProperty selfTestOn = new
 	// SimpleBooleanProperty(false);
@@ -1656,8 +1769,113 @@ public class StateMachine {
 		return tempLastCheckedTime.get();
 	}
 
+//	Added by SUji 19-08-2025 for wdmstatususeraction after cancel::
+	private static final BooleanProperty cancelTest = new SimpleBooleanProperty(false);
+
+	public static BooleanProperty cancelTestProperty() {
+	    return cancelTest;
+	}
+
+	public static boolean isCancelTest() {
+	    return cancelTest.get();
+	}
+
+	public static void setCancelTest(boolean value) {
+	    cancelTest.set(value);
+	}
+//	SUJI ADDED:::
+	private static final BooleanProperty yesEntred = new SimpleBooleanProperty(false);
 	
+	public static BooleanProperty yesEntredProperty() {
+	    return yesEntred;
+	}
 	
+	public static boolean isyesEntred() {
+	    return yesEntred.get();
+	}
+	
+	public static void setYesEntred(boolean value) {
+		yesEntred.set(value);
+	}
+	
+
+//SUJI ADDED FOR GETTING SRU STAGE
+	private static List<String> selectedStageIds = new ArrayList<>();
+
+	public static void setSelectedStageIds(List<String> stageIds) {
+	    selectedStageIds = stageIds;
+	}
+
+	public static List<String> getSelectedStageIds() {
+	    return selectedStageIds;
+	}
+	
+
+//	Suji For New OFP CHeck::
+	
+	private static String ofpValueCheck;
+
+	public static String getOfpValueCheck() {
+		return ofpValueCheck;
+	}
+
+	public static void setOfpValueCheck(String ofpValueCheck) {
+		StateMachine.ofpValueCheck = ofpValueCheck;
+	}
+	
+//	Suji Added Flag for OFP check List::
+	
+		private static List<String> ofpList;
+
+		public static List<String> getOfpList() {
+			return ofpList;
+		}
+
+		public static void setOfpList(List<String> ofpList) {
+			StateMachine.ofpList = ofpList;
+		}
+		
+//Suji Added for session selected stages:
+		private static String sessionPreviouslySelectedStageId;
+		private static String SessioncurrentlySelectedStageId;
+
+		public static String getSessionPreviouslySelectedStageId() {
+			return sessionPreviouslySelectedStageId;
+		}
+
+		public static void setSessionPreviouslySelectedStageId(String sessionPreviouslySelectedStageId) {
+			StateMachine.sessionPreviouslySelectedStageId = sessionPreviouslySelectedStageId;
+		}
+
+		public static String getSessioncurrentlySelectedStageId() {
+			return SessioncurrentlySelectedStageId;
+		}
+
+		public static void setSessioncurrentlySelectedStageId(String sessioncurrentlySelectedStageId) {
+			SessioncurrentlySelectedStageId = sessioncurrentlySelectedStageId;
+		}
+
+//Suji added to store Test tyep Id:
+		private static String testTypeId;
+
+		public static String getTestTypeId() {
+			return testTypeId;
+		}
+
+		public static void setTestTypeId(String testTypeId) {
+			StateMachine.testTypeId = testTypeId;
+		}
+		
+		private boolean disableFalgRunnTest = false;
+
+		public boolean isDisableFalgRunnTest() {
+			return disableFalgRunnTest;
+		}
+
+		public void setDisableFalgRunnTest(boolean disableFalgRunnTest) {
+			this.disableFalgRunnTest = disableFalgRunnTest;
+		}
+		
 	
 
 }

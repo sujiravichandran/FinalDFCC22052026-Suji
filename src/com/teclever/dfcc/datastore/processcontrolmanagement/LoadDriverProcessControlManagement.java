@@ -22,7 +22,7 @@ public class LoadDriverProcessControlManagement {
 	private static LoadDriverProcessControlManagement instance;
 
 	public enum LoadMode {
-		STARTUP, SWITCH, LOGOUT, CARD, AUX, KILL, RELOADCONFIG
+		STARTUP, UNLOADMODE, LOGOUT, CARD, AUX, KILL, SWITCH
 	}
 
 	private BlockingQueue<String> loadDriverBQueue = new ArrayBlockingQueue<>(10000);
@@ -229,7 +229,6 @@ public class LoadDriverProcessControlManagement {
 				response1.setDriverCardDetails(responseDriverCards);
 				Debug.printDebug("---- RESPONSE LIST SIZE AIM_MIL ----" + response1.getDriverCardDetails().size());
 				return response1;
-
 			case SWITCH:
 				Debug.printDebug("Start of SWITCH ");
 				launcherFuture.thenRun(() -> {
@@ -289,19 +288,18 @@ public class LoadDriverProcessControlManagement {
 
 					break;
 				}
-				Debug.printDebug("End of SWITCH ");
-// TESTING PURPOSE 
-			case RELOADCONFIG:
-				Debug.printDebug("Start of RELOAD ");
+
+			case UNLOADMODE:
+				Debug.printDebug("Start of SWITCH ");
 				launcherFuture.thenRun(() -> {
 					loadDriverProcessController.ReadingProcess();
 					outputProcessingThread = new Thread(() -> {
-						Debug.printDebug("Start of RELOAD Thread");
+						Debug.printDebug("Start of SWITCH Thread");
 						try {
 							flag = true;
 							while (flag) {
 								String output = loadDriverBQueue.take();
-								Debug.printDebug("rloadDriver:: " + output);
+								Debug.printDebug("loadDriver:: " + output);
 
 								if (output.contains("Starting AETS RT Scheduler")
 										|| output.contains("Staring AETS RT Scheduler")) {
@@ -319,21 +317,25 @@ public class LoadDriverProcessControlManagement {
 							Thread.currentThread().interrupt();
 						}
 						outputProcessingThread.interrupt();
-						Debug.printDebug("End of SWITCH Thread");
+						Debug.printDebug("Switch End of SWITCH Thread");
 					});
 					outputProcessingThread.start();
 				});
 
-				Debug.printDebug("before \u0003");
+				aitessRunning.setAitess1Exited(false);
+				aitessProcessControlManagement.exitAitess1Command();
+				aitessRunning.setAitess2Exited(false);
+				aitessProcessControlManagement.exitAitess2Command();
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("\u0003" + "\n"));
 
-				Thread.sleep(200);
-				Debug.printDebug("before Unload driver :" + "sudo " + unloadCommand);
+				Thread.sleep(2000);
+				Debug.printDebug("Strting of unloadCommand");
 
 				launcherFuture
 						.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + unloadCommand + "\n"));
-				Debug.printDebug("before load driver :" + "sudo " + command);
+			
+				Debug.printDebug("Strting of loadCommand");
 
 				launcherFuture.thenRun(() -> loadDriverProcessController.WritingProcess("sudo " + command + "\n"));
 
@@ -346,12 +348,7 @@ public class LoadDriverProcessControlManagement {
 
 					break;
 				}
-				Debug.printDebug("End of RELOAD ");			
-				
-// END OF TESTING
-				
-				
-				
+								
 			case LOGOUT:
 				aitessProcessControlManagement.exitAitess1Command();
 				aitessProcessControlManagement.exitAitess2Command();

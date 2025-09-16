@@ -13,6 +13,9 @@ public class ResultUnitSessionDetailsDTO {
 	private String stratRemarks;
 	private String endRemarks;
 	
+	//Dashboard Changes
+	private String sessionSlNo; 
+	
 	
 	
 	public String getStratRemarks() {
@@ -75,8 +78,11 @@ public class ResultUnitSessionDetailsDTO {
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
 	}
-	
-	
-	
+	public String getSessionSlNo() {
+		return sessionSlNo;
+	}
+	public void setSessionSlNo(String sessionSlNo) {
+		this.sessionSlNo = sessionSlNo;
+	}
 
 }

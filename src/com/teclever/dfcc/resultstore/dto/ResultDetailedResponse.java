@@ -10,9 +10,15 @@ public class ResultDetailedResponse {
 	private String stageId;
 	private String stageName;
 	private String sessionName;
+	private String lastTestedDate;
 	
 	
-	
+	public String getLastTestedDate() {
+		return lastTestedDate;
+	}
+	public void setLastTestedDate(String lastTestedDate) {
+		this.lastTestedDate = lastTestedDate;
+	}
 	public String getStageId() {
 		return stageId;
 	}

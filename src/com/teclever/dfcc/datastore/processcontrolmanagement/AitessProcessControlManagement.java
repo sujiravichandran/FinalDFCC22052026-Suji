@@ -3,6 +3,7 @@ package com.teclever.dfcc.datastore.processcontrolmanagement;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -23,23 +24,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.teclever.datastore.dto.AitessConfigurationDetails;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.Controller.ui.UserDashboardController;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.ChannelTemperature;
 import com.teclever.dfcc.datastore.dto.PbitResponse;
-import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.datastore.terminalmanagement.ChannelStatusParser;
 import com.teclever.dfcc.datastore.terminalmanagement.TemperatureParser;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
-import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
@@ -53,12 +50,9 @@ import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.dfccCheckStatus;
 import com.teclever.dfcc.utils.Debug;
-import com.teclever.dfcc.utils.Notifications;
 import com.teclever.utils.ProcessControl;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
 
@@ -102,6 +96,9 @@ public class AitessProcessControlManagement {
 	private final AtomicBoolean powerOnStatus = new AtomicBoolean(false);
 	private final AtomicBoolean SCtemperatureMonitoring = new AtomicBoolean(false);
 	private final AtomicBoolean AECtemperatureMonitoring = new AtomicBoolean(false);
+	
+	//Anuj0708
+	private final AtomicBoolean initdfcc = new AtomicBoolean(false);
 
 	private final AtomicBoolean Mk1SCtemperatureMonitoring = new AtomicBoolean(false);
 	private final AtomicBoolean MK1AECtemperatureMonitoring = new AtomicBoolean(false);
@@ -220,7 +217,7 @@ public class AitessProcessControlManagement {
 		}
 	}
 
-	public void launchAitess(String testTypeId, TextArea textArea) {
+	public void launchAitess(String testTypeId, TextArea textArea) throws NoSuchFileException {
 		launchAitess = true;
 		launchAitess1 = true;
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
@@ -380,12 +377,10 @@ public class AitessProcessControlManagement {
 									System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
 									StateMachine.setSelfTestOn(false);
 									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
-								} 
-								//AnujK : 05/08/2025 -- commented
-//								else {
-//									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
-//									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
-//								}
+								} 	else {
+									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
+								}
 								WriteAitess1Command("ltm_syntax on" + "\n");
 
 								aitessRunning.setAitess1Switched(true);
@@ -627,9 +622,11 @@ public class AitessProcessControlManagement {
 								Debug.printDebug("END FOR AITESS 2 FOUNDED ---------**********-----------");
 								
 								//AnujK : 05/08/2025 -- For Aitess 2 also , we have to pass psc_fcc_pwr_on=0
-								if (StateMachine.isSelfTestOn()) {
-									WriteAitess1Command("psc_fcc_pwr_on=0" + "\n");
-									StateMachine.setSelfTestOn(false);
+								if (StateMachine.isSelfTestOn2()) {
+									WriteAitess2Command("psc_fcc_pwr_on=0" + "\n");
+									StateMachine.setSelfTestOn2(false);
+								}else {
+									WriteAitess2Command("psc_fcc_pwr_on=1" + "\n");
 								}
 								
 								aitessRunning.setAitess2Switched(true);
@@ -703,6 +700,24 @@ public class AitessProcessControlManagement {
 								wdm = channelStatusParser.getWDMStatus(finalLine);
 
 								if (wdm != null) {
+//									Suji Added for BLS Toggel issue::(06-08-2025)
+									String sessionType = currentSessionDetails.getSessionTypeID();
+									if ("ST2".equals(sessionType)) {
+										if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
+											System.out.println("Entred True in Aitess for toggle online");
+											dfccCheckStatus.getDfccOnlineStatus().set(true);
+
+										} else {
+//												Suji Added for BLS Toggel issue::(06-08-2025)
+											System.out.println("Entred False in Aitess for toggle online");
+											dfccCheckStatus.getDfccOnlineStatus().set(false);
+//												EXIT::
+										}
+									}
+//									EXIT::
 									Debug.printDebug("State Machine WDMstatus CH1:: " + WDMStatus.getChannel1Status());
 									Debug.printDebug("State Machine WDMstatus CH2:: " + WDMStatus.getChannel2Status());
 									Debug.printDebug("State Machine WDMstatus CH3:: " + WDMStatus.getChannel3Status());
@@ -716,6 +731,7 @@ public class AitessProcessControlManagement {
 											"State Machine OnlineStatus CH3:: " + OnlineStatus.getChannel3Status());
 									Debug.printDebug(
 											"State Machine OnlineStatus CH4:: " + OnlineStatus.getChannel4Status());
+
 								}
 								break;
 
@@ -731,6 +747,16 @@ public class AitessProcessControlManagement {
 							}
 						}
 
+						//Anuj0708 -- start
+						//initdfcc
+						if(initdfcc.get()) {
+							if (cleanText.contains("initdfccend")) {
+								Debug.printDebug(" -- -- -- END OF initdfcc command -- -- -- ");
+								initdfcc.set(false);
+							}
+						}
+						//Anuj0708 -- end
+						
 						// TESTING POWER ON STATUS
 						if (powerOnStatus.get()) {
 
@@ -849,6 +875,25 @@ public class AitessProcessControlManagement {
 										powerOnStatus.set(false);
 
 									}
+									
+//									SUJI ADDED for only BLS for Automatic toggling:(19-08-2025)
+									String sessionType = currentSessionDetails.getSessionTypeID();
+									if ("ST2".equals(sessionType)) {
+										if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
+												|| OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
+											System.out.println("Entred True in Aitess for toggle online");
+											dfccCheckStatus.getDfccOnlineStatus().set(true);
+
+										} else {
+//												Suji Added for BLS Toggel issue::(06-08-2025)
+											System.out.println("Entred False in Aitess for toggle online");
+											dfccCheckStatus.getDfccOnlineStatus().set(false);
+//												EXIT::
+										}
+									}
+//									EXIT:::(19-08-2025)
 								}
 
 							}
@@ -884,13 +929,18 @@ public class AitessProcessControlManagement {
 								String temp2 = scTemp.getChannel2Temp().trim();
 								String temp3 = scTemp.getChannel3Temp().trim();
 								String temp4 = scTemp.getChannel4Temp().trim();
+								if(!temp1.equals("written") && 
+										!temp2.equals("written") &&
+										!temp3.equals("written") &&
+										!temp4.equals("written")) {
+								
 								// Convert to double for comparison
 								double t1 = Double.parseDouble(temp1);
 								double t2 = Double.parseDouble(temp2);
 								double t3 = Double.parseDouble(temp3);
 								double t4 = Double.parseDouble(temp4);
-								tminValue = 10;
-								tmaxValue = 65;
+//								tminValue = 10;
+//								tmaxValue = 65;
 								// Check if each temperature is within range and determine status (OK or NOT OK)
 								String status1 = (t1 < tminValue) ? "LESS" : (t1 > tmaxValue) ? "GREATER" : "NORMAL";
 								String status2 = (t2 < tminValue) ? "LESS" : (t2 > tmaxValue) ? "GREATER" : "NORMAL";
@@ -916,7 +966,7 @@ public class AitessProcessControlManagement {
 								channelSCTemp.setChannel4Temperature(temp4);
 
 							}
-
+							}
 						}
 
 						// Mk1 AEC
@@ -949,7 +999,13 @@ public class AitessProcessControlManagement {
 								String temp2 = aecTemp.getChannel2Temp().trim();
 								String temp3 = aecTemp.getChannel3Temp().trim();
 								String temp4 = aecTemp.getChannel4Temp().trim();
-
+								
+								if(!temp1.equals("written") && 
+										!temp2.equals("written") &&
+										!temp3.equals("written") &&
+										!temp4.equals("written")) {
+									
+								
 								// Convert to double for comparison
 								double t1 = Double.parseDouble(temp1);
 								double t2 = Double.parseDouble(temp2);
@@ -973,14 +1029,25 @@ public class AitessProcessControlManagement {
 								channelAECTemp.setChannel2BackgroundColor(color2);
 								channelAECTemp.setChannel3BackgroundColor(color3);
 								channelAECTemp.setChannel4BackgroundColor(color4);
+								
+//								System.out.println("AITESS AEC COLOR Check::" + channelAECTemp.channel1BackgroundColorProperty());
+//								System.out.println("AITESS AEC COLOR Check::" + channelAECTemp.channel2BackgroundColorProperty());
+//								System.out.println("AITESS AEC COLOR Check::" + channelAECTemp.channel3BackgroundColorProperty());
+//								System.out.println("AITESS AEC COLOR Check::" + channelAECTemp.channel4BackgroundColorProperty());
 
 								channelAECTemp.setChannel1Temperature(temp1);
 								channelAECTemp.setChannel2Temperature(temp2);
 								channelAECTemp.setChannel3Temperature(temp3);
 								channelAECTemp.setChannel4Temperature(temp4);
+								
+//								System.out.println("AEC 1:: "+channelAECTemp.getChannel1Temperature());
+//								System.out.println("AEC 2:: "+channelAECTemp.getChannel2Temperature());
+//								System.out.println("AEC 3:: "+channelAECTemp.getChannel3Temperature());
+//								System.out.println("AEC 4:: "+channelAECTemp.getChannel4Temperature());
+
 
 							}
-
+							}
 						}
 
 						// SC TEMPERATURE MONITORING
@@ -1030,12 +1097,24 @@ public class AitessProcessControlManagement {
 									String temp2 = tempMatcher.group(2).trim();
 									String temp3 = tempMatcher.group(3).trim();
 									String temp4 = tempMatcher.group(4).trim();
+									
+									double t1 = 0.0;
+									double t2 =0.0;
+									double t3 = 0.0;
+									double t4 = 0.0;
 
 									// Convert to double for comparison
-									double t1 = Double.parseDouble(temp1);
-									double t2 = Double.parseDouble(temp2);
-									double t3 = Double.parseDouble(temp3);
-									double t4 = Double.parseDouble(temp4);
+									try
+									{
+									 t1 = Double.parseDouble(temp1);
+									 t2 = Double.parseDouble(temp2);
+									 t3 = Double.parseDouble(temp3);
+									 t4 = Double.parseDouble(temp4);
+									}
+									catch(NumberFormatException ex)
+									{
+										ex.getLocalizedMessage();
+									}
 
 									// Check if each temperature is within range and determine status (LESS,
 									// GREATER, NORMAL)
@@ -1043,6 +1122,29 @@ public class AitessProcessControlManagement {
 									String status2 = (t2 < minValue) ? "LESS" : (t2 > maxValue) ? "GREATER" : "NORMAL";
 									String status3 = (t3 < minValue) ? "LESS" : (t3 > maxValue) ? "GREATER" : "NORMAL";
 									String status4 = (t4 < minValue) ? "LESS" : (t4 > maxValue) ? "GREATER" : "NORMAL";
+									
+//									System.out.println("SUJI VALUE CHECK SC 1" + status1);
+//									System.out.println("SUJI VALUE CHECK SC 2" + status1);
+//									System.out.println("SUJI VALUE CHECK SC 3" + status1);
+//									System.out.println("SUJI VALUE CHECK SC 4" + status1);
+//									
+									
+									// COLOR
+									String color1 = getColorForStatus(status1);
+									String color2 = getColorForStatus(status2);
+									String color3 = getColorForStatus(status3);
+									String color4 = getColorForStatus(status4);
+
+									// Set background colors for each channel to STATE MACHINE
+									channelSCTemp.setChannel1BackgroundColor(color1);
+									channelSCTemp.setChannel2BackgroundColor(color2);
+									channelSCTemp.setChannel3BackgroundColor(color3);
+									channelSCTemp.setChannel4BackgroundColor(color4);
+//									
+//									System.out.println("COlor 1 SC" + color1);
+//									System.out.println("COlor 2 SC" + color2);
+//									System.out.println("COlor 3 SC" + color3);
+//									System.out.println("COlor 4 SC" + color4);
 
 									// Update the map with temperature and status for each channel
 									ChannelTemperature c = new ChannelTemperature();
@@ -1050,6 +1152,11 @@ public class AitessProcessControlManagement {
 									c.setChannel2Temp(temp2);
 									c.setChannel3Temp(temp3);
 									c.setChannel4Temp(temp4);
+									
+//									System.out.println("AITESS MK1A/2 SC COLOR Check::" + channelSCTemp.channel1BackgroundColorProperty());
+//									System.out.println("AITESS MK1A/2 SC COLOR Check::" + channelSCTemp.channel2BackgroundColorProperty());
+//									System.out.println("AITESS MK1A/2 SC COLOR Check::" + channelSCTemp.channel3BackgroundColorProperty());
+//									System.out.println("AITESS MK1A/2 SC COLOR Check::" + channelSCTemp.channel4BackgroundColorProperty());
 
 									// Update the map in the state machine or wherever needed
 									boardChannelTemp.addBoardTemperatureMap(bName, c);
@@ -1119,6 +1226,28 @@ public class AitessProcessControlManagement {
 									String status2 = (t2 < minValue) ? "LESS" : (t2 > maxValue) ? "GREATER" : "NORMAL";
 									String status3 = (t3 < minValue) ? "LESS" : (t3 > maxValue) ? "GREATER" : "NORMAL";
 									String status4 = (t4 < minValue) ? "LESS" : (t4 > maxValue) ? "GREATER" : "NORMAL";
+									
+//									System.out.println("SUJI VALUE CHECK AEC 1" + status1);
+//									System.out.println("SUJI VALUE CHECK AEC 2" + status1);
+//									System.out.println("SUJI VALUE CHECK AEC 3" + status1);
+//									System.out.println("SUJI VALUE CHECK AEC 4" + status1);
+									
+									// COLOR
+									String color1 = getColorForStatus(status1);
+									String color2 = getColorForStatus(status2);
+									String color3 = getColorForStatus(status3);
+									String color4 = getColorForStatus(status4);
+									
+//									System.out.println("COlor 1 AEC" + color1);
+//									System.out.println("COlor 2 AEC" + color2);
+//									System.out.println("COlor 3 AEC" + color3);
+//									System.out.println("COlor 4 AEC" + color4);
+
+									// Set background colors for each channel to STATE MACHINE
+									channelAECTemp.setChannel1BackgroundColor(color1);
+									channelAECTemp.setChannel2BackgroundColor(color2);
+									channelAECTemp.setChannel3BackgroundColor(color3);
+									channelAECTemp.setChannel4BackgroundColor(color4);
 
 									// Create ChannelTemperature object and update with temperature and status
 									ChannelTemperature cc = new ChannelTemperature();
@@ -1126,6 +1255,11 @@ public class AitessProcessControlManagement {
 									cc.setChannel2Temp(temp2);
 									cc.setChannel3Temp(temp3);
 									cc.setChannel4Temp(temp4);
+//																		
+//									System.out.println("AITESS MK1A/2 AEC COLOR Check::" + channelAECTemp.channel1BackgroundColorProperty().toString());
+//									System.out.println("AITESS MK1A/2 AEC COLOR Check::" + channelAECTemp.channel2BackgroundColorProperty().toString());
+//									System.out.println("AITESS MK1A/2 AEC COLOR Check::" + channelAECTemp.channel3BackgroundColorProperty().toString());
+//									System.out.println("AITESS MK1A/2 AEC COLOR Check::" + channelAECTemp.channel4BackgroundColorProperty().toString());
 
 									// Update the map with temperature and status for the board
 									boardChannelTempAEC.addBoardTemperatureMap(boardAECName, cc);
@@ -1206,10 +1340,10 @@ public class AitessProcessControlManagement {
 				if (!StateMachine.isCustomTwoTest()) {
 
 					fileName = file.getName();
-
+					
 				} else {
+//					Suji: Added updated flag for Custom test after running full path issue
 					fileName = tpfFileName;
-
 				}
 			} else {
 				fileName = tpfFileName;
@@ -1242,6 +1376,7 @@ public class AitessProcessControlManagement {
 			}
 
 			testStarted = false;
+			StateMachine.setCustomTwoTest(false);
 			Debug.printDebug("Perform Test() Return : " + aets1QResponse);
 
 		} catch (Exception e) {
@@ -1312,11 +1447,13 @@ public class AitessProcessControlManagement {
 			Thread.sleep(300);
 
 			
-			if(currentSessionDetails.getSessionTypeID()=="ST2") {
+			 String sessionType = currentSessionDetails.getSessionTypeID();
+			    if ("ST2".equals(sessionType)) {
 			//only for BLS Session
 				//wdm
 				currentCommand.set("WDMversion");
-				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
+				launcherFuture2
+				.thenRun(() ->aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
 				try {
 					Thread.sleep(300);
 				} catch (InterruptedException e) {
@@ -1331,19 +1468,32 @@ public class AitessProcessControlManagement {
 					    OnlineStatus.getChannel4Status().equals("online")) {
 					
 					//initdfcc
-					aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n");
+					initdfcc.set(true);
+					currentCommand.set("");
+					System.out.println("Init Start");
+
+					launcherFuture2
+					.thenRun(() ->aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n"));
+					
+//					Thread.sleep(300);
+//					Suji changed to 0.3 msec to 1 sec based on sridhar's input
+					Thread.sleep(1000);
+					System.out.println("Init End");
+
 					
 					if ("UUT1".equals(currentSessionDetails.getUutId())) {
-
+						System.out.println("Inside MK1A IF");
 						// MK1
 						// SC
 						Mk1SCtemperatureMonitoring.set(true);
 						currentCommand.set("Mk1ScTemperatureCommand");
-						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
+						launcherFuture2
+						.thenRun(() ->aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n"));
 						Thread.sleep(300);
 
 						currentCommand.set("Mk1AecTemperatureCommand");
-						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
+						launcherFuture2
+						.thenRun(() ->aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n"));
 						Thread.sleep(100);
 
 					} else {
@@ -1390,7 +1540,11 @@ public class AitessProcessControlManagement {
 							    OnlineStatus.getChannel4Status().equals("online")) {
 							
 							//initdfcc
+							initdfcc.set(true);
 							aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n");
+//							Thread.sleep(300);
+//							Suji changed to 0.3 msec to 1 sec based on sridhar's input
+							Thread.sleep(2000);
 							
 							if ("UUT1".equals(currentSessionDetails.getUutId())) {
 
@@ -1449,6 +1603,7 @@ public class AitessProcessControlManagement {
 				|| OnlineStatus.getChannel3Status() == "offline" || OnlineStatus.getChannel4Status() == "offline") {
 
 			dfccCheckStatus.getDfccPowerStatus().set(false);
+			
 
 		}
 	}
@@ -1482,6 +1637,10 @@ public class AitessProcessControlManagement {
 			if (offlineCount == 0) {
 				return new ChannelStatusBeforeTestResponse(1, "All channels online. Continue.");
 			} else if (offlineCount == 4) {
+				if(StateMachine.getRunningTestName()!= "SELF_TEST"){
+					System.out.println("ENTRED SUJI SUSPECT STOP");
+				StateMachine.setTestState(TestState.STOPPED);
+				}
 				return new ChannelStatusBeforeTestResponse(0, "All channels offline. Please check.");
 			} else {
 				return new ChannelStatusBeforeTestResponse(2, " WDM Status is Offline please check");
@@ -1531,6 +1690,9 @@ public class AitessProcessControlManagement {
 		}
 		StateMachine.setAllowToggle(true);
 		dfccCheckStatus.getDfccPowerStatus().set(false);
+//		Suji Added For BLS Toggle issue::(06-08-2025)
+//		dfccCheckStatus.getDfccOnlineStatus().set(false);
+//		Exit::
 		dfccCheckStstusStarted.set(false);
 
 	}
@@ -1567,11 +1729,14 @@ public class AitessProcessControlManagement {
 		}, 0, DFCCConstant.tempDelayTime, TimeUnit.MILLISECONDS);
 
 	}
+	
+	
 
 	//Anuj - 30/07/2025 -- For 3mins temperature thread
 	public void updateUIdfccStatus(boolean fromThread) {
 		long currentTime = System.currentTimeMillis();
-		if (fromThread && StateMachine.getTestState() == TestState.RUNNING) {
+//		Suji Added: isConfirmTestFileCompleted for checking the test gets completed:
+		if (fromThread && (StateMachine.getTestState() == TestState.RUNNING || StateMachine.isConfirmTestFileCompleted() || StateMachine.isMacroPassing())) {
 			return;
 		} else if (!fromThread) {
 			if (lastExecutedTime == 0 || currentTime - lastExecutedTime < DFCCConstant.tempDelayTime) {
@@ -1624,7 +1789,8 @@ public class AitessProcessControlManagement {
 					e.printStackTrace();
 				}
 
-				if(currentSessionDetails.getSessionTypeID()=="ST2") {
+				 String sessionType = currentSessionDetails.getSessionTypeID();
+				    if ("ST2".equals(sessionType)) {
 					//only for BLS session
 					try {
 						//wdm
@@ -1750,125 +1916,6 @@ public class AitessProcessControlManagement {
 		dfccCheckStatusThread.start();
 	}
 
-	//Old Logic
-//	public void executeDfccStatusCommandsToAitess2() {
-//
-//		dfccCheckStatusThread = new Thread(() -> {
-//
-//			StateMachine.setTextArea(false);
-//			dfccCheckStstusStarted.set(true);
-//			powerOnStatus.set(true);
-//
-//			// POWER ON STATUS
-//			launcherFuture2.thenRun(() -> {
-//
-//				aitess2ProcessControl.WritingProcess("ltm_syntax on" + "\n");
-//
-//				currentCommand.set("dfccPowerOnStatus");
-//				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getDfccPowerOnStatus() + "\n");
-//
-//				// ANuj-14-07-2025:Sridhar
-//				currentCommand.set("");
-//				aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
-//				try {
-//					Thread.sleep(100);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//
-////				
-//
-//				currentCommand.set("WDMversion");
-//				aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
-//				try {
-//					Thread.sleep(100);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//
-//				// if all power on channels are online then only
-//				if (allChannelsOnline) {
-//					try {
-////						currentCommand.set("");
-////						aitess2ProcessControl.WritingProcess("gse_conn=1" + "\n");
-////						Thread.sleep(100);
-////						currentCommand.set("WDMversion");
-////						aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n");
-////						Thread.sleep(100);
-//						// Check if any channel is offline, return 0 if any are offline
-////						if (WDMStatus.getChannel1Status().equals("offline")
-////								|| WDMStatus.getChannel2Status().equals("offline")
-////								|| WDMStatus.getChannel3Status().equals("offline")
-////								|| WDMStatus.getChannel4Status().equals("offline")) {
-////							// Stop
-////						} else {
-//						// Continue only if all are not offline
-//						if ("UUT1".equals(currentSessionDetails.getUutId())) {
-//
-//							// MK1
-//							// SC
-//							Mk1SCtemperatureMonitoring.set(true);
-//							currentCommand.set("Mk1ScTemperatureCommand");
-//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
-//							Thread.sleep(300);
-//
-//							currentCommand.set("Mk1AecTemperatureCommand");
-//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
-//							Thread.sleep(100);
-//
-//							// old
-////								currentCommand.set("Mk1ScTemperatureCommand");
-////								aitess2ProcessControl
-////										.WritingProcess(dfccCheckStatus.getMk1ScTemperatureCommand() + "\n");
-////								Thread.sleep(500);
-////								currentCommand.set("");
-////								Thread.sleep(100);
-////								// AEC
-////								currentCommand.set("Mk1AecTemperatureCommand");
-////								aitess2ProcessControl
-////										.WritingProcess(dfccCheckStatus.getMk1AecTemperatureCommand() + "\n");
-////								Thread.sleep(100);
-//						} else {
-//							// MK1A MK2
-//							// SC
-//							SCtemperatureMonitoring.set(true);
-//							currentCommand.set("scTemp");
-//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getScTemperatureCommand() + "\n");
-//							Thread.sleep(300);
-//
-//							// AEC
-//							currentCommand.set("aecTemp");
-//							aitess2ProcessControl.WritingProcess(dfccCheckStatus.getAecTemperatureCommand() + "\n");
-//							Thread.sleep(100);
-//							// }
-//						}
-//						
-//						//Last Updated Time ...
-//						LocalDateTime now = LocalDateTime.now();
-//						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
-//						String lastupdatedTime = now.format(formatter);
-////						    System.out.println("Current date and time: " + lastupdatedTime);
-//
-////						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
-//						
-////						Vignesh changed  31-07-25 for display time
-//						StateMachine.setTempLastCheckedTime(lastupdatedTime);
-//						
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				} // end of if
-//
-//			});
-//
-//			dfccCheckStstusStarted.set(false);
-//			StateMachine.setTextArea(true);
-//		});
-//		dfccCheckStatusThread.start();
-//	}
-
 	public void check(String testTypeId) {
 		StateMachine.setInputPathTestFile(null);
 		Debug.printDebug("---ENTERING check() passed testTypeIdl---------------" + testTypeId);
@@ -1893,118 +1940,32 @@ public class AitessProcessControlManagement {
 		Debug.printDebug("STATE MACHINE AITESS driverName:: -----" + smAitess.getDriverName());
 		Debug.printDebug("CURRENT AITESS driverName:: -----" + currentAitess.getDriverName());
 
-		// CHECKING DRIVER
-		if (!smAitess.getDriverName().equals(currentAitess.getDriverName())
-				|| !smAitess.getConfigFile().equals(currentAitess.getConfigFile())) {
-			// NOT MATCHED
-//			System.out.println("Entred CheckMethod NotMatched");
-			Debug.printDebug("Switching Load Driver::---- " + smAitess.getDriverName() + " to ::---- "
-					+ currentAitess.getDriverName());
+		//Anuj1808
+		if(!smRunConfigId.equals(currentRunConfigId) && StateMachine.getTestState() != TestState.STOPPED) {
+			
+			System.out.println("18082025------------ UNLOADING");
+			//unload driver
 			pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
-					LoadDriverProcessControlManagement.LoadMode.SWITCH);
+					LoadDriverProcessControlManagement.LoadMode.UNLOADMODE);			
+			System.out.println("18082025------------ UNLOADING FINISHED");
+
+			//removing config cache
 			if (aitessRunning.isAitess1Exited() == true && aitessRunning.isAitess2Exited() == true) {
-				switchAitess(testTypeId);
-			}
-		} else {
-			// MATCHED
-//			System.out.println("Entred CheckMethod Matched");
-			Debug.printDebug(
-					"Load Driver Matches::---- " + smAitess.getDriverName() + " == " + currentAitess.getDriverName());
+				AitessConfigurationDetails currentAitess1 = runConfigurationService
+						.getAitessDetailsByRunConfigId(currentRunConfigId);
+				System.out.println("18082025------------ INSIDE IF");
 
-			// CHECKING AITESS
-			if (!smAitess.getAitessName().equals(currentAitess.getAitessName())) {
-				// NOT MATCHED
-				Debug.printDebug("Aitess Not Matched:: OLD AITESS:---- " + smAitess.getAitessName()
-						+ " NEW AITESS:---- " + currentAitess.getAitessName());
+				configureAitess(currentAitess1.getConfigFile());
+				System.out.println("18082025------------ AITESS 1 files");
 
-				aitessRunning.setAitess1Exited(false);
-				exitAitess1Command();
-				aitessRunning.setAitess2Exited(false);
-				exitAitess2Command();
-
-				if (aitessRunning.isAitess1Exited() == true && aitessRunning.isAitess2Exited() == true) {
-					switchAitess(testTypeId);
-				}
+				configureAitess1(currentAitess1.getAitess2ConfigFile());
+				System.out.println("18082025------------ AITESS 2 files");
 
 			}
-//			else {
-////
-//////				System.out.println("Entred CheckMethod Else");
-////				checkMethod = true;
-////				boolean aets1SwitchFlagg = true;
-////				Debug.printDebug(
-////						"Aitess Matches::---- " + smAitess.getAitessName() + " == " + currentAitess.getAitessName());
-////				if (!smAitess.getConfigFile().equals(currentAitess.getConfigFile())) {
-////					try {
-////						Files.copy(Paths.get(currentAitess.getConfigFile()), aitessConfigFile,
-////								StandardCopyOption.REPLACE_EXISTING);
-////
-////						// exit from aitess
-////						exitAitess1Command();
-////						Thread.sleep(200);
-////						WriteAitess1Command("sudo rm -r config.cache" + "\n");
-////
-////						String sourcePath = Paths.get(currentAitess.getConfigFile()).getParent().toString();
-////						String destiPath = aitessConfigFile.toString();
-////						if (destiPath.endsWith("config.dat")) {
-////							destiPath = destiPath.replace("/config.dat", "/");
-////						}
-////						if (!sourcePath.endsWith("config.dat")) {
-////							sourcePath = sourcePath + "/config.dat";
-////						}
-////						WriteAitess1Command("sudo cp -r " + sourcePath + " " + destiPath + "\n");
-////
-////						Thread.sleep(500);
-////
-//////						After IV&V: Suji Added for BEL Comment for Point no:64
-////						System.out.println(
-////								"Suji Check for Point No 64 for driver unload and load after config.dat changed");
-////						
-////						pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
-////								LoadDriverProcessControlManagement.LoadMode.RELOADCONFIG);
-////
-////						// load aitess
-////						launcherFuture1.thenRun(() -> aitess1ProcessControl
-////								.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
-////
-//////						launcherFuture1
-//////								.thenRun(() -> aitess1ProcessControl.WritingProcess("reload_configuration" + "\n"));
-////						// launcherFuture2.thenRun(() ->
-////						// aitess2ProcessControl.WritingProcess("reload_configuration" + "\n"));
-////					} catch (IOException e) {
-////						e.printStackTrace();
-////					} catch (InterruptedException e) {
-////						// TODO Auto-generated catch block
-////						e.printStackTrace();
-////					}
-////
-////					while (aets1SwitchFlagg) {
-////						// System.out.print(" 1 ");
-////						if (aitessRunning.isAitess1ReloadConfigured()) {
-////							aets1SwitchFlagg = false;
-////							// currentSessionDetails.setRunConfigId(currentRunConfigId);
-////							Debug.printDebug("AFTER 1 SWITCHING RUN CONFIG GETS UPDATED:: ------>>> "
-////									+ currentSessionDetails.getRunConfigId());
-////
-////						}
-////					}
-////
-////				}
-////				aitessRunning.setAitess1ReloadConfigured(false);
-////
-//				//Karthik
-//				
-//				// NOT MATCHED
-////				System.out.println("Entred CheckMethod NotMatched");
-//				Debug.printDebug("Switching Load Driver::---- " + smAitess.getDriverName() + " to ::---- "
-//						+ currentAitess.getDriverName());
-//				pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
-//						LoadDriverProcessControlManagement.LoadMode.SWITCH);
-//				if (aitessRunning.isAitess1Exited() == true && aitessRunning.isAitess2Exited() == true) {
-//					switchAitess(testTypeId);
-//				}
-//
-//			}
+
+			//load aitess
+			switchAitess(testTypeId);
+			System.out.println("18082025------------ AITESS BOTH SW");
 
 		}
 
@@ -2031,8 +1992,8 @@ public class AitessProcessControlManagement {
 		AitessConfigurationDetails currentAitess = runConfigurationService
 				.getAitessDetailsByRunConfigId(currentRunConfigId);
 
-		configureAitess(currentAitess.getConfigFile());
-		configureAitess1(currentAitess.getAitess2ConfigFile());
+//		configureAitess(currentAitess.getConfigFile());
+//		configureAitess1(currentAitess.getAitess2ConfigFile());
 
 		launcherFuture1
 				.thenRun(() -> aitess1ProcessControl.WritingProcess("sudo " + currentAitess.getAitessCommand() + "\n"));
@@ -2260,6 +2221,123 @@ public class AitessProcessControlManagement {
 		}
 	}
 
+//	public PbitResponse pbitCheck() {
+//		PbitResponse response = new PbitResponse();
+//
+//		boolean ofpMatch = false;
+//		boolean wdmMatch = false;
+//
+//		try {
+//			dfccCheckStstusStarted.set(true);
+//
+//			// Write OFP version command
+//			currentCommand.set("OFPversion");
+//			launcherFuture2.thenRun(
+//					() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getOfpVersionStatusCommand() + "\n"));
+//			Thread.sleep(500);
+//			currentCommand.set("");
+//			// Write WDM version command
+//			currentCommand.set("WDMversion");
+//			launcherFuture2
+//					.thenRun(() -> aitess2ProcessControl.WritingProcess(dfccCheckStatus.getWdmStatusCommand() + "\n"));
+//
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			response.setResponseCode(500);
+//			response.setResponseMessage("Error occurred: " + e.getMessage());
+//			dfccCheckStstusStarted.set(false);
+//			return response;
+//		}
+//
+//		dfccCheckStstusStarted.set(false);
+//
+//		List<String> ofpStatusList = new ArrayList<>();
+//		List<String> wdmStatusList = new ArrayList<>();
+//
+//		ofpStatusList.add(OFPversionStatus.getChannel1Status());
+//		ofpStatusList.add(OFPversionStatus.getChannel2Status());
+//		ofpStatusList.add(OFPversionStatus.getChannel3Status());
+//		ofpStatusList.add(OFPversionStatus.getChannel4Status());
+//
+//		wdmStatusList.add(WDMStatus.getChannel1Status());
+//		wdmStatusList.add(WDMStatus.getChannel2Status());
+//		wdmStatusList.add(WDMStatus.getChannel3Status());
+//		wdmStatusList.add(WDMStatus.getChannel4Status());
+//
+//		// Check if all OFP versions are equal
+//		if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status())
+//				&& OFPversionStatus.getChannel2Status().equals(OFPversionStatus.getChannel3Status())
+//				&& OFPversionStatus.getChannel3Status().equals(OFPversionStatus.getChannel4Status())) {
+//
+//			// OFP Present OK
+//			ofpMatch = true;
+//			Debug.printDebug("All channels have the same OFP version.");
+//
+//		} else {
+//			// NOT OK
+//			ofpMatch = false;
+//			Debug.printDebug("Channels have different OFP versions.");
+//		}
+//
+//		String expectedWDMStatus = "0xfffe6020";
+//
+//		if ("UUT1".equals(currentSessionDetails.getUutId())) {
+//			expectedWDMStatus = "0xffff6000";
+//		}
+//
+//		if ("UUT1".equals(currentSessionDetails.getUutId())) {
+//			// Check if all WDM statuses are "online"
+//			if (expectedWDMStatus.equals(WDMStatus.getChannel1Status())
+//					&& expectedWDMStatus.equals(WDMStatus.getChannel2Status())
+//					&& expectedWDMStatus.equals(WDMStatus.getChannel3Status())
+//					&& expectedWDMStatus.equals(WDMStatus.getChannel4Status())) {
+//
+//				// WDM Status OK
+//				wdmMatch = true;
+//				Debug.printDebug("All channels WDM status are UP.");
+//
+//			} else {
+//				// NOT OK
+//				wdmMatch = false;
+//				Debug.printDebug("All channels WDM status are not UP.");
+//			}
+//		} else {
+//			// mk1 and mk2
+//			if (!WDMStatus.getChannel1Status().equals("offline") && !WDMStatus.getChannel2Status().equals("offline")
+//					&& !WDMStatus.getChannel3Status().equals("offline")
+//					&& !WDMStatus.getChannel4Status().equals("offline")) {
+//
+//				// WDM Status OK
+//				wdmMatch = true;
+//				Debug.printDebug("All channels WDM status are UP.");
+//
+//			} else {
+//				// NOT OK
+//				wdmMatch = false;
+//				Debug.printDebug("All channels WDM status are not UP.");
+//			}
+//
+//		}
+//
+//		if (ofpMatch && wdmMatch) {
+//			response.setResponseCode(200);
+//			response.setResponseMessage("All channels have the same OFP version and all WDM channels are UP.");
+//		} else if (ofpMatch && !wdmMatch) {
+//			response.setResponseCode(300);
+//			response.setResponseMessage("All channels have the same OFP version but not all WDM channels are UP.");
+//		} else if (!ofpMatch && wdmMatch) {
+//			response.setResponseCode(400);
+//			response.setResponseMessage("Channels have different OFP versions but all WDM channels are UP.");
+//		} else if (!ofpMatch && !wdmMatch) {
+//			response.setResponseCode(500);
+//			response.setResponseMessage("Channels have different OFP versions and  not all WDM channels are UP.");
+//		}
+//		response.setOfpStatus(ofpStatusList);
+//		response.setWdmStatus(wdmStatusList);
+//		Debug.printDebug("responseId while pbit Test:-> " + response.getResponseCode());
+//		return response;
+//	}
+	
 	public PbitResponse pbitCheck() {
 		PbitResponse response = new PbitResponse();
 
@@ -2302,6 +2380,15 @@ public class AitessProcessControlManagement {
 		wdmStatusList.add(WDMStatus.getChannel2Status());
 		wdmStatusList.add(WDMStatus.getChannel3Status());
 		wdmStatusList.add(WDMStatus.getChannel4Status());
+		
+		
+//		Suji Added For OFP ::05/08/2025
+	    String hexValueForCh1 = OFPversionStatus.getChannel1Status();
+	    String last4Chars = hexValueForCh1.substring(hexValueForCh1.length() - 4);
+//	    System.out.println("Before last4Chars"+last4Chars);
+	    StateMachine.setOfpValueCheck(last4Chars);
+//	    System.out.println("After last4Chars"+last4Chars);
+//	    Exit::
 
 		// Check if all OFP versions are equal
 		if (OFPversionStatus.getChannel1Status().equals(OFPversionStatus.getChannel2Status())
@@ -2376,6 +2463,8 @@ public class AitessProcessControlManagement {
 		Debug.printDebug("responseId while pbit Test:-> " + response.getResponseCode());
 		return response;
 	}
+	
+	
 
 	RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
 
@@ -2398,8 +2487,14 @@ public class AitessProcessControlManagement {
 		String smRunConfigId = StateMachine.getPreviousRunConfigId();
 		AitessConfigurationDetails smAitess = r.getAitessDetailsByRunConfigId(smRunConfigId);
 
+		
+		
+		
+		
+//		SUJI Added for if same config running or different :::05092025
+		if(!smRunConfigId.equals(currentRunConfigId) && StateMachine.getTestState() != TestState.STOPPED) {
 		// CHECKING DRIVER
-		if (!smAitess.getDriverName().equals(currentAitess.getDriverName())) {
+		if (!smAitess.getDriverName().equals(currentAitess.getDriverName()) && StateMachine.getTestState() != TestState.STOPPED) {
 			// DRIVER NOT MATCHED
 			Debug.printDebug(" DRIVER NOT MACTHED .... Switching Load Driver::---- " + smAitess.getDriverName()
 					+ " to ::---- " + currentAitess.getDriverName());
@@ -2452,7 +2547,7 @@ public class AitessProcessControlManagement {
 				aitessRunning.setAitess1Switched(false);
 			}
 		}
-
+		}
 		StateMachine.setPreviousRunConfigId(currentRunConfigId);
 		Debug.printDebug("UPDATED previous runConfig before pbit ::------" + StateMachine.getPreviousRunConfigId());
 

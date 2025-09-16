@@ -252,27 +252,54 @@ public class StageConfigurationController {
 		stage1_listView.setManaged(isVisible);
 		sessionTreeView.setPrefHeight(isVisible ? 550 : 800);
 	}
-
+//old
+//	private void setSearchableTextField() {
+//		FilteredList<StageOne> filteredData = new FilteredList<>(session_l1Data, p -> true);
+//		SortedList<StageOne> sortedList = new SortedList<>(filteredData);
+//
+//		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+//			filteredData.setPredicate(sessionStage -> {
+//				boolean isEmpty = (newValue == null || newValue.isEmpty());
+//				boolean containsText = sessionStage.getL1_name().trim().toLowerCase().contains(newValue.toLowerCase().trim());
+//
+//				addNewStageButton.setDisable(!filteredData.isEmpty());
+//				enablingStage1ListView(!filteredData.isEmpty());
+//
+//				return isEmpty || containsText;
+//			});
+//
+//			ObservableList<String> stringList = FXCollections.observableArrayList();
+//			sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
+//			stage1_listView.setItems(stringList);
+//		});
+//	}
+//	SUJI CHANGED FOR CONFIGURING STAGES AND CLEARING::(
 	private void setSearchableTextField() {
-		FilteredList<StageOne> filteredData = new FilteredList<>(session_l1Data, p -> true);
-		SortedList<StageOne> sortedList = new SortedList<>(filteredData);
+	    FilteredList<StageOne> filteredData = new FilteredList<>(session_l1Data, p -> true);
+	    SortedList<StageOne> sortedList = new SortedList<>(filteredData);
 
-		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(sessionStage -> {
-				boolean isEmpty = (newValue == null || newValue.isEmpty());
-				boolean containsText = sessionStage.getL1_name().trim().toLowerCase().contains(newValue.toLowerCase().trim());
+	    ObservableList<String> stringList = FXCollections.observableArrayList();
+	    sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
+	    stage1_listView.setItems(stringList); 
 
-				addNewStageButton.setDisable(!filteredData.isEmpty());
-				enablingStage1ListView(!filteredData.isEmpty());
+	    stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+	        filteredData.setPredicate(sessionStage -> {
+	            boolean isEmpty = (newValue == null || newValue.trim().isEmpty());
 
-				return isEmpty || containsText;
-			});
+	            if (isEmpty) return true; 
 
-			ObservableList<String> stringList = FXCollections.observableArrayList();
-			sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
-			stage1_listView.setItems(stringList);
-		});
+	            return sessionStage.getL1_name().toLowerCase().contains(newValue.toLowerCase().trim());
+	        });
+
+	        
+	        stringList.clear();
+	        sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
+
+	        addNewStageButton.setDisable(filteredData.isEmpty());
+	        enablingStage1ListView(!filteredData.isEmpty());
+	    });
 	}
+//EXIT::
 
 	private void initializeSessionTypeMap(List<SessionMasterDTO> sessionTypeList) {
 		for (SessionMasterDTO session : sessionTypeList) {

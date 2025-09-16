@@ -11,6 +11,7 @@ public class ApplicationLogBookDto {
 	private String username;
 	private Date timestamp;
 	private String details;
+	private String formatedTimeStamp;
 	
 	
 	public int getAppLogId() {
@@ -60,7 +61,14 @@ public class ApplicationLogBookDto {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 
+	public String getFormatedTimeStamp() {
+		return formatedTimeStamp;
+	}
+	public void setFormatedTimeStamp(String formatedTimeStamp) {
+		this.formatedTimeStamp = formatedTimeStamp;
+	}
 	public ApplicationLogBookDto(String uutId, String uutSerialNumber, String sessionId, String username,
 			Date timestamp, String details) {
 		super();

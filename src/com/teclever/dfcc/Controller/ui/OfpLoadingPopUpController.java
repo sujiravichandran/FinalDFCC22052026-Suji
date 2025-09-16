@@ -3,6 +3,7 @@ package com.teclever.dfcc.Controller.ui;
 import com.teclever.dfcc.datastore.configurationmanagement.OfpConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -97,6 +98,9 @@ public class OfpLoadingPopUpController {
 		@FXML
 		private void handleCancelButtonAction() {
 			Stage stage = (Stage) cancel_button.getScene().getWindow();
+			StateMachine.setTestState(TestState.STOPPED);
+			StateMachine.setConfirmTestFileCompleted(false);
+			StateMachine.setCancelTest(true);
 			stage.close();
 
 		}

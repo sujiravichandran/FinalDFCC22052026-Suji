@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.awt.Desktop;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -12,7 +13,7 @@ import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.Debug;
-
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -250,24 +251,150 @@ public class AdvancedTestingController {
 		return advancedTestingResultsGridPane;
 	}
 	
+//	public TableView<AdvancedTestResult> createResultTableViewAdvance() {
+//		
+//		tableView.getStylesheets()
+//		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
+//		tableView.getStyleClass().add("check-sum-table");
+//		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+//		
+//		 tableView.setPrefHeight(900); 
+//
+//		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
+//		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+//		fileNameColumn.setReorderable(false);
+//		fileNameColumn.setSortable(false);
+//		fileNameColumn.setMaxWidth(825);
+//		fileNameColumn.setStyle("-fx-alignment: CENTER;");
+//		
+//		
+//		// Custom cell to show ellipsis for file path
+//	    fileNameColumn.setCellFactory(new Callback<TableColumn<AdvancedTestResult, String>, TableCell<AdvancedTestResult, String>>() {
+//	        @Override
+//	        public TableCell<AdvancedTestResult, String> call(TableColumn<AdvancedTestResult, String> col) {
+//	            return new TableCell<AdvancedTestResult, String>() {
+//	                @Override
+//	                protected void updateItem(String filePath, boolean empty) {
+//	                    super.updateItem(filePath, empty);
+//	                    if (empty || filePath == null) {
+//	                        setText(null);
+//	                    } else {
+//	                    	File file = new File(filePath);
+//	                    	setText(file.getName());
+//	                    }
+//	                }
+//	            };
+//	        }
+//	    });
+//	    
+//	    
+//	    
+//		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
+//		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+//		resultColumn.setReorderable(false);
+//		resultColumn.setSortable(false);
+//		resultColumn.setMaxWidth(300);
+//		resultColumn.setMinWidth(300);
+//		resultColumn.setStyle("-fx-alignment: CENTER;");
+//		rewriteColumn(resultColumn);
+//		
+//		
+//		
+//		
+//		// View Button Column
+//	    TableColumn<AdvancedTestResult, Void> viewButtonColumn = new TableColumn<>();
+//	    viewButtonColumn.setCellFactory(col -> new TableCell<AdvancedTestResult, Void>() {
+//	        private final Button viewButton = new Button("View");
+//
+//	        {
+//	        	viewButton.setOnAction(e -> {
+//	        		AdvancedTestResult advancedTestResult = getTableView().getItems().get(getIndex());
+//				    File file = new File(advancedTestResult.getFileName());
+//
+//				    // Check if the file exists before trying to open it
+//				    if (file.exists()) {
+//				        try {
+//				            String os = System.getProperty("os.name").toLowerCase();
+//				            if (os.contains("win")) {
+//				                // Windows-specific code
+//				                Desktop desktop = Desktop.getDesktop();
+//				                if (desktop.isSupported(Desktop.Action.OPEN)) {
+//				                    desktop.open(file);
+//				                } else {
+//				                   Debug.printDebug("Open action not supported on this platform.");
+//				                }
+//				            } else if (os.contains("nix") || os.contains("nux")) {
+//				                // Linux-specific code using xdg-open
+//				                // Ensure the file path is absolute
+//				                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+//				                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+//				            } else {
+//				               Debug.printDebug("Unsupported OS: " + os);
+//				            }
+//				        } catch (IOException ex) {
+//				           Debug.printDebug("Error opening file: " + ex.getMessage());
+//				        }
+//				    } else {
+//				       Debug.printDebug("File does not exist: " + file.getAbsolutePath());
+//				    }
+//				});
+//	        }
+//
+//	        @Override
+//	        protected void updateItem(Void item, boolean empty) {
+//	            super.updateItem(item, empty);
+//	            if (empty) {
+//	                setGraphic(null);
+//	            } else {
+//	                setGraphic(viewButton);
+//	            }
+//	        }
+//	    });
+//	    viewButtonColumn.setReorderable(false);
+//	    viewButtonColumn.setSortable(false);
+//	    viewButtonColumn.setMaxWidth(100);
+//		
+//		
+//		
+//
+//		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
+//		
+//		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
+//				
+//		return tableView;
+//	}
+	
+	
 	public TableView<AdvancedTestResult> createResultTableViewAdvance() {
-		
-		tableView.getStylesheets()
-		.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
-		tableView.getStyleClass().add("check-sum-table");
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
-		 tableView.setPrefHeight(900); 
 
-		TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
-		fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
-		fileNameColumn.setReorderable(false);
-		fileNameColumn.setSortable(false);
-		fileNameColumn.setMaxWidth(825);
-		fileNameColumn.setStyle("-fx-alignment: CENTER;");
-		
-		
-		// Custom cell to show ellipsis for file path
+	    TableView<AdvancedTestResult> tableView = new TableView<>();
+
+	    tableView.getStylesheets()
+	        .add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/SelfTest.css").toExternalForm());
+	    tableView.getStyleClass().add("check-sum-table");
+	    tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+	    tableView.setPrefHeight(900);
+
+	    // --- SlNo Column ---
+	    TableColumn<AdvancedTestResult, String> slNoColumn = new TableColumn<>("SL No.");
+	    slNoColumn.setCellValueFactory(cellData -> {
+	        int index = tableView.getItems().indexOf(cellData.getValue()) + 1;
+	        return new ReadOnlyStringWrapper(String.valueOf(index));
+	    });
+	    slNoColumn.setReorderable(false);
+	    slNoColumn.setSortable(false);
+	    slNoColumn.setMaxWidth(100);
+	    slNoColumn.setStyle("-fx-alignment: CENTER;");
+
+	    // --- File Name Column ---
+	    TableColumn<AdvancedTestResult, String> fileNameColumn = new TableColumn<>("File Name");
+	    fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+	    fileNameColumn.setReorderable(false);
+	    fileNameColumn.setSortable(false);
+	    fileNameColumn.setMaxWidth(825);
+	    fileNameColumn.setStyle("-fx-alignment: CENTER;");
+
+	    // Custom cell to show file name only
 	    fileNameColumn.setCellFactory(new Callback<TableColumn<AdvancedTestResult, String>, TableCell<AdvancedTestResult, String>>() {
 	        @Override
 	        public TableCell<AdvancedTestResult, String> call(TableColumn<AdvancedTestResult, String> col) {
@@ -278,90 +405,80 @@ public class AdvancedTestingController {
 	                    if (empty || filePath == null) {
 	                        setText(null);
 	                    } else {
-	                    	File file = new File(filePath);
-	                    	setText(file.getName());
+	                        File file = new File(filePath);
+	                        setText(file.getName());
 	                    }
 	                }
 	            };
 	        }
 	    });
-	    
-	    
-	    
-		TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
-		resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
-		resultColumn.setReorderable(false);
-		resultColumn.setSortable(false);
-		resultColumn.setMaxWidth(300);
-		resultColumn.setMinWidth(300);
-		resultColumn.setStyle("-fx-alignment: CENTER;");
-		rewriteColumn(resultColumn);
-		
-		
-		
-		
-		// View Button Column
+
+	    // --- Result Column ---
+	    TableColumn<AdvancedTestResult, String> resultColumn = new TableColumn<>("Result");
+	    resultColumn.setCellValueFactory(new PropertyValueFactory<>("result"));
+	    resultColumn.setReorderable(false);
+	    resultColumn.setSortable(false);
+	    resultColumn.setMaxWidth(300);
+	    resultColumn.setMinWidth(300);
+	    resultColumn.setStyle("-fx-alignment: CENTER;");
+	    rewriteColumn(resultColumn); // Apply custom styling if applicable
+
+	    // --- View Button Column ---
 	    TableColumn<AdvancedTestResult, Void> viewButtonColumn = new TableColumn<>();
 	    viewButtonColumn.setCellFactory(col -> new TableCell<AdvancedTestResult, Void>() {
 	        private final Button viewButton = new Button("View");
 
 	        {
-	        	viewButton.setOnAction(e -> {
-	        		AdvancedTestResult advancedTestResult = getTableView().getItems().get(getIndex());
-				    File file = new File(advancedTestResult.getFileName());
+	            viewButton.setOnAction(e -> {
+	                AdvancedTestResult advancedTestResult = getTableView().getItems().get(getIndex());
+	                File file = new File(advancedTestResult.getFileName());
 
-				    // Check if the file exists before trying to open it
-				    if (file.exists()) {
-				        try {
-				            String os = System.getProperty("os.name").toLowerCase();
-				            if (os.contains("win")) {
-				                // Windows-specific code
-				                Desktop desktop = Desktop.getDesktop();
-				                if (desktop.isSupported(Desktop.Action.OPEN)) {
-				                    desktop.open(file);
-				                } else {
-				                   Debug.printDebug("Open action not supported on this platform.");
-				                }
-				            } else if (os.contains("nix") || os.contains("nux")) {
-				                // Linux-specific code using xdg-open
-				                // Ensure the file path is absolute
-				                File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
-				                new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
-				            } else {
-				               Debug.printDebug("Unsupported OS: " + os);
-				            }
-				        } catch (IOException ex) {
-				           Debug.printDebug("Error opening file: " + ex.getMessage());
-				        }
-				    } else {
-				       Debug.printDebug("File does not exist: " + file.getAbsolutePath());
-				    }
-				});
+	                if (file.exists()) {
+	                    try {
+	                        String os = System.getProperty("os.name").toLowerCase();
+	                        if (os.contains("win")) {
+	                            Desktop desktop = Desktop.getDesktop();
+	                            if (desktop.isSupported(Desktop.Action.OPEN)) {
+	                                desktop.open(file);
+	                            } else {
+	                                Debug.printDebug("Open action not supported on this platform.");
+	                            }
+	                        } else if (os.contains("nix") || os.contains("nux")) {
+	                            File absoluteFile = file.isAbsolute() ? file : file.getAbsoluteFile();
+	                            new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
+	                        } else {
+	                            Debug.printDebug("Unsupported OS: " + os);
+	                        }
+	                    } catch (IOException ex) {
+	                        Debug.printDebug("Error opening file: " + ex.getMessage());
+	                    }
+	                } else {
+	                    Debug.printDebug("File does not exist: " + file.getAbsolutePath());
+	                }
+	            });
 	        }
 
 	        @Override
 	        protected void updateItem(Void item, boolean empty) {
 	            super.updateItem(item, empty);
-	            if (empty) {
-	                setGraphic(null);
-	            } else {
-	                setGraphic(viewButton);
-	            }
+	            setGraphic(empty ? null : viewButton);
 	        }
 	    });
 	    viewButtonColumn.setReorderable(false);
 	    viewButtonColumn.setSortable(false);
 	    viewButtonColumn.setMaxWidth(100);
-		
-		
-		
 
-		tableView.getColumns().addAll(fileNameColumn, resultColumn, viewButtonColumn);
-		
-		tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
-				
-		return tableView;
+	    // --- Add all columns in desired order ---
+	    tableView.getColumns().addAll(slNoColumn, fileNameColumn, resultColumn, viewButtonColumn);
+
+	    // --- Bind the data list ---
+	    tableView.setItems(AdvancedTestStateObject.getTestFilesResultList());
+
+	    return tableView;
 	}
+
+	
+	
 	private void rewriteColumn(TableColumn<AdvancedTestResult, String> resultColumn) {
 		resultColumn.setReorderable(false);
 		resultColumn.setSortable(false);

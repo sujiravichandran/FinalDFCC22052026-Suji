@@ -1,14 +1,18 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
+import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
@@ -156,13 +160,28 @@ public class EndRemarksController {
 	        alert.showAndWait();
 	        return;
 	    }
-
+//		Suji Added:
+	    UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(),
+				"session " + currentSessionDetails.getSessionName() + " Session Ended");
+		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+//		Exit:
 	    Stage stage = (Stage) saveButton.getScene().getWindow();
 	    stage.close();
 	}
 
 	@FXML
 	private void handleCancelButtonAction() {
+//		Suji Added:
+		UUTLogbookManagement uutLogbookManagement = new UUTLogbookManagement();
+		UUTLogBookDto uutLogBookDto = new UUTLogBookDto(currentSessionDetails.getUutId(),
+				currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+				StateMachine.getCurrentUserLogin(), new Date(),
+				"session " + currentSessionDetails.getSessionName() + " Canceled End Session");
+		uutLogbookManagement.addUUTLogBook(uutLogBookDto);
+//		EXIT:
 		Stage stage = (Stage) cancelButton.getScene().getWindow();
 		stage.close();
 

@@ -5,13 +5,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.HashSet;
 
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
@@ -29,12 +31,12 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -42,8 +44,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.Priority;
-
 
 public class LogBookController {
 	private GridPane logBookMainGridPane = new GridPane();
@@ -87,6 +87,7 @@ public class LogBookController {
 
 	private ComboBox<String> fromTimePicker = new ComboBox<>();
 	private ComboBox<String> toTimePicker = new ComboBox<>();
+	
 	private ComboBox<String> userInputTimePicker = new ComboBox<>();
 	
 	private HBox selectionHBoxUUTType = new HBox();
@@ -100,16 +101,9 @@ public class LogBookController {
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
-	
-// changed by srini 2/08/25
-//	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
-	private ObservableSet<String> dfccSNSet = FXCollections.observableSet(new HashSet<>());
-
+	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
 	private Map<String, String> sessionNameId = new HashMap<String, String>();
 	private Map<String, String> sessionDfccId = new HashMap<String, String>();
-// till this, srini 2/08/25
-
-	
 	List<SessionDto> sessionList = new ArrayList<SessionDto>();
 
 	String selectedUUTType;
@@ -133,6 +127,8 @@ public class LogBookController {
 	public LogBookController() {
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
+		fromTimePicker.setEditable(true);
+		toTimePicker.setEditable(true);
 
 		for (SessionDto session : sessionList) {
 			sessionNameId.put(session.getSessionName(), session.getSessionId());
@@ -211,13 +207,10 @@ public class LogBookController {
 		fifthColumn.setPercentWidth(20);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);//50
+		firstRow.setPercentHeight(50);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);//50
-		
-		
-		
+		secondRow.setPercentHeight(50);
 
 		logBookSelectionGridPane.setPadding(new Insets(5));
 
@@ -232,27 +225,7 @@ public class LogBookController {
 		logBookSelectionGridPane.add(createToDatePickerComboBox(), 4, 0);
 		logBookSelectionGridPane.add(createFromTimePicker(), 3, 1);
 		logBookSelectionGridPane.add(createToTimePicker(), 4, 1);
-		
-	
-// instruction label spanning columns 1 and 2 changed by srini 4/8/25		
-		
-//		logBookSelectionGridPane.add(createRefreshButton(), 2, 1);
-		
-		// Create instruction label
-		Label instructionLabel = new Label("After selecting UUT Type, UUT S/N, and Session, click 'Update'.");
-		instructionLabel.setStyle("-fx-font-size: 15px;");
-
-		// Create HBox to hold both refresh button and label
-		HBox refreshAndInstructionBox = new HBox(10); // 10 is spacing between button and label
-		refreshAndInstructionBox.setAlignment(Pos.CENTER_LEFT);
-		refreshAndInstructionBox.getChildren().addAll(createRefreshButton(), instructionLabel);
-
-		// Add the HBox to the GridPane
-		logBookSelectionGridPane.add(refreshAndInstructionBox, 0, 1); // Row 1, Column 0
-		GridPane.setColumnSpan(refreshAndInstructionBox, 4); // Spans columns 0 to 3
-		GridPane.setMargin(refreshAndInstructionBox, new Insets(0, 0, 0, 10));
-
-//....
+		logBookSelectionGridPane.add(createRefreshButton(), 2, 1);
 
 		return logBookSelectionGridPane;
 	}
@@ -443,48 +416,36 @@ public class LogBookController {
 		return selectionBoxSESSION;
 	}
 
-  // UUT SESSION DFCC S/N FIELD
-	// changed by srini 2/08/25 for shows unique serialno
-	private void initializeDfccSNComboBox(String uutTypeId) {
-		
+//  // UUT SESSION DFCC S/N FIELD
+//	private void initializeDfccSNComboBox(String uutTypeId) {
 //		dfccSNList.clear();
+//
 //		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
 //				.collect(Collectors.toList());
 //
 //		for (SessionDto dfccSn : filterSessionList) {
 //			dfccSNList.add(dfccSn.getDfccSNo());
 //		}
-//
-//		
-////		initializeSessionComboBox(uutId);
-//
-//		uutSerialNoField.setOnAction(event -> {
-//		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
-//		    if (selectedSerialNo != null) {
-//		        initializeSessionComboBox(selectedSerialNo);
-//		    }
-//		});
-//
-//		
-//		uutSerialNoField.setItems(dfccSNList);
-		
-		dfccSNSet.clear(); // clear old entries
 
-		List<SessionDto> filterSessionList = sessionList.stream()
-		        .filter(t -> t.getUutId().equals(uutTypeId))
-		        .collect(Collectors.toList());
+	
+	private void initializeDfccSNComboBox(String uutTypeId) {
+	    dfccSNList.clear();
 
-		for (SessionDto dfccSn : filterSessionList) {
-		    dfccSNSet.add(dfccSn.getDfccSNo()); // no duplicates
-		}
+	    List<SessionDto> filterSessionList = sessionList.stream()
+	            .filter(t -> t.getUutId().equals(uutTypeId))
+	            .collect(Collectors.toList());
 
-		// Now convert Set to ObservableList for ComboBox
-		ObservableList<String> dfccSNObservableList = FXCollections.observableArrayList(dfccSNSet);
+	    Set<String> seenDfccSNos = new HashSet<>();
 
-		// Set to ComboBox
-		uutSerialNoField.setItems(dfccSNObservableList);
+	    for (SessionDto dfccSn : filterSessionList) {
+	        String dfccSNo = dfccSn.getDfccSNo();
+	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
+	            dfccSNList.add(dfccSNo);
+	        }
+	    }
 
-		// Handle ComboBox selection
+//		initializeSessionComboBox(uutId);
+
 		uutSerialNoField.setOnAction(event -> {
 		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
 		    if (selectedSerialNo != null) {
@@ -492,6 +453,8 @@ public class LogBookController {
 		    }
 		});
 
+		
+		uutSerialNoField.setItems(dfccSNList);
 	}
 
 //    // UUT SESSION NAME TYPE FIELD
@@ -513,92 +476,183 @@ public class LogBookController {
 
 	// DATE PICKER - FROM
 	private HBox createFromDatePickerComboBox() {
-		fromDate.setPromptText("FROM DATE");
-		datePickerFromHBox.setPadding(new Insets(0, 0, 0, 18.5));
-		datePickerFromHBox.setAlignment(Pos.CENTER_LEFT);
-		datePickerFromHBox.getChildren().add(fromDate);
+	    fromDate.setPromptText("FROM DATE");
 
-		return datePickerFromHBox;
+	    fromDate.setDayCellFactory(datePicker -> new DateCell() {
+	        @Override
+	        public void updateItem(LocalDate date, boolean empty) {
+	            super.updateItem(date, empty);
+	            if (date.isAfter(LocalDate.now())) {
+	                setDisable(true);
+	                setStyle("-fx-background-color: #eeeeee; -fx-text-fill: gray;");
+	            }
+	        }
+	    });
+
+	    datePickerFromHBox.setPadding(new Insets(0, 0, 0, 18.5));
+	    datePickerFromHBox.setAlignment(Pos.CENTER_LEFT);
+	    datePickerFromHBox.getChildren().add(fromDate);
+
+	    return datePickerFromHBox;
 	}
 
 	// DATE PICKER - TO
 	private HBox createToDatePickerComboBox() {
-		toDate.setPromptText("TO DATE");
-		datePickerToHBox.setPadding(new Insets(0, 0, 0, 18.5));
-		datePickerToHBox.setAlignment(Pos.CENTER_LEFT);
-		datePickerToHBox.getChildren().add(toDate);
+	    toDate.setPromptText("TO DATE");
 
-		return datePickerToHBox;
-	}
-// changed by srini 02/08/25
-	private HBox createRefreshButton() {
-	    // Style and align the refresh button container
-	    refreshButton.getStyleClass().add("logBook-container");
-
-	    refreshButtonHBox.setAlignment(Pos.CENTER_LEFT); // Align to left
-	    refreshButtonHBox.setPadding(new Insets(0, 0, 0, 15));
-	    refreshButtonHBox.setSpacing(10); // Space between button and label
-
-	    
-	    // Add button and label to HBox
-	    refreshButtonHBox.getChildren().add(refreshButton);
-
-	    // Button action
-	    refreshButton.setOnAction(e -> {
-	        refreshButton();
+	    toDate.setDayCellFactory(datePicker -> new DateCell() {
+	        @Override
+	        public void updateItem(LocalDate date, boolean empty) {
+	            super.updateItem(date, empty);
+	            if (date.isAfter(LocalDate.now())) {
+	                setDisable(true);
+	                setStyle("-fx-background-color: #eeeeee; -fx-text-fill: gray;");
+	            }
+	        }
 	    });
 
-	    return refreshButtonHBox;
+	    datePickerToHBox.setPadding(new Insets(0, 0, 0, 18.5));
+	    datePickerToHBox.setAlignment(Pos.CENTER_LEFT);
+	    datePickerToHBox.getChildren().add(toDate);
+
+	    return datePickerToHBox;
 	}
-	// till this line
 
 
+	private HBox createRefreshButton() {
+		refreshButton.getStyleClass().add("logBook-container");
+		refreshButtonHBox.setAlignment(Pos.CENTER);
+		refreshButtonHBox.getChildren().add(refreshButton);
+		refreshButton.setOnAction(e -> {
+			refreshButton();
+		});
+		return refreshButtonHBox;
+	}
+
+//	private void refreshButton() {
+//
+//		// Get selected UUT type, serial number, and session type
+//		selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+//		selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
+//		selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
+//
+//		// Handle date selection
+//		LocalDate localFromDate = fromDate.getValue();
+//		LocalDate localToDate = toDate.getValue();
+//
+//		// Handle time selection from ComboBox
+//		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+//		LocalTime selectedFromTime = null;
+//		LocalTime selectedToTime = null;
+//
+//		if (fromTimePicker.getSelectionModel().getSelectedItem() != null) {
+//			selectedFromTime = LocalTime.parse(fromTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
+//		}
+//		if (toTimePicker.getSelectionModel().getSelectedItem() != null) {
+//			selectedToTime = LocalTime.parse(toTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
+//		}
+//
+//		// Combine date and time into Date objects
+//		if (localFromDate != null && selectedFromTime != null) {
+//			selectedFromDate = Date
+//					.from(LocalDateTime.of(localFromDate, selectedFromTime).atZone(ZoneId.systemDefault()).toInstant());
+//
+//		} else if (localFromDate != null) { // If time is not selected, use start of the day
+//			selectedFromDate = Date.from(localFromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//		}
+//
+//		if (localToDate != null && selectedToTime != null) {
+//			selectedToDate = Date
+//					.from(LocalDateTime.of(localToDate, selectedToTime).atZone(ZoneId.systemDefault()).toInstant());
+//		} else if (localToDate != null) { // If time is not selected, use end of the day
+//			selectedToDate = Date.from(localToDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//		}
+//
+//		// Process log data based on selected UUT type
+//		if (selectedUUTType != null) {
+//			createAitessLogData(selectedUUTType);
+//			createUutLogData(selectedUUTType);
+//		}
+//
+//	}
+	
 	private void refreshButton() {
+	    selectedFromDate = null;
+	    selectedToDate = null;
 
-		// Get selected UUT type, serial number, and session type
-		selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
-		selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
-		selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
+	    selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+	    selectedDfccSN = uutSerialNoField.getSelectionModel().getSelectedItem();
+	    selectedSessionType = sessionNameId.get(sessionField.getSelectionModel().getSelectedItem());
+	    
+	    if(selectedUUTType == null) {
+	    	Notifications.showWarningAlert("Please Select UUT Type");
+	    	return;
+	    }else {
+	    LocalDate localFromDate = fromDate.getValue();
+	    LocalDate localToDate = toDate.getValue();
 
-		// Handle date selection
-		LocalDate localFromDate = fromDate.getValue();
-		LocalDate localToDate = toDate.getValue();
+	    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+	    LocalTime selectedFromTime = null;
+	    LocalTime selectedToTime = null;
 
-		// Handle time selection from ComboBox
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-		LocalTime selectedFromTime = null;
-		LocalTime selectedToTime = null;
+	    String fromTimeText = fromTimePicker.getEditor().getText();
+	    if (fromTimeText != null && !fromTimeText.trim().isEmpty()) {
+	        try {
+	            selectedFromTime = LocalTime.parse(fromTimeText.trim(), timeFormatter);
+	        } catch (DateTimeParseException e) {
+	            System.out.println("⚠️ Invalid FROM time format: " + fromTimeText);
+	        }
+	    }
 
-		if (fromTimePicker.getSelectionModel().getSelectedItem() != null) {
-			selectedFromTime = LocalTime.parse(fromTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
-		}
-		if (toTimePicker.getSelectionModel().getSelectedItem() != null) {
-			selectedToTime = LocalTime.parse(toTimePicker.getSelectionModel().getSelectedItem(), timeFormatter);
-		}
+	    String toTimeText = toTimePicker.getEditor().getText();
+	    if (toTimeText != null && !toTimeText.trim().isEmpty()) {
+	        try {
+	            selectedToTime = LocalTime.parse(toTimeText.trim(), timeFormatter);
+	        } catch (DateTimeParseException e) {
+	            System.out.println("⚠️ Invalid TO time format: " + toTimeText);
+	        }
+	    }
 
-		// Combine date and time into Date objects
-		if (localFromDate != null && selectedFromTime != null) {
-			selectedFromDate = Date
-					.from(LocalDateTime.of(localFromDate, selectedFromTime).atZone(ZoneId.systemDefault()).toInstant());
+	    if (localFromDate != null && selectedFromTime != null) {
+	        selectedFromDate = Date.from(LocalDateTime.of(localFromDate, selectedFromTime)
+	                .atZone(ZoneId.systemDefault()).toInstant());
+	    } else if (localFromDate != null) {
+	        selectedFromDate = Date.from(localFromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	    }
 
-		} else if (localFromDate != null) { // If time is not selected, use start of the day
-			selectedFromDate = Date.from(localFromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		}
+	    if (localToDate != null && selectedToTime != null) {
+	        selectedToDate = Date.from(LocalDateTime.of(localToDate, selectedToTime)
+	                .atZone(ZoneId.systemDefault()).toInstant());
+	    } else if (localToDate != null) {
+	        selectedToDate = Date.from(LocalDateTime.of(localToDate, LocalTime.of(23, 59, 59))
+	                .atZone(ZoneId.systemDefault()).toInstant());
+	    }
 
-		if (localToDate != null && selectedToTime != null) {
-			selectedToDate = Date
-					.from(LocalDateTime.of(localToDate, selectedToTime).atZone(ZoneId.systemDefault()).toInstant());
-		} else if (localToDate != null) { // If time is not selected, use end of the day
-			selectedToDate = Date.from(localToDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		}
+	    if (selectedFromTime != null && selectedToTime != null && selectedFromTime.isAfter(selectedToTime)) {
+	        Alert alert = new Alert(Alert.AlertType.ERROR);
+	        alert.setTitle("Invalid Time Range");
+	        alert.setHeaderText("Time Range Error");
+	        alert.setContentText("Please select a proper FROM time and TO time.\nFROM time cannot be after TO time.");
+	        alert.showAndWait();
+	        return; 
+	    }
+	    
+	    // ✅ Debug print to confirm
+	    System.out.println("Selected UUT Type : " + selectedUUTType);
+	    System.out.println("Selected DFCC SN  : " + selectedDfccSN);
+	    System.out.println("Selected Session  : " + selectedSessionType);
+	    System.out.println("Selected FROM Date: " + selectedFromDate);
+	    System.out.println("Selected TO Date  : " + selectedToDate);
 
-		// Process log data based on selected UUT type
-		if (selectedUUTType != null) {
-			createAitessLogData(selectedUUTType);
-			createUutLogData(selectedUUTType);
-		}
-
+	    // ✅ Process log data if UUT Type is selected
+	    if (selectedUUTType != null) {
+	        createAitessLogData(selectedUUTType);
+	        createUutLogData(selectedUUTType);
+	    }
+	    }
 	}
+
+
 
 	private GridPane createLogBookMidGridPane() {
 		logBookMidGridPane.getStyleClass().add("logbook-mid-container");
@@ -751,13 +805,28 @@ public class LogBookController {
 	}
 
 	private HBox createUserDatePickerComboBox() {
-		userInputDate.setPromptText("USER DATE");
-		userInputDatePickerToHBox.setPadding(new Insets(0, 0, 0, 18.5));
-		userInputDatePickerToHBox.setAlignment(Pos.CENTER_LEFT);
-		userInputDatePickerToHBox.getChildren().add(userInputDate);
+	    userInputDate.setPromptText("USER DATE");
 
-		return userInputDatePickerToHBox;
+	    userInputDate.setDayCellFactory(datePicker -> new DateCell() {
+	        @Override
+	        public void updateItem(LocalDate date, boolean empty) {
+	            super.updateItem(date, empty);
+
+	            if (date.isAfter(LocalDate.now())) {
+	                setDisable(true);
+	                setStyle("-fx-background-color: #eeeeee; -fx-text-fill: gray;");
+	            }
+	        }
+	    });
+
+	    userInputDatePickerToHBox.setPadding(new Insets(0, 0, 0, 18.5));
+	    userInputDatePickerToHBox.setAlignment(Pos.CENTER_LEFT);
+	    userInputDatePickerToHBox.getChildren().add(userInputDate);
+
+	    return userInputDatePickerToHBox;
 	}
+
+
 
 	private HBox createBottomButton() {
 

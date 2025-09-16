@@ -25,208 +25,108 @@ import com.teclever.dfcc.utils.Debug;
 
 public class ResultManagement {
 
-	public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId) {
-	    List<ResultDto> resultList = new ArrayList<>();
-	    MongoDatabase database = ResultStoreConnection.getDatabase();
+	public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId, String testFileId) {
+		List<ResultDto> resultList = new ArrayList<>();
+		MongoDatabase database = ResultStoreConnection.getDatabase();
 
-	    MongoCollection<Document> rdfFileInfoCollection = database.getCollection(sessionId);
-	    Document rdfFileInfoDoc = rdfFileInfoCollection.find(and(eq("sessionId", sessionId), eq("_id", specificObjectId))).first();
+		MongoCollection<Document> rdfFileInfoCollection = database.getCollection(sessionId);
+		Document rdfFileInfoDoc = rdfFileInfoCollection
+				.find(and(eq("sessionId", sessionId), eq("_id", specificObjectId))).first();
 
-	    if (rdfFileInfoDoc != null) {
-	        ObjectId refObjectId = rdfFileInfoDoc.getObjectId("RefObjectId");
-	        String refCollectionName = rdfFileInfoDoc.getString("RefCollectionName");
+//	    Suji changed for D* issue based on step & without step in detail data
+		if (rdfFileInfoDoc != null) {
+			ObjectId refObjectId = rdfFileInfoDoc.getObjectId("RefObjectId");
+			String refCollectionName = rdfFileInfoDoc.getString("RefCollectionName");
 
-	        String collectionName = getCollectionName(refCollectionName);
+			String collectionName = getCollectionName(refCollectionName);
+			collectionName = collectionName + "_" + testFileId;
 
-	        MongoCollection<Document> resultDataCollection = database.getCollection(collectionName);
-	        Document resultDataDoc = resultDataCollection.find(eq("_id", refObjectId)).first();
+			MongoCollection<Document> resultDataCollection = database.getCollection(collectionName);
+			System.out.println("MongoDB Collection Name" + resultDataCollection);
+			Document resultDataDoc = resultDataCollection.find(eq("_id", refObjectId)).first();
+			System.out.println("MongoDB resultDataDoc" + resultDataDoc);
+			if (resultDataDoc != null) {
+				String resultDataFile = resultDataDoc.getString("resultDataFile");
+				String[] resultDataParts = resultDataFile.split("/");
+				String fileName = resultDataParts[resultDataParts.length - 1];
 
-	        if (resultDataDoc != null) {
-	            String resultDataFile = resultDataDoc.getString("resultDataFile");
-	            String[] resultDataParts = resultDataFile.split("/");
-	            String fileName = resultDataParts[resultDataParts.length - 1];
+				// Get the failedStep map
+				Map<String, ObjectId> failedStepMap = resultDataDoc.get("failedStep", Map.class);
 
-	            // Get the failedStep map
-	            Map<String, ObjectId> failedStepMap = resultDataDoc.get("failedStep", Map.class);
+				System.out.println("Mongodb failedStepMap " + failedStepMap);
 
-	            Set<ObjectId> processedIds = new HashSet<>();
-	            
-	            // Check if failedStepMap is empty
-	            if (failedStepMap != null && !failedStepMap.isEmpty()) {
-	                for (Map.Entry<String, ObjectId> entry : failedStepMap.entrySet()) {
-	                    ObjectId stepObjectId = entry.getValue();
-	                    processedIds.add(stepObjectId); // Add to processed set
+				Set<ObjectId> processedIds = new HashSet<>();
 
-	                    Document stepDoc = resultDataCollection.find(eq("_id", stepObjectId)).first();
-	                    if (stepDoc != null) {
-	                        String stepName = entry.getKey();
-	                        String measuredValue = null;
-	                        String faultyChannel = null;
+				List<Document> allSteps = resultDataCollection.find(Filters.gte("_id", refObjectId))
+						.into(new ArrayList<>());
+				boolean skipFirstDocument = true;
 
-	                        Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
-	                        if (faultyChannels != null) {
-	                            for (Map.Entry<String, String> faultyChannelEntry : faultyChannels.entrySet()) {
-	                                faultyChannel = faultyChannelEntry.getKey();
-	                                measuredValue = faultyChannelEntry.getValue();
-	                            }
-	                        }
+				for (Document stepDoc : allSteps) {
+					if (skipFirstDocument) {
+						skipFirstDocument = false;
+						continue;
+					}
 
-	                        String tpgph = stepDoc.getString("tpgph");
-	                        String unit = stepDoc.getString("unit");
-	                        String signalName = stepDoc.getString("signalName");
-	                        String expectedValue = stepDoc.getString("expectedValue");
-	                        String faultySRU = stepDoc.getString("faultySRU");
-	                        String dStarInfo = stepDoc.getString("dStarInfo");
+					if (stepDoc.containsKey("project"))
+						break;
 
-	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");
-	                        Matcher matcher = pattern.matcher(dStarInfo);
-	                        List<String> formattedChannels = new ArrayList<>();
+					String measuredValue = null;
+					String faultyChannel = null;
 
-	                        if (matcher.find()) {
-	                            String[] parts = matcher.group(1).trim().split(",");
-	                            for (int i = 0; i < parts.length; i++) {
-	                                String channelValue = parts[i].trim();
-	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
-	                                    if (channelValue.startsWith("*")) {
-	                                        channelValue = channelValue.substring(1);
-	                                    }
-	                                    formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
-	                                }
-	                            }
-	                        }
+					Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
+					if (faultyChannels != null && !faultyChannels.isEmpty()) {
+						for (Map.Entry<String, String> entry : faultyChannels.entrySet()) {
+							faultyChannel = entry.getKey();
+							measuredValue = entry.getValue();
+						}
 
-	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
-	                        resultDto.setdStarChannels(formattedChannels);
-	                        resultList.add(resultDto);
-	                    }
-	                }
+						String tpgph = stepDoc.getString("tpgph");
+						String unit = stepDoc.getString("unit");
+						String signalName = stepDoc.getString("signalName");
+						String expectedValue = stepDoc.getString("expectedValue");
+						String faultySRU = stepDoc.getString("faultySRU");
+						String dStarInfo = stepDoc.getString("dStarInfo");
+//						Added by Suji
+						String stepName = stepDoc.getString("step");
+//						Exit
 
-	                // Read additional documents not in failedStepMap but have "step" and "dStarInfo"
-	                Bson filter = Filters.and(
-	                    Filters.nin("_id", processedIds),
-	                    Filters.exists("step"),
-	                    Filters.exists("dStarInfo")
-	                );
+						Pattern pattern = Pattern.compile("\\((.*?)\\)");
+						Matcher matcher = pattern.matcher(dStarInfo);
+						List<String> formattedChannels = new ArrayList<>();
 
-	                FindIterable<Document> additionalDocs = resultDataCollection.find(filter);
-	                for (Document stepDoc : additionalDocs) {
-	                    String stepName = stepDoc.getString("step");
-	                    String measuredValue = null;
-	                    String faultyChannel = null;
+						if (matcher.find()) {
+							String[] parts = matcher.group(1).trim().split(",");
+							for (int i = 0; i < parts.length; i++) {
+								String channelValue = parts[i].trim();
+								if (channelValue.contains("down") || channelValue.contains("offline")
+										|| channelValue.startsWith("*")) {
+									if (channelValue.startsWith("*")) {
+										channelValue = channelValue.substring(1);
+									}
+									formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
+								}
+							}
+						}
 
-	                    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
-	                    if (faultyChannels != null) {
-	                        for (Map.Entry<String, String> entry : faultyChannels.entrySet()) {
-	                            faultyChannel = entry.getKey();
-	                            measuredValue = entry.getValue();
-	                        }
-	                    }
+						ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit,
+								signalName, faultyChannels, fileName, faultySRU);
+						resultDto.setdStarChannels(formattedChannels);
+						resultList.add(resultDto);
+					}
+				}
+//Exit
 
-	                    String tpgph = stepDoc.getString("tpgph");
-	                    String unit = stepDoc.getString("unit");
-	                    String signalName = stepDoc.getString("signalName");
-	                    String expectedValue = stepDoc.getString("expectedValue");
-	                    String faultySRU = stepDoc.getString("faultySRU");
-	                    String dStarInfo = stepDoc.getString("dStarInfo");
+			} else {
+				Debug.printDebug("Document not found in collection: " + collectionName);
+			}
+		} else {
+			Debug.printDebug("No documents found in rdf_file_info collection for testRunId: " + sessionId);
+		}
 
-	                    Pattern pattern = Pattern.compile("\\((.*?)\\)");
-	                    Matcher matcher = pattern.matcher(dStarInfo);
-	                    List<String> formattedChannels = new ArrayList<>();
-
-	                    if (matcher.find()) {
-	                        String[] parts = matcher.group(1).trim().split(",");
-	                        for (int i = 0; i < parts.length; i++) {
-	                            String channelValue = parts[i].trim();
-	                            if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
-	                                if (channelValue.startsWith("*")) {
-	                                    channelValue = channelValue.substring(1);
-	                                }
-	                                formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
-	                            }
-	                        }
-	                    }
-
-	                    ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
-	                    resultDto.setdStarChannels(formattedChannels);
-	                    resultList.add(resultDto);
-	                }
-
-	            } else {
-	                // fallback path when failedStep is missing or empty
-	                List<Document> allSteps = resultDataCollection.find(Filters.gte("_id", refObjectId)).into(new ArrayList<>());
-	                boolean skipFirstDocument = true;
-
-	                for (Document stepDoc : allSteps) {
-	                    if (skipFirstDocument) {
-	                        skipFirstDocument = false;
-	                        continue;
-	                    }
-
-	                    if (stepDoc.containsKey("project")) break;
-
-	                    String stepName = null;
-	                    String measuredValue = null;
-	                    String faultyChannel = null;
-
-	                    Map<String, String> faultyChannels = stepDoc.get("faultyChannel", Map.class);
-	                    if (faultyChannels != null && !faultyChannels.isEmpty()) {
-	                        for (Map.Entry<String, String> entry : faultyChannels.entrySet()) {
-	                            faultyChannel = entry.getKey();
-	                            measuredValue = entry.getValue();
-	                        }
-
-	                        String tpgph = stepDoc.getString("tpgph");
-	                        String unit = stepDoc.getString("unit");
-	                        String signalName = stepDoc.getString("signalName");
-	                        String expectedValue = stepDoc.getString("expectedValue");
-	                        String faultySRU = stepDoc.getString("faultySRU");
-	                        String dStarInfo = stepDoc.getString("dStarInfo");
-
-	                        Pattern pattern = Pattern.compile("\\((.*?)\\)");
-	                        Matcher matcher = pattern.matcher(dStarInfo);
-	                        List<String> formattedChannels = new ArrayList<>();
-
-	                        if (matcher.find()) {
-	                            String[] parts = matcher.group(1).trim().split(",");
-	                            for (int i = 0; i < parts.length; i++) {
-	                                String channelValue = parts[i].trim();
-	                                if (channelValue.contains("down") || channelValue.contains("offline") || channelValue.startsWith("*")) {
-	                                    if (channelValue.startsWith("*")) {
-	                                        channelValue = channelValue.substring(1);
-	                                    }
-	                                    formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
-	                                }
-	                            }
-	                        }
-
-	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName, faultySRU);
-	                        resultDto.setdStarChannels(formattedChannels);
-	                        resultList.add(resultDto);
-	                    }
-	                }
-	            }
-
-	        } else {
-	            Debug.printDebug("Document not found in collection: " + collectionName);
-	        }
-	    } else {
-	        Debug.printDebug("No documents found in rdf_file_info collection for testRunId: " + sessionId);
-	    }
-
-	    return resultList;
+		return resultList;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//git
+	// git
 //	//GET API
 //	public static List<ResultDto> getResult(String sessionId, ObjectId specificObjectId) {
 //	    List<ResultDto> resultList = new ArrayList<>();
@@ -416,26 +316,26 @@ public class ResultManagement {
 //	    return resultList;
 //	}
 
+	// Method to derive the collection name from the resultDataFile value
+	private static String getCollectionName(String resultDataFile) {
+		// Find the index of "rdf" in the resultDataFile
+		int rdfIndex = resultDataFile.indexOf("rdf");
 
-    // Method to derive the collection name from the resultDataFile value
-    private static String getCollectionName(String resultDataFile) {
-        // Find the index of "rdf" in the resultDataFile
-        int rdfIndex = resultDataFile.indexOf("rdf");
+		// If "rdf" is found in the resultDataFile
+		if (rdfIndex != -1) {
+			// Replace "_" with "." if it's immediately before "rdf"
+			if (rdfIndex > 0 && resultDataFile.charAt(rdfIndex - 1) == '_') {
+				resultDataFile = resultDataFile.substring(0, rdfIndex - 1) + "." + resultDataFile.substring(rdfIndex);
+			}
 
-        // If "rdf" is found in the resultDataFile
-        if (rdfIndex != -1) {
-            // Replace "_" with "." if it's immediately before "rdf"
-            if (rdfIndex > 0 && resultDataFile.charAt(rdfIndex - 1) == '_') {
-                resultDataFile = resultDataFile.substring(0, rdfIndex - 1) + "." + resultDataFile.substring(rdfIndex);
-            }
+			// Replace ";" with "_" if it's immediately after "rdf"
+			int semicolonIndex = resultDataFile.indexOf(";", rdfIndex);
+			if (semicolonIndex != -1 && semicolonIndex == rdfIndex + 3) {
+				resultDataFile = resultDataFile.substring(0, rdfIndex + 3) + "_"
+						+ resultDataFile.substring(semicolonIndex + 1);
+			}
+		}
 
-            // Replace ";" with "_" if it's immediately after "rdf"
-            int semicolonIndex = resultDataFile.indexOf(";", rdfIndex);
-            if (semicolonIndex != -1 && semicolonIndex == rdfIndex + 3) {
-                resultDataFile = resultDataFile.substring(0, rdfIndex + 3) + "_" + resultDataFile.substring(semicolonIndex + 1);
-            }
-        }
-
-        return resultDataFile;
-    }
+		return resultDataFile;
+	}
 }

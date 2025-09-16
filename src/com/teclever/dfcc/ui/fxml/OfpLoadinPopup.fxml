@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="selcetOfp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="203.0" prefWidth="603.0" stylesheets="@../css/AddOFP.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.PbitOfpSelectionController">
+<AnchorPane fx:id="selcetOfp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="203.0" prefWidth="603.0" stylesheets="@../css/AddOFP.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teclever.dfcc.Controller.ui.OfpLoadingPopUpController">
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
@@ -34,7 +34,7 @@
                      <children>
                         <VBox alignment="CENTER" prefHeight="25.0" prefWidth="308.0">
                            <children>
-                              <Label fx:id="selectOfp" prefHeight="32.0" prefWidth="111.0" text="Select OFP">
+                              <Label fx:id="selectOfp" prefHeight="32.0" prefWidth="150.0" text="Select OFP">
                                  <font>
                                     <Font size="20.0" />
                                  </font>

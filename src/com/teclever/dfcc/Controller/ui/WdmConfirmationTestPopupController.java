@@ -63,12 +63,11 @@ public class WdmConfirmationTestPopupController {
 	
 		@FXML
 		private void handleTestCancelButtonAction() {
-			
 			Stage stage = (Stage) cancel_button.getScene().getWindow();
 			StateMachine.setTestState(TestState.STOPPED);
+			StateMachine.setConfirmTestFileCompleted(false);
+			StateMachine.setCancelTest(true);
 			stage.close();
-
-
 		}
 	
 	

@@ -499,8 +499,44 @@ public class CurrentExecutionResultController {
 		
 
 		briefDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 18);
+
+//			column.setMinWidth(column.getText().length() * 14);
+			String colNamne=column.getText();
+//			System.out.println(colNamne);
+			switch (colNamne) {
+			case "SL NO":
+				column.setMinWidth(100);
+				column.setMaxWidth(100);
+				break;
+			case "TEST MODE":
+				column.setMinWidth(320);
+				column.setMaxWidth(320);
+				break;
+			case "EXECUTED FILE NAME":
+				column.setMinWidth(420);
+				column.setMaxWidth(420);
+				break;
+			case "TIME OF EXECUTION":
+				column.setMinWidth(250);
+				column.setMaxWidth(250);
+				break;
+			case "RESULT":
+				column.setMinWidth(130);
+				column.setMaxWidth(130);
+				break;
+
+
+			default:
+				column.setMinWidth(120);
+				column.setMaxWidth(120);
+				break;
+			}
 			updateBriefData((TableColumn<BriefData, String>) column);
+		
+			
+			
+//			column.setMinWidth(column.getText().length() *10);
+//			updateBriefData((TableColumn<BriefData, String>) column);
 		});
 
 		
@@ -591,7 +627,14 @@ public class CurrentExecutionResultController {
 				} else {
 					if (label == null) {
 						label = new Label();
-						label.setWrapText(false);
+//						SAI CHANGED FOR RESULT TAB
+						if ("TEST MODE".equalsIgnoreCase(column.getText())||"EXECUTED FILE NAME".equalsIgnoreCase(column.getText())) {
+							label.setWrapText(true);
+						}else {
+							label.setWrapText(false);
+						}
+						
+//						label.setWrapText(false);
 						label.setAlignment(Pos.CENTER);
 						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 						setStyle("-fx-alignment: CENTER;");
@@ -606,11 +649,11 @@ public class CurrentExecutionResultController {
 	                } else {
 					label.setStyle("-fx-text-fill: black; ");
 	                }
-
-					label.setMinWidth(label.getText().length() * 18);
+//					SAI CHANGED FOR RESULT TAB
+//					label.setMinWidth(label.getText().length() * 18);
 					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 18);
-					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+//					this.setMinWidth(label.getText().length() * 18);
+//					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 				}
 			}
 		});
@@ -674,7 +717,7 @@ public class CurrentExecutionResultController {
 
 				i++;
 			}
-		}else if(response.getCode() == 0) {
+		}else if(response.getCode() == 0 && response.geteMsg()!=null &&response.geteMsg().equals("")){
 			Notifications.showErrorAlert(response.getMsg());
 		}
 		
@@ -682,7 +725,7 @@ public class CurrentExecutionResultController {
 		
 
 		detailedDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 18);
+			column.setMinWidth(column.getText().length() * 14);
 			updateDetailedData((TableColumn<DetailedData, String>) column);
 		});
 
