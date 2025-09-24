@@ -9,6 +9,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +49,7 @@ public class StepParser {
 
 	    File file = new File(filePath);
 	 
-	    System.out.println("Length Of File Before Wait  :"+file.length());
+//	    System.out.println("Length Of File Before Wait  :"+file.length());
 //		if (file.exists()) {
 //			if (file.length() < 1) {
 //				Thread.sleep(5000);
@@ -63,7 +64,7 @@ public class StepParser {
 	    
 	  
 
-	    System.out.println("Length Of File After Wait  :"+file.length());
+//	    System.out.println("Length Of File After Wait  :"+file.length());
 			    
 	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 	        String line;
@@ -150,7 +151,15 @@ public class StepParser {
 	                isAfterStep = false;
 
 	            } else if (line.startsWith("D*>")) {
-	                dStarInfo = line.substring(3).trim();
+	            	
+	            	if(line.contains("diff(s)"))
+	            	{
+	            		  dStarInfo = dStarSpecialExtractor(line);
+	            	}else
+	            	{
+	            		  dStarInfo = line.substring(3).trim();
+	            	}
+	              
 	                unit = extractUnit(dStarInfo);
 	                faultyChannel = extractFaultyChannels(dStarInfo);
 	                rdfFileParser.setDStarFound(true);
@@ -204,6 +213,28 @@ public class StepParser {
 	    return stepList;
 	}
 
+	
+	 
+	 
+	private static String dStarSpecialExtractor(String dStarInfo) {
+	    String res = "";
+
+	    // Match everything from the LAST opening '(' to its matching closing ')'
+	    Pattern pattern = Pattern.compile("\\((.*)\\)");
+	    Matcher matcher = pattern.matcher(dStarInfo);
+
+	    if (matcher.find()) {
+	        res = "(" + matcher.group(1) + ")";
+	        System.out.println("Extracted: " + res);
+	    } else {
+	        System.out.println("No match found.");
+	    }
+
+	    return res;
+	}
+
+	
+	
 	//kindof
 //	public static List<StepDto> parseStepContextNEW(String filePath) {
 //	    List<StepDto> stepList = new ArrayList<>();
@@ -881,12 +912,34 @@ public class StepParser {
     
     private static List<String> extractChannelValues(String input) {
         List<String> channelValues = new ArrayList<>();
+        
+        
+        if(input.contains("diff(s)"))
+		{
+
+			// Remove parentheses
+			input = input.replaceAll("[()]", "");
+
+			// Split by comma and trim each part
+			String[] parts = input.split(",");
+
+			List<String> result = new ArrayList<>();
+			for (String part : parts) {
+				channelValues.add(part.trim());
+			}
+
+			return channelValues;
+		}
 
         Pattern pattern = Pattern.compile("\\((.*?)\\)");
         Matcher matcher = pattern.matcher(input);
         if (matcher.find()) {
             String channels = matcher.group(1);
             String[] channelArray = channels.split(",\\s*");
+            
+            //For Other Pass Fail Case
+            System.out.println("Channels String"+channels);
+            System.out.println("Channels Array"+Arrays.toString(channelArray));
 
             for (String value : channelArray) {
                 String cleanedValue = value.trim().replace("*", "").trim(); // Remove asterisk and trim
@@ -1013,18 +1066,16 @@ public class StepParser {
                     Thread.sleep(checkIntervalMillis); // Wait before retrying
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    System.out.println("Interrupted while waiting for file release.");
+//                    System.out.println("Interrupted while waiting for file release.");
                     break;
                 }
             }
         }
 
-        System.out.println("File is now free to use.");
+//        System.out.println("File is now free to use.");
     }
 
 
 
 
 }
-
-
