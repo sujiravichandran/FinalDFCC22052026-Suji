@@ -1,14 +1,14 @@
 package com.teclever.dfcc.Controller.ui;
 
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
-import com.teclever.datastore.dto.SessionDto;
+import com.google.protobuf.TextFormat.ParseException;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.dashboard.DashBoardDetailsDTO;
 import com.teclever.dfcc.dashboard.DashboardManagement;
@@ -18,12 +18,12 @@ import com.teclever.dfcc.dashboard.ProductionSessionDetailsDTO;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsResponse;
-import com.teclever.dfcc.datastore.dto.SessionDTO;
 import com.teclever.dfcc.model.DetailedData;
 import com.teclever.dfcc.model.UnitData;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedResponse;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -38,10 +38,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 
 class UnitDataTableViewFactory1 implements TableViewFactory<UnitData> {
 	@Override
@@ -53,19 +55,24 @@ class UnitDataTableViewFactory1 implements TableViewFactory<UnitData> {
 
 public class DashboardController {
 
-	private DashBoardDetailsDTO dashBoardDetailsDTO = new DashBoardDetailsDTO();
 
-//	private GridPane currentUnitResultGridPane = new GridPane();
 
 	private GridPane dashBoardMainContainerGridPane = new GridPane();
 	private GridPane dashboardFirstContainerGridPane = new GridPane();
 	private GridPane dashboardSecondContainerGridPane = new GridPane();
+	
+	private GridPane slNoGridPane = new GridPane();
+	private GridPane latestProduction = new GridPane();
+	
 	private GridPane dashboardPqtGridPane = new GridPane();
 	private GridPane dashboardLasttestedGridPane = new GridPane();
 
 	private GridPane dashboardSessionExecutedGridPane = new GridPane();
 	private GridPane dashboardCurrentFailureStageGridPane = new GridPane();
 
+	private StackPane dashboardSessionDataStackPane = new StackPane();
+	private StackPane dashboardFailureDataStackPane = new StackPane();
+	
 	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
 
 	private CustomTableView<DetailedData> detailedDataTableView;
@@ -89,19 +96,24 @@ public class DashboardController {
 	private HBox headingHbox = new HBox(10);
 	private HBox productionHbox = new HBox(10);
 	private HBox productionHbox2 = new HBox(10);
-	private Label productionLabel = new Label("Latest Production Test Conducted On : ");
+	
+	private Label slNoLabel = new Label("Current Unit SL No : ");
+	private Label slNoLabel2 = new Label();
+	
+	private Label productionLabel = new Label("Latest Production Test Date: ");
 	private Label productionLabel2 = new Label();
 	private Label pqtLabel = new Label("PQT: ");
 	private Label pqtLabel1 = new Label();
 	private Label pqtDateLabel = new Label("Date: ");
 	private Label pqtDateLabel1 = new Label();
 
-	private Label lastTestedLabel = new Label("Laset Tested Date : ");
+	private Label lastTestedLabel = new Label("Latest Tested Date : ");
 	private Label lastTestedDateLabel = new Label();
 
 	private Label sessionExecuted = new Label("SESSION EXECUTED");
-	private Label currentFailureStage = new Label("CURRENT FAILURE STAGES");
+	private Label currentFailureStage = new Label("FAILURE's OBSERVED IN THIS UNIT");
 	private ScrollPane tableScrollPane1 = new ScrollPane();
+	private ScrollPane tableScrollPane2 = new ScrollPane();
 
 	private String SESSION_ID;
 	private String STAGE_ID;
@@ -109,77 +121,139 @@ public class DashboardController {
 	private DashboardManagement dashboardManagement = new DashboardManagement();
 
 	public DashboardController() {
+		StateMachine.confirmTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
+			
+			
+				String UUT_ID = currentSessionDetails.getUutId();
+				DashboardManagement DashboardManagement = new DashboardManagement();
 
+				ProductionDashboardDetails details = new ProductionDashboardDetails();
+
+				ProductionSessionDetailsDTO sessionData = DashboardManagement.getProductionDetailsForDashBoard(UUT_ID);
+
+				
+					Platform.runLater(() -> {
+					try {
+						refreshDashboard(UUT_ID);
+					} catch (java.text.ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					});
+				
+				getCurrentUnitResultData(currentSessionDetails.getUutId());	
+				createCurrentFailureResultTable();
+				
+			
+		});
+		
 		String UUT_ID = currentSessionDetails.getUutId();
+		slNoLabel2.setText(currentSessionDetails.getDfccSerialNumber());
 		DashboardManagement DashboardManagement = new DashboardManagement();
 
 		ProductionDashboardDetails details = new ProductionDashboardDetails();
 
 		ProductionSessionDetailsDTO sessionData = DashboardManagement.getProductionDetailsForDashBoard(UUT_ID);
-
-		refreshDashboard(UUT_ID);
-		getCurrentUnitResultData(currentSessionDetails.getUutId());
-
-	}
-
-	private void refreshDashboard(String UUT_ID) {
-
-		// --- Production Date ---
-		DashBoardDetailsDTO res = dashboardManagement.getDashboardDetails(UUT_ID);
-		String serialNo = res.getSerialNo();
-		System.out.println("S/No Check" + serialNo);
-		System.out.println("Current sno" + currentSessionDetails.getDfccSerialNumber());
-
-		if (currentSessionDetails.getDfccSerialNumber().equals(serialNo)) {
-
-			List<ProductionDashboardDetails> sessionList = res.getProductionSessionDetailsDTOList();
-			
-			System.out.println("Chedck Session list" + sessionList);
-			
-			lastTestedDateLabel.setText(res.getLastTestedDate());
-			
-			if (sessionList != null && !sessionList.isEmpty()) {
-				DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"); // matches your
-																										// logs
-				DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy"); // desired format
-
-				List<ProductionDashboardDetails> validSessions = sessionList.stream().filter(
-						s -> s.getStartTime() != null && !"Not Started".equalsIgnoreCase(s.getStartTime().trim()))
-						.toList();
-
-				System.out.println("validSessions" + validSessions);
-
-				if (!validSessions.isEmpty()) {
-					ProductionDashboardDetails latestSession = validSessions.stream()
-							.max(Comparator.comparing(s -> LocalDateTime.parse(s.getStartTime(), inputFormatter)))
-							.orElse(null);
-
-					if (latestSession != null) {
-						LocalDateTime latestDate = LocalDateTime.parse(latestSession.getStartTime(), inputFormatter);
-						productionLabel2.setText(latestDate.format(outputFormatter));
-					}
-				} else {
-					productionLabel2.setText("Test is Not Started");
-				}
-			} else {
-				productionLabel2.setText("Test is Not Started");
+		Platform.runLater(() -> {
+			try {
+				refreshDashboard(UUT_ID);
+			} catch (java.text.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
-
-		// --- PQT ---
-		PQTSessionDetailsDTO pqtData = dashboardManagement.getPQTDetailsForDashBoard(UUT_ID);
-		if (pqtData.isPqtConducted()) {
-			pqtLabel1.setText("YES");
-			pqtDateLabel1.setText(pqtData.getStartTime());
-			pqtLabel1.setStyle("-fx-text-fill: green;");
-			pqtDateLabel1.setText(pqtData.getStartTime());
-		} else {
-			pqtLabel1.setText("NO");
-			pqtDateLabel1.setText("-");
-			pqtLabel1.setStyle("-fx-text-fill: red;");
-			pqtDateLabel1.setText("-");
-		}
+			});
+		getCurrentUnitResultData(currentSessionDetails.getUutId());	
+		createCurrentFailureResultTable();
+		
 	}
+
+	
+	private void refreshDashboard(String UUT_ID) throws java.text.ParseException {
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+	    DashBoardDetailsDTO res = dashboardManagement.getDashboardDetails(UUT_ID);
+	    String serialNo = res.getSerialNo();
+
+	    if (currentSessionDetails.getDfccSerialNumber().equals(serialNo)) {
+	    	
+	        List<ProductionDashboardDetails> sessionList = res.getProductionSessionDetailsDTOList();
+//	        System.out.println("Check Session list: " + sessionList);
+
+	        if (sessionList != null && !sessionList.isEmpty()) {
+
+				String lastTestedDateStr = res.getLastTestedDate();
+				if(lastTestedDateStr != null) {
+
+				SimpleDateFormat inputFormat = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy");
+				SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+				Date parsedDate = inputFormat.parse(lastTestedDateStr);
+				String formattedDate = outputFormat.format(parsedDate);
+				Platform.runLater(() -> {
+				lastTestedDateLabel.setText(formattedDate);
+//				System.out.println("Formatted Last Tested Date: " + formattedDate);
+				});
+				}else {
+					Platform.runLater(() -> {
+					 productionLabel2.setText("Test is Not Started");
+					 lastTestedDateLabel.setText("-");
+					});
+				}
+	            // --- Find Latest Production Session ---
+	            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+	            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+	            List<ProductionDashboardDetails> validSessions = sessionList.stream()
+	                .filter(s -> s.getStartTime() != null && !"Not Started".equalsIgnoreCase(s.getStartTime().trim()))
+	                .toList();
+
+//	            System.out.println("Valid Sessions: " + validSessions);
+
+	            if (!validSessions.isEmpty()) {
+	                ProductionDashboardDetails latestSession = validSessions.stream()
+	                    .max(Comparator.comparing(s -> LocalDateTime.parse(s.getStartTime(), inputFormatter)))
+	                    .orElse(null);
+
+	                if (latestSession != null) {
+	                	Platform.runLater(() -> {
+	                    LocalDateTime latestDate = LocalDateTime.parse(latestSession.getStartTime(), inputFormatter);
+	                    productionLabel2.setText(latestDate.format(outputFormatter));
+	                	});
+	                }
+	            } else {
+	            	Platform.runLater(() -> {
+	                productionLabel2.setText("Test is Not Started");
+	            	});
+	            }
+	        } else {
+	        	Platform.runLater(() -> {
+	            productionLabel2.setText("Test is Not Started");
+	        	});
+	        }
+	    }
+
+	    // --- PQT ---
+	    PQTSessionDetailsDTO pqtData = dashboardManagement.getPQTDetailsForDashBoard(UUT_ID);
+	    if (pqtData.isPqtConducted()) {
+	    	Platform.runLater(() -> {
+	        pqtLabel1.setText("YES");
+	        pqtLabel1.setStyle("-fx-text-fill: green;");
+	        pqtDateLabel1.setText(pqtData.getStartTime());
+	    	});
+	    } else {
+	    	Platform.runLater(() -> {
+	        pqtLabel1.setText("NO");
+	        pqtLabel1.setStyle("-fx-text-fill: red;");
+	        pqtDateLabel1.setText("-");
+	    	});
+	    }
+		return null;
+			}
+		};
+		new Thread(task).start();
+	}
+	
 
 	public GridPane createDashboardMainContainerGridPane() {
 
@@ -207,7 +281,7 @@ public class DashboardController {
 
 		dashBoardMainContainerGridPane.setVgap(5);
 
-		System.out.println("Entred Dahboard");
+//		System.out.println("Entred Dahboard");
 
 		dashBoardMainContainerGridPane.getColumnConstraints().addAll(firstColumn);
 		dashBoardMainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow);
@@ -256,35 +330,74 @@ public class DashboardController {
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
+		
+		dashboardFirstContainerGridPane.setHgap(15);
+		dashboardFirstContainerGridPane.setPadding(new Insets(5));
 
 		dashboardFirstContainerGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		dashboardFirstContainerGridPane.getRowConstraints().addAll(firstRow);
 
-		dashboardFirstContainerGridPane
-				.setStyle("-fx-border-radius: 10;" + "-fx-border-color: black;" + "-fx-border-width: 2;");
-
-		dashboardFirstContainerGridPane.add(productionHbox1(), 0, 0);
-		dashboardFirstContainerGridPane.add(productionHbox2(), 1, 0);
+		dashboardFirstContainerGridPane.add(slNoHbox(), 0, 0);
+		dashboardFirstContainerGridPane.add(productionDateHbox(), 1, 0);
 
 		return dashboardFirstContainerGridPane;
 
 	}
 
-	private HBox productionHbox1() {
+	
+	private GridPane slNoHbox() {
+
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(50);
+
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
+		
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		slNoGridPane.setStyle("-fx-border-radius: 10;" + "-fx-border-color: black;" + "-fx-border-width: 2;");
+		slNoLabel2.getStyleClass().add("midheader-label-right");
+		slNoLabel.getStyleClass().add("midheader-label-left");
+		
+		slNoGridPane.getStyleClass().add("midheader-hbox");
+		
+		slNoGridPane.setAlignment(Pos.CENTER);
+		slNoGridPane.add(slNoLabel, 0, 0); // column 0
+		slNoGridPane.add(slNoLabel2, 1, 0); // column 1
+		
+		return slNoGridPane;
+	
+	}
+	
+	private GridPane productionDateHbox() {
+
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(50);
+
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
+		
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		latestProduction.setStyle("-fx-border-radius: 10;" + "-fx-border-color: black;" + "-fx-border-width: 2;");
+		
 		productionLabel.getStyleClass().add("midheader-label-left");
-		productionHbox.getStyleClass().add("midheader-hbox");
-		productionHbox.setAlignment(Pos.CENTER_RIGHT);
-		productionHbox.getChildren().add(productionLabel);
-		return productionHbox;
+		productionLabel2.getStyleClass().add("midheader-label-right");
+		
+		latestProduction.getStyleClass().add("midheader-hbox");
+		
+		
+		
+		latestProduction.setAlignment(Pos.CENTER);
+		latestProduction.add(productionLabel, 0, 0); // column 0
+		latestProduction.add(productionLabel2, 1, 0); // column 1
+		
+		return latestProduction;
+	
 	}
 
-	private HBox productionHbox2() {
-		productionLabel2.getStyleClass().add("midheader-label-right");
-		productionHbox2.getStyleClass().add("midheader-hbox");
-		productionHbox2.setAlignment(Pos.CENTER_LEFT);
-		productionHbox2.getChildren().add(productionLabel2);
-		return productionHbox2;
-	}
+	
 
 	private GridPane dashboardSecond() {
 
@@ -330,8 +443,12 @@ public class DashboardController {
 		dashboardPqtGridPane.setPadding(new Insets(5));
 
 		dashboardPqtGridPane.setStyle("-fx-border-radius: 10;" + "-fx-border-color: black;" + "-fx-border-width: 2;");
-
-		dashboardPqtGridPane.getStyleClass().add("midheader-label-left");
+		
+		pqtLabel.getStyleClass().add("midheader-label-left");
+		pqtLabel1.getStyleClass().add("midheader-label-left");
+		pqtDateLabel.getStyleClass().add("midheader-label-left");
+		pqtDateLabel1.getStyleClass().add("midheader-label-right");
+		
 		dashboardPqtGridPane.getStyleClass().add("midheader-hbox");
 		dashboardPqtGridPane.setAlignment(Pos.CENTER);
 		dashboardPqtGridPane.add(pqtLabel, 0, 0); // column 0
@@ -353,8 +470,10 @@ public class DashboardController {
 
 		dashboardLasttestedGridPane
 				.setStyle("-fx-border-radius: 10;" + "-fx-border-color: black;" + "-fx-border-width: 2;");
-
-		dashboardLasttestedGridPane.getStyleClass().add("midheader-label-left");
+		
+		lastTestedDateLabel.getStyleClass().add("midheader-label-right");
+		lastTestedLabel.getStyleClass().add("midheader-label-left");
+		
 		dashboardLasttestedGridPane.getStyleClass().add("midheader-hbox");
 		dashboardLasttestedGridPane.setAlignment(Pos.CENTER);
 		dashboardLasttestedGridPane.add(lastTestedLabel, 0, 0);
@@ -384,10 +503,18 @@ public class DashboardController {
 		dashboardSessionExecutedGridPane.getStyleClass().add("midheader-hbox");
 		dashboardSessionExecutedGridPane.setAlignment(Pos.TOP_LEFT);
 		dashboardSessionExecutedGridPane.add(sessionExecuted, 0, 0);
-		dashboardSessionExecutedGridPane.add(createCurrentUnitResultTable(), 0, 1);
+		dashboardSessionExecutedGridPane.add(createSessionContent(), 0, 1);
 
 		return dashboardSessionExecutedGridPane;
 	}
+	
+	private StackPane createSessionContent() {
+//		dashboardSessionDataStackPane.getStyleClass().add("tab-content-container");
+//		dashboardSessionDataStackPane.getChildren().clear();
+		dashboardSessionDataStackPane.getChildren().add(createCurrentUnitResultTable());
+		return dashboardSessionDataStackPane;
+	}
+
 
 	private void getCurrentUnitResultData(String uutId) {
 		unitDataList.clear();
@@ -482,26 +609,35 @@ public class DashboardController {
 		dashboardCurrentFailureStageGridPane.getStyleClass().add("midheader-hbox");
 		dashboardCurrentFailureStageGridPane.setAlignment(Pos.TOP_LEFT);
 		dashboardCurrentFailureStageGridPane.add(currentFailureStage, 0, 0);
-		dashboardCurrentFailureStageGridPane.add(createCurrentFailureResultTable(), 0, 1);
+		dashboardCurrentFailureStageGridPane.add(createFailureContent(), 0, 1);
 
 		return dashboardCurrentFailureStageGridPane;
 	}
+	
+	private StackPane createFailureContent() {
+//		dashboardFailureDataStackPane.getStyleClass().add("tab-content-container");
+//		dashboardFailureDataStackPane.getChildren().clear();
+		dashboardFailureDataStackPane.getChildren().add(createCurrentFailureResultTable());
+		return dashboardFailureDataStackPane;
+	}
 
 	public ScrollPane createCurrentFailureResultTable() {
-		detailedDataList.clear();
+		
 
-		ScrollPane tableScrollPane2 = new ScrollPane(detailedDataTableView);
+	    tableScrollPane2 = new ScrollPane(detailedDataTableView);
 		Task<Void> task = new Task<Void>() {
+			
 			@Override
 			protected Void call() throws Exception {
+				detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 				ResultDetailedResponse response = new ResultDetailedResponse();
 				response = resultExecutionManagement.getResultExecutionListDetailedListForUnit(
 						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber());
 
 				if (response.getCode() == 1 && response.getResultDetailedList() != null) {
 					int i = 1;
-//			detailedDataList.clear();
-//			int listSize = response.getResultDetailedList().size();
+					detailedDataList.clear();
+
 					for (ResultDetailedDTO data : response.getResultDetailedList()) {
 
 						DetailedData newDetailedData = new DetailedData();
@@ -526,16 +662,74 @@ public class DashboardController {
 					Notifications.showErrorAlert(response.getMsg());
 				}
 
-				detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
+				
 
 				detailedDataTableView.getColumns().forEach(column -> {
 					column.setMinWidth(column.getText().length() * 14);
 //			updateDetailedData((TableColumn<DetailedData, String>) column);
+					
+					 String colName=column.getText();
+                     switch(colName) {
+				case "SL NO":
+					column.setMinWidth(100);
+					column.setMaxWidth(100);
+					break;
+				case "TEST MODE":
+					column.setMinWidth(320);
+					column.setMaxWidth(320);
+					break;
+				case "TEST NAME":
+					column.setMinWidth(250);
+					column.setMaxWidth(250);
+					break;
+				case "RDF NAME":
+					column.setMinWidth(250);
+					column.setMaxWidth(250);
+					break;
+				case "TPGPH NO":
+					column.setMinWidth(150);
+					column.setMaxWidth(150);
+					break;
+				case "STEP NO":
+					column.setMinWidth(150);
+					column.setMaxWidth(150);
+					break;
+				case "SIGNAL NAME":
+					column.setMinWidth(300);
+					column.setMaxWidth(300);
+					break;
+				case "EXPECTED VALUE":
+					column.setMinWidth(200);
+					column.setMaxWidth(200);
+					break;
+				case "MEASURED VALUE CH1_CH2_CH3_CH4":
+					column.setMinWidth(250);
+					column.setMaxWidth(250);
+					break;
+				case "FAULTY SRU":
+					column.setMinWidth(130);
+					column.setMaxWidth(130);
+					break;
+				case "UNIT":
+					column.setMinWidth(100);
+					column.setMaxWidth(100);
+					break;
+				case "FAULTY CHANNEL VALUE":
+					column.setMinWidth(300);
+					column.setMaxWidth(300);
+					break;
+
+
+				default:
+					column.setMinWidth(200);
+					column.setMaxWidth(200);
+					break;
+				}
+                    
+                    
+                
 				});
 
-//		if(detailedDataList.size() == 0) {
-//			tableScrollPane2.setFitToWidth(true);
-//		}
 
 				tableScrollPane2.setFitToHeight(true);
 				return null;
@@ -560,5 +754,7 @@ public class DashboardController {
 
 		return tableScrollPane2;
 	}
+	
+	
 
 }

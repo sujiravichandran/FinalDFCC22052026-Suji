@@ -877,22 +877,22 @@ public class AitessProcessControlManagement {
 									}
 									
 //									SUJI ADDED for only BLS for Automatic toggling:(19-08-2025)
-									String sessionType = currentSessionDetails.getSessionTypeID();
-									if ("ST2".equals(sessionType)) {
-										if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
-												|| OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
-												|| OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
-												|| OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
-											System.out.println("Entred True in Aitess for toggle online");
-											dfccCheckStatus.getDfccOnlineStatus().set(true);
-
-										} else {
-//												Suji Added for BLS Toggel issue::(06-08-2025)
-											System.out.println("Entred False in Aitess for toggle online");
-											dfccCheckStatus.getDfccOnlineStatus().set(false);
-//												EXIT::
-										}
-									}
+//									String sessionType = currentSessionDetails.getSessionTypeID();
+//									if ("ST2".equals(sessionType)) {
+//										if (OnlineStatus.getChannel1Status().equalsIgnoreCase("offline")
+//												|| OnlineStatus.getChannel2Status().equalsIgnoreCase("offline")
+//												|| OnlineStatus.getChannel3Status().equalsIgnoreCase("offline")
+//												|| OnlineStatus.getChannel4Status().equalsIgnoreCase("offline")) {
+//											System.out.println("Entred True in Aitess for toggle online");
+//											dfccCheckStatus.getDfccOnlineStatus().set(true);
+//
+//										} else {
+////												Suji Added for BLS Toggel issue::(06-08-2025)
+//											System.out.println("Entred False in Aitess for toggle online");
+//											dfccCheckStatus.getDfccOnlineStatus().set(false);
+////												EXIT::
+//										}
+//									}
 //									EXIT:::(19-08-2025)
 								}
 

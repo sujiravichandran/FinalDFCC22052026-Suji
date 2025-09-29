@@ -101,6 +101,10 @@ public class TestProcessManagement {
 //		Suji Added:	 
 		StateMachine.setTestTypeId(testTypeId);
 //			 Exit
+		System.out.println("Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
+							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError
+							+ " StageName " + stageName + " TestTypeID " + testTypeId + " ofpConfig " + ofpConfig);
+		
 			Debug.printDebug(
 					"Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
 							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError

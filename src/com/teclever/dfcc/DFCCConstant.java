@@ -13,13 +13,13 @@ import com.teclever.dfcc.datastore.dto.StageFilesStateDTO;
 public class DFCCConstant {
     private static Map uutIdNameMap;
     private static Map uutNameIdMap;
-    public static boolean isJarBuild = false;
+    public static boolean isJarBuild = true;
     public static String JARSTRING = "";
     public static String testTypeId = "";
 
     public static String filePath = "";
     public static boolean isDebug = false;
-    public static String testFileResultId = "";
+    public static String testFileResultId = "";	
     public static String testStarttime = "";
     public static String testEndTime = "";
     public static int totalFilesCount = 0;

@@ -83,4 +83,12 @@
 	-fx-border-radius: 10px;
 
 }
+.dataanalysis-testing-container{
+	-fx-text-fill:heading-text-color;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+	-fx-background-radius: 10px;
+	-fx-border-radius: 10px;
+
+}
 
