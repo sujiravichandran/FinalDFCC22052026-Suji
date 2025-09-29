@@ -63,8 +63,8 @@ public class CurrentSessionResultController {
 	
 	private ScrollPane tableScrollPane = new ScrollPane();
 	
-	 private ProgressIndicator progressIndicator = new ProgressIndicator();
-	 private VBox box = new VBox();
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
+	private VBox box = new VBox();
 	
 	private ObservableList<SessionData> sessionDataList = FXCollections.observableArrayList();
 	

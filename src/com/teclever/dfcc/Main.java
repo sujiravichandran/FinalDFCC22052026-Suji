@@ -9,14 +9,13 @@ import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
+import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
@@ -25,12 +24,9 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.resultstore.dto.StepDto;
-import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
-import com.teclever.dfcc.stateMachine.StateMachine.channelSCTemp;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -74,7 +70,6 @@ public class Main extends Application {
 		}
 		
 
-		
 		
 //		SessionTestingController sessionTestingController = new SessionTestingController();
 //		sessionTestingController.createTreeView();

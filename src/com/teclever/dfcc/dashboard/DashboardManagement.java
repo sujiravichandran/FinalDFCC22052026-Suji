@@ -114,7 +114,6 @@ public class DashboardManagement {
 						}
 					}
 					DFCCConstant.sessionIdDfccSlNo.put(sessionDetails.getSessionId(), sessionDetails.getDfccSNo());
-					System.out.println("SLNO"+sessionDetails.getDfccSNo());
 					resultUnitSessionDetailsDTO.setSessionSlNo(sessionDetails.getDfccSNo());
 					resultUnitSessionDetailsDTO.setSessionResults(results);
 					resultUnitSessionDetailsDTO
@@ -209,7 +208,6 @@ public class DashboardManagement {
 		
 			
 			// Filter For Last DFCC SlNo...If Needed All Sno Then Comment Below Filter
-			System.out.println("");
 			resultUnitSessionDetailsDTOList = resultUnitSessionDetailsDTOList.stream()
 				.filter(e -> e.getSessionSlNo().equalsIgnoreCase(currentSlNo)).collect(Collectors.toList());
 		
@@ -223,7 +221,7 @@ public class DashboardManagement {
 			res.setCode(0);
 			res.setMsg("Not Fetched..");
 			res.seteMsg(ex.getLocalizedMessage());
-			System.err.println(ex.getLocalizedMessage());
+//			System.err.println(ex.getLocalizedMessage());
 		}
 		return res;
 	}
@@ -242,17 +240,14 @@ public class DashboardManagement {
 					.getResultUnitSessionDetailsDTOList();
 			
 			
-			System.out.println("Mani BB Check" +sessionList.size() );
 			response.setSessionList(sessionList);
 		
 		
 
-			System.out.println("sessionListsessionList " + sessionList);
 			
 			List<ResultUnitSessionDetailsDTO> productionSessionList = sessionList.stream()
 					.filter(E -> E.getSessionType().equals("Production")).collect(Collectors.toList());
 			
-			System.out.println("Mani BB Check 2      " +productionSessionList.size() );
 			List<ProductionDashboardDetails> productionDashboardDetailsList = new ArrayList<ProductionDashboardDetails>();
 			for (ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO : productionSessionList) {
 
@@ -268,10 +263,9 @@ public class DashboardManagement {
 			response.setProdList(productionDashboardDetailsList);
 			response.setProductionSessionSize(productionDashboardDetailsList.size());
 			
-			System.out.println("Production List"+productionDashboardDetailsList.size());
 
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
+//			System.out.println(ex.getMessage());
 			response.setCode(-1);
 		}
 
@@ -292,7 +286,7 @@ public class DashboardManagement {
 			List<ResultUnitSessionDetailsDTO> pqtSessionList = sessionList.stream()
 					.filter(sesType -> sesType.getSessionType().equals("PQT")).collect(Collectors.toList());
 			if (pqtSessionList.size() > 0) {
-				ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = pqtSessionList.getLast();
+				ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = pqtSessionList.get(pqtSessionList.size()-1);
 				response.setPqtConducted(true);
 				response.setStartTime(resultUnitSessionDetailsDTO.getStartTime());
 				response.setSessionName(resultUnitSessionDetailsDTO.getSessionName());
@@ -304,11 +298,13 @@ public class DashboardManagement {
 				resultExecutionResponse = resultExecutionManagement
 						.getResultExecutionListBriefListForSession(sessionId);
 
-				if (resultExecutionResponse.getResultDTOList().size() > 0) {
-					ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
-					resultExecutionDTO = resultExecutionResponse.getResultDTOList().getLast();
-					response.setEndTimeTime(resultExecutionDTO.getEndTime());
-					response.setLastPQTStage(resultExecutionDTO.getTestMode());
+				List<ResultExecutionDTO> resultDTOList = resultExecutionResponse.getResultDTOList();
+				if (!resultDTOList.isEmpty()) {
+				    ResultExecutionDTO resultExecutionDTO = resultDTOList.get(resultDTOList.size() - 1);
+				    response.setEndTimeTime(resultExecutionDTO.getEndTime());
+				    response.setLastPQTStage(resultExecutionDTO.getTestMode());
+				
+
 
 				} else {
 					response.setEndTimeTime("Not Started");
@@ -322,7 +318,7 @@ public class DashboardManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+//			System.out.println(ex.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -337,7 +333,6 @@ public class DashboardManagement {
 			 ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 			 //Production Session Details List
 			 response.setProductionSessionDetailsDTOList(productionSessionDetailsDTO.getProdList());
-			System.out.println(productionSessionDetailsDTO.getProdList().size()+"PROD SIZE"+ productionSessionDetailsDTO.getProductionSessionSize());
 			
 			 //PQT Details
 			 PQTSessionDetailsDTO pqtResponse = new PQTSessionDetailsDTO();
@@ -345,12 +340,11 @@ public class DashboardManagement {
 			 
 			 //All Session Details List By Sl No...
 			 response.setAllSessionListBySlNo(sessionList);
-			 System.out.println("Mani Chck abc" + sessionList.size());
 			 
 				List<ResultUnitSessionDetailsDTO> pqtSessionList = sessionList.stream()
 						.filter(sesType -> sesType.getSessionType().equals("PQT")).collect(Collectors.toList());
 				if (pqtSessionList.size() > 0) {
-					ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = pqtSessionList.getLast();
+					ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = pqtSessionList.get(pqtSessionList.size()-1);
 					pqtResponse.setPqtConducted(true);
 					pqtResponse.setStartTime(resultUnitSessionDetailsDTO.getStartTime());
 					pqtResponse.setSessionName(resultUnitSessionDetailsDTO.getSessionName());
@@ -362,12 +356,12 @@ public class DashboardManagement {
 					resultExecutionResponse = resultExecutionManagement
 							.getResultExecutionListBriefListForSession(sessionId);
 
-					if (resultExecutionResponse.getResultDTOList().size() > 0) {
-						ResultExecutionDTO resultExecutionDTO = new ResultExecutionDTO();
-						resultExecutionDTO = resultExecutionResponse.getResultDTOList().getLast();
-						pqtResponse.setEndTimeTime(resultExecutionDTO.getEndTime());
-						pqtResponse.setLastPQTStage(resultExecutionDTO.getTestMode());
-
+					List<ResultExecutionDTO> resultDTOList = resultExecutionResponse.getResultDTOList(); // get the list
+					if (!resultDTOList.isEmpty()) {
+					    ResultExecutionDTO resultExecutionDTO = resultDTOList.get(resultDTOList.size() - 1); // get last element
+					    pqtResponse.setEndTimeTime(resultExecutionDTO.getEndTime());
+					    pqtResponse.setLastPQTStage(resultExecutionDTO.getTestMode());
+				
 					} else {
 						pqtResponse.setEndTimeTime("Not Started");
 						pqtResponse.setLastPQTStage("-");

@@ -3,12 +3,17 @@ package com.teclever.dfcc.Controller.ui;
 import java.io.File;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
+import com.teclever.dfcc.datastore.dto.CopyFileDTO;
+import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.SessionList;
 import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.stateMachine.SessionTestStateObject;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -18,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -42,6 +48,8 @@ public class DataBackupPopupController {
 	private GridPane dataBackupGridPane;
 	@FXML
 	private HBox buttonHBox;
+	
+	
 	
 	private Label selectSessionLabel = new Label("Select Session");
 	private ComboBox<String> sessionNameField = new ComboBox<String>();
@@ -92,6 +100,33 @@ public class DataBackupPopupController {
 		});
 		
 		copyButton.setOnAction(e ->{
+//			Suji Added::
+			SessionFileManagement session = new SessionFileManagement();
+			LogOutFileCopyResponse response = session
+					.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+			if (response.getCode() == 100) {
+				SessionTimingService s = new SessionTimingService();
+
+				int failedFiles = 0;
+				for (CopyFileDTO copy : DFCCConstant.FailedStagesRdfPaths) {
+					if (!copy.getStatus().equals("SUCCESS")) {
+						failedFiles++;
+					}
+				}
+
+				SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
+				SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+
+				StateMachine.setRdfCopy(false);
+				StateMachine.setResettingProgressBar(true);
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+//			Exit
 			handleCopyFolder();
 		});
 		

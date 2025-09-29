@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.Date;
+
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -39,6 +40,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -71,6 +73,8 @@ class DetailedDataTableViewFactory implements TableViewFactory<DetailedData> {
 	}
 }
 
+
+
 public class CurrentExecutionResultController {
 	
 	
@@ -98,6 +102,9 @@ public class CurrentExecutionResultController {
 	private CustomTableView<DetailedData> detailedDataTableView;
 
 	private String currentTab = "tab1";
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
+	private VBox progressbox = new VBox();
 
 	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	ReportGeneration reportGeneration = new ReportGeneration();
@@ -746,24 +753,32 @@ public class CurrentExecutionResultController {
 		            	
 		 	              tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
-		 	            });
-//			    	Platform.runLater(() -> {
-//			    		currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-//			    		currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-//			        });
-		               
+		 	            });   
 		           
 				}
 
 				@Override
 				protected void failed() {
-//					Platform.runLater(() -> {
-//						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
-//						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
-//			        });
+//					
 					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
 				}
 			};
+			
+//			 task.setOnFailed(evt -> {
+//		            hideProgressIndicator();
+////		            System.out.println("Entred setOnFailed");
+//		            task.getException().printStackTrace();
+//		        });
+//
+//		        task.setOnSucceeded(evt ->
+//		        hideProgressIndicator());
+//
+//		        task.setOnRunning(evt -> {
+//		            if (DFCCConstant.isJarBuild) {
+////		            	System.out.println("Entred setOnRunning");
+//		                showProgressIndicator();
+//		            }
+//		        });
 			new Thread(task).start();
 		
 		return tableScrollPane;
@@ -800,4 +815,19 @@ public class CurrentExecutionResultController {
 			}
 		});
 	}
+	
+	 private void showProgressIndicator() {
+			StackPane parentStackPane= (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
+			progressbox.getChildren().add(progressIndicator);
+			progressbox.setAlignment(Pos.CENTER);
+			parentStackPane.getChildren().add(progressbox);
+		}
+		
+
+		private void hideProgressIndicator() {
+			StackPane parentStackPane= (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
+			if(parentStackPane.getChildren().contains(progressbox)) {
+				parentStackPane.getChildren().remove(progressbox);
+			}
+		}
 }

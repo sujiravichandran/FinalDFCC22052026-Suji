@@ -75,6 +75,7 @@ public class UserCenterContentController {
 	private SessionManagement sessionManagement = new SessionManagement();
 
 	public UserCenterContentController() {
+		
 		getAllStagesData();
 //		centerStackPane.getChildren().addAll(dashboardStackPane);
 		initializeRdfFileCopyPopup();

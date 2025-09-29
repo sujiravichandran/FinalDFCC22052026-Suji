@@ -4,6 +4,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,9 @@ public class ResultManagement {
 			collectionName = collectionName + "_" + testFileId;
 
 			MongoCollection<Document> resultDataCollection = database.getCollection(collectionName);
-			System.out.println("MongoDB Collection Name" + resultDataCollection);
+//			System.out.println("MongoDB Collection Name" + resultDataCollection);
 			Document resultDataDoc = resultDataCollection.find(eq("_id", refObjectId)).first();
-			System.out.println("MongoDB resultDataDoc" + resultDataDoc);
+//			System.out.println("MongoDB resultDataDoc" + resultDataDoc);
 			if (resultDataDoc != null) {
 				String resultDataFile = resultDataDoc.getString("resultDataFile");
 				String[] resultDataParts = resultDataFile.split("/");
@@ -53,7 +54,7 @@ public class ResultManagement {
 				// Get the failedStep map
 				Map<String, ObjectId> failedStepMap = resultDataDoc.get("failedStep", Map.class);
 
-				System.out.println("Mongodb failedStepMap " + failedStepMap);
+//				System.out.println("Mongodb failedStepMap " + failedStepMap);
 
 				Set<ObjectId> processedIds = new HashSet<>();
 
@@ -90,22 +91,46 @@ public class ResultManagement {
 						String stepName = stepDoc.getString("step");
 //						Exit
 
-						Pattern pattern = Pattern.compile("\\((.*?)\\)");
+//						Pattern pattern = Pattern.compile("\\((.*?)\\)");
+//						Matcher matcher = pattern.matcher(dStarInfo);
+						Pattern pattern = Pattern.compile("\\((.*)\\)"); 
 						Matcher matcher = pattern.matcher(dStarInfo);
 						List<String> formattedChannels = new ArrayList<>();
 
+//						if (matcher.find()) {
+//							String[] parts = matcher.group(1).trim().split(",");
+//							for (int i = 0; i < parts.length; i++) {
+//								String channelValue = parts[i].trim();
+//								if (channelValue.contains("down") || channelValue.contains("offline")
+//										|| channelValue.startsWith("*")) {
+//									if (channelValue.startsWith("*")) {
+//										channelValue = channelValue.substring(1);
+//									}
+//									formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
+//									System.out.println("Check ResulMgmnt" + formattedChannels);
+//								}
+//							}
+//						}
 						if (matcher.find()) {
-							String[] parts = matcher.group(1).trim().split(",");
-							for (int i = 0; i < parts.length; i++) {
-								String channelValue = parts[i].trim();
-								if (channelValue.contains("down") || channelValue.contains("offline")
-										|| channelValue.startsWith("*")) {
-									if (channelValue.startsWith("*")) {
-										channelValue = channelValue.substring(1);
-									}
-									formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
-								}
-							}
+						    String insideParentheses = matcher.group(1);
+						    String[] parts = insideParentheses.split(",", -1); 
+//						    System.out.println("Parts = " + Arrays.toString(parts));
+
+						    for (int i = 0; i < parts.length; i++) {
+						        String channelValue = parts[i].trim();
+//						        System.out.println("D* info Check: " + channelValue);
+
+						        if (channelValue.equalsIgnoreCase("passed")) continue;
+
+						        if (channelValue.contains("offline") || channelValue.contains("diff") || channelValue.startsWith("*")) {
+						            if (channelValue.startsWith("*")) {
+						                channelValue = channelValue.substring(1).trim();
+						            }
+						            formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
+						        }
+						    }
+
+//						    System.out.println("Formatted Channels Final = " + formattedChannels);
 						}
 
 						ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit,

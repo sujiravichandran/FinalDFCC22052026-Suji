@@ -563,8 +563,8 @@ public class UserDashboardController {
 				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/menuImages/logout.png"));
 		ImageView iconView = new ImageView(icon);
 
-		iconView.setFitWidth(40);
-		iconView.setFitHeight(40);
+		iconView.setFitWidth(20);
+		iconView.setFitHeight(20);
 
 		logoutBox.getChildren().addAll(iconView, logoutLabel);
 
@@ -664,13 +664,13 @@ public class UserDashboardController {
 									}
 								}
 
-								System.out.println("Failed Files" + failedFiles);
-								System.out.println("Total Files" + DFCCConstant.FailedStagesRdfPaths.size());
+//								System.out.println("Failed Files" + failedFiles);
+//								System.out.println("Total Files" + DFCCConstant.FailedStagesRdfPaths.size());
 //ADD TIME NEW
 //								s.addSessionTime(currentSessionDetails.getSessionId(),
 //										StateMachine.getCurrentlySelectedStageId(), "", currentDateTime.toString(),
 //										DFCCConstant.FailedStagesRdfPaths.size(), failedFiles);
-								System.out.println("Entred out");
+//								System.out.println("Entred out");
 								SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
 								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 
@@ -2390,21 +2390,23 @@ public class UserDashboardController {
 		rightBottomGridPane.getColumnConstraints().addAll(firstColumn);
 		rightBottomGridPane.getRowConstraints().addAll(firstRow);
 
-		statusBarVbox.setAlignment(Pos.CENTER_LEFT); // Adjust alignment based on your needs
-
+//		statusBarVbox.setAlignment(Pos.CENTER_LEFT);
+		
 		statusBarVbox.setAlignment(Pos.CENTER);
 
 		// Edited By: SUJI
 //		Change Made for Point: 52&72(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on During initial loading of testing window,Update Status Bar
 		statusBar.setWrapText(true);
+		statusBar.setPadding(new Insets(10));
+		
 		Platform.runLater(() -> {
 
 			StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
 				if (newState == TestState.RUNNING) {
 					statusBar.textProperty().bind(Bindings.createStringBinding(() -> {
 						String name = StateMachine.getStatusBarRunningTestName();
-						return (name != null && !name.isEmpty()) ? "  Running Test : " + name.replace("_", " ")
+						return (name != null && !name.isEmpty()) ? "Running Test : " + name.replace("_", " ")
 								: "Status Bar";
 					}, StateMachine.statusBarRunningTestNameProperty()));
 
@@ -2624,6 +2626,10 @@ public class UserDashboardController {
 		bottomMidTopGridPane.getRowConstraints().addAll(firstRow);
 
 		bottomMidTopGridPane.getStyleClass().add("center-container");
+		Platform.runLater(() -> {
+			DashboardController dashboardController = new DashboardController();
+			bottomMidTopGridPane.getChildren().add(dashboardController.createDashboardMainContainerGridPane());
+			});
 
 		return bottomMidTopGridPane;
 

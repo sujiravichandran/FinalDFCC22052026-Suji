@@ -14,7 +14,6 @@ public class ResultDetailedDTO {
     private String signalName;
     private String faultyChannel;
     private String rdfName;
-    
 	private String stageId;
     private String stageName;
     private String faultySRU;

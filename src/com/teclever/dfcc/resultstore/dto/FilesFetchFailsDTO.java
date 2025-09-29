@@ -1,11 +1,12 @@
 package com.teclever.dfcc.resultstore.dto;
 
-import java.util.List;
 import java.util.Map;
 
-public class StepDto {
-	
-    private String testPlanFile;
+import java.util.List;
+
+
+public class FilesFetchFailsDTO {
+	private String testPlanFile;
     private String resultDataFile;
     private String tpgph;
     private String step;
@@ -17,15 +18,16 @@ public class StepDto {
     private String expectedValue; 
     private List<String> upperLimit;
     private List<String> lowerLimit;
-    private Map<String,String> faultyChannel;
+    private String faultyChannel;
+    private String ch1Value;
+    private String ch2Value;
+    private String ch3Value;
+    private String ch4Value;
     private List<String> measuredValue;
     private String faultySRU;
+    private String dStarChannels;
+    private String filePath;
     
-    
-	public StepDto() {
-
-	}
-		
 	public String getTestPlanFile() {
 		return testPlanFile;
 	}
@@ -64,16 +66,13 @@ public class StepDto {
 	}
 	
 	
-	
 
 	public String getdStarInfo() {
 		return dStarInfo;
 	}
-
 	public void setdStarInfo(String dStarInfo) {
 		this.dStarInfo = dStarInfo;
 	}
-
 	public String getSignalName() {
 		return signalName;
 	}
@@ -104,10 +103,11 @@ public class StepDto {
 	public void setLowerLimit(List<String> lowerLimit) {
 		this.lowerLimit = lowerLimit;
 	}
-	public Map<String,String> getFaultyChannel() {
+	
+	public String getFaultyChannel() {
 		return faultyChannel;
 	}
-	public void setFaultyChannel(Map<String,String> faultyChannel) {
+	public void setFaultyChannel(String faultyChannel) {
 		this.faultyChannel = faultyChannel;
 	}
 	public List<String> getMeasuredValue() {
@@ -116,19 +116,52 @@ public class StepDto {
 	public void setMeasuredValue(List<String> measuredValue) {
 		this.measuredValue = measuredValue;
 	}
-
 	public String getFaultySRU() {
 		return faultySRU;
 	}
-
 	public void setFaultySRU(String faultySRU) {
 		this.faultySRU = faultySRU;
 	}
-    
-    
-    
-    
-    
-
+	public String getFilePath() {
+		return filePath;
+	}
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+	public String getCh1Value() {
+		return ch1Value;
+	}
+	public void setCh1Value(String ch1Value) {
+		this.ch1Value = ch1Value;
+	}
+	public String getCh2Value() {
+		return ch2Value;
+	}
+	public void setCh2Value(String ch2Value) {
+		this.ch2Value = ch2Value;
+	}
+	public String getCh3Value() {
+		return ch3Value;
+	}
+	public void setCh3Value(String ch3Value) {
+		this.ch3Value = ch3Value;
+	}
+	public String getCh4Value() {
+		return ch4Value;
+	}
+	public void setCh4Value(String ch4Value) {
+		this.ch4Value = ch4Value;
+	}
+	public String getdStarChannels() {
+		return dStarChannels;
+	}
+	public void setdStarChannels(String dStarChannels) {
+		this.dStarChannels = dStarChannels;
+	}
+	
+	
+	
+	
+	
 	
 }
