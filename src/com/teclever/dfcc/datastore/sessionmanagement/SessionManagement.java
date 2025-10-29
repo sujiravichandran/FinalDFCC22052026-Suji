@@ -1393,6 +1393,8 @@ public class SessionManagement {
 			
 			//
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			sessionSelectedStagesService.deleteSessionStagesMappingBySessionId(trailSessionId);
+			
 			// SESSION STAGE MAPPING : ADD
 			Response stagesRes = new Response();
 			stagesRes = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
