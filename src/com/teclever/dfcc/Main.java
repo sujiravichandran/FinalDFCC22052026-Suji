@@ -220,7 +220,7 @@ public class Main extends Application {
 	            new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/DFCC-Logo.png")));
 	    primaryStage.setMaximized(true);
 	    primaryStage.initStyle(StageStyle.UNDECORATED);
-	    primaryStage.setTitle("DFCC");
+	    primaryStage.setTitle("DFCC TESTING AND DATA HANDLING SOFTWARE");
 	    primaryStage.setScene(scene);
 	    primaryStage.show();
 	    // Add your CSS
@@ -228,7 +228,7 @@ public class Main extends Application {
 	            .getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
 	    // ==== NEW: Handle close button action ====
 	    primaryStage.setOnCloseRequest(event -> {
-	        System.out.println("User attempted to close the application.");
+//	        System.out.println("User attempted to close the application.");
 	        Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
 	        alert1.setTitle("Exit Confirmation");
 	        alert1.setHeaderText("Are you sure you want to exit?");
@@ -296,7 +296,7 @@ public class Main extends Application {
 					});
 				}
 	            // User confirmed exit - perform any cleanup if needed
-	            System.out.println("Application is closing...");
+//	            System.out.println("Application is closing...");
 	            // (Optional) Save data, close connections, etc.
 	        }
 	    });
@@ -325,7 +325,7 @@ public class Main extends Application {
 	    } else {
 	        System.out.println("dfcc.set File Not Present");
 	    }
-	    System.out.println("DEBUG Mode :: " + DFCCConstant.isDebug + "  :   " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
+//	    System.out.println("DEBUG Mode :: " + DFCCConstant.isDebug + "  :   " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
 	    // Report Temp Files
 	    if (DFCCConstant.isJarBuild) {
 	        SessionFileManagement sessionFileManagement = new SessionFileManagement();
@@ -356,13 +356,13 @@ public class Main extends Application {
 
 		// Check if the file exists
 		if (!file.exists()) {
-			System.out.println("dfcc.set File Not Exist "+(currentDirectory + File.separator + "dfcc.set"));
+//			System.out.println("dfcc.set File Not Exist "+(currentDirectory + File.separator + "dfcc.set"));
 			return isDebugValue;
 		}
         try (FileInputStream input = new FileInputStream(file)) {
             properties.load(input);
             isDebugValue = properties.getProperty("isdebug");
-            System.out.println("Is Debug: " + isDebugValue);
+//            System.out.println("Is Debug: " + isDebugValue);
         } catch (IOException ex) {
             System.out.println("Error: Could not load configuration from " + file.getAbsolutePath());
         }

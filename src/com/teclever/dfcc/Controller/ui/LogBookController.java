@@ -638,11 +638,11 @@ public class LogBookController {
 	    }
 	    
 	    // ✅ Debug print to confirm
-	    System.out.println("Selected UUT Type : " + selectedUUTType);
-	    System.out.println("Selected DFCC SN  : " + selectedDfccSN);
-	    System.out.println("Selected Session  : " + selectedSessionType);
-	    System.out.println("Selected FROM Date: " + selectedFromDate);
-	    System.out.println("Selected TO Date  : " + selectedToDate);
+//	    System.out.println("Selected UUT Type : " + selectedUUTType);
+//	    System.out.println("Selected DFCC SN  : " + selectedDfccSN);
+//	    System.out.println("Selected Session  : " + selectedSessionType);
+//	    System.out.println("Selected FROM Date: " + selectedFromDate);
+//	    System.out.println("Selected TO Date  : " + selectedToDate);
 
 	    // ✅ Process log data if UUT Type is selected
 	    if (selectedUUTType != null) {

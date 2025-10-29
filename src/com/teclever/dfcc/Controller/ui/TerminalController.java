@@ -180,7 +180,7 @@ public class TerminalController {
 
 			String inputCommand = terminalTextField.getText() + "\n";
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
-				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
 			}
@@ -196,7 +196,7 @@ public class TerminalController {
 //			Change Made for Point:22(Mail:7-Jul-Observations_in_testing_Teclever_Date_SAT))
 //			Change Made On:When 'Y' is pressed it is not immediately displayed in terminal window.
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
-				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
 			}
@@ -221,7 +221,7 @@ public class TerminalController {
 
 		noButton.setOnAction(e -> {
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
-				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
 			}

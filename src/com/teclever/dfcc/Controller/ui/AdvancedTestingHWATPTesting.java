@@ -124,7 +124,7 @@ public class AdvancedTestingHWATPTesting {
 //		SUJI added for resetting the progress bar once test file are moved::
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 			Platform.runLater(() -> {
-	    		System.out.println("Entred resetting Progress in Advanced test");
+//	    		System.out.println("Entred resetting Progress in Advanced test");
 	    	testProgressBar.setProgress(0);
 	    	percentageLabel.setText("0%");
 	    	StateMachine.setResettingProgressBar(false);
@@ -135,7 +135,7 @@ public class AdvancedTestingHWATPTesting {
 //		Change Made for Point: 4&39(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println("WDM Status changed:Advaced HWATP " + newVal);
+//			System.out.println("WDM Status changed:Advaced HWATP " + newVal);
 			if(newVal && (StateMachine.getStatusBarRunningTestName().equals("ADVANCED_TEST_HWATP_TEST"))) {
 				
 			StateMachine.setTestState(TestState.PAUSED);
@@ -1140,10 +1140,10 @@ public class AdvancedTestingHWATPTesting {
 				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()
 						/ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
 				
-				System.out.println("IN ADvanced TEST PROGRESS BAR TOAL FILE COUNT CHECK "
-						+ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount());
-				System.out.println("IN ADvanced TEST PROGRESS BAR Runned File Count"
-						+ AdvancedTestStateObject.getRunnedHWATPTestFileCount().get());
+//				System.out.println("IN ADvanced TEST PROGRESS BAR TOAL FILE COUNT CHECK "
+//						+ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount());
+//				System.out.println("IN ADvanced TEST PROGRESS BAR Runned File Count"
+//						+ AdvancedTestStateObject.getRunnedHWATPTestFileCount().get());
 				
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 				Platform.runLater(() -> {

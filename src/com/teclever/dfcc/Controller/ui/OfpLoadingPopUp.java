@@ -112,7 +112,7 @@ public class OfpLoadingPopUp {
 			OFPVersion.setOnAction((event) -> {
 				ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
 				this.RUN_CONFIG_ID.set(ofpConfigId);
-				System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
+//				System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
 
 			});
 

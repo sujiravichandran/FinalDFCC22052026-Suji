@@ -1414,7 +1414,7 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 
 		} catch (IOException e) {
 	        e.printStackTrace();
-	        System.out.println(e.getLocalizedMessage());
+//	        System.out.println(e.getLocalizedMessage());
 	    }
 	}
 	

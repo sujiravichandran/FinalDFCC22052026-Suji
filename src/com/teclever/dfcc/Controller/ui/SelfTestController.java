@@ -124,7 +124,7 @@ public class SelfTestController {
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 		    if(newVal) {
 		    	Platform.runLater(() -> {
-		    		System.out.println("Entred resetting Progress in Self test");
+//		    		System.out.println("Entred resetting Progress in Self test");
 		    	testProgressBar.setProgress(0);
 		    	percentageLabel.setText("0%");
 		    	StateMachine.setResettingProgressBar(false);

@@ -32,7 +32,7 @@ public class RdfFileDetailsParser {
 		
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
 	    
-	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
+//	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
 	    
 	    //Mani Detail Data Change 26-AUG
 	    
@@ -41,7 +41,7 @@ public class RdfFileDetailsParser {
 	    
 	    
 	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
-	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
+//	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
 	    
 	    
 
@@ -141,8 +141,8 @@ public class RdfFileDetailsParser {
 	                }
 	            }
 	            
-	            System.out.println("Failed Step Object Id Map  size :"+failedStepObjectIdMap.size());
-	            System.out.println("step Object Id Map   Size   :"+stepObjectIdMap.size());
+//	            System.out.println("Failed Step Object Id Map  size :"+failedStepObjectIdMap.size());
+//	            System.out.println("step Object Id Map   Size   :"+stepObjectIdMap.size());
 
 	            collection.updateOne(
 	                    Filters.eq("_id", objectId),

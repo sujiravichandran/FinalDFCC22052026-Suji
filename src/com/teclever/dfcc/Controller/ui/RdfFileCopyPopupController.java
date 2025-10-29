@@ -252,7 +252,7 @@ public class RdfFileCopyPopupController {
 					.getInstance();
 			
 				if (StateMachine.isRdfMoveLogout()) {
-					System.out.println("Entred RDF Logout NEW VALUE" + StateMachine.isRdfMoveLogout());
+//					System.out.println("Entred RDF Logout NEW VALUE" + StateMachine.isRdfMoveLogout());
 					List<CopyFileDTO> pathList1 = new ArrayList<>();
 					for (RdfFileCopy rdfFile : tableView.getItems()) {
 						CopyFileDTO newFilePath = new CopyFileDTO();
@@ -270,7 +270,7 @@ public class RdfFileCopyPopupController {
 						pathList1.add(newFilePath);
 					}
 					handleCopyingRdfFiles(pathList1);
-					System.out.println("Entred RDF Logout Front");
+//					System.out.println("Entred RDF Logout Front");
 					aitessProcessControlManagement.endAllProcessOnLogout();
 					Platform.exit();
 					System.exit(0);

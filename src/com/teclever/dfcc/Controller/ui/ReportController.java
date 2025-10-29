@@ -68,6 +68,7 @@ public class ReportController {
     private ComboBox<String> sessionNameField = new ComboBox<String>();
     private ObservableList<SessionList> sessionDataList;
 	private ObservableList<String> sessionNameList = FXCollections.observableArrayList();
+	private List<String> sessionNameList1;
 	private String SESSION_ID;
 	
     private Button addOtherFiles = new Button("Add Other Files");
@@ -234,9 +235,17 @@ public class ReportController {
 		if(response.getResponse().getResponseCode() == 1) {			
 			sessionDataList = FXCollections.observableArrayList(response.getListOfSession());
 			for (SessionList session : sessionDataList) {
-				sessionNameList.add(session.getSessionName());
+				sessionNameList.add(session.getSessionName());		
 			}
-			sessionNameField.setItems(sessionNameList);
+//			Suji Changed for PQT & ESS report Session Name filering Bug::
+			if(REPORT_TYPE.equals("PQT")) {
+				
+			sessionNameList1 = sessionNameList.stream().filter(s -> s.contains("PQT")).toList();
+			}else if(REPORT_TYPE.equals("ESS")) {
+				sessionNameList1 = sessionNameList.stream().filter(s -> s.contains("FRU") || s.contains("Production")).toList();
+			}
+//			End::
+			sessionNameField.setItems(FXCollections.observableArrayList(sessionNameList1));
 			sessionNameField.setOnAction((event) -> {
 				SESSION_ID = fetchSessionId(sessionNameField.getValue());
 				if(SESSION_ID != null){	

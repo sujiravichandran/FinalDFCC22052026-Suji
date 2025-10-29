@@ -111,7 +111,8 @@ public class DashboardController {
 	private Label lastTestedDateLabel = new Label();
 
 	private Label sessionExecuted = new Label("SESSION EXECUTED");
-	private Label currentFailureStage = new Label("FAILURE's OBSERVED IN THIS UNIT");
+	//Based on Sridhar requirement sai changed name on  09102025 
+	private Label currentFailureStage = new Label("FAILURE  HISTORY");
 	private ScrollPane tableScrollPane1 = new ScrollPane();
 	private ScrollPane tableScrollPane2 = new ScrollPane();
 
@@ -226,9 +227,29 @@ public class DashboardController {
 	                productionLabel2.setText("Test is Not Started");
 	            	});
 	            }
-	        } else {
+	        }else {
 	        	Platform.runLater(() -> {
-	            productionLabel2.setText("Test is Not Started");
+	        	    String lastTestedDateStr = res.getLastTestedDate();
+
+	        	    if (lastTestedDateStr != null) {
+	        	        try {
+	        	            SimpleDateFormat inputFormat = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy");
+	        	            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+	        	            Date parsedDate = inputFormat.parse(lastTestedDateStr);
+	        	            String formattedDate = outputFormat.format(parsedDate);
+
+	        	            lastTestedDateLabel.setText(formattedDate);
+	        	            productionLabel2.setText("Test is Not Started");
+
+	        	   
+	        	        } catch (java.text.ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	        	    } else {
+	        	        productionLabel2.setText("Test is Not Started");
+	        	    }
 	        	});
 	        }
 	    }

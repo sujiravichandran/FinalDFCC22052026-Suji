@@ -79,7 +79,7 @@ public class DriverManagement {
 		Response response = new Response();
 		String dbCardName = "1553B MODULE";
 
-		System.out.println("cardText  ::"+cardText);
+//		System.out.println("cardText  ::"+cardText);
 		if (outputLine != null && outputLine.contains(cardText)) {
 			response.setResponseCode(1);
 			response.setResponseMessage("SUCCESS");

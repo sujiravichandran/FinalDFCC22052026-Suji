@@ -155,8 +155,8 @@ public class AdvancedDataAnalysisManagement {
 			filesFetchFailsDTOList = filesFetchFailsDTOList.stream()
 					.filter(e -> e.getFaultyChannel() != null && !e.getFaultyChannel().isEmpty())
 					.collect(Collectors.toList());
-			System.out.println("All Steps " + allSteps);
-			System.out.println("All Steps After Filter " + filesFetchFailsDTOList.size());
+//			System.out.println("All Steps " + allSteps);
+//			System.out.println("All Steps After Filter " + filesFetchFailsDTOList.size());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -172,7 +172,7 @@ public class AdvancedDataAnalysisManagement {
 				for (File file : filesAndDirs) {
 					if (file.isFile()) {
 						if (file.getName().toLowerCase().contains(".rdf")) {
-							System.out.println(file.getAbsolutePath());
+//							System.out.println(file.getAbsolutePath());
 							listOfPath.add(file.getAbsolutePath());
 						}
 					} else if (file.isDirectory()) {

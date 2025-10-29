@@ -453,7 +453,7 @@ public class CurrentSessionResultController {
 	                    GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
 //	                    Changed by Vignesh 31-07-25 for displaying stage name in stage result
 	                    userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID, rowData);
-	                    System.out.println(rowData);
+//	                    System.out.println(rowData);
 //	                    System.out.println("Session Name"+SESSION_ID);
 	                    break;
 	                }

@@ -75,7 +75,7 @@ public class StateMachine {
 	}
 
 	public static void setTestState(TestState newState) {
-		System.out.println("setTestState :: " + newState);
+//		System.out.println("setTestState :: " + newState);
 		testState.set(newState);
 	}
 
@@ -974,7 +974,7 @@ public class StateMachine {
 	public static void setLessBackgroundColor(String lessBackgroundColor) {
 //		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
 		Platform.runLater(() ->StateMachine.lessBackgroundColor.set(lessBackgroundColor));
-		System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
+//		System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
 	}
 
 	public static StringProperty GreaterBackgroundColor() {

@@ -105,18 +105,18 @@ public class PbitOfpSelectionController {
 	    aitessProcessControlManagement.pbitCheck();
 		
 		List <String> ofpList = StateMachine.getOfpList();
-		System.out.println("Popup Ofp List" +ofpList );
+//		System.out.println("Popup Ofp List" +ofpList );
 		String ofpValueCheck = StateMachine.getOfpValueCheck();
-		System.out.println("Popup Version" + ofpValueCheck);
+//		System.out.println("Popup Version" + ofpValueCheck);
 //		System.out.println("OFP  Response Cod Check " + aitessProcessControlManagement.pbitCheck().getResponseCode());
 
 		if (!ofpList.contains(ofpValueCheck) ||
 				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 500 ||
 				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
-			System.out.println("Entred OFP .." + aitessProcessControlManagement.pbitCheck().getResponseCode());
+//			System.out.println("Entred OFP .." + aitessProcessControlManagement.pbitCheck().getResponseCode());
 			option1.setDisable(true);
 		}else {
-			System.out.println("Entred OFP Else" + aitessProcessControlManagement.pbitCheck().getResponseCode());
+//			System.out.println("Entred OFP Else" + aitessProcessControlManagement.pbitCheck().getResponseCode());
 			option1.setDisable(false);
 		}
 //		Exit::
@@ -160,7 +160,7 @@ public class PbitOfpSelectionController {
 	private String fetchOFPVersion(String ofpVersionName) {
 		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
 			if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
-				System.out.println("OFP CHECK SUSPECT ::" + ofpVersion);
+//				System.out.println("OFP CHECK SUSPECT ::" + ofpVersion);
 				return ofpVersion.getOfpConfigId(); // return OFP_7357
 			}
 		}

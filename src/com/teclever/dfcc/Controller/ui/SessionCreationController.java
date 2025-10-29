@@ -607,18 +607,26 @@ public class SessionCreationController {
 		refreshFaultCode();
 		SESSION_TYPE_ID = fetchSessionTypeId(sessionTypeField.getValue());
 		final String[] activeTrailIdHolder = {null};
-
+		List <String> sessionName = new ArrayList<String>();
 		if (SESSION_TYPE_ID.equals("ST4")) {
+			
 			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
 			SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(ROLE_ID);
+			String uut = uutTypeField.getValue();
 			if (response.getResponse().getResponseCode() == 1) {
 				for (SessionList sessionDto : response.getListOfSession()) {
+					System.out.println("UUT " + uut);
+					System.out.println("sessionName uP" + sessionDto.getSessionName());
+					sessionName.add(sessionDto.getSessionName());
 					if(sessionDto.getSessionId().startsWith("TSSN")) {
 						activeTrailIdHolder[0] = sessionDto.getSessionId();
-					}
+					}	
 				}
 			}
-			if (trailsActiveStatus) {
+			System.out.println("UUT " + uut);
+			System.out.println("sessionName" + sessionName.contains(uut));
+			if (trailsActiveStatus && sessionName.contains(uut)) {
+				System.out.println("Check entred");
 				String title = "Confirmation Dialog";
 				String contentText = "The existing trail session is still active, so a new trail session cannot be created. Do you want do end trail session?";
 				Notifications.showConfirmationDialog(title, contentText, () -> endTrailSesion(activeTrailIdHolder[0]));
