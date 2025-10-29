@@ -524,8 +524,8 @@ public class CurrentExecutionResultController {
 				column.setMaxWidth(420);
 				break;
 			case "TIME OF EXECUTION":
-				column.setMinWidth(250);
-				column.setMaxWidth(250);
+				column.setMinWidth(260);
+				column.setMaxWidth(260);
 				break;
 			case "RESULT":
 				column.setMinWidth(130);
@@ -534,8 +534,8 @@ public class CurrentExecutionResultController {
 
 
 			default:
-				column.setMinWidth(120);
-				column.setMaxWidth(120);
+//				column.setMinWidth(120);
+//				column.setMaxWidth(120);
 				break;
 			}
 			updateBriefData((TableColumn<BriefData, String>) column);

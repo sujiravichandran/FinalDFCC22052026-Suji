@@ -149,7 +149,7 @@ public class SessionTestingController {
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 		    if(newVal) {
 		    	Platform.runLater(() -> {
-		    		System.out.println("Entred resetting Progress in session test");
+//		    		System.out.println("Entred resetting Progress in session test");
 		    	testProgressBar.setProgress(0);
 		    	percentageLabel.setText("0%");
 		    	StateMachine.setResettingProgressBar(false);
@@ -1276,7 +1276,7 @@ public class SessionTestingController {
 //						System.out.println("AFTER Entred Clearing method after selection" + StateMachine.getStageName());
 					selectedStageId = userData.getValue().getStageId();
 					selectedTestTypeId = userData.getValue().getTestTypeId();
-					System.out.println("");
+//					System.out.println("");
 //					}
 					
 				}
@@ -1418,10 +1418,10 @@ public class SessionTestingController {
 			} else {
 				for (Entry<StageIdName, String> endLeaf1 : SessionTestStateObject.getEndLeafMap().entrySet()) {
 					if (endLeaf1.getKey().getStageId().equals(stageId)) {
-						System.out.println("Session Test UI SUSPECT Stage Id ::"+stageId   +"       value From Session Status"+endLeaf1.getValue().toLowerCase().trim());
+//						System.out.println("Session Test UI SUSPECT Stage Id ::"+stageId   +"       value From Session Status"+endLeaf1.getValue().toLowerCase().trim());
 						
 						if (endLeaf1.getValue().toLowerCase().trim().equals("completed")) {
-							System.out.println("Session Test UI SUSPECT 2");
+//							System.out.println("Session Test UI SUSPECT 2");
 							checkboxDisable = true;
 						}
 					}
@@ -1474,7 +1474,7 @@ public class SessionTestingController {
 	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
 			String stageId) {
 		
-		System.out.println("checkboxDisable ::::::::: "+checkboxDisable);
+//		System.out.println("checkboxDisable ::::::::: "+checkboxDisable);
 
 		testListView.getItems().clear();
 		checkBoxes.clear();
@@ -1611,33 +1611,33 @@ public class SessionTestingController {
 	
 //	new::::
 	private void disableCheckBox(String stageId) {
-	    System.out.println("stageId: " + stageId + " | RunningTestLeafId: " + SessionTestStateObject.getRunningTestLeafId() + " | selectedStageId: " + selectedStageId);
+//	    System.out.println("stageId: " + stageId + " | RunningTestLeafId: " + SessionTestStateObject.getRunningTestLeafId() + " | selectedStageId: " + selectedStageId);
 
 	    if (!selectedStageId.equals(stageId)) {
 	        return; // Skip if stage doesn't match current selection
 	    }
 
-	    System.out.println("Checked Boxes: " + checkBoxes.size());
+//	    System.out.println("Checked Boxes: " + checkBoxes.size());
 
 	    for (CheckBox e : checkBoxes) {
 	        String fileId = e.getId();
 	        ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-	        System.out.println("Checking completedFileId: " + completedFileId);
-	        System.out.println("StateMachine.getTestState(): " + StateMachine.getTestState());
+//	        System.out.println("Checking completedFileId: " + completedFileId);
+//	        System.out.println("StateMachine.getTestState(): " + StateMachine.getTestState());
 
 	        // Add disable listener only once
 	        if (e.getProperties().get("disableListenerAdded") == null) {
 	            StateMachine.dissableEnableProperty().addListener((obs, wasSet, isNowSet) -> {
-	                System.out.println("Disable listener triggered | isNowSet: " + isNowSet);
+//	                System.out.println("Disable listener triggered | isNowSet: " + isNowSet);
 
 	                if (completedFileId != null && completedFileId.contains(fileId) && isNowSet) {
-	                    System.out.println("Inside condition for fileId: " + fileId);
-	                    System.out.println("Checking completedFileId: " + completedFileId);
+//	                    System.out.println("Inside condition for fileId: " + fileId);
+//	                    System.out.println("Checking completedFileId: " + completedFileId);
 	                    if (StateMachine.getTestState() != TestState.STOPPED) {
 	                        Platform.runLater(() -> {
 	                            e.setSelected(false);
 	                            e.setDisable(true);
-	                            System.out.println("Checkbox " + fileId + " disabled.");
+//	                            System.out.println("Checkbox " + fileId + " disabled.");
 	                        });
 	                    }
 	                }
@@ -1650,7 +1650,7 @@ public class SessionTestingController {
 	        if (e.getProperties().get("colorListenerAdded") == null) {
 	            StateMachine.updateColorProperty().addListener((obs, oldValue, newValue) -> {
 	            	Platform.runLater(() -> {
-	            		 System.out.println("updateColor changed from " + oldValue + " to " + newValue);
+//	            		 System.out.println("updateColor changed from " + oldValue + " to " + newValue);
 	 	                getStatusForAllStage();
 					});
 	                // Called regardless of true/false

@@ -184,7 +184,7 @@ public class LoadDriverProcessControlManagement {
 									aimFlag = false;
 								}
 
-								System.out.println(output);
+//								System.out.println(output);
 								//if (output.contains(unloadCommand)) {
 //								if (output.contains("root#")) {
 //									//aimFlag = false;

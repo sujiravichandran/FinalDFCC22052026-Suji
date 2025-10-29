@@ -192,9 +192,9 @@ public class UserDashboardController {
 		StateMachine.yesEntredProperty().addListener((obs, oldState, newState) -> {
 
 			if (StateMachine.getTestState().equals(TestState.RUNNING)|| StateMachine.getTestState().equals(TestState.PAUSED)) {
-				System.out.println("B IN USR DASH " + StateMachine.isDissableEnable());
+//				System.out.println("B IN USR DASH " + StateMachine.isDissableEnable());
 				StateMachine.setDissableEnable(false);
-				System.out.println("A IN USR DASH " + StateMachine.isDissableEnable());
+//				System.out.println("A IN USR DASH " + StateMachine.isDissableEnable());
 				StateMachine.setYesEntred(false);
 				
 			}
@@ -203,7 +203,7 @@ public class UserDashboardController {
 
 		StateMachine.confirmTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
 			startTimeAutoUpdateFlag.set(true);
-			System.out.println("Start Time Flag::" + startTimeAutoUpdateFlag);
+//			System.out.println("Start Time Flag::" + startTimeAutoUpdateFlag);
 			applyUiState(StateMachine.getTestState(), newVal);
 
 		});
@@ -213,7 +213,7 @@ public class UserDashboardController {
 		Platform.runLater(() -> {
 			SessionManagement sessionManagment = new SessionManagement();
 			SessionDTOResponse response = sessionManagment.getSessionDetailById(currentSessionDetails.getSessionId());
-			System.out.println("Start Time" + response.getStartDateTime());
+//			System.out.println("Start Time" + response.getStartDateTime());
 			if (response.getStartDateTime() != null) {
 				startTime1.setText(response.getStartDateTime());
 			} else {
@@ -230,12 +230,12 @@ public class UserDashboardController {
 					SessionManagement sessionManagment = new SessionManagement();
 					SessionDTOResponse response = sessionManagment
 							.getSessionDetailById(currentSessionDetails.getSessionId());
-					System.out.println("Start Time" + response.getStartDateTime());
+//					System.out.println("Start Time" + response.getStartDateTime());
 					if (response.getStartDateTime() != null) {
 //						startTime1.setText(response.getStartDateTime());
 						startTime1.textProperty().bind(response.startDateTimeProperty());
-						System.out.println("Star Time check1" + response.startDateTimeProperty());
-						System.out.println("Star Time check2" + response.getStartDateTime());
+//						System.out.println("Star Time check1" + response.startDateTimeProperty());
+//						System.out.println("Star Time check2" + response.getStartDateTime());
 					} else {
 						startTime1.setText("Test not Started");
 					}
@@ -252,13 +252,13 @@ public class UserDashboardController {
 //		});
 
 		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println(" User Dashborad AITESS1 changed to: " + newVal);
+//			System.out.println(" User Dashborad AITESS1 changed to: " + newVal);
 			aitess1Updated = true;
 			checkBothAitessLaunched();
 		});
 
 		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			System.out.println("User Dashborad List AITESS2 changed to: " + newVal);
+//			System.out.println("User Dashborad List AITESS2 changed to: " + newVal);
 			aitess2Updated = true;
 			checkBothAitessLaunched();
 		});
@@ -285,7 +285,7 @@ public class UserDashboardController {
 				toggleButton.setDisable(true);
 				rightMidSecondGridPane.setDisable(true);
 				StateMachine.setDissableEnable(false);
-				System.out.println("StateMachin------------tateMachine" + StateMachine.isDissableEnable());
+//				System.out.println("StateMachin------------tateMachine" + StateMachine.isDissableEnable());
 			} else {
 				statusBar.textProperty().unbind();
 				statusBar.setText("Ready");
@@ -302,9 +302,10 @@ public class UserDashboardController {
 		Platform.runLater(() -> {
 			statusBar.textProperty().unbind();
 			StateMachine.setDissableEnable(false);
-			System.out.println("StateMachineStateMachineStateMachine" + StateMachine.isDissableEnable());
-			statusBar.setText("Ready");
-			statusBarVbox.setStyle(commonStyle + "-fx-background-color: #037ce6");
+//			System.out.println("StateMachineStateMachineStateMachine" + StateMachine.isDissableEnable());
+//			statusBar.setText("Ready");
+			statusBar.setText("Stopping Test Execution");
+			statusBarVbox.setStyle(commonStyle + "-fx-background-color: #e5350e");
 			toggleButton.setDisable(false);
 			rightMidSecondGridPane.setDisable(false);
 		});
@@ -600,7 +601,7 @@ public class UserDashboardController {
 							SessionFileManagement session = new SessionFileManagement();
 							LogOutFileCopyResponse response = session
 									.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
-							System.out.println("response.getCode()" + response.getCode());
+//							System.out.println("response.getCode()" + response.getCode());
 
 							if (response.getCode() == 1) {
 
@@ -612,8 +613,8 @@ public class UserDashboardController {
 										failedFiles++;
 									}
 								}
-								System.out.println("Total Files" + DFCCConstant.FailedStagesRdfPaths.size());
-								System.out.println("Failed Files" + failedFiles);
+//								System.out.println("Total Files" + DFCCConstant.FailedStagesRdfPaths.size());
+//								System.out.println("Failed Files" + failedFiles);
 								// ADD TIME NEW
 //								s.addSessionTime(currentSessionDetails.getSessionId(),
 //										StateMachine.getCurrentlySelectedStageId(), "", currentDateTime.toString(),
@@ -1086,7 +1087,7 @@ public class UserDashboardController {
 //		After Suji Changing for Updating toggle status based on Channel status(05-08-2025)::
 
 		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println("Entred Power on Power oN Stats Before");
+//			System.out.println("Entred Power on Power oN Stats Before");
 //			suji Added for BLS Issue::(07-08-2025)
 			String sessionType = currentSessionDetails.getSessionTypeID();
 			if (!"ST2".equals(sessionType)) {
@@ -1110,7 +1111,7 @@ public class UserDashboardController {
 						transition.play();
 					});
 				}
-				System.out.println("Entred Power on Power oN Stats after");
+//				System.out.println("Entred Power on Power oN Stats after");
 				return;
 			}
 		});
@@ -1119,11 +1120,11 @@ public class UserDashboardController {
 
 //		Suji Added for BLS Toggel issue::(06-08-2025)
 		dfccCheckStatus.dfccOnlineStatusProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println("Entred Online Listener in Ui" + newValue);
+//			System.out.println("Entred Online Listener in Ui" + newValue);
 			if (newValue) {
 
 				Platform.runLater(() -> {
-					System.out.println("Entred New Value " + newValue);
+//					System.out.println("Entred New Value " + newValue);
 					transition.setToX(-26);
 					background.setFill(Color.RED);
 					toggleLabel.setText("OFF");
@@ -1132,7 +1133,7 @@ public class UserDashboardController {
 				});
 			} else {
 				Platform.runLater(() -> {
-					System.out.println("Entred New Value .. ELSE" + oldValue);
+//					System.out.println("Entred New Value .. ELSE" + oldValue);
 					transition.setToX(26);
 					background.setFill(Color.GREEN);
 					toggleLabel.setText("ON");
@@ -1718,10 +1719,10 @@ public class UserDashboardController {
 			double value3 = Double.parseDouble(label3.getText());
 			double value4 = Double.parseDouble(label4.getText());
 
-			System.out.println("MK1A/2 TEMP1::" + value1);
-			System.out.println("MK1A/2 TEMP2::" + value2);
-			System.out.println("MK1A/2 TEMP3::" + value3);
-			System.out.println("MK1A/2 TEMP4::" + value4);
+//			System.out.println("MK1A/2 TEMP1::" + value1);
+//			System.out.println("MK1A/2 TEMP2::" + value2);
+//			System.out.println("MK1A/2 TEMP3::" + value3);
+//			System.out.println("MK1A/2 TEMP4::" + value4);
 
 			if ((value1 <= 0 && value1 < 1) || (value2 <= 0 && value2 < 1) || (value3 <= 0 && value3 < 1)
 					|| (value4 <= 0 && value4 < 1)) {
@@ -1901,7 +1902,7 @@ public class UserDashboardController {
 						.bind(Bindings.createStringBinding(
 								() -> "-fx-background-color: " + channelAECTemp.channel1BackgroundColorProperty().get(),
 								channelAECTemp.channel1BackgroundColorProperty()));
-				System.out.println("UI AEC CHECK " + channelAECTemp.channel1BackgroundColorProperty());
+//				System.out.println("UI AEC CHECK " + channelAECTemp.channel1BackgroundColorProperty());
 			});
 			Platform.runLater(() -> {
 				label2.textProperty().bind(channelAECTemp.channel2TemperatureProperty());
@@ -1912,7 +1913,7 @@ public class UserDashboardController {
 						.bind(Bindings.createStringBinding(
 								() -> "-fx-background-color: " + channelAECTemp.channel2BackgroundColorProperty().get(),
 								channelAECTemp.channel2BackgroundColorProperty()));
-				System.out.println("UI AEC CHECK " + channelAECTemp.channel2BackgroundColorProperty());
+//				System.out.println("UI AEC CHECK " + channelAECTemp.channel2BackgroundColorProperty());
 			});
 			Platform.runLater(() -> {
 				label3.textProperty().bind(channelAECTemp.channel3TemperatureProperty());
@@ -1923,7 +1924,7 @@ public class UserDashboardController {
 						.bind(Bindings.createStringBinding(
 								() -> "-fx-background-color: " + channelAECTemp.channel3BackgroundColorProperty().get(),
 								channelAECTemp.channel3BackgroundColorProperty()));
-				System.out.println("UI AEC CHECK " + channelAECTemp.channel3BackgroundColorProperty());
+//				System.out.println("UI AEC CHECK " + channelAECTemp.channel3BackgroundColorProperty());
 			});
 			Platform.runLater(() -> {
 				label4.textProperty().bind(channelAECTemp.channel4TemperatureProperty());
@@ -1934,7 +1935,7 @@ public class UserDashboardController {
 						.bind(Bindings.createStringBinding(
 								() -> "-fx-background-color: " + channelAECTemp.channel4BackgroundColorProperty().get(),
 								channelAECTemp.channel4BackgroundColorProperty()));
-				System.out.println("UI AEC CHECK " + channelAECTemp.channel4BackgroundColorProperty());
+//				System.out.println("UI AEC CHECK " + channelAECTemp.channel4BackgroundColorProperty());
 			});
 		}
 

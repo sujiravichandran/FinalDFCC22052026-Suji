@@ -206,7 +206,7 @@ public class LRUTestingController {
 //		SUJI added for resetting the progress bar once test file are moved::
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 			Platform.runLater(() -> {
-	    		System.out.println("Entred resetting Progress in LRU test");
+//	    		System.out.println("Entred resetting Progress in LRU test");
 	    	testProgressBar.setProgress(0);
 	    	percentageLabel.setText("0%");
 	    	StateMachine.setResettingProgressBar(false);
@@ -259,7 +259,7 @@ public class LRUTestingController {
 		        );
 
 		        if (validTests.contains(testName)) {
-		            System.out.println("TEST POPUP TEST NAME CHECK:: " + testName);
+//		            System.out.println("TEST POPUP TEST NAME CHECK:: " + testName);
 		            StateMachine.setTestState(TestState.PAUSED);
 		            Platform.runLater(() -> {
 		                popupDialoguShowLRU.wdmStatusPopup();
@@ -280,14 +280,14 @@ public class LRUTestingController {
 					stopButton.setDisable(true);
 					selectAllButton.setDisable(false);
 					sruTestCheckBoxList.setDisable(false);
-					System.out.println("Entred LRU");
+//					System.out.println("Entred LRU");
 				  });
 			  }else if(newVal  && StateMachine.getStatusBarRunningTestName().equals("LRU_SRU_TEST_GO_NOGO_TEST")) {
 //					startButton.setDisable(false);
 //					runAllButton.setDisable(false);
 					pauseButton.setDisable(true);
 					stopButton.setDisable(true);
-					System.out.println("Entred GONOGO");
+//					System.out.println("Entred GONOGO");
 			  }else {
 				  	pauseButton.setDisable(true);
 					stopButton.setDisable(true);
@@ -310,7 +310,7 @@ public class LRUTestingController {
 		}
 		Platform.runLater(() -> {
 		StateMachine.setOfpList(ofpVersionList);
-		System.out.println("OFP List:::"+ StateMachine.getOfpList());
+//		System.out.println("OFP List:::"+ StateMachine.getOfpList());
 		});
 		
 
@@ -364,13 +364,13 @@ public class LRUTestingController {
 //		Change Made on:During initial loading of testing window,Update Status Bar
 		public void initialize() {
 			StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS1 changed to:LRUSRU " + newVal);
+//			    System.out.println("AITESS1 changed to:LRUSRU " + newVal);
 			    aitess1Updated = true;
 			    checkBothAitessLaunched();
 			});
 
 			StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-			    System.out.println("AITESS2 changed to:LRU SRU " + newVal);
+//			    System.out.println("AITESS2 changed to:LRU SRU " + newVal);
 			    aitess2Updated = true;
 			    checkBothAitessLaunched();
 			});
@@ -385,7 +385,7 @@ public class LRUTestingController {
 			        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
 			                                 && StateMachine.aitess2LaunchedProperty().get();
 			        if (bothLaunched) {
-			            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize in LRU SRU");
+//			            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize in LRU SRU");
 
 			
 			            Platform.runLater(() -> {
@@ -984,7 +984,7 @@ public class LRUTestingController {
 					else if (resultButton.get() == ButtonType.OK) {
 
 						if (newButton.getText().toLowerCase().contains("spil")) {
-							System.out.println("Spil ID CHECK ::" +newButton.getId());
+//							System.out.println("Spil ID CHECK ::" +newButton.getId());
 							
 
 							Dialog<ButtonType> dialog1 = new Dialog<>();
@@ -1007,22 +1007,22 @@ public class LRUTestingController {
 						} else if (newButton.getText().toLowerCase().contains("pbit")) {
 							
 							
-							
+//							As per IV & V Comments suji commented
 							UUT_ID = StateMachine.currentSessionDetails.getUutId();							
 							
-							if ("UUT2".equals(StateMachine.currentSessionDetails.getUutId())
-									|| "UUT3".equals(StateMachine.currentSessionDetails.getUutId())) {
-								StateMachine.setMandatoryGonoGo(true);
-								pauseButton.setDisable(false);
-								stopButton.setDisable(false);
-								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-								
-
-							
-								
-								callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
-
-							} else {
+//							if ("UUT2".equals(StateMachine.currentSessionDetails.getUutId())
+//									|| "UUT3".equals(StateMachine.currentSessionDetails.getUutId())) {
+//								StateMachine.setMandatoryGonoGo(true);
+//								pauseButton.setDisable(false);
+//								stopButton.setDisable(false);
+//								LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
+//								
+//
+//							
+//								
+//								callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
+//
+//							} else {
 								
 //								Suji Added For OFP::05/08/2025
 								aitessProcessControlManagement.pbitCheck();
@@ -1034,7 +1034,7 @@ public class LRUTestingController {
 								}
 								
 								String ofpValueCheck = StateMachine.getOfpValueCheck();
-								System.out.println("ofpVersionList" + ofpVersionList);
+//								System.out.println("ofpVersionList" + ofpVersionList);
 
 								if (!ofpVersionList.contains(ofpValueCheck) && ofpValueCheck!=null) {
 
@@ -1343,7 +1343,7 @@ public class LRUTestingController {
 										pauseButton.setDisable(false);
 										stopButton.setDisable(false);
 //										Exit::
-									}
+//									}
 									}
 								}
 							}
@@ -1818,11 +1818,13 @@ public class LRUTestingController {
 					if(StateMachine.getTestState()==TestState.STOPPED)
 					{
 					pbitButton.setDisable(true);
+					System.out.println("Entred Into Stop State-Spil");
 					StateMachine.setTestState(TestState.PENDING);
 					LRUTestStateObject.getSpilLinkStatus().set(false);
 					}
 					else {
 						pbitButton.setDisable(false);
+						System.out.println("Entred Into LRU MAN Else - Spil");
 						StateMachine.setTestState(TestState.COMPLETED);
 						LRUTestStateObject.getSpilLinkStatus().set(true);
 					}
@@ -1845,12 +1847,12 @@ public class LRUTestingController {
 //					Change Made On: If Pbit Test gets failed next test is getting enabling it,it should not enable
 //					if (checkMandatoryStatus("pbit")) {
 						if (StateMachine.getTestState() == TestState.STOPPED) {
-//						System.out.println("Entred Into Stop State");
+						System.out.println("Entred Into Stop State - pbit");
 							initializeLRUButton.setDisable(true);
 							StateMachine.setTestState(TestState.PENDING);
 							LRUTestStateObject.getPbitStatus().set(false);
 						} else {
-//						System.out.println("Entred Into LRU MAN Else");
+						System.out.println("Entred Into LRU MAN Else-pbit");
 							initializeLRUButton.setDisable(false);
 							StateMachine.setTestState(TestState.COMPLETED);
 							LRUTestStateObject.getPbitStatus().set(true);
@@ -1955,7 +1957,7 @@ public class LRUTestingController {
 			boolean allCardsStatusOk = true;
 
 			for (TestCardData card : mandatoryCardList) {
-				System.out.println("----" + card.getCardName() + "   " + card.getStatus());
+//				System.out.println("----" + card.getCardName() + "   " + card.getStatus());
 				if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 					if (!card.getCardName().trim().toLowerCase().contains("pbit")) {
 						allCardsStatusOk = false;
@@ -2353,7 +2355,7 @@ public class LRUTestingController {
 				return;
 			}
 
-			System.out.println("SRU CHECK ID CHECK RUN ALL ::" +LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
+//			System.out.println("SRU CHECK ID CHECK RUN ALL ::" +LRUTestStateObject.getSelectedSubStagesList().get(0).getCardId());
 			if (StateMachine.isSruTestOk()) {
 				
 				//09-07-2025
@@ -2999,7 +3001,7 @@ public class LRUTestingController {
 			newButton.setMaxWidth(Double.MAX_VALUE);
 			newButton.setAlignment(Pos.CENTER);
 			newButton.setWrapText(true);
-			newButton.setDisable(true);
+//			newButton.setDisable(true);
 			newButton.setOnAction(e -> {
 
 				if (StateMachine.isConfirmTestFileCompleted()) {
@@ -3131,7 +3133,7 @@ public class LRUTestingController {
 //						LRUTestStateObject.getRunnedLRUTestFileCount().set(0);
 
 						if (newButton.getText().toLowerCase().contains("complete")) {
-							System.out.println("COMPLETE TEST ID ::" +newButton.getId());
+//							System.out.println("COMPLETE TEST ID ::" +newButton.getId());
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -3270,7 +3272,7 @@ public class LRUTestingController {
 							stageIdForView = newButton.getId();
 							callstartButton(newButton.getId(), "GO NOGO", newButton.getUserData().toString());
 						} else if (newButton.getText().toLowerCase().contains("ofp")) {
-							System.out.println("OFP TEST ID ::" +newButton.getId());
+//							System.out.println("OFP TEST ID ::" +newButton.getId());
 							try {
 								FXMLLoader loader = new FXMLLoader(getClass().getResource(
 										DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/OfpLoadinPopup.fxml"));
@@ -3291,7 +3293,7 @@ public class LRUTestingController {
 								stopButton.setDisable(false);
 
 								ofpConfigId = controller1.getRUN_CONFIG_ID();
-								System.out.println("controller Rung Config Id Check" + ofpConfigId);
+//								System.out.println("controller Rung Config Id Check" + ofpConfigId);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -3488,7 +3490,9 @@ public class LRUTestingController {
 //							});
 
 						} else if (newButton.getText().toLowerCase().contains("pi")) {
-							System.out.println("PI TEST ID ::" +newButton.getId());
+							goLabel.setStyle("-fx-background-color:;-fx-text-fill:white;");
+							noGoLabel.setStyle("-fx-background-color:;-fx-text-fill:white;");
+//							System.out.println("PI TEST ID ::" +newButton.getId());
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -3721,7 +3725,7 @@ public class LRUTestingController {
 						}
 					}
 				}
-
+				
 				if (allCardsStatusOk) {
 					goLabel.setStyle("-fx-background-color:green;-fx-text-fill:white;");
 

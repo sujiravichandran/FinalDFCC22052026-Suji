@@ -374,11 +374,11 @@ public class AitessProcessControlManagement {
 								WriteAitess1Command("gse_conn=1" + "\n");
 								if (StateMachine.isSelfTestOn()) {
 									WriteAitess1Command("psc_fcc_pwr_on=0" + "\n");
-									System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
+//									System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
 									StateMachine.setSelfTestOn(false);
-									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+//									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
 								} 	else {
-									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+//									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
 									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
 								}
 								WriteAitess1Command("ltm_syntax on" + "\n");
@@ -1470,7 +1470,7 @@ public class AitessProcessControlManagement {
 					//initdfcc
 					initdfcc.set(true);
 					currentCommand.set("");
-					System.out.println("Init Start");
+//					System.out.println("Init Start");
 
 					launcherFuture2
 					.thenRun(() ->aitess2ProcessControl.WritingProcess("macname=initdfcc" + "\n"));
@@ -1478,11 +1478,11 @@ public class AitessProcessControlManagement {
 //					Thread.sleep(300);
 //					Suji changed to 0.3 msec to 1 sec based on sridhar's input
 					Thread.sleep(1000);
-					System.out.println("Init End");
+//					System.out.println("Init End");
 
 					
 					if ("UUT1".equals(currentSessionDetails.getUutId())) {
-						System.out.println("Inside MK1A IF");
+//						System.out.println("Inside MK1A IF");
 						// MK1
 						// SC
 						Mk1SCtemperatureMonitoring.set(true);
@@ -1943,29 +1943,29 @@ public class AitessProcessControlManagement {
 		//Anuj1808
 		if(!smRunConfigId.equals(currentRunConfigId) && StateMachine.getTestState() != TestState.STOPPED) {
 			
-			System.out.println("18082025------------ UNLOADING");
+//			System.out.println("18082025------------ UNLOADING");
 			//unload driver
 			pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
 					LoadDriverProcessControlManagement.LoadMode.UNLOADMODE);			
-			System.out.println("18082025------------ UNLOADING FINISHED");
+//			System.out.println("18082025------------ UNLOADING FINISHED");
 
 			//removing config cache
 			if (aitessRunning.isAitess1Exited() == true && aitessRunning.isAitess2Exited() == true) {
 				AitessConfigurationDetails currentAitess1 = runConfigurationService
 						.getAitessDetailsByRunConfigId(currentRunConfigId);
-				System.out.println("18082025------------ INSIDE IF");
+//				System.out.println("18082025------------ INSIDE IF");
 
 				configureAitess(currentAitess1.getConfigFile());
-				System.out.println("18082025------------ AITESS 1 files");
+//				System.out.println("18082025------------ AITESS 1 files");
 
 				configureAitess1(currentAitess1.getAitess2ConfigFile());
-				System.out.println("18082025------------ AITESS 2 files");
+//				System.out.println("18082025------------ AITESS 2 files");
 
 			}
 
 			//load aitess
 			switchAitess(testTypeId);
-			System.out.println("18082025------------ AITESS BOTH SW");
+//			System.out.println("18082025------------ AITESS BOTH SW");
 
 		}
 

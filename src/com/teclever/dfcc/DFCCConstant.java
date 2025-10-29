@@ -13,7 +13,7 @@ import com.teclever.dfcc.datastore.dto.StageFilesStateDTO;
 public class DFCCConstant {
     private static Map uutIdNameMap;
     private static Map uutNameIdMap;
-    public static boolean isJarBuild = true;
+    public static boolean isJarBuild = false;
     public static String JARSTRING = "";
     public static String testTypeId = "";
 
