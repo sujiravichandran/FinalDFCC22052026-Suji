@@ -611,22 +611,26 @@ public class SessionCreationController {
 		if (SESSION_TYPE_ID.equals("ST4")) {
 			
 			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
+//			System.out.println("Chck trailsActiveStatus " + trailsActiveStatus);
 			SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(ROLE_ID);
 			String uut = uutTypeField.getValue();
 			if (response.getResponse().getResponseCode() == 1) {
 				for (SessionList sessionDto : response.getListOfSession()) {
-					System.out.println("UUT " + uut);
-					System.out.println("sessionName uP" + sessionDto.getSessionName());
+//					System.out.println("UUT " + uut);
+//					System.out.println("sessionName uP" + sessionDto.getSessionName());
 					sessionName.add(sessionDto.getSessionName());
 					if(sessionDto.getSessionId().startsWith("TSSN")) {
 						activeTrailIdHolder[0] = sessionDto.getSessionId();
 					}	
 				}
 			}
-			System.out.println("UUT " + uut);
-			System.out.println("sessionName" + sessionName.contains(uut));
-			if (trailsActiveStatus && sessionName.contains(uut)) {
-				System.out.println("Check entred");
+//			System.out.println("UUT Trails check " + uut);
+//			System.out.println("sessionNamePPPP" + sessionName.contains(uut));
+			boolean matchFound = sessionName.stream()
+				    .anyMatch(s -> s.toLowerCase().contains(uut.toLowerCase()));
+			
+			if (trailsActiveStatus && matchFound) {
+//				System.out.println("Check entred");
 				String title = "Confirmation Dialog";
 				String contentText = "The existing trail session is still active, so a new trail session cannot be created. Do you want do end trail session?";
 				Notifications.showConfirmationDialog(title, contentText, () -> endTrailSesion(activeTrailIdHolder[0]));
