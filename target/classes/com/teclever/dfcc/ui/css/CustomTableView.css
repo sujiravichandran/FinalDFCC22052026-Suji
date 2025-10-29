@@ -1,50 +1,54 @@
 @import url("Global.css");
 
 .table-view {
-    -fx-background-radius: 10.0px;
-    -fx-background-color: dark-bg; 
-    -fx-border-width: 2px;
+    -fx-background-radius: 0px;
+    /*-fx-background-color: dark-bg;*/ 
+    -fx-border-width: 0px 0px 0px 0px;
 }
 
 .table-view .column-header {
-    -fx-font-size: 17.0px;
+    -fx-font-size: 15.0px;
     -fx-pref-height: 40.0px;
     -fx-alignment: CENTER;
-    -fx-background-color: button-bg; /* Bright complementary color for the header */
-    -fx-border-color: button-bg;
-    -fx-border-width: 0 0 2px 0;
-    -fx-background-radius: 5.0px;
+    -fx-border-color:#FFFFFF;
+    -fx-border-width: 0 1px 0 0;
+    -fx-background-color: table-header-bg; /* Bright complementary color for the header */
+    /*-fx-border-color: button-bg;*/
+    -fx-background-radius: 0px;
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: primary-text-color; /* White text color for header labels */
+    -fx-text-fill: secondary-text-color; 
 }
 
 .table-row-cell .table-cell {
-    -fx-border-color: secondary-color-2; /* Add a border color to each cell */
-    -fx-border-width: 1px 1px 1px 1px; /* Border for all sides */
+    -fx-border-color: secondary-color-2; 
+     -fx-border-width: 1px 1px 1px 1px; 
     -fx-border-style: solid;
-    -fx-border-radius: 5px; /* Optional: Rounded borders for each cell */
+    /*-fx-border-radius: 5px;  */
     -fx-font-size: 16.0px;
-    -fx-font-weight: bold;
-    -fx-text-fill: primary-text-color; /* Darker text for readability */
+   /* -fx-font-weight: bold;*/
+     /* Darker text for readability */
     -fx-alignment: CENTER;
-    -fx-background-color: secondary-color; /* Background color for the cells */
+    /*-fx-background-color: secondary-color;  */
 }
 
 .table-row-cell:empty {
-    -fx-background-color: light-bg; /* Light background for empty rows */
+    -fx-background-color: light-bg;
+     /* Light background for empty rows */
+     -fx-border-width: 0 0 0 0px ;
 }
 
 .table-row-cell {
-    -fx-border-color: secondary-color-2; /* Bright border color */
-    -fx-border-width: 0 0 0 2px ;
+    -fx-border-color:border2-color; 
+    -fx-border-width: 0px 0px 1px 0px;
     -fx-border-style: solid;
-    -fx-border-radius: 10.0px;
-    -fx-background-color: secondary-color; /* Use a secondary color for rows */
-    -fx-background-radius: 10.0px;
+    /*-fx-border-radius: 10.0px;*/
+    -fx-background-color:table-row-bg; 
+   /*  -fx-background-radius: 10.0px; */
     -fx-pref-height: 60px;
     -fx-alignment: CENTER;
+    
 }
 
 .table-row-cell:selected {
@@ -58,7 +62,7 @@
 }
 
 .button-cell .button {
-    -fx-background-color: button-bg; /* Dark background for buttons */
+    -fx-background-color: black; /* Dark background for buttons */
     -fx-text-fill: button-text; /* White text for buttons */
     -fx-padding: 5px 10px;
     -fx-border-radius: 5px;
