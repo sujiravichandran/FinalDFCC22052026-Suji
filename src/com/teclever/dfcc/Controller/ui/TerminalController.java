@@ -179,7 +179,7 @@ public class TerminalController {
 		enterButton.setOnAction(e -> {
 
 			String inputCommand = terminalTextField.getText() + "\n";
-			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
+			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
 //				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
@@ -195,9 +195,9 @@ public class TerminalController {
 //		    Edited By: SUJI
 //			Change Made for Point:22(Mail:7-Jul-Observations_in_testing_Teclever_Date_SAT))
 //			Change Made On:When 'Y' is pressed it is not immediately displayed in terminal window.
-			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
+			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
 //				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
-				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
+				Notifications.showWarningAlert("Test/Macro is running. Please try after once the test gets completed.");
 				return;
 			}
 			StateMachine.setResponceYesTerminal(true);
@@ -220,7 +220,7 @@ public class TerminalController {
 //		Point:22
 
 		noButton.setOnAction(e -> {
-			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)) {
+			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
 //				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;

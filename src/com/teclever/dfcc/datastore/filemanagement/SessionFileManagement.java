@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -48,13 +46,13 @@ import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.DFCCConstant.UutTypeConstants;
+import com.teclever.dfcc.Main;
 import com.teclever.dfcc.Controller.ui.RdfFileCopyPopupController;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.CopyingListDTO;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.SessionStagesFileCopyingDTO;
-import com.teclever.dfcc.datastore.dto.TestFileResponse;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.StageSummaryDetails;
@@ -62,6 +60,7 @@ import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.utils.Debug;
+import com.teclever.dfcc.utils.Notifications;
 
 public class SessionFileManagement {
 
@@ -76,8 +75,8 @@ public class SessionFileManagement {
 		currentOutputFolder = null;
 	}
 
-	// Create session folders
-	public void createSessionFolders(String uutType, String dfccSerialNumber, String sessionName,
+	// Create session folders With Part Number
+	public void createSessionFoldersOld(String uutType, String dfccSerialNumber, String sessionName,
 			List<List<String>> levelSets) {
 		try {
 			String currentDirectory = new File(
@@ -176,6 +175,91 @@ public class SessionFileManagement {
 			} else {
 				Debug.printDebug("Session folder already exists: " + sessionDirectory);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//New Method With Out Part Number Folder
+	public void createSessionFolders(String uutType, String dfccSerialNumber, String sessionName,
+			List<List<String>> levelSets) {
+
+		try {
+			String currentDirectory = new File(
+					SessionFileManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+					.getParent();
+
+			currentDirectory = currentDirectory + File.separator + ".output";
+
+			if (!Files.exists(Paths.get(currentDirectory))) {
+				Files.createDirectories(Paths.get(currentDirectory));
+			}
+
+			StateMachine.setHomelocation(Paths.get(currentDirectory));
+			Debug.printDebug(currentDirectory);
+
+// UUT Type directories
+			mark1Directory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK1);
+			mark1aDirectory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK1A);
+			mark2Directory = StateMachine.getHomelocation().resolve(UutTypeConstants.MARK2);
+
+// Create base UUT folders
+			if (Files.notExists(mark1Directory))
+				Files.createDirectories(mark1Directory);
+			if (Files.notExists(mark1aDirectory))
+				Files.createDirectories(mark1aDirectory);
+			if (Files.notExists(mark2Directory))
+				Files.createDirectories(mark2Directory);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+
+// --- REMOVE PART NO FOLDER HERE ---
+		Path uutDirectory;
+		switch (uutType) {
+		case UutTypeConstants.MARK1:
+			uutDirectory = mark1Directory;
+			break;
+		case UutTypeConstants.MARK1A:
+			uutDirectory = mark1aDirectory;
+			break;
+		case UutTypeConstants.MARK2:
+			uutDirectory = mark2Directory;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid uutType: " + uutType);
+		}
+
+		try {
+// session folder directly under UUT type (no part number folder)
+			sessionDirectory = uutDirectory.resolve(sessionName);
+
+			if (!Files.exists(sessionDirectory)) {
+				Files.createDirectories(sessionDirectory);
+
+// Create required subfolders
+				Files.createDirectories(sessionDirectory.resolve("upload"));
+				Files.createDirectories(sessionDirectory.resolve("datapack"));
+				Files.createDirectories(sessionDirectory.resolve("report"));
+//				Files.createDirectories(sessionDirectory.resolve("Advance Testing"));
+//
+//				Path advanceTestingDirectory = sessionDirectory.resolve("Advance Testing");
+//				Files.createDirectories(advanceTestingDirectory.resolve("HWATP HSI Testing"));
+//				Files.createDirectories(advanceTestingDirectory.resolve("Interface Testing"));
+//				Files.createDirectories(advanceTestingDirectory.resolve("Custom Testing 01"));
+//				Files.createDirectories(advanceTestingDirectory.resolve("Custom Testing 02"));
+
+// Create multiple level sets
+				for (List<String> levels : levelSets) {
+					createLevel(sessionDirectory, levels, 0);
+				}
+
+			} else {
+				Debug.printDebug("Session folder already exists: " + sessionDirectory);
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1257,6 +1341,57 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 						Path sourceFile = Path.of(dto.getRdfFileNamewithPath());
 						Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
 						Files.move(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+//						System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
+					}
+				} else {
+					System.out.println("Output folder does not exist for the current session.");
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void copyFilesToOutputFolderWhileDataBackUpButton(List<CopyFileDTO> lst) {
+		try {
+
+			List<String> lRUStages = new ArrayList<String>();
+
+			
+				for (CopyFileDTO copyFileDTO : lst) {
+					if (!lRUStages.contains(copyFileDTO.getStageId())) {
+						lRUStages.add(copyFileDTO.getStageId());
+					}
+				}
+
+			
+//			System.out.println("Lst Size on LRU Stages::"+lRUStages.size());
+			if (lRUStages.size() > 1) {
+				copyFilesToOutputFolderWhilePlayButtonOnSRU(lst, lRUStages);
+			} else {
+
+//				System.out.println("Single Stages Move Files...");
+
+				LocalDateTime currentDateTime = LocalDateTime.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
+				String dateFolder = currentDateTime.format(formatter);
+				String output = lst.get(0).getStagePath();
+				Path outputFolder = Path.of(output);
+				Path newFolderPath = outputFolder.resolve(dateFolder);
+
+				if (!Files.exists(newFolderPath)) {
+					Files.createDirectories(newFolderPath);
+//					System.out.println("Folder created at: " + newFolderPath.toString());
+
+				} else {
+					System.out.println("Folder Already Exits On : " + newFolderPath.toString());
+				}
+
+				if (newFolderPath != null && Files.exists(newFolderPath)) {
+					for (CopyFileDTO dto : lst) {
+						Path sourceFile = Path.of(dto.getRdfFileNamewithPath());
+						Path destinationFile = newFolderPath.resolve(sourceFile.getFileName());
+						Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
 //						System.out.println("Copied file " + sourceFile.getFileName() + " to " + destinationFile);
 					}
 				} else {
@@ -2434,6 +2569,68 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		return res;
 	}
 	
+	//Data BAckUp Calling To Session Checking....
+		public LogOutFileCopyResponse copyingFileWhileDataBackup(String sessionId) {
+			LogOutFileCopyResponse res = new LogOutFileCopyResponse();
+			try {
+
+				TestState currentState = StateMachine.getTestState();
+				if (currentState == TestState.PENDING) {
+					Debug.printDebug("Any Test Not Runned....System Log Out");
+					res.setCode(1);
+					res.seteMsg("Any Test Not Runned");
+					return res;
+
+				}
+
+				List<CopyFileDTO> logOutTpfFilesResult = new ArrayList<CopyFileDTO>();
+
+				boolean popupRDFFiles = false;
+				if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
+					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+
+						if (copyFileDTO.getStatus().equalsIgnoreCase("FAILURE")) {
+							popupRDFFiles = true;
+
+						}
+					}
+
+					if (popupRDFFiles) {
+//						System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
+						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
+							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
+						}
+						SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+						res.setCode(100);
+						res.setCopyFileDTOList(DFCCConstant.FailedStagesRdfPaths);
+						res.setMsg("User Action Needs");
+						res.setFlag(true);
+//						if(!StateMachine.isRdfCopy()) {
+//						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+//						}
+					} else {
+						SessionFileManagement session = new SessionFileManagement();
+//						System.out.println(
+//								"DFCCConstant.FailedStagesRdfPaths  Size" + DFCCConstant.FailedStagesRdfPaths.size());
+						session.copyFilesToOutputFolderWhileDataBackUpButton(DFCCConstant.FailedStagesRdfPaths);
+//						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
+						res.setCode(1);
+						res.setMsg("Internally All Are Copied");
+						return res;
+					}
+				}
+
+				//
+
+			} catch (Exception ex) {
+				res.setCode(0);
+				res.seteMsg("Error" + ex.getMessage());
+				res.setMsg("Some Issues");
+			}
+			return res;
+		}
+	
 	
 
 
@@ -2820,6 +3017,16 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 					}
 
 					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, stageStatus);
+					//For AutoMatic Ending Session 
+					SessionManagement sessionManagement = new SessionManagement();
+					boolean sessionCompletedFlg = sessionManagement.getstagesCompletedStatus(sessionId);
+					if (sessionCompletedFlg) {
+						System.out.println("All the Stages Are Executed Successfully");
+						sessionManagement.endSession("All the Stages Are Executed Successfully", sessionCompletedFlg);
+						//TO DO FE Operation Code Snippet
+						Notifications.showSuccessAlert("All the Stages Are Executed Successfully.Only result will be visible");
+					}
+					
 					
 					DFCCConstant.colourFlag = true;
 					StateMachine.setUpdateColor(true);
@@ -2858,6 +3065,17 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 //					System.out.println("TestFiles List:::"+DFCCConstant.stageCompletedFiles.get(stageId));
 					SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
 					sessionStagesStatusService.updateSessionStagesStatus(sessionId, stageId, "completed");
+					
+					//For AutoMatic Ending Session 
+					SessionManagement sessionManagement = new SessionManagement();
+					boolean sessionCompletedFlg = sessionManagement.getstagesCompletedStatus(sessionId);
+					if (sessionCompletedFlg) {
+						System.out.println("All the Stages Are Executed Successfully");
+						sessionManagement.endSession("All the Stages Are Executed Successfully", sessionCompletedFlg);
+						//TO DO FE Operation Code Snippet
+						Notifications.showSuccessAlert("All the Stages Are Executed Successfully.Only result will be visible");
+						
+					}
 					
 					StateMachine.setUpdateColor(true);
 //					System.out.println("TRUEEEEEEEEE");
@@ -3357,6 +3575,86 @@ public boolean getTestFilesRunnedSuccessOld(String sessionId, String stageId) {
 		}
 		return popupRDFFiles;
 	}
+	
+	public static void deleteAitessLogFile()
+	{
+		String currentDirectory = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+				.getParent();
+
+		System.out.println("CURRENT Directory ::" + currentDirectory);
+		String[] spilt = currentDirectory.split(File.pathSeparator);
+
+		String path1 = spilt[0] + File.pathSeparator + spilt[1] + File.pathSeparator + "aitess" + File.pathSeparator
+				+ "aitess.log";
+		String path2 = spilt[0] + File.pathSeparator + spilt[1] + File.pathSeparator + "aitess1" + File.pathSeparator
+				+ "aitess.log";
+
+		File file1 = new File(path1);
+		File file2 = new File(path2);
+
+		if (file1.exists()) {
+			file1.delete();
+		} else {
+			System.out.println("Aitess File is Not Found In  :" + path1);
+		}
+
+		if (file2.exists()) {
+			file2.delete();
+		} else {
+
+			System.out.println("Aitess File is Not Found In  :" + path2);
+		}
+
+	}
+	
+	public static void deleteAitesslogFiles() throws IOException
+	{
+
+		try {
+			String username = System.getProperty("user.name");
+			if (username == null || username.isEmpty() || "root".equals(username)) {
+				username = System.getenv("SUDO_USER");
+			}
+			if (username == null || username.isEmpty()) {
+				throw new IllegalStateException("Failed to retrieve the username.");
+			}
+
+			// Define the home location with the username
+			Path homeLocation = Paths.get("/home", username);
+			System.out.println("Home location: " + homeLocation);
+
+			// Create aitess and aitess1 folders
+			Path aitessDir = homeLocation.resolve("aitess");
+			Path aitess1Dir = homeLocation.resolve("aitess1");
+
+			// Set aitessConfigFile and aitess1ConfigFile globally
+			Path aitessLogFile = aitessDir.resolve("aitess.log");
+			Path aitess1LogFile = aitess1Dir.resolve("aitess.log");
+
+			System.out.println("Aitess Log File   :" + aitessLogFile);
+			System.out.println("Aitess Log 1 File   :" + aitess1LogFile);
+
+			File file1 = new File(aitessLogFile.toString());
+			File file2 = new File(aitess1LogFile.toString());
+
+			if (file1.exists()) {
+				file1.delete();
+			} else {
+				System.out.println("Main Aitess File is Not Found In  :" + aitessLogFile);
+			}
+
+			if (file2.exists()) {
+				file2.delete();
+			} else {
+
+				System.out.println("Parellel Aitess File is Not Found In  :" + aitess1LogFile);
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	
 }
 

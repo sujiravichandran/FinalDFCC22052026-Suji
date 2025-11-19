@@ -8,7 +8,6 @@
 
 .table-view .column-header {
     -fx-font-size: 15.0px;
-    -fx-pref-height: 40.0px;
     -fx-alignment: CENTER;
     -fx-border-color:#FFFFFF;
     -fx-border-width: 0 1px 0 0;

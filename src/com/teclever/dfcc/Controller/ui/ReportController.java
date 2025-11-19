@@ -209,6 +209,8 @@ public class ReportController {
 		uutTypeField.setItems(uutTypeList);
 
 		uutTypeField.setOnAction((event) -> {
+	
+		
 			UUT_ID = fetchUutId(uutTypeField.getValue());
 			if(UUT_ID != null) {	
 				reportTreeviewController.initializeReportTreeView(null);
@@ -229,7 +231,10 @@ public class ReportController {
 	}
 
 	private void initializeSessionNameComboBox(String uutId) {
-		sessionNameField.getItems().clear();
+		 sessionNameField.getItems().clear();
+		 sessionNameList.clear();
+		 sessionNameList1 = FXCollections.observableArrayList();
+		
 		SESSION_ID = null;
 		SessionListResponse response = sessionManagement.getSessionDataByUUTId(uutId);
 		if(response.getResponse().getResponseCode() == 1) {			
@@ -241,12 +246,18 @@ public class ReportController {
 			if(REPORT_TYPE.equals("PQT")) {
 				
 			sessionNameList1 = sessionNameList.stream().filter(s -> s.contains("PQT")).toList();
+			sessionNameField.setItems(FXCollections.observableArrayList(sessionNameList1));
 			}else if(REPORT_TYPE.equals("ESS")) {
 				sessionNameList1 = sessionNameList.stream().filter(s -> s.contains("FRU") || s.contains("Production")).toList();
+				sessionNameField.setItems(FXCollections.observableArrayList(sessionNameList1));
+			}else {
+				System.out.println("Entred Data Packj Eleevc"+sessionNameList.size());
+				sessionNameField.setItems(sessionNameList);
 			}
 //			End::
-			sessionNameField.setItems(FXCollections.observableArrayList(sessionNameList1));
+			
 			sessionNameField.setOnAction((event) -> {
+				
 				SESSION_ID = fetchSessionId(sessionNameField.getValue());
 				if(SESSION_ID != null){	
 					reportTreeviewController.initializeReportTreeView(SESSION_ID);
@@ -338,7 +349,9 @@ public class ReportController {
 	    					response = reportGenerationNew.generatePQTReport(SESSION_ID);
 	    				} else if (REPORT_TYPE.equals("ESS")) {
 	    					response = reportGenerationNew.generateEssReport(SESSION_ID);
-	    				} 
+	    				} else {
+	    					
+	    				}
 	                    return response;
 	                }
 	            };

@@ -624,10 +624,14 @@ public class SessionCreationController {
 					}	
 				}
 			}
-//			System.out.println("UUT Trails check " + uut);
-//			System.out.println("sessionNamePPPP" + sessionName.contains(uut));
+			
 			boolean matchFound = sessionName.stream()
-				    .anyMatch(s -> s.toLowerCase().contains(uut.toLowerCase()));
+				    .anyMatch(s -> 
+				        s.toLowerCase().contains(uut.toLowerCase()) &&
+				        s.toLowerCase().contains("_trail")
+				    );
+
+			System.out.println("matchFound" + matchFound);
 			
 			if (trailsActiveStatus && matchFound) {
 //				System.out.println("Check entred");
@@ -1592,4 +1596,6 @@ class CustomCheckBoxTreeItem<T> extends CheckBoxTreeItem<T> {
 		Collections.reverse(parentIds);
 		return parentIds;
 	}
+	
+	
 }

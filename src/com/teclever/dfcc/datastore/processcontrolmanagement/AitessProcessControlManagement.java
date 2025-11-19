@@ -643,14 +643,20 @@ public class AitessProcessControlManagement {
 						// Edited By: SUJI
 //						Change Made for Point:20,95(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //						Change Made on successful macro execution pop-up message
+						System.out.println("NOT Entred Parse Error" + output);
 						if (StateMachine.isMacroPassing()) {
-							if (output.contains(">>>")) {
-//								System.out.println("Macro Command Ended" + StateMachine.isMacroPassing());
+							 if (output.toLowerCase().contains("undefined macro")) {
+								System.out.println("Macro Command Ended Up" + output);
 								Platform.runLater(() -> {
 									StateMachine.setMacroPassing(false);
 								});
 								StateMachine.setMacroCommand(true);
-
+							}else if (output.contains(">>>")){
+								System.out.println("Macro Command Ended down" + output);
+								Platform.runLater(() -> {
+									StateMachine.setMacroPassing(false);
+								});
+								StateMachine.setMacroCommand(true);
 							}
 						}
 
@@ -1466,6 +1472,15 @@ public class AitessProcessControlManagement {
 					    OnlineStatus.getChannel2Status().equals("online") &&
 					    OnlineStatus.getChannel3Status().equals("online") &&
 					    OnlineStatus.getChannel4Status().equals("online")) {
+					
+					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
+					.setChannel1Status("online");
+					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
+					.setChannel2Status("online");
+					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
+					.setChannel3Status("online");
+					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
+					.setChannel4Status("online");
 					
 					//initdfcc
 					initdfcc.set(true);

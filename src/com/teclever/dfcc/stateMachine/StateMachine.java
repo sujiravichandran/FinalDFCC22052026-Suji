@@ -27,34 +27,32 @@ public class StateMachine {
 	}
 
 	public enum RunningTestName {
-		
+
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
-		
+
 	}
-	
+
 //	For displaying in Running Test Name in Status Bar
-	public enum StatusBarTestName{
-		OTHER, SELF_TEST, SESSION_TEST, ADVANCED_TEST_HWATP_TEST, ADVANCED_TEST_INTERFACE_TEST, ADVANCED_TEST_CUSTOM2_TEST,
-		ADVANCED_TEST_CUSTOM1_TEST, LRU_SRU_TEST_MANDATORY_TEST, LRU_SRU_TEST_SRU_TEST, LRU_SRU_TEST_GO_NOGO_TEST
+	public enum StatusBarTestName {
+		OTHER, SELF_TEST, SESSION_TEST, ADVANCED_TEST_HWATP_TEST, ADVANCED_TEST_INTERFACE_TEST,
+		ADVANCED_TEST_CUSTOM2_TEST, ADVANCED_TEST_CUSTOM1_TEST, LRU_SRU_TEST_MANDATORY_TEST, LRU_SRU_TEST_SRU_TEST,
+		LRU_SRU_TEST_GO_NOGO_TEST
 	}
-	
+
 	private static final StringProperty statusBarRunningTestName = new SimpleStringProperty();
 
 	public static String getStatusBarRunningTestName() {
-	    return statusBarRunningTestName.get();
+		return statusBarRunningTestName.get();
 	}
 
 	public static void setStatusBarRunningTestName(StatusBarTestName testName) {
-	    statusBarRunningTestName.set(testName.toString());
+		statusBarRunningTestName.set(testName.toString());
 	}
 
 	public static StringProperty statusBarRunningTestNameProperty() {
-	    return statusBarRunningTestName;
+		return statusBarRunningTestName;
 	}
 
-
-
-	
 	private static final ObjectProperty<TestState> testState = new SimpleObjectProperty<>(TestState.PENDING);
 	private static final StringProperty runningTestName = new SimpleStringProperty();
 
@@ -291,34 +289,35 @@ public class StateMachine {
 	}
 
 	// LAUNCH AITESS 1, 2
-	
+
 	private static final BooleanProperty aitess1Launched = new SimpleBooleanProperty(false);
-	
+
 	public static BooleanProperty aitess1LaunchedProperty() {
-	    return aitess1Launched;
+		return aitess1Launched;
 	}
 
 	public static boolean isAitess1Launched() {
-	    return aitess1Launched.get();
+		return aitess1Launched.get();
 	}
 
 	public static void setAitess1Launched(boolean value) {
-	    aitess1Launched.set(value);
+		aitess1Launched.set(value);
 	}
 
 	private static final BooleanProperty aitess2Launched = new SimpleBooleanProperty(false);
+
 	public static BooleanProperty aitess2LaunchedProperty() {
-	    return aitess2Launched;
+		return aitess2Launched;
 	}
 
 	public static boolean isAitess2Launched() {
-	    return aitess2Launched.get();
+		return aitess2Launched.get();
 	}
 
 	public static void setAitess2Launched(boolean value) {
-	    aitess2Launched.set(value);
+		aitess2Launched.set(value);
 	}
-	
+
 	// DISABLING TEXT AREA FLAG
 	private static boolean textArea = true;
 
@@ -334,9 +333,9 @@ public class StateMachine {
 	public static class dfccCheckStatus {
 
 		private static BooleanProperty dfccPowerStatus = new SimpleBooleanProperty(false);
-		
+
 		private static BooleanProperty dfccOnlineStatus = new SimpleBooleanProperty(false);
-		
+
 		private static String dfccPowerOnCommand;
 		private static String dfccPowerOffCommand;
 		private static String onlineStatusCommand;
@@ -350,8 +349,6 @@ public class StateMachine {
 		private static String wdmStatusCommand;
 
 		private static String dfccPowerOnStatus;
-		
-		
 
 		public static String getDfccPowerOnStatus() {
 			return dfccPowerOnStatus;
@@ -360,23 +357,23 @@ public class StateMachine {
 		public static void setDfccPowerOnStatus(String dfccPowerOnStatus) {
 			dfccCheckStatus.dfccPowerOnStatus = dfccPowerOnStatus;
 		}
-		
+
 //	Suji Added for Getting updated the toggle automaticaly after all channels gets online::(06-08-2025)
-		
+
 		public static BooleanProperty dfccOnlineStatusProperty() {
-		    return dfccOnlineStatus;
+			return dfccOnlineStatus;
 		}
 
 		public static BooleanProperty getDfccOnlineStatus() {
-		    return dfccOnlineStatus;
+			return dfccOnlineStatus;
 		}
 
 		public static void setDfccOnlineStatus(BooleanProperty dfccOnlineStatus) {
-		    dfccCheckStatus.dfccOnlineStatus = dfccOnlineStatus;
+			dfccCheckStatus.dfccOnlineStatus = dfccOnlineStatus;
 		}
-		
+
 //Exit::(06-08-2025)
-		
+
 		public static BooleanProperty dfccPowerStatusProperty() {
 			return dfccPowerStatus;
 		}
@@ -796,7 +793,7 @@ public class StateMachine {
 
 		public static void setChannel1Temperature(String channel1Temperature) {
 //			channelAECTemp.channel1Temperature.set(channel1Temperature);
-			Platform.runLater(() ->channelAECTemp.channel1Temperature.set(channel1Temperature));
+			Platform.runLater(() -> channelAECTemp.channel1Temperature.set(channel1Temperature));
 //			System.out.println("SUJI IN STATEMACHINE AEC 1:: "+channel1Temperature);
 		}
 
@@ -810,7 +807,7 @@ public class StateMachine {
 
 		public static void setChannel2Temperature(String channel2Temperature) {
 //			channelAECTemp.channel2Temperature.set(channel2Temperature);
-			Platform.runLater(() ->channelAECTemp.channel2Temperature.set(channel2Temperature));
+			Platform.runLater(() -> channelAECTemp.channel2Temperature.set(channel2Temperature));
 		}
 
 		public static StringProperty channel3TemperatureProperty() {
@@ -823,7 +820,7 @@ public class StateMachine {
 
 		public static void setChannel3Temperature(String channel3Temperature) {
 //			channelAECTemp.channel3Temperature.set(channel3Temperature);
-			Platform.runLater(() ->channelAECTemp.channel3Temperature.set(channel3Temperature));
+			Platform.runLater(() -> channelAECTemp.channel3Temperature.set(channel3Temperature));
 		}
 
 		public static StringProperty channel4TemperatureProperty() {
@@ -836,7 +833,7 @@ public class StateMachine {
 
 		public static void setChannel4Temperature(String channel4Temperature) {
 //			channelAECTemp.channel4Temperature.set(channel4Temperature);
-			Platform.runLater(() ->channelAECTemp.channel4Temperature.set(channel4Temperature));
+			Platform.runLater(() -> channelAECTemp.channel4Temperature.set(channel4Temperature));
 		}
 
 		// COLOR
@@ -851,7 +848,7 @@ public class StateMachine {
 
 		public static void setChannel1BackgroundColor(String color) {
 //			channelAECTemp.channel1BackgroundColor.set(color);
-			Platform.runLater(() ->channelAECTemp.channel1BackgroundColor.set(color));
+			Platform.runLater(() -> channelAECTemp.channel1BackgroundColor.set(color));
 		}
 
 		public static StringProperty channel2BackgroundColorProperty() {
@@ -860,7 +857,7 @@ public class StateMachine {
 
 		public static void setChannel2BackgroundColor(String color) {
 //			channelAECTemp.channel2BackgroundColor.set(color);
-			Platform.runLater(() ->channelAECTemp.channel2BackgroundColor.set(color));
+			Platform.runLater(() -> channelAECTemp.channel2BackgroundColor.set(color));
 		}
 
 		public static StringProperty channel3BackgroundColorProperty() {
@@ -868,7 +865,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel3BackgroundColor(String color) {
-			Platform.runLater(() ->channelAECTemp.channel3BackgroundColor.set(color));
+			Platform.runLater(() -> channelAECTemp.channel3BackgroundColor.set(color));
 //			channelAECTemp.channel3BackgroundColor.set(color);
 		}
 
@@ -877,7 +874,7 @@ public class StateMachine {
 		}
 
 		public static void setChannel4BackgroundColor(String color) {
-			Platform.runLater(() ->channelAECTemp.channel4BackgroundColor.set(color));
+			Platform.runLater(() -> channelAECTemp.channel4BackgroundColor.set(color));
 //			channelAECTemp.channel4BackgroundColor.set(color);
 		}
 
@@ -973,7 +970,7 @@ public class StateMachine {
 
 	public static void setLessBackgroundColor(String lessBackgroundColor) {
 //		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
-		Platform.runLater(() ->StateMachine.lessBackgroundColor.set(lessBackgroundColor));
+		Platform.runLater(() -> StateMachine.lessBackgroundColor.set(lessBackgroundColor));
 //		System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
 	}
 
@@ -983,7 +980,7 @@ public class StateMachine {
 
 	public static void setGreaterBackgroundColor(String greaterBackgroundColor) {
 //		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
-		Platform.runLater(() ->StateMachine.greaterBackgroundColor.set(greaterBackgroundColor));
+		Platform.runLater(() -> StateMachine.greaterBackgroundColor.set(greaterBackgroundColor));
 //		System.out.println("SUJI CHECK FOR MK1A COLOR GREATER ::" +StateMachine.greaterBackgroundColor.toString() );
 
 	}
@@ -994,9 +991,9 @@ public class StateMachine {
 
 	public static void setNormalBackgroundColor(String normalBackgroundColor) {
 //		StateMachine.normalBackgroundColor.set(normalBackgroundColor);
-		Platform.runLater(() ->StateMachine.normalBackgroundColor.set(normalBackgroundColor));
+		Platform.runLater(() -> StateMachine.normalBackgroundColor.set(normalBackgroundColor));
 //		System.out.println("SUJI CHECK FOR MK1A COLOR NORMAL ::" +StateMachine.normalBackgroundColor.toString() );
-		
+
 	}
 
 	// FOR RDF FILE PARSER
@@ -1320,52 +1317,50 @@ public class StateMachine {
 //	}
 //	for resetting the progressbar once the file has been move and cleared the result view table::
 	private static BooleanProperty resettingProgressBar = new SimpleBooleanProperty(false);
-	
+
 	public static BooleanProperty resettingProgressBarProperty() {
-	    return resettingProgressBar;
+		return resettingProgressBar;
 	}
 
 	public static void setResettingProgressBar(boolean value) {
-	    resettingProgressBar.set(value);
+		resettingProgressBar.set(value);
 	}
 
 	public static boolean isResettingProgressBar() {
-	    return resettingProgressBar.get();
+		return resettingProgressBar.get();
 	}
 
-	
 	private static BooleanProperty confirmTestFileCompleted = new SimpleBooleanProperty(false);
 
-	
 	public static BooleanProperty confirmTestFileCompletedProperty() {
-	    return confirmTestFileCompleted;
+		return confirmTestFileCompleted;
 	}
-
 
 	public static void setConfirmTestFileCompleted(boolean value) {
-	    confirmTestFileCompleted.set(value);
+		confirmTestFileCompleted.set(value);
 	}
-
 
 	public static boolean isConfirmTestFileCompleted() {
-	    return confirmTestFileCompleted.get();
+		return confirmTestFileCompleted.get();
 	}
-
-	
-	
 
 //	For Conform Test Stop
-	private static boolean confirmTestStop = false;
+	private static BooleanProperty confirmTestStop = new SimpleBooleanProperty(false);
+
+	public static BooleanProperty confirmTestStopProperty() {
+	    return confirmTestStop;
+	}
+
+	public static void setConfirmTestStop(boolean value) {
+	    confirmTestStop.set(value);
+	}
 
 	public static boolean isConfirmTestStop() {
-		return confirmTestStop;
+	    return confirmTestStop.get();
 	}
 
-	public static void setConfirmTestStop(boolean confirmTestStop) {
-		StateMachine.confirmTestStop = confirmTestStop;
-	}
 
-//	For Macro Button
+	// For Macro Button
 	private static String macroSet;
 
 	public static String getMacroSet() {
@@ -1423,7 +1418,6 @@ public class StateMachine {
 
 	private static boolean selfTestOn2 = false;
 
-	
 	public static boolean isSelfTestOn2() {
 		return selfTestOn2;
 	}
@@ -1433,9 +1427,6 @@ public class StateMachine {
 	}
 
 	private static boolean selfTestOnL1 = false;
-	
-	
-
 
 	public static boolean isSelfTestOnL1() {
 		return selfTestOnL1;
@@ -1445,10 +1436,7 @@ public class StateMachine {
 		StateMachine.selfTestOnL1 = selfTestOnL1;
 	}
 
-
 	private static boolean selfTestOnL2 = false;
-	
-	
 
 	public static boolean isSelfTestOnL2() {
 		return selfTestOnL2;
@@ -1457,9 +1445,6 @@ public class StateMachine {
 	public static void setSelfTestOnL2(boolean selfTestOnL2) {
 		StateMachine.selfTestOnL2 = selfTestOnL2;
 	}
-
-
-
 
 	// private static final BooleanProperty selfTestOn = new
 	// SimpleBooleanProperty(false);
@@ -1612,7 +1597,7 @@ public class StateMachine {
 	public static void setWdmStatusOfflineCheck(boolean value) {
 		wdmStatusOfflineCheck.set(value);
 	}
-	
+
 //	For WDM Ok Continue::
 	private static final BooleanProperty proceedTest = new SimpleBooleanProperty(false);
 
@@ -1628,11 +1613,8 @@ public class StateMachine {
 		proceedTest.set(value);
 	}
 
-	
-
-	
 //For Rdf copy falg::
-	
+
 	private static boolean rdfCopy = false;
 
 	public static boolean isRdfCopy() {
@@ -1642,72 +1624,70 @@ public class StateMachine {
 	public static void setRdfCopy(boolean rdfCopy) {
 		StateMachine.rdfCopy = rdfCopy;
 	}
-	
+
 //	For Disable Enable Flag:::
-	
+
 	private static final BooleanProperty dissableEnable = new SimpleBooleanProperty(false);
 
 	public static BooleanProperty dissableEnableProperty() {
-	    return dissableEnable;
+		return dissableEnable;
 	}
 
 	public static boolean isDissableEnable() {
-	    return dissableEnable.get();
+		return dissableEnable.get();
 	}
 
 	public static void setDissableEnable(boolean value) {
-	    dissableEnable.set(value);
+		dissableEnable.set(value);
 	}
 
-	
-	
 //	For Colour Updated Flag:::
-	
+
 	private static final BooleanProperty updateColor = new SimpleBooleanProperty(false);
 
 	public static BooleanProperty updateColorProperty() {
-	    return updateColor;
+		return updateColor;
 	}
 
 	public static boolean isUpdateColor() {
-	    return updateColor.get();
+		return updateColor.get();
 	}
 
 	public static void setUpdateColor(boolean value) {
-	    updateColor.set(value);
+		updateColor.set(value);
 	}
-	
+
 //	for Rdf Move Popup Close button while Logout::
-	
+
 	private static final BooleanProperty rdfMoveLogout = new SimpleBooleanProperty(false);
 
 	public static BooleanProperty rdfMoveLogoutProperty() {
-	    return rdfMoveLogout;
+		return rdfMoveLogout;
 	}
 
 	public static boolean isRdfMoveLogout() {
-	    return rdfMoveLogout.get();
+		return rdfMoveLogout.get();
 	}
 
 	public static void setRdfMoveLogout(boolean value) {
-	    rdfMoveLogout.set(value);
+		rdfMoveLogout.set(value);
 	}
-	
+
 //	for Terminal pressed "Y":
 	private static final BooleanProperty yesFromTerminal = new SimpleBooleanProperty(false);
 
 	public static BooleanProperty yesFromTerminalProperty() {
-	    return yesFromTerminal;
+		return yesFromTerminal;
 	}
 
 	public static boolean isYesFromTerminal() {
-	    return yesFromTerminal.get();
+		return yesFromTerminal.get();
 	}
 
 	public static void setYesFromTerminal(boolean value) {
-	    yesFromTerminal.set(value);
+		yesFromTerminal.set(value);
 	}
-	
+
 	private static boolean responceYesTerminal = false;
 
 	public static boolean isResponceYesTerminal() {
@@ -1720,7 +1700,7 @@ public class StateMachine {
 //
 
 //	For SRU Stop::
-	
+
 	private static boolean sruTestStop = false;
 
 	public static boolean isSruTestStop() {
@@ -1730,10 +1710,9 @@ public class StateMachine {
 	public static void setSruTestStop(boolean sruTestStop) {
 		StateMachine.sruTestStop = sruTestStop;
 	}
-	
-	
-	//ANUJ --- NEW CHANGES
-	//Previous Selected Stage
+
+	// ANUJ --- NEW CHANGES
+	// Previous Selected Stage
 	private static String previouslySelectedStageId;
 	private static String currentlySelectedStageId;
 
@@ -1755,16 +1734,16 @@ public class StateMachine {
 
 //	Changed by Vignesh 31-07-25 - showing last temp checked time
 	private static StringProperty tempLastCheckedTime = new SimpleStringProperty();
-	
-	
+
 	public static StringProperty tempLastCheckedTimeProperty() {
 		return tempLastCheckedTime;
 	}
 
 	public static void setTempLastCheckedTime(String tempLastCheckedTime) {
-		StateMachine.tempLastCheckedTime.set(tempLastCheckedTime);;
+		StateMachine.tempLastCheckedTime.set(tempLastCheckedTime);
+		;
 	}
-	
+
 	public static String getTempLastCheckedTime() {
 		return tempLastCheckedTime.get();
 	}
@@ -1773,46 +1752,45 @@ public class StateMachine {
 	private static final BooleanProperty cancelTest = new SimpleBooleanProperty(false);
 
 	public static BooleanProperty cancelTestProperty() {
-	    return cancelTest;
+		return cancelTest;
 	}
 
 	public static boolean isCancelTest() {
-	    return cancelTest.get();
+		return cancelTest.get();
 	}
 
 	public static void setCancelTest(boolean value) {
-	    cancelTest.set(value);
+		cancelTest.set(value);
 	}
+
 //	SUJI ADDED:::
 	private static final BooleanProperty yesEntred = new SimpleBooleanProperty(false);
-	
+
 	public static BooleanProperty yesEntredProperty() {
-	    return yesEntred;
+		return yesEntred;
 	}
-	
+
 	public static boolean isyesEntred() {
-	    return yesEntred.get();
+		return yesEntred.get();
 	}
-	
+
 	public static void setYesEntred(boolean value) {
 		yesEntred.set(value);
 	}
-	
 
 //SUJI ADDED FOR GETTING SRU STAGE
 	private static List<String> selectedStageIds = new ArrayList<>();
 
 	public static void setSelectedStageIds(List<String> stageIds) {
-	    selectedStageIds = stageIds;
+		selectedStageIds = stageIds;
 	}
 
 	public static List<String> getSelectedStageIds() {
-	    return selectedStageIds;
+		return selectedStageIds;
 	}
-	
 
 //	Suji For New OFP CHeck::
-	
+
 	private static String ofpValueCheck;
 
 	public static String getOfpValueCheck() {
@@ -1822,60 +1800,108 @@ public class StateMachine {
 	public static void setOfpValueCheck(String ofpValueCheck) {
 		StateMachine.ofpValueCheck = ofpValueCheck;
 	}
-	
+
 //	Suji Added Flag for OFP check List::
-	
-		private static List<String> ofpList;
 
-		public static List<String> getOfpList() {
-			return ofpList;
-		}
+	private static List<String> ofpList;
 
-		public static void setOfpList(List<String> ofpList) {
-			StateMachine.ofpList = ofpList;
-		}
-		
+	public static List<String> getOfpList() {
+		return ofpList;
+	}
+
+	public static void setOfpList(List<String> ofpList) {
+		StateMachine.ofpList = ofpList;
+	}
+
 //Suji Added for session selected stages:
-		private static String sessionPreviouslySelectedStageId;
-		private static String SessioncurrentlySelectedStageId;
+	private static String sessionPreviouslySelectedStageId;
+	private static String SessioncurrentlySelectedStageId;
 
-		public static String getSessionPreviouslySelectedStageId() {
-			return sessionPreviouslySelectedStageId;
-		}
+	public static String getSessionPreviouslySelectedStageId() {
+		return sessionPreviouslySelectedStageId;
+	}
 
-		public static void setSessionPreviouslySelectedStageId(String sessionPreviouslySelectedStageId) {
-			StateMachine.sessionPreviouslySelectedStageId = sessionPreviouslySelectedStageId;
-		}
+	public static void setSessionPreviouslySelectedStageId(String sessionPreviouslySelectedStageId) {
+		StateMachine.sessionPreviouslySelectedStageId = sessionPreviouslySelectedStageId;
+	}
 
-		public static String getSessioncurrentlySelectedStageId() {
-			return SessioncurrentlySelectedStageId;
-		}
+	public static String getSessioncurrentlySelectedStageId() {
+		return SessioncurrentlySelectedStageId;
+	}
 
-		public static void setSessioncurrentlySelectedStageId(String sessioncurrentlySelectedStageId) {
-			SessioncurrentlySelectedStageId = sessioncurrentlySelectedStageId;
-		}
+	public static void setSessioncurrentlySelectedStageId(String sessioncurrentlySelectedStageId) {
+		SessioncurrentlySelectedStageId = sessioncurrentlySelectedStageId;
+	}
 
 //Suji added to store Test tyep Id:
-		private static String testTypeId;
+	private static String testTypeId;
 
-		public static String getTestTypeId() {
-			return testTypeId;
-		}
+	public static String getTestTypeId() {
+		return testTypeId;
+	}
 
-		public static void setTestTypeId(String testTypeId) {
-			StateMachine.testTypeId = testTypeId;
-		}
-		
-		private boolean disableFalgRunnTest = false;
+	public static void setTestTypeId(String testTypeId) {
+		StateMachine.testTypeId = testTypeId;
+	}
 
-		public boolean isDisableFalgRunnTest() {
-			return disableFalgRunnTest;
-		}
+	private boolean disableFalgRunnTest = false;
 
-		public void setDisableFalgRunnTest(boolean disableFalgRunnTest) {
-			this.disableFalgRunnTest = disableFalgRunnTest;
-		}
-		
-	
+	public boolean isDisableFalgRunnTest() {
+		return disableFalgRunnTest;
+	}
+
+	public void setDisableFalgRunnTest(boolean disableFalgRunnTest) {
+		this.disableFalgRunnTest = disableFalgRunnTest;
+	}
+
+	private static Boolean cycleLruSpilCheckFlag = false;
+
+	public static Boolean getCycleLruSpilCheckFlag() {
+		return cycleLruSpilCheckFlag;
+	}
+
+	public static void setCycleLruSpilCheckFlag(Boolean cycleLruSpilCheckFlag) {
+		StateMachine.cycleLruSpilCheckFlag = cycleLruSpilCheckFlag;
+	}
+
+	private static Boolean cyclePbitLruCheckFlag = false;
+
+	public static Boolean getCyclePbitLruCheckFlag() {
+		return cyclePbitLruCheckFlag;
+	}
+
+	public static void setCyclePbitLruCheckFlag(Boolean cyclePbitLruCheckFlag) {
+		StateMachine.cyclePbitLruCheckFlag = cyclePbitLruCheckFlag;
+	}
+
+	private static Boolean cycleInterfaceLruCheckFlag = false;
+
+	public static Boolean getCycleInterfaceLruCheckFlag() {
+		return cycleInterfaceLruCheckFlag;
+	}
+
+	public static void setCycleInterfaceLruCheckFlag(Boolean cycleInterfaceLruCheckFlag) {
+		StateMachine.cycleInterfaceLruCheckFlag = cycleInterfaceLruCheckFlag;
+	}
+
+	private static Boolean cyclePowerSuplyLruCheckFlag = false;
+
+	public static Boolean getCyclePowerSuplyLruCheckFlag() {
+		return cyclePowerSuplyLruCheckFlag;
+	}
+
+	public static void setCyclePowerSuplyLruCheckFlag(Boolean cyclePowerSuplyLruCheckFlag) {
+		StateMachine.cyclePowerSuplyLruCheckFlag = cyclePowerSuplyLruCheckFlag;
+	}
+
+	private static Boolean cycleInitializeLruCheckFlag = false;
+
+	public static Boolean getCycleInitializeLruCheckFlag() {
+		return cycleInitializeLruCheckFlag;
+	}
+
+	public static void setCycleInitializeLruCheckFlag(Boolean cycleInitializeLruCheckFlag) {
+		StateMachine.cycleInitializeLruCheckFlag = cycleInitializeLruCheckFlag;
+	}
 
 }

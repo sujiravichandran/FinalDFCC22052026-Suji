@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import com.itextpdf.text.DocumentException;
 import com.teclever.datastore.configuration.DataStoreConfiguration;
-import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
@@ -24,6 +23,7 @@ import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -67,7 +67,12 @@ public class Main extends Application {
 
 		if (DFCCConstant.isJarBuild) {
 			DFCCConstant.JARSTRING = "/src";
+			SessionFileManagement.deleteAitesslogFiles();
 		}
+
+		
+
+		
 		
 
 		
@@ -228,6 +233,8 @@ public class Main extends Application {
 	            .getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
 	    // ==== NEW: Handle close button action ====
 	    primaryStage.setOnCloseRequest(event -> {
+	    	//chnage06112025
+	    	 event.consume();
 //	        System.out.println("User attempted to close the application.");
 	        Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
 	        alert1.setTitle("Exit Confirmation");
@@ -235,8 +242,7 @@ public class Main extends Application {
 	        alert1.setContentText("Unsaved changes will be lost.");
 	        ButtonType result = alert1.showAndWait().orElse(ButtonType.CANCEL);
 	        if (result != ButtonType.OK) {
-	            // User clicked Cancel - prevent window from closing
-	            event.consume();
+	           return;
 	        } else {
 	        	
 	        	if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.STOPPED

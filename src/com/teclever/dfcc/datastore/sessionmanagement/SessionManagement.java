@@ -29,6 +29,7 @@ import com.teclever.datastore.entities.LevelThreeStageMaster;
 import com.teclever.datastore.entities.LevelTwoStageMaster;
 import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.entities.SessionStagesMapping;
+import com.teclever.datastore.entities.SessionStagesSelectedTestFiles;
 import com.teclever.datastore.entities.SessionStagesStatus;
 import com.teclever.datastore.entities.SessionStagesTestFilesResult;
 import com.teclever.datastore.entities.SessionTiming;
@@ -46,6 +47,7 @@ import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.SessionSelectedStagesService;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.SessionStagesSelectedTestFilesService;
 import com.teclever.datastore.service.SessionStagesStatusService;
 import com.teclever.datastore.service.SessionStagesTestFilesResultService;
 import com.teclever.datastore.service.SessionTimingService;
@@ -114,6 +116,109 @@ public class SessionManagement {
 
 		return response;
 	}
+	
+	
+	public List<String> getTestFilesForCompleteTest(List<String>testFilesIds)
+	{
+		List<String> testFiles = new ArrayList<String>();
+		try {
+			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
+
+			String sessionId = StateMachine.currentSessionDetails.getSessionId();
+			SessionService sessionService = new SessionService();
+			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+			SessionManagement sessionManagement = new SessionManagement();
+			String sessionName = "";
+			GetObjResponse sessionRes = new GetObjResponse();
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionName = sessionEntity.getSessionName();
+
+			} else {
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionName = trailSessionEntity.getTrailSessionName();
+
+			}
+
+			Map<String, String> stageIdName = resultExecutionManagement.getStageIdName();
+			// TestFiles Fetching
+			Map<String, String> testFileIdName = resultExecutionManagement.getTestFileIdName();
+			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
+			Map<String, String> tfIdSfsId = new HashMap<String, String>();
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse resTestFiles = sessionStagesTestFilesResultService.getTestResultFileByStageId(sessionId);
+			List<SessionStagesTestFilesResult> lst = new ArrayList<SessionStagesTestFilesResult>();
+			lst = (List<SessionStagesTestFilesResult>) resTestFiles.getResponseList();
+
+			SessionStagesTestFilesResult s = lst.get(lst.size() - 1);
+			String lastStageId = s.getStageId();
+
+			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
+			GetObjResponse getObjRes = sessionSelectedStagesService.getSessionStagesMapp(sessionId, lastStageId);
+			SessionStagesMapping sessionStagesMapping = new SessionStagesMapping();
+			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
+			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
+
+			// For Last Set Runned By Stage
+
+			if (sessionStagesMappingId != null) {
+				SessionStagesSelectedTestFilesService sessionStagesSelectedTestFilesService = new SessionStagesSelectedTestFilesService();
+				GetResponse getResponse = sessionStagesSelectedTestFilesService
+						.getSelectedTestFilesBySessionstageMapsId(sessionStagesMappingId);
+				List<SessionStagesSelectedTestFiles> selectedTestFileInStages = new ArrayList<SessionStagesSelectedTestFiles>();
+				selectedTestFileInStages = (List<SessionStagesSelectedTestFiles>) getResponse.getResponseList();
+				if (selectedTestFileInStages != null) {
+					for (SessionStagesSelectedTestFiles selectedTestFile : selectedTestFileInStages) {
+						selectedTestFileIdTestFileId.put(selectedTestFile.getSessionStagesSelectedTestFilesId(),
+								selectedTestFile.getTestFilesId());
+						tfIdSfsId.put(selectedTestFile.getTestFilesId(),
+								selectedTestFile.getSessionStagesSelectedTestFilesId());
+					}
+				}
+			}
+
+			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
+					.collect(Collectors.toList());
+			// System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
+			List<String> ids = selectedTestFileIdTestFileId.keySet().stream().collect(Collectors.toList());
+
+			lst = lst.stream().filter(f -> ids.stream().anyMatch(id -> f.getSelectedtestFileId().equalsIgnoreCase(id)))
+					.collect(Collectors.toList());
+
+			Map<String, String> testFileResultIdselectedTestFileId = new HashMap<String, String>();
+			Map<String, String> selTestFileIdResult = new HashMap<String, String>();
+
+			for (SessionStagesTestFilesResult sessionStagesTestFilesResult : lst) {
+				selTestFileIdResult.put(sessionStagesTestFilesResult.getSessionStagesTestFilesResultId(),
+						sessionStagesTestFilesResult.getTestStatus());
+				testFileResultIdselectedTestFileId.put(sessionStagesTestFilesResult.getSessionStagesTestFilesResultId(),
+						sessionStagesTestFilesResult.getSelectedtestFileId());
+			}
+
+			for (String test : testFilesIds) {
+				String selectedFileId = tfIdSfsId.get(test);
+				List<SessionStagesTestFilesResult> selLst = lst.stream()
+						.filter(e -> e.getSelectedtestFileId().equals(selectedFileId)).collect(Collectors.toList());
+				for (SessionStagesTestFilesResult sessionStagesTestFilesResult : selLst) {
+					if (sessionStagesTestFilesResult.getTestStatus().equals("FAILURE")) {
+						testFiles.add(test);
+						break;
+					}
+				}
+
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println(ex.getLocalizedMessage());
+		}
+		return testFiles;
+	}
 
 	// SESSION ENTITY : SAVE SESSION
 	public Response saveSession(SessionDTO sessionDTO) {
@@ -138,9 +243,17 @@ public class SessionManagement {
 			sessionDto.setStartRemarks(sessionDTO.getStartRemarks());
 			sessionDto.setEndRemarks(sessionDTO.getEndRemarks());
 			sessionDto.setOfpConfigId(sessionDTO.getOfpConfigId());
+			
+//			sessionPath = sessionPath + File.separator + "." + "output" + File.separator
+//					+ uutIdName.get(sessionDTO.getUutId()) + File.separator + sessionDTO.getDfccPartNo()
+//					+ File.separator + sessionDTO.getSessionName();
+			
+			//Latest Session Path As Per Sridhar Comment
 			sessionPath = sessionPath + File.separator + "." + "output" + File.separator
-					+ uutIdName.get(sessionDTO.getUutId()) + File.separator + sessionDTO.getDfccPartNo()
+					+ uutIdName.get(sessionDTO.getUutId()) 
 					+ File.separator + sessionDTO.getSessionName();
+			
+			
 			sessionDto.setPath(sessionPath);
 			// SESSION ENTITY : ADD
 			GetObjResponse resObj = sessionService.addSession(sessionDto);
@@ -1394,7 +1507,6 @@ public class SessionManagement {
 			//
 			SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 			sessionSelectedStagesService.deleteSessionStagesMappingBySessionId(trailSessionId);
-			
 			// SESSION STAGE MAPPING : ADD
 			Response stagesRes = new Response();
 			stagesRes = sessionSelectedStagesService.addStagesToSession(sessionToStagesMappingList);
@@ -1418,6 +1530,9 @@ public class SessionManagement {
 		}
 		return res;
 	}
+	
+	
+	
 
 	// Trails Method Before Finalize
 	public Map<String, String> validateIsAllLeafHavingTestFiles(List<String> leafIds) {
@@ -3631,4 +3746,83 @@ public class SessionManagement {
 
 		return stageIdNextLevel;
 	}
+	
+
+	//Get Status For END Session ::
+		public boolean getstagesCompletedStatus(String sessionId)
+		{
+			boolean compFlag = false;
+			try {
+				List<SessionToStagesMappingDTO> sessionStages = new ArrayList<SessionToStagesMappingDTO>();
+				
+				
+//				SessionEntity sessionDTO = new SessionEntity();
+//				SessionService sessionService = new SessionService();
+//				GetObjResponse getObjRes = new GetObjResponse();
+//				getObjRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+//				sessionDTO = (SessionEntity) getObjRes.getObject();
+//				sessionStages = getDefaultStatusLevelData(sessionDTO.getUutId());
+				
+				System.out.println("Session UUT Type Id"+StateMachine.currentSessionDetails.getUutId());
+				
+				sessionStages = getDefaultStatusLevelData(StateMachine.currentSessionDetails.getUutId());
+				List<String> defaultStagesIds = new ArrayList<String>();
+
+				// Session Stages..
+				for (SessionToStagesMappingDTO sessionToStagesMappingDTO1 : sessionStages) {
+					String stageId = "";
+					if (sessionToStagesMappingDTO1.getLevelTwoStageId() != null
+							&& !sessionToStagesMappingDTO1.getLevelTwoStageId().equals("")) {
+						stageId = sessionToStagesMappingDTO1.getLevelTwoStageId();
+
+					}
+
+					if (sessionToStagesMappingDTO1.getLevelThreeStageId() != null
+							&& !sessionToStagesMappingDTO1.getLevelThreeStageId().equals("")) {
+						stageId = sessionToStagesMappingDTO1.getLevelThreeStageId();
+
+					}
+					if (sessionToStagesMappingDTO1.getLevelFourStageId() != null
+							&& !sessionToStagesMappingDTO1.getLevelFourStageId().equals("")) {
+						stageId = sessionToStagesMappingDTO1.getLevelFourStageId();
+					}
+					if (sessionToStagesMappingDTO1.getLevelFiveStageId() != null
+							&& !sessionToStagesMappingDTO1.getLevelFiveStageId().equals("")) {
+						stageId = sessionToStagesMappingDTO1.getLevelFiveStageId();
+					}
+
+					defaultStagesIds.add(stageId);
+
+				}
+				SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
+				List<SessionStagesStatus> sessionStagesStatusList = new ArrayList<SessionStagesStatus>();
+				SessionStagesListResponse sessionStagesListResponse = new SessionStagesListResponse();
+				sessionStagesListResponse = sessionStagesStatusService.getSessionStagesStatus(sessionId);
+				sessionStagesStatusList = sessionStagesListResponse.getSessionStagesList();
+				
+				System.out.println("All Stages In Session  :"+sessionStagesStatusList.size());
+				
+				// Filter For Session Stages
+				List<SessionStagesStatus> filteredList = sessionStagesStatusList.stream()
+						.filter(ses -> !defaultStagesIds.contains(ses.getStageId())).collect(Collectors.toList());
+				
+				System.out.println("Session Stages In Session  :"+filteredList.size());
+				
+				filteredList = filteredList.stream().filter(ses -> ses.getStageStatus().equals("pending"))
+						.collect(Collectors.toList());
+				
+				System.out.println("Pending Session Stages In Session  :"+filteredList.size());
+
+				if (filteredList.size() == 0) {
+					
+					compFlag = true;
+				}
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
+			System.out.println("Session AutoMatic Ending Flag :::"+compFlag);
+			return compFlag;
+		}
 }

@@ -1,6 +1,7 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.io.File;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -705,6 +706,10 @@ public class AdvancedTestingHWATPTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
 
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -950,6 +955,10 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
+			if(StateMachine.isMacroPassing()) {
 				return;
 			}
 

@@ -723,6 +723,10 @@ public class AdvancedTestingCustomTesting1 {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
+		
+		if(StateMachine.isMacroPassing()) {
+			return false;
+		}
 
 		TestState currentState = StateMachine.getTestState();
 
