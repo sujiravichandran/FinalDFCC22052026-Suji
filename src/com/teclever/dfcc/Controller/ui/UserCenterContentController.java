@@ -191,6 +191,18 @@ public class UserCenterContentController {
 			
 			break;
 			
+		case "OFP-Loading":
+			if (!centerStackPane.getChildren().contains(advancedTestingStackPane)) {
+				AdvancedTestingController advancedTestingController = new AdvancedTestingController();
+				advancedTestingStackPane.getChildren().add(advancedTestingController.createAdvancedTestingGridPane());
+				centerStackPane.getChildren().add(advancedTestingStackPane);
+			} else {
+				advancedTestingStackPane.toFront();
+			}
+			
+			break;
+			
+			
 		case "Trials Config" :
 			if (!centerStackPane.getChildren().contains(trialsConfigStackPane)) {
 				TrialsConfigurationController trialsConfigurationController = new TrialsConfigurationController();

@@ -1,8 +1,18 @@
 @import url("Global.css");
 
 .dashboard-main-container{
-	-fx-background-color: secondary-color;
+	-fx-background-color:  primary-color;
 	-fx-background-radius: 5px;	
+}
+
+.data-analysis-mid-container{
+	-fx-background-color:  light-bg;
+	-fx-background-radius: 5px;	
+}
+
+.data-analysis-second-container{
+	-fx-background-color:  light-bg;
+	-fx-background-radius: 0 0 5 5;
 }
 
 .lruTest-top-container{
@@ -74,15 +84,33 @@
     -fx-border-color: button-bg; 
 }
 
+.combo-box {
+    -fx-font-size: 16.0px;
+    -fx-background-color: form-label; 
+    -fx-border-width: 1.0px; 
+    -fx-border-radius: 10.0px; 
+     -fx-border-color: #000000; 
+    -fx-background-radius: 10.0px;
+}
+
 .dataanalysis-testing-right-container{
 	-fx-text-fill:heading-text-color;
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
-	-fx-background-color: advanced-test-bg;
+	-fx-background-color: light-bg;
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 
 }
+
+.dataanalysis-testing-second-container{
+	-fx-text-fill:heading-text-color;
+	-fx-font-size: 30.0px;
+	-fx-font-weight: bold;
+	-fx-background-color: light-bg;
+	-fx-background-radius: 10 10 0 0;
+}
+
 .dataanalysis-testing-container{
 	-fx-text-fill:heading-text-color;
 	-fx-font-size: 30.0px;
@@ -90,5 +118,55 @@
 	-fx-background-radius: 10px;
 	-fx-border-radius: 10px;
 
+}
+
+.menu-container{
+	-fx-font-size: 19px;
+	-fx-font-weight: bold;
+	-fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-background-color: secondary-color;
+}
+.menu-container .menu-item{
+	-fx-padding: 3px 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: secondary-text-color;
+}
+.menu-container .menu-image{
+	 -fx-effect: innershadow(gaussian, black, 10, 1.0, 0, 0);
+}
+.menu-container .sub-menu-item {
+    -fx-padding: 5px 25px;
+    -fx-text-fill: secondary-text-color;
+}
+.menu-container .tree-cell {
+    -fx-background-radius: 10px;
+    -fx-background-color: secondary-color;
+}
+.menu-container .tree-cell:hover {
+    -fx-background-color: selected-menu-bg; 
+    -fx-text-fill: secondary-text-color;
+}
+.menu-container .tree-cell:hover .menu-item{
+    -fx-text-fill: hover-menu-text;
+}
+.menu-container .tree-cell:hover .menu-image{
+	 -fx-effect: innershadow(gaussian, black, 10, 1.0, 0, 0);
+}
+.menu-container .tree-cell:selected{
+     -fx-background-color: selected-menu-bg; 
+     -fx-text-fill: light-bg;
+}
+.menu-container .tree-cell:selected .menu-item{
+      
+}
+.menu-container .tree-cell:selected .menu-image{
+      -fx-effect: innershadow(gaussian, black, 10, 1.0, 0, 0);
+}
+.menu-container .tree-cell:hover .sub-menu-item{
+      -fx-text-fill: light-bg;
+}
+.menu-container .tree-cell:selected .sub-menu-item{
+      -fx-text-fill: light-bg;
 }
 

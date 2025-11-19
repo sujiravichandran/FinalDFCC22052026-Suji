@@ -68,6 +68,8 @@ import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
 import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
+
 public class TestProcessManagement {
 
 	ObjectId mongoUniqueIdentifier; // Mongo DB Save ID
@@ -410,8 +412,11 @@ public class TestProcessManagement {
 
 				case SPIL_LINK:
 					Debug.printDebug("----- SPIL_LINK ----");
+					Platform.runLater(() -> {
 					LRUTestStateObject.getSpilLinkStatus().set(false);
 					StateMachine.setConfirmTestFileCompleted(false);
+					System.out.println("Check flag status" + 	LRUTestStateObject.getSpilLinkStatus());
+					});
 					break;
 				case POWER_SUPPLY:
 					Debug.printDebug("----- POWER_SUPPLY ----");
@@ -788,7 +793,7 @@ public class TestProcessManagement {
 		try {
 			String filePath = rdfFileLocaltion + rdfFileName;
 			String rdfFileStatus;
-
+			DFCCConstant.stageIdForRdf = stageId;
 			if (rdfFileName != null && (!rdfFileName.equals("USER EXIT")) && (!rdfFileName.equals("RUN TIME ERROR"))
 					&& (!rdfFileName.equals("FILE NOT FOUND ERROR"))) {
 

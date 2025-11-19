@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.model.Upload;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -304,7 +307,9 @@ public class ReportsUploadController {
 		for (ReportConfigDto reportconfig : uploadFile) {
 			Upload uploadData = new Upload();
 			 String fullPath = reportconfig.getFileName();
+			 uploadData.setFullPath(fullPath);
 			    String fileName = Paths.get(fullPath).getFileName().toString();
+			    System.out.println("FileName in Data upload" + fullPath);
 			uploadData.setFileName(fileName);
 			uploadData.setUploadDateAndTime(reportconfig.getUploadDate());
 			uploadData.setId(reportconfig.getReportConfigId());
@@ -322,6 +327,36 @@ public class ReportsUploadController {
 				handleDeleteButtonClicked(upload);
 			}
 		});
+		
+		customTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
+		    ObservableList<Upload> selectedItems = customTableView.getSelectedItems();
+		    if (selectedItems == null || selectedItems.isEmpty()) {
+		        Notifications.showWarningAlert("No file selected!");
+		        return;
+		    }
+
+		    for (Upload upload : selectedItems) {
+		        try {
+		            String filePath = upload.getFullPath();
+		            if (filePath == null || filePath.isEmpty()) {
+		                Notifications.showErrorAlert("File path not found for " + upload.getFileName());
+		                continue;
+		            }
+
+		            File file = new File(filePath);
+
+		            if (file.exists()) {
+		                Desktop.getDesktop().open(file);
+		            } else {
+		                Notifications.showErrorAlert("File not found: " + filePath);
+		            }
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		            Notifications.showErrorAlert("Failed to open file: " + e.getMessage());
+		        }
+		    }
+		});
+
 
 		this.bottomHbox.getChildren().clear();
 		this.bottomHbox.getChildren().add(customTableView);

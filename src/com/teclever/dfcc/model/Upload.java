@@ -7,6 +7,18 @@ public class Upload {
 	private String uploadDateAndTime;
 	
 	private String id;
+	
+	private String fullPath;
+	
+	
+
+	public String getFullPath() {
+		return fullPath;
+	}
+
+	public void setFullPath(String fullPath) {
+		this.fullPath = fullPath;
+	}
 
 	public String getUploadDateAndTime() {
 		return uploadDateAndTime;

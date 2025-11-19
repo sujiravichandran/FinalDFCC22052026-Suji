@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.dto.StageObject;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
@@ -125,7 +126,12 @@ public class AdvancedTestingController {
 		advancedTestingHeadingGridPane.getRowConstraints().addAll(firstRow);
 	
 		titleBox.setAlignment(Pos.CENTER);
-		title.setText("ADVANCED TESTING");
+		 if (UserData.getRoleId().equals("RL_ID_4")) {
+			 title.setText("OFP-Loading");
+		 }else {
+			 title.setText("ADVANCED TESTING");
+		 }
+		
 		title.getStyleClass().add("advanced-testing-title");
 		titleBox.getChildren().add(title);
 		
@@ -154,7 +160,12 @@ public class AdvancedTestingController {
 	}
 
 	private TabPane createAdvancedTestingTabs() {
-	    Tab tab1 = new Tab("HWATP / HSI Testing");
+		Tab tab1;
+		 if (UserData.getRoleId().equals("RL_ID_4")) {
+			 tab1 = new Tab("OFP-LOADING AND PI-CHECK");
+        }else {
+        	tab1 = new Tab("HWATP / HSI Testing");
+        }
 	    Tab tab2 = new Tab("Interface Testing");
 	    Tab tab3 = new Tab("Custom Testing-1");
 	    Tab tab4 = new Tab("Custom Testing-2");
@@ -175,8 +186,12 @@ public class AdvancedTestingController {
 
 	    tab4.setContent(tab4StackPane);
 	    tab4.setClosable(false);
-
-	    advancedTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
+	    if (UserData.getRoleId().equals("RL_ID_4")) {
+	    	advancedTestingTabPane.getTabs().addAll(tab1);
+       }else {
+    	   advancedTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
+       }
+	    
 
 	    advancedTestingTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
 	        if (newTab == tab2) {
@@ -188,6 +203,8 @@ public class AdvancedTestingController {
 	        } else {
 	            showTab1Content();
 	        }
+	       
+	        
 	    });
 
 	    showTab1Content();

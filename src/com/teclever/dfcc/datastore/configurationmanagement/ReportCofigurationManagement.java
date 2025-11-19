@@ -1,9 +1,11 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.ReportConfig;
 import com.teclever.datastore.service.LevelFiveMasterService;
@@ -117,11 +119,35 @@ public class ReportCofigurationManagement {
 	public Response deleteFileName(String reportConfigId) {
 		Response res = new Response();
 		try {
+			
 			ReportService reportService = new ReportService();
 			res = reportService.deleteByReportConfigId(reportConfigId);
+			GetObjResponse getreportConfig = new GetObjResponse();
+			getreportConfig = 	reportService.getReportConfigById(reportConfigId);
+			ReportConfig reportConfig = new ReportConfig();
+			reportConfig = (ReportConfig) getreportConfig.getObject();
+			
+			String delteFilePath = reportConfig.getFileNameWitFullPath();
+			
+			System.out.println("Delete File ::"+delteFilePath);
+
+			File file = new File(delteFilePath);
+			if (file.exists()) {
+				if (file.delete()) {
+					System.out.println("File deleted successfully.");
+				} else {
+					System.out.println("Failed to delete the file.");
+				}
+			} else {
+				System.out.println("File does not exist.");
+			}
+
+			// Report Delete the Upload Files
+
 		} catch (Exception e) {
 			res.setResponseCode(0);
-			res.setResponseMessage("Delete Data Unsuccesfull ");
+			res.setResponseMessage("Delete Data Unsuccesfull");
+			e.printStackTrace();
 		}
 		return res;
 	}

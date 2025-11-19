@@ -1,6 +1,9 @@
 package com.teclever.dfcc.datastore.processcontrolmanagement;
 
-import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +107,10 @@ public class LoadDriverProcessControlManagement {
 
 								for (DbDriverCard d : dbDriverCards) {
 									String cardIdentificationText = d.getCardIdentificationText();
-									DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText);
+									//DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText);
+									
+									//Driver CarD Issue Mani Changed
+									DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText,aitessId);
 
 									if (parsedCards.getResponse().getResponseCode() == 1) {
 										if (dbMap.get(parsedCards.getCardName()) != null) {
@@ -471,6 +477,11 @@ public class LoadDriverProcessControlManagement {
 		}
 		return null;
 	}
+	
+	
+	
+	
+	
 
 	private void stopLoadDriverLaunchingThread() {
 		if (loadDriverLaunchingThread != null) {

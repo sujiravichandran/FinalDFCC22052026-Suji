@@ -94,6 +94,8 @@ public class ResultManagement {
 //						Pattern pattern = Pattern.compile("\\((.*?)\\)");
 //						Matcher matcher = pattern.matcher(dStarInfo);
 						Pattern pattern = Pattern.compile("\\((.*)\\)"); 
+						if(!signalName.contains("Wait for condition timed out."))
+						{	
 						Matcher matcher = pattern.matcher(dStarInfo);
 						List<String> formattedChannels = new ArrayList<>();
 
@@ -137,6 +139,15 @@ public class ResultManagement {
 								signalName, faultyChannels, fileName, faultySRU);
 						resultDto.setdStarChannels(formattedChannels);
 						resultList.add(resultDto);
+						}
+						else
+						{
+							ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit,
+									signalName, faultyChannels, fileName, faultySRU);
+							
+							resultList.add(resultDto);
+							
+						}
 					}
 				}
 //Exit

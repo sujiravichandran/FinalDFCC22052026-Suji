@@ -1,11 +1,14 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.MacroDto;
@@ -177,6 +180,8 @@ public class CurrentSessionResultController {
 //            		System.out.println("getResultSessionStagesDetailsDTOList" + response.getResultSessionStagesDetailsDTOList().size());
             		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
             			int i = 1;
+            			SimpleDateFormat dbForm=new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.ENGLISH);
+    					SimpleDateFormat displayForm=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             			for(ResultSessionStagesDetailsDTO data : response.getResultSessionStagesDetailsDTOList()) {
             				SessionData newSessionData = new SessionData();
             				
@@ -188,8 +193,37 @@ public class CurrentSessionResultController {
             				newSessionData.setResult(data.getResult());
             				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
             				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
-            				newSessionData.setStartTime(data.getStartTime());
-            				newSessionData.setEndTime(data.getEndTime());
+//            				newSessionData.setStartTime(data.getStartTime());
+//            				System.out.println("time-----"+data.getStartTime());
+//            				newSessionData.setEndTime(data.getEndTime());
+//            				System.out.println("time ---"+data.getEndTime());
+            				//changed by sai 11112025
+            				String start=data.getStartTime()!=null?data.getStartTime().toString().trim():"";
+            				if(start.isEmpty()||start.equalsIgnoreCase("Not Started")||start.equalsIgnoreCase("-")) {
+            					newSessionData.setStartTime(start.isEmpty()?"N/A":start);
+            				}else {
+            					try {
+            						Date parseStart=dbForm.parse(start);
+            						System.out.println("---"+parseStart);
+            						newSessionData.setStartTime(displayForm.format(parseStart));
+            						
+            					}catch(Exception e) {
+            						newSessionData.setStartTime("Invalid Date");
+            					}
+            				}
+            				String end=data.getEndTime()!=null?data.getEndTime().toString().trim():"";
+            				if(end.isEmpty()||end.equalsIgnoreCase("Not Started")||end.equalsIgnoreCase("-")||end.equalsIgnoreCase("Running")) {
+            					newSessionData.setEndTime(end.isEmpty()?"N/A":start);
+            				}else {
+            					try {
+            						Date parseEnd=dbForm.parse(end);
+            						System.out.println();
+            						newSessionData.setEndTime(displayForm.format(parseEnd));
+            						
+            					}catch(Exception e) {
+            						newSessionData.setEndTime("Invalid Date");
+            					}
+            				}
             				newSessionData.setTimeTakenForExecution(data.getTimeTakenForExecution());
             				newSessionData.setSessionType(data.getStageMappingId());
             				i++;

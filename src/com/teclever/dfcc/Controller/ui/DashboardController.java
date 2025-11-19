@@ -3,12 +3,10 @@ package com.teclever.dfcc.Controller.ui;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import com.google.protobuf.TextFormat.ParseException;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.dashboard.DashBoardDetailsDTO;
 import com.teclever.dfcc.dashboard.DashboardManagement;
@@ -38,7 +36,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -81,7 +78,7 @@ public class DashboardController {
 
 	private ObservableList<UnitData> unitDataList = FXCollections.observableArrayList();
 
-	private TableViewFactory<UnitData> unitDataFactory = new UnitDataTableViewFactory();
+	private TableViewFactory<UnitData> unitDataFactory = new UnitDataTableViewFactory1();
 
 	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
 	private CustomTableView<UnitData> unitDataTableView;

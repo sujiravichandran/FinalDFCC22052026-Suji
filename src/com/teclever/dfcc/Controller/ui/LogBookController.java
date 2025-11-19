@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -240,10 +241,14 @@ public class LogBookController {
 		StringBuilder text = new StringBuilder();
 
 		for (ApplicationLogBookDto entry : logBookEntries) {
-			String timestamp = entry.getTimestamp().toString();
+//			String timestamp = entry.getTimestamp().toString();
+			//sai
+			Date  timestamp = entry.getTimestamp();
+			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			String formatTime=sdf.format(timestamp);
 			String details = entry.getDetails();
 
-			text.append(String.format("%-25s %s%n", timestamp, details));
+			text.append(String.format("%-25s %s%n", formatTime, details));
 		}
 
 		aitessTextArea.setText(text.toString());
@@ -257,10 +262,14 @@ public class LogBookController {
 
 		StringBuilder text = new StringBuilder();
 		for (UUTLogBookDto entry : logBookEntries) {
-			String timestamp = entry.getTimestamp().toString(); // Assume `getTimestamp` returns a String
+//			String timestamp = entry.getTimestamp().toString();
+			//sai changed by 11112025
+			Date  timestamp = entry.getTimestamp();
+			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			String formatTime=sdf.format(timestamp);
 			String details = entry.getDetails();
 
-			text.append(String.format("%-25s %s%n", timestamp, details));
+			text.append(String.format("%-25s %s%n", formatTime, details));
 		}
 
 		uutTextArea.setText(text.toString());

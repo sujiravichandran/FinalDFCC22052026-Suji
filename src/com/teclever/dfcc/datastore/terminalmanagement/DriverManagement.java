@@ -73,6 +73,36 @@ public class DriverManagement {
 	    response.setResponseMessage("FAILURE: Card identification text not found");
 	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
 	}
+	
+	//New Method With Aitess Id
+	public DriverCard parseLineNEWtrim(String outputLine, String cardIdentificationText,int aitessId) {
+	    CardDetailsService cd = new CardDetailsService();
+	    Response response = new Response();
+
+	    String dbCardName = cd.getCardNameByIdentificationTextWithAitessId(cardIdentificationText,aitessId);
+
+	    if (dbCardName == null) {
+	        response.setResponseCode(100);
+	        response.setResponseMessage("FAILURE: Card identification text not found in the database");
+	        return new DriverCard(null, "FAILURE", response);
+	    }
+
+	    String trimmedOutputLine = outputLine.trim();
+	    
+	    if (cardIdentificationText != null) {
+	        String trimmedCardIdentificationText = cardIdentificationText.trim();
+
+	        if (trimmedOutputLine.contains(trimmedCardIdentificationText)) {
+	            response.setResponseCode(1);
+	            response.setResponseMessage("SUCCESS");
+	            return new DriverCard(dbCardName, "CARD MATCHED", response);
+	        }
+	    }
+
+	    response.setResponseCode(0);
+	    response.setResponseMessage("FAILURE: Card identification text not found");
+	    return new DriverCard(dbCardName, "CARD NOT MATCHED", response);
+	}
 
 	
 	public DriverCard parseLineAIM(String outputLine,String cardText) {

@@ -103,7 +103,7 @@ public class DataBackupPopupController {
 //			Suji Added::
 			SessionFileManagement session = new SessionFileManagement();
 			LogOutFileCopyResponse response = session
-					.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+					.copyingFileWhileDataBackup(StateMachine.currentSessionDetails.getSessionId());
 			if (response.getCode() == 100) {
 				SessionTimingService s = new SessionTimingService();
 

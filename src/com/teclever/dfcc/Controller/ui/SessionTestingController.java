@@ -649,6 +649,10 @@ public class SessionTestingController {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
 //			List<String> testFileIds = new ArrayList<>();
 
 //			int testFileLines = testProcessManagement.testFileLinesCount();
@@ -966,6 +970,12 @@ public class SessionTestingController {
 				
 				return;
 			}
+			
+			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
+			
 			
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {

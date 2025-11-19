@@ -339,6 +339,11 @@ public class SelfTestController {
 		startTest.setOnAction(e -> {
 			
 			if (!checkAitessStatus.isBothAitessOn()) {
+				
+				return;
+			}
+			
+			if(StateMachine.isMacroPassing()) {
 				return;
 			}
 //	NOTE::		Based on Sridhar Comment on(10092025)based on Power On Status We can Run the Self Test::

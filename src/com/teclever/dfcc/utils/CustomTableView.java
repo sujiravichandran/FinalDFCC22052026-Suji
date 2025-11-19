@@ -294,6 +294,10 @@ class NewTableCellCheck<T> extends TableCell<T, Void> {
 					hBox.getChildren().clear();
 					hBox.getChildren().add(0, viewBtn);
 					break;
+				case "Upload":
+					hBox.getChildren().add(0, viewBtn);
+					break;
+					
 				default:
 					break;
 				}

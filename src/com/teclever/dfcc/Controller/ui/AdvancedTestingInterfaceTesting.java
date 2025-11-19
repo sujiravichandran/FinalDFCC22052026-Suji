@@ -625,6 +625,10 @@ public class AdvancedTestingInterfaceTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
 
 			List<String> testFileIds = new ArrayList<>();
 			for (CheckBox checkbox : checkBoxes) {
@@ -857,6 +861,10 @@ public class AdvancedTestingInterfaceTesting {
 				return;
 			}
 			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
+			if(StateMachine.isMacroPassing()) {
 				return;
 			}
 

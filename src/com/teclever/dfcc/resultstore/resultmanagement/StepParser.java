@@ -150,36 +150,61 @@ public class StepParser {
 	                expectedValue = extractExpectedValue(line);
 	                isAfterStep = false;
 
-	            } else if (line.startsWith("D*>")) {
-	            	
-	            	if(line.contains("diff(s)"))
-	            	{
-	            		  dStarInfo = dStarSpecialExtractor(line);
-	            	}else
-	            	{
-	            		  dStarInfo = line.substring(3).trim();
-	            	}
-	              
-	                unit = extractUnit(dStarInfo);
-	                faultyChannel = extractFaultyChannels(dStarInfo);
-	                rdfFileParser.setDStarFound(true);
-	                rdfFileParser.incrementDStarCount();
+				} else if (line.startsWith("D*>")) {
 
-	                StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                        resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
-	                stepList.add(stepDto);
-	                failedStepList.add(stepDto);
-	                stepAdded = true;
+					boolean waitedTimeFlag = false;
 
-	                // Reset only D* fields
-	                dStarInfo = null;
-	                unit = null;
-	                faultyChannel = new HashMap<>();
-	                expectedValue = null;
-	                signalName = null;
-	                faultySRU = null;
+					if (line.contains("diff(s)")) {
+						dStarInfo = dStarSpecialExtractor(line);
+					} else if (line.contains("Wait for condition timed out.")) {
+						waitedTimeFlag = true;
 
-	            } else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
+					} else {
+						dStarInfo = line.substring(3).trim();
+					}
+
+					
+
+					if (waitedTimeFlag) {
+
+						unit = "";
+						faultyChannel.put("CH1", "Wait for condition timed out.");
+						faultyChannel.put("CH2", "Wait for condition timed out.");
+						faultyChannel.put("CH3", "Wait for condition timed out.");
+						faultyChannel.put("CH4", "Wait for condition timed out.");
+						signalName = "Wait for condition timed out.";
+						faultySRU = "CH1,CH2,CH3,CH4";
+						rdfFileParser.setDStarFound(true);
+						rdfFileParser.incrementDStarCount();
+
+						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+								resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+						stepList.add(stepDto);
+						failedStepList.add(stepDto);
+						stepAdded = true;
+
+					} else {
+						unit = extractUnit(dStarInfo);
+						faultyChannel = extractFaultyChannels(dStarInfo);
+						rdfFileParser.setDStarFound(true);
+						rdfFileParser.incrementDStarCount();
+						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+								resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+						stepList.add(stepDto);
+						failedStepList.add(stepDto);
+						stepAdded = true;
+					}
+					// Reset only D* fields
+					dStarInfo = null;
+					unit = null;
+					faultyChannel = new HashMap<>();
+					expectedValue = null;
+					signalName = null;
+					faultySRU = null;
+
+				}
+	            
+	            else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
 	                if (line.startsWith("R>") && line.contains("(")) {
 	                    readingInfo.add(line.substring(3).trim());
 	                } else if (line.startsWith("D>")) {

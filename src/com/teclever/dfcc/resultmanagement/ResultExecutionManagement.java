@@ -781,69 +781,110 @@ public class ResultExecutionManagement {
 //						resultDetailedDTO.setUnit(resultDto.getUnit());
 //						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
 //						resultDetailedDTO.setFaultyChannelValue(dStarValue);
+					
 					for (ResultDto resultDto : lstInterResults) {
-						ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
-						Map<String, String> fac = resultDto.getFaultyChannel();
-						String channelValues = "";
-						for (String s1 : fac.keySet()) {
-							Debug.printDebug("S=" + s1);
-							channelValues = channelValues + s1 + "=" + fac.get(s1) + ";";
 
-						}
-						resultDetailedDTO.setFaultyChannel(channelValues);
+						
+						if (!resultDto.getSignalName().equalsIgnoreCase("Wait for condition timed out.")) {
+							ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+							Map<String, String> fac = resultDto.getFaultyChannel();
+							String channelValues = "";
+							for (String s1 : fac.keySet()) {
+								Debug.printDebug("S=" + s1);
+								channelValues = channelValues + s1 + "=" + fac.get(s1) + ";";
 
-						channelValues = channelValues.replaceAll("Channel", "CH");
+							}
+							resultDetailedDTO.setFaultyChannel(channelValues);
 
-						List<String> dChannels = resultDto.getdStarChannels();
+							channelValues = channelValues.replaceAll("Channel", "CH");
 
-						String dStarValue = String.join(";", dChannels); 
-						Debug.printDebug("Concatenated Values: " + dStarValue);
+							List<String> dChannels = resultDto.getdStarChannels();
 
-						resultDetailedDTO.setFaultyChannel(channelValues);
-						resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
-						resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
-						resultDetailedDTO.setRdfName(resultDto.getFileName());
-						resultDetailedDTO.setSignalName(resultDto.getSignalName());
-						resultDetailedDTO.setStepName(resultDto.getStepName());
-						resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
-						resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
-						resultDetailedDTO.setTpgph(resultDto.getTpgph());
-						resultDetailedDTO.setUnit(resultDto.getUnit());
-						resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
-						resultDetailedDTO.setFaultyChannelValue(dStarValue);
+							String dStarValue = String.join(";", dChannels);
+							Debug.printDebug("Concatenated Values: " + dStarValue);
 
-						String curStageId = objectIdStageId.get(systemInfoId);
-						if (curStageId != null || !curStageId.equals("")) {
-							resultDetailedDTO.setStageId(curStageId);
-							resultDetailedDTO.setStageName(stageIdName.get(curStageId));
+							resultDetailedDTO.setFaultyChannel(channelValues);
+							resultDetailedDTO.setExpectedValue(resultDto.getExpectedValue());
+							resultDetailedDTO.setMeasuredValue(resultDto.getMeasuredValue());
+							resultDetailedDTO.setRdfName(resultDto.getFileName());
+							resultDetailedDTO.setSignalName(resultDto.getSignalName());
+							resultDetailedDTO.setStepName(resultDto.getStepName());
+							resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
+							resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
+							resultDetailedDTO.setTpgph(resultDto.getTpgph());
+							resultDetailedDTO.setUnit(resultDto.getUnit());
+							resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+							resultDetailedDTO.setFaultyChannelValue(dStarValue);
 
-						}
+							String curStageId = objectIdStageId.get(systemInfoId);
+							if (curStageId != null || !curStageId.equals("")) {
+								resultDetailedDTO.setStageId(curStageId);
+								resultDetailedDTO.setStageName(stageIdName.get(curStageId));
 
-						String parentName = sessionManagement.getFullPathForLeafIds(curStageId);
-						parentName = parentName.substring(0, parentName.indexOf("/"));
+							}
 
-						if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
-								|| parentName.equals("Self Test")) {
-							resultDetailedDTO.setTestMode(parentName + "-" + stageIdName.get(curStageId));
+							String parentName = sessionManagement.getFullPathForLeafIds(curStageId);
+							parentName = parentName.substring(0, parentName.indexOf("/"));
+
+							if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
+									|| parentName.equals("Self Test")) {
+								resultDetailedDTO.setTestMode(parentName + "-" + stageIdName.get(curStageId));
+
+							} else {
+								resultDetailedDTO.setTestMode(
+										"SESSION TEST - " + parentName + "-" + stageIdName.get(curStageId));
+
+							}
+
+							Debug.printDebug(resultDto.getFaultySRU());
+							Debug.printDebug("ResultDto--->" + resultDto.getFileName());
+							resultDetailedList.add(resultDetailedDTO);
 
 						} else {
-							resultDetailedDTO
-									.setTestMode("SESSION TEST - " + parentName + "-" + stageIdName.get(curStageId));
+
+							ResultDetailedDTO resultDetailedDTO = new ResultDetailedDTO();
+							resultDetailedDTO.setRdfName(resultDto.getFileName());
+							resultDetailedDTO.setSignalName(resultDto.getSignalName());
+							resultDetailedDTO.setStepName(resultDto.getStepName());
+							resultDetailedDTO.setTestName(stageIdName.get(objectIdstageId.get(systemInfoId)));
+							resultDetailedDTO.setTpfFileName(testFileIdName.get(objectIdTestFileId.get(systemInfoId)));
+							resultDetailedDTO.setTpgph(resultDto.getTpgph());
+							resultDetailedDTO.setUnit(resultDto.getUnit());
+							resultDetailedDTO.setFaultySRU(resultDto.getFaultySRU());
+
+							String curStageId = objectIdStageId.get(systemInfoId);
+							if (curStageId != null || !curStageId.equals("")) {
+								resultDetailedDTO.setStageId(curStageId);
+								resultDetailedDTO.setStageName(stageIdName.get(curStageId));
+
+							}
+
+							String parentName = sessionManagement.getFullPathForLeafIds(curStageId);
+							parentName = parentName.substring(0, parentName.indexOf("/"));
+
+							if (parentName.equals("LRU Test") || parentName.equals("Advanced Test")
+									|| parentName.equals("Self Test")) {
+								resultDetailedDTO.setTestMode(parentName + "-" + stageIdName.get(curStageId));
+
+							} else {
+								resultDetailedDTO.setTestMode(
+										"SESSION TEST - " + parentName + "-" + stageIdName.get(curStageId));
+
+							}
+
+							Debug.printDebug(resultDto.getFaultySRU());
+							Debug.printDebug("ResultDto--->" + resultDto.getFileName());
+							resultDetailedList.add(resultDetailedDTO);
 
 						}
-
-						Debug.printDebug(resultDto.getFaultySRU());
-						Debug.printDebug("ResultDto--->" + resultDto.getFileName());
-						resultDetailedList.add(resultDetailedDTO);
-
-					}
 
 //				System.out.println("Check Details Data  Stage:: D* Count  :::"+ stageIdName.get(objectIdstageId.get(systemInfoId)  +resultDetailedList.size()));
 //				System.out.println("Check Details Data RDF File Name::"+  objectIdRdfFileName.get(systemInfoId) );
-				}
+						
+					}}
 
 				response.setStageId(stageId);
-				Debug.printDebug("resultDetailedList" + resultDetailedList.size());
+				System.out.println("resultDetailedList" + resultDetailedList.size());
 				response.setStageName(stageIdName.get(stageId));
 				response.setCode(1);
 				response.setResultDetailedList(resultDetailedList);
@@ -857,7 +898,7 @@ public class ResultExecutionManagement {
 			response.setMsg("Issue Successfully");
 			response.setMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
-//			System.out.println(ex.getLocalizedMessage());
+			ex.printStackTrace();
 
 		}
 		return response;

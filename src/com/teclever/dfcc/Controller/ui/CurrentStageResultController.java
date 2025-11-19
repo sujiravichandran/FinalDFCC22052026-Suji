@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -470,7 +472,20 @@ public class CurrentStageResultController {
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getRdfFile());
-				newBriefData.setTimeOfExecution(data.getEndTime());
+//				newBriefData.setTimeOfExecution(data.getEndTime());
+				//changed by sai 11112025
+				if(data.getEndTime()!=null) {
+					try {
+					SimpleDateFormat dbForm=new SimpleDateFormat("E dd MMM yyyy HH:mm:ss",Locale.ENGLISH);
+					SimpleDateFormat displayForm=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+					Date parseDate=dbForm.parse(data.getEndTime());
+					String formatTime=displayForm.format(parseDate);
+					newBriefData.setTimeOfExecution(formatTime);
+					}catch(Exception e){
+						newBriefData.setTimeOfExecution("invalid date");
+						e.printStackTrace();
+					}
+				}
 				newBriefData.setResult(data.getStatus());
 				
 				if (!data.getStatus().equals("SUCCESS")) {
@@ -517,8 +532,8 @@ public class CurrentStageResultController {
 				column.setMaxWidth(260);
 				break;
 			case "RESULT":
-				column.setMinWidth(130);
-				column.setMaxWidth(130);
+				column.setMinWidth(120);
+				column.setMaxWidth(120);
 				break;
 
 

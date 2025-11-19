@@ -16,6 +16,10 @@ public class DFCCConstant {
     public static boolean isJarBuild = false;
     public static String JARSTRING = "";
     public static String testTypeId = "";
+    
+    public static boolean completeFlag = false;
+    public static boolean runnedCompleteTest = false;
+    
 
     public static String filePath = "";
     public static boolean isDebug = false;
@@ -51,6 +55,8 @@ public class DFCCConstant {
     //Mani Changes Added
     public static int cardCount = 0;
     public static int currentCount = 0;
+    
+    public static String stageIdForRdf="";
     
     public static Map<String,List<String>> stageCompletedFiles = new HashMap<String,List<String>>();
     public static Map<String,List<String>> stageActualFiles = new HashMap<String,List<String>>();

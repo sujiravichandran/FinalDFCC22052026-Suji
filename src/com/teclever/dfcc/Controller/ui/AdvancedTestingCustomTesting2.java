@@ -259,6 +259,10 @@ public class AdvancedTestingCustomTesting2 {
 				return;
 			}
 			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
+			
 			if (StateMachine.isConfirmTestFileCompleted()) {
 				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
 				return;
@@ -500,6 +504,8 @@ public class AdvancedTestingCustomTesting2 {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
+		
+		
 
 		TestState currentState = StateMachine.getTestState();
 
