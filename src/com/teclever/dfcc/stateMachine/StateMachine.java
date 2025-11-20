@@ -1358,6 +1358,23 @@ public class StateMachine {
 	public static boolean isConfirmTestStop() {
 	    return confirmTestStop.get();
 	}
+	
+//	/	For Conform Test Stop
+	private static BooleanProperty checkAitesSwitch = new SimpleBooleanProperty(false);
+
+	public static BooleanProperty checkAitesSwitchProperty() {
+	    return checkAitesSwitch;
+	}
+
+	public static void setCheckAitesSwitch(boolean value) {
+	    checkAitesSwitch.set(value);
+	}
+
+	public static boolean isCheckAitesSwitch() {
+	    return checkAitesSwitch.get();
+	}
+
+	
 
 
 	// For Macro Button
@@ -1581,6 +1598,20 @@ public class StateMachine {
 
 	public static BooleanProperty macroCommandProperty() {
 		return macroCommand;
+	}
+	
+	private static final BooleanProperty macroCommandFail = new SimpleBooleanProperty(false);
+
+	public static boolean isMacroCommandFail() {
+		return macroCommandFail.get();
+	}
+
+	public static void setMacroCommandFail(boolean value) {
+		macroCommandFail.set(value);
+	}
+
+	public static BooleanProperty macroCommandFailProperty() {
+		return macroCommandFail;
 	}
 
 //	For WDM Status::
@@ -1903,5 +1934,31 @@ public class StateMachine {
 	public static void setCycleInitializeLruCheckFlag(Boolean cycleInitializeLruCheckFlag) {
 		StateMachine.cycleInitializeLruCheckFlag = cycleInitializeLruCheckFlag;
 	}
+	
+	
+	
+	private static boolean dotComMacroRun =false;
+
+	public static boolean isDotComMacroRun() {
+		return dotComMacroRun;
+	}
+
+	public static void setDotComMacroRun(boolean dotComMacroRun) {
+		StateMachine.dotComMacroRun = dotComMacroRun;
+	}
+
+	private static boolean checkThread = false;
+
+	public static boolean isCheckThread() {
+		return checkThread;
+	}
+
+	public static void setCheckThread(boolean checkThread) {
+		StateMachine.checkThread = checkThread;
+	}
+	
+
+	
+	
 
 }

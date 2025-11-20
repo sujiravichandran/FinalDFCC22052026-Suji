@@ -3,9 +3,15 @@ package com.teclever.dfcc.Controller.ui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.dto.SessionDto;
+import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.service.SessionService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.configurationmanagement.ReportCofigurationManagement;
@@ -65,11 +71,24 @@ public class ReportController {
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
 
+	private ComboBox<String> slNoField = new ComboBox<String>();
+	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
+	private List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
+	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+	
+	
     private ComboBox<String> sessionNameField = new ComboBox<String>();
     private ObservableList<SessionList> sessionDataList;
 	private ObservableList<String> sessionNameList = FXCollections.observableArrayList();
 	private List<String> sessionNameList1;
 	private String SESSION_ID;
+	private String selectedUttId;
+	SessionService s = new SessionService();
+	
+	private HBox selectionBoxSESSION = new HBox(10);
+	private HBox selectionHBoxUUTSN = new HBox(10);
+	
 	
     private Button addOtherFiles = new Button("Add Other Files");
     private Button addRemarks = new Button("Add Remarks");
@@ -82,6 +101,13 @@ public class ReportController {
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
 	private SessionManagement sessionManagement = new SessionManagement();
 	private ReportTreeviewController reportTreeviewController = new ReportTreeviewController(this);
+	
+	public ReportController(){
+		SessionResponse s1 = s.getAllSession();
+		sessionList = s1.getListOfSession();
+		System.out.println("Start sessionList" + sessionList.size());
+		initializeUUTTypeComboBox();
+	}
 
 	public GridPane createReportGridPane(String reportType) {
 		if ("PQT REPORT".equals(reportType)) {
@@ -114,7 +140,6 @@ public class ReportController {
 		reportMainGridPane.add(createComboBoxGridPane(), 0, 1);
 		reportMainGridPane.add(createBottomGridPane(), 0, 2);
 
-		initializeUUTTypeComboBox();
 		getSavedReportData();
 
 		return reportMainGridPane;
@@ -131,16 +156,19 @@ public class ReportController {
         thirdColumn.setPercentWidth(20);
         ColumnConstraints fourthColumn = new ColumnConstraints();
         fourthColumn.setPercentWidth(20);
+        ColumnConstraints fivthColumn = new ColumnConstraints();
+        fivthColumn.setPercentWidth(20);
         
         RowConstraints firstRow = new RowConstraints();
         firstRow.setPercentHeight(100);
         
-        reportComboBoxGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
+        reportComboBoxGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn, fivthColumn);
         reportComboBoxGridPane.getRowConstraints().addAll(firstRow);
         
         reportComboBoxGridPane.add(createUutBox(), 0, 0);
-        reportComboBoxGridPane.add(createSessionNameBox(), 1, 0);
-        reportComboBoxGridPane.add(createAddFilesBox(), 2, 0);
+        reportComboBoxGridPane.add(createUUTSerialNoComboBox(), 1, 0);
+        reportComboBoxGridPane.add(createSessionComboBox(), 2, 0);
+        reportComboBoxGridPane.add(createAddFilesBox(), 3, 0);
         if(REPORT_TYPE.equals("ESS")) {        	
         	reportComboBoxGridPane.add(createAddRemarkBox(), 3, 0);
         }
@@ -158,15 +186,19 @@ public class ReportController {
         return uutTypeHBox;
 	}
 	
-	private HBox createSessionNameBox() {
-		sessionNameField.setPromptText("SESSION NAME");
+	
+	
+	
+	// SESSION FIELD
+	private HBox createSessionComboBox() {
+		sessionNameField.setPromptText("Session");
+		selectionBoxSESSION.setPadding(new Insets(0, 0, 0, 18.5));
+		selectionBoxSESSION.setAlignment(Pos.CENTER_LEFT);
+		selectionBoxSESSION.getChildren().add(sessionNameField);
 
-        HBox sessionNameHBox = new HBox(10);
-        sessionNameHBox.setAlignment(Pos.CENTER);
-        sessionNameHBox.getChildren().add(sessionNameField);
-
-        return sessionNameHBox;
+		return selectionBoxSESSION;
 	}
+	
 	
 	private HBox createAddFilesBox() {		
 		HBox addFilesHBox = new HBox(10);
@@ -203,20 +235,22 @@ public class ReportController {
 
 	private void initializeUUTTypeComboBox() {
 		uutDataList = FXCollections.observableArrayList(aitessConfig.getAllUUT());
+		
 		for (UUTMasterDetailsDto uut : uutDataList) {
 			uutTypeList.add(uut.getUutType());
 		}
 		uutTypeField.setItems(uutTypeList);
 
 		uutTypeField.setOnAction((event) -> {
-	
-		
-			UUT_ID = fetchUutId(uutTypeField.getValue());
-			if(UUT_ID != null) {	
+				
 				reportTreeviewController.initializeReportTreeView(null);
-				initializeSessionNameComboBox(UUT_ID);
+				String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+				String uutId = fetchUutId(selectedUUTType);
+				selectedUttId=uutId;
+				System.out.println("UUT ID check" + uutId);
+				initializeDfccSNComboBox(uutId);
 				reportData.clear();
-			}
+			
 		});
 	}
 	
@@ -229,14 +263,52 @@ public class ReportController {
 		}
 		return null;
 	}
+	
+	private void initializeDfccSNComboBox(String uutTypeId) {
+	    dfccSNList.clear();
+	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
+	    List<SessionDto> filterSessionList = sessionList.stream()
+	            .filter(t -> t.getUutId().equals(uutTypeId))
+	            .collect(Collectors.toList());
 
-	private void initializeSessionNameComboBox(String uutId) {
+	    Set<String> seenDfccSNos = new HashSet<>();
+
+	    for (SessionDto dfccSn : filterSessionList) {
+	        String dfccSNo = dfccSn.getDfccSNo();
+	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
+	            dfccSNList.add(dfccSNo);
+	        }
+	    }
+
+
+	    slNoField.setOnAction(event -> {
+		    String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+		    if (selectedSerialNo != null) {
+		    	initializeSessionNameComboBox(selectedSerialNo);
+		    }
+		});
+
+		System.out.println("Check dfccSNList"+dfccSNList);
+	    slNoField.setItems(dfccSNList);
+	}
+	
+	// UUT SERIAL NUMBER FIELD
+		private HBox createUUTSerialNoComboBox() {
+			slNoField.setPromptText("UUT S/N");
+			selectionHBoxUUTSN.setPadding(new Insets(0, 0, 0, 18.5));
+			selectionHBoxUUTSN.setAlignment(Pos.CENTER_LEFT);
+			selectionHBoxUUTSN.getChildren().add(slNoField);
+
+			return selectionHBoxUUTSN;
+		}
+
+	private void initializeSessionNameComboBox(String serialNo) {
 		 sessionNameField.getItems().clear();
 		 sessionNameList.clear();
 		 sessionNameList1 = FXCollections.observableArrayList();
 		
 		SESSION_ID = null;
-		SessionListResponse response = sessionManagement.getSessionDataByUUTId(uutId);
+		SessionListResponse response = sessionManagement.getSessionDataByUUTId(selectedUttId);
 		if(response.getResponse().getResponseCode() == 1) {			
 			sessionDataList = FXCollections.observableArrayList(response.getListOfSession());
 			for (SessionList session : sessionDataList) {

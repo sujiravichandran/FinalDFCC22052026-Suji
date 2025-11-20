@@ -1711,7 +1711,7 @@ public class ResultExecutionManagement {
 	}
 
 	// For Getting Unit Sessions..
-	public ResultUnitSessionDetailsResponse getSessionDetailsForResultsByUnit(String uutTypeId) {
+	public ResultUnitSessionDetailsResponse getSessionDetailsForResultsByUnit(String uutTypeId,String sessionId) {
 		ResultUnitSessionDetailsResponse res = new ResultUnitSessionDetailsResponse();
 		try {
 			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
@@ -1798,7 +1798,14 @@ public class ResultExecutionManagement {
 						resultUnitSessionDetailsDTO.setStratRemarks(sessionDetails.getStartRemarks());
 						resultUnitSessionDetailsDTO.setEndRemarks(sessionDetails.getEndRemarks());
 						// resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+						
+						
+						
 						resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+							
+						//Filter By Session Id
+						resultUnitSessionDetailsDTOList = resultUnitSessionDetailsDTOList.stream().filter(ses->ses.getSessionId().equalsIgnoreCase(sessionId)).collect(Collectors.toList());
+						
 					}
 				}
 
@@ -1871,6 +1878,9 @@ public class ResultExecutionManagement {
 
 						// Add to result list
 						resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+						
+						//Filter Based On SessionId
+						resultUnitSessionDetailsDTOList = resultUnitSessionDetailsDTOList.stream().filter(ses->ses.getSessionId().equalsIgnoreCase(sessionId)).collect(Collectors.toList());
 					}
 				}
 
@@ -1888,6 +1898,185 @@ public class ResultExecutionManagement {
 		}
 		return res;
 	}
+	
+	// For Getting Unit Sessions..
+		public ResultUnitSessionDetailsResponse getSessionDetailsForResultsByUnitOld(String uutTypeId) {
+			ResultUnitSessionDetailsResponse res = new ResultUnitSessionDetailsResponse();
+			try {
+				UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+				Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(UserData.getRoleId());
+				SessionService sessionService = new SessionService();
+//				SessionResponse sessionResponse = sessionService.getAllSession();
+				GetResponse getResponse = sessionService.getAllSessionDataByUUTId(uutTypeId);
+
+				TrailSessionEntityService trailSessionService = new TrailSessionEntityService();
+				TrailSessionResponse trailSessionResponse = trailSessionService.getAllSession();
+				List<ResultUnitSessionDetailsDTO> resultUnitSessionDetailsDTOList = new ArrayList<ResultUnitSessionDetailsDTO>();
+				Map<String, String> sessionIdName = new HashMap<String, String>();
+				List<SessionStagesTestFilesResult> sessionStagesTestFilesResultList = Collections.emptyList();
+				;
+				SessionMasterService sessionMasterService = new SessionMasterService();
+				GetResponse responseMaster = sessionMasterService.getAllSessionMaster();
+				List<SessionMaster> sessionMasterList = new ArrayList<SessionMaster>();
+				sessionMasterList = (List<SessionMaster>) responseMaster.getResponseList();
+				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+				GetResponse res1 = new GetResponse();
+
+				res1 = sessionStagesTestFilesResultService.getTestResultFileByUUTId(uutTypeId);
+
+				if (res1 != null && res1.getResponseList() != null) {
+					sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
+				} else {
+					sessionStagesTestFilesResultList = new ArrayList<>();
+				}
+
+				for (SessionMaster sessionMaster : sessionMasterList) {
+					sessionIdName.put(sessionMaster.getSessionMasterId(), sessionMaster.getSessionTypeName());
+					String sessionMasterList1 = sessionMaster.getSessionTypeName();
+				}
+//				for (SessionDto sessionDetails : sessionResponse.getListOfSession()) {
+				if (getResponse.getResponseList() != null) {
+					for (Object object : getResponse.getResponseList()) {
+						SessionEntity sessionDetails = (SessionEntity) object;
+						if (sessionDetails.getUutId().equals(uutTypeId) && setOfUserLoginId != null
+								&& setOfUserLoginId.contains(sessionDetails.getUserId())) {
+							ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
+							if (sessionDetails.getEndDate() != null) {
+								// resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDate().toString());
+								resultUnitSessionDetailsDTO.setEndTime(sessionDetails.getEndDateTime());
+							} else {
+								resultUnitSessionDetailsDTO.setEndTime("Not Done");
+							}
+							if (sessionDetails.getStartDate() != null) {
+								// resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDate().toString());
+								resultUnitSessionDetailsDTO.setStartTime(sessionDetails.getStartDateTime());
+							} else {
+								resultUnitSessionDetailsDTO.setStartTime("Not Started");
+							}
+							resultUnitSessionDetailsDTO.setSessionName(sessionDetails.getSessionName());
+							resultUnitSessionDetailsDTO.setSessionId(sessionDetails.getSessionId());
+
+							String status = "Pending";
+							if (sessionDetails.getStartDate() != null) {
+								status = "Started";
+							}
+							String results = "-";
+							if (sessionDetails.getEndDate() != null) {
+								status = "Completed";
+							}
+							resultUnitSessionDetailsDTO.setSessionStatus(status);
+							if (status.equals("Completed")) {
+								if (sessionStagesTestFilesResultList != null) {
+									List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySession = sessionStagesTestFilesResultList
+											.stream()
+											.filter(ses -> ses.getSessionId().equals(sessionDetails.getSessionId()))
+											.collect(Collectors.toList());
+									if (sessionStagesTestFilesResultListBySession != null) {
+										List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySessionfailed = sessionStagesTestFilesResultListBySession
+												.stream().filter(ses -> ses.getSessionId().equals("FAILURE"))
+												.collect(Collectors.toList());
+										if (sessionStagesTestFilesResultListBySessionfailed != null) {
+											results = "Failure";
+										}
+									}
+								}
+							}
+							resultUnitSessionDetailsDTO.setSessionResults(results);
+							resultUnitSessionDetailsDTO
+									.setSessionType(sessionIdName.get(sessionDetails.getSessionTypeMasterId()));
+							resultUnitSessionDetailsDTO.setStratRemarks(sessionDetails.getStartRemarks());
+							resultUnitSessionDetailsDTO.setEndRemarks(sessionDetails.getEndRemarks());
+							// resultUnitSessionDetailsDTO.setStartTime(uutTypeId);
+							resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+						}
+					}
+
+					for (TrailSessionDto trailsessionDetails : trailSessionResponse.getListOfSession()) {
+						if (trailsessionDetails.getUutId().equals(uutTypeId) && setOfUserLoginId != null
+								&& setOfUserLoginId.contains(trailsessionDetails.getCreatedBy())) {
+
+							ResultUnitSessionDetailsDTO resultUnitSessionDetailsDTO = new ResultUnitSessionDetailsDTO();
+							// Set end time and start time
+							if (trailsessionDetails.getEndDate() != null) {
+								// resultUnitSessionDetailsDTO.setEndTime(trailsessionDetails.getEndDate().toString());
+								resultUnitSessionDetailsDTO.setEndTime(trailsessionDetails.getEndDateTime());
+							} else {
+								resultUnitSessionDetailsDTO.setEndTime("Not Done");
+							}
+
+							if (trailsessionDetails.getStartDate() != null) {
+								// resultUnitSessionDetailsDTO.setStartTime(trailsessionDetails.getStartDate().toString());
+								resultUnitSessionDetailsDTO.setStartTime(trailsessionDetails.getStartDateTime());
+							} else {
+								resultUnitSessionDetailsDTO.setStartTime("Not Started");
+							}
+
+							// Set session details
+							resultUnitSessionDetailsDTO.setSessionName(trailsessionDetails.getSessionName());
+							resultUnitSessionDetailsDTO.setSessionId(trailsessionDetails.getSessionId());
+
+							resultUnitSessionDetailsDTO.setStratRemarks(trailsessionDetails.getStartRemarks());
+							resultUnitSessionDetailsDTO.setEndRemarks(trailsessionDetails.getEndRemarks());
+
+							// Determine session status
+							String status = "Pending";
+							if (trailsessionDetails.getStartDate() != null) {
+								status = "Started"; // Session started but not finished
+							}
+							if (trailsessionDetails.getEndDate() != null) {
+								status = "Completed"; // Session has been completed
+							}
+
+							// Set session status
+							resultUnitSessionDetailsDTO.setSessionStatus(status);
+
+							// Determine session results
+							String results = "-";
+							if ("Completed".equals(status)) {
+								List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySession = sessionStagesTestFilesResultList
+										.stream()
+										.filter(ses -> ses.getSessionId().equals(trailsessionDetails.getSessionId()))
+										.collect(Collectors.toList());
+
+								if (sessionStagesTestFilesResultListBySession != null) {
+									List<SessionStagesTestFilesResult> sessionStagesTestFilesResultListBySessionfailed = sessionStagesTestFilesResultListBySession
+											.stream().filter(ses -> "FAILURE".equals(ses.getSessionId()))
+											.collect(Collectors.toList());
+
+									if (sessionStagesTestFilesResultListBySessionfailed != null) {
+										results = "Failure";
+									}
+								}
+							}
+
+							// Set remarks
+
+							// Set session results
+							resultUnitSessionDetailsDTO.setSessionResults(results);
+
+							// Set session type from sessionMasterList
+							resultUnitSessionDetailsDTO
+									.setSessionType(sessionIdName.get(trailsessionDetails.getSessionTypeMasterId()));
+
+							// Add to result list
+							resultUnitSessionDetailsDTOList.add(resultUnitSessionDetailsDTO);
+						}
+					}
+
+				}
+				res.setResultUnitSessionDetailsDTOList(resultUnitSessionDetailsDTOList);
+				res.setTotalNoOfSessions(resultUnitSessionDetailsDTOList.size());
+				res.setUutTypeId(uutTypeId);
+				res.setCode(1);
+				res.setMsg("Data Fetched");
+			} catch (Exception ex) {
+				res.setCode(0);
+				res.setMsg("Not Fetched..");
+				res.seteMsg(ex.getLocalizedMessage());
+				System.err.println(ex.getLocalizedMessage());
+			}
+			return res;
+		}
 
 	public void updateSessionTiming(String sessionId) {
 

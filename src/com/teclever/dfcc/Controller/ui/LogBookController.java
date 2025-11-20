@@ -439,6 +439,7 @@ public class LogBookController {
 	
 	private void initializeDfccSNComboBox(String uutTypeId) {
 	    dfccSNList.clear();
+	    System.out.println("uutTypeId" + uutTypeId);
 
 	    List<SessionDto> filterSessionList = sessionList.stream()
 	            .filter(t -> t.getUutId().equals(uutTypeId))

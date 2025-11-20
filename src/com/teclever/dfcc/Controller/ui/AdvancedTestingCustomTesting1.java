@@ -9,17 +9,14 @@ import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
-import com.teclever.dfcc.datastore.dto.ChannelStatusBeforeTestResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
 import com.teclever.dfcc.datastore.dto.MacroListResponse;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.SymbolListResponse;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
-import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -28,17 +25,14 @@ import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -46,6 +40,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
@@ -69,12 +64,16 @@ public class AdvancedTestingCustomTesting1 {
 	private Label minValueLabel = new Label("Min Value");
 	private Label maxValueLabel = new Label("Max Value");
 	private Label ipDataLabel = new Label("Input Data");
+	private String typeCheck;
+	
+	
 
 	private ComboBox<String> symbolComboBox = new ComboBox<String>();
 	private TextField typeTextField = new TextField();
 	private TextField minValueTextField = new TextField();
 	private TextField maxValueTextField = new TextField();
-	private TextField ipDataTextField = new TextField();
+	private TextField ipDataTextField1 = new TextField();
+	private TextField ipDataTextField2 = new TextField();
 
 	private ObservableList<SymbolDto> symbolDataList;
 	private ObservableList<String> symbolList = FXCollections.observableArrayList();
@@ -119,6 +118,7 @@ public class AdvancedTestingCustomTesting1 {
 
 
 	public GridPane createAdvancedTestingTab3GridPane() {
+		
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -159,6 +159,9 @@ public class AdvancedTestingCustomTesting1 {
 			aitess2Updated = true;
 			checkBothAitessLaunched();
 		});
+	
+		
+		
 
 	}
 
@@ -201,9 +204,9 @@ public class AdvancedTestingCustomTesting1 {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(30);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(40);
+		secondColumn.setPercentWidth(35);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(30);
+		thirdColumn.setPercentWidth(35);
 		RowConstraints rowConstraints = new RowConstraints();
 		rowConstraints.setPercentHeight(20);
 		terminalCommandGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
@@ -227,20 +230,44 @@ public class AdvancedTestingCustomTesting1 {
 		typeTextField.getStyleClass().add("form-textfield");
 		minValueTextField.getStyleClass().add("form-textfield");
 		maxValueTextField.getStyleClass().add("form-textfield");
-		ipDataTextField.getStyleClass().add("form-textfield");
-
+		ipDataTextField1.getStyleClass().add("form-textfield");
+		ipDataTextField2.getStyleClass().add("form-textfield");
+		
+		
+		
 		terminalCommandGridPane.add(symbolComboBox, 1, 0);
 		terminalCommandGridPane.add(typeTextField, 1, 1);
 		terminalCommandGridPane.add(minValueTextField, 1, 2);
 		terminalCommandGridPane.add(maxValueTextField, 1, 3);
-		terminalCommandGridPane.add(ipDataTextField, 1, 4);
+		terminalCommandGridPane.add(ipDataTextField1, 1, 4);
+		terminalCommandGridPane.add(ipDataTextField2, 1, 5);
+		
+		System.out.println("ipDataTextField2 disabled? " + ipDataTextField2.isDisabled());
+		System.out.println("ipDataTextField2 editable? " + ipDataTextField2.isEditable());
 
 		typeTextField.setDisable(true);
 		minValueTextField.setDisable(true);
 		maxValueTextField.setDisable(true);
+		ipDataTextField2.setDisable(true);
 
-		ipDataTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
-			String text = ipDataTextField.getText();
+		ipDataTextField1.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+			String text = ipDataTextField1.getText();
+			String character = event.getCharacter();
+
+			if (character.matches("\\d")) {
+				return;
+			}
+			if (character.equals(".") && text != null && !text.contains(".")) {
+				return;
+			}
+			if (character.equals("-") && text != null && text.isEmpty()) {
+				return;
+			}
+			event.consume();
+		});
+		
+		ipDataTextField2.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+			String text = ipDataTextField2.getText();
 			String character = event.getCharacter();
 
 			if (character.matches("\\d")) {
@@ -278,6 +305,21 @@ public class AdvancedTestingCustomTesting1 {
 					maxValueTextField.setText(symbol.getMax());
 				}
 			}
+			Platform.runLater(() -> {
+			    typeCheck = typeTextField.getText();
+
+			    if (typeCheck == null || typeCheck.trim().isEmpty()) {
+			        ipDataTextField2.setDisable(true);
+			        return;
+			    }
+
+			    if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+			        ipDataTextField2.setDisable(false);
+			        ipDataTextField2.setEditable(true);
+			    } else {
+			        ipDataTextField2.setDisable(true);
+			    }
+			});
 		}
 	}
 
@@ -552,14 +594,15 @@ public class AdvancedTestingCustomTesting1 {
 		typeTextField.setText(null);
 		minValueTextField.setText(null);
 		maxValueTextField.setText(null);
-		ipDataTextField.setText(null);
+		ipDataTextField1.setText(null);
+		ipDataTextField2.setText(null);
 		userTestTextArea.clear();
 	}
 
 	private void enableOrDisable(boolean status) {
 		symbolComboBox.setDisable(status);
 		macroComboBox.setDisable(status);
-		ipDataTextField.setDisable(status);
+		ipDataTextField1.setDisable(status);
 		userTestTextArea.setDisable(status);
 		testNameTextField.setDisable(status);
 		terminalAddButton.setDisable(status);
@@ -567,6 +610,7 @@ public class AdvancedTestingCustomTesting1 {
 		macroAddButton.setDisable(status);
 		macroRunButton.setDisable(status);
 		userTestRunButton.setDisable(status);
+
 	}
 
 	private void handleSymbolAddOrRun(boolean runStatus) {
@@ -575,7 +619,8 @@ public class AdvancedTestingCustomTesting1 {
 		String symbolType = typeTextField.getText();
 		String minValue = minValueTextField.getText();
 		String maxValue = maxValueTextField.getText();
-		String inputData = ipDataTextField.getText();
+		String inputData1 = ipDataTextField1.getText();
+		String inputData2 = ipDataTextField2.getText();
 		String ch1Status = ch1CheckBox.isSelected() ? "1" : "0";
 		String ch2Status = ch2CheckBox.isSelected() ? "1" : "0";
 		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0";
@@ -589,16 +634,19 @@ public class AdvancedTestingCustomTesting1 {
 			errorMessage.append("Minimum value is empty.\n");
 		if (maxValue == null || maxValue.isEmpty())
 			errorMessage.append("Maximum value is empty.\n");
-		if (inputData == null || inputData.isEmpty())
+		if (inputData1 == null || inputData1.isEmpty())
+			errorMessage.append("Input data is empty.\n");
+		if (inputData2 == null || inputData2.isEmpty())
 			errorMessage.append("Input data is empty.\n");
 		else {
 
 			double minValueAsDouble = Double.parseDouble(minValue);
 			double maxValueAsDouble = Double.parseDouble(maxValue);
-			double inputDataDouble = Double.parseDouble(inputData);
-			if (inputDataDouble < minValueAsDouble)
+			double inputDataDouble1 = Double.parseDouble(inputData1);
+			double inputDataDouble2 = Double.parseDouble(inputData2);
+			if (inputDataDouble1 < minValueAsDouble)
 				errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
-			else if (inputDataDouble > maxValueAsDouble)
+			else if (inputDataDouble2 > maxValueAsDouble)
 				errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
 		}
 
@@ -607,8 +655,8 @@ public class AdvancedTestingCustomTesting1 {
 			return;
 		}
 
-		String formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + inputData
-				+ ";";
+		String formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + inputData1
+				+ ";" + inputData2+ ";";
 
 		if (runStatus) {
 			if (checkAndSetTestState()) {

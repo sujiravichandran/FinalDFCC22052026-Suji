@@ -1,5 +1,14 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.teclever.datastore.dto.SessionDto;
+import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.service.SessionService;
 import com.teclever.dfcc.DFCCConstant;
 
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
@@ -50,11 +59,24 @@ public class CurrentUnitResultController {
 
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
+	SessionService s = new SessionService();
+	private GridPane filterResultGridPane = new GridPane();
 
-	private ComboBox<String> uutTypeField = new ComboBox<String>();
+	private ComboBox<String> uutTypeField = new ComboBox<String>();	
+	private ComboBox<String> slNoField = new ComboBox<String>();
+	private ComboBox<String> sessionNameField = new ComboBox<String>();
+	private HBox selectionBoxSESSION = new HBox(10);
+	private HBox selectionHBoxUUTSN = new HBox(10);
+	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
+	private List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
+	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+	
 	private ObservableList<UUTMasterDetailsDto> uutDataList;
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
+	private String session_ID;
+	private String selectedUttId;
 
 	private ScrollPane tableScrollPane = new ScrollPane();
 
@@ -68,7 +90,9 @@ public class CurrentUnitResultController {
 
 	public CurrentUnitResultController() {
 		unitDataList.clear();
-    	getCurrentUnitResultData(currentSessionDetails.getUutId());
+		SessionResponse s1 = s.getAllSession();
+		sessionList = s1.getListOfSession();
+//    	getCurrentUnitResultData(currentSessionDetails.getUutId());
 	}
 
 	public GridPane createcurrentUnitResultGridPane() {
@@ -94,17 +118,43 @@ public class CurrentUnitResultController {
 		currentUnitResultGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
 		currentUnitResultGridPane.add(createHeadingBox(), 0, 0);
-		currentUnitResultGridPane.add(createComboBoxGridPane(), 0, 1);
+		currentUnitResultGridPane.add(createFilterSelectionGridPane(), 0, 1);
 		currentUnitResultGridPane.add(createcurrentUnitResultTableGridPane(), 0, 2);
 		
 		initializeUUTTypeComboBox();
 		
 		return currentUnitResultGridPane;
 	}
+	
+	private GridPane createFilterSelectionGridPane() {
+		filterResultGridPane.getStyleClass().add("current-execution-result-tabs-container");
 
-	private void getCurrentUnitResultData(String uutId) {
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(33);
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(33);
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(33);
+
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+
+		filterResultGridPane.setPadding(new Insets(5));
+
+		filterResultGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+		filterResultGridPane.getRowConstraints().addAll(firstRow);
+
+		filterResultGridPane.add(createUutBox(), 0, 0);
+		filterResultGridPane.add(createUUTSerialNoComboBox(), 1, 0);
+		filterResultGridPane.add(createSessionComboBox(), 2, 0);
+		
+		return filterResultGridPane;
+	}
+
+	private void getCurrentUnitResultData(String uutId, String sessionId) {
 		unitDataList.clear();
-		ResultUnitSessionDetailsResponse response = resultExecutionManagement.getSessionDetailsForResultsByUnit(uutId);
+		ResultUnitSessionDetailsResponse response = resultExecutionManagement.getSessionDetailsForResultsByUnit(uutId, sessionId);
 		if (response.getCode() == 1 && response.getResultUnitSessionDetailsDTOList() != null) {
 			int i = 1;
 			for (ResultUnitSessionDetailsDTO data : response.getResultUnitSessionDetailsDTOList()) {
@@ -129,6 +179,88 @@ public class CurrentUnitResultController {
 		
 		tableScrollPane.setFitToWidth(unitDataList.size() == 0);
 	}
+	
+	
+	
+	
+	
+	private void initializeDfccSNComboBox(String uutTypeId) {
+	    dfccSNList.clear();
+	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
+	    List<SessionDto> filterSessionList = sessionList.stream()
+	            .filter(t -> t.getUutId().equals(uutTypeId))
+	            .collect(Collectors.toList());
+
+	    Set<String> seenDfccSNos = new HashSet<>();
+
+	    for (SessionDto dfccSn : filterSessionList) {
+	        String dfccSNo = dfccSn.getDfccSNo();
+	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
+	            dfccSNList.add(dfccSNo);
+	        }
+	    }
+
+
+	    slNoField.setOnAction(event -> {
+		    String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+		    if (selectedSerialNo != null) {
+		        initializeSessionComboBox(selectedSerialNo);
+		    }
+		});
+
+		System.out.println("Check dfccSNList"+dfccSNList);
+	    slNoField.setItems(dfccSNList);
+	}
+	
+	// UUT SERIAL NUMBER FIELD
+		private HBox createUUTSerialNoComboBox() {
+			slNoField.setPromptText("UUT S/N");
+			selectionHBoxUUTSN.setPadding(new Insets(0, 0, 0, 18.5));
+			selectionHBoxUUTSN.setAlignment(Pos.CENTER_LEFT);
+			selectionHBoxUUTSN.getChildren().add(slNoField);
+
+			return selectionHBoxUUTSN;
+		}
+		
+		
+		
+		// SESSION FIELD
+		private HBox createSessionComboBox() {
+			sessionNameField.setPromptText("Session");
+			selectionBoxSESSION.setPadding(new Insets(0, 0, 0, 18.5));
+			selectionBoxSESSION.setAlignment(Pos.CENTER_LEFT);
+			selectionBoxSESSION.getChildren().add(sessionNameField);
+
+			return selectionBoxSESSION;
+		}
+		
+		
+//	    // UUT SESSION NAME TYPE FIELD
+		private void initializeSessionComboBox(String selectedDfccNo) {
+			sessionTypeList.clear();
+
+			 List<SessionDto> filterSessionList = sessionList.stream()
+			            .filter(t -> t.getDfccSNo().equals(selectedDfccNo)) // Correct filtering condition
+			            .collect(Collectors.toList());
+			
+			
+			for (SessionDto sessionName : filterSessionList) {
+				sessionTypeList.add(sessionName.getSessionName());
+			}
+			
+			
+			sessionNameField.setOnAction(event -> {
+				String selectedSession = sessionNameField.getSelectionModel().getSelectedItem();
+				System.out.println("selectedSession" + selectedSession);
+				String sessionId = fetchSessionId(selectedSession);
+				System.out.println("Check Session ID" + sessionId);
+				getCurrentUnitResultData(selectedUttId, sessionId);
+				});
+
+			sessionNameField.setItems(sessionTypeList);
+		}
+		
+		
 
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -150,22 +282,6 @@ public class CurrentUnitResultController {
 		return currentUnitResultHeadingGridPane;
 	}
 
-	private GridPane createComboBoxGridPane() {
-		currentUnitResultOptionGridPane.getStyleClass().add("current-execution-result-tabs-container");
-		
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(20);
-
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
-
-		currentUnitResultOptionGridPane.getColumnConstraints().addAll(firstColumn);
-		currentUnitResultOptionGridPane.getRowConstraints().addAll(firstRow);
-
-		currentUnitResultOptionGridPane.add(createUutBox(), 0, 0);
-
-		return currentUnitResultOptionGridPane;
-	}
 
 	private HBox createUutBox() {
 		uutTypeField.setPromptText("UUT TYPE");
@@ -178,18 +294,21 @@ public class CurrentUnitResultController {
 	}
 
 	private void initializeUUTTypeComboBox() {
-		uutDataList = FXCollections.observableArrayList(aitessConfig.getAllUUT());
+		uutDataList = FXCollections.observableArrayList(configManager.getAllUUT());
+
 		for (UUTMasterDetailsDto uut : uutDataList) {
 			uutTypeList.add(uut.getUutType());
 		}
+
 		uutTypeField.setItems(uutTypeList);
-		uutTypeField.setValue(currentSessionDetails.getUutType());
 
 		uutTypeField.setOnAction((event) -> {
-			UUT_ID = fetchUutId(uutTypeField.getValue());
-			if (UUT_ID != null) {
-				getCurrentUnitResultData(UUT_ID);
-			}
+
+			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+			String uutId = fetchUutId(selectedUUTType);
+			selectedUttId=uutId;
+			
+			initializeDfccSNComboBox(uutId);
 		});
 	}
 	
@@ -197,6 +316,15 @@ public class CurrentUnitResultController {
 		for (UUTMasterDetailsDto uut : uutDataList) {
 			if (uut.getUutType().equals(uutType)) {
 				return uut.getUutId();
+			}
+		}
+		return null;
+	}
+	
+	private String fetchSessionId(String sessionType) {
+		for (SessionDto sessionId : sessionList) {
+			if (sessionId.getSessionName().equals(sessionType)) {
+				return sessionId.getSessionId();
 			}
 		}
 		return null;

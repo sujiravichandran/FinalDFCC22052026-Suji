@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
+import org.hibernate.internal.build.AllowSysOut;
+
 import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
@@ -188,8 +190,41 @@ public class UserDashboardController {
 		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
 			if (newState == TestState.STOPPED) {
 				applyUiStatus(StateMachine.getTestState());
+			}else if(newState == TestState.PAUSED) {
+				statusBar.textProperty().unbind();
+				statusBar.setText("Test Paused");
+				statusBarVbox.setStyle(commonStyle + "-fx-background-color: #66b7ed");
 			}
 		});
+		
+		StateMachine.macroCommandProperty().addListener((obs, wasSet, isNowSet) -> {
+
+	        System.out.println("isNowSet = " + isNowSet);
+	        System.out.println("wasSet = " + wasSet);
+
+	        if (isNowSet) {
+	            System.out.println("Macro Executed");
+	            Notifications.showSuccessAlert("Macro Executed..");
+	        }
+
+	        toggleButton.setDisable(false);
+	        rightMidSecondGridPane.setDisable(false);
+
+	        Platform.runLater(() -> StateMachine.setMacroCommand(false));
+	    });
+
+	    StateMachine.macroCommandFailProperty().addListener((obs, wasSet, isNowSet) -> {
+
+	        if (isNowSet) {
+	            System.out.println("Macro Not Configured Properly.. ");
+	            Notifications.showSuccessAlert("Macro Not Configured Properly..");
+	        }
+
+	        toggleButton.setDisable(false);
+	        rightMidSecondGridPane.setDisable(false);
+
+	        Platform.runLater(() -> StateMachine.setMacroCommandFail(false));
+	    });
 		
 
 		StateMachine.yesEntredProperty().addListener((obs, oldState, newState) -> {
@@ -205,10 +240,8 @@ public class UserDashboardController {
 		});
 
 		
-		StateMachine.confirmTestStopProperty().addListener((obs, oldVal, newVal) ->{
-			System.out.println("confirmTestStopProperty" + newVal);
-			System.out.println("confirmTestStopProperty Old" + oldVal);
-			if(oldVal) {
+		StateMachine.checkAitesSwitchProperty().addListener((obs, oldVal, newVal) ->{
+			if(newVal) {
 			toggleButton.setDisable(true);
 			rightMidSecondGridPane.setDisable(true);
 			}
@@ -2410,6 +2443,7 @@ public class UserDashboardController {
 				label.setUserData(macroButtonList.get(i).getCommand());
 
 				box.setOnMouseClicked(e -> {
+					DFCCConstant.macroHandled=false;
 					if (!checkAitessStatus.isBothAitessOn()) {
 						
 						return;
@@ -2452,6 +2486,7 @@ public class UserDashboardController {
 								@Override
 								protected Void call() throws Exception {
 									// Perform the macro command in the background
+									System.out.println("Entred after Clicking");
 									aitessProcessControlManagement
 											.WriteMacroCommandToAitess2(label.getUserData().toString());
 									StateMachine.setMacroPassing(true);
@@ -2467,18 +2502,6 @@ public class UserDashboardController {
 								protected void succeeded() {
 									// This runs on the JavaFX Application Thread
 
-									StateMachine.macroCommandProperty().addListener((obs, wasSet, isNowSet) -> {
-										if (isNowSet) {
-											Notifications.showSuccessAlert("Macro Executed..");
-											toggleButton.setDisable(false);
-											rightMidSecondGridPane.setDisable(false);
-											StateMachine.setMacroCommand(false);
-										}else if(wasSet) {
-											Notifications.showSuccessAlert("Macro is not configured properly. Please check.");
-											toggleButton.setDisable(false);
-											rightMidSecondGridPane.setDisable(false);
-										}
-									});
 								}
 
 								@Override
