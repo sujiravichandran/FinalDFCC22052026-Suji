@@ -35,6 +35,7 @@ public class DFCCConstant {
     public static boolean colourFlag = false;
     public static boolean stopColourFlag = false;
     public static boolean continueWithErrorFlag = false;
+    public static boolean macroHandled = false;
     public static Map <String,String>stageIdStatus = new HashMap<String,String>();
     
     public static Map<String,String> sessionIdDfccSlNo = new HashMap<String,String>();

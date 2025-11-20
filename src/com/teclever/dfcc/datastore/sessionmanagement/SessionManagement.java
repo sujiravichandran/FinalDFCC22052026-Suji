@@ -2051,8 +2051,181 @@ public class SessionManagement {
 
 		return response;
 	}
+	
+	
+	
+	// BASED ON ROLE ID FETCH SESSION DATA Here Last Tested At Top Even Trails also after Only
+//		public SessionListResponse getAllSessionDataByRoleId(String roleId) {
+//			SessionListResponse sessionListResponse = new SessionListResponse();
+//			Response res = new Response();
+//			try {
+//				UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+//				Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
+	//
+//				// To Picking Trail Sessions...
+//				TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+//				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+//				trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+//				List<SessionList> listOfSession = new ArrayList<>();
+	//
+//				List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+//				trailActiveSession = trailSessionResponse.getListOfSession();
+//				for (TrailSessionDto trailSessionDto : trailActiveSession) {
+//					SessionList sessionList = new SessionList();
+//					sessionList.setSessionId(trailSessionDto.getSessionId());
+//					sessionList.setSessionName(trailSessionDto.getSessionName());
+//					sessionList.setCreationDate(trailSessionDto.getCreationDate());
+//					listOfSession.add(sessionList);
+	//
+//				}
+	//
+//				// For Picking Others Sessions...
+//				SessionService sessionSelectedStage = new SessionService();
+//				GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
+//				
+//				
+	//
+//				if (getResponse.getCode() == 0) {
+//					if (listOfSession.size() > 0) {
+//						res.setResponseCode(1);
+//						res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+//						sessionListResponse.setResponse(res);
+//						sessionListResponse.setListOfSession(listOfSession);
+//						return sessionListResponse;
+	//
+//					}
+//					res.setResponseCode(0);
+//					res.setResponseMessage(getResponse.geteMsg());
+//					sessionListResponse.setResponse(res);
+//					return sessionListResponse;
+//				}
+//				
+//				//Session List..
+//				String lastTestedSessionId = "";
+//				
+//				List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
+//				List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
+//				
+//				
+//				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+//				GetResponse resTestFilesResult = new GetResponse();
+//				resTestFilesResult =sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
+//				List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
+//				resList = 	(List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
+//				
+//				if(resList!=null)
+//				{
+//					lastTestedSessionId = resList.get(resList.size()-1).getSessionId();
+//				}
+//				
+	//
+//				for (Object object : getResponse.getResponseList()) {
+//					SessionEntity sessionEntity = (SessionEntity) object;
+	//
+//					if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+	//
+//						SessionList sessionList = new SessionList();
+//						sessionList.setSessionId(sessionEntity.getSessionId());
+//						sessionList.setSessionName(sessionEntity.getSessionName());
+//						sessionList.setCreationDate(sessionEntity.getCreationDate());
+//						sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+//						if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
+//							listOfSession.add(0, sessionList);
+//						} else {
+//							listOfSession.add(sessionList);
+//						}
+//					}
+	//
+//				}
+//				System.out.println("Size of the List  ::"+listOfSession.size());
+//				res.setResponseCode(1);
+//				res.setResponseMessage(getResponse.getMsg());
+//				sessionListResponse.setResponse(res);
+//				sessionListResponse.setListOfSession(listOfSession);
+//			} catch (Exception e) {
+//				res.setResponseCode(0);
+//				res.setResponseMessage("Fetch Data Unsuccessfull");
+//				sessionListResponse.setResponse(res);
+//			}
+//			return sessionListResponse;
+//		}
+		
+		
+		
 
-	// BASED ON ROLE ID FETCH SESSION DATA
+	// BASED ON ROLE ID FETCH SESSION DATA Last After Trails Created At Top 
+//	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
+//		SessionListResponse sessionListResponse = new SessionListResponse();
+//		Response res = new Response();
+//		try {
+//			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+//			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
+//
+//			// To Picking Trail Sessions...
+//			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+//			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+//			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+//			List<SessionList> listOfSession = new ArrayList<>();
+//
+//			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+//			trailActiveSession = trailSessionResponse.getListOfSession();
+//			for (TrailSessionDto trailSessionDto : trailActiveSession) {
+//				SessionList sessionList = new SessionList();
+//				sessionList.setSessionId(trailSessionDto.getSessionId());
+//				sessionList.setSessionName(trailSessionDto.getSessionName());
+//				sessionList.setCreationDate(trailSessionDto.getCreationDate());
+//				listOfSession.add(sessionList);
+//
+//			}
+//
+//			// For Picking Others Sessions...
+//			SessionService sessionSelectedStage = new SessionService();
+//			GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
+//
+//			if (getResponse.getCode() == 0) {
+//				if (listOfSession.size() > 0) {
+//					res.setResponseCode(1);
+//					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+//					sessionListResponse.setResponse(res);
+//					sessionListResponse.setListOfSession(listOfSession);
+//					return sessionListResponse;
+//
+//				}
+//				res.setResponseCode(0);
+//				res.setResponseMessage(getResponse.geteMsg());
+//				sessionListResponse.setResponse(res);
+//				return sessionListResponse;
+//			}
+//
+//			for (Object object : getResponse.getResponseList()) {
+//				SessionEntity sessionEntity = (SessionEntity) object;
+//
+//				if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+//
+//					SessionList sessionList = new SessionList();
+//					sessionList.setSessionId(sessionEntity.getSessionId());
+//					sessionList.setSessionName(sessionEntity.getSessionName());
+//					sessionList.setCreationDate(sessionEntity.getCreationDate());
+//					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+//					listOfSession.add(sessionList);
+//				}
+//
+//			}
+//			res.setResponseCode(1);
+//			res.setResponseMessage(getResponse.getMsg());
+//			sessionListResponse.setResponse(res);
+//			sessionListResponse.setListOfSession(listOfSession);
+//		} catch (Exception e) {
+//			res.setResponseCode(0);
+//			res.setResponseMessage("Fetch Data Unsuccessfull");
+//			sessionListResponse.setResponse(res);
+//		}
+//		return sessionListResponse;
+//	}
+	
+	
+	
+	// BASED ON ROLE ID FETCH SESSION DATA FOR After Trails Last Tested At Top
 	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
 		SessionListResponse sessionListResponse = new SessionListResponse();
 		Response res = new Response();
@@ -2066,6 +2239,9 @@ public class SessionManagement {
 			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
 			List<SessionList> listOfSession = new ArrayList<>();
 
+			List<SessionList> trailSession = new ArrayList<>();
+			List<SessionList> otherSession = new ArrayList<>();
+
 			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
 			trailActiveSession = trailSessionResponse.getListOfSession();
 			for (TrailSessionDto trailSessionDto : trailActiveSession) {
@@ -2073,7 +2249,7 @@ public class SessionManagement {
 				sessionList.setSessionId(trailSessionDto.getSessionId());
 				sessionList.setSessionName(trailSessionDto.getSessionName());
 				sessionList.setCreationDate(trailSessionDto.getCreationDate());
-				listOfSession.add(sessionList);
+				trailSession.add(sessionList);
 
 			}
 
@@ -2096,6 +2272,24 @@ public class SessionManagement {
 				return sessionListResponse;
 			}
 
+			// Session List..
+			String lastTestedSessionId = "";
+
+			List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
+			List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
+
+			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+			GetResponse resTestFilesResult = new GetResponse();
+			resTestFilesResult = sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
+			List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
+			resList = (List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
+
+			if (resList != null) {
+				lastTestedSessionId = resList.get(resList.size()-1).getSessionId();
+			}
+			
+			System.out.println("Last Tested Session Id"+lastTestedSessionId);
+
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
 
@@ -2106,10 +2300,23 @@ public class SessionManagement {
 					sessionList.setSessionName(sessionEntity.getSessionName());
 					sessionList.setCreationDate(sessionEntity.getCreationDate());
 					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
-					listOfSession.add(sessionList);
+					if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
+						otherSession.add(0, sessionList);
+					} else {
+						otherSession.add(sessionList);
+					}
 				}
 
 			}
+
+			if (trailSession.size() > 0) {
+				listOfSession.addAll(trailSession);
+			}
+			if (otherSession.size() > 0) {
+				listOfSession.addAll(otherSession);
+			}
+
+			System.out.println("Size of the List  ::" + listOfSession.size());
 			res.setResponseCode(1);
 			res.setResponseMessage(getResponse.getMsg());
 			sessionListResponse.setResponse(res);

@@ -200,6 +200,7 @@ public class TestProcessManagement {
 	}
 
 	private boolean checkAndUpdateAetsProcessStatus(String testTypeId, String ofpConfig) {
+		StateMachine.setCheckAitesSwitch(true);
 		if (ofpConfig == null) {
 			// Check and update AETS process status
 			AitessProcessControlManagement.getInstance().check(testTypeId);
@@ -207,7 +208,7 @@ public class TestProcessManagement {
 			// Check and update AETS process status
 			AitessProcessControlManagement.getInstance().check1(testTypeId, ofpConfig);
 		}
-
+		StateMachine.setCheckAitesSwitch(false);
 		// If AETS process failed to launch, return failure response
 		return aitessRunning.isAitess1SwitchedFailed() || aitessRunning.isAitess2SwitchedFailed();
 	}
@@ -1360,6 +1361,7 @@ public class TestProcessManagement {
 						continue; //
 					if (line.startsWith("@") || line.contains(".com")) {
 						line = line.substring(1);
+						StateMachine.setCheckThread(false);
 						System.out.println("SUJI : LINE CHECK IN PROCESSDOTCOM FILE" + line);
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
@@ -1431,6 +1433,9 @@ public class TestProcessManagement {
 					} else {
 						Debug.printDebug("Command is  " + line + " , runCommands : "
 								+ AitessProcessControlManagement.getInstance().runCommands);
+						
+						System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
+								+ AitessProcessControlManagement.getInstance().runCommands);
 
 						// VIJAY : 31-JULY : Change 4:: To Stop running of Macro or command.
 						if (handleTestState()) {
@@ -1443,10 +1448,13 @@ public class TestProcessManagement {
 
 						// Call writing command to Terminal
 						AitessProcessControlManagement.getInstance().runCommands = true;
-
+						System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
+								+ AitessProcessControlManagement.getInstance().runCommands);
+						StateMachine.setDotComMacroRun(true);
 						AitessProcessControlManagement.getInstance().WriteAitess1Command(line + "\n");
 
 						while (AitessProcessControlManagement.getInstance().runCommands) {
+							StateMachine.setCheckThread(true);
 							System.out.print("* ");
 							Thread.sleep(10);
 						}

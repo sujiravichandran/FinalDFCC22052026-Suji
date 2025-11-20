@@ -71,11 +71,6 @@ public class Main extends Application {
 		}
 
 		
-
-		
-		
-
-		
 //		SessionTestingController sessionTestingController = new SessionTestingController();
 //		sessionTestingController.createTreeView();
 		
