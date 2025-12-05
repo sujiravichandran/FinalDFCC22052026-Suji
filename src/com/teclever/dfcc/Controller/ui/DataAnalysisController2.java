@@ -179,7 +179,7 @@ public class DataAnalysisController2 {
 
 	private HBox headingHbox() {
 		headingHbox.getStyleClass().add("dataanalysis-testing-second-container");
-		headingHbox.setAlignment(Pos.CENTER);
+		headingHbox.setAlignment(Pos.CENTER_LEFT);
 		headingHbox.getChildren().add(pageHeading);
 
 		return headingHbox;

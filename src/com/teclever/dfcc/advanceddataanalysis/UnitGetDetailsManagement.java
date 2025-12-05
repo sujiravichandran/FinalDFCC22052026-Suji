@@ -53,7 +53,6 @@ public class UnitGetDetailsManagement {
 
 		List<UnitSessionDetailsDTO> res = new ArrayList<>();
 		try {
-System.out.println("fdvdsdsfdsfdsf" + sessionId);
 			SessionStagesStatusService sessionStagesStatusService = new SessionStagesStatusService();
 			SessionStagesListResponse sessionStagesListResponse = new SessionStagesListResponse();
 			sessionStagesListResponse = sessionStagesStatusService.getSessionStagesStatus(sessionId);
@@ -69,7 +68,6 @@ System.out.println("fdvdsdsfdsfdsf" + sessionId);
 				unitSessionDetailsDTO.setStageId(sessionStagesStatus.getStageId());
 				unitSessionDetailsDTO.setStageName(stageIdName.get(sessionStagesStatus.getStageId()));
 				unitSessionDetailsDTO.setSessionId(sessionId);
-				System.out.println("Check DB " + unitSessionDetailsDTO.getStageName());
 				res.add(unitSessionDetailsDTO);
 			}
 

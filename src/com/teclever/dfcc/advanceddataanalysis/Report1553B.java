@@ -25,7 +25,9 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.Interface1553B_Mode;
 import com.teclever.datastore.entities.RDF1553BCode;
+import com.teclever.datastore.service.Interface1553B_ModeService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.reportgeneration.ReportGeneration;
 
@@ -761,9 +763,170 @@ public class Report1553B {
 		if(sessionNameUnit.equals("DFCC-MK1"))
 		{
 			
+			document.newPage();
+			canvas.setColorStroke(BaseColor.BLACK);
+			canvas.roundRectangle(x, y, width, height, cornerRadius);
+			canvas.stroke();
+			img1.scaleToFit(imgWidth, imgHeight + 10);
+			img3.scaleToFit(imgWidth, imgHeight);
+			img1.setAbsolutePosition(imgX1, imgY + 10);
+			img3.setAbsolutePosition(imgX3, imgY + 14);
+			document.add(img1);
+			document.add(img3);
+
+			ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
+					new Phrase("1553B INTERFACE - MODE CODE CHECKS", fontBoldUnderline), x + (width / 2) + 20,
+					imgY + (imgHeight / 2) + 10, 0);
+
+			document.add(new Paragraph("\n" + "\n" + "\n" + "\n"));
+			document.add(infoTable);
+
+			
+			// Create table with 13 columns
+			PdfPTable tableCh5 = new PdfPTable(13);
+			tableCh5.setWidthPercentage(100);
+			tableCh5.setSpacingBefore(20f);
+			tableCh5.setSpacingAfter(20f);
+			float[] columnWidthsCh5 = {2f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
+			tableCh5.setWidths(columnWidthsCh5);
+
+			// === First row: header with merged remaining columns ===
+			PdfPCell headerCell1 = new PdfPCell(new Phrase(" ", headerFont));
+			headerCell1.setRowspan(3);
+			headerCell1.setBackgroundColor(headerColor);
+			headerCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+			headerCell1.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			headerCell1.setPadding(15);
+			tableCh5.addCell(headerCell1);
+
+			PdfPCell headerCell2 = new PdfPCell(new Phrase("Test Results Status(P : Pass; F : Fail)", headerFont));
+			headerCell2.setColspan(12); // Merge remaining 12 columns
+			headerCell2.setBackgroundColor(headerColor);
+			headerCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+			headerCell2.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			headerCell2.setPadding(15);
+			tableCh5.addCell(headerCell2);
+
+			// === Second row: first column separate, remaining merged ===			
+
+			PdfPCell secondRowMerged = new PdfPCell(new Phrase("MODE CODES", cellFont));
+			secondRowMerged.setColspan(12); // Merge remaining 12 columns
+			secondRowMerged.setHorizontalAlignment(Element.ALIGN_CENTER);
+			secondRowMerged.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			tableCh5.addCell(secondRowMerged);
+
+			// === Third row: all 13 columns separate ===
+			String[] thirdRowColumns = {"01","02","03","04","05","06","07","08","16","17","18","19"};
+			for (String colText : thirdRowColumns) {
+			    PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			    cell.setPadding(5);
+			    tableCh5.addCell(cell);
+			}
+			// === Fourth row: first column with text, remaining columns with "-" ===
+			String[] fourthRowColumns = {"Associated Data Word (HEX)", "---", "---", "---", "---", "---", "---", "---", "---", "1616", "@", "$", "1919"};
+			for (String colText : fourthRowColumns) {
+			    PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+			    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			    cell.setPadding(5);
+			    tableCh5.addCell(cell);
+			}
+			
+			String[] fifthRowColumns = {"Data Word Address in DFCC", "---", "---", "---", "---", "---", "---", "---", "---", "003C820C", "---", "---", "003C820C"};
+			int countSixthRow = 0;
+			for (String colText : fifthRowColumns) {
+
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				Font cellFontSmall = new Font(Font.FontFamily.TIMES_ROMAN, 6, Font.NORMAL, BaseColor.BLACK);
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+				if (countSixthRow == 9|| countSixthRow == 12) {
+					cell = new PdfPCell(new Phrase(colText, cellFontSmall));
+					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				}
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+				countSixthRow++;
+			}
+			
+			String[] sixthRowColumns = {"T/R Status", "T", "T", "T", "T", "T", "T", "T", "T", "T", "R", "T", "T"};
+			for (String colText : sixthRowColumns) {
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_TOP);
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+			}
+			
+			//Fetch Data From Database
+			Interface1553B_ModeService interface1553B_ModeService = new Interface1553B_ModeService();
+			List<Interface1553B_Mode>lstInterface = interface1553B_ModeService.getInterfaceModeChecks("SASN000001", "L2_004");
+			Interface1553B_Mode interface1553B_ModeCh1 = new Interface1553B_Mode();
+			Interface1553B_Mode interface1553B_ModeCh2 = new Interface1553B_Mode();
+			Interface1553B_Mode interface1553B_ModeCh3 = new Interface1553B_Mode();
+			Interface1553B_Mode interface1553B_ModeCh4 = new Interface1553B_Mode();
+		
+			for(Interface1553B_Mode interface_mode:	lstInterface)
+			{
+				if (interface_mode.getChannelNo().equalsIgnoreCase("ch1")) {
+					interface1553B_ModeCh1 = interface_mode;
+				} else if (interface_mode.getChannelNo().equalsIgnoreCase("ch2")) {
+					interface1553B_ModeCh2 = interface_mode;
+				} else if (interface_mode.getChannelNo().equalsIgnoreCase("ch3")) {
+					interface1553B_ModeCh3 = interface_mode;
+				} else if (interface_mode.getChannelNo().equalsIgnoreCase("ch4")) {
+					interface1553B_ModeCh4 = interface_mode;
+				}
+			}
 			
 			
+			//CHANNEL 01
+			String[] seventhRowColumns = {"Channel 1", interface1553B_ModeCh1.getValue01(), interface1553B_ModeCh1.getValue02(), interface1553B_ModeCh1.getValue03(),interface1553B_ModeCh1.getValue04(), interface1553B_ModeCh1.getValue05(), interface1553B_ModeCh1.getValue06(), interface1553B_ModeCh1.getValue07(), interface1553B_ModeCh1.getValue08(), interface1553B_ModeCh1.getValue16(), interface1553B_ModeCh1.getValue17(), interface1553B_ModeCh1.getValue18(), interface1553B_ModeCh1.getValue19()};
+			for (String colText : seventhRowColumns) {
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_TOP);
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+			}
 			
+			//CHANNEL 02
+			String[] eighthRowColumns = {"Channel 2", interface1553B_ModeCh2.getValue01(), interface1553B_ModeCh2.getValue02(), interface1553B_ModeCh2.getValue03(),interface1553B_ModeCh2.getValue04(), interface1553B_ModeCh2.getValue05(), interface1553B_ModeCh2.getValue06(), interface1553B_ModeCh2.getValue07(), interface1553B_ModeCh2.getValue08(), interface1553B_ModeCh2.getValue16(), interface1553B_ModeCh2.getValue17(), interface1553B_ModeCh2.getValue18(), interface1553B_ModeCh1.getValue19()};
+			for (String colText : eighthRowColumns) {
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_TOP);
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+			}
+			
+			//CHANNEL 03
+			String[] ninethRowColumns = {"Channel 3", interface1553B_ModeCh3.getValue01(), interface1553B_ModeCh3.getValue02(), interface1553B_ModeCh3.getValue03(),interface1553B_ModeCh3.getValue04(), interface1553B_ModeCh3.getValue05(), interface1553B_ModeCh3.getValue06(), interface1553B_ModeCh3.getValue07(), interface1553B_ModeCh3.getValue08(), interface1553B_ModeCh3.getValue16(), interface1553B_ModeCh3.getValue17(), interface1553B_ModeCh3.getValue18(), interface1553B_ModeCh3.getValue19()};
+			for (String colText : ninethRowColumns) {
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_TOP);
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+			}
+			
+			//CHANNEL 04
+			String[] tenthRowColumns = {"Channel 4", interface1553B_ModeCh4.getValue01(), interface1553B_ModeCh4.getValue02(), interface1553B_ModeCh4.getValue03(),interface1553B_ModeCh4.getValue04(), interface1553B_ModeCh4.getValue05(), interface1553B_ModeCh4.getValue06(), interface1553B_ModeCh4.getValue07(), interface1553B_ModeCh4.getValue08(), interface1553B_ModeCh4.getValue16(), interface1553B_ModeCh4.getValue17(), interface1553B_ModeCh4.getValue18(), interface1553B_ModeCh4.getValue19()};
+			for (String colText : tenthRowColumns) {
+				PdfPCell cell = new PdfPCell(new Phrase(colText, cellFont));
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_TOP);
+				cell.setPadding(5);
+				tableCh5.addCell(cell);
+			}
+			
+
+
+			// Add table to document
+			document.add(tableCh5);
+
 		}
 
 		document.close();

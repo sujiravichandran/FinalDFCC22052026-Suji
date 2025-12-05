@@ -1481,10 +1481,6 @@ public class AitessProcessControlManagement {
 						&& OnlineStatus.getChannel3Status().equals("online")
 						&& OnlineStatus.getChannel4Status().equals("online")) {
 
-					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus.setChannel1Status("online");
-					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus.setChannel2Status("online");
-					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus.setChannel3Status("online");
-					com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus.setChannel4Status("online");
 
 					// initdfcc
 					initdfcc.set(true);

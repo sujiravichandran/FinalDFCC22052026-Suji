@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
-import org.hibernate.internal.build.AllowSysOut;
-
 import com.teclever.datastore.service.SessionTimingService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.UserData;
@@ -45,9 +43,12 @@ import com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -187,6 +188,9 @@ public class UserDashboardController {
 	public void initialize() {
 //		Suji Added For Toggle,Macro,and Status Bar updating::(11-08-2025)
 //		System.out.println("currentSessionDetails.getSessionId()" + currentSessionDetails.getSessionId());
+		
+
+		
 		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
 			if (newState == TestState.STOPPED) {
 				applyUiStatus(StateMachine.getTestState());
@@ -197,10 +201,9 @@ public class UserDashboardController {
 			}
 		});
 		
+		
+		
 		StateMachine.macroCommandProperty().addListener((obs, wasSet, isNowSet) -> {
-
-	        System.out.println("isNowSet = " + isNowSet);
-	        System.out.println("wasSet = " + wasSet);
 
 	        if (isNowSet) {
 	            System.out.println("Macro Executed");
@@ -216,7 +219,6 @@ public class UserDashboardController {
 	    StateMachine.macroCommandFailProperty().addListener((obs, wasSet, isNowSet) -> {
 
 	        if (isNowSet) {
-	            System.out.println("Macro Not Configured Properly.. ");
 	            Notifications.showSuccessAlert("Macro Not Configured Properly..");
 	        }
 
@@ -1462,6 +1464,7 @@ public class UserDashboardController {
 					Platform.runLater(() -> {
 //						System.out.println("Suji Entred 1st" + newValue);
 						setMK1Temp(newValue, box1, box2, box3, box4);
+						
 					});
 				} else {
 					Platform.runLater(() -> {
@@ -1526,6 +1529,13 @@ public class UserDashboardController {
 		if (temp.equalsIgnoreCase("sc") && boardChannelTemp.getBoardTemperatureMap().get(board) != null) {
 			double maxValue = boardChannelTemp.getMaxValue();
 			double minValue = boardChannelTemp.getMinValue();
+			Platform.runLater(() -> {
+			    StateMachine.setChannel1BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel1Temp());
+			    StateMachine.setChannel2BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel2Temp());
+			    StateMachine.setChannel3BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel3Temp());
+			    StateMachine.setChannel4BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel4Temp());
+			
+			});
 			label1.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel1Temp());
 			label2.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel2Temp());
 			label3.setText(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel3Temp());
@@ -1622,6 +1632,13 @@ public class UserDashboardController {
 		} else if (temp.equalsIgnoreCase("aec") && boardChannelTempAEC.getBoardTemperatureMap().get(board) != null) {
 			double maxValue = boardChannelTempAEC.getMaxValue();
 			double minValue = boardChannelTempAEC.getMinValue();
+			Platform.runLater(() -> {
+			    StateMachine.setChannel1BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel1Temp());
+			    StateMachine.setChannel2BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel2Temp());
+			    StateMachine.setChannel3BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel3Temp());
+			    StateMachine.setChannel4BlsTemperature(boardChannelTemp.getBoardTemperatureMap().get(board).getChannel4Temp());
+			
+			});
 			label1.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel1Temp());
 			label2.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel2Temp());
 			label3.setText(boardChannelTempAEC.getBoardTemperatureMap().get(board).getChannel3Temp());
@@ -2004,6 +2021,9 @@ public class UserDashboardController {
 //				label1.textProperty().bind(channelSCTemp.channel1TemperatureProperty());
 //			})
 //			System.out.println(channelSCTemp.channel1TemperatureProperty());
+			
+			
+			
 			Platform.runLater(() -> {
 			    label1.textProperty().bind(
 			        Bindings.when(channelSCTemp.channel1TemperatureProperty().isNull())
@@ -2066,6 +2086,8 @@ public class UserDashboardController {
 
 		} else if (selectedItem.equalsIgnoreCase("aec")) {
 //			System.out.println("---->"+channelAECTemp.channel1TemperatureProperty());
+			
+			
 			Platform.runLater(() -> {
 			    label1.textProperty().bind(
 			        Bindings.when(channelAECTemp.channel1TemperatureProperty().isNull())
@@ -2822,8 +2844,8 @@ public class UserDashboardController {
 
 		bottomMidTopGridPane.getStyleClass().add("center-container");
 		Platform.runLater(() -> {
-			DashboardController dashboardController = new DashboardController();
-			bottomMidTopGridPane.getChildren().add(dashboardController.createDashboardMainContainerGridPane());
+			DashboardControllerCenter dashboardControllerCenter = new DashboardControllerCenter();
+			bottomMidTopGridPane.getChildren().add(dashboardControllerCenter.createDashboardCenterMainContainerGridPane());
 			});
 
 		return bottomMidTopGridPane;

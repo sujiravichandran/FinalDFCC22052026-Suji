@@ -16,6 +16,7 @@ import org.bson.types.ObjectId;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.teclever.dfcc.DFCCConstant;
+import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.resultstore.configuration.ResultStoreConnection;
 import com.teclever.dfcc.resultstore.dto.RdfFileDetailsDto;
 import com.teclever.dfcc.resultstore.dto.StepDto;
@@ -41,6 +42,14 @@ public class RdfFileDetailsParser {
 	    
 	    
 	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
+	    
+	    
+	    
+	    //For Deviation Added
+	    AdvancedDataAnalysisManagement advancedDataAnalysisManagement = new AdvancedDataAnalysisManagement();
+	    advancedDataAnalysisManagement.addRDFFilesDetails(stepDtoList);
+	    
+	    
 //	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
 	    
 	    
@@ -150,6 +159,7 @@ public class RdfFileDetailsParser {
 	            );
 	        }
 	    Debug.printDebug("Returned Object Id------>>>>>    " + rdfFileInfoObjectId );
+	    
 	    
 	    
 	    

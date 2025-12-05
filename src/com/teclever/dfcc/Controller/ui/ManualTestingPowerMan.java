@@ -1,24 +1,39 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+import javax.management.Notification;
+
+import org.hibernate.internal.build.AllowSysOut;
+
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
-import com.teclever.datastore.entities.RDF1553BCode;
+import com.teclever.datastore.entities.PowerManDataAnalysis;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.advanceddataanalysis.DataAnalysis1553_BManagement;
+import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitGetDetailsManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitSessionDetailsDTO;
-import com.teclever.dfcc.model.Ch11553Table1;
-import com.teclever.dfcc.model.Ch11553Table2;
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.model.PowerManMk1;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -27,52 +42,62 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+//JavaFX / image
+import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
-import javafx.util.StringConverter;
+import javafx.stage.Stage;
 
-class ManualTesting1PowerManDataTableViewFactory implements TableViewFactory<Ch11553Table1> {
+class ManualTesting1PowerManDataTableViewFactory implements TableViewFactory<PowerManMk1> {
 	@Override
-	public CustomTableView<Ch11553Table1> createTableView(ObservableList<Ch11553Table1> items, boolean addUserColumn,
+	public CustomTableView<PowerManMk1> createTableView(ObservableList<PowerManMk1> items, boolean addUserColumn,
 			boolean addCheckboxColumn) {
-		return new CustomTableView<>(items, Ch11553Table1.class, addUserColumn, addCheckboxColumn);
+		return new CustomTableView<>(items, PowerManMk1.class, addUserColumn, addCheckboxColumn);
 	}
 }
 
+class ManualTesting2PowerManDataTableViewFactory implements TableViewFactory<PowerManMk1> {
+	@Override
+	public CustomTableView<PowerManMk1> createTableView(ObservableList<PowerManMk1> items, boolean addUserColumn,
+			boolean addCheckboxColumn) {
+		return new CustomTableView<>(items, PowerManMk1.class, addUserColumn, addCheckboxColumn);
+	}
+}
 
 public class ManualTestingPowerMan {
 
-	private GridPane ch1MainContainerGridPane = new GridPane();
+	private GridPane powerManMk1MainContainerGridPane = new GridPane();
 
 	private HBox headingHbox1 = new HBox(10);
 	private HBox headingHbox2 = new HBox(10);
-	private Label titleLabel = new Label("LCA FCC MK-1 POWER CHECK OBSERVATIONS");
-	private Label chLabel = new Label("STEADY STATE INPUT CURRENT MONITOR");
+	private HBox headingHbox3 = new HBox(10);
+	private Label titleLabel = new Label();
+	private Label chLabel = new Label();
+	private Label chLabel2 = new Label();
+
+	private ComboBox<String> uutTypeField = new ComboBox<String>();
+	private ObservableList<UUTMasterDetailsDto> uutDataList;
+	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 
 	private HBox serialHbox = new HBox(10);
 	private Label dfccSNoLabel = new Label("DFCC Serial Number : ");
@@ -84,32 +109,52 @@ public class ManualTestingPowerMan {
 	private TextField dfccSNoText = new TextField();
 	private Label editableLabel = new Label("Click to edit");
 	private TextField editField = new TextField(editableLabel.getText());
-
+	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
 	private Label stageNameLabel = new Label("Stage Name");
 	private ComboBox<String> stageName = new ComboBox<String>();
 
-	private StackPane ch11553Table1StackPane = new StackPane();
-	private GridPane ch11553Table1GridPane = new GridPane();
+	private StackPane powerManMk1Table1StackPane = new StackPane();
+	private GridPane powerManMk1Table1GridPane = new GridPane();
+	private StackPane powerManMk12Table1StackPane = new StackPane();
+	private GridPane powerManMk12Table1GridPane = new GridPane();
 
-	private ObservableList<Ch11553Table1> ch11553Table1DataList = FXCollections.observableArrayList();
-	private CustomTableView<Ch11553Table1> ch11553Table1DataTableView;
-	private TableViewFactory<Ch11553Table1> ch11553Table1DataFactory = new ManualTesting1Ch4DataTableViewFactory();
+	private StackPane powerManMk1Table2StackPane = new StackPane();
+	private GridPane powerManMk1Table2GridPane = new GridPane();
+	private GridPane powerManMk1Table22GridPane = new GridPane();
 
-	private StackPane ch11553Table2StackPane = new StackPane();
-	private GridPane ch11553Table2GridPane = new GridPane();
+	private StackPane powerManMk1Table22StackPane = new StackPane();
 
-	private ObservableList<Ch11553Table2> ch11553Table2DataList = FXCollections.observableArrayList();
-	private CustomTableView<Ch11553Table2> ch11553Table2DataTableView;
-	private TableViewFactory<Ch11553Table2> ch11553Table2DataFactory = new ManualTesting2Ch4DataTableViewFactory();
+	private ObservableList<PowerManMk1> powerManMk1Table1DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk1Table1DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk1Table1DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+	
+	private ObservableList<PowerManMk1> powerManMk12Table1DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk12Table1DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk12Table1DataFactory = new ManualTesting1PowerManDataTableViewFactory();
 
+	private ObservableList<PowerManMk1> powerManMk1Table2DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk1Table2DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk1Table2DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+	
+	private ObservableList<PowerManMk1> powerManMk1Table22DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk1Table22DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk1Table22DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+	private String uutId = "UUT1";
 	private HBox noteHBox = new HBox();
-	private Label noteLabel = new Label(
-			"NOTE: Valid Range for TTR Value is 0-65535(Decimal). If the computed Difference at STEP '02' is Negative, a Value of 65536 has to be added to account for the Wrap-around Frature.");
+	private Label noteLabel = new Label();
+
+	private Label tmpUutLabel;
+	private Label tmpSerialLabel;
+	private Label tmpSessionLabel;
+	private Label tmpStageLabel;
 
 	private HBox tbNoHBox = new HBox();
-	private Label tbNol = new Label("TB NO.:");
-	private Label tbNor = new Label("127");
-	private Label passFail = new Label("PASS/FAIL");
+	private Label tbNol = new Label("TB NO.:022 ");
+	private Label passFail = new Label();
+	private Label testRep = new Label("TESTING REP: ");
+	private Label testRepDate = new Label("DATE: ");
+	private Label tiqmRep = new Label("TI/QM REP: ");
+	private Label tiqmRepDate = new Label("DATE: ");
 	private SessionService s = new SessionService();
 	private HBox testCarriedOutHBox = new HBox();
 	private Label testCarriedOutBy = new Label("TEST CARRIED OUT BY:");
@@ -119,15 +164,31 @@ public class ManualTestingPowerMan {
 
 	private HBox printButtonHBox = new HBox();
 	private Button printButton = new Button("Print");
+	private Button saveButton = new Button("Save");
+	private Button fetchButton = new Button("Fetch");
 
 	private String selectedSessionId;
 	private String selectedStageName;
+	private String selectedStageId;
 
 	private UnitGetDetailsManagement unitGetDetailsManagement = new UnitGetDetailsManagement();
 	private Map<String, String> sessionNameId = new HashMap<String, String>();
 	private Map<String, String> stageNameId = new HashMap<String, String>();
-	List<SessionDto> sessionList = new ArrayList<SessionDto>();
-	List<UnitSessionDetailsDTO> stageList = new ArrayList<UnitSessionDetailsDTO>();
+	private List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private List<UnitSessionDetailsDTO> stageList = new ArrayList<UnitSessionDetailsDTO>();
+	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+
+	private String t1Ch1;
+	private String t1Ch2;
+	private String t1Ch3;
+	private String t1Ch4;
+
+	private String t2Ch1;
+	private String t2Ch2;
+	private String t2Ch3;
+	private String t2Ch4;
+	
+	private AdvancedDataAnalysisManagement advancedDataAnalysisManagement = new AdvancedDataAnalysisManagement();
 
 	public ManualTestingPowerMan() {
 
@@ -138,13 +199,20 @@ public class ManualTestingPowerMan {
 			sessionNameId.put(session.getSessionName(), session.getSessionId());
 
 		}
-		getSerialNo();
+
+		initializeUUTTypeComboBox();
+
 	}
 
 	public GridPane createlinkFilesMainContainerGridPane() {
-		ch1MainContainerGridPane.getStylesheets().add(getClass()
+		printButton.setDisable(true);
+		powerManMk1MainContainerGridPane.getChildren().clear();
+		powerManMk1MainContainerGridPane.getColumnConstraints().clear();
+		powerManMk1MainContainerGridPane.getRowConstraints().clear();
+
+		powerManMk1MainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/ManualTesting.css").toExternalForm());
-		ch1MainContainerGridPane.getStyleClass().add("dashboard-main-container");
+		powerManMk1MainContainerGridPane.getStyleClass().add("advanced-testing-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -156,94 +224,199 @@ public class ManualTestingPowerMan {
 		secondRow.setPercentHeight(5);
 
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(25);
+		thirdRow.setPercentHeight(17);
 
 		RowConstraints fourthRow = new RowConstraints();
-		fourthRow.setPercentHeight(25);
+		fourthRow.setPercentHeight(17);
 
 		RowConstraints fivthRow = new RowConstraints();
-		fivthRow.setPercentHeight(5);
+		fivthRow.setPercentHeight(10);
 
 		RowConstraints sixthRow = new RowConstraints();
-		sixthRow.setPercentHeight(5);
+		sixthRow.setPercentHeight(10);
 
 		RowConstraints seventhRow = new RowConstraints();
 		seventhRow.setPercentHeight(10);
 
-		RowConstraints eighthRow = new RowConstraints();
-		eighthRow.setPercentHeight(10);
+		RowConstraints eigthRow = new RowConstraints();
+		eigthRow.setPercentHeight(10);
 
-		ch1MainContainerGridPane.setHgap(10);
-		ch1MainContainerGridPane.setVgap(10);
+		powerManMk1MainContainerGridPane.setHgap(10);
+		powerManMk1MainContainerGridPane.setVgap(10);
 
-		ch1MainContainerGridPane.getColumnConstraints().addAll(firstColumn);
-		ch1MainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow,
-				sixthRow, seventhRow, eighthRow);
-		ch1MainContainerGridPane.setPadding(new Insets(10, 10, 10, 10));
+		powerManMk1MainContainerGridPane.getColumnConstraints().addAll(firstColumn);
+		powerManMk1MainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow,
+				sixthRow, seventhRow, eigthRow);
+		powerManMk1MainContainerGridPane.setPadding(new Insets(10, 10, 10, 10));
 
-		ch1MainContainerGridPane.add(createHeadingBox(), 0, 0);
-		ch1MainContainerGridPane.add(createSerialAlternateGridePane(), 0, 1);
-		ch1MainContainerGridPane.add(create1553Table1Content(), 0, 2);
-		ch1MainContainerGridPane.add(create1553Table2Content(), 0, 3);
-		ch1MainContainerGridPane.add(noteGridPane(), 0, 4);
-		ch1MainContainerGridPane.add(tbGridPane(), 0, 5);
-		ch1MainContainerGridPane.add(testCarriedOutGridPane(), 0, 6);
-		ch1MainContainerGridPane.add(dateGridPane(), 0, 7);
+		powerManMk1MainContainerGridPane.add(createHeadingBox(), 0, 0);
+		powerManMk1MainContainerGridPane.add(createSerialAlternateGridePane(), 0, 1);
+		if ("UUT1".equalsIgnoreCase(uutId)) {
+			powerManMk1MainContainerGridPane.add(createPowerManMk1Table1Content(), 0, 2);
+			powerManMk1MainContainerGridPane.add(createPowerManMk12Table1Content(), 0, 3);
+		} else {
+			powerManMk1MainContainerGridPane.add(createPowerManMk1Table2Content(), 0, 2);
+			powerManMk1MainContainerGridPane.add(createPowerManMk1Table22Content(), 0, 3);
+		}
 
-		return ch1MainContainerGridPane;
+		powerManMk1MainContainerGridPane.add(createNoteBox(), 0, 4);
+		powerManMk1MainContainerGridPane.add(createRepBox(), 0, 5);
+		powerManMk1MainContainerGridPane.add(createRepDateBox(), 0, 6);
+		powerManMk1MainContainerGridPane.add(createPrintButtonHbox(), 0, 7);
+
+		return powerManMk1MainContainerGridPane;
 	}
 
 	private GridPane createHeadingBox() {
+
 		GridPane topBoxGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(50);
+		firstRow.setPercentHeight(33);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(50);
+		secondRow.setPercentHeight(33);
 
-		headingHbox1.setAlignment(Pos.CENTER);
-		titleLabel.setUnderline(true);
-		titleLabel.getStyleClass().add("advanced-testing-title");
-
-		headingHbox2.setAlignment(Pos.CENTER);
-		chLabel.getStyleClass().add("advanced-testing-title");
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(33);
 
 		topBoxGridPane.getColumnConstraints().addAll(firstColumn);
-		topBoxGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		topBoxGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
-		headingHbox1.getChildren().add(titleLabel);
-		headingHbox2.getChildren().add(chLabel);
+		// 🔥 CREATE NEW INSTANCES every time (NO reuse)
+		HBox headingHbox1 = new HBox();
+		HBox headingHbox2 = new HBox();
+		HBox headingHbox3 = new HBox();
+
+		Label title = new Label(titleLabel.getText());
+		Label ch = new Label(chLabel.getText());
+		Label ch2 = new Label(chLabel2.getText());
+
+		headingHbox1.setAlignment(Pos.CENTER);
+		title.setUnderline(true);
+		title.getStyleClass().add("advanced-testing-title");
+
+		headingHbox2.setAlignment(Pos.CENTER);
+		ch.getStyleClass().add("advanced-testing-title");
+
+		headingHbox3.setAlignment(Pos.CENTER);
+		ch2.getStyleClass().add("advanced-testing-title");
+		noteLabel.setStyle("advanced-testing-title");
+
+		headingHbox1.getChildren().add(title);
+		headingHbox2.getChildren().add(ch);
+		headingHbox3.getChildren().add(ch2);
 
 		topBoxGridPane.add(headingHbox1, 0, 0);
 		topBoxGridPane.add(headingHbox2, 0, 1);
+		topBoxGridPane.add(headingHbox3, 0, 2);
 
 		return topBoxGridPane;
+	}
+
+	private GridPane createNoteBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(60);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(20);
+
+		ColumnConstraints col3 = new ColumnConstraints();
+		col3.setPercentWidth(20);
+
+		grid.getColumnConstraints().addAll(col1, col2, col3);
+
+		grid.add(noteLabel, 0, 0);
+		grid.add(tbNol, 1, 0);
+		grid.add(passFail, 2, 0);
+		noteLabel.getStyleClass().add("nonheading-label");
+		tbNol.getStyleClass().add("nonheading-label");
+		passFail.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(tbNol, HPos.RIGHT);
+		GridPane.setHalignment(passFail, HPos.LEFT);
+
+		return grid;
+	}
+
+	private GridPane createRepBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(50);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(50);
+
+		grid.getColumnConstraints().addAll(col1, col2);
+
+		grid.add(testRep, 0, 0);
+		grid.add(tiqmRep, 1, 0);
+		testRep.getStyleClass().add("nonheading-label");
+		tiqmRep.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(testRep, HPos.CENTER);
+		GridPane.setHalignment(tiqmRep, HPos.CENTER);
+
+		return grid;
+	}
+
+	private GridPane createRepDateBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(50);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(50);
+
+		grid.getColumnConstraints().addAll(col1, col2);
+
+		grid.add(testRepDate, 0, 0);
+		grid.add(tiqmRepDate, 1, 0);
+
+		testRepDate.getStyleClass().add("nonheading-label");
+		tiqmRepDate.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(testRepDate, HPos.CENTER);
+		GridPane.setHalignment(tiqmRepDate, HPos.CENTER);
+
+		return grid;
 	}
 
 	private GridPane createSerialAlternateGridePane() {
 		GridPane serialAlternateGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(33);
+		firstColumn.setPercentWidth(25);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(33);
+		secondColumn.setPercentWidth(25);
 
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(33);
+		thirdColumn.setPercentWidth(25);
 
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		serialAlternateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+		serialAlternateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
 		serialAlternateGridPane.getRowConstraints().addAll(firstRow);
 
 		dfccSNoLabel.getStyleClass().add("nonheading-label");
+
+		HBox uutHbox = new HBox(10);
+		uutHbox.setAlignment(Pos.CENTER_LEFT);
+		uutHbox.setFillHeight(true);
+		uutTypeField.setPromptText("select UUT Type");
+		uutHbox.getChildren().add(uutTypeField);
 
 		HBox serialHbox = new HBox(10);
 		serialHbox.setAlignment(Pos.CENTER_LEFT);
@@ -253,22 +426,21 @@ public class ManualTestingPowerMan {
 		sessionHbox.setAlignment(Pos.CENTER);
 
 		dfccSessionName.getStyleClass().add("nonheading-label");
-		sessionHbox.getChildren().addAll(dfccSessionName, sessioName);
-
-		serialHbox.getChildren().addAll(dfccSNoLabel, serialnumber);
-
-		
+		sessionHbox.getChildren().addAll(sessioName);
+		sessioName.setPromptText("select Session");
+		serialHbox.getChildren().addAll(serialnumber);
+		serialnumber.setPromptText("select Serial No");
+		stageName.setPromptText("select Stage Name");
 
 		HBox stageNameHbox = new HBox(10);
 		stageNameHbox.setAlignment(Pos.CENTER_RIGHT);
 		stageNameLabel.getStyleClass().add("nonheading-label");
-		stageNameHbox.getChildren().addAll(stageNameLabel, stageName);
+		stageNameHbox.getChildren().addAll(stageName);
 
-		serialAlternateGridPane.add(serialHbox, 0, 0);
-		serialAlternateGridPane.add(sessionHbox, 1, 0);
-		serialAlternateGridPane.add(stageNameHbox, 2, 0);
-//		serialAlternateGridPane.add(alternateHbox, 3, 0);
-
+		serialAlternateGridPane.add(uutHbox, 0, 0);
+		serialAlternateGridPane.add(serialHbox, 1, 0);
+		serialAlternateGridPane.add(sessionHbox, 2, 0);
+		serialAlternateGridPane.add(stageNameHbox, 3, 0);
 
 		return serialAlternateGridPane;
 	}
@@ -277,14 +449,75 @@ public class ManualTestingPowerMan {
 		List serailNumber = FXCollections.observableArrayList(unitGetDetailsManagement.getAllDfccSerialNo());
 		serialnumber.setItems((ObservableList<String>) serailNumber);
 
+	}
+
+	private void initializeUUTTypeComboBox() {
+		uutDataList = FXCollections.observableArrayList(configManager.getAllUUT());
+
+		for (UUTMasterDetailsDto uut : uutDataList) {
+			uutTypeList.add(uut.getUutType());
+		}
+
+		uutTypeField.setItems(uutTypeList);
+
+		uutTypeField.setOnAction((event) -> {
+			
+			printButton.setDisable(true);
+
+			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+			uutId = fetchUutId(selectedUUTType);
+			initalizeSerialNoComboBox(uutId);
+
+			if (uutId.equalsIgnoreCase("UUT1")) {
+				titleLabel.setText("LCA DFCC MK-1 POWER CHECK OBSERVATIONS");
+				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1)");
+				noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+
+			} else if (uutId.equalsIgnoreCase("UUT2")) {
+				titleLabel.setText("LCA DFCC MK-1A POWER CHECK OBSERVATIONS");
+				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1A)");
+				noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
+			} else {
+				titleLabel.setText("LCA DFCC MK-2 POWER CHECK OBSERVATIONS");
+				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-2)");
+				noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
+			}
+			createlinkFilesMainContainerGridPane();
+		});
+	}
+
+	private String fetchUutId(String uutType) {
+		for (UUTMasterDetailsDto uut : uutDataList) {
+			if (uut.getUutType().equals(uutType)) {
+				return uut.getUutId();
+			}
+		}
+		return null;
+	}
+
+	private void initalizeSerialNoComboBox(String uutId) {
+		dfccSNList.clear();
+		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
+				.collect(Collectors.toList());
+
+		Set<String> seenDfccSNos = new HashSet<>();
+
+		for (SessionDto dfccSn : filterSessionList) {
+			String dfccSNo = dfccSn.getDfccSNo();
+			if (seenDfccSNos.add(dfccSNo)) {
+				dfccSNList.add(dfccSNo);
+			}
+		}
+		serialnumber.setItems(dfccSNList);
 		serialnumber.setOnAction((event) -> {
 
 			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
-			System.out.println("selectedSerialNumber" + selectedSerialNumber);
 			initializeSessionComboBox(selectedSerialNumber);
 
 		});
-
 	}
 
 	private void initializeSessionComboBox(String selectedDfccNo) {
@@ -315,33 +548,47 @@ public class ManualTestingPowerMan {
 	}
 
 	private void getStageName(String sessionId) {
-		System.out.println("Stage Name Session id" + sessionId);
 		stageList = unitGetDetailsManagement.getStageDetailsForSession(selectedSessionId);
 		System.out.println("stageList" + stageList);
 		for (UnitSessionDetailsDTO stageName : stageList) {
 			stageNameId.put(stageName.getStageId(), stageName.getStageName());
 		}
 
-		System.out.println("stageNameIdstageNameIdstageNameId" + stageNameId.values());
 		stageName.setItems(FXCollections.observableArrayList(stageNameId.values()));
 
 		stageName.setOnAction((event) -> {
 			selectedStageName = stageName.getSelectionModel().getSelectedItem();
-			System.out.println("selectedStageName" + selectedStageName);
-			create1553Table1DataTable();
+
+			selectedStageId = stageNameId.entrySet()
+			    .stream()
+			    .filter(e -> selectedStageName.equals(e.getValue()))
+			    .map(Map.Entry::getKey)
+			    .findFirst()
+			    .orElse(null);
 		});
-
 	}
 
-	private StackPane create1553Table1Content() {
-		ch11553Table1StackPane.getStyleClass().add("tab-content-container");
-		ch11553Table1StackPane.getChildren().clear();
-		ch11553Table1StackPane.getChildren().add(ch11553TableResultGridPane());
-		return ch11553Table1StackPane;
+	private StackPane createPowerManMk1Table1Content() {
+
+		powerManMk1Table1StackPane.getChildren().clear();
+		powerManMk1Table1StackPane.getStyleClass().add("tab-content-container");
+		powerManMk1Table1StackPane.getChildren().clear();
+		powerManMk1Table1StackPane.getChildren().add(powerManMk1TableResultGridPane());
+		return powerManMk1Table1StackPane;
 	}
 
-	private GridPane ch11553TableResultGridPane() {
-//		ch11553Table1GridPane.getStyleClass().add("current-execution-result-tabs-container");
+	private StackPane createPowerManMk12Table1Content() {
+		powerManMk12Table1StackPane.getChildren().clear();
+		powerManMk12Table1StackPane.getStyleClass().add("tab-content-container");
+		powerManMk12Table1StackPane.getChildren().clear();
+		powerManMk12Table1StackPane.getChildren().add(powerManMk12TableResultGridPane());
+		return powerManMk12Table1StackPane;
+	}
+
+	private GridPane powerManMk1TableResultGridPane() {
+		powerManMk1Table1GridPane.getChildren().clear();
+		powerManMk1Table1GridPane.getColumnConstraints().clear();
+		powerManMk1Table1GridPane.getRowConstraints().clear();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -349,276 +596,203 @@ public class ManualTestingPowerMan {
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-//		ch11553Table1GridPane.setPadding(new Insets(5));
+		powerManMk1Table1GridPane.getColumnConstraints().add(firstColumn);
+		powerManMk1Table1GridPane.getRowConstraints().add(firstRow);
 
-		ch11553Table1GridPane.getColumnConstraints().addAll(firstColumn);
-		ch11553Table1GridPane.getRowConstraints().addAll(firstRow);
+		powerManMk1Table1GridPane.add(createPowerManMk1Table1DataTable(), 0, 0);
 
-		ch11553Table1GridPane.add(create1553Table1DataTable(), 0, 0);
-		return ch11553Table1GridPane;
+		return powerManMk1Table1GridPane;
 	}
 
-	public ScrollPane create1553Table1DataTable() {
-		ch11553Table1DataList.clear();
+	private GridPane powerManMk12TableResultGridPane() {
+		powerManMk12Table1GridPane.getChildren().clear();
+		powerManMk12Table1GridPane.getColumnConstraints().clear();
+		powerManMk12Table1GridPane.getRowConstraints().clear();
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(100);
 
-		ScrollPane tableScrollPane = new ScrollPane();
-		tableScrollPane.setFitToWidth(true);
-		tableScrollPane.setFitToHeight(true);
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+
+		powerManMk12Table1GridPane.getColumnConstraints().add(firstColumn);
+		powerManMk12Table1GridPane.getRowConstraints().add(firstRow);
+
+		powerManMk12Table1GridPane.add(createPowermanMk12Table1DataTable(), 0, 0);
+
+		return powerManMk12Table1GridPane;
+	}
+
+	private ScrollPane createPowerManMk1Table1DataTable() {
+
+		powerManMk1Table1DataList.clear();
+
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk1Table1DataTableView);
 
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
-				System.out.println("SESSION NAME" + selectedSessionId);
-				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(selectedSessionId,
-						selectedStageName, "ch3");
 
-				System.out.println("Data list size: " + dataList.size());
+				// --- ONLY ONE DEFAULT ROW ---
+				PowerManMk1 dto = new PowerManMk1();
 
-				if (dataList != null && !dataList.isEmpty()) {
-					for (RDF1553BCode rdf : dataList) {
-						Ch11553Table1 newCh11553T1Data = new Ch11553Table1();
-						newCh11553T1Data.setStep("");
-						newCh11553T1Data.setOperation("");
-						newCh11553T1Data.setTtr1_I(rdf.getValueCh_1());
-						newCh11553T1Data.setTtr1_II(rdf.getValueCh_2());
-						newCh11553T1Data.setTtr1_III(rdf.getValueCh_3());
-						newCh11553T1Data.setTtr1_IV(rdf.getValueCh_4());
-						newCh11553T1Data.setTtr1_V(rdf.getValueCh_5());
-						newCh11553T1Data.setTtr1_VI(rdf.getValueCh_6());
-						newCh11553T1Data.setTtr1_VII(rdf.getValueCh_7());
-						ch11553Table1DataList.add(newCh11553T1Data);
-					}
-				}
+				dto.setInputVoltageSetting("28");
+				dto.setDescription("HIGH TO RETURN");
+				dto.setExpectedValue("385.4 - 412.6");
+//
+//				dto.setChannel1("");
+//				dto.setChannel2("");
+//				dto.setChannel3("");
+//				dto.setChannel4("");
 
+				powerManMk1Table1DataList.add(dto);
+
+				// Create table after data is ready
+				powerManMk1Table1DataTableView = powerManMk1Table1DataFactory.createTableView(powerManMk1Table1DataList,
+						false, false);
+
+				tableScrollPane.setFitToHeight(true);
 				return null;
 			}
 
 			@Override
 			protected void succeeded() {
 				Platform.runLater(() -> {
-					ch11553Table1DataTableView = ch11553Table1DataFactory.createTableView(ch11553Table1DataList, false,
-							false);
 
-					ch11553Table1DataTableView.getColumns().forEach(column -> {
+					powerManMk1Table1DataTableView.getColumns().forEach(column -> {
 						String colName = column.getText();
 
 						switch (colName) {
-						
-						case "TTR1_I":
+						case "INPUT VOLTAGE SETTING":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader = new Label("TTR1_I Contents of 003C C03C(Decimal)");
-							Label subHeader = new Label("TEST: 6480");
-
+							column.setMaxWidth(130);
+							Label mainHeader = new Label("INPUT VOLTAGE SETTING\n(VOLTS DC)");
 							mainHeader.setWrapText(true);
-							mainHeader.setAlignment(Pos.CENTER);
-							mainHeader.setMinHeight(50);
-							mainHeader.setPrefHeight(110);
 							mainHeader.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader.setAlignment(Pos.CENTER);
-							subHeader.setTextAlignment(TextAlignment.CENTER);
-							subHeader.setStyle("-fx-font-size: 10px;");
-
-							Separator separator = new Separator();
-							separator.setMaxWidth(170);
-							separator.setStyle("-fx-background-color: black;");
-
-							VBox headerBox = new VBox(mainHeader, separator, subHeader);
+							mainHeader.setAlignment(Pos.CENTER);
+							mainHeader.setMinWidth(130);
+							mainHeader.setMaxWidth(130);
+							VBox headerBox = new VBox(mainHeader);
 							headerBox.setAlignment(Pos.CENTER);
 							headerBox.setSpacing(2);
 							headerBox.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_I"));
+							column.setCellValueFactory(new PropertyValueFactory<>("inputvoltagesetting"));
 							break;
 
-						case "TTR1_II":
+						case "DESCRIPTION":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader1 = new Label("TTR1_I Contents of 003C C07C(Decimal)");
-							Label subHeader1 = new Label("TEST: 6496");
-
+							column.setMinWidth(300);
+							column.setMaxWidth(300);
+							Label mainHeader1 = new Label("DESCRIPTION\n(Monitored Parameter)");
 							mainHeader1.setWrapText(true);
-							mainHeader1.setAlignment(Pos.CENTER);
-							mainHeader1.setMinHeight(50);
-							mainHeader1.setPrefHeight(110);
 							mainHeader1.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader1.setWrapText(true);
-							subHeader1.setAlignment(Pos.CENTER);
-							subHeader1.setTextAlignment(TextAlignment.CENTER);
-							subHeader1.setStyle("-fx-font-size: 10px;");
-
-							Separator separator1 = new Separator();
-							separator1.setMaxWidth(170);
-							separator1.setStyle("-fx-background-color: black;");
-
-							VBox headerBox1 = new VBox(mainHeader1, separator1, subHeader1);
+							mainHeader1.setAlignment(Pos.CENTER);
+							mainHeader1.setMinWidth(300);
+							mainHeader1.setMaxWidth(300);
+							VBox headerBox1 = new VBox(mainHeader1);
 							headerBox1.setAlignment(Pos.CENTER);
 							headerBox1.setSpacing(2);
 							headerBox1.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox1);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_II"));
+							column.setCellValueFactory(new PropertyValueFactory<>("description"));
 							break;
 
-						case "TTR1_III":
+						case "EXPECTED VALUE":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader2 = new Label("TTR1_I Contents of 003C C03C(Decimal)");
-							Label subHeader2 = new Label("TEST: 6512");
-
+							column.setMinWidth(350);
+							column.setMaxWidth(350);
+							Label mainHeader2 = new Label("EXPECTED VALUE\n(HZ)");
 							mainHeader2.setWrapText(true);
-							mainHeader2.setAlignment(Pos.CENTER);
-							mainHeader2.setMinHeight(50);
-							mainHeader2.setPrefHeight(110);
 							mainHeader2.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader2.setWrapText(true);
-							subHeader2.setAlignment(Pos.CENTER);
-							subHeader2.setTextAlignment(TextAlignment.CENTER);
-							subHeader2.setStyle("-fx-font-size: 10px;");
-
-							Separator separator2 = new Separator();
-							separator2.setMaxWidth(170);
-							separator2.setStyle("-fx-background-color: black;");
-
-							VBox headerBox2 = new VBox(mainHeader2, separator2, subHeader2);
+							mainHeader2.setAlignment(Pos.CENTER);
+							mainHeader2.setMinWidth(350);
+							mainHeader2.setMaxWidth(350);
+							VBox headerBox2 = new VBox(mainHeader2);
 							headerBox2.setAlignment(Pos.CENTER);
 							headerBox2.setSpacing(2);
 							headerBox2.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox2);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_III"));
+							column.setCellValueFactory(new PropertyValueFactory<>("expectedvalue"));
 							break;
 
-						case "TTR1_IV":
+						case "CHANNEL1":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader3 = new Label("TTR1_I Contents of 003C C03C(Decimal)");
-							Label subHeader3 = new Label("TEST: 6528");
-
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader3 = new Label("CHANNEL 1\n(BOB2 - 104: P17 -80/79)");
 							mainHeader3.setWrapText(true);
-							mainHeader3.setAlignment(Pos.CENTER);
-							mainHeader3.setMinHeight(50);
-							mainHeader3.setPrefHeight(110);
 							mainHeader3.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader3.setWrapText(true);
-							subHeader3.setAlignment(Pos.CENTER);
-							subHeader3.setTextAlignment(TextAlignment.CENTER);
-							subHeader3.setStyle("-fx-font-size: 10px;");
-
-							Separator separator3 = new Separator();
-							separator3.setMaxWidth(170);
-							separator3.setStyle("-fx-background-color: black;");
-
-							VBox headerBox3 = new VBox(mainHeader3, separator3, subHeader3);
+							mainHeader3.setAlignment(Pos.CENTER);
+							mainHeader3.setMinWidth(185);
+							mainHeader3.setMaxWidth(185);
+							VBox headerBox3 = new VBox(mainHeader3);
 							headerBox3.setAlignment(Pos.CENTER);
 							headerBox3.setSpacing(2);
 							headerBox3.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox3);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_IV"));
+							column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
 							break;
 
-						case "TTR1_V":
+						case "CHANNEL2":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader4 = new Label("TTR1_I Contents of 003C C13C(Decimal)");
-							Label subHeader4 = new Label("TEST: 6544");
-
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader4 = new Label("CHANNEL 2\n(BOB2 - 104: P17 -81/82)");
 							mainHeader4.setWrapText(true);
-							mainHeader4.setAlignment(Pos.CENTER);
-							mainHeader4.setMinHeight(50);
-							mainHeader4.setPrefHeight(110);
 							mainHeader4.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader4.setWrapText(true);
-							subHeader4.setAlignment(Pos.CENTER);
-							subHeader4.setTextAlignment(TextAlignment.CENTER);
-							subHeader4.setStyle("-fx-font-size: 10px;");
-
-							Separator separator4 = new Separator();
-							separator4.setMaxWidth(170);
-							separator4.setStyle("-fx-background-color: black;");
-
-							VBox headerBox4 = new VBox(mainHeader4, separator4, subHeader4);
+							mainHeader4.setAlignment(Pos.CENTER);
+							mainHeader4.setMinWidth(185);
+							mainHeader4.setMaxWidth(185);
+							VBox headerBox4 = new VBox(mainHeader4);
 							headerBox4.setAlignment(Pos.CENTER);
 							headerBox4.setSpacing(2);
 							headerBox4.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox4);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_V"));
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel2"));
 							break;
 
-						case "TTR1_VI":
+						case "CHANNEL3":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader5 = new Label("TTR1_I Contents of 003C C17C(Decimal)");
-							Label subHeader5 = new Label("TEST: 6560");
-
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader5 = new Label("CHANNEL 3\n(BOB2 - 104: P17 -86/87)");
 							mainHeader5.setWrapText(true);
-							mainHeader5.setAlignment(Pos.CENTER);
-							mainHeader5.setMinHeight(50);
-							mainHeader5.setPrefHeight(110);
 							mainHeader5.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader5.setWrapText(true);
-							subHeader5.setAlignment(Pos.CENTER);
-							subHeader5.setTextAlignment(TextAlignment.CENTER);
-							subHeader5.setStyle("-fx-font-size: 10px;");
-
-							Separator separator5 = new Separator();
-							separator5.setMaxWidth(170);
-							separator5.setStyle("-fx-background-color: black;");
-
-							VBox headerBox5 = new VBox(mainHeader5, separator5, subHeader5);
+							mainHeader5.setAlignment(Pos.CENTER);
+							mainHeader5.setMinWidth(185);
+							mainHeader5.setMaxWidth(185);
+							VBox headerBox5 = new VBox(mainHeader5);
 							headerBox5.setAlignment(Pos.CENTER);
 							headerBox5.setSpacing(2);
 							headerBox5.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox5);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_VI"));
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel3"));
 							break;
 
-						case "TTR1_VII":
+						case "CHANNEL4":
 							column.setText(null);
-							column.setMinWidth(130);
-							column.setMaxWidth(132);
-							Label mainHeader6 = new Label("TTR1_I Contents of 003C C1BC(Decimal)");
-							Label subHeader6 = new Label("TEST: 6576");
-
+							column.setMinWidth(190);
+							column.setMaxWidth(190);
+							Label mainHeader6 = new Label("CHANNEL 4\n(BOB2 - 104: P17 -89/90)");
 							mainHeader6.setWrapText(true);
-							mainHeader6.setMinHeight(50);
-							mainHeader6.setPrefHeight(110);
-							mainHeader6.setAlignment(Pos.CENTER);
 							mainHeader6.setTextAlignment(TextAlignment.CENTER);
-
-							subHeader6.setWrapText(true);
-							subHeader6.setAlignment(Pos.CENTER);
-							subHeader6.setTextAlignment(TextAlignment.CENTER);
-							subHeader6.setStyle("-fx-font-size: 10px;");
-
-							Separator separator6 = new Separator();
-							separator6.setMaxWidth(170);
-							separator6.setStyle("-fx-background-color: black;");
-
-							VBox headerBox6 = new VBox(mainHeader6, separator6, subHeader6);
+							mainHeader6.setAlignment(Pos.CENTER);
+							mainHeader6.setMinWidth(190);
+							mainHeader6.setMaxWidth(190);
+							VBox headerBox6 = new VBox(mainHeader6);
 							headerBox6.setAlignment(Pos.CENTER);
 							headerBox6.setSpacing(2);
 							headerBox6.setPadding(new Insets(4, 2, 4, 2));
 
 							column.setGraphic(headerBox6);
-							column.setCellValueFactory(new PropertyValueFactory<>("ttr1_VII"));
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel4"));
 							break;
 
 						default:
@@ -629,18 +803,72 @@ public class ManualTestingPowerMan {
 
 					});
 
-					// ✅ Add TableView to ScrollPane
-					tableScrollPane.setContent(ch11553Table1DataTableView);
+					tableScrollPane.setContent(powerManMk1Table1DataTableView);
+					powerManMk1Table1DataTableView.setEditable(true);
 
-					if (ch11553Table1DataList.isEmpty()) {
-						tableScrollPane.setFitToWidth(true);
-					}
+					// -------- INPUT VOLTAGE ----------
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(0);
+
+					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
+					inputColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
+
+					// -------- DESCRIPTION ----------
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(1);
+
+					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+					descColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
+
+					// -------- EXPECTED VALUE ----------
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(2);
+
+					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
+					expectedColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
+
+					// -------- CHANNEL 1 ----------
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(3);
+
+					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+					ch1Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
+
+					// -------- CHANNEL 2 ----------
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(4);
+
+					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
+					ch2Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
+
+					// -------- CHANNEL 3 ----------
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(5);
+
+					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
+					ch3Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
+
+					// -------- CHANNEL 4 ----------
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk1Table1DataTableView
+							.getColumns().get(6);
+
+					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
+					ch4Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch4Column.setOnEditCommit(e -> e.getRowValue().setChannel4(e.getNewValue()));
+
+					tableScrollPane.setFitToHeight(true);
 				});
 			}
 
 			@Override
 			protected void failed() {
-				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to load PowerMan MK1 data"));
 			}
 		};
 
@@ -648,353 +876,1145 @@ public class ManualTestingPowerMan {
 		return tableScrollPane;
 	}
 
-	private StackPane create1553Table2Content() {
-		ch11553Table2StackPane.getStyleClass().add("tab-content-container");
-		ch11553Table2StackPane.getChildren().clear();
-		ch11553Table2StackPane.getChildren().add(ch11553Table2ResultGridPane());
-		return ch11553Table2StackPane;
-	}
+	private ScrollPane createPowermanMk12Table1DataTable() {
 
-	private GridPane ch11553Table2ResultGridPane() {
-//		ch11553Table1GridPane.getStyleClass().add("current-execution-result-tabs-container");
+		powerManMk12Table1DataList.clear();
 
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
-
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
-
-		ch11553Table2GridPane.setPadding(new Insets(5));
-
-		ch11553Table2GridPane.getColumnConstraints().addAll(firstColumn);
-		ch11553Table2GridPane.getRowConstraints().addAll(firstRow);
-
-		ch11553Table2GridPane.add(create1553Table2DataTable(), 0, 0);
-		return ch11553Table2GridPane;
-	}
-
-	public ScrollPane create1553Table2DataTable() {
-		ch11553Table2DataList.clear();
-
-		ScrollPane tableScrollPane = new ScrollPane();
-		tableScrollPane.setFitToHeight(true);
-		tableScrollPane.setFitToWidth(true);
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table1DataTableView);
 
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
-				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(selectedSessionId,
-						selectedStageName, "ch3");
-				if (dataList != null && !dataList.isEmpty()) {
-					for (RDF1553BCode rdf : dataList) {
-						Ch11553Table2 newCh11553T2Data = new Ch11553Table2();
-						newCh11553T2Data.setStep("02");
-						newCh11553T2Data.setOperation("Compute Difference");
-						newCh11553T2Data.setTTR1I(rdf.getDiff_1and2());
-						newCh11553T2Data.setTTR1II(rdf.getDiff_2and3());
-						newCh11553T2Data.setTTR1III(rdf.getDiff_3and4());
-						newCh11553T2Data.setTTR1IV(rdf.getDiff_4and5());
-						newCh11553T2Data.setTTR1V(rdf.getDiff_5and6());
-						newCh11553T2Data.setTTR1VI(rdf.getDiff_6and7());
 
-						ch11553Table2DataList.add(newCh11553T2Data);
+				// --- ONLY ONE DEFAULT ROW ---
+				PowerManMk1 dto = new PowerManMk1();
 
-						Ch11553Table2 resRow = new Ch11553Table2();
-						resRow.setStep("03");
-						resRow.setOperation("DECLARE:\n(P: Pass; F: Fail)\n P:Diff = 312 / 313 \n F: OTHER-WISE");
+				dto.setInputVoltageSetting("28");
+				dto.setDescription("LOW TO RETURN");
+				dto.setExpectedValue("385.4 - 412.6");
 
-						resRow.setTTR1I(rdf.getRes_1and2());
-						resRow.setTTR1II(rdf.getRes_2and3());
-						resRow.setTTR1III(rdf.getRes_3and4());
-						resRow.setTTR1IV(rdf.getRes_4and5());
-						resRow.setTTR1V(rdf.getRes_5and6());
-						resRow.setTTR1VI(rdf.getRes_6and7());
-						ch11553Table2DataList.add(resRow);
-					}
-				}
+				dto.setChannel1("");
+				dto.setChannel2("");
+				dto.setChannel3("");
+				dto.setChannel4("");
 
+				t2Ch1 = dto.getChannel1();
+				t2Ch2 = dto.getChannel1();
+				t2Ch3 = dto.getChannel1();
+				t2Ch4 = dto.getChannel1();
+
+				powerManMk12Table1DataList.add(dto);
+
+				// Create table after data is ready
+				powerManMk12Table1DataTableView = powerManMk1Table1DataFactory
+						.createTableView(powerManMk12Table1DataList, false, false);
+
+				tableScrollPane.setFitToHeight(true);
 				return null;
 			}
 
 			@Override
 			protected void succeeded() {
 				Platform.runLater(() -> {
-					ch11553Table2DataTableView = ch11553Table2DataFactory.createTableView(ch11553Table2DataList, false,
-							false);
 
-					ch11553Table2DataTableView.getColumns().forEach(column -> {
-						switch (column.getText()) {
-						case "TTR1I":
-							column.setText("TTR1_II - TTR1_I");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+					powerManMk12Table1DataTableView.getColumns().forEach(column -> {
+						String colName = column.getText();
+						System.out.println("check column" + colName);
+
+						switch (colName) {
+						case "INPUT VOLTAGE SETTING":
+							column.setText(null);
+							column.setMinWidth(130);
+							column.setMaxWidth(130);
+							Label mainHeader = new Label("INPUT VOLTAGE SETTING\n(VOLTS DC)");
+							mainHeader.setWrapText(true);
+							mainHeader.setTextAlignment(TextAlignment.CENTER);
+							mainHeader.setAlignment(Pos.CENTER);
+							mainHeader.setMinWidth(130);
+							mainHeader.setMaxWidth(130);
+							VBox headerBox = new VBox(mainHeader);
+							headerBox.setAlignment(Pos.CENTER);
+							headerBox.setSpacing(2);
+							headerBox.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox);
+							column.setCellValueFactory(new PropertyValueFactory<>("inputvoltagesetting"));
 							break;
-						case "TTR1II":
-							column.setText("TTR1_III - TTR1_II");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+
+						case "DESCRIPTION":
+							column.setText(null);
+							column.setMinWidth(300);
+							column.setMaxWidth(300);
+							Label mainHeader1 = new Label("DESCRIPTION\n(Monitored Parameter)");
+							mainHeader1.setWrapText(true);
+							mainHeader1.setTextAlignment(TextAlignment.CENTER);
+							mainHeader1.setAlignment(Pos.CENTER);
+							mainHeader1.setMinWidth(300);
+							mainHeader1.setMaxWidth(300);
+							VBox headerBox1 = new VBox(mainHeader1);
+							headerBox1.setAlignment(Pos.CENTER);
+							headerBox1.setSpacing(2);
+							headerBox1.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox1);
+							column.setCellValueFactory(new PropertyValueFactory<>("description"));
 							break;
-						case "TTR1III":
-							column.setText("TTR1_IV - TTR1_III");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+
+						case "EXPECTED VALUE":
+							column.setText(null);
+							column.setMinWidth(350);
+							column.setMaxWidth(350);
+							Label mainHeader2 = new Label("EXPECTED VALUE\n(HZ)");
+							mainHeader2.setWrapText(true);
+							mainHeader2.setTextAlignment(TextAlignment.CENTER);
+							mainHeader2.setAlignment(Pos.CENTER);
+							mainHeader2.setMinWidth(350);
+							mainHeader2.setMaxWidth(350);
+							VBox headerBox2 = new VBox(mainHeader2);
+							headerBox2.setAlignment(Pos.CENTER);
+							headerBox2.setSpacing(2);
+							headerBox2.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox2);
+							column.setCellValueFactory(new PropertyValueFactory<>("expectedvalue"));
 							break;
-						case "TTR1IV":
-							column.setText("TTR1_V - TTR1_IV");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+
+						case "CHANNEL1":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader3 = new Label("CHANNEL 1\n(BOB2 - 104: P17 -80/79)");
+							mainHeader3.setWrapText(true);
+							mainHeader3.setTextAlignment(TextAlignment.CENTER);
+							mainHeader3.setAlignment(Pos.CENTER);
+							mainHeader3.setMinWidth(185);
+							mainHeader3.setMaxWidth(185);
+							VBox headerBox3 = new VBox(mainHeader3);
+							headerBox3.setAlignment(Pos.CENTER);
+							headerBox3.setSpacing(2);
+							headerBox3.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox3);
+							column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
 							break;
-						case "TTR1V":
-							column.setText("TTR1_VI - TTR1_V");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+
+						case "CHANNEL2":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader4 = new Label("CHANNEL 2\n(BOB2 - 104: P17 -81/82)");
+							mainHeader4.setWrapText(true);
+							mainHeader4.setTextAlignment(TextAlignment.CENTER);
+							mainHeader4.setAlignment(Pos.CENTER);
+							mainHeader4.setMinWidth(185);
+							mainHeader4.setMaxWidth(185);
+							VBox headerBox4 = new VBox(mainHeader4);
+							headerBox4.setAlignment(Pos.CENTER);
+							headerBox4.setSpacing(2);
+							headerBox4.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox4);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel2"));
 							break;
-						case "TTR1VI":
-							column.setText("TTR1_VII - TTR1_VI");
-							column.setMinWidth(200);
-							column.setMaxWidth(200);
+
+						case "CHANNEL3":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader5 = new Label("CHANNEL 3\n(BOB2 - 104: P17 -86/87)");
+							mainHeader5.setWrapText(true);
+							mainHeader5.setTextAlignment(TextAlignment.CENTER);
+							mainHeader5.setAlignment(Pos.CENTER);
+							mainHeader5.setMinWidth(185);
+							mainHeader5.setMaxWidth(185);
+							VBox headerBox5 = new VBox(mainHeader5);
+							headerBox5.setAlignment(Pos.CENTER);
+							headerBox5.setSpacing(2);
+							headerBox5.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox5);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel3"));
 							break;
+
+						case "CHANNEL4":
+							column.setText(null);
+							column.setMinWidth(190);
+							column.setMaxWidth(190);
+							Label mainHeader6 = new Label("CHANNEL 4\n(BOB2 - 104: P17 -89/90)");
+							mainHeader6.setWrapText(true);
+							mainHeader6.setTextAlignment(TextAlignment.CENTER);
+							mainHeader6.setAlignment(Pos.CENTER);
+							mainHeader6.setMinWidth(190);
+							mainHeader6.setMaxWidth(190);
+							VBox headerBox6 = new VBox(mainHeader6);
+							headerBox6.setAlignment(Pos.CENTER);
+							headerBox6.setSpacing(2);
+							headerBox6.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox6);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel4"));
+							break;
+
 						default:
+//								column.setMinWidth(120);
+//								column.setMaxWidth(120);
 							break;
 						}
+
 					});
 
-					ch11553Table2DataTableView.setFixedCellSize(-1); // allow dynamic row height
+					tableScrollPane.setContent(powerManMk12Table1DataTableView);
+					powerManMk12Table1DataTableView.setEditable(true);
 
-					// Assuming your table has a column named "operation"
-					TableColumn<Ch11553Table2, String> operationColumn = (TableColumn<Ch11553Table2, String>) ch11553Table2DataTableView
-							.getColumns().stream().filter(c -> c.getText().equalsIgnoreCase("operation")).findFirst()
-							.orElse(null);
+					// -------- INPUT VOLTAGE ----------
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(0);
 
-					if (operationColumn != null) {
-						// Enable wrapping inside the cell
-						operationColumn.setCellFactory(col -> new TableCell<Ch11553Table2, String>() {
-							private final Text text = new Text();
+					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
+					inputColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
 
-							{
-								text.wrappingWidthProperty().bind(col.widthProperty().subtract(10));
-								setGraphic(text);
-							}
+					// -------- DESCRIPTION ----------
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(1);
 
-							@Override
-							protected void updateItem(String item, boolean empty) {
-								super.updateItem(item, empty);
-								if (empty || item == null) {
-									text.setText(null);
-									setGraphic(null);
-								} else {
-									text.setText(item);
-									setGraphic(text);
-								}
-							}
-						});
-					}
+					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+					descColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
 
-					// Allow variable row heights
-					ch11553Table2DataTableView.setFixedCellSize(-1);
+					// -------- EXPECTED VALUE ----------
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(2);
 
-					// Optionally: increase row height for DECLARE rows
-					ch11553Table2DataTableView.setRowFactory(tv -> new TableRow<Ch11553Table2>() {
-						@Override
-						protected void updateItem(Ch11553Table2 item, boolean empty) {
-							super.updateItem(item, empty);
-							if (empty || item == null) {
-								setPrefHeight(Control.USE_COMPUTED_SIZE);
-								return;
-							}
-							if (item.getOperation() != null && item.getOperation().startsWith("DECLARE")) {
-								setPrefHeight(80); // Adjust this value as needed
-							} else {
-								setPrefHeight(Control.USE_COMPUTED_SIZE);
-							}
-						}
-					});
+					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
+					expectedColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
 
-					// Set table into scroll pane
-					tableScrollPane.setContent(ch11553Table2DataTableView);
+					// -------- CHANNEL 1 ----------
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(3);
 
-					if (ch11553Table2DataList.isEmpty()) {
-						tableScrollPane.setFitToWidth(true);
-					}
+					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+					ch1Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
+
+					// -------- CHANNEL 2 ----------
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(4);
+
+					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
+					ch2Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
+
+					// -------- CHANNEL 3 ----------
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(5);
+
+					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
+					ch3Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
+
+					// -------- CHANNEL 4 ----------
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+							.getColumns().get(6);
+
+					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
+					ch4Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch4Column.setOnEditCommit(e -> e.getRowValue().setChannel4(e.getNewValue()));
+
+					tableScrollPane.setFitToHeight(true);
 				});
 			}
 
 			@Override
 			protected void failed() {
-				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to load PowerMan MK1 data"));
 			}
 		};
 
 		new Thread(task).start();
-
 		return tableScrollPane;
 	}
 
-	private GridPane noteGridPane() {
-		GridPane noteGridPane = new GridPane();
+	private StackPane createPowerManMk1Table2Content() {
+		powerManMk1Table2StackPane.getChildren().clear();
+		powerManMk1Table2StackPane.getStyleClass().add("tab-content-container");
+		powerManMk1Table2StackPane.getChildren().clear();
+		powerManMk1Table2StackPane.getChildren().add(powerManMk1Table2ResultGridPane());
+
+		return powerManMk1Table2StackPane;
+	}
+
+	private StackPane createPowerManMk1Table22Content() {
+		powerManMk1Table22StackPane.getChildren().clear();
+		powerManMk1Table22StackPane.getStyleClass().add("tab-content-container");
+		powerManMk1Table22StackPane.getChildren().clear();
+
+		powerManMk1Table22StackPane.getChildren().add(powerManMk1Table22ResultGridPane());
+
+		return powerManMk1Table22StackPane;
+	}
+
+	private GridPane powerManMk1Table2ResultGridPane() {
+
+		powerManMk1Table2GridPane.getChildren().clear();
+		powerManMk1Table2GridPane.getColumnConstraints().clear();
+		powerManMk1Table2GridPane.getRowConstraints().clear();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
+
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		noteGridPane.getColumnConstraints().add(firstColumn);
-		noteGridPane.getRowConstraints().add(firstRow);
+//		ch11553Table1GridPane.setPadding(new Insets(5));
 
-		noteGridPane.setPadding(new Insets(5));
-		noteLabel.setWrapText(true);
+		powerManMk1Table2GridPane.getColumnConstraints().addAll(firstColumn);
+		powerManMk1Table2GridPane.getRowConstraints().addAll(firstRow);
 
-		noteHBox.getChildren().add(noteLabel);
-		noteHBox.setAlignment(Pos.CENTER_LEFT);
+		powerManMk1Table2GridPane.add(createPowermanMk1Table2DataTable(), 0, 0);
 
-		noteGridPane.add(noteHBox, 0, 0);
-
-		return noteGridPane;
+		return powerManMk1Table2GridPane;
 	}
 
-	private GridPane tbGridPane() {
-		GridPane tbGridPane = new GridPane();
+	private GridPane powerManMk1Table22ResultGridPane() {
+
+		powerManMk1Table22GridPane.getChildren().clear();
+		powerManMk1Table22GridPane.getColumnConstraints().clear();
+		powerManMk1Table22GridPane.getRowConstraints().clear();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		tbGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		tbGridPane.getRowConstraints().add(firstRow);
+//		ch11553Table1GridPane.setPadding(new Insets(5));
 
-		tbNol.getStyleClass().add("nonheading-label");
-		tbNor.getStyleClass().add("nonheading-label");
-		passFail.getStyleClass().add("nonheading-label");
+		powerManMk1Table22GridPane.getColumnConstraints().addAll(firstColumn);
+		powerManMk1Table22GridPane.getRowConstraints().addAll(firstRow);
 
-		tbNoHBox.getChildren().addAll(tbNol, tbNor, passFail);
+		powerManMk1Table22GridPane.add(createPowermanMk1Table22DataTable(), 0, 0);
 
-//	    tbGridPane.setPadding(new Insets(5));
-		tbNoHBox.setAlignment(Pos.CENTER_RIGHT);
-
-		tbGridPane.add(tbNoHBox, 1, 0);
-
-		return tbGridPane;
+		return powerManMk1Table22GridPane;
 	}
 
-	private GridPane testCarriedOutGridPane() {
-		GridPane testCarriedOutGridPane = new GridPane();
+	public ScrollPane createPowermanMk1Table2DataTable() {
+		powerManMk1Table2DataList.clear();
 
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table1DataTableView);
 
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
 
-		testCarriedOutGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		testCarriedOutGridPane.getRowConstraints().add(firstRow);
+				// --- ONLY ONE DEFAULT ROW ---
+				PowerManMk1 dto = new PowerManMk1();
 
-//	    testCarriedOutGridPane.setPadding(new Insets(10));
-//	    testCarriedOutGridPane.setHgap(10);
+				dto.setInputVoltageSetting("28");
+				dto.setDescription("HIGH TO RETURN");
+				dto.setExpectedValue("385.4 - 412.6");
 
-		testCarriedOutBy.getStyleClass().add("nonheading-label");
+				dto.setChannel1("");
+				dto.setChannel2("");
+				dto.setChannel3("");
+				dto.setChannel4("");
 
-		Label imageLabel = new Label("Click to Select Image");
-		imageLabel.setPrefSize(150, 50);
-		imageLabel.setAlignment(Pos.CENTER);
-		imageLabel.setStyle("-fx-border-color: gray; " + "-fx-border-width: 2; " + "-fx-background-color: #f5f5f5; "
-				+ "-fx-text-fill: #666;");
+				powerManMk1Table2DataList.add(dto);
 
-		// When user clicks label → open file chooser and display image
-		imageLabel.setOnMouseClicked(e -> openImageFileChooser(imageLabel));
+				// Create table after data is ready
+				powerManMk1Table2DataTableView = powerManMk1Table2DataFactory.createTableView(powerManMk1Table2DataList,
+						false, false);
 
-		// --- Add components to layout ---
-		testCarriedOutHBox.getChildren().addAll(testCarriedOutBy, imageLabel);
-		testCarriedOutHBox.setAlignment(Pos.CENTER_RIGHT);
-		testCarriedOutHBox.setSpacing(10);
+				tableScrollPane.setFitToHeight(true);
+				return null;
+			}
 
-		testCarriedOutGridPane.add(testCarriedOutHBox, 1, 0);
+			@Override
+			protected void succeeded() {
+				Platform.runLater(() -> {
 
-		return testCarriedOutGridPane;
+					powerManMk1Table2DataTableView.getColumns().forEach(column -> {
+						String colName = column.getText();
+
+						switch (colName) {
+						case "INPUT VOLTAGE SETTING":
+							column.setText(null);
+							column.setMinWidth(130);
+							column.setMaxWidth(130);
+							Label mainHeader = new Label("INPUT VOLTAGE SETTING\n(VOLTS DC)");
+							mainHeader.setWrapText(true);
+							mainHeader.setTextAlignment(TextAlignment.CENTER);
+							mainHeader.setAlignment(Pos.CENTER);
+							mainHeader.setMinWidth(130);
+							mainHeader.setMaxWidth(130);
+							VBox headerBox = new VBox(mainHeader);
+							headerBox.setAlignment(Pos.CENTER);
+							headerBox.setSpacing(2);
+							headerBox.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox);
+							column.setCellValueFactory(new PropertyValueFactory<>("inputvoltagesetting"));
+							break;
+
+						case "DESCRIPTION":
+							column.setText(null);
+							column.setMinWidth(300);
+							column.setMaxWidth(300);
+							Label mainHeader1 = new Label("DESCRIPTION\n(Monitored Parameter)");
+							mainHeader1.setWrapText(true);
+							mainHeader1.setTextAlignment(TextAlignment.CENTER);
+							mainHeader1.setAlignment(Pos.CENTER);
+							mainHeader1.setMinWidth(300);
+							mainHeader1.setMaxWidth(300);
+							VBox headerBox1 = new VBox(mainHeader1);
+							headerBox1.setAlignment(Pos.CENTER);
+							headerBox1.setSpacing(2);
+							headerBox1.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox1);
+							column.setCellValueFactory(new PropertyValueFactory<>("description"));
+							break;
+
+						case "EXPECTED VALUE":
+							column.setText(null);
+							column.setMinWidth(350);
+							column.setMaxWidth(350);
+							Label mainHeader2 = new Label("EXPECTED VALUE\n(HZ)");
+							mainHeader2.setWrapText(true);
+							mainHeader2.setTextAlignment(TextAlignment.CENTER);
+							mainHeader2.setAlignment(Pos.CENTER);
+							mainHeader2.setMinWidth(350);
+							mainHeader2.setMaxWidth(350);
+							VBox headerBox2 = new VBox(mainHeader2);
+							headerBox2.setAlignment(Pos.CENTER);
+							headerBox2.setSpacing(2);
+							headerBox2.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox2);
+							column.setCellValueFactory(new PropertyValueFactory<>("expectedvalue"));
+							break;
+
+						case "CHANNEL1":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader3 = new Label("CHANNEL 1\\n(DFCC-J5-93/76)\\n AETS:J47-1/15)");
+							mainHeader3.setWrapText(true);
+							mainHeader3.setTextAlignment(TextAlignment.CENTER);
+							mainHeader3.setAlignment(Pos.CENTER);
+							mainHeader3.setMinWidth(185);
+							mainHeader3.setMaxWidth(185);
+							VBox headerBox3 = new VBox(mainHeader3);
+							headerBox3.setAlignment(Pos.CENTER);
+							headerBox3.setSpacing(2);
+							headerBox3.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox3);
+							column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+							break;
+
+						case "CHANNEL2":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader4 = new Label("CHANNEL 2\\n(DFCC-J11-93/76)\\n AETS:J47-28/41)");
+							mainHeader4.setWrapText(true);
+							mainHeader4.setTextAlignment(TextAlignment.CENTER);
+							mainHeader4.setAlignment(Pos.CENTER);
+							mainHeader4.setMinWidth(185);
+							mainHeader4.setMaxWidth(185);
+							VBox headerBox4 = new VBox(mainHeader4);
+							headerBox4.setAlignment(Pos.CENTER);
+							headerBox4.setSpacing(2);
+							headerBox4.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox4);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel2"));
+							break;
+
+						case "CHANNEL3":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader5 = new Label("CHANNEL 3\\n(DFCC-J17-93/76)\\n AETS:J17-93/76)");
+							mainHeader5.setWrapText(true);
+							mainHeader5.setTextAlignment(TextAlignment.CENTER);
+							mainHeader5.setAlignment(Pos.CENTER);
+							mainHeader5.setMinWidth(185);
+							mainHeader5.setMaxWidth(185);
+							VBox headerBox5 = new VBox(mainHeader5);
+							headerBox5.setAlignment(Pos.CENTER);
+							headerBox5.setSpacing(2);
+							headerBox5.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox5);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel3"));
+							break;
+
+						case "CHANNEL4":
+							column.setText(null);
+							column.setMinWidth(190);
+							column.setMaxWidth(190);
+							Label mainHeader6 = new Label("CHANNEL 4\\n(DFCC-J47-78/92)\\n AETS:J47-78/92)");
+							mainHeader6.setWrapText(true);
+							mainHeader6.setTextAlignment(TextAlignment.CENTER);
+							mainHeader6.setAlignment(Pos.CENTER);
+							mainHeader6.setMinWidth(190);
+							mainHeader6.setMaxWidth(190);
+							VBox headerBox6 = new VBox(mainHeader6);
+							headerBox6.setAlignment(Pos.CENTER);
+							headerBox6.setSpacing(2);
+							headerBox6.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox6);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel4"));
+							break;
+
+						default:
+//							column.setMinWidth(120);
+//							column.setMaxWidth(120);
+							break;
+						}
+
+					});
+
+					tableScrollPane.setContent(powerManMk1Table2DataTableView);
+					powerManMk1Table2DataTableView.setEditable(true);
+
+					// -------- INPUT VOLTAGE ----------
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(0);
+
+					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
+					inputColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
+
+					// -------- DESCRIPTION ----------
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(1);
+
+					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+					descColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
+
+					// -------- EXPECTED VALUE ----------
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(2);
+
+					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
+					expectedColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
+
+					// -------- CHANNEL 1 ----------
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(3);
+
+					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+					ch1Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
+
+					// -------- CHANNEL 2 ----------
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(4);
+
+					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
+					ch2Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
+
+					// -------- CHANNEL 3 ----------
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(5);
+
+					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
+					ch3Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
+
+					// -------- CHANNEL 4 ----------
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk1Table2DataTableView
+							.getColumns().get(6);
+
+					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
+					ch4Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch4Column.setOnEditCommit(e -> e.getRowValue().setChannel4(e.getNewValue()));
+
+					tableScrollPane.setFitToHeight(true);
+				});
+			}
+
+			@Override
+			protected void failed() {
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to load PowerMan MK1 data"));
+			}
+		};
+
+		new Thread(task).start();
+		return tableScrollPane;
 	}
 
-	private void openImageFileChooser(Label imageLabel) {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select an Image");
-		fileChooser.getExtensionFilters()
-				.addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+	public ScrollPane createPowermanMk1Table22DataTable() {
+		powerManMk1Table22DataList.clear();
 
-		File selectedFile = fileChooser.showOpenDialog(imageLabel.getScene().getWindow());
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk1Table22DataTableView);
 
-		if (selectedFile != null) {
-			Image image = new Image(selectedFile.toURI().toString());
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
 
-			ImageView imageView = new ImageView(image);
-			imageView.setFitWidth(imageLabel.getWidth());
-			imageView.setFitHeight(imageLabel.getHeight());
-			imageView.setPreserveRatio(true);
+				// --- ONLY ONE DEFAULT ROW ---
+				PowerManMk1 dto = new PowerManMk1();
 
-			imageLabel.setGraphic(imageView);
-			imageLabel.setText(null); // remove placeholder text
-			imageLabel.setStyle("-fx-border-color: gray; -fx-border-width: 2;"); // optional: keep border
+				dto.setInputVoltageSetting("28");
+				dto.setDescription("LOW TO RETURN");
+				dto.setExpectedValue("385.4 - 412.6");
+
+				dto.setChannel1("");
+				dto.setChannel2("");
+				dto.setChannel3("");
+				dto.setChannel4("");
+
+				powerManMk1Table22DataList.add(dto);
+
+				// Create table after data is ready
+				powerManMk1Table22DataTableView = powerManMk1Table22DataFactory
+						.createTableView(powerManMk1Table22DataList, false, false);
+
+				tableScrollPane.setFitToHeight(true);
+				return null;
+			}
+
+			@Override
+			protected void succeeded() {
+				Platform.runLater(() -> {
+
+					powerManMk1Table22DataTableView.getColumns().forEach(column -> {
+						String colName = column.getText();
+
+						switch (colName) {
+						case "INPUT VOLTAGE SETTING":
+							column.setText(null);
+							column.setMinWidth(130);
+							column.setMaxWidth(130);
+							Label mainHeader = new Label("INPUT VOLTAGE SETTING\n(VOLTS DC)");
+							mainHeader.setWrapText(true);
+							mainHeader.setTextAlignment(TextAlignment.CENTER);
+							mainHeader.setAlignment(Pos.CENTER);
+							mainHeader.setMinWidth(130);
+							mainHeader.setMaxWidth(130);
+							VBox headerBox = new VBox(mainHeader);
+							headerBox.setAlignment(Pos.CENTER);
+							headerBox.setSpacing(2);
+							headerBox.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox);
+							column.setCellValueFactory(new PropertyValueFactory<>("inputvoltagesetting"));
+							break;
+
+						case "DESCRIPTION":
+							column.setText(null);
+							column.setMinWidth(300);
+							column.setMaxWidth(300);
+							Label mainHeader1 = new Label("DESCRIPTION\n(Monitored Parameter)");
+							mainHeader1.setWrapText(true);
+							mainHeader1.setTextAlignment(TextAlignment.CENTER);
+							mainHeader1.setAlignment(Pos.CENTER);
+							mainHeader1.setMinWidth(300);
+							mainHeader1.setMaxWidth(300);
+							VBox headerBox1 = new VBox(mainHeader1);
+							headerBox1.setAlignment(Pos.CENTER);
+							headerBox1.setSpacing(2);
+							headerBox1.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox1);
+							column.setCellValueFactory(new PropertyValueFactory<>("description"));
+							break;
+
+						case "EXPECTED VALUE":
+							column.setText(null);
+							column.setMinWidth(350);
+							column.setMaxWidth(350);
+							Label mainHeader2 = new Label("EXPECTED VALUE\n(HZ)");
+							mainHeader2.setWrapText(true);
+							mainHeader2.setTextAlignment(TextAlignment.CENTER);
+							mainHeader2.setAlignment(Pos.CENTER);
+							mainHeader2.setMinWidth(350);
+							mainHeader2.setMaxWidth(350);
+							VBox headerBox2 = new VBox(mainHeader2);
+							headerBox2.setAlignment(Pos.CENTER);
+							headerBox2.setSpacing(2);
+							headerBox2.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox2);
+							column.setCellValueFactory(new PropertyValueFactory<>("expectedvalue"));
+							break;
+
+						case "CHANNEL1":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader3 = new Label("CHANNEL 1\n(DFCC-J5-85/76)\n AETS:J47-2/15)");
+							mainHeader3.setWrapText(true);
+							mainHeader3.setTextAlignment(TextAlignment.CENTER);
+							mainHeader3.setAlignment(Pos.CENTER);
+							mainHeader3.setMinWidth(185);
+							mainHeader3.setMaxWidth(185);
+							VBox headerBox3 = new VBox(mainHeader3);
+							headerBox3.setAlignment(Pos.CENTER);
+							headerBox3.setSpacing(2);
+							headerBox3.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox3);
+							column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+							break;
+
+						case "CHANNEL2":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader4 = new Label("CHANNEL 2\n(DFCC-J11-85/76)\\n AETS:J47-29/41)");
+							mainHeader4.setWrapText(true);
+							mainHeader4.setTextAlignment(TextAlignment.CENTER);
+							mainHeader4.setAlignment(Pos.CENTER);
+							mainHeader4.setMinWidth(185);
+							mainHeader4.setMaxWidth(185);
+							VBox headerBox4 = new VBox(mainHeader4);
+							headerBox4.setAlignment(Pos.CENTER);
+							headerBox4.setSpacing(2);
+							headerBox4.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox4);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel2"));
+							break;
+
+						case "CHANNEL3":
+							column.setText(null);
+							column.setMinWidth(185);
+							column.setMaxWidth(185);
+							Label mainHeader5 = new Label("CHANNEL 3\n(DFCC-J17-85/76)\\n AETS:J47-57/68)");
+							mainHeader5.setWrapText(true);
+							mainHeader5.setTextAlignment(TextAlignment.CENTER);
+							mainHeader5.setAlignment(Pos.CENTER);
+							mainHeader5.setMinWidth(185);
+							mainHeader5.setMaxWidth(185);
+							VBox headerBox5 = new VBox(mainHeader5);
+							headerBox5.setAlignment(Pos.CENTER);
+							headerBox5.setSpacing(2);
+							headerBox5.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox5);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel3"));
+							break;
+
+						case "CHANNEL4":
+							column.setText(null);
+							column.setMinWidth(190);
+							column.setMaxWidth(190);
+							Label mainHeader6 = new Label("CHANNEL 4\n(DFCC-J23-85/76)\\n AETS:J47-79/92)");
+							mainHeader6.setWrapText(true);
+							mainHeader6.setTextAlignment(TextAlignment.CENTER);
+							mainHeader6.setAlignment(Pos.CENTER);
+							mainHeader6.setMinWidth(190);
+							mainHeader6.setMaxWidth(190);
+							VBox headerBox6 = new VBox(mainHeader6);
+							headerBox6.setAlignment(Pos.CENTER);
+							headerBox6.setSpacing(2);
+							headerBox6.setPadding(new Insets(4, 2, 4, 2));
+
+							column.setGraphic(headerBox6);
+							column.setCellValueFactory(new PropertyValueFactory<>("chennel4"));
+							break;
+
+						default:
+//								column.setMinWidth(120);
+//								column.setMaxWidth(120);
+							break;
+						}
+
+					});
+
+					tableScrollPane.setContent(powerManMk1Table22DataTableView);
+					powerManMk1Table22DataTableView.setEditable(true);
+
+					// -------- INPUT VOLTAGE ----------
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(0);
+
+					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
+					inputColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
+
+					// -------- DESCRIPTION ----------
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(1);
+
+					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+					descColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
+
+					// -------- EXPECTED VALUE ----------
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(2);
+
+					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
+					expectedColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
+
+					// -------- CHANNEL 1 ----------
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(3);
+
+					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
+					ch1Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
+
+					// -------- CHANNEL 2 ----------
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(4);
+
+					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
+					ch2Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
+
+					// -------- CHANNEL 3 ----------
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(5);
+
+					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
+					ch3Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
+
+					// -------- CHANNEL 4 ----------
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+							.getColumns().get(6);
+
+					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
+					ch4Column.setCellFactory(TextFieldTableCell.forTableColumn());
+					ch4Column.setOnEditCommit(e -> e.getRowValue().setChannel4(e.getNewValue()));
+
+					tableScrollPane.setFitToHeight(true);
+				});
+			}
+
+			@Override
+			protected void failed() {
+				Platform.runLater(() -> Notifications.showErrorAlert("Failed to load PowerMan MK1 data"));
+			}
+		};
+
+		new Thread(task).start();
+		return tableScrollPane;
+	}
+
+	private boolean isInRange(String value) {
+		try {
+			double v = Double.parseDouble(value);
+			return v >= 385.4 && v <= 412.6;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 
-	private GridPane dateGridPane() {
-		GridPane dateGridPane = new GridPane();
-		DatePicker datePicker = new DatePicker(LocalDate.now()); // Default to today
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	private boolean allChannelsInRange(String ch1, String ch2, String ch3, String ch4) {
+		return isInRange(ch1) && isInRange(ch2) && isInRange(ch3) && isInRange(ch4);
+	}
 
-		datePicker.setDayCellFactory(picker -> new DateCell() {
-			@Override
-			public void updateItem(LocalDate date, boolean empty) {
-				super.updateItem(date, empty);
-				if (date.isAfter(LocalDate.now())) {
-					setDisable(true);
-					setStyle("-fx-background-color: #E0E0E0;"); // Gray-out future dates
+	private boolean isNullOrEmpty(String value) {
+		return value == null || value.trim().isEmpty();
+	}
+	
+	private boolean isEmpty(String value) {
+	    return value == null || value.trim().isEmpty();
+	}
+
+	private HBox createPrintButtonHbox() {
+
+		HBox printButtonContainer = new HBox(); // only create once
+		printButtonContainer.setAlignment(Pos.CENTER);
+		printButtonContainer.setSpacing(5);
+		printButtonContainer.getChildren().addAll(saveButton,fetchButton, printButton);
+
+		saveButton.setOnAction(e -> {
+			if(selectedSessionId == null || selectedStageId == null ) {
+				Notifications.showErrorAlert("Please select Session and Stage.");
+				return;
+			}
+			if(uutId.equalsIgnoreCase("UUT1")) {
+			PowerManMk1 dto = powerManMk1Table1DataList.get(0);
+			PowerManMk1 dto2 = powerManMk12Table1DataList.get(0);
+			PowerManDataAnalysis powerMan = new PowerManDataAnalysis();
+			if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3()) || isEmpty(dto.getChannel4()) ||
+				    isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2()) || isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
+
+				    Notifications.showErrorAlert("Please enter value in all channels");
+				    return;
 				}
+				
+			powerMan.setFirstRowch1(dto.getChannel1());
+			powerMan.setFirstRowch2(dto.getChannel2());
+			powerMan.setFirstRowch3(dto.getChannel3());
+			powerMan.setFirstRowch4(dto.getChannel4());
+			powerMan.setSecondRowch1(dto2.getChannel1());
+			powerMan.setSecondRowch2(dto2.getChannel2());
+			powerMan.setSecondRowch3(dto2.getChannel3());
+			powerMan.setSecondRowch4(dto2.getChannel4());
+			powerMan.setSessionId(selectedSessionId);
+			powerMan.setStageId(selectedStageId);
+			System.out.println("Check dto :" +dto.getChannel1() );
+			advancedDataAnalysisManagement.addPowerManConfig(powerMan);
+			Notifications.showSuccessAlert("Data added Successfully.");
+			printButton.setDisable(false);
+			}else {
+				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
+				PowerManMk1 dto2 = powerManMk1Table22DataList.get(0);
+				PowerManDataAnalysis powerMan = new PowerManDataAnalysis();
+				if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3()) || isEmpty(dto.getChannel4()) ||
+					    isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2()) || isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
+
+					    Notifications.showErrorAlert("Please enter value in all channels");
+					    return;
+					}
+
+				powerMan.setFirstRowch1(dto.getChannel1());
+				powerMan.setFirstRowch2(dto.getChannel2());
+				powerMan.setFirstRowch3(dto.getChannel3());
+				powerMan.setFirstRowch4(dto.getChannel4());
+				powerMan.setSecondRowch1(dto2.getChannel1());
+				powerMan.setSecondRowch2(dto2.getChannel2());
+				powerMan.setSecondRowch3(dto2.getChannel3());
+				powerMan.setSecondRowch4(dto2.getChannel4());
+				powerMan.setSessionId(selectedSessionId);
+				powerMan.setStageId(selectedStageId);
+				System.out.println("Check dto :" +dto.getChannel1() );
+				advancedDataAnalysisManagement.addPowerManConfig(powerMan);
+				Notifications.showSuccessAlert("Data added Successfully.");
+				printButton.setDisable(false);
+			}
+			
+			
+			
+			
+		});
+		
+		fetchButton.setOnAction(e -> {
+			 PowerManDataAnalysis entity = advancedDataAnalysisManagement.getPowerManConfig(selectedSessionId, selectedStageId);
+			 if(selectedSessionId == null || selectedStageId == null ) {
+					Notifications.showErrorAlert("Please select Session and Stage.");
+					return;
+				}
+			
+			if(entity == null) {
+				Notifications.showErrorAlert("Not configured");
+				return;
+			}
+			if(uutId.equalsIgnoreCase("UUT1")) {
+			PowerManMk1 dto = powerManMk1Table1DataList.get(0);
+			PowerManMk1 dto2 = powerManMk12Table1DataList.get(0);
+			dto.setChannel1(entity.getFirstRowch1());
+			dto.setChannel2(entity.getFirstRowch2());
+			dto.setChannel3(entity.getFirstRowch3());
+			dto.setChannel4(entity.getFirstRowch4());
+			
+			dto2.setChannel1(entity.getSecondRowch1());
+			dto2.setChannel2(entity.getSecondRowch2());
+			dto2.setChannel3(entity.getSecondRowch3());
+			dto2.setChannel4(entity.getSecondRowch4());
+			
+			 powerManMk1Table1DataTableView.refresh();
+			 powerManMk1Table2DataTableView.refresh();
+			 Notifications.showSuccessAlert("Data fetched Successfully.");
+			}else {
+				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
+				PowerManMk1 dto2 = powerManMk1Table22DataList.get(0);
+				dto.setChannel1(entity.getFirstRowch1());
+				dto.setChannel2(entity.getFirstRowch2());
+				dto.setChannel3(entity.getFirstRowch3());
+				dto.setChannel4(entity.getFirstRowch4());
+				
+				dto2.setChannel1(entity.getSecondRowch1());
+				dto2.setChannel2(entity.getSecondRowch2());
+				dto2.setChannel3(entity.getSecondRowch3());
+				dto2.setChannel4(entity.getSecondRowch4());
+				
+				 powerManMk1Table1DataTableView.refresh();
+				 powerManMk1Table2DataTableView.refresh();
+				 Notifications.showSuccessAlert("Data fetched Successfully.");
+			}
+			
+		});
+		
+//		checkButton.setOnAction(e -> {
+//
+//			if ("UUT1".equalsIgnoreCase(uutId)) {
+//				PowerManMk1 dto1 = powerManMk1Table1DataList.get(0);
+//				PowerManMk1 dto12 = powerManMk12Table1DataList.get(0);
+//				if (isNullOrEmpty(dto1.getChannel1()) || isNullOrEmpty(dto1.getChannel2())
+//						|| isNullOrEmpty(dto1.getChannel3()) || isNullOrEmpty(dto1.getChannel4())
+//						|| isNullOrEmpty(dto12.getChannel1()) || isNullOrEmpty(dto12.getChannel2())
+//						|| isNullOrEmpty(dto12.getChannel3()) || isNullOrEmpty(dto12.getChannel4())) {
+//
+//					Notifications.showErrorAlert("Please enter all the values");
+//					return;
+//				}
+//
+//				t1Ch1 = dto1.getChannel1();
+//				t1Ch2 = dto1.getChannel2();
+//				t1Ch3 = dto1.getChannel3();
+//				t1Ch4 = dto1.getChannel4();
+//
+//				t2Ch1 = dto12.getChannel1();
+//				t2Ch2 = dto12.getChannel2();
+//				t2Ch3 = dto12.getChannel3();
+//				t2Ch4 = dto12.getChannel4();
+//
+//				printButton.setDisable(false);
+//			} else {
+//				PowerManMk1 dto2 = powerManMk1Table2DataList.get(0);
+//				PowerManMk1 dto22 = powerManMk1Table22DataList.get(0);
+//				if (isNullOrEmpty(dto2.getChannel1()) || isNullOrEmpty(dto2.getChannel2())
+//						|| isNullOrEmpty(dto2.getChannel3()) || isNullOrEmpty(dto2.getChannel4())
+//						|| isNullOrEmpty(dto22.getChannel1()) || isNullOrEmpty(dto22.getChannel2())
+//						|| isNullOrEmpty(dto22.getChannel3()) || isNullOrEmpty(dto22.getChannel4())) {
+//
+//					Notifications.showErrorAlert("Please enter all the values");
+//					return;
+//				}
+//
+//				t1Ch1 = dto2.getChannel1();
+//				t1Ch2 = dto2.getChannel2();
+//				t1Ch3 = dto2.getChannel3();
+//				t1Ch4 = dto2.getChannel4();
+//
+//				t2Ch1 = dto22.getChannel1();
+//				t2Ch2 = dto22.getChannel2();
+//				t2Ch3 = dto22.getChannel3();
+//				t2Ch4 = dto22.getChannel4();
+//				printButton.setDisable(false);
+//			}
+//
+//			if ((allChannelsInRange(t1Ch1, t1Ch2, t1Ch3, t1Ch4)) && (allChannelsInRange(t2Ch1, t2Ch2, t2Ch3, t2Ch4))) {
+//				passFail.setText("PASS");
+//
+//			} else {
+//				passFail.setText("FAIL");
+//			}
+//
+//		});
+
+		printButton.setOnAction(e -> {
+
+			if (uutTypeField.getValue() == null || serialnumber.getValue() == null || sessioName.getValue() == null
+					|| stageName.getValue() == null) {
+				Notifications.showErrorAlert("Please select all the required details to print.");
+				return;
+			}
+
+			printButtonContainer.setVisible(false);
+			printButtonContainer.setManaged(false);
+
+			powerManMk1MainContainerGridPane.applyCss();
+			powerManMk1MainContainerGridPane.layout();
+
+			Stage stage = (Stage) powerManMk1MainContainerGridPane.getScene().getWindow();
+
+			tmpUutLabel = new Label(uutTypeField.getValue() == null ? "" : uutTypeField.getValue());
+			tmpSerialLabel = new Label(serialnumber.getValue() == null ? "" : serialnumber.getValue());
+			tmpSerialLabel.setWrapText(true);
+			tmpSessionLabel = new Label(sessioName.getValue() == null ? "" : sessioName.getValue());
+			tmpSessionLabel.setWrapText(true);
+			tmpStageLabel = new Label(stageName.getValue() == null ? "" : stageName.getValue());
+			tmpUutLabel.getStyleClass().add("nonheading-label");
+			tmpSerialLabel.getStyleClass().add("nonheading-label");
+			tmpSessionLabel.getStyleClass().add("nonheading-label");
+			tmpStageLabel.getStyleClass().add("nonheading-label");
+			HBox uutBox = (HBox) uutTypeField.getParent();
+			HBox serialBox = (HBox) serialnumber.getParent();
+			HBox sessionBox = (HBox) sessioName.getParent();
+			HBox stageBox = (HBox) stageName.getParent();
+
+			try {
+
+				uutTypeField.setVisible(false);
+				serialnumber.setVisible(false);
+				sessioName.setVisible(false);
+				stageName.setVisible(false);
+
+				uutBox.getChildren().add(tmpUutLabel);
+				serialBox.getChildren().add(tmpSerialLabel);
+				sessionBox.getChildren().add(tmpSessionLabel);
+				stageBox.getChildren().add(tmpStageLabel);
+
+				powerManMk1MainContainerGridPane.applyCss();
+				powerManMk1MainContainerGridPane.layout();
+
+				exportPageToPDF(stage, powerManMk1MainContainerGridPane);
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+
+				uutBox.getChildren().remove(tmpUutLabel);
+				serialBox.getChildren().remove(tmpSerialLabel);
+				sessionBox.getChildren().remove(tmpSessionLabel);
+				stageBox.getChildren().remove(tmpStageLabel);
+
+				uutTypeField.setVisible(true);
+				serialnumber.setVisible(true);
+				sessioName.setVisible(true);
+				stageName.setVisible(true);
+
+				printButtonContainer.setVisible(true);
+				printButtonContainer.setManaged(true);
+
+				powerManMk1MainContainerGridPane.applyCss();
+				powerManMk1MainContainerGridPane.layout();
 			}
 		});
 
-		datePicker.setConverter(new StringConverter<LocalDate>() {
-			@Override
-			public String toString(LocalDate date) {
-				return (date != null) ? dateFormatter.format(date) : "";
-			}
+		return printButtonContainer;
+	}
 
-			@Override
-			public LocalDate fromString(String string) {
-				return (string != null && !string.isEmpty()) ? LocalDate.parse(string, dateFormatter) : null;
-			}
-		});
+	private void exportPageToPDF(Stage stage, GridPane root) {
 
-		datePicker.setPromptText("dd-MM-yyyy");
-		System.out.println("datePicker" + datePicker);
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Save PDF");
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+		File file = chooser.showSaveDialog(stage);
+		if (file == null)
+			return;
 
-		dateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
-		dateGridPane.getRowConstraints().add(firstRow);
+		try {
+			// Take snapshot of full page
+			SnapshotParameters params = new SnapshotParameters();
+			params.setTransform(new Scale(2, 2)); // Higher resolution
+			WritableImage image = root.snapshot(params, null);
 
-		date.getStyleClass().add("nonheading-label");
-		printButtonHBox.setAlignment(Pos.CENTER_RIGHT);
+			// Convert snapshot to BufferedImage
+			BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
 
-		printButtonHBox.getChildren().add(printButton);
+			// Convert BufferedImage → ImageData
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(bufferedImage, "png", baos);
+			ImageData imgData = ImageDataFactory.create(baos.toByteArray());
+			Image pdfImage = new Image(imgData);
 
-		dateHBox.getChildren().addAll(date, datePicker);
+			// Create PDF document
+			PdfWriter writer = new PdfWriter(file.getAbsolutePath());
+			PdfDocument pdfDoc = new PdfDocument(writer);
+			Document document = new Document(pdfDoc, PageSize.A3.rotate());
 
-		dateHBox.setAlignment(Pos.CENTER_RIGHT);
+			// Fit to page
+			pdfImage.scaleToFit(PageSize.A3.rotate().getWidth(), PageSize.A3.rotate().getHeight());
+			pdfImage.setAutoScale(true);
 
-		dateGridPane.add(printButtonHBox, 0, 0);
-		dateGridPane.add(dateHBox, 1, 0);
+			// Add image to PDF
+			document.add(pdfImage);
 
-		return dateGridPane;
+			document.close();
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }

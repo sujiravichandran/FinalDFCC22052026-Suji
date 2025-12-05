@@ -3,7 +3,10 @@ package com.teclever.dfcc.advanceddataanalysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.Interface1553B_Mode;
 import com.teclever.datastore.entities.RDF1553BCode;
+import com.teclever.datastore.service.Interface1553B_ModeService;
 import com.teclever.datastore.service.RDF1553BCodeService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.resultstore.dto.StepDto;
@@ -11,7 +14,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 
 public class DataAnalysis1553_BManagement {
 	
-	
+	// Add The Required Step For 1553B For An Stage...
 	public List<RDF1553BCode> addTheRequiredStepsFor1553(List<StepDto>steps,String stageId)
 	{
 		List<RDF1553BCode> lst = new ArrayList<RDF1553BCode>();
@@ -599,5 +602,35 @@ public class DataAnalysis1553_BManagement {
 		}
 		return rDF1553BCodelist;
 	}
+	
+	//Add Interface 1553B Mode For Session And Stage...
+	public Response addInterface1553BModeForStage(String sessionId,String stageId,List<Interface1553B_Mode> interfaceLst)
+	{
+		Response response = new Response();
+		try {
+			Interface1553B_ModeService interface1553B_ModeService = new Interface1553B_ModeService();
+			interface1553B_ModeService.delete1553RDFInterfaceModeForSession(sessionId, stageId);
+			interface1553B_ModeService.addInterface1553BForAllChannels(interfaceLst);
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return response;
+	}
+	
+	public List<Interface1553B_Mode> getInterface1553BMode(String sessionId,String stageId)
+	{
+		List<Interface1553B_Mode> responseList = new ArrayList<Interface1553B_Mode>();
+		try {
+			Interface1553B_ModeService interface1553B_ModeService = new Interface1553B_ModeService();
+			responseList = interface1553B_ModeService.getInterfaceModeChecks(sessionId, stageId);
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return responseList;
+	}
+	
 
 }

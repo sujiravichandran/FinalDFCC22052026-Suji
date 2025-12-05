@@ -85,6 +85,8 @@ public class DashboardController {
 
 	private ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
+	
+	private BLSTempData bLSTempData = new BLSTempData();
 
 	private GridPane bottomMidTopGridPane;
 
@@ -292,7 +294,7 @@ public class DashboardController {
 		thirdRow.setPercentHeight(7);
 
 		RowConstraints fourthRow = new RowConstraints();
-		fourthRow.setPercentHeight(42);
+		fourthRow.setPercentHeight(40);
 
 		RowConstraints fivthRow = new RowConstraints();
 		fivthRow.setPercentHeight(42);
@@ -303,6 +305,7 @@ public class DashboardController {
 
 		dashBoardMainContainerGridPane.getColumnConstraints().addAll(firstColumn);
 		dashBoardMainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow);
+		
 		dashBoardMainContainerGridPane.setPadding(new Insets(5, 5, 5, 5));
 		dashBoardMainContainerGridPane.add(headingGridPane(), 0, 0);
 		dashBoardMainContainerGridPane.add(dashboardFirst(), 0, 1);
@@ -503,15 +506,21 @@ public class DashboardController {
 	private GridPane dashboardSessionExecutedGridPane() {
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(70);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(30);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(5);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(95);
+		secondRow.setPercentHeight(85);
+		
+		dashboardSessionExecutedGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		dashboardSessionExecutedGridPane.getRowConstraints().addAll(firstRow, secondRow);
 
-		dashboardSessionExecutedGridPane.setHgap(15);
+		dashboardSessionExecutedGridPane.setHgap(7);
 		dashboardSessionExecutedGridPane.setPadding(new Insets(5));
 
 		dashboardSessionExecutedGridPane
@@ -522,7 +531,7 @@ public class DashboardController {
 		dashboardSessionExecutedGridPane.setAlignment(Pos.TOP_LEFT);
 		dashboardSessionExecutedGridPane.add(sessionExecuted, 0, 0);
 		dashboardSessionExecutedGridPane.add(createSessionContent(), 0, 1);
-
+		dashboardSessionExecutedGridPane.add(bLSTempData.createBlsTempDataMainContainerGridPane(), 1, 1);
 		return dashboardSessionExecutedGridPane;
 	}
 	
@@ -612,10 +621,10 @@ public class DashboardController {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(5);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(95);
+		secondRow.setPercentHeight(85);
 
 		dashboardCurrentFailureStageGridPane.setHgap(15);
 		dashboardCurrentFailureStageGridPane.setPadding(new Insets(5));

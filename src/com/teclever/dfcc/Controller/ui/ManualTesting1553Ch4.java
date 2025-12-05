@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.SessionDto;
@@ -17,6 +19,8 @@ import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.advanceddataanalysis.DataAnalysis1553_BManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitGetDetailsManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitSessionDetailsDTO;
+import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
+import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.Ch11553Table1;
 import com.teclever.dfcc.model.Ch11553Table2;
 import com.teclever.dfcc.utils.CustomTableView;
@@ -27,6 +31,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -47,6 +52,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
@@ -80,12 +86,21 @@ public class ManualTesting1553Ch4 {
 	private HBox headingHbox2 = new HBox(10);
 	private Label titleLabel = new Label("1553B INTERFACE - TIME TAG REGISTER VERIFICATION");
 	private Label chLabel = new Label("DFCC CHANNEL 4");
+	private Button submit = new Button("Submit");
+	private Pane dynamicContent = new VBox();
+	
+	private ComboBox<String> uutTypeField = new ComboBox<String>();
+	private ObservableList<UUTMasterDetailsDto> uutDataList;
+	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
+	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
+	private String uutId = "UUT1";
+	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 
 	private HBox serialHbox = new HBox(10);
-	private Label dfccSNoLabel = new Label("DFCC Serial Number : ");
+//	private Label dfccSNoLabel = new Label("DFCC Serial Number : ");
 	private ComboBox<String> serialnumber = new ComboBox<String>();
 	private ComboBox<String> sessioName = new ComboBox<String>();
-	private Label dfccSessionName = new Label("Session Name : ");
+//	private Label dfccSessionName = new Label("Session Name : ");
 
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
 	private TextField dfccSNoText = new TextField();
@@ -96,7 +111,7 @@ public class ManualTesting1553Ch4 {
 	private Label dfccNameLabel = new Label("DFCC Alternate Name : ");
 	private TextField dfccNameText = new TextField();
 
-	private Label stageNameLabel = new Label("Stage Name");
+//	private Label stageNameLabel = new Label("Stage Name");
 	private ComboBox<String> stageName = new ComboBox<String>();
 
 	private StackPane ch11553Table1StackPane = new StackPane();
@@ -118,7 +133,7 @@ public class ManualTesting1553Ch4 {
 			"NOTE: Valid Range for TTR Value is 0-65535(Decimal). If the computed Difference at STEP '02' is Negative, a Value of 65536 has to be added to account for the Wrap-around Frature.");
 
 	private HBox tbNoHBox = new HBox();
-	private Label tbNol = new Label("TB NO.:");
+	private Label tbNol = new Label("TB NO.:127 ");
 	private Label tbNor = new Label("127");
 	private Label passFail = new Label("PASS/FAIL");
 	private SessionService s = new SessionService();
@@ -127,6 +142,12 @@ public class ManualTesting1553Ch4 {
 
 	private HBox dateHBox = new HBox();
 	private Label date = new Label("DATE: ");
+	
+	private Label testRep = new Label("TESTING REP: ");
+	private Label testRepDate = new Label("DATE: ");
+	private Label tiqmRep = new Label("TI/QM REP: ");
+	private Label tiqmRepDate = new Label("DATE: ");
+
 
 	private HBox printButtonHBox = new HBox();
 	private Button printButton = new Button("Print");
@@ -149,13 +170,13 @@ public class ManualTesting1553Ch4 {
 			sessionNameId.put(session.getSessionName(), session.getSessionId());
 
 		}
-		getSerialNo();
+		initializeUUTTypeComboBox();
 	}
 
 	public GridPane createlinkFilesMainContainerGridPane() {
 		ch1MainContainerGridPane.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/ManualTesting.css").toExternalForm());
-		ch1MainContainerGridPane.getStyleClass().add("dashboard-main-container");
+		ch1MainContainerGridPane.getStyleClass().add("advanced-testing-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -194,11 +215,11 @@ public class ManualTesting1553Ch4 {
 
 		ch1MainContainerGridPane.add(createHeadingBox(), 0, 0);
 		ch1MainContainerGridPane.add(createSerialAlternateGridePane(), 0, 1);
-		ch1MainContainerGridPane.add(create1553Table1Content(), 0, 2);
+		ch1MainContainerGridPane.add(dynamicContent, 0, 2);
 		ch1MainContainerGridPane.add(create1553Table2Content(), 0, 3);
-		ch1MainContainerGridPane.add(noteGridPane(), 0, 4);
-		ch1MainContainerGridPane.add(tbGridPane(), 0, 5);
-		ch1MainContainerGridPane.add(testCarriedOutGridPane(), 0, 6);
+		ch1MainContainerGridPane.add(createNoteBox(), 0, 4);
+		ch1MainContainerGridPane.add(createRepBox(), 0, 5);
+		ch1MainContainerGridPane.add(createRepDateBox(), 0, 6);
 		ch1MainContainerGridPane.add(dateGridPane(), 0, 7);
 
 		return ch1MainContainerGridPane;
@@ -239,21 +260,32 @@ public class ManualTesting1553Ch4 {
 		GridPane serialAlternateGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(33);
+		firstColumn.setPercentWidth(25);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(33);
+		secondColumn.setPercentWidth(25);
 
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(33);
+		thirdColumn.setPercentWidth(25);
+		
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		serialAlternateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+		serialAlternateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
 		serialAlternateGridPane.getRowConstraints().addAll(firstRow);
 
-		dfccSNoLabel.getStyleClass().add("nonheading-label");
+		
+		HBox uutHbox = new HBox(10);
+		uutHbox.setAlignment(Pos.CENTER_LEFT);
+		uutHbox.setFillHeight(true);
+		uutTypeField.setPromptText("select UUT Type");
+		serialnumber.setPromptText("select Serial No");
+		sessioName.setPromptText("select Session");
+		stageName.setPromptText("select Stage Name");
+		uutHbox.getChildren().add(uutTypeField);
 
 		HBox serialHbox = new HBox(10);
 		serialHbox.setAlignment(Pos.CENTER_LEFT);
@@ -262,10 +294,9 @@ public class ManualTesting1553Ch4 {
 		HBox sessionHbox = new HBox(10);
 		sessionHbox.setAlignment(Pos.CENTER);
 
-		dfccSessionName.getStyleClass().add("nonheading-label");
-		sessionHbox.getChildren().addAll(dfccSessionName, sessioName);
+		sessionHbox.getChildren().addAll( sessioName);
 
-		serialHbox.getChildren().addAll(dfccSNoLabel, serialnumber);
+		serialHbox.getChildren().addAll( serialnumber);
 
 		dfccNameLabel.getStyleClass().add("nonheading-label");
 
@@ -275,33 +306,68 @@ public class ManualTesting1553Ch4 {
 
 		HBox stageNameHbox = new HBox(10);
 		stageNameHbox.setAlignment(Pos.CENTER_RIGHT);
-		stageNameLabel.getStyleClass().add("nonheading-label");
-		stageNameHbox.getChildren().addAll(stageNameLabel, stageName);
+		stageNameHbox.getChildren().addAll( stageName);
 
-		serialAlternateGridPane.add(serialHbox, 0, 0);
-		serialAlternateGridPane.add(sessionHbox, 1, 0);
-		serialAlternateGridPane.add(stageNameHbox, 2, 0);
-//		serialAlternateGridPane.add(alternateHbox, 3, 0);
+		serialAlternateGridPane.add(uutHbox, 0, 0);
+		serialAlternateGridPane.add(serialHbox, 1, 0);
+		serialAlternateGridPane.add(sessionHbox, 2, 0);
+		serialAlternateGridPane.add(stageNameHbox, 3, 0);
 
 		GridPane.setHgrow(serialHbox, Priority.ALWAYS);
 		GridPane.setHgrow(alternateHbox, Priority.ALWAYS);
 
 		return serialAlternateGridPane;
 	}
+	
+	private void initializeUUTTypeComboBox() {
+		uutDataList = FXCollections.observableArrayList(configManager.getAllUUT());
 
-	private void getSerialNo() {
-		List serailNumber = FXCollections.observableArrayList(unitGetDetailsManagement.getAllDfccSerialNo());
-		serialnumber.setItems((ObservableList<String>) serailNumber);
+		for (UUTMasterDetailsDto uut : uutDataList) {
+			uutTypeList.add(uut.getUutType());
+		}
 
+		uutTypeField.setItems(uutTypeList);
+
+		uutTypeField.setOnAction((event) -> {
+
+			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
+			uutId = fetchUutId(selectedUUTType);
+			initalizeSerialNoComboBox(uutId);
+
+		});
+	}
+
+	private String fetchUutId(String uutType) {
+		for (UUTMasterDetailsDto uut : uutDataList) {
+			if (uut.getUutType().equals(uutType)) {
+				return uut.getUutId();
+			}
+		}
+		return null;
+	}
+
+	private void initalizeSerialNoComboBox(String uutId) {
+		dfccSNList.clear();
+		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
+				.collect(Collectors.toList());
+
+		Set<String> seenDfccSNos = new HashSet<>();
+
+		for (SessionDto dfccSn : filterSessionList) {
+			String dfccSNo = dfccSn.getDfccSNo();
+			if (seenDfccSNos.add(dfccSNo)) {
+				dfccSNList.add(dfccSNo);
+			}
+		}
+		serialnumber.setItems(dfccSNList);
 		serialnumber.setOnAction((event) -> {
 
 			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
-			System.out.println("selectedSerialNumber" + selectedSerialNumber);
 			initializeSessionComboBox(selectedSerialNumber);
 
 		});
-
 	}
+
 
 	private void initializeSessionComboBox(String selectedDfccNo) {
 		sessionTypeList.clear();
@@ -350,28 +416,29 @@ public class ManualTesting1553Ch4 {
 	}
 
 	private StackPane create1553Table1Content() {
-		ch11553Table1StackPane.getStyleClass().add("tab-content-container");
-		ch11553Table1StackPane.getChildren().clear();
-		ch11553Table1StackPane.getChildren().add(ch11553TableResultGridPane());
-		return ch11553Table1StackPane;
+	    StackPane pane = new StackPane();
+	    pane.getStyleClass().add("tab-content-container");
+	    pane.getChildren().add(ch11553TableResultGridPane());
+	    return pane;
 	}
 
+
 	private GridPane ch11553TableResultGridPane() {
-//		ch11553Table1GridPane.getStyleClass().add("current-execution-result-tabs-container");
 
-		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+	    GridPane grid = new GridPane();
 
-		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(100);
+	    ColumnConstraints firstColumn = new ColumnConstraints();
+	    firstColumn.setPercentWidth(100);
 
-//		ch11553Table1GridPane.setPadding(new Insets(5));
+	    RowConstraints firstRow = new RowConstraints();
+	    firstRow.setPercentHeight(100);
 
-		ch11553Table1GridPane.getColumnConstraints().addAll(firstColumn);
-		ch11553Table1GridPane.getRowConstraints().addAll(firstRow);
+	    grid.getColumnConstraints().add(firstColumn);
+	    grid.getRowConstraints().add(firstRow);
 
-		ch11553Table1GridPane.add(create1553Table1DataTable(), 0, 0);
-		return ch11553Table1GridPane;
+	    grid.add(create1553Table1DataTable(), 0, 0);
+
+	    return grid;
 	}
 
 	public ScrollPane create1553Table1DataTable() {
@@ -387,7 +454,7 @@ public class ManualTesting1553Ch4 {
 				DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
 				System.out.println("SESSION NAME" + selectedSessionId);
 				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(selectedSessionId,
-						selectedStageName, "ch4");
+						selectedStageName, "ch3");
 
 				System.out.println("Data list size: " + dataList.size());
 
@@ -420,11 +487,18 @@ public class ManualTesting1553Ch4 {
 						String colName = column.getText();
 
 						switch (colName) {
+						
 						case "TTR1_I":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader = new Label("TTR1_I Contents of 003C C03C(Decimal)");
+							column.setMaxWidth(132);
+							Label mainHeader;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader = new Label("TTR4_I Contents of 003C C03C\n(Decimal)");
+							}else {
+							 mainHeader = new Label("TTR4_I Contents of 206C C03C\n(Decimal)");
+							}
+							
 							Label subHeader = new Label("TEST: 6612");
 
 							mainHeader.setWrapText(true);
@@ -453,8 +527,13 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_II":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader1 = new Label("TTR1_I Contents of 003C C07C(Decimal)");
+							column.setMaxWidth(132);
+							Label mainHeader1;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader1 = new Label("TTR4_II Contents of 003C C07C\n(Decimal)");
+							}else {
+							 mainHeader1 = new Label("TTR4_II Contents of 206C C07C\n(Decimal)");
+							}
 							Label subHeader1 = new Label("TEST: 6628");
 
 							mainHeader1.setWrapText(true);
@@ -484,8 +563,13 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_III":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader2 = new Label("TTR1_I Contents of 003C C03C(Decimal)");
+							column.setMaxWidth(132);
+							Label mainHeader2;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader2 = new Label("TTR4_III Contents of 003C C03BC\n(Decimal)");
+							}else {
+							 mainHeader2 = new Label("TTR4_III Contents of 206C C0BC\n(Decimal)");
+							}
 							Label subHeader2 = new Label("TEST: 6644");
 
 							mainHeader2.setWrapText(true);
@@ -515,9 +599,15 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_IV":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader3 = new Label("TTR1_I Contents of 003C C03C(Decimal)");
-							Label subHeader3 = new Label("TEST: 6660");
+							column.setMaxWidth(132);
+							Label mainHeader3;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader3 = new Label("TTR4_IV Contents of 003C C0FC\n(Decimal)");
+							}else {
+							 mainHeader3 = new Label("TTR4_IV Contents of 206C C0FC\n(Decimal)");
+							}
+							
+							Label subHeader3 = new Label("TEST: 6396");
 
 							mainHeader3.setWrapText(true);
 							mainHeader3.setAlignment(Pos.CENTER);
@@ -546,8 +636,13 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_V":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader4 = new Label("TTR1_I Contents of 003C C13C(Decimal)");
+							column.setMaxWidth(132);
+							Label mainHeader4;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader4 = new Label("TTR4_V Contents of 306C C13C\n(Decimal)");
+							}else {
+							 mainHeader4 = new Label("TTR4_V Contents of 206C C13C\n(Decimal)");
+							}
 							Label subHeader4 = new Label("TEST: 6676");
 
 							mainHeader4.setWrapText(true);
@@ -577,8 +672,13 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_VI":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader5 = new Label("TTR1_I Contents of 003C C17C(Decimal)");
+							column.setMaxWidth(132);
+							Label mainHeader5;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader5 = new Label("TTR4_VI Contents of 306C C17C\n(Decimal)");
+							}else {
+							 mainHeader5 = new Label("TTR4_VI Contents of 206C C17C\n(Decimal)");
+							}
 							Label subHeader5 = new Label("TEST: 6692");
 
 							mainHeader5.setWrapText(true);
@@ -608,8 +708,13 @@ public class ManualTesting1553Ch4 {
 						case "TTR1_VII":
 							column.setText(null);
 							column.setMinWidth(130);
-							column.setMaxWidth(130);
-							Label mainHeader6 = new Label("TTR1_I Contents of 003C C1BC(Decimal)");
+							column.setMaxWidth(132);
+							Label  mainHeader6;
+							if(uutId.equalsIgnoreCase("UUT1")) {
+								mainHeader6 = new Label("TTR4_VII Contents of 306C C1BC\n(Decimal)");
+							}else {
+							 mainHeader6 = new Label("TTR4_VII Contents of 206C C1BC\n(Decimal)");
+							}
 							Label subHeader6 = new Label("TEST: 6708");
 
 							mainHeader6.setWrapText(true);
@@ -662,6 +767,7 @@ public class ManualTesting1553Ch4 {
 		new Thread(task).start();
 		return tableScrollPane;
 	}
+
 
 	private StackPane create1553Table2Content() {
 		ch11553Table2StackPane.getStyleClass().add("tab-content-container");
@@ -867,6 +973,78 @@ public class ManualTesting1553Ch4 {
 
 		return noteGridPane;
 	}
+	
+	private GridPane createNoteBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(70);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(20);
+
+		ColumnConstraints col3 = new ColumnConstraints();
+		col3.setPercentWidth(10);
+
+		grid.getColumnConstraints().addAll(col1, col2, col3);
+
+		grid.add(noteLabel, 0, 0);
+		grid.add(tbNol, 1, 0);
+		grid.add(passFail, 2, 0);
+		noteLabel.getStyleClass().add("nonheading-label");
+		tbNol.getStyleClass().add("nonheading-label");
+		passFail.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(tbNol, HPos.RIGHT);
+		GridPane.setHalignment(passFail, HPos.LEFT);
+
+		return grid;
+	}
+
+	private GridPane createRepBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(50);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(50);
+
+		grid.getColumnConstraints().addAll(col1, col2);
+
+		grid.add(testRep, 0, 0);
+		grid.add(tiqmRep, 1, 0);
+		testRep.getStyleClass().add("nonheading-label");
+		tiqmRep.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(testRep, HPos.CENTER);
+		GridPane.setHalignment(tiqmRep, HPos.CENTER);
+
+		return grid;
+	}
+
+	private GridPane createRepDateBox() {
+		GridPane grid = new GridPane();
+
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(50);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(50);
+
+		grid.getColumnConstraints().addAll(col1, col2);
+
+		grid.add(testRepDate, 0, 0);
+		grid.add(tiqmRepDate, 1, 0);
+
+		testRepDate.getStyleClass().add("nonheading-label");
+		tiqmRepDate.getStyleClass().add("nonheading-label");
+
+		GridPane.setHalignment(testRepDate, HPos.CENTER);
+		GridPane.setHalignment(tiqmRepDate, HPos.CENTER);
+
+		return grid;
+	}
 
 	private GridPane tbGridPane() {
 		GridPane tbGridPane = new GridPane();
@@ -925,7 +1103,7 @@ public class ManualTesting1553Ch4 {
 		imageLabel.setOnMouseClicked(e -> openImageFileChooser(imageLabel));
 
 		// --- Add components to layout ---
-		testCarriedOutHBox.getChildren().addAll(testCarriedOutBy, imageLabel);
+		testCarriedOutHBox.getChildren().addAll(testCarriedOutBy);
 		testCarriedOutHBox.setAlignment(Pos.CENTER_RIGHT);
 		testCarriedOutHBox.setSpacing(10);
 
@@ -993,16 +1171,50 @@ public class ManualTesting1553Ch4 {
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
+		
+		
 
 		dateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		dateGridPane.getRowConstraints().add(firstRow);
 
 		date.getStyleClass().add("nonheading-label");
 		printButtonHBox.setAlignment(Pos.CENTER_RIGHT);
+		
+		 HBox submitHBox = new HBox();
+		    submitHBox.setAlignment(Pos.CENTER);
+		    
+		    submitHBox.getChildren().add(submit);
 
-		printButtonHBox.getChildren().add(printButton);
+		    submit.setOnAction(event -> {
+		        Platform.runLater(() -> {
+		        	if (uutTypeField.getSelectionModel().getSelectedItem() == null ||
+		        			serialnumber.getSelectionModel().getSelectedItem() == null ||
+		        			sessioName.getSelectionModel().getSelectedItem() == null ||
+		        			stageName.getSelectionModel().getSelectedItem() == null) {
+		        		
+		        		
 
-		dateHBox.getChildren().addAll(date, datePicker);
+		        		    Notifications.showErrorAlert("Please select UUT Type & Serial No");
+		        		    return;
+		        		}
+
+		        	
+		        	dynamicContent.getChildren().clear();
+		        	  StackPane popup = null;
+					  popup =create1553Table1Content();
+					  dynamicContent.getChildren().add(popup);
+		        	
+					  popup.setMaxHeight(Double.MAX_VALUE);
+					  popup.setMaxWidth(Double.MAX_VALUE);
+		            //CRITICAL LINE
+		            VBox.setVgrow(popup, Priority.ALWAYS);
+		        	
+		        	
+		        });
+		    });
+
+		printButtonHBox.getChildren().addAll(submitHBox, printButton);
+		printButtonHBox.setSpacing(5);
 
 		dateHBox.setAlignment(Pos.CENTER_RIGHT);
 

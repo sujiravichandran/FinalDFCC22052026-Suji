@@ -125,7 +125,7 @@ public class FaultCodeController {
 	    private String fetchOFPVersion(String ofpVersionName) {
 	        for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
 	            if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
-	                return ofpVersion.getOfpVersion();
+	                return ofpVersion.getOfpConfigId();
 	            }
 	        }
 	        return null;

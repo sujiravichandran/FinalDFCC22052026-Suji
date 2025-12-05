@@ -39,6 +39,9 @@ public class StepParser {
 	    String resultDataFile = null;
 	    String unit = null;
 	    Map<String, String> faultyChannel = new HashMap<>();
+	    
+	    //Added For Deviation
+	    Map<String, String> channelValues = new HashMap<>();
 	    String expectedValue = null;
 	    String signalName = null;
 	    boolean isAfterStep = false;
@@ -74,7 +77,7 @@ public class StepParser {
 	            if (line.startsWith("S>") && line.contains("TPGPH")) {
 	                if (!stepAdded && (step != null || dStarInfo != null)) {
 	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                            resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+	                            resultDataFile, unit, faultyChannel, channelValues,expectedValue, signalName, faultySRU);
 	                    stepList.add(stepDto);
 	                    if (dStarInfo != null) failedStepList.add(stepDto);
 	                    stepAdded = true;
@@ -87,6 +90,7 @@ public class StepParser {
 	                dStarInfo = null;
 	                unit = null;
 	                faultyChannel = new HashMap<>();
+	                channelValues = new HashMap<>();
 	                expectedValue = null;
 	                signalName = null;
 	                isAfterStep = false;
@@ -96,7 +100,7 @@ public class StepParser {
 	            } else if (line.startsWith("S>") && line.contains("STEP")) {
 	                if (!stepAdded && (step != null || dStarInfo != null)) {
 	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                            resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+	                            resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
 	                    stepList.add(stepDto);
 	                    if (dStarInfo != null) failedStepList.add(stepDto);
 	                    stepAdded = true;
@@ -108,6 +112,7 @@ public class StepParser {
 	                dStarInfo = null;
 	                unit = null;
 	                faultyChannel = new HashMap<>();
+	                channelValues = new HashMap<>();
 	                expectedValue = null;
 	                signalName = null;
 	                isAfterStep = true;
@@ -136,9 +141,20 @@ public class StepParser {
 	                if (!line.contains("STEP") && !line.contains("opwait")) {
 	                    // Always reset for new signal
 	                    signalName = null;
-	                    expectedValue = null;
+	                    
+	                   //For The Deviation We Reset 
+	                  //  expectedValue = null;
 	                    signalName = extractSignalName(line);
-	                    expectedValue = extractExpectedValue(line);
+	                   // expectedValue = extractExpectedValue(line);
+	                    
+	                    
+	                    String tempExpected = extractExpectedValue(line);
+	                    if (tempExpected != null && !tempExpected.isBlank()) {
+	                        expectedValue = tempExpected;  // ✔ keep the last valid one
+	                    }
+	                    
+	                  
+	                    
 	                }
 	                input += line.substring(3).trim() + "\n";
 
@@ -147,7 +163,14 @@ public class StepParser {
 	                signalName = null;
 	                expectedValue = null;
 	                signalName = extractSignalName(line);
-	                expectedValue = extractExpectedValue(line);
+	               // expectedValue = extractExpectedValue(line);
+	                
+	                
+                    String tempExpected = extractExpectedValue(line);
+                    if (tempExpected != null && !tempExpected.isBlank()) {
+                        expectedValue = tempExpected;  // ✔ keep the last valid one
+                    }
+	                
 	                isAfterStep = false;
 
 				} else if (line.startsWith("D*>")) {
@@ -178,7 +201,7 @@ public class StepParser {
 						rdfFileParser.incrementDStarCount();
 
 						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-								resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
 						stepList.add(stepDto);
 						failedStepList.add(stepDto);
 						stepAdded = true;
@@ -189,7 +212,7 @@ public class StepParser {
 						rdfFileParser.setDStarFound(true);
 						rdfFileParser.incrementDStarCount();
 						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-								resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
 						stepList.add(stepDto);
 						failedStepList.add(stepDto);
 						stepAdded = true;
@@ -206,6 +229,7 @@ public class StepParser {
 	            
 	            else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
 	                if (line.startsWith("R>") && line.contains("(")) {
+	                	channelValues = extractChannelsValues(line);
 	                    readingInfo.add(line.substring(3).trim());
 	                } else if (line.startsWith("D>")) {
 	                    readingInfo.add(line.substring(3).trim());
@@ -220,10 +244,10 @@ public class StepParser {
 	            }
 	        }
 
-	        // Final step if not already added
+	        //Previous Final step if not already added
 	        if (!stepAdded && (step != null || dStarInfo != null)) {
 	            StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                    resultDataFile, unit, faultyChannel, expectedValue, signalName, faultySRU);
+	                    resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
 	            stepList.add(stepDto);
 	            if (dStarInfo != null) failedStepList.add(stepDto);
 	        }
@@ -878,7 +902,7 @@ public class StepParser {
 //	    return stepList;
 //	}
 
-	private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo, String dStarInfo, String testPlanFile, String resultDataFile, String unit, Map<String, String> faultyChannel, String expectedValue, String signalName,String faultySRU) {
+	private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo, String dStarInfo, String testPlanFile, String resultDataFile, String unit, Map<String, String> faultyChannel,Map<String, String> channelValues ,String expectedValue, String signalName,String faultySRU) {
 	    StepDto stepDto = new StepDto();
 	    stepDto.setTpgph(tpgph);
 	    stepDto.setStep(step);
@@ -889,6 +913,7 @@ public class StepParser {
 	    stepDto.setResultDataFile(resultDataFile);
 	    stepDto.setUnit(unit);
 	    stepDto.setFaultyChannel(faultyChannel != null ? faultyChannel : new HashMap<>()); // Initialize if null
+	    stepDto.setChannelValues(channelValues);
 	    stepDto.setExpectedValue(expectedValue);
 	    stepDto.setSignalName(signalName);
 	    stepDto.setFaultySRU(faultySRU);
@@ -974,6 +999,39 @@ public class StepParser {
         return channelValues;
     }
 
+    //For Deviation 
+    public static Map<String, String> extractChannelsValues(String input) {
+        Map<String, String> extractedChannels = new LinkedHashMap<>();
+
+        if (input != null) {
+
+            // Regex to extract content inside parentheses
+            Pattern pattern = Pattern.compile("\\(([^)]*)\\)");
+            Matcher matcher = pattern.matcher(input);
+
+            if (matcher.find()) {
+                String inside = matcher.group(1);  // e.g. "-2.2, -2.197, -2.17, -2.183"
+
+                // Split by comma
+                String[] values = inside.split(",");
+
+                // Store up to 4 channel values
+                for (int i = 0; i < values.length && i < 4; i++) {
+                    extractedChannels.put("channel" + (i + 1), values[i].trim());
+                }
+
+                // Pad with empty values if fewer than 4 found
+                while (extractedChannels.size() < 4) {
+                    int index = extractedChannels.size() + 1;
+                    extractedChannels.put("channel" + index, "");
+                }
+            }
+        }
+
+        return extractedChannels;
+    }
+
+    
     public static Map<String, String> extractFaultyChannels(String dStarInfo) {
         Map<String, String> extractedChannels = new LinkedHashMap<>();
 

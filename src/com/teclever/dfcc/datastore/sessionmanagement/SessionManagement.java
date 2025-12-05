@@ -669,7 +669,18 @@ public class SessionManagement {
 			// For Picking Others Sessions...
 			SessionSelectedStagesService sessionSelectedStage = new SessionSelectedStagesService();
 			GetResponse getResponse = sessionSelectedStage.getAllSessionData(userId);
-
+//			
+//			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+//			GetResponse resTestFilesResult = new GetResponse();
+//			resTestFilesResult =sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(null);
+//			List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
+//			resList = 	(List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
+//			String lastTestedSessionId = "";
+//			if(resList.size()>0)
+//			{
+//				List<String> sessionIds = resList.stream().map(SessionStagesTestFilesResult::getSessionId).collect(Collectors.toList());
+//				lastTestedSessionId = sessionIds.get(sessionIds.size() - 1);
+//			}
 			if (getResponse.getCode() == 0) {
 				if (listOfSession.size() > 0) {
 					res.setResponseCode(1);
@@ -684,10 +695,15 @@ public class SessionManagement {
 				sessionListResponse.setResponse(res);
 				return sessionListResponse;
 			}
+			System.out.println(" Coming ");
+			//To Fetch the Last Tested SessionId 
+			
+			
 
 			for (Object object : getResponse.getResponseList()) {
 				SessionEntity sessionEntity = (SessionEntity) object;
 				SessionList sessionList = new SessionList();
+
 				sessionList.setSessionId(sessionEntity.getSessionId());
 				sessionList.setSessionName(sessionEntity.getSessionName());
 				sessionList.setSessionTypeId(sessionEntity.getSessionTypeMasterId());
@@ -695,8 +711,10 @@ public class SessionManagement {
 				sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
 				sessionList.setUutTypeId(sessionEntity.getUutId());
 				sessionList.setDfccSNo(sessionEntity.getDfccSNo());
+//				if (sessionEntity.getSessionId().equals(lastTestedSessionId)) {
+//					listOfSession.add(0, sessionList);
+//				}
 				listOfSession.add(sessionList);
-
 			}
 			res.setResponseCode(1);
 			res.setResponseMessage(getResponse.getMsg());
@@ -2051,109 +2069,8 @@ public class SessionManagement {
 
 		return response;
 	}
-	
-	
-	
-	// BASED ON ROLE ID FETCH SESSION DATA Here Last Tested At Top Even Trails also after Only
-//		public SessionListResponse getAllSessionDataByRoleId(String roleId) {
-//			SessionListResponse sessionListResponse = new SessionListResponse();
-//			Response res = new Response();
-//			try {
-//				UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
-//				Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
-	//
-//				// To Picking Trail Sessions...
-//				TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
-//				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-//				trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
-//				List<SessionList> listOfSession = new ArrayList<>();
-	//
-//				List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
-//				trailActiveSession = trailSessionResponse.getListOfSession();
-//				for (TrailSessionDto trailSessionDto : trailActiveSession) {
-//					SessionList sessionList = new SessionList();
-//					sessionList.setSessionId(trailSessionDto.getSessionId());
-//					sessionList.setSessionName(trailSessionDto.getSessionName());
-//					sessionList.setCreationDate(trailSessionDto.getCreationDate());
-//					listOfSession.add(sessionList);
-	//
-//				}
-	//
-//				// For Picking Others Sessions...
-//				SessionService sessionSelectedStage = new SessionService();
-//				GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
-//				
-//				
-	//
-//				if (getResponse.getCode() == 0) {
-//					if (listOfSession.size() > 0) {
-//						res.setResponseCode(1);
-//						res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
-//						sessionListResponse.setResponse(res);
-//						sessionListResponse.setListOfSession(listOfSession);
-//						return sessionListResponse;
-	//
-//					}
-//					res.setResponseCode(0);
-//					res.setResponseMessage(getResponse.geteMsg());
-//					sessionListResponse.setResponse(res);
-//					return sessionListResponse;
-//				}
-//				
-//				//Session List..
-//				String lastTestedSessionId = "";
-//				
-//				List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
-//				List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
-//				
-//				
-//				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
-//				GetResponse resTestFilesResult = new GetResponse();
-//				resTestFilesResult =sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
-//				List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
-//				resList = 	(List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
-//				
-//				if(resList!=null)
-//				{
-//					lastTestedSessionId = resList.get(resList.size()-1).getSessionId();
-//				}
-//				
-	//
-//				for (Object object : getResponse.getResponseList()) {
-//					SessionEntity sessionEntity = (SessionEntity) object;
-	//
-//					if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
-	//
-//						SessionList sessionList = new SessionList();
-//						sessionList.setSessionId(sessionEntity.getSessionId());
-//						sessionList.setSessionName(sessionEntity.getSessionName());
-//						sessionList.setCreationDate(sessionEntity.getCreationDate());
-//						sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
-//						if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
-//							listOfSession.add(0, sessionList);
-//						} else {
-//							listOfSession.add(sessionList);
-//						}
-//					}
-	//
-//				}
-//				System.out.println("Size of the List  ::"+listOfSession.size());
-//				res.setResponseCode(1);
-//				res.setResponseMessage(getResponse.getMsg());
-//				sessionListResponse.setResponse(res);
-//				sessionListResponse.setListOfSession(listOfSession);
-//			} catch (Exception e) {
-//				res.setResponseCode(0);
-//				res.setResponseMessage("Fetch Data Unsuccessfull");
-//				sessionListResponse.setResponse(res);
-//			}
-//			return sessionListResponse;
-//		}
-		
-		
-		
 
-	// BASED ON ROLE ID FETCH SESSION DATA Last After Trails Created At Top 
+// BASED ON ROLE ID FETCH SESSION DATA Here Last Tested At Top Even Trails also after Only
 //	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
 //		SessionListResponse sessionListResponse = new SessionListResponse();
 //		Response res = new Response();
@@ -2181,6 +2098,8 @@ public class SessionManagement {
 //			// For Picking Others Sessions...
 //			SessionService sessionSelectedStage = new SessionService();
 //			GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
+//			
+//			
 //
 //			if (getResponse.getCode() == 0) {
 //				if (listOfSession.size() > 0) {
@@ -2196,6 +2115,25 @@ public class SessionManagement {
 //				sessionListResponse.setResponse(res);
 //				return sessionListResponse;
 //			}
+//			
+//			//Session List..
+//			String lastTestedSessionId = "";
+//			
+//			List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
+//			List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
+//			
+//			
+//			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+//			GetResponse resTestFilesResult = new GetResponse();
+//			resTestFilesResult =sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
+//			List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
+//			resList = 	(List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
+//			
+//			if(resList!=null)
+//			{
+//				lastTestedSessionId = sessionIds.get(sessionIds.size() - 1);
+//			}
+//			
 //
 //			for (Object object : getResponse.getResponseList()) {
 //				SessionEntity sessionEntity = (SessionEntity) object;
@@ -2207,10 +2145,15 @@ public class SessionManagement {
 //					sessionList.setSessionName(sessionEntity.getSessionName());
 //					sessionList.setCreationDate(sessionEntity.getCreationDate());
 //					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
-//					listOfSession.add(sessionList);
+//					if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
+//						listOfSession.add(0, sessionList);
+//					} else {
+//						listOfSession.add(sessionList);
+//					}
 //				}
 //
 //			}
+//			System.out.println("Size of the List  ::"+listOfSession.size());
 //			res.setResponseCode(1);
 //			res.setResponseMessage(getResponse.getMsg());
 //			sessionListResponse.setResponse(res);
@@ -2226,108 +2169,106 @@ public class SessionManagement {
 	
 	
 	// BASED ON ROLE ID FETCH SESSION DATA FOR After Trails Last Tested At Top
-	public SessionListResponse getAllSessionDataByRoleId(String roleId) {
-		SessionListResponse sessionListResponse = new SessionListResponse();
-		Response res = new Response();
-		try {
-			UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
-			Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
+		public SessionListResponse getAllSessionDataByRoleId(String roleId) {
+			SessionListResponse sessionListResponse = new SessionListResponse();
+			Response res = new Response();
+			try {
+				UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+				Set<String> setOfUserLoginId = userLoginDetailsService.getUsersByRoleId(roleId);
 
-			// To Picking Trail Sessions...
-			TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
-			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-			trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
-			List<SessionList> listOfSession = new ArrayList<>();
+				// To Picking Trail Sessions...
+				TrailSessionResponse trailSessionResponse = new TrailSessionResponse();
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				trailSessionResponse = trailSessionEntityService.getActiveTrailSessionId();
+				List<SessionList> listOfSession = new ArrayList<>();
 
-			List<SessionList> trailSession = new ArrayList<>();
-			List<SessionList> otherSession = new ArrayList<>();
+				List<SessionList> trailSession = new ArrayList<>();
+				List<SessionList> otherSession = new ArrayList<>();
 
-			List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
-			trailActiveSession = trailSessionResponse.getListOfSession();
-			for (TrailSessionDto trailSessionDto : trailActiveSession) {
-				SessionList sessionList = new SessionList();
-				sessionList.setSessionId(trailSessionDto.getSessionId());
-				sessionList.setSessionName(trailSessionDto.getSessionName());
-				sessionList.setCreationDate(trailSessionDto.getCreationDate());
-				trailSession.add(sessionList);
-
-			}
-
-			// For Picking Others Sessions...
-			SessionService sessionSelectedStage = new SessionService();
-			GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
-
-			if (getResponse.getCode() == 0) {
-				if (listOfSession.size() > 0) {
-					res.setResponseCode(1);
-					res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
-					sessionListResponse.setResponse(res);
-					sessionListResponse.setListOfSession(listOfSession);
-					return sessionListResponse;
-
-				}
-				res.setResponseCode(0);
-				res.setResponseMessage(getResponse.geteMsg());
-				sessionListResponse.setResponse(res);
-				return sessionListResponse;
-			}
-
-			// Session List..
-			String lastTestedSessionId = "";
-
-			List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
-			List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
-
-			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
-			GetResponse resTestFilesResult = new GetResponse();
-			resTestFilesResult = sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
-			List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
-			resList = (List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
-
-			if (resList != null) {
-				lastTestedSessionId = resList.get(resList.size()-1).getSessionId();
-			}
-			
-			System.out.println("Last Tested Session Id"+lastTestedSessionId);
-
-			for (Object object : getResponse.getResponseList()) {
-				SessionEntity sessionEntity = (SessionEntity) object;
-
-				if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
-
+				List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
+				trailActiveSession = trailSessionResponse.getListOfSession();
+				for (TrailSessionDto trailSessionDto : trailActiveSession) {
 					SessionList sessionList = new SessionList();
-					sessionList.setSessionId(sessionEntity.getSessionId());
-					sessionList.setSessionName(sessionEntity.getSessionName());
-					sessionList.setCreationDate(sessionEntity.getCreationDate());
-					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
-					if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
-						otherSession.add(0, sessionList);
-					} else {
-						otherSession.add(sessionList);
-					}
+					sessionList.setSessionId(trailSessionDto.getSessionId());
+					sessionList.setSessionName(trailSessionDto.getSessionName());
+					sessionList.setCreationDate(trailSessionDto.getCreationDate());
+					trailSession.add(sessionList);
+
 				}
 
-			}
+				// For Picking Others Sessions...
+				SessionService sessionSelectedStage = new SessionService();
+				GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
 
-			if (trailSession.size() > 0) {
-				listOfSession.addAll(trailSession);
-			}
-			if (otherSession.size() > 0) {
-				listOfSession.addAll(otherSession);
-			}
+				if (getResponse.getCode() == 0) {
+					if (listOfSession.size() > 0) {
+						res.setResponseCode(1);
+						res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
+						sessionListResponse.setResponse(res);
+						sessionListResponse.setListOfSession(listOfSession);
+						return sessionListResponse;
 
-			System.out.println("Size of the List  ::" + listOfSession.size());
-			res.setResponseCode(1);
-			res.setResponseMessage(getResponse.getMsg());
-			sessionListResponse.setResponse(res);
-			sessionListResponse.setListOfSession(listOfSession);
-		} catch (Exception e) {
-			res.setResponseCode(0);
-			res.setResponseMessage("Fetch Data Unsuccessfull");
-			sessionListResponse.setResponse(res);
+					}
+					res.setResponseCode(0);
+					res.setResponseMessage(getResponse.geteMsg());
+					sessionListResponse.setResponse(res);
+					return sessionListResponse;
+				}
+
+				// Session List..
+				String lastTestedSessionId = "";
+
+				List<SessionEntity> sesList = (List<SessionEntity>) getResponse.getResponseList();
+				List<String> sessionIds = sesList.stream().map(SessionEntity::getSessionId).collect(Collectors.toList());
+
+				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
+				GetResponse resTestFilesResult = new GetResponse();
+				resTestFilesResult = sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
+				List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
+				resList = (List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
+
+				if (resList != null) {
+					lastTestedSessionId = sessionIds.get(sessionIds.size() - 1);
+				}
+
+				for (Object object : getResponse.getResponseList()) {
+					SessionEntity sessionEntity = (SessionEntity) object;
+
+					if (setOfUserLoginId != null && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+
+						SessionList sessionList = new SessionList();
+						sessionList.setSessionId(sessionEntity.getSessionId());
+						sessionList.setSessionName(sessionEntity.getSessionName());
+						sessionList.setCreationDate(sessionEntity.getCreationDate());
+						sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+						if (sessionEntity.getSessionId().equalsIgnoreCase(lastTestedSessionId)) {
+							otherSession.add(0, sessionList);
+						} else {
+							otherSession.add(sessionList);
+						}
+					}
+
+				}
+
+				if (trailSession.size() > 0) {
+					listOfSession.addAll(trailSession);
+				}
+				if (otherSession.size() > 0) {
+					listOfSession.addAll(otherSession);
+				}
+
+				System.out.println("Size of the List  ::" + listOfSession.size());
+				res.setResponseCode(1);
+				res.setResponseMessage(getResponse.getMsg());
+				sessionListResponse.setResponse(res);
+				sessionListResponse.setListOfSession(listOfSession);
+			} catch (Exception e) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Fetch Data Unsuccessfull");
+				sessionListResponse.setResponse(res);
+			}
+			return sessionListResponse;
 		}
-		return sessionListResponse;
-	}
 
 //Before Suji Change
 //	// SESSION STAGE MAPPING : RETURNING A LEVEL IDs WITH THERE TEST STATUS

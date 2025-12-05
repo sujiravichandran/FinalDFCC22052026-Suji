@@ -29,6 +29,12 @@ public class DFCCConstant {
     public static int totalFilesCount = 0;
     public static int failedFilesCount = 0;
     
+    public static String selectedSNoBuildConfig = "";
+    public static String selectedUutBuildConfig = "";
+    public static String selectedBuildConfig = "";
+    public static String selectedVersionNoBuildConfig = "";
+    public static String selectedFetchBuildConfig = "";
+    
     //AnujK : 05/08/2025 -- Changed to 3mins
     public static long tempDelayTime = 180000; //3mins
     public static boolean entered = true;

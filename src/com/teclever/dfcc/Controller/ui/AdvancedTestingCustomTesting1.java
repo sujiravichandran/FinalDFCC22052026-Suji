@@ -65,8 +65,6 @@ public class AdvancedTestingCustomTesting1 {
 	private Label maxValueLabel = new Label("Max Value");
 	private Label ipDataLabel = new Label("Input Data");
 	private String typeCheck;
-	
-	
 
 	private ComboBox<String> symbolComboBox = new ComboBox<String>();
 	private TextField typeTextField = new TextField();
@@ -115,10 +113,8 @@ public class AdvancedTestingCustomTesting1 {
 	private boolean aitess1Updated = false;
 	private boolean aitess2Updated = false;
 
-
-
 	public GridPane createAdvancedTestingTab3GridPane() {
-		
+
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -159,9 +155,6 @@ public class AdvancedTestingCustomTesting1 {
 			aitess2Updated = true;
 			checkBothAitessLaunched();
 		});
-	
-		
-		
 
 	}
 
@@ -232,16 +225,17 @@ public class AdvancedTestingCustomTesting1 {
 		maxValueTextField.getStyleClass().add("form-textfield");
 		ipDataTextField1.getStyleClass().add("form-textfield");
 		ipDataTextField2.getStyleClass().add("form-textfield");
-		
-		
-		
+		HBox ipHBox = new HBox(10);
+		ipDataTextField1.setPrefWidth(100);
+		ipDataTextField2.setPrefWidth(100);
+		ipHBox.getChildren().addAll(ipDataTextField1, ipDataTextField2);
+
 		terminalCommandGridPane.add(symbolComboBox, 1, 0);
 		terminalCommandGridPane.add(typeTextField, 1, 1);
 		terminalCommandGridPane.add(minValueTextField, 1, 2);
 		terminalCommandGridPane.add(maxValueTextField, 1, 3);
-		terminalCommandGridPane.add(ipDataTextField1, 1, 4);
-		terminalCommandGridPane.add(ipDataTextField2, 1, 5);
-		
+		terminalCommandGridPane.add(ipHBox, 1, 4);
+
 		System.out.println("ipDataTextField2 disabled? " + ipDataTextField2.isDisabled());
 		System.out.println("ipDataTextField2 editable? " + ipDataTextField2.isEditable());
 
@@ -265,7 +259,7 @@ public class AdvancedTestingCustomTesting1 {
 			}
 			event.consume();
 		});
-		
+
 		ipDataTextField2.addEventFilter(KeyEvent.KEY_TYPED, event -> {
 			String text = ipDataTextField2.getText();
 			String character = event.getCharacter();
@@ -288,6 +282,8 @@ public class AdvancedTestingCustomTesting1 {
 		addSearchFunctionality(symbolComboBox, symbolList, true);
 
 		symbolComboBox.setOnAction(e -> {
+			ipDataTextField1.clear();
+			ipDataTextField2.clear();
 			handleSymbolSection(symbolComboBox.getValue());
 		});
 
@@ -306,19 +302,19 @@ public class AdvancedTestingCustomTesting1 {
 				}
 			}
 			Platform.runLater(() -> {
-			    typeCheck = typeTextField.getText();
+				typeCheck = typeTextField.getText();
 
-			    if (typeCheck == null || typeCheck.trim().isEmpty()) {
-			        ipDataTextField2.setDisable(true);
-			        return;
-			    }
+				if (typeCheck == null || typeCheck.trim().isEmpty()) {
+					ipDataTextField2.setDisable(true);
+					return;
+				}
 
-			    if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-			        ipDataTextField2.setDisable(false);
-			        ipDataTextField2.setEditable(true);
-			    } else {
-			        ipDataTextField2.setDisable(true);
-			    }
+				if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+					ipDataTextField2.setDisable(false);
+					ipDataTextField2.setEditable(true);
+				} else {
+					ipDataTextField2.setDisable(true);
+				}
 			});
 		}
 	}
@@ -626,37 +622,68 @@ public class AdvancedTestingCustomTesting1 {
 		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0";
 		String ch4Status = ch4CheckBox.isSelected() ? "1" : "0";
 
-		if (symbolName == null || symbolName.isEmpty())
+		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+			if (inputData2 == null || inputData2.isEmpty()) {
+				errorMessage.append("Input2 data is empty.\n");
+			}
+		}
+		if (symbolName == null || symbolName.isEmpty()) {
 			errorMessage.append("Please select any symbol.\n");
-		if (symbolType == null || symbolType.isEmpty())
+		}
+		if (symbolType == null || symbolType.isEmpty()) {
 			errorMessage.append("Symbol type is empty.\n");
-		if (minValue == null || minValue.isEmpty())
+		}
+		if (minValue == null || minValue.isEmpty()) {
 			errorMessage.append("Minimum value is empty.\n");
-		if (maxValue == null || maxValue.isEmpty())
+		}
+		if (maxValue == null || maxValue.isEmpty()) {
 			errorMessage.append("Maximum value is empty.\n");
-		if (inputData1 == null || inputData1.isEmpty())
-			errorMessage.append("Input data is empty.\n");
-		if (inputData2 == null || inputData2.isEmpty())
-			errorMessage.append("Input data is empty.\n");
+		}
+		if (inputData1 == null || inputData1.isEmpty()) {
+			errorMessage.append("Input1 data is empty.\n");
+		}
+
 		else {
+			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+			if (inputData2 == null || inputData2.isEmpty()) {
+				errorMessage.append("Input2 data is empty.\n");
+			}
+			}
 
 			double minValueAsDouble = Double.parseDouble(minValue);
 			double maxValueAsDouble = Double.parseDouble(maxValue);
 			double inputDataDouble1 = Double.parseDouble(inputData1);
-			double inputDataDouble2 = Double.parseDouble(inputData2);
-			if (inputDataDouble1 < minValueAsDouble)
+			if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
 				errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
-			else if (inputDataDouble2 > maxValueAsDouble)
-				errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
+				errorMessage.append("Input data must should not be greater than" + maxValue + ".\n");
+			}
+			
+			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+				double inputDataDouble2 = Double.parseDouble(inputData2);
+				if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
+					errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
+					errorMessage.append("Input data should not be greater than" + maxValue + ".\n");
+				}
+				 if (inputDataDouble2 > maxValueAsDouble) {
+					errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
+				 }else if(inputDataDouble2< inputDataDouble1 || inputDataDouble2 == inputDataDouble1){
+					 errorMessage.append("Max Val should not be less than or equal to " + inputDataDouble1 +  "Min Val.\n");
+				 }
+			}
 		}
 
 		if (errorMessage.length() > 0) {
 			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
-
-		String formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + inputData1
-				+ ";" + inputData2+ ";";
+		String formattedData;
+		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
+					+ "," + inputData2 + ")?";
+		} else {
+			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
+					+ ")?";
+		}
 
 		if (runStatus) {
 			if (checkAndSetTestState()) {
@@ -771,8 +798,8 @@ public class AdvancedTestingCustomTesting1 {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
-		
-		if(StateMachine.isMacroPassing()) {
+
+		if (StateMachine.isMacroPassing()) {
 			return false;
 		}
 

@@ -91,10 +91,8 @@ public class ReportGeneration {
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-//			System.out.println("Entred 1st");
-//			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
-			imagePath = "D:\\Images\\BEL.jpeg";
-
+			imagePath ="C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
+			
 		} else {
 //			Before changing for tecelever testing
 //			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
@@ -1701,7 +1699,7 @@ public class ReportGeneration {
 
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\User\\Downloads\\" + fileName;
 		} else {
 //			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
@@ -1852,7 +1850,7 @@ public class ReportGeneration {
 
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + "Annexure" + annexureCount + ".pdf";
+			filePath = "C:\\Users\\User\\Downloads\\" + "Annexure" + annexureCount + ".pdf";
 		} else {
 //			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/fileName;
 			filePath = currentDirectory + File.separator + "Annexure" + annexureCount + ".pdf";
@@ -1909,7 +1907,7 @@ public class ReportGeneration {
 
 		String filePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\User\\Downloads\\" + fileName;
 		} else {
 //			filePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Reports/" + fileName;
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
@@ -1937,7 +1935,7 @@ public class ReportGeneration {
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\VIGNESH-TEC\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\User\\Downloads\\BEL.jpeg";
 		} else {
 //			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath = currentDirectory + File.separator + "Images" + File.separator + "BEL.jpeg";
@@ -1989,7 +1987,7 @@ public class ReportGeneration {
 		// Add images and text inside the rounded rectangular box
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\VIGNESH-TEC\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		} else {
 //          imagePath1 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath1 = currentDirectory + File.separator + "Images" + File.separator + "BEL.jpeg";
@@ -1997,7 +1995,7 @@ public class ReportGeneration {
 
 		String imagePath3 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath3 = "C:\\Users\\VIGNESH-TEC\\Downloads\\TECLEVER_logo.png";
+			imagePath3 = "C:\\Users\\User\\Downloads\\TECLEVER_logo.png";
 		} else {
 			imagePath3 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/TECLEVER_logo.png";
 			imagePath3 = currentDirectory + File.separator + "Images" + File.separator + "TECLEVER_logo.png";
@@ -2305,7 +2303,7 @@ public class ReportGeneration {
 		// Add The BEL Logo
 		String imagePath = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		} else {
 			imagePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath = currentDirectory + File.separator + "Images" + File.separator + "BEL>jpeg";
@@ -2402,7 +2400,7 @@ public class ReportGeneration {
 		// Add images and text inside the rounded rectangular box
 		String imagePath1 = "";
 		if (!DFCCConstant.isJarBuild) {
-			imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+			imagePath1 = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		} else {
 //          imagePath1 = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/Images/BEL.jpeg";
 			imagePath1 = currentDirectory + File.separator + "Images" + File.separator + "BEL.jpeg";
@@ -2758,7 +2756,7 @@ public class ReportGeneration {
 		// To Create Header
 
 		// Add The BEL Logo
-		String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		String imagePath = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		// String imagePath =
 		// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 
@@ -2806,7 +2804,7 @@ public class ReportGeneration {
 		canvas.stroke();
 
 		// Add images and text inside the rectangular box
-		String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		String imagePath1 = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		// String imagePath1 =
 		// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 
@@ -2938,7 +2936,7 @@ public class ReportGeneration {
 		// To Create Header
 
 		// Add The BEL Logo
-		String imagePath = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		String imagePath = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		// String imagePath =
 		// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 
@@ -2986,7 +2984,7 @@ public class ReportGeneration {
 		canvas.stroke();
 
 		// Add images and text inside the rectangular box
-		String imagePath1 = "C:\\Users\\Teclever\\Downloads\\BEL.jpeg";
+		String imagePath1 = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
 		// String imagePath1 =
 		// "home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/BEL.jpeg";
 
