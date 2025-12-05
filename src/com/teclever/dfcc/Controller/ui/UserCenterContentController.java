@@ -133,8 +133,8 @@ public class UserCenterContentController {
 		switch (selectedMenu) {
 		case "Dashboard":
 			if (!centerStackPane.getChildren().contains(dashboardStackPane)) {
-				DashboardController dashboardController = new DashboardController(); 
-				dashboardStackPane.getChildren().add(dashboardController.createDashboardMainContainerGridPane());
+				DashboardControllerCenter dashboardControllerCenter = new DashboardControllerCenter();
+				dashboardStackPane.getChildren().add(dashboardControllerCenter.createDashboardCenterMainContainerGridPane());
 				centerStackPane.getChildren().add(dashboardStackPane);
 			} else {
 				dashboardStackPane.toFront();

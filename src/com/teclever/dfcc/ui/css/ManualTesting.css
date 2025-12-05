@@ -228,6 +228,11 @@
 	-fx-padding:5px;
 }
 
+.tab-content-main-container{
+	-fx-background-color: primary-color;
+	-fx-padding:5px;
+}
+
 .nonheading-label{
     -fx-text-fill: secondary-text-color; 
     -fx-font-size:12px;

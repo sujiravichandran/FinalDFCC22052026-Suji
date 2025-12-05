@@ -33,7 +33,9 @@ public class AdvancedDataAnalysisManualTestingController {
 	ManualTesting1553Ch2 manualTesting1553Ch2 = new ManualTesting1553Ch2();
 	ManualTesting1553Ch3 manualTesting1553Ch3 = new ManualTesting1553Ch3();
 	ManualTesting1553Ch4 manualTesting1553Ch4 = new ManualTesting1553Ch4();
-	
+	ManualTestingPowerMan manualTestingPowerMan = new ManualTestingPowerMan();
+	ManualTestingPowerAuto manualTestingPowerAuto = new ManualTestingPowerAuto();	
+	ManualTesting1553BInterface manualTesting1553BInterface = new ManualTesting1553BInterface();
 //	private HBox headingHbox = new HBox(10);
 //	private GridPane headingGridPane = new GridPane();
 //	private Label pageHeading = new Label("Manual Testing");
@@ -60,7 +62,7 @@ public class AdvancedDataAnalysisManualTestingController {
 	}
 
 	private GridPane createManualTestingTabsGridPane() {
-		manualTestingTabsGridpPane.getStyleClass().add("advanced-testing-tabs-container");
+//		manualTestingTabsGridpPane.getStyleClass().add("advanced-testing-tabs-container");
 		
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
@@ -93,9 +95,9 @@ public class AdvancedDataAnalysisManualTestingController {
 	    StackPane tab2StackPane = createTab2Content();
 	    StackPane tab3StackPane = createTab3Content();
 	    StackPane tab4StackPane = createTab4Content();
-//	    StackPane tab5StackPane = createTab2Content();
-//	    StackPane tab6StackPane = createTab3Content();
-//	    StackPane tab7StackPane = createTab4Content();
+	    StackPane tab5StackPane = createTab5Content();
+	    StackPane tab6StackPane = createTab6Content();
+	    StackPane tab7StackPane = createTab7Content();
 //	    
 	    tab1.setContent(tab1StackPane);
 	    tab1.setClosable(false);
@@ -108,6 +110,15 @@ public class AdvancedDataAnalysisManualTestingController {
 
 	    tab4.setContent(tab4StackPane);
 	    tab4.setClosable(false);
+	    
+	    tab5.setContent(tab5StackPane);
+	    tab5.setClosable(false);
+	    
+	    tab6.setContent(tab6StackPane);
+	    tab6.setClosable(false);
+	    
+	    tab7.setContent(tab7StackPane);
+	    tab7.setClosable(false);
 
  if(StateMachine.currentSessionDetails.getUutType().equals("DFCC-MK1")) {
 	 manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6, tab7);
@@ -124,7 +135,13 @@ public class AdvancedDataAnalysisManualTestingController {
 	            showTab3Content();
 	        }else if (newTab == tab4) {
 	            showTab4Content();
-	        } else {
+	        } else if (newTab == tab5) {
+	            showTab5Content();
+	        } else if (newTab == tab6) {
+	            showTab6Content();
+	        } else if (newTab == tab7) {
+	            showTab7Content();
+	        }else {
 	            showTab1Content();
 	        }
 	    });
@@ -163,42 +180,48 @@ public class AdvancedDataAnalysisManualTestingController {
 	}
 
 	private StackPane createTab1Content() {
-		ch1StackPane.getStyleClass().add("tab-content-container");
+		ch1StackPane.getStyleClass().add("tab-content-main-container");
 		ch1StackPane.getChildren().add(manualTesting1553Ch1.createlinkFilesMainContainerGridPane());
 	    return ch1StackPane;
 	}
 
 	private StackPane createTab2Content() {
-		ch2StackPane.getStyleClass().add("tab-content-container");
+		ch2StackPane.getStyleClass().add("tab-content-main-container");
 		ch2StackPane.getChildren().add(manualTesting1553Ch2.createlinkFilesMainContainerGridPane());
 	    return ch2StackPane;
 	}
 	
 	private StackPane createTab3Content() {
-		ch3StackPane.getStyleClass().add("tab-content-container");
+		ch3StackPane.getStyleClass().add("tab-content-main-container");
 		ch3StackPane.getChildren().add(manualTesting1553Ch3.createlinkFilesMainContainerGridPane());
 	    return ch3StackPane;
 	}
 	
 	private StackPane createTab4Content() {
-		ch4StackPane.getStyleClass().add("tab-content-container");
+		ch4StackPane.getStyleClass().add("tab-content-main-container");
 		ch4StackPane.getChildren().add(manualTesting1553Ch4.createlinkFilesMainContainerGridPane());
 	    return ch4StackPane;
 	}
 
-//
-//	private StackPane createTab3Content() {
-//	    customTest1StackPane.getStyleClass().add("tab-content-container");
-//	    customTest1StackPane.getChildren().add(advancedTestingCustomTesting1.createAdvancedTestingTab3GridPane());
-//	    return customTest1StackPane;
-//	}
-//
-//	private StackPane createTab4Content() {
-//		customTest2StackPane.getStyleClass().add("tab-content-container");
-//		customTest2StackPane.getChildren().add(advancedTestingCustomTesting2.createAdvancedTestingTab4GridPane());
-//	    return customTest2StackPane;
-//	}
 
+	private StackPane createTab5Content() {
+		powerManStackPane.getStyleClass().add("tab-content-main-container");
+		powerManStackPane.getChildren().add(manualTestingPowerMan.createlinkFilesMainContainerGridPane());
+	    return powerManStackPane;
+	}
+
+	private StackPane createTab6Content() {
+		powerAutoStackPane.getStyleClass().add("tab-content-main-container");
+		powerAutoStackPane.getChildren().add(manualTestingPowerAuto.createPowerAutoMainContainerGridPane());
+	    return powerAutoStackPane;
+	}
+
+	
+	private StackPane createTab7Content() {
+		modeCodeStackPane.getStyleClass().add("tab-content-main-container");
+		modeCodeStackPane.getChildren().add(manualTesting1553BInterface.create1553BMainContainerGridPane());
+	    return modeCodeStackPane;
+	}
 	
 
 }

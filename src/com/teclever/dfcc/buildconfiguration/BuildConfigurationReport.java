@@ -32,7 +32,11 @@ import com.teclever.dfcc.reportgeneration.ReportGeneration;
 public class BuildConfigurationReport {
 
 	private static final String COPYRIGHT_TEXT = "Powered By Teclever Solutions Pvt Ltd, Bangalore.";
+	private String lastGeneratedFilePath;
 
+	public String getLastGeneratedFilePath() {
+	    return lastGeneratedFilePath;
+	}
 	static String currentDirectory = new File(
 			ReportGeneration.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 
@@ -49,10 +53,11 @@ public class BuildConfigurationReport {
 		// File path
 		String filePath;
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\User\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\sharn\\Desktop\\BelogoHindi\\" + fileName;
 		} else {
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
 		}
+		this.lastGeneratedFilePath = filePath;
 
 		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		writer.setPageEvent(new HeaderFooter());
@@ -67,7 +72,7 @@ public class BuildConfigurationReport {
 		// Add BEL logo (Header)
 		String imagePath;
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
+			imagePath = "C:\\Users\\sharn\\Desktop\\BelogoHindi\\bel_logo_hindi.png";
 		} else {
 			imagePath = currentDirectory + File.separator + "Images" + File.separator + "bel_logo_hindi.png";
 		}
@@ -114,10 +119,10 @@ public class BuildConfigurationReport {
 		canvas.stroke();
 
 		// Add images inside the box
-		String imagePath1 = !DFCCConstant.isJarBuild ? "C:\\Users\\User\\Downloads\\bel_logo_hindi.png"
+		String imagePath1 = !DFCCConstant.isJarBuild ? "C:\\Users\\sharn\\Desktop\\BelogoHindi\\bel_logo_hindi.png"
 				: currentDirectory + File.separator + "Images" + File.separator + "bel_logo_hindi.png";
 
-		String imagePath3 = !DFCCConstant.isJarBuild ? "C:\\Users\\User\\Downloads\\TECLEVER_logo.png"
+		String imagePath3 = !DFCCConstant.isJarBuild ? "C:\\Users\\sharn\\Desktop\\BelogoHindi\\TECLEVER_logo.png"
 				: currentDirectory + File.separator + "Images" + File.separator + "TECLEVER_logo.png";
 
 		Image img1 = Image.getInstance(imagePath1); // BEL logo

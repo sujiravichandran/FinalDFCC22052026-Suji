@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -30,6 +31,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -52,6 +55,11 @@ public class AdvancedTestingCustomTesting2 {
 	private HBox selectedTestFileHBox = new HBox(10);
 	private Label selectedTestFileName = new Label();
 	private Button selectTestFileRunButton = new Button("Run");
+
+	private HBox buttonHBox = new HBox(5);
+	private Button startButton = new Button("Start");
+	private Button stopButton = new Button("Stop");
+	private Button pauseButton = new Button("Pause");
 
 	private VBox downloadCodeVBox = new VBox(5);
 	private HBox downloadCodeHBox = new HBox(10);
@@ -93,16 +101,14 @@ public class AdvancedTestingCustomTesting2 {
 	private String selectedTestFilePath;
 	private String selectedDownloadCodeFilePath;
 	private String selectedCheckSumFilePath;
+	private boolean testRunOnly = false;
 
 	private String UUT_ID;
 	private String TEST_TYPE_ID;
-	
+
 	private boolean aitess1Updated = false;
 	private boolean aitess2Updated = false;
 
-	
-	
-	
 	public GridPane createAdvancedTestingTab4GridPane() {
 		memoryTestLabel.setDisable(true);
 		memoryTypeLabel.setDisable(true);
@@ -118,7 +124,6 @@ public class AdvancedTestingCustomTesting2 {
 		ipDataTextField.setDisable(true);
 		memoryTestRunButton.setDisable(true);
 
-		
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -145,7 +150,7 @@ public class AdvancedTestingCustomTesting2 {
 
 		return tab4MainGridPane;
 	}
-	
+
 	// Edited By: SUJI
 //	Change Made for Point: 52,72,74(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //	Change Made on:During initial loading of testing window,Update Status Bar
@@ -161,10 +166,9 @@ public class AdvancedTestingCustomTesting2 {
 //		});
 //		
 //	}
-	
+
 	// Method to check both
-	
-		
+
 //		private void checkBothAitessLaunched() {
 //		    if (aitess1Updated && aitess2Updated) {
 //		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
@@ -229,10 +233,10 @@ public class AdvancedTestingCustomTesting2 {
 		selectedTestFileName.setPrefWidth(480);
 		selectedTestFileName.setWrapText(true);
 
-		selectTestFileHBox.getChildren().addAll(selectTestFileLabel, addTestFileLabel);
-		selectedTestFileHBox.getChildren().addAll(selectedTestFileName, selectTestFileRunButton);
+		selectTestFileHBox.getChildren().addAll(selectTestFileLabel, addTestFileLabel, selectedTestFileName);
+		selectedTestFileHBox.getChildren().addAll(createButtonBox());
 		selectTestFileHBox.setAlignment(Pos.CENTER_LEFT);
-		selectedTestFileHBox.setAlignment(Pos.CENTER_LEFT);
+		selectedTestFileHBox.setAlignment(Pos.CENTER);
 
 		selectTestFileVBox.getChildren().addAll(selectTestFileHBox, selectedTestFileHBox);
 
@@ -245,26 +249,105 @@ public class AdvancedTestingCustomTesting2 {
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			uploadFile("selectTestFile");
 		});
-		
+//Changed to Start Button: No needed kept for ref purpose:::::
+//		selectTestFileRunButton.setOnAction(e -> {
+//
+////			if(!StateMachine.isConfirmTestStop()) {
+////				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+////				return;
+////			}else {
+//			StateMachine.setConfirmTestStop(false);
+////			}
+//			if (!checkAitessStatus.isBothAitessOn()) {
+//				return;
+//			}
+//
+//			if (StateMachine.isMacroPassing()) {
+//				return;
+//			}
+//
+//			if (StateMachine.isConfirmTestFileCompleted()) {
+//				Notifications
+//						.showWarningAlert("Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
+//				return;
+//			}
+//			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+//					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+//					StateMachine.getCurrentUserLogin(), new Date(),
+//					"clicked on Test File Run button in Custom Testing-2");
+//			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			handleRunTestFile(true);
+//		});
 
-		selectTestFileRunButton.setOnAction(e -> {
-			
+		return selectTestFileVBox;
+	}
+
+	private HBox createButtonBox() {
+		buttonHBox.getStyleClass().add("advanced-testing-right-container");
+
+		Image playImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/play.png"));
+		Image stopImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/stop.png"));
+		Image pauseImage = new Image(
+				getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/pause.png"));
+
+		ImageView playImageView = new ImageView(playImage);
+		playImageView.getStyleClass().add("button-image");
+		playImageView.setFitHeight(25);
+		playImageView.setFitWidth(25);
+		playImageView.setPreserveRatio(true);
+		playImageView.setSmooth(true);
+
+		ImageView stopImageView = new ImageView(stopImage);
+		stopImageView.getStyleClass().add("button-image");
+		stopImageView.setFitHeight(25);
+		stopImageView.setFitWidth(25);
+		stopImageView.setPreserveRatio(true);
+		stopImageView.setSmooth(true);
+
+		ImageView pauseImageView = new ImageView(pauseImage);
+		pauseImageView.getStyleClass().add("button-image");
+		pauseImageView.setFitHeight(25);
+		pauseImageView.setFitWidth(25);
+		pauseImageView.setPreserveRatio(true);
+		pauseImageView.setSmooth(true);
+
+		startButton.setGraphic(playImageView);
+		startButton.setGraphicTextGap(10);
+		stopButton.setGraphic(stopImageView);
+		stopButton.setGraphicTextGap(10);
+		pauseButton.setGraphic(pauseImageView);
+		pauseButton.setGraphicTextGap(10);
+
+		startButton.setDisable(true);
+		stopButton.setDisable(true);
+		pauseButton.setDisable(true);
+
+		buttonHBox.setAlignment(Pos.CENTER);
+
+		buttonHBox.getChildren().addAll(startButton, pauseButton, stopButton);
+
+		startButton.setOnAction(e -> {
+			if (!startButton.getText().equalsIgnoreCase("Resume")) {
 //			if(!StateMachine.isConfirmTestStop()) {
 //				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 //				return;
 //			}else {
-				StateMachine.setConfirmTestStop(false);
+			StateMachine.setConfirmTestStop(false);
 //			}
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
-			
-			if(StateMachine.isMacroPassing()) {
+
+			if (StateMachine.isMacroPassing()) {
 				return;
 			}
-			
+
 			if (StateMachine.isConfirmTestFileCompleted()) {
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				Notifications
+						.showWarningAlert("Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
 				return;
 			}
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
@@ -273,10 +356,101 @@ public class AdvancedTestingCustomTesting2 {
 					StateMachine.getCurrentUserLogin(), new Date(),
 					"clicked on Test File Run button in Custom Testing-2");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			
+			}
+			
+			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Resume in Custom2 Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			} else {
+				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+						"clicked on Start in Custom2 Testing");
+				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			}
+			
+			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				StateMachine.setTestState(TestState.RUNNING);
+
+				startButton.setText("Start");
+				startButton.setDisable(true);
+				pauseButton.setDisable(false);
+				stopButton.setDisable(false);
+				return;
+			}
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
+			if(StateMachine.isMacroPassing()) {
+				return;
+			}
+			testRunOnly=true;
 			handleRunTestFile(true);
 		});
 
-		return selectTestFileVBox;
+		
+		
+		pauseButton.setOnAction(e -> {
+			StateMachine.setConfirmTestStop(true);
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Pause in Custom2 Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+			StateMachine.setTestState(TestState.PAUSED);
+			startButton.setText("Resume");
+			pauseButton.setDisable(true);
+			startButton.setDisable(false);
+			stopButton.setDisable(false);
+		});
+
+		stopButton.setOnAction(e -> {
+			if(!StateMachine.isConfirmTestStop()) {
+				Notifications.showErrorAlert("Please Wait Aitess is Switching");
+				return;
+			}else {
+				StateMachine.setConfirmTestStop(false);
+			}
+			
+			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
+					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
+					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in Custom2 Testing");
+			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+
+			StateMachine.setTestState(TestState.STOPPED);
+			startButton.setText("Start");
+			pauseButton.setDisable(true);
+			stopButton.setDisable(true);
+			startButton.setDisable(false);
+
+		});
+		
+		AdvancedTestStateObject.customTest2StatusProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue && testRunOnly) {
+				StateMachine.setTestState(TestState.COMPLETED);
+				AdvancedTestStateObject.customTest2StatusProperty().set(true);
+				startButton.setText("Start");
+				pauseButton.setDisable(true);
+				stopButton.setDisable(true);
+				startButton.setDisable(false);
+				testRunOnly = false;
+			}
+
+		});
+		
+		
+		return buttonHBox;
 	}
 
 	private VBox createDownloadBox() {
@@ -435,6 +609,7 @@ public class AdvancedTestingCustomTesting2 {
 			String fileName = selectedFile.getName();
 			if (type.equalsIgnoreCase("selectTestFile")) {
 				selectedTestFileName.setText(filePath);
+				startButton.setDisable(false);
 				selectedTestFilePath = filePath;
 			} else if (type.equalsIgnoreCase("downloadCode")) {
 				selectedDownloadCodeName.setText(fileName);
@@ -452,6 +627,7 @@ public class AdvancedTestingCustomTesting2 {
 		addDownloadCodeLabel.setDisable(status);
 		addCheckSumFileLabel.setDisable(status);
 		selectTestFileRunButton.setDisable(status);
+
 		downloadCodeRunButton.setDisable(status);
 //		memoryTypeComboBox.setDisable(status);
 //		rwTypeComboBox.setDisable(status);
@@ -504,8 +680,6 @@ public class AdvancedTestingCustomTesting2 {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
-		
-		
 
 		TestState currentState = StateMachine.getTestState();
 
@@ -514,11 +688,11 @@ public class AdvancedTestingCustomTesting2 {
 			StateMachine.setTestState(TestState.RUNNING);
 			StateMachine.setRunningTestName(RunningTestName.OTHER);
 			// Excel Name:7-July-Observation
-            // Point No:18
+			// Point No:18
 			// Change Made on Status Bar Test Name
 			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM2_TEST);
 			// Exit
-            //Point No:18
+			// Point No:18
 		} else if (currentState == TestState.RUNNING) {
 			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
 			return false;

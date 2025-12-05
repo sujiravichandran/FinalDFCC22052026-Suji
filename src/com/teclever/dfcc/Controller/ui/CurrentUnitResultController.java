@@ -186,7 +186,7 @@ public class CurrentUnitResultController {
 	
 	private void initializeDfccSNComboBox(String uutTypeId) {
 	    dfccSNList.clear();
-	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
+//	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
 	    List<SessionDto> filterSessionList = sessionList.stream()
 	            .filter(t -> t.getUutId().equals(uutTypeId))
 	            .collect(Collectors.toList());
@@ -208,7 +208,7 @@ public class CurrentUnitResultController {
 		    }
 		});
 
-		System.out.println("Check dfccSNList"+dfccSNList);
+//		System.out.println("Check dfccSNList"+dfccSNList);
 	    slNoField.setItems(dfccSNList);
 	}
 	

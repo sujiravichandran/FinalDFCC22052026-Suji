@@ -105,7 +105,7 @@ public class ReportController {
 	public ReportController(){
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
-		System.out.println("Start sessionList" + sessionList.size());
+//		System.out.println("Start sessionList" + sessionList.size());
 		initializeUUTTypeComboBox();
 	}
 
@@ -247,7 +247,8 @@ public class ReportController {
 				String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
 				String uutId = fetchUutId(selectedUUTType);
 				selectedUttId=uutId;
-				System.out.println("UUT ID check" + uutId);
+//				System.out.println("UUT ID check" + uutId);
+				UUT_ID = uutId;
 				initializeDfccSNComboBox(uutId);
 				reportData.clear();
 			
@@ -266,7 +267,7 @@ public class ReportController {
 	
 	private void initializeDfccSNComboBox(String uutTypeId) {
 	    dfccSNList.clear();
-	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
+//	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
 	    List<SessionDto> filterSessionList = sessionList.stream()
 	            .filter(t -> t.getUutId().equals(uutTypeId))
 	            .collect(Collectors.toList());
@@ -331,6 +332,7 @@ public class ReportController {
 			sessionNameField.setOnAction((event) -> {
 				
 				SESSION_ID = fetchSessionId(sessionNameField.getValue());
+				System.out.println("Session Id Check" + SESSION_ID);
 				if(SESSION_ID != null){	
 					reportTreeviewController.initializeReportTreeView(SESSION_ID);
 					getSavedReportData();

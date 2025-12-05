@@ -1957,8 +1957,64 @@ public class StateMachine {
 		StateMachine.checkThread = checkThread;
 	}
 	
+//BLS Graph Temp:
+	private static StringProperty channel1BlsTemperature = new SimpleStringProperty();
+	private static StringProperty channel2BlsTemperature = new SimpleStringProperty();
+	private static StringProperty channel3BlsTemperature = new SimpleStringProperty();
+	private static StringProperty channel4BlsTemperature = new SimpleStringProperty();
 
-	
-	
+
+	// ---------- CHANNEL 1 ----------
+	public static StringProperty channel1BlsTemperatureProperty() {
+	    return channel1BlsTemperature;
+	}
+
+	public static String getChannel1BlsTemperature() {
+	    return channel1BlsTemperature.get();
+	}
+
+	public static void setChannel1BlsTemperature(String value) {
+	    channel1BlsTemperature.set(value);
+	}
+
+	// ---------- CHANNEL 2 ----------
+	public static StringProperty channel2BlsTemperatureProperty() {
+	    return channel2BlsTemperature;
+	}
+
+	public static String getChannel2BlsTemperature() {
+	    return channel2BlsTemperature.get();
+	}
+
+	public static void setChannel2BlsTemperature(String value) {
+	    channel2BlsTemperature.set(value);
+	}
+
+	// ---------- CHANNEL 3 ----------
+	public static StringProperty channel3BlsTemperatureProperty() {
+	    return channel3BlsTemperature;
+	}
+
+	public static String getChannel3BlsTemperature() {
+	    return channel3BlsTemperature.get();
+	}
+
+	public static void setChannel3BlsTemperature(String value) {
+	    channel3BlsTemperature.set(value);
+	}
+
+	// ---------- CHANNEL 4 ----------
+	public static StringProperty channel4BlsTemperatureProperty() {
+	    return channel4BlsTemperature;
+	}
+
+	public static String getChannel4BlsTemperature() {
+	    return channel4BlsTemperature.get();
+	}
+
+	public static void setChannel4BlsTemperature(String value) {
+	    channel4BlsTemperature.set(value);
+	}
+
 
 }

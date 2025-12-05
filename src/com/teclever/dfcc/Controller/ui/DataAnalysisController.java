@@ -277,6 +277,7 @@ public class DataAnalysisController {
 		closeButtonHbox.getChildren().add(closeButton);
 		closeButtonHbox.setMaxWidth(Double.MAX_VALUE);
 		closeButton.setOnAction(e -> {
+			DFCCConstant.selectedBuildConfig="";
 			Stage stage = (Stage) closeButton.getScene().getWindow();
 			stage.close();
 		});

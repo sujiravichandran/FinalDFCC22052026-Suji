@@ -58,6 +58,7 @@ public class FaultCodeConfiguration {
 						faultCodeMaster.getUutId(), faultCodeMaster.getOfpConfigId(), faultCodeMaster.getFaultCode(),
 						faultCodeMaster.getFaultCodeDescription(), faultCodeMaster.getFalutCodeFilePath());
 				faultCodeList.add(faultCodeDTO);
+			
 			}
 			res.setResponseCode(1);
 			res.setResponseMessage("Get FaultCode Successfull");

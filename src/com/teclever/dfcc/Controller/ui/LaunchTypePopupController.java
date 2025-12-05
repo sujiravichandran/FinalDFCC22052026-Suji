@@ -7,6 +7,7 @@ import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.usermanagement.UserManagementModule;
 import com.teclever.dfcc.utils.Notifications;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -95,6 +96,8 @@ public class LaunchTypePopupController {
 			Notifications.showSuccessAlert(response.getResponseMessage());
 			Stage stage = (Stage) launchTypeMainContainer.getScene().getWindow();
 			stage.close();
+			Platform.exit();
+			System.exit(0);
 		}else {
 			Notifications.showErrorAlert(response.getResponseMessage());
 		}
