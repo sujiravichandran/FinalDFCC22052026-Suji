@@ -3,9 +3,11 @@ package com.teclever.dfcc.Controller.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.RunConfigurationManagement;
 import com.teclever.dfcc.datastore.customtestmanagement.AdvanceCustom1TestingManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
@@ -17,6 +19,7 @@ import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
@@ -40,7 +43,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
@@ -51,7 +53,9 @@ public class AdvancedTestingCustomTesting1 {
 	private ComboBox<String> testTypeComboBox = new ComboBox<>();
 	private ObservableList<TestTypeMasterDetailsDto> testTypeDataList;
 	private ObservableList<String> testTypeList = FXCollections.observableArrayList();
-
+	private static String readValue;
+	private static String writeValue;
+	
 	private HBox leftTitleHBox = new HBox(25);
 	private CheckBox ch1CheckBox = new CheckBox("CH-1");
 	private CheckBox ch2CheckBox = new CheckBox("CH-2");
@@ -78,7 +82,7 @@ public class AdvancedTestingCustomTesting1 {
 	private ObservableList<MacroDto> macroDataList;
 	private ObservableList<String> macroList = FXCollections.observableArrayList();
 
-	private VBox terminalButtonVBox = new VBox(10);
+	private HBox terminalButtonVBox = new HBox(10);
 	private Button terminalAddButton = new Button("Add");
 	private Button terminalRunButton = new Button("Run");
 
@@ -97,10 +101,15 @@ public class AdvancedTestingCustomTesting1 {
 	private GridPane userTestGridPane = new GridPane();
 	private TextArea userTestTextArea = new TextArea();
 	private HBox userTestHBox = new HBox(15);
-	private Button userTestRunButton = new Button("Run");
+	private Button userTestRunButton = new Button("User Run");
 
 	private Label testNameLabel = new Label("Test Name");
 	private TextField testNameTextField = new TextField();
+	
+	private Label userTestNoteLabel = new Label("Note: Enter only the name without any extension (e.g., Test), not with an extension (e.g., Test.tst).");
+	
+	private TextArea symbolsShowTextField = new TextArea();
+	private TextField symbolsUserEntredTextField = new TextField();
 
 	private RunConfigurationService runConfigurationService = new RunConfigurationService();
 	private RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
@@ -181,6 +190,8 @@ public class AdvancedTestingCustomTesting1 {
 	private HBox createLeftSideTitle() {
 		leftTitleHBox.getStyleClass().add("advanced-testing-custom-tab-container");
 		leftTitleHBox.setAlignment(Pos.TOP_LEFT);
+		leftTitleHBox.setDisable(true);
+		
 
 		ch1CheckBox.getStyleClass().add("custom-checkbox");
 		ch2CheckBox.getStyleClass().add("custom-checkbox");
@@ -195,15 +206,16 @@ public class AdvancedTestingCustomTesting1 {
 	private GridPane createLeftTerminalBox() {
 		terminalCommandGridPane.getStyleClass().add("advanced-testing-custom-tab-container");
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(30);
+		firstColumn.setPercentWidth(50);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(35);
-		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(35);
+		secondColumn.setPercentWidth(50);
+		
+		
+
 		RowConstraints rowConstraints = new RowConstraints();
-		rowConstraints.setPercentHeight(20);
-		terminalCommandGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
-		for (int i = 0; i < 5; i++) {
+		rowConstraints.setPercentHeight(30);
+		terminalCommandGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		for (int i = 0; i < 3; i++) {
 			terminalCommandGridPane.getRowConstraints().add(rowConstraints);
 		}
 
@@ -214,13 +226,22 @@ public class AdvancedTestingCustomTesting1 {
 		ipDataLabel.getStyleClass().add("form-label");
 
 		terminalCommandGridPane.add(symbolLabel, 0, 0);
-		terminalCommandGridPane.add(typeLabel, 0, 1);
-		terminalCommandGridPane.add(minValueLabel, 0, 2);
-		terminalCommandGridPane.add(maxValueLabel, 0, 3);
-		terminalCommandGridPane.add(ipDataLabel, 0, 4);
+		terminalCommandGridPane.add(symbolsShowTextField, 0, 1, 2, 1);
+		terminalCommandGridPane.add(symbolsUserEntredTextField, 0, 2, 2, 2);
+		terminalCommandGridPane.add(createTerminalButtonBox(), 0, 3, 2, 3);
+		
+		
+//		terminalCommandGridPane.add(symbolsUserEntredTextField, 0, 2);
+//		terminalCommandGridPane.add(maxValueLabel, 0, 3);
+//		terminalCommandGridPane.add(ipDataLabel, 0, 4);
 
 		symbolComboBox.getStyleClass().add("form-textfield");
-		typeTextField.getStyleClass().add("form-textfield");
+		symbolsUserEntredTextField.getStyleClass().add("form-show-textfield-custom1");
+		symbolsShowTextField.getStyleClass().add("form-textfield");
+		symbolsShowTextField.setMaxHeight(150);
+		symbolsUserEntredTextField.setMaxHeight(50);
+		symbolsShowTextField.setWrapText(true);
+		symbolsShowTextField.setEditable(false);
 		minValueTextField.getStyleClass().add("form-textfield");
 		maxValueTextField.getStyleClass().add("form-textfield");
 		ipDataTextField1.getStyleClass().add("form-textfield");
@@ -231,13 +252,11 @@ public class AdvancedTestingCustomTesting1 {
 		ipHBox.getChildren().addAll(ipDataTextField1, ipDataTextField2);
 
 		terminalCommandGridPane.add(symbolComboBox, 1, 0);
-		terminalCommandGridPane.add(typeTextField, 1, 1);
-		terminalCommandGridPane.add(minValueTextField, 1, 2);
-		terminalCommandGridPane.add(maxValueTextField, 1, 3);
-		terminalCommandGridPane.add(ipHBox, 1, 4);
+//		terminalCommandGridPane.add(typeTextField, 1, 1);
+//		terminalCommandGridPane.add(minValueTextField, 1, 2);
+//		terminalCommandGridPane.add(maxValueTextField, 1, 3);
+//		terminalCommandGridPane.add(ipHBox, 1, 4);
 
-		System.out.println("ipDataTextField2 disabled? " + ipDataTextField2.isDisabled());
-		System.out.println("ipDataTextField2 editable? " + ipDataTextField2.isEditable());
 
 		typeTextField.setDisable(true);
 		minValueTextField.setDisable(true);
@@ -287,36 +306,69 @@ public class AdvancedTestingCustomTesting1 {
 			handleSymbolSection(symbolComboBox.getValue());
 		});
 
-		terminalCommandGridPane.add(createTerminalButtonBox(), 2, 0, 1, 5);
+//		terminalCommandGridPane.add(createTerminalButtonBox(), 2, 0, 1, 5);
 
 		return terminalCommandGridPane;
 	}
 
+//	private void handleSymbolSection(String symbolName) {
+//		if (symbolName != null && symbolDataList != null) {
+//			for (SymbolDto symbol : symbolDataList) {
+//				if (symbolName.equals(symbol.getSymbolName())) {
+//					typeTextField.setText(symbol.getSymbolType());
+////					minValueTextField.setText(symbol.getMin());
+////					maxValueTextField.setText(symbol.getMax());
+////					writeValue = symbol.getWriteValue();
+////					readValue = symbol.getReadValue();
+//					
+//				}
+//			}
+//			Platform.runLater(() -> {
+//				typeCheck = typeTextField.getText();
+//				if (symbolName != null && symbolDataList != null) {
+//					SymbolDto symbol= new SymbolDto();
+//					symbolsShowTextField.setText(symbol.getFullSymbolLine());
+//					////System.out.println("Check Suji Sull line ::" +symbolsShowTextField.get );
+//				}
+//				
+////				if (typeCheck == null || typeCheck.trim().isEmpty()) {
+////					ipDataTextField2.setDisable(true);
+////					return;
+////				}
+////
+////				if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+////					ipDataTextField2.setDisable(false);
+////					ipDataTextField2.setEditable(true);
+////				} else {
+////					ipDataTextField2.setDisable(true);
+////				}
+//			});
+//		}
+//	}
+
 	private void handleSymbolSection(String symbolName) {
-		if (symbolName != null && symbolDataList != null) {
-			for (SymbolDto symbol : symbolDataList) {
-				if (symbolName.equals(symbol.getSymbolName())) {
-					typeTextField.setText(symbol.getSymbolType());
-					minValueTextField.setText(symbol.getMin());
-					maxValueTextField.setText(symbol.getMax());
-				}
-			}
-			Platform.runLater(() -> {
-				typeCheck = typeTextField.getText();
 
-				if (typeCheck == null || typeCheck.trim().isEmpty()) {
-					ipDataTextField2.setDisable(true);
-					return;
-				}
+	    if (symbolName == null || symbolDataList == null) return;
 
-				if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-					ipDataTextField2.setDisable(false);
-					ipDataTextField2.setEditable(true);
-				} else {
-					ipDataTextField2.setDisable(true);
-				}
-			});
-		}
+	    SymbolDto symbol = null;
+
+	    for (SymbolDto s : symbolDataList) {
+	        if (symbolName.equals(s.getSymbolName())) {
+	            symbol = s;
+	            break;
+	        }
+	    }
+
+	    if (symbol == null) return;
+
+	    SymbolDto finalSymbol = symbol;
+
+	    Platform.runLater(() -> {
+	        typeTextField.setText(finalSymbol.getSymbolType());
+	        typeCheck = finalSymbol.getSymbolType();
+	        symbolsShowTextField.setText(finalSymbol.getFullSymbolLine());
+	        ////System.out.println("Check Print" + symbolsShowTextField.getText());
+	    });
 	}
 
 	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> items, boolean isSymbol) {
@@ -345,12 +397,12 @@ public class AdvancedTestingCustomTesting1 {
 		comboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
 			if (newValue != null) {
 				editor.setText(newValue);
-				comboBox.setItems(items);
+//				comboBox.setItems(items);
 			}
 		});
 	}
 
-	private VBox createTerminalButtonBox() {
+	private HBox createTerminalButtonBox() {
 		terminalButtonVBox.setAlignment(Pos.CENTER);
 		terminalButtonVBox.getChildren().addAll(terminalAddButton, terminalRunButton);
 
@@ -407,7 +459,92 @@ public class AdvancedTestingCustomTesting1 {
 		macroGridPane.add(createMacroButton(), 2, 0);
 
 		macroComboBox.prefWidthProperty().bind(macroGridPane.widthProperty());
-		macroComboBox.setItems(macroList);
+//		macroComboBox.setItems(macroList);
+		// After macroList is populated
+		List<String> cleanedList = macroList.stream()
+			    .map(item -> {
+			        if (item == null) return "";
+			        String str = item.toString().trim();
+			        if (str.toLowerCase().startsWith("macroname")) {
+			            int index = str.indexOf('=');
+			            if (index != -1 && index + 1 < str.length()) {
+			                str = str.substring(index + 1);
+			            } else {
+			                str = "";
+			            }
+			        }
+			        return str.trim();
+			    })
+			    .filter(s -> !s.isEmpty())
+			    .collect(Collectors.toList());
+
+			// Convert to ObservableList
+			ObservableList<String> cleanedObservableList = FXCollections.observableArrayList(cleanedList);
+
+			// Set ComboBox items
+			macroComboBox.setItems(cleanedObservableList);
+			macroComboBox.setEditable(true);
+
+			// Handle dynamic loading when clicked
+//			macroComboBox.setOnMouseClicked(event -> {
+//			    if (macroComboBox.getItems().isEmpty() && !macroList.isEmpty()) {
+//
+//			        // Repeat the **full cleaning logic** here
+//			        List<String> cleanedListOnClick = macroList.stream()
+//			            .map(item -> {
+//			                if (item == null) return "";
+//			                String str = item.toString().trim();
+//			                if (str.toLowerCase().startsWith("macroname")) {
+//			                    int index = str.indexOf('=');
+//			                    if (index != -1 && index + 1 < str.length()) {
+//			                        str = str.substring(index + 1);
+//			                    } else {
+//			                        str = "";
+//			                    }
+//			                }
+//			                return str.trim();
+//			            })
+//			            .filter(s -> !s.isEmpty())
+//			            .collect(Collectors.toList());
+//
+//			        ObservableList<String> cleanedObservableListOnClick = FXCollections.observableArrayList(cleanedListOnClick);
+//
+//			        macroComboBox.setItems(cleanedObservableListOnClick);
+//
+//			        addSearchFunctionality(macroComboBox, cleanedObservableListOnClick, false);
+//			    }
+//			});
+			
+			macroComboBox.setOnMouseClicked(event -> {
+
+			    List<String> cleanedListOnClick = macroList.stream()
+			        .map(item -> {
+			            if (item == null) return "";
+			            String str = item.toString().trim();
+			            if (str.toLowerCase().startsWith("macroname")) {
+			                int index = str.indexOf('=');
+			                if (index != -1 && index + 1 < str.length()) {
+			                    str = str.substring(index + 1);
+			                } else {
+			                    str = "";
+			                }
+			            }
+			            return str.trim();
+			        })
+			        .filter(s -> !s.isEmpty())
+			        .collect(Collectors.toList());
+
+			    ObservableList<String> cleanedObservableListOnClick =
+			            FXCollections.observableArrayList(cleanedListOnClick);
+
+			    macroComboBox.setItems(cleanedObservableListOnClick);
+
+			    addSearchFunctionality(macroComboBox, cleanedObservableListOnClick, false);
+			});
+		macroComboBox.setEditable(true);
+
+		// Pass cleaned list to search functionality
+		addSearchFunctionality(macroComboBox, cleanedObservableList, false);
 		macroComboBox.setEditable(true);
 
 		addSearchFunctionality(macroComboBox, macroList, false);
@@ -501,15 +638,20 @@ public class AdvancedTestingCustomTesting1 {
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(100);
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(85);
+		firstRow.setPercentHeight(75);
 		RowConstraints secondRow = new RowConstraints();
 		secondRow.setPercentHeight(15);
+		RowConstraints thirdRow = new RowConstraints();
+		thirdRow.setPercentHeight(15);
 		userTestGridPane.getColumnConstraints().addAll(firstColumn);
-		userTestGridPane.getRowConstraints().addAll(firstRow, secondRow);
+		userTestGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow);
 
 		userTestGridPane.add(userTestTextArea, 0, 0);
 		userTestGridPane.add(createUserTestButtonBox(), 0, 1);
-
+		userTestNoteLabel.setAlignment(Pos.CENTER);
+		userTestNoteLabel.setWrapText(true);
+		userTestGridPane.add(userTestNoteLabel, 0, 2);
+		
 		return userTestGridPane;
 	}
 
@@ -520,6 +662,10 @@ public class AdvancedTestingCustomTesting1 {
 		userTestHBox.getChildren().addAll(testNameLabel, testNameTextField, userTestRunButton);
 
 		userTestRunButton.setOnAction(e -> {
+			if(testNameTextField.getText()== null || testNameTextField.getText().isEmpty()) {
+				Notifications.showErrorAlert("Please enter the test name and retry the test.");
+				return;
+			}
 			handleUserTestRun();
 		});
 
@@ -540,6 +686,7 @@ public class AdvancedTestingCustomTesting1 {
 				if (symbolResponse.getResponse().getResponseCode() == 1) {
 					symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
 				} else if (symbolResponse.getResponse().getResponseCode() == 0) {
+					symbolDataList = FXCollections.observableArrayList(symbolResponse.getListOfSymbolDto());
 					Platform.runLater(
 							() -> Notifications.showErrorAlert(symbolResponse.getResponse().getResponseMessage()));
 				}
@@ -548,6 +695,7 @@ public class AdvancedTestingCustomTesting1 {
 				if (macroResponse.getResponse().getResponseCode() == 1) {
 					macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
 				} else if (macroResponse.getResponse().getResponseCode() == 0) {
+					macroDataList = FXCollections.observableArrayList(macroResponse.getListOfMacroDto());
 					Platform.runLater(
 							() -> Notifications.showErrorAlert(macroResponse.getResponse().getResponseMessage()));
 				}
@@ -609,85 +757,123 @@ public class AdvancedTestingCustomTesting1 {
 
 	}
 
+//	private void handleSymbolAddOrRun(boolean runStatus) {
+//		StringBuilder errorMessage = new StringBuilder();
+//		String symbolName = symbolComboBox.getValue().trim();
+//		String symbolType = typeTextField.getText();
+//		String minValue = minValueTextField.getText();
+//		String maxValue = maxValueTextField.getText();
+//		String inputData1 = ipDataTextField1.getText();
+//		String inputData2 = ipDataTextField2.getText();
+//		String ch1Status = ch1CheckBox.isSelected() ? "1" : "0";
+//		String ch2Status = ch2CheckBox.isSelected() ? "1" : "0";
+//		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0";
+//		String ch4Status = ch4CheckBox.isSelected() ? "1" : "0";
+//		
+//		
+//
+//		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+//			if (inputData2 == null || inputData2.isEmpty()) {
+//				errorMessage.append("Input2 data is empty.\n");
+//			}
+//		}
+//		if (symbolName == null || symbolName.isEmpty()) {
+//			errorMessage.append("Please select any symbol.\n");
+//		}
+//		if (symbolType == null || symbolType.isEmpty()) {
+//			errorMessage.append("Symbol type is empty.\n");
+//		}
+//		if (minValue == null || minValue.isEmpty()) {
+//			errorMessage.append("Minimum value is empty.\n");
+//		}
+//		if (maxValue == null || maxValue.isEmpty()) {
+//			errorMessage.append("Maximum value is empty.\n");
+//		}
+//		if (inputData1 == null || inputData1.isEmpty()) {
+//			errorMessage.append("Input1 data is empty.\n");
+//		}
+//
+//		else {
+//			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+//			if (inputData2 == null || inputData2.isEmpty()) {
+//				errorMessage.append("Input2 data is empty.\n");
+//			}
+//			}
+//
+//			double minValueAsDouble = Double.parseDouble(minValue);
+//			double maxValueAsDouble = Double.parseDouble(maxValue);
+//			double inputDataDouble1 = Double.parseDouble(inputData1);
+//			if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
+//				errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
+//				errorMessage.append("Input data must should not be greater than" + maxValue + ".\n");
+//			}
+//			
+//			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+//				double inputDataDouble2 = Double.parseDouble(inputData2);
+//				if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
+//					errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
+//					errorMessage.append("Input data should not be greater than" + maxValue + ".\n");
+//				}
+//				 if (inputDataDouble2 > maxValueAsDouble) {
+//					errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
+//				 }else if(inputDataDouble2< inputDataDouble1 || inputDataDouble2 == inputDataDouble1){
+//					 errorMessage.append("Max Val should not be less than or equal to " + inputDataDouble1 +  "Min Val.\n");
+//				 }
+//			}
+//		}
+//
+//		if (errorMessage.length() > 0) {
+//			Notifications.showWarningAlert(errorMessage.toString());
+//			return;
+//		}
+//		String formattedData;
+//		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
+//			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
+//					+ "," + inputData2 + ")?";
+//		} else {
+//			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
+//					+ ")?";
+//		}
+//
+//		if (runStatus) {
+//			if (checkAndSetTestState()) {
+//				handleRunCommand(formattedData);
+//			}
+//
+//		} else {
+//			userTestTextArea.appendText(formattedData + "\n");
+//		}
+//	}
+	
 	private void handleSymbolAddOrRun(boolean runStatus) {
-		StringBuilder errorMessage = new StringBuilder();
-		String symbolName = symbolComboBox.getValue().trim();
-		String symbolType = typeTextField.getText();
-		String minValue = minValueTextField.getText();
-		String maxValue = maxValueTextField.getText();
-		String inputData1 = ipDataTextField1.getText();
-		String inputData2 = ipDataTextField2.getText();
-		String ch1Status = ch1CheckBox.isSelected() ? "1" : "0";
-		String ch2Status = ch2CheckBox.isSelected() ? "1" : "0";
-		String ch3Status = ch3CheckBox.isSelected() ? "1" : "0";
-		String ch4Status = ch4CheckBox.isSelected() ? "1" : "0";
-
-		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-			if (inputData2 == null || inputData2.isEmpty()) {
-				errorMessage.append("Input2 data is empty.\n");
-			}
-		}
-		if (symbolName == null || symbolName.isEmpty()) {
-			errorMessage.append("Please select any symbol.\n");
-		}
-		if (symbolType == null || symbolType.isEmpty()) {
-			errorMessage.append("Symbol type is empty.\n");
-		}
-		if (minValue == null || minValue.isEmpty()) {
-			errorMessage.append("Minimum value is empty.\n");
-		}
-		if (maxValue == null || maxValue.isEmpty()) {
-			errorMessage.append("Maximum value is empty.\n");
-		}
-		if (inputData1 == null || inputData1.isEmpty()) {
-			errorMessage.append("Input1 data is empty.\n");
-		}
-
-		else {
-			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-			if (inputData2 == null || inputData2.isEmpty()) {
-				errorMessage.append("Input2 data is empty.\n");
-			}
-			}
-
-			double minValueAsDouble = Double.parseDouble(minValue);
-			double maxValueAsDouble = Double.parseDouble(maxValue);
-			double inputDataDouble1 = Double.parseDouble(inputData1);
-			if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
-				errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
-				errorMessage.append("Input data must should not be greater than" + maxValue + ".\n");
-			}
-			
-			if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-				double inputDataDouble2 = Double.parseDouble(inputData2);
-				if (inputDataDouble1 < minValueAsDouble || inputDataDouble1>maxValueAsDouble) {
-					errorMessage.append("Input data must be greater than or equal to " + minValue + ".\n");
-					errorMessage.append("Input data should not be greater than" + maxValue + ".\n");
-				}
-				 if (inputDataDouble2 > maxValueAsDouble) {
-					errorMessage.append("Input data must be less than or equal to " + maxValue + ".\n");
-				 }else if(inputDataDouble2< inputDataDouble1 || inputDataDouble2 == inputDataDouble1){
-					 errorMessage.append("Max Val should not be less than or equal to " + inputDataDouble1 +  "Min Val.\n");
-				 }
-			}
-		}
-
-		if (errorMessage.length() > 0) {
-			Notifications.showWarningAlert(errorMessage.toString());
+		
+		String formattedData =symbolsUserEntredTextField.getText() ;
+		
+		////System.out.println("User Entred Command Custom 1" +formattedData );
+		if (StateMachine.isConfirmTestFileCompleted()) {
+			Notifications.showWarningAlert(
+					"Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
 			return;
 		}
-		String formattedData;
-		if (typeCheck.equalsIgnoreCase("AI") || typeCheck.equalsIgnoreCase("DI")) {
-			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
-					+ "," + inputData2 + ")?";
-		} else {
-			formattedData = symbolName + "(" + ch1Status + ch2Status + ch3Status + ch4Status + ") = " + "(" + inputData1
-					+ ")?";
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return;
+		}
+		if( DFCCConstant.dashBoardLoading ) {
+			Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+			return;
+		}
+		
+		if(StateMachine.isMacroPassing()) {
+			return;
 		}
 
 		if (runStatus) {
 			if (checkAndSetTestState()) {
 				handleRunCommand(formattedData);
+				StateMachine.setTestState(TestState.RUNNING);
+				StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST);
+				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+				DFCCConstant.custom1TestCompleteFlag = true;
 			}
 
 		} else {
@@ -698,28 +884,59 @@ public class AdvancedTestingCustomTesting1 {
 	private void handleMacroAddOrRun(boolean runStatus) {
 		StringBuilder errorMessage = new StringBuilder();
 		String macroName = macroComboBox.getValue();
-		if (macroName == null || macroName.isEmpty())
-			errorMessage.append("Please select any macro.\n");
-		else {
-			boolean isMatched = false;
-			for (MacroDto macro : macroDataList) {
-				if (macro.getMacroName().equals(macroName.trim())) {
-					isMatched = true;
-				}
-			}
-			if (!isMatched) {
-				errorMessage.append("Please select any macro.\n");
-			}
+		boolean isMatched = false;
+
+		for (MacroDto macro : macroDataList) {
+		    String cleanMacro = macro.getMacroName();
+		    if (cleanMacro.toLowerCase().startsWith("macroname")) {
+		        int idx = cleanMacro.indexOf('=');
+		        if (idx != -1 && idx + 1 < cleanMacro.length()) {
+		            cleanMacro = cleanMacro.substring(idx + 1).trim();
+		        }
+		    }
+		    if (macroName.trim().equals(cleanMacro)) {
+		        isMatched = true;
+		        break;
+		    }
+		}
+
+		if (!isMatched) {
+		    errorMessage.append("Please select any macro.\n");
 		}
 
 		if (errorMessage.length() > 0) {
 			Notifications.showWarningAlert(errorMessage.toString());
 			return;
 		}
-		String formattedData = "macname = " + macroName + ";";
+//		String formattedData = "macname = " + macroName + ";";
+//		based on sridhar comment Suji removed ; while adding macro on 02022026
+		String formattedData = "macname = " + macroName;
+		
+		if (StateMachine.isConfirmTestFileCompleted()) {
+			Notifications.showWarningAlert(
+					"Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
+			return;
+		}
+		
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return;
+		}
+		if( DFCCConstant.dashBoardLoading ) {
+			Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+			return;
+		}
+		
+		if(StateMachine.isMacroPassing()) {
+			return;
+		}
+		
 		if (runStatus) {
 			if (checkAndSetTestState()) {
 				handleRunCommand(formattedData);
+				StateMachine.setTestState(TestState.RUNNING);
+				StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST);
+				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+				DFCCConstant.custom1TestCompleteFlag = true;
 			}
 		} else {
 			userTestTextArea.appendText(formattedData + "\n");
@@ -730,12 +947,13 @@ public class AdvancedTestingCustomTesting1 {
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-
+				
 				String runConfigId = runConfigurationService
 						.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), TEST_TYPE_ID);
 				currentSessionDetails.setRunConfigId(runConfigId);
-
+				//System.out.println("SUJI Custom 1 Runcommadn" + runConfigId);
 				String response = advanceCustom1TestingManagement.customOneRun(formattedData, TEST_TYPE_ID);
+				
 
 				return null;
 			}
@@ -744,6 +962,31 @@ public class AdvancedTestingCustomTesting1 {
 	}
 
 	private void handleUserTestRun() {
+		
+		
+		if (StateMachine.isConfirmTestFileCompleted()) {
+			Notifications.showWarningAlert(
+					"Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
+			return;
+		}
+		
+		if (!checkAitessStatus.isBothAitessOn()) {
+			return;
+		}
+		
+		if( DFCCConstant.dashBoardLoading ) {
+			Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+			return;
+		}
+		
+		if(StateMachine.isMacroPassing()) {
+			return;
+		}
+		StateMachine.setTestState(TestState.RUNNING);
+		StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST);
+		StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+		////System.out.println("SUJI CHECK STATUS BAR STATE CHECK:: " +StateMachine.getStatusBarRunningTestName() );
+		
 		String stageId = AdvancedTestStateObject.getCustomTest1UserDefinedTestId();
 		StringBuilder errorMessage = new StringBuilder();
 		String testName = testNameTextField.getText();
@@ -760,7 +1003,9 @@ public class AdvancedTestingCustomTesting1 {
 		String[] lines = text.split("\\r?\\n");
 
 		for (String line : lines) {
+			
 			testFileData.add(line);
+			////System.out.println("SUJI TEST FILE DATA Lines Added Mani Suscept ::" + testFileData);
 		}
 
 		if (checkAndSetTestState()) {
@@ -771,17 +1016,20 @@ public class AdvancedTestingCustomTesting1 {
 					String runConfigId = runConfigurationService
 							.getRunConfigIdByUutIdAndTestTypeId(currentSessionDetails.getUutId(), TEST_TYPE_ID);
 					currentSessionDetails.setRunConfigId(runConfigId);
-
+					////System.out.println("SUJI TEST FILE ID Lines Added Mani Suscept 222::" + TEST_TYPE_ID);
 					return advanceCustom1TestingManagement.customOneRunTestFile(stageId, testName, testFileData,
 							TEST_TYPE_ID);
 				}
 			};
+			
+			
 
 			task.setOnSucceeded(event -> {
 				Response response = task.getValue(); // Get the response
 				if (response.getResponseCode() == 0) {
 					Debug.printDebug("Custom-1 Test Task Response received: " + response.getResponseMessage());
 					Notifications.showErrorAlert(response.getResponseMessage());
+					
 				}
 			});
 
@@ -792,7 +1040,11 @@ public class AdvancedTestingCustomTesting1 {
 
 			new Thread(task).start();
 		}
+		
+		
 	}
+	
+	
 
 	private boolean checkAndSetTestState() {
 		if (!checkAitessStatus.isBothAitessOn()) {
@@ -802,8 +1054,10 @@ public class AdvancedTestingCustomTesting1 {
 		if (StateMachine.isMacroPassing()) {
 			return false;
 		}
-
+		
+		StateMachine.setTestState(TestState.RUNNING);
 		TestState currentState = StateMachine.getTestState();
+		////System.out.println("SUJI CHeck Custom test State ::" +currentState );
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
@@ -816,14 +1070,15 @@ public class AdvancedTestingCustomTesting1 {
 			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST);
 			// Exit
 			// Point No:18
-		} else if (currentState == TestState.RUNNING) {
-			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-			return false;
-		} else if (currentState == TestState.PAUSED) {
-			Notifications
-					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
-			return false;
-		}
+//		} else if (currentState == TestState.RUNNING) {
+//			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//			return false;
+		} 
+//		else if (currentState == TestState.PAUSED) {
+//			Notifications
+//					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+//			return false;
+//		}
 
 		return true;
 	}

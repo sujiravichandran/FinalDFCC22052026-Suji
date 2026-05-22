@@ -13,6 +13,7 @@ import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.SessionTiming;
 import com.teclever.datastore.service.RunConfigurationService;
 import com.teclever.datastore.service.SessionTimingService;
+import com.teclever.datastore.utils.DfccConstant;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
@@ -31,6 +32,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.TestStateNew;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.TestCardDataObject.TestCardData;
 import com.teclever.dfcc.utils.CheckAitessStatus;
@@ -125,7 +127,7 @@ public class AdvancedTestingHWATPTesting {
 //		SUJI added for resetting the progress bar once test file are moved::
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 			Platform.runLater(() -> {
-//	    		System.out.println("Entred resetting Progress in Advanced test");
+//	    		////System.out.println("Entred resetting Progress in Advanced test");
 	    	testProgressBar.setProgress(0);
 	    	percentageLabel.setText("0%");
 	    	StateMachine.setResettingProgressBar(false);
@@ -136,7 +138,7 @@ public class AdvancedTestingHWATPTesting {
 //		Change Made for Point: 4&39(Mail:7 July status || Observations_in_testing_Teclever_Date_Updated_18Jun.xlsx)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-//			System.out.println("WDM Status changed:Advaced HWATP " + newVal);
+//			////System.out.println("WDM Status changed:Advaced HWATP " + newVal);
 			if(newVal && (StateMachine.getStatusBarRunningTestName().equals("ADVANCED_TEST_HWATP_TEST"))) {
 				
 			StateMachine.setTestState(TestState.PAUSED);
@@ -156,6 +158,7 @@ public class AdvancedTestingHWATPTesting {
 				stopButton.setDisable(true);
 				startButton.setDisable(false);
 				runAllButton.setDisable(false);
+				repeatCountTextField.setDisable(false);
 				
 			}
 			StateMachine.setCancelTest(false);
@@ -214,6 +217,8 @@ public class AdvancedTestingHWATPTesting {
 	    Platform.runLater(() -> {
              leftSideVBox.setDisable(false);
 			 rightSideGridPane.setDisable(false);
+			 repeatCountTextField.setDisable(false);
+			 
 	    });
 	}
 	
@@ -222,6 +227,7 @@ public class AdvancedTestingHWATPTesting {
 	        if (!isTestFileCompleted) {
 	        	 leftSideVBox.setDisable(false);
 				 rightSideGridPane.setDisable(false);
+				 repeatCountTextField.setDisable(false);
 	        }
 	    });
 	}
@@ -545,7 +551,7 @@ public class AdvancedTestingHWATPTesting {
 			StateMachine.setConfirmTestStop(false);
 			
 			if (StateMachine.isConfirmTestFileCompleted()) {
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				Notifications.showWarningAlert("Please Wait until " +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
 			
@@ -555,6 +561,7 @@ public class AdvancedTestingHWATPTesting {
 
 		    // Get previous and current stage IDs
 		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    DFCCConstant.currentTestStageId = currentStageId;
 		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
 
 		    // If previous stage is null, initialize it
@@ -594,18 +601,20 @@ public class AdvancedTestingHWATPTesting {
 		            }
 
 		            // Clear the list after processing
-		            DFCCConstant.FailedStagesRdfPaths.clear();
+//		            DFCCConstant.FailedStagesRdfPaths.clear();
 		            StateMachine.setResettingProgressBar(true);
 		        }
 
 		        // Clear advanced test result list on stage change
-		        SessionTestStateObject.clearSessionTestResults();
-		        SelfTestStateObject.clearselfTestResults();
-		        AdvancedTestStateObject.clearAdvancedTestResultsList();
-		        LRUTestStateObject.clearlruTestResultsList();
-
-		        // Update previous stage ID to current after processing
-		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+//		        if(!DFCCConstant.closedFileMove) {
+//		        	SessionTestStateObject.clearSessionTestResults();
+//			        SelfTestStateObject.clearselfTestResults();
+//			        AdvancedTestStateObject.clearAdvancedTestResultsList();
+//			        LRUTestStateObject.clearlruTestResultsList();
+//					}
+//
+//		        // Update previous stage ID to current after processing
+//		        StateMachine.setPreviouslySelectedStageId(currentStageId);
 		    }
 			
 			// Excel Name:7-July-Observation
@@ -706,6 +715,10 @@ public class AdvancedTestingHWATPTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+				return;
+			}
 			
 			if(StateMachine.isMacroPassing()) {
 				return;
@@ -751,6 +764,9 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
 				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				 leftSideVBox.setDisable(false);
+				 rightSideGridPane.setDisable(false);
+				 repeatCountTextField.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -763,12 +779,14 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(true);
 				return;
 			}
+			repeatCountTextField.setDisable(true);
 			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
 
 		startButton.setOnAction(e -> {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
+				DFCCConstant.runnedTestFileCount=0;
 
 //				// Excel Name:7-July-Observation
 //				// Point No:3
@@ -857,14 +875,19 @@ public class AdvancedTestingHWATPTesting {
 
 				// Exit
 				// Point No:3
-
+				
 				StateMachine.setConfirmTestStop(false);
 				if (StateMachine.isConfirmTestFileCompleted()) {
 
 					Notifications.showWarningAlert(
-							"Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
+							"Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
 					return;
 				}
+			}
+			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+				return;
 			}
 			
 			// Set current stage ID
@@ -872,6 +895,7 @@ public class AdvancedTestingHWATPTesting {
 
 		    // Get previous and current stage IDs
 		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    DFCCConstant.currentTestStageId = currentStageId;
 		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
 
 		    // If previous stage is null, initialize it
@@ -911,18 +935,25 @@ public class AdvancedTestingHWATPTesting {
 		            }
 
 		            // Clear the list after processing
-		            DFCCConstant.FailedStagesRdfPaths.clear();
+//		            DFCCConstant.FailedStagesRdfPaths.clear();
 		            StateMachine.setResettingProgressBar(true);
 		        }
+		        
+		        if(DFCCConstant.rdfMoveCanceled) {
+					DFCCConstant.rdfMoveCanceled= false;
+					return;
+				}
 
-		        // Clear advanced test result list on stage change
-		        SessionTestStateObject.clearSessionTestResults();
-		        SelfTestStateObject.clearselfTestResults();
-		        AdvancedTestStateObject.clearAdvancedTestResultsList();
-		        LRUTestStateObject.clearlruTestResultsList();
-
-		        // Update previous stage ID to current after processing
-		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+//		        // Clear advanced test result list on stage change
+//		        if(!DFCCConstant.closedFileMove) {
+//		        	SessionTestStateObject.clearSessionTestResults();
+//			        SelfTestStateObject.clearselfTestResults();
+//			        AdvancedTestStateObject.clearAdvancedTestResultsList();
+//			        LRUTestStateObject.clearlruTestResultsList();
+//					}
+//
+//		        // Update previous stage ID to current after processing
+//		        StateMachine.setPreviouslySelectedStageId(currentStageId);
 		    }
 			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
@@ -946,6 +977,18 @@ public class AdvancedTestingHWATPTesting {
 			}
 
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				
+				if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+					Notifications.showErrorAlert("Test execution is pausing. Please try to resume the test once it is paused.");
+					return;
+				}
+				
+				if( DFCCConstant.dashBoardLoading ) {
+					Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+					return;
+				}
+				
+				DFCCConstant.testPauseStopping= false;
 				StateMachine.setTestState(TestState.RUNNING);
 
 				startButton.setText("Start");
@@ -955,6 +998,11 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 			if (!checkAitessStatus.isBothAitessOn()) {
+				return;
+			}
+			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
 				return;
 			}
 			
@@ -1002,6 +1050,9 @@ public class AdvancedTestingHWATPTesting {
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
 				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				 leftSideVBox.setDisable(false);
+				 rightSideGridPane.setDisable(false);
+				 repeatCountTextField.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -1015,12 +1066,31 @@ public class AdvancedTestingHWATPTesting {
 				return;
 			}
 			
-			
+			repeatCountTextField.setDisable(true);
 			
 			callStartTest(selectedStageId, "HWATP TEST", selectedTestTypeId, testFileIds);
 		});
 
 		pauseButton.setOnAction(e -> {
+			
+//			Suji Added For Last test file popup::12022026
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be pause/stopped now!!");
+				return;
+			
+			}
+//END:: 
+			
 			StateMachine.setConfirmTestStop(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
@@ -1035,6 +1105,30 @@ public class AdvancedTestingHWATPTesting {
 		});
 
 		stopButton.setOnAction(e -> {
+//			Suji Added For Last test file popup::12022026
+			if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+				Notifications.showErrorAlert("Test execution is pausing. Please try to stop the test once it is paused.");
+				return;
+			}
+			
+			DFCCConstant.testPauseStopping= false;
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be stopped now!!");
+				
+				return;
+			
+			}
+//END::
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -1045,6 +1139,9 @@ public class AdvancedTestingHWATPTesting {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -1057,6 +1154,7 @@ public class AdvancedTestingHWATPTesting {
 			stopButton.setDisable(true);
 			startButton.setDisable(false);
 			runAllButton.setDisable(false);
+			repeatCountTextField.setDisable(false);
 
 		});
 
@@ -1149,9 +1247,9 @@ public class AdvancedTestingHWATPTesting {
 				double percentage = (double) AdvancedTestStateObject.getRunnedHWATPTestFileCount().get()
 						/ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount();
 				
-//				System.out.println("IN ADvanced TEST PROGRESS BAR TOAL FILE COUNT CHECK "
+//				////System.out.println("IN ADvanced TEST PROGRESS BAR TOAL FILE COUNT CHECK "
 //						+ AdvancedTestStateObject.getTotalHWATPSelectedTestFileCount());
-//				System.out.println("IN ADvanced TEST PROGRESS BAR Runned File Count"
+//				////System.out.println("IN ADvanced TEST PROGRESS BAR Runned File Count"
 //						+ AdvancedTestStateObject.getRunnedHWATPTestFileCount().get());
 				
 				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;

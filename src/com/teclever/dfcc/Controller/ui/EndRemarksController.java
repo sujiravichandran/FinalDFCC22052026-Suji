@@ -113,8 +113,10 @@ public class EndRemarksController {
 						Response response = sessionmanagement.endSession(userInput, false);
 						if (response.getResponseCode() == 1) {
 							aitessProcessControlManagement.endAllProcessOnLogout();
+							Platform.runLater(() -> {
 							Platform.exit();
 							System.exit(0);
+							});
 						} else {
 							Notifications.showErrorAlert(response.getResponseMessage());
 						}

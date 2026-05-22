@@ -171,19 +171,19 @@ public class ResultExecutionManagement {
 			 
 			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
 					.collect(Collectors.toList());
-		//	 System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
+		//	 ////System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
 			List<String> ids=  selectedTestFileIdTestFileId.keySet().stream().collect(Collectors.toList());
 			
 			lst = lst.stream().filter(f->ids.stream().anyMatch(id->f.getSelectedtestFileId().equalsIgnoreCase(id))).collect(Collectors.toList());
 
 				/*for (String Id : selectedTestFileIdTestFileId.keySet()) {
-					System.out.println("Entred 1st REsulkt MEtod ID" + Id);
-				//	System.out.println("Entred 1st REsulkt MEtod" + lst.size());
+					////System.out.println("Entred 1st REsulkt MEtod ID" + Id);
+				//	////System.out.println("Entred 1st REsulkt MEtod" + lst.size());
 					if (lst != null) {
 
 						lst = lst.stream().filter(filterObj -> filterObj.getSelectedtestFileId().equalsIgnoreCase(Id))
 								.collect(Collectors.toList());
-						//System.out.println("After Checking Entred 1st REsulkt MEtod" + lst.size());
+						//////System.out.println("After Checking Entred 1st REsulkt MEtod" + lst.size());
 					}
 					
 			
@@ -251,7 +251,7 @@ public class ResultExecutionManagement {
 			response.seteMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
 			
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 		return response;
 	}
@@ -312,7 +312,7 @@ public class ResultExecutionManagement {
 			sessionStagesMapping = (SessionStagesMapping) getObjRes.getObject();
 			String sessionStagesMappingId = sessionStagesMapping.getSessionStagesMappingId();
 			Map<String, String> selectedTestFileIdTestFileId = new HashMap<String, String>();
-			System.out.println("Entred 2nd Method result");
+			////System.out.println("Entred 2nd Method result");
 			/*
 			 * if (sessionStagesMappingId != null) { SessionStagesSelectedTestFilesService
 			 * sessionStagesSelectedTestFilesService = new
@@ -339,7 +339,7 @@ public class ResultExecutionManagement {
 							selectedTestFile.getTestFilesId());
 				}
 			}
-			 System.out.println("Entred 2nd REsulkt MEtod" );
+			 ////System.out.println("Entred 2nd REsulkt MEtod" );
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse resTestFiles = sessionStagesTestFilesResultService
 					.getTestResultFileBySessionIdAndStageId(sessionId, stageId);
@@ -474,7 +474,7 @@ public class ResultExecutionManagement {
 					"--------------------------------" + resTestFiles.getCode() + "  Msg" + resTestFiles.getMsg());
 			List<SessionStagesTestFilesResult> lst = new ArrayList<SessionStagesTestFilesResult>();
 			lst = (List<SessionStagesTestFilesResult>) resTestFiles.getResponseList();
-			System.out.println("Entred 3rd REsulkt MEtod" );
+			////System.out.println("Entred 3rd REsulkt MEtod" );
 
 			if (lst.size() < 1) {
 				response.setMsg("Tests Need to be performed to diplay data");
@@ -595,7 +595,7 @@ public class ResultExecutionManagement {
 			 */
 
 			// Fetching the SessionId
-			System.out.println("Entred sessionId ");
+			////System.out.println("Entred sessionId ");
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
@@ -760,7 +760,7 @@ public class ResultExecutionManagement {
 			response.setMsg("Issue Successfully");
 			response.setMsg(ex.getLocalizedMessage());
 			Debug.printDebug(ex.getLocalizedMessage());
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 			
 
 
@@ -788,7 +788,7 @@ public class ResultExecutionManagement {
 			List<String> systemInfoIdList = new ArrayList<String>();
 			SessionManagement sessionManagement = new SessionManagement();
 
-			System.out.println("Entred sessionId,stageId ");
+			////System.out.println("Entred sessionId,stageId ");
 			
 			SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 			GetResponse res = sessionStagesTestFilesResultService.getTestResultFileBySessionIdAndStageId(sessionId,
@@ -952,7 +952,7 @@ public class ResultExecutionManagement {
 			 * sessionEntityList.get(sessionEntityList.size() - 1); String sessionId =
 			 * sessionDto.getSessionId(); String sessionName = sessionDto.getSessionName();
 			 */
-			System.out.println("Entred Session2nd");
+			////System.out.println("Entred Session2nd");
 			SessionManagement sessionManagement = new SessionManagement();
 			// Fetching the SessionId
 			List<String> systemInfoIdList = new ArrayList<String>();
@@ -1697,9 +1697,9 @@ public class ResultExecutionManagement {
 			sessionStagesTestFilesResultList = (List<SessionStagesTestFilesResult>) res1.getResponseList();
 
 			if (sessionStagesTestFilesResultList != null) {
-				System.out.println("sessionStagesTestFilesResultList size: " + sessionStagesTestFilesResultList.size());
+				////System.out.println("sessionStagesTestFilesResultList size: " + sessionStagesTestFilesResultList.size());
 			} else {
-				System.out.println("sessionStagesTestFilesResultList is null");
+				////System.out.println("sessionStagesTestFilesResultList is null");
 			}
 			Map<String, String> stagesIdName = sessionManagemment.getAllStageIdName();
 			List<ResultSessionStagesDetailsDTO> resultSessionStagesDetailsDTOList = new ArrayList<ResultSessionStagesDetailsDTO>();
@@ -1726,8 +1726,8 @@ public class ResultExecutionManagement {
 					String levelName = stagesIdName.get(levelId);
 					
 					
-//					System.out.println("Level Id   :"+levelId);
-//					System.out.println("Level Id Name   :"+stageIdName.get(stageId));
+//					////System.out.println("Level Id   :"+levelId);
+//					////System.out.println("Level Id Name   :"+stageIdName.get(stageId));
 
 					String startTime = "-";
 					String endTime = "-";

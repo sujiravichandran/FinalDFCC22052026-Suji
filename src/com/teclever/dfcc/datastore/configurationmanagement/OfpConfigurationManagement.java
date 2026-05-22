@@ -2,7 +2,11 @@ package com.teclever.dfcc.datastore.configurationmanagement;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -28,9 +32,99 @@ import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.utils.Debug;
 
 public class OfpConfigurationManagement {
+	
+	
+	// API : ADD OFP CONFIG
+		public OfpConfigurationResponse addOfpConfig(OfpConfigurationDto ofpConfigurationDto, String uutId) {
+			
+			System.out.println("UUT TYPE ID"+uutId);
+			OfpConfigurationService service = new OfpConfigurationService();
+			OfpConfiguration ofpConfiguration = new OfpConfiguration();
+			ofpConfiguration.setUutId(uutId);
+			ofpConfiguration.setConfigFile(ofpConfigurationDto.getConfigFile());
+			ofpConfiguration.setOfpName(ofpConfigurationDto.getOfpName());
+			ofpConfiguration.setOfpVersion(ofpConfigurationDto.getOfpVersion());
+
+			OfpConfigurationResponse serviceResponse = new OfpConfigurationResponse();
+			try {
+
+				RunConfigurationManagement runConfigurationManagement = new RunConfigurationManagement();
+				boolean pbitConifguredStatus = runConfigurationManagement.getStatusPbitConfig(uutId);
+
+				if (!pbitConifguredStatus) {
+					// Notifications.showErrorAlert("Pls Configured PBIT Test Type...");
+					serviceResponse.setResponseCode(2);
+					serviceResponse.setResponseMessage("Pls Configured PBIT Test Type...");
+					return serviceResponse;
+				} else {
+					String rdfPath = runConfigurationManagement.getOutputPathPbitConfig(uutId);
+					Map<String, String> paths = new HashMap<String, String>();
+
+					RunPathMasterService runPathMS = new RunPathMasterService();
+					paths = runPathMS.parseDATFile(ofpConfigurationDto.getConfigFile());
+
+//					for (Entry<String, String> s : paths.entrySet()) {
+//						//System.out.println("KEY PAIRS ::" + s);
+//					}
+
+					String currentOFPrdfPath = paths.get("rdfpath");
+					//System.out.println("Rdf Path" + currentOFPrdfPath);
+					if (!currentOFPrdfPath.trim().equals(rdfPath)) {
+						serviceResponse.setResponseCode(2);
+						serviceResponse.setResponseMessage("Path Varies From PBIT Test Type...");
+						return serviceResponse;
+					}
+
+				}
+
+				serviceResponse = service.addOfpConfiguration(ofpConfiguration, uutId);
+				if (serviceResponse.getResponseCode() == 1) {
+					String ofpConfigId = ofpConfiguration.getOfpConfigId();
+					Debug.printDebug(ofpConfigId);
+
+					// updating run path master table
+					updatePathsInDatabase(ofpConfiguration);
+
+					// macro
+					String runPathMasterId = fetchRunPathMasterIdForMacro(ofpConfigId);
+					List<String> macroLocation = fetchMacroFilePathsFromRunPathMaster(runPathMasterId);
+					List<String> macrofilePaths = MacroFileManagement.fetchMacroFilePathsDoubleSlash(macroLocation);
+					List<MacroDto> macroDtos = MacroFileManagement.saveMacroNames(macrofilePaths, runPathMasterId);
+
+					// symbol
+					String runPathMasterId1 = fetchRunPathMasterIdForSymbol(ofpConfigId);
+					Debug.printDebug(runPathMasterId1);
+					List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
+					List<String> symbolfilePaths = SymbolFileManagement.collectSymbolFilesRecursively(symbolLocation);
+					List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
+
+					// test file
+					String runPathMasterId2 = fetchRunPathMasterIdForTestFile(ofpConfigId);
+					List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
+					List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,
+							runPathMasterId2);
+					Debug.printDebug(testFileLocation);
+
+					// download file
+					String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(ofpConfigId);
+					List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
+					List<String> downloadFilesPaths = DownloadFileManagement
+							.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
+					Debug.printDebug(downloadFileLocation);
+
+				} else {
+					System.err.println("Failed to add Ofp Configuration: " + serviceResponse.getResponseMessage());
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to add Ofp Configuration: " + e.getMessage());
+				serviceResponse.setResponseCode(0);
+				serviceResponse.setResponseMessage("Failed to add Ofp Configuration: " + e.getMessage());
+			}
+			return serviceResponse;
+		}
 
 	// API : ADD OFP CONFIG
-	public OfpConfigurationResponse addOfpConfig(OfpConfigurationDto ofpConfigurationDto, String uutId) {
+	public OfpConfigurationResponse addOfpConfigOld(OfpConfigurationDto ofpConfigurationDto, String uutId) {
 		OfpConfigurationService service = new OfpConfigurationService();
 		OfpConfiguration ofpConfiguration = new OfpConfiguration();
 		ofpConfiguration.setUutId(uutId);
@@ -58,7 +152,7 @@ public class OfpConfigurationManagement {
 				String runPathMasterId1 = fetchRunPathMasterIdForSymbol(ofpConfigId);
 				Debug.printDebug(runPathMasterId1);
 				List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
-				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
+				List<String> symbolfilePaths = SymbolFileManagement.collectSymbolFilesRecursively(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
 
 				// test file

@@ -377,11 +377,11 @@ public class AitessProcessControlManagement {
 								WriteAitess1Command("gse_conn=1" + "\n");
 								if (StateMachine.isSelfTestOn()) {
 									WriteAitess1Command("psc_fcc_pwr_on=0" + "\n");
-									System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
+									////System.out.println("Self ytest Before running check::" + StateMachine.isSelfTestOn());
 									StateMachine.setSelfTestOn(false);
-									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+									////System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
 								} else {
-									System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
+									////System.out.println("Self ytest After running check::" + StateMachine.isSelfTestOn());
 									WriteAitess1Command("psc_fcc_pwr_on=1" + "\n");
 								}
 								WriteAitess1Command("ltm_syntax on" + "\n");
@@ -397,7 +397,7 @@ public class AitessProcessControlManagement {
 						}
 						if (StateMachine.isRunCommand() == true) {
 							if (s1.contains(">>>")) {
-								System.out.println("After Yes Press");
+								////System.out.println("After Yes Press");
 								Debug.printDebug("command end line founded . . . . . . . . . ");
 								StateMachine.setAitess1CommandFinished(true);
 								StateMachine.setRunCommand(false);
@@ -640,7 +640,7 @@ public class AitessProcessControlManagement {
 //						Change Made on successful macro execution pop-up message
 						if (StateMachine.isMacroPassing()) {
 							if (output.contains(">>>")) {
-//								System.out.println("Macro Command Ended" + StateMachine.isMacroPassing());
+//								////System.out.println("Macro Command Ended" + StateMachine.isMacroPassing());
 								Platform.runLater(() -> {
 									StateMachine.setMacroPassing(false);
 								});
@@ -1527,7 +1527,7 @@ public class AitessProcessControlManagement {
 						LocalDateTime now = LocalDateTime.now();
 						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
 						String lastupdatedTime = now.format(formatter);
-//						    System.out.println("Current date and time: " + lastupdatedTime);
+//						    ////System.out.println("Current date and time: " + lastupdatedTime);
 
 						UserDashboardController.lastupdatedTime2.set(lastupdatedTime);
 						
@@ -1547,7 +1547,7 @@ public class AitessProcessControlManagement {
 	public void check(String testTypeId) {
 		StateMachine.setInputPathTestFile(null);
 		Debug.printDebug("---ENTERING check() passed testTypeIdl---------------" + testTypeId);
-//		System.out.println("---ENTERING check() passed testTypeIdl---------------" + testTypeId);
+//		////System.out.println("---ENTERING check() passed testTypeIdl---------------" + testTypeId);
 		RunConfigurationService runConfigurationService = new RunConfigurationService();
 		LoadDriverProcessControlManagement pcm = LoadDriverProcessControlManagement.getInstance();
 
@@ -1572,7 +1572,7 @@ public class AitessProcessControlManagement {
 		if (!smAitess.getDriverName().equals(currentAitess.getDriverName())
 				|| !smAitess.getConfigFile().equals(currentAitess.getConfigFile())) {
 			// NOT MATCHED
-//			System.out.println("Entred CheckMethod NotMatched");
+//			////System.out.println("Entred CheckMethod NotMatched");
 			Debug.printDebug("Switching Load Driver::---- " + smAitess.getDriverName() + " to ::---- "
 					+ currentAitess.getDriverName());
 			pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
@@ -1582,7 +1582,7 @@ public class AitessProcessControlManagement {
 			}
 		} else {
 			// MATCHED
-//			System.out.println("Entred CheckMethod Matched");
+//			////System.out.println("Entred CheckMethod Matched");
 			Debug.printDebug(
 					"Load Driver Matches::---- " + smAitess.getDriverName() + " == " + currentAitess.getDriverName());
 
@@ -1604,7 +1604,7 @@ public class AitessProcessControlManagement {
 			}
 //			else {
 ////
-//////				System.out.println("Entred CheckMethod Else");
+//////				////System.out.println("Entred CheckMethod Else");
 ////				checkMethod = true;
 ////				boolean aets1SwitchFlagg = true;
 ////				Debug.printDebug(
@@ -1632,7 +1632,7 @@ public class AitessProcessControlManagement {
 ////						Thread.sleep(500);
 ////
 //////						After IV&V: Suji Added for BEL Comment for Point no:64
-////						System.out.println(
+////						////System.out.println(
 ////								"Suji Check for Point No 64 for driver unload and load after config.dat changed");
 ////						
 ////						pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
@@ -1670,7 +1670,7 @@ public class AitessProcessControlManagement {
 //				//Karthik
 //				
 //				// NOT MATCHED
-////				System.out.println("Entred CheckMethod NotMatched");
+////				////System.out.println("Entred CheckMethod NotMatched");
 //				Debug.printDebug("Switching Load Driver::---- " + smAitess.getDriverName() + " to ::---- "
 //						+ currentAitess.getDriverName());
 //				pcm.loadDriver(currentAitess.getLoadDriverCommand(), smAitess.getUnloadDriverCommand(), 0,
@@ -1763,7 +1763,7 @@ public class AitessProcessControlManagement {
 		Matcher tpfLineMatcher = tpfLinePattern.matcher(line);
 
 		if (tpfLineMatcher.find()) {
-			// System.out.println("END LINE*:: " + line);
+			// ////System.out.println("END LINE*:: " + line);
 			return line;
 		}
 		return null;
@@ -2064,7 +2064,7 @@ public class AitessProcessControlManagement {
 		List<String> testFileLocation = runConfigurationManagement
 				.fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
 		String pathStore = testFileLocation.get(0);
-//		System.out.println("Checking Pbit Test Files From RunConfig:::::::::::::::::" + pathStore);
+//		////System.out.println("Checking Pbit Test Files From RunConfig:::::::::::::::::" + pathStore);
 		StateMachine.setInputPathTestFile(pathStore);
 
 		// ofpConfigFilePath based on ofpConfigId

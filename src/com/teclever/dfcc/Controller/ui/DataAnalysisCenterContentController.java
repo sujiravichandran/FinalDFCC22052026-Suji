@@ -1,5 +1,6 @@
 package com.teclever.dfcc.Controller.ui;
 
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.utils.Notifications;
@@ -22,11 +23,12 @@ public class DataAnalysisCenterContentController {
 	
 	private StackPane centerStackPane = new StackPane();
 	private StackPane dataAnalysisStackPane = new StackPane();
-	private StackPane unitFailureStackPane = new StackPane();
+	private StackPane deviationStackPane = new StackPane();
 	private StackPane buildConfigurationStackPane = new StackPane();
 	private StackPane advancedResultsStackPane = new StackPane();
-	private StackPane linkFilesStackPane = new StackPane();
+	private StackPane linkTestTypesStackPane = new StackPane();
 	private StackPane manualTestingStackPane = new StackPane();
+	private StackPane cumulativeStackPane = new StackPane();
 	
 	public static DataAnalysisCenterContentController getInstance() {
 		if (instance == null) {
@@ -55,7 +57,6 @@ public class DataAnalysisCenterContentController {
 		}
 
 		
-		System.out.println("selectedMenu" + selectedMenu);
 		switch (selectedMenu) {
 		
 		
@@ -70,19 +71,20 @@ public class DataAnalysisCenterContentController {
 				dataAnalysisStackPane.toFront();
 			}
 			break;
-		case "Unit Failure":
-			if (!centerStackPane.getChildren().contains(unitFailureStackPane)) {
-				DataAnalysisUnitFailureController dataAnalysisUnitFailureController =new DataAnalysisUnitFailureController();
+		case "Deviation Result":
+			if (!centerStackPane.getChildren().contains(deviationStackPane)) {
+				DeviationController deviationController = new DeviationController();
 				
-				unitFailureStackPane.getChildren().add(dataAnalysisUnitFailureController.createDashboardMainContainerGridPane());
-				centerStackPane.getChildren().add(unitFailureStackPane);
+				deviationStackPane.getChildren().add(deviationController.deviationResultGridPane());
+				centerStackPane.getChildren().add(deviationStackPane);
 			} else {
-				unitFailureStackPane.toFront();
+				deviationStackPane.toFront();
 			}
 
 			break;
 			
 		case "Build Configuration":
+			DFCCConstant.buildDashboard = false;
 			if (!centerStackPane.getChildren().contains(buildConfigurationStackPane)) {
 				BuildConfigurationController buildConfigurationController =new BuildConfigurationController();
 				
@@ -91,31 +93,34 @@ public class DataAnalysisCenterContentController {
 			} else {
 				buildConfigurationStackPane.toFront();
 			}
-
+			
 			break;
 			
-		case "Advanced Results":
+		case "Advanced Failure":
 			if (!centerStackPane.getChildren().contains(advancedResultsStackPane)) {
 				AdvancedResultsController advancedResultsController =new AdvancedResultsController();
+				AdavncedDataAnalysisFilter2TableController adavncedDataAnalysisFilter2TableController = new AdavncedDataAnalysisFilter2TableController();
 				
-				advancedResultsStackPane.getChildren().add(advancedResultsController.createAdvancedResultsMainContainerGridPane());
+//				advancedResultsStackPane.getChildren().add(advancedResultsController.createAdvancedResultsMainContainerGridPane());
+				advancedResultsStackPane.getChildren().add(adavncedDataAnalysisFilter2TableController.createFilter2TableContainerGridPane());
 				centerStackPane.getChildren().add(advancedResultsStackPane);
 			} else {
 				advancedResultsStackPane.toFront();
 			}
 
 			break;
-		case "Link Files":
-			if (!centerStackPane.getChildren().contains(linkFilesStackPane)) {
-				LinkFilesController linkFilesController =new LinkFilesController();
+		case "Link Fail Types":
+			if (!centerStackPane.getChildren().contains(linkTestTypesStackPane)) {
+				DFCCConstant.linkTestType = false;
 				
-				linkFilesStackPane.getChildren().add(linkFilesController.createlinkFilesMainContainerGridPane());
-				centerStackPane.getChildren().add(linkFilesStackPane);
+				LinkTestTypesController linkFilesController =new LinkTestTypesController();
+				
+				linkTestTypesStackPane.getChildren().add(linkFilesController.createlinkTestTypesMainContainerGridPane());
+				centerStackPane.getChildren().add(linkTestTypesStackPane);
 			} else {
-				linkFilesStackPane.toFront();
+				linkTestTypesStackPane.toFront();
 			}
-
-			break;
+            break;
 			
 		case "Manual Testing":
 			if (!centerStackPane.getChildren().contains(manualTestingStackPane)) {
@@ -129,8 +134,17 @@ public class DataAnalysisCenterContentController {
 
 			break;
 			
-			
-			
+		case "Cumulative":
+			if (!centerStackPane.getChildren().contains(cumulativeStackPane)) {
+				CumulativeController cumulativeController = new CumulativeController();
+				cumulativeStackPane.getChildren().add(cumulativeController.cumulativeResultGridPane());
+				centerStackPane.getChildren().add(cumulativeStackPane);
+			} else {
+				cumulativeStackPane.toFront();
+			}
+
+			break;
+		
 		}
 		if (!bottomMidTopGridPane.getChildren().contains(centerStackPane)) {
 			bottomMidTopGridPane.getChildren().add(centerStackPane);

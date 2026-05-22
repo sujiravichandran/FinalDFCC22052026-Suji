@@ -69,7 +69,7 @@ public class ChannelStatusParser {
 			String channel2 = channelMatcher.group(2).trim();
 			String channel3 = channelMatcher.group(3).trim();
 			String channel4 = channelMatcher.group(4).trim();
-
+			
 			OFPversionStatus.setChannel1Status(channel1);
 			OFPversionStatus.setChannel2Status(channel2);
 			OFPversionStatus.setChannel3Status(channel3);
@@ -86,7 +86,7 @@ public class ChannelStatusParser {
 
 	// OFPversion
 	public ChannelStatus getOFPversionStatus(String outputLine) {
-		if (outputLine.contains("0x9fffb")) {
+		if (outputLine.contains("0x9fff8")) {
 			String[] parts = outputLine.split(">");
 
 			if (parts.length > 1) {
@@ -114,7 +114,37 @@ public class ChannelStatusParser {
 			} else {
 				Debug.printDebug("Invalid format: Missing values part.");
 			}
-		} else {
+		}else if (outputLine.contains("0x203ffff8")) {
+			String[] parts = outputLine.split(">");
+
+			if (parts.length > 1) {
+				String valuesPart = parts[1].trim();
+				valuesPart = valuesPart.substring(1, valuesPart.length() - 1);
+				String[] values = valuesPart.split(",");
+
+				if (values.length == 4) {
+					String written1 = values[0].trim();
+					String written2 = values[1].trim();
+					String written3 = values[2].trim();
+					String written4 = values[3].trim();
+
+
+					OFPversionStatus.setChannel1Status(written1);
+					OFPversionStatus.setChannel2Status(written2);
+					OFPversionStatus.setChannel3Status(written3);
+					OFPversionStatus.setChannel4Status(written4);
+
+					return new ChannelStatus(written1, written2, written3, written4);
+
+				} else {
+					Debug.printDebug("Invalid format: Expected 4 values.");
+				}
+			} else {
+				Debug.printDebug("Invalid format: Missing values part.");
+			}
+		
+		}
+		else {
 			Debug.printDebug("LINE NOT FOUND");
 		}
 		return null;

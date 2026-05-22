@@ -186,7 +186,7 @@ public class LoginFormController {
 		rememberMeCheckbox.getStyleClass().add("checkbox-label");
 		CheckBox showPasswordCheckbox = new CheckBox("Show Password");
 		showPasswordCheckbox.getStyleClass().add("checkbox-label");
-		checkboxGrid.add(rememberMeCheckbox, 0, 0);
+//		checkboxGrid.add(rememberMeCheckbox, 0, 0);
 		checkboxGrid.add(showPasswordCheckbox, 1, 0);
 		checkboxColumn1.setHalignment(HPos.RIGHT);
 
@@ -248,6 +248,7 @@ public class LoginFormController {
 			}
 
 			LoginResponse loginResponse = userManagementModule.validateUser(userName, password);
+		    DFCCConstant.roleId =	loginResponse.getRoleId();
 
 			if (loginResponse.getResponse().getResponseCode() == 101) {
 				handleBelAdminPasswordChange();
@@ -308,8 +309,8 @@ public class LoginFormController {
 		
 		});
 
-		userNameTextField.setText("BelUser1");
-		passwordHideField.setText("Admin@123");
+//		userNameTextField.setText("BelUser");
+//		passwordHideField.setText("Admin@123");
 
 		return loginGridPane;
 	}

@@ -441,7 +441,7 @@ public class UserCenterContentController {
 //					Platform.exit();
 //		        	System.exit(0);
 //				} else {
-//					System.out.println("userInput: " + userInput);
+//					////System.out.println("userInput: " + userInput);
 //					onConfirm.run();
 //				}
 //			});

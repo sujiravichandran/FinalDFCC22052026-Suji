@@ -1,5 +1,6 @@
 package com.teclever.dfcc.dashboard;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,15 +16,16 @@ public class TemperatureDashBoardDTO {
 	private String highTempBlsSCCh3;
 	private String highTempBlsSCCh4;
 	
-	private String lowTempAECCh1;
-	private String lowTempAECCh2;
-	private String lowTempAECCh3;
-	private String lowTempAECCh4;
+	private String lowTempBlsSCCh1;
+	private String lowTempBlSCCh2;
+	private String lowTempBlsSCCh3;
+	private String lowTempBlsSCCh4;
 	
-	private String highTempSCCh1;
-	private String highTempSCCh2;
-	private String highTempSCCh3;
-	private String highTempSCCh4;
+	private String highTempBlsAECCh1;
+	private String highTempBlsAECCh2;
+	private String highTempBlsAECCh3;
+	private String highTempBlsAECCh4;
+
 	
 	
 	private List<ChannelValuesDTO> blsChannelsValues;
@@ -31,6 +33,68 @@ public class TemperatureDashBoardDTO {
 	
 	private Map<String,String>sessionIdName;
 	
+	private Date timestamp;
+	
+	
+	
+	
+	
+	
+	
+	public Date getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+	public String getLowTempBlsSCCh1() {
+		return lowTempBlsSCCh1;
+	}
+	public void setLowTempBlsSCCh1(String lowTempBlsSCCh1) {
+		this.lowTempBlsSCCh1 = lowTempBlsSCCh1;
+	}
+	public String getLowTempBlSCCh2() {
+		return lowTempBlSCCh2;
+	}
+	public void setLowTempBlSCCh2(String lowTempBlSCCh2) {
+		this.lowTempBlSCCh2 = lowTempBlSCCh2;
+	}
+	public String getLowTempBlsSCCh3() {
+		return lowTempBlsSCCh3;
+	}
+	public void setLowTempBlsSCCh3(String lowTempBlsSCCh3) {
+		this.lowTempBlsSCCh3 = lowTempBlsSCCh3;
+	}
+	public String getLowTempBlsSCCh4() {
+		return lowTempBlsSCCh4;
+	}
+	public void setLowTempBlsSCCh4(String lowTempBlsSCCh4) {
+		this.lowTempBlsSCCh4 = lowTempBlsSCCh4;
+	}
+	public String getHighTempBlsAECCh1() {
+		return highTempBlsAECCh1;
+	}
+	public void setHighTempBlsAECCh1(String highTempBlsAECCh1) {
+		this.highTempBlsAECCh1 = highTempBlsAECCh1;
+	}
+	public String getHighTempBlsAECCh2() {
+		return highTempBlsAECCh2;
+	}
+	public void setHighTempBlsAECCh2(String highTempBlsAECCh2) {
+		this.highTempBlsAECCh2 = highTempBlsAECCh2;
+	}
+	public String getHighTempBlsAECCh3() {
+		return highTempBlsAECCh3;
+	}
+	public void setHighTempBlsAECCh3(String highTempBlsAECCh3) {
+		this.highTempBlsAECCh3 = highTempBlsAECCh3;
+	}
+	public String getHighTempBlsAECCh4() {
+		return highTempBlsAECCh4;
+	}
+	public void setHighTempBlsAECCh4(String highTempBlsAECCh4) {
+		this.highTempBlsAECCh4 = highTempBlsAECCh4;
+	}
 	public String getLowTempBlsAECCh1() {
 		return lowTempBlsAECCh1;
 	}
@@ -79,54 +143,7 @@ public class TemperatureDashBoardDTO {
 	public void setHighTempBlsSCCh4(String highTempBlsSCCh4) {
 		this.highTempBlsSCCh4 = highTempBlsSCCh4;
 	}
-	public String getLowTempAECCh1() {
-		return lowTempAECCh1;
-	}
-	public void setLowTempAECCh1(String lowTempAECCh1) {
-		this.lowTempAECCh1 = lowTempAECCh1;
-	}
-	public String getLowTempAECCh2() {
-		return lowTempAECCh2;
-	}
-	public void setLowTempAECCh2(String lowTempAECCh2) {
-		this.lowTempAECCh2 = lowTempAECCh2;
-	}
-	public String getLowTempAECCh3() {
-		return lowTempAECCh3;
-	}
-	public void setLowTempAECCh3(String lowTempAECCh3) {
-		this.lowTempAECCh3 = lowTempAECCh3;
-	}
-	public String getLowTempAECCh4() {
-		return lowTempAECCh4;
-	}
-	public void setLowTempAECCh4(String lowTempAECCh4) {
-		this.lowTempAECCh4 = lowTempAECCh4;
-	}
-	public String getHighTempSCCh1() {
-		return highTempSCCh1;
-	}
-	public void setHighTempSCCh1(String highTempSCCh1) {
-		this.highTempSCCh1 = highTempSCCh1;
-	}
-	public String getHighTempSCCh2() {
-		return highTempSCCh2;
-	}
-	public void setHighTempSCCh2(String highTempSCCh2) {
-		this.highTempSCCh2 = highTempSCCh2;
-	}
-	public String getHighTempSCCh3() {
-		return highTempSCCh3;
-	}
-	public void setHighTempSCCh3(String highTempSCCh3) {
-		this.highTempSCCh3 = highTempSCCh3;
-	}
-	public String getHighTempSCCh4() {
-		return highTempSCCh4;
-	}
-	public void setHighTempSCCh4(String highTempSCCh4) {
-		this.highTempSCCh4 = highTempSCCh4;
-	}
+
 	public List<ChannelValuesDTO> getBlsChannelsValues() {
 		return blsChannelsValues;
 	}

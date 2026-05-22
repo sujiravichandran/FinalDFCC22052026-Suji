@@ -220,7 +220,7 @@
     -fx-opacity: 0;
 }
 .tab-pane {
-    -fx-tab-min-width: 200px;
+    -fx-tab-min-width: 150px;
 }
 
 .tab-content-container{
@@ -238,16 +238,34 @@
     -fx-font-size:12px;
     -fx-font-weight:bold;
 }
+/* Style the ComboBox */
 .combo-box {
-	-fx-background-color: form-label;
-    -fx-font-size: 10.0px;
-    -fx-border-radius: 5.0px;
-    -fx-background-radius: 5.0px;
-    -fx-pref-width: 150px;
+    -fx-border-color: #ff7e5f;
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+	-fx-font-weight: bold;
 }
-.combo-box .list-view .list-cell {
-    -fx-font-size: 12px;
+
+.combo-box .combo-box-popup {
+    -fx-background-color: #ffffff;
 }
+
+.combo-box .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weigth: bold;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: primary-color;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-cell:filled:selected {
+    -fx-text-fill: secondary-text-color;
+}
+
 
 
 

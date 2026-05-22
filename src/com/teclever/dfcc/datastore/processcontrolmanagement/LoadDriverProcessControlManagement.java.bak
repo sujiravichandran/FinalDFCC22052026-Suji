@@ -155,7 +155,7 @@ public class LoadDriverProcessControlManagement {
 							aimFlag = true;
 							while (aimFlag) {
 								String output = aimMilBQueue.take();
-//								System.out.println("aimMil :: " + output);
+//								////System.out.println("aimMil :: " + output);
 
 								DriverCard aimMil = dm.parseLineAIM(output);
 								if (aimMil.getResponse().getResponseCode() == 1) {
@@ -164,7 +164,7 @@ public class LoadDriverProcessControlManagement {
 									responseDriverCards.add(aimMil);
 								}
 
-//								System.out.println(output);
+//								////System.out.println(output);
 								if (output.contains("aim_mil")) {
 									aimFlag = false;
 								}

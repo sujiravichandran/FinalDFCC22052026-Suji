@@ -16,6 +16,7 @@ import com.teclever.dfcc.buildconfiguration.BuildConfigurationReport;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.model.BriefData;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -241,7 +242,7 @@ public class BuildConfigurationPopup {
 
 	private HBox versionNoHbox() {
 		versionNoHbox.setAlignment(Pos.CENTER);
-		versionNoHbox.setPadding(new Insets(20));
+//		versionNoHbox.setPadding(new Insets(20));
 		versionNoHbox.getChildren().addAll(versionNo, versionNo2);
 
 		return versionNoHbox;
@@ -249,7 +250,7 @@ public class BuildConfigurationPopup {
 
 	private HBox dateHbox() {
 		dateHbox.setAlignment(Pos.CENTER);
-		dateHbox.setPadding(new Insets(20));
+//		dateHbox.setPadding(new Insets(20));
 		dateHbox.getChildren().addAll(dateLabel, datePicker);
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -308,7 +309,7 @@ public class BuildConfigurationPopup {
 		HBox closeButtonHbox = new HBox();
 		closeButtonHbox.setAlignment(Pos.CENTER_LEFT);
 		closeButtonHbox.getChildren().add(close);
-		closeButtonHbox.setPadding(new Insets(10));
+//		closeButtonHbox.setPadding(new Insets(10));
 
 		close.setOnAction(e -> {
 
@@ -341,7 +342,7 @@ public class BuildConfigurationPopup {
 				String[] defaultPNCh1 = { "1100 020 194 86 / 25", "1100 020 194 86 / 25", "1100 020 195 83 / 26",
 						"1100 020 196 80 / 25", "1100 020 092 25 / 07", "1100 020 766 19 / 01" };
 
-				String[] defaultSNCh1 = { "1512", "1513", "1524", "1519", "1558", "025" };
+				String[] defaultSNCh1 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh2 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-2" };
@@ -349,7 +350,7 @@ public class BuildConfigurationPopup {
 				String[] defaultPNCh2 = { "1100 020 194 86 / 25", "1100 020 194 86 / 25", "1100 020 195 83 / 26",
 						"1100 020 196 80 / 25", "1100 020 092 25 / 07", "1100 020 766 19 / 01" };
 
-				String[] defaultSNCh2 = { "1512", "1513", "1524", "1519", "1558", "025" };
+				String[] defaultSNCh2 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh3 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-3" };
@@ -357,7 +358,7 @@ public class BuildConfigurationPopup {
 				String[] defaultPNCh3 = { "1100 020 194 86 / 25", "1100 020 194 86 / 25", "1100 020 195 83 / 26",
 						"1100 020 196 80 / 25", "1100 020 092 25 / 07", "1100 020 766 19 / 01" };
 
-				String[] defaultSNCh3 = { "1512", "1513", "1524", "1519", "1558", "025" };
+				String[] defaultSNCh3 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh4 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-4", "Mother Board", "Chassis" };
@@ -366,7 +367,7 @@ public class BuildConfigurationPopup {
 						"1100 020 196 80 / 25", "1100 020 092 25 / 07", "1100 020 766 19 / 01", "1100 020 831 18 / 11",
 						"1100 020 832 15 /05" };
 
-				String[] defaultSNCh4 = { "1512", "1513", "1524", "1519", "1558", "025", "026", "SP002" };
+				String[] defaultSNCh4 = { "", "", "", "", "", "", "", "" };
 
 				// Loop through channels and assign respective array
 				for (String channel : channels) {
@@ -415,35 +416,39 @@ public class BuildConfigurationPopup {
 
 				// Create table after data is ready
 				buildConfigDataTableView = buildDataFactory.createTableView(buildConfigDataList, false, false);
-
+				
 				// Column width settings
 				buildConfigDataTableView.getColumns().forEach(column -> {
+					 boolean dashboard = StateMachine.isDashboardBuildConfig();
+					    ////System.out.println("Check dashboard Flag "+ dashboard);
+					    switch (column.getText()) {
 
-					switch (column.getText()) {
+					    case "CHANNEL":
+				            column.setMinWidth(dashboard ? 200 : 100);
+				            column.setMaxWidth(dashboard ? 200 : 100);
+				            break;
 
-					case "CHANNEL":
-						column.setMinWidth(100);
-						column.setMaxWidth(100);
-						break;
+				        case "DESCRIPTION":
+				            column.setMinWidth(dashboard ? 570 : 470);
+				            column.setMaxWidth(dashboard ? 570 : 470);
+				            break;
 
-					case "DESCRIPTION":
-						column.setMinWidth(470);
-						column.setMaxWidth(470);
-						break;
+				        case "PART NUMBER":
+				            column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
+				            column.setMinWidth(dashboard ? 700 : 650);
+				            column.setMaxWidth(dashboard ? 700 : 650);
+				            break;
 
-					case "PART NUMBER":
-
-						column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
-						column.setMinWidth(650);
-						column.setMaxWidth(650);
-						break;
-
-					case "SERIAL NUMBER":
-						column.setMinWidth(346);
-						column.setMaxWidth(346);
-						break;
-					}
+				        case "SERIAL NUMBER":
+				            column.setMinWidth(dashboard ? 446:346);
+				            column.setMaxWidth(dashboard ? 446:346);
+				            break;
+					    }
+					
+					
 				});
+				
+				
 
 				tableScrollPane.setFitToHeight(true);
 				return null;
@@ -496,11 +501,12 @@ public class BuildConfigurationPopup {
 
 		BuildConfiguration dto = new BuildConfiguration();
 		String lastChannel = "";
-
+		dto.getLastUpdatedDate();
 		for (BuildConfiguration1 row : rows) {
 
 			String ch = row.getChannel();
 
+			
 			if (ch != null && !ch.trim().isEmpty()) {
 				lastChannel = ch;
 			} else {
@@ -666,14 +672,16 @@ public class BuildConfigurationPopup {
 		return dto;
 	}
 
-	public void saveButton(String serialNo, String versionName) {
+	public void saveButton(String uutType, String serialNo, String versionName, String lastUpDatedDate) {
 
 		if (!DFCCConstant.selectedFetchBuildConfig.equalsIgnoreCase("Fetch")) {
 			BuildConfiguration dto = mapToDto(buildConfigDataList);
-			buildConfigurationManagement.addBuildConfiguration(serialNo, versionName, dto);
+			dto.setLastUpdatedDate(lastUpDatedDate);
+			buildConfigurationManagement.addBuildConfiguration(uutType, serialNo, versionName, dto, lastUpDatedDate);
 		} else {
 			BuildConfiguration dto1 = mapToDto(buildConfigDataList1);
-			buildConfigurationManagement.addBuildConfiguration(serialNo, versionName, dto1);
+			dto1.setLastUpdatedDate(lastUpDatedDate);
+			buildConfigurationManagement.addBuildConfiguration(uutType, serialNo, versionName, dto1, lastUpDatedDate);
 
 		}
 
@@ -682,7 +690,7 @@ public class BuildConfigurationPopup {
 //	from db fetching:
 
 	private void convertToTableRows(BuildConfiguration config) {
-
+		 
 		// ---------- CH#1 ----------
 		addRow("CH#1", "Analog-1-Left", config.getCh1Analog1LeftPartNumber(), config.getCh1Analog1LeftSerialNo());
 		addRow("", "Analog-1-Right", config.getCh1Analog1RightPartNumber(), config.getCh1Analog1RightSerialNo());
@@ -721,12 +729,16 @@ public class BuildConfigurationPopup {
 	private void addRow(String channel, String desc, String pn, String sn) {
 		BuildConfiguration1 row = new BuildConfiguration1();
 		row.setChannel(channel);
+	
 		row.setDescription(desc);
 		row.setPartNumber(pn);
 		row.setSerialNumber(sn);
 		buildConfigDataList1.add(row);
 	}
 
+	
+
+	
 	private ScrollPane createBuildConfigurationDataTable() {
 		buildConfigDataList1.clear();
 
@@ -737,42 +749,49 @@ public class BuildConfigurationPopup {
 			protected Void call() throws Exception {
 
 				BuildConfiguration config = buildConfigurationManagement.getBuildConfiguration(
-						DFCCConstant.selectedSNoBuildConfig, DFCCConstant.selectedVersionNoBuildConfig);
+						DFCCConstant.selectedUutBuildConfig, DFCCConstant.selectedSNoBuildConfig, DFCCConstant.selectedVersionNoBuildConfig);
 				// Convert BuildConfiguration → table rows
 				convertToTableRows(config);
+				
+				DFCCConstant.savedDate =  config.getLastUpdatedDate().toString();
+				
+//				//System.out.println("Mani bck date chck " + DFCCConstant.savedDate);
+				
+			
 
 				// Create table
 				buildConfigDataTableView1 = buildDataFactory1.createTableView(buildConfigDataList1, false, false);
 
 				// Set column widths
 				buildConfigDataTableView1.getColumns().forEach(column -> {
-					switch (column.getText()) {
+					 ////System.out.println("Column gettext "+ column.getText());
+				    boolean dashboard = StateMachine.isDashboardBuildConfig();
+				    ////System.out.println("Check dashboard Flag "+ dashboard);
+				    switch (column.getText()) {
+				   
+				        case "CHANNEL":
+				            column.setMinWidth(dashboard ? 400 : 100);
+				            column.setMaxWidth(dashboard ? 400 : 100);
+				            break;
 
-					case "CHANNEL":
-						column.setMinWidth(100);
-						column.setMaxWidth(100);
-						break;
+				        case "DESCRIPTION":
+				            column.setMinWidth(dashboard ? 670 : 470);
+				            column.setMaxWidth(dashboard ? 670 : 470);
+				            break;
 
-					case "DESCRIPTION":
-						column.setMinWidth(470);
-						column.setMaxWidth(470);
-						break;
+				        case "PART NUMBER":
+				            column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
+				            column.setMinWidth(dashboard ? 750 : 650);
+				            column.setMaxWidth(dashboard ? 750 : 650);
+				            break;
 
-					case "PART NUMBER":
-						column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
-						column.setMinWidth(650);
-						column.setMaxWidth(650);
-						break;
-
-					case "SERIAL NUMBER":
-						column.setMinWidth(346);
-						column.setMaxWidth(346);
-						break;
-
-					default:
-						break;
-					}
+				        case "SERIAL NUMBER":
+				            column.setMinWidth(dashboard ? 346:346);
+				            column.setMaxWidth(dashboard ? 346:346);
+				            break;
+				    }
 				});
+
 
 				return null;
 			}
@@ -784,7 +803,7 @@ public class BuildConfigurationPopup {
 					tableScrollPane.setContent(buildConfigDataTableView1);
 					tableScrollPane.setFitToHeight(true);
 
-					buildConfigDataTableView1.setEditable(true);
+//					buildConfigDataTableView1.setEditable(true);
 
 					// PART NUMBER column (index 2)
 					TableColumn<BuildConfiguration1, String> partNumberCol = (TableColumn<BuildConfiguration1, String>) buildConfigDataTableView1
@@ -798,6 +817,7 @@ public class BuildConfigurationPopup {
 					});
 
 					// SERIAL NUMBER column (index 3)
+					
 					TableColumn<BuildConfiguration1, String> serialNumberCol = (TableColumn<BuildConfiguration1, String>) buildConfigDataTableView1
 							.getColumns().get(3);
 
@@ -837,7 +857,7 @@ public class BuildConfigurationPopup {
 			}
 			BuildConfiguration dto = mapToDto(buildConfigDataList);
 
-			buildConfigurationManagement.addBuildConfiguration(serialNo2.getText(), versionNo2.getText(), dto);
+			buildConfigurationManagement.addBuildConfiguration(DFCCConstant.selectedUutBuildConfig, serialNo2.getText(), versionNo2.getText(), dto, DFCCConstant.selectedBuildConfigDate);
 
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 			LocalDate selectedDate = datePicker.getValue();
@@ -853,8 +873,8 @@ public class BuildConfigurationPopup {
 
 			BuildConfigurationReport buildConfigurationReport = new BuildConfigurationReport();
 			try {
-				buildConfigurationReport.generateBuildConfigurationReport(serialNo2.getText(), date,
-						versionNo2.getText(), DFCCConstant.selectedUutBuildConfig);
+				buildConfigurationReport.generateBuildConfigurationReport(DFCCConstant.selectedUutBuildConfig, serialNo2.getText(), date,
+						versionNo2.getText(), DFCCConstant.selectedUutBuildConfig, DFCCConstant.selectedBuildConfigDate);
 			} catch (DocumentException | IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

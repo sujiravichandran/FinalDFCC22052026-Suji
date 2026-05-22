@@ -52,7 +52,7 @@ public class ApplicationLogbookManagement {
 
 					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 					String formattedTimestamp = formatter.format(appLogBook.getTimestamp());
-//					System.out.println("Formated Date Time" + formattedTimestamp);
+//					////System.out.println("Formated Date Time" + formattedTimestamp);
 					dto.setFormatedTimeStamp(formattedTimestamp);
 					dto.setTimestamp(appLogBook.getTimestamp());
 					dto.setDetails(appLogBook.getDetails());

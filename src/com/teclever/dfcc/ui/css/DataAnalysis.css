@@ -149,7 +149,7 @@
 	-fx-font-size: 30.0px;
 	-fx-font-weight: bold;
 	-fx-background-color: light-bg;
-	-fx-background-radius: 10 10 0 0;
+	-fx-background-radius: 0 0 0 0;
 }
 
 .dataanalysis-testing-build-save{

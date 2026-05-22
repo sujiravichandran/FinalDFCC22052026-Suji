@@ -193,7 +193,7 @@ public class LRUTestingController {
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
 			if(newVal && StateMachine.getStatusBarRunningTestName().equals(LRU_SRU_TEST_MANDATORY_TEST) || StateMachine.getRunningTestName().equals(LRU_SRU_TEST_SRU_TEST)
 					|| LRU_SRU_TEST_GO_NOGO_TEST) {
-			System.out.println("WDM Status changed:Advaned Interface " + newVal);
+			////System.out.println("WDM Status changed:Advaned Interface " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
 			popupDialoguShow.wdmStatusPopup();
 			}
@@ -546,7 +546,7 @@ public class LRUTestingController {
 	}
 
 //	private void ofpUpWDMUp(String stageId, String stageName, String testTypeId) {
-//		System.out.println("Entered ofpUpWDMUp ");
+//		////System.out.println("Entered ofpUpWDMUp ");
 //		List<String> testFileList = new ArrayList<>();
 //		Task<Response> task = new Task<Response>() {
 //			@Override
@@ -558,13 +558,13 @@ public class LRUTestingController {
 //
 //				String testFilename1 = "pbit_test.tpf";
 //				List<String> testFileName = Arrays.asList(testFilename1);
-//				System.out.println("TEST File Name " + testFileName);
+//				////System.out.println("TEST File Name " + testFileName);
 //
 //				TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(ID);
-//				System.out.println("testPlanFileManagement " + testFileResponse);
+//				////System.out.println("testPlanFileManagement " + testFileResponse);
 //
 //				Map<String, String> testFileMap = testFileResponse.getTestFilesIdName();
-//				System.out.println("testFileMap " + testFileMap);
+//				////System.out.println("testFileMap " + testFileMap);
 //
 //				
 //				for (Map.Entry<String, String> entry : testFileMap.entrySet()) {
@@ -575,7 +575,7 @@ public class LRUTestingController {
 //					// Check if the extracted filename matches any in testFileName
 //					if (testFileName.contains(extractedFileName)) {
 //						testFileList.add(entry.getKey());
-//						System.out.println("Matching File: " + extractedFileName);
+//						////System.out.println("Matching File: " + extractedFileName);
 //					}
 //				}
 //
@@ -590,7 +590,7 @@ public class LRUTestingController {
 //					return null;
 //				}
 //
-//				System.out.println("TEST FILE LIST " + testFileList);
+//				////System.out.println("TEST FILE LIST " + testFileList);
 //
 //				// Call the test process control
 //				return testProcessManagement.testProcesControl(currentSessionDetails.getSessionId(), ID, 1,
@@ -605,14 +605,14 @@ public class LRUTestingController {
 //		task.setOnSucceeded(event -> {
 //			// This is executed when the task successfully completes
 //			LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.PBIT);
-//			System.out.println("PBIT test completed and state updated.");
+//			////System.out.println("PBIT test completed and state updated.");
 //		});
 //
 //		// You can also add an onFailed listener to handle cases when the task fails
 //		task.setOnFailed(event -> {
 //			// This is executed if the task fails
 //			Throwable exception = task.getException();
-//			System.out.println("Error occurred during test execution: " + exception.getMessage());
+//			////System.out.println("Error occurred during test execution: " + exception.getMessage());
 //			startButton.setDisable(false); // Re-enable the start button
 //			// Update the state to failed
 //		});
@@ -675,7 +675,7 @@ public class LRUTestingController {
 
 				bothAitessLaunched.addListener((obs, wasTrue, isNowTrue) -> {
 				    if (isNowTrue) {
-				        System.out.println("Both AITESS1 and AITESS2 are launched.");
+				        ////System.out.println("Both AITESS1 and AITESS2 are launched.");
 				        newButton.setDisable(true);
 				    }
 				});
@@ -794,7 +794,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -815,15 +815,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -844,7 +844,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -854,7 +854,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -895,7 +895,7 @@ public class LRUTestingController {
 
 							UUT_ID = StateMachine.currentSessionDetails.getUutId();
 
-//							System.out.println("DFCCConstant.rdfsPaths.size()"+DFCCConstant.rdfsPaths.size());
+//							////System.out.println("DFCCConstant.rdfsPaths.size()"+DFCCConstant.rdfsPaths.size());
 
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
@@ -916,7 +916,7 @@ public class LRUTestingController {
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
 
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -937,15 +937,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -965,7 +965,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -975,7 +975,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -1015,7 +1015,7 @@ public class LRUTestingController {
 //									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //								}
 
-								// System.out.println(" Size"+DFCCConstant.logOutmoveFiles.size());
+								// ////System.out.println(" Size"+DFCCConstant.logOutmoveFiles.size());
 //								if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //									List<Path> paths = new ArrayList<Path>();
@@ -1035,15 +1035,15 @@ public class LRUTestingController {
 //
 //									}
 //									if (popupshow) {
-//										System.out.println("Some Files Are Failed And Opened Popup");
+//										////System.out.println("Some Files Are Failed And Opened Popup");
 //										DFCCConstant.FailedStagesRdfPaths = lst;
-//								     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//								     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //										SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //										DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //									} else {
-//										System.out.println("All Files Are Passed And Moved");
+//										////System.out.println("All Files Are Passed And Moved");
 //										SessionFileManagement session = new SessionFileManagement();
-//										System.out.println("lst Size  ::"+lst.size());
+//										////System.out.println("lst Size  ::"+lst.size());
 //										session.copyFilesToOutputFolderWhilePlayButton(lst);
 //									}
 //
@@ -1102,8 +1102,8 @@ public class LRUTestingController {
 										stage.setScene(new Scene(root));
 										stage.showAndWait();
 
-//									    System.out.println("StateMachine1: " + StateMachine.isPbitOption1());
-//									    System.out.println("StateMachine2: " + StateMachine.isPbitOption2());
+//									    ////System.out.println("StateMachine1: " + StateMachine.isPbitOption1());
+//									    ////System.out.println("StateMachine2: " + StateMachine.isPbitOption2());
 
 										if (StateMachine.isPbitOption1()) {
 											ofpUpWDMUp(newButton.getId(), "MANDATORY",
@@ -1111,7 +1111,7 @@ public class LRUTestingController {
 											StateMachine.setPbitOption1(false);
 											stageIdForView = newButton.getId();
 										} else if (StateMachine.isPbitOption2()) {
-//									        System.out.println("Option2 Selection UIIII");
+//									        ////System.out.println("Option2 Selection UIIII");
 											ofpDownWDMUp(newButton.getId(), "MANDATORY",
 													newButton.getUserData().toString());
 											StateMachine.setPbitOption2(false);
@@ -1123,7 +1123,7 @@ public class LRUTestingController {
 										stopButton.setDisable(false);
 
 										ofpConfigId = controller.getRUN_CONFIG_ID();
-//									    System.out.println("controller Rung Config Id Check" + ofpConfigId);
+//									    ////System.out.println("controller Rung Config Id Check" + ofpConfigId);
 									} catch (IOException e1) {
 										e1.printStackTrace();
 									}
@@ -1321,7 +1321,7 @@ public class LRUTestingController {
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
 
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -1342,15 +1342,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -1371,7 +1371,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -1381,7 +1381,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -1398,7 +1398,7 @@ public class LRUTestingController {
 							LRUTestStateObject.setLRUTestRunningCard(LRUTestRunningCard.INITIALIZE_LRU);
 							callstartButton(newButton.getId(), "MANDATORY", newButton.getUserData().toString());
 						} else if (newButton.getText().toLowerCase().contains("power")) {
-//							System.out.println("Power Supply Test Name Check:::::::    " + newButton.getText()) ;
+//							////System.out.println("Power Supply Test Name Check:::::::    " + newButton.getText()) ;
 //							if (DFCCConstant.rdfsPaths.size() > 0) {
 //								sessionFileManagement.copyFilesToOutputFolder(DFCCConstant.rdfsPaths,
 //										DFCCConstant.outPut);
@@ -1410,7 +1410,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -1431,15 +1431,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -1460,7 +1460,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -1470,7 +1470,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -1502,7 +1502,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -1523,15 +1523,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -1552,7 +1552,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -1562,7 +1562,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -1666,12 +1666,12 @@ public class LRUTestingController {
 //					Change Made On: If Pbit Test gets failed next test is getting enabling it,it should not enable
 					if (checkMandatoryStatus("pbit")) {
 						if (StateMachine.getTestState() == TestState.STOPPED) {
-//						System.out.println("Entred Into Stop State");
+//						////System.out.println("Entred Into Stop State");
 							initializeLRUButton.setDisable(true);
 							StateMachine.setTestState(TestState.PENDING);
 							LRUTestStateObject.getPbitStatus().set(false);
 						} else {
-//						System.out.println("Entred Into LRU MAN Else");
+//						////System.out.println("Entred Into LRU MAN Else");
 							initializeLRUButton.setDisable(false);
 							StateMachine.setTestState(TestState.COMPLETED);
 							LRUTestStateObject.getPbitStatus().set(true);
@@ -1776,7 +1776,7 @@ public class LRUTestingController {
 			boolean allCardsStatusOk = true;
 
 			for (TestCardData card : mandatoryCardList) {
-				System.out.println("----" + card.getCardName() + "   " + card.getStatus());
+				////System.out.println("----" + card.getCardName() + "   " + card.getStatus());
 				if (card.getStatus().equalsIgnoreCase("NOT OK")) {
 					if (!card.getCardName().trim().toLowerCase().contains("pbit")) {
 						allCardsStatusOk = false;
@@ -1808,8 +1808,8 @@ public class LRUTestingController {
 
 //	Before Changing 
 	private boolean checkMandatoryStatus(String cardName) {
-//		System.out.println("Care Name Check for Mandatory:::::::::"+cardName);
-//		System.out.println("name"+LRUTestStateObject.getLruMandatoryCardList());
+//		////System.out.println("Care Name Check for Mandatory:::::::::"+cardName);
+//		////System.out.println("name"+LRUTestStateObject.getLruMandatoryCardList());
 
 		List<TestCardData> matchingCards = LRUTestStateObject.getLruMandatoryCardList().stream()
 				.filter(card -> card.getCardName().trim().toLowerCase().contains(cardName))
@@ -1832,26 +1832,26 @@ public class LRUTestingController {
 
 	/*
 	 * private boolean checkMandatoryStatus(String cardName) {
-	 * System.out.println("Entred checkMandatoryStatus METHODDD:::::");
+	 * ////System.out.println("Entred checkMandatoryStatus METHODDD:::::");
 	 * List<TestCardData> matchingCards =
 	 * LRUTestStateObject.getLruMandatoryCardList().stream() .filter(card ->
 	 * card.getCardName().trim().toLowerCase().contains(cardName))
 	 * .collect(Collectors.toList()); int totalRunnedCount =
 	 * LRUTestStateObject.getRunnedLRUTestFileCount().get();
-	 * System.out.println("Matching Cardsss-----Size" + matchingCards.size());
-	 * System.out.println("State On Running" + StateMachine.getTestState()); if
+	 * ////System.out.println("Matching Cardsss-----Size" + matchingCards.size());
+	 * ////System.out.println("State On Running" + StateMachine.getTestState()); if
 	 * (StateMachine.getTestState()==TestState.STOPPED){ for (TestCardData card :
 	 * matchingCards) { TestPlanFileManagement testPlanFileManagement = new
 	 * TestPlanFileManagement(); TestFileResponse testFileResponse =
 	 * testPlanFileManagement .getSelectedTestFilesFromStage(card.getCardId()); int
 	 * totalFileCount = testFileResponse.getTestFilesIdName().size();
-	 * System.out.println("Card Status" + card.getStatus() + "         " + "CARD ID"
+	 * ////System.out.println("Card Status" + card.getStatus() + "         " + "CARD ID"
 	 * + card.getCardId()); if (card.getStatus().equalsIgnoreCase("OK")) {
 	 * 
 	 * 
 	 * if (totalFileCount == totalRunnedCount) { return true; } else { return false;
 	 * } } } } for (TestCardData card : matchingCards) {
-	 * System.out.println("Card Status" + card.getStatus()); if
+	 * ////System.out.println("Card Status" + card.getStatus()); if
 	 * (card.getStatus().equalsIgnoreCase("OK")) { return true; } } return false; }
 	 */
 
@@ -1861,15 +1861,15 @@ public class LRUTestingController {
 //				.filter(card -> card.getCardName().trim().toLowerCase().contains(cardName))
 //				.collect(Collectors.toList());
 //		int totalRunnedCount = LRUTestStateObject.getRunnedLRUTestFileCount().get();
-//		System.out.println("Matching Cardsss-----Size" + matchingCards.size());
-//		System.out.println("State On Running" + StateMachine.getTestState());
+//		////System.out.println("Matching Cardsss-----Size" + matchingCards.size());
+//		////System.out.println("State On Running" + StateMachine.getTestState());
 //		if (StateMachine.getTestState().equals("STOPPED")) {
 //			for (TestCardData card : matchingCards) {
 //				TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 //				TestFileResponse testFileResponse = testPlanFileManagement
 //						.getSelectedTestFilesFromStage(card.getCardId());
 //				int totalFileCount = testFileResponse.getTestFilesIdName().size();
-//				System.out.println("Card Status" + card.getStatus() + "         " + "CARD ID" + card.getCardId());
+//				////System.out.println("Card Status" + card.getStatus() + "         " + "CARD ID" + card.getCardId());
 //				if (card.getStatus().equalsIgnoreCase("OK")) {
 //					
 //				
@@ -1882,7 +1882,7 @@ public class LRUTestingController {
 //			}
 //		}
 //		for (TestCardData card : matchingCards) {
-//			System.out.println("Card Status" + card.getStatus());
+//			////System.out.println("Card Status" + card.getStatus());
 //			if (card.getStatus().equalsIgnoreCase("OK")) {
 //				return true;
 //			}
@@ -1956,7 +1956,7 @@ public class LRUTestingController {
 
 //				For Clearing Table ADta and Moving Confirmation Flag:
 				if (StateMachine.getTestState() != TestState.RUNNING) {
-					System.out.println("Entred Clearing method after selection");
+					////System.out.println("Entred Clearing method after selection");
 					StateMachine.setSruTestOk(true);
 
 				}
@@ -2097,7 +2097,7 @@ public class LRUTestingController {
 //			if (newValue != null) {
 //				double percentage = (double) LRUTestStateObject.getRunnedLRUTestFileCount().get()
 //						/ LRUTestStateObject.getTotalLRUSelectedTestFileCount();
-//				System.out.println(
+//				////System.out.println(
 //						"IN BUTTONBOX Total FIle Count" + LRUTestStateObject.getTotalLRUSelectedTestFileCount());
 //			
 //				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
@@ -2178,7 +2178,7 @@ public class LRUTestingController {
 				boolean popupRDFFiles = session.getPopupShownStatus();
 			
 				if (popupRDFFiles) {
-//						System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//						////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 					for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 						RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
@@ -2187,14 +2187,14 @@ public class LRUTestingController {
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 				} else {
 
-//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//						////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 				}
 				// Exit
 				// Point No:3
 
-//				System.out.println("Entred Clear SRU OK");
+//				////System.out.println("Entred Clear SRU OK");
 				tableView.getItems().clear();
 
 				StateMachine.setSruTestOk(false);
@@ -2279,7 +2279,7 @@ public class LRUTestingController {
 					boolean popupRDFFiles = session.getPopupShownStatus();
 				
 					if (popupRDFFiles) {
-//							System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 							RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
@@ -2288,14 +2288,14 @@ public class LRUTestingController {
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					} else {
 
-//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//							////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					}
 					// Exit
 					// Point No:3
 
-//					System.out.println("Entred Clear SRU OK");
+//					////System.out.println("Entred Clear SRU OK");
 					tableView.getItems().clear();
 
 					StateMachine.setSruTestOk(false);
@@ -2341,7 +2341,7 @@ public class LRUTestingController {
 
 				List<String> fileIdList = getAllTestFilesForSelectedSubStages();
 
-//				System.out.println("File Id List Check for SRU::: "+ fileIdList);
+//				////System.out.println("File Id List Check for SRU::: "+ fileIdList);
 
 				if (fileIdList == null) {
 					return;
@@ -2412,7 +2412,7 @@ public class LRUTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
-//			System.out.println("Entred Stopp In SRU 1st :::::::::");
+//			////System.out.println("Entred Stopp In SRU 1st :::::::::");
 			if (!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -2434,7 +2434,7 @@ public class LRUTestingController {
 				selectAllButton.setDisable(false);
 			}
 
-//			System.out.println("Entred Stopp In SRU 2nd end :::::::::");
+//			////System.out.println("Entred Stopp In SRU 2nd end :::::::::");
 			StateMachine.setTestState(TestState.STOPPED);
 			startButton.setText("Start");
 			pauseButton.setDisable(true);
@@ -2546,12 +2546,12 @@ public class LRUTestingController {
 	public static String sruFileCount;
 
 	public List<String> sendAllSelectedFileCount() {
-//		System.out.println("Entred SRU FILE COUNT METHOD" );
+//		////System.out.println("Entred SRU FILE COUNT METHOD" );
 
 		List<String> stageIds = new ArrayList<String>();
 
 		for (TestCardData t : LRUTestStateObject.getSelectedSubStagesList()) {
-//		System.out.println("Test File Id"+t.getCardId());
+//		////System.out.println("Test File Id"+t.getCardId());
 			stageIds.add(t.getCardId());
 		}
 //		LRUTestStateObject.getSelectedSubStagesList().get(currentIndex).getCardId();
@@ -2679,7 +2679,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -2700,15 +2700,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -2728,7 +2728,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -2738,7 +2738,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -2774,7 +2774,7 @@ public class LRUTestingController {
 								stopButton.setDisable(false);
 
 								ofpConfigId = controller1.getRUN_CONFIG_ID();
-								System.out.println("controller Rung Config Id Check" + ofpConfigId);
+								////System.out.println("controller Rung Config Id Check" + ofpConfigId);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -2790,7 +2790,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -2811,15 +2811,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //							}
@@ -2839,7 +2839,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -2849,7 +2849,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -2932,7 +2932,7 @@ public class LRUTestingController {
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
-//							System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
+//							////System.out.println("  Size"+DFCCConstant.logOutmoveFiles.size());
 //							if (DFCCConstant.logOutmoveFiles.size() > 0) {
 //
 //								List<Path> paths = new ArrayList<Path>();
@@ -2953,15 +2953,15 @@ public class LRUTestingController {
 //
 //								}
 //								if (popupshow) {
-//									System.out.println("Some Files Are Failed And Opened Popup");
+//									////System.out.println("Some Files Are Failed And Opened Popup");
 //									DFCCConstant.FailedStagesRdfPaths = lst;
-//							     	System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//							     	////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //									DFCCConstant.logOutmoveFiles = new HashMap<String, List<CopyFileDTO>>();
 //								} else {
-//									System.out.println("All Files Are Passed And Moved");
+//									////System.out.println("All Files Are Passed And Moved");
 //									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("lst Size  ::"+lst.size());
+//									////System.out.println("lst Size  ::"+lst.size());
 //									session.copyFilesToOutputFolderWhilePlayButton(lst);
 //								}
 //
@@ -2982,7 +2982,7 @@ public class LRUTestingController {
 								}
 
 								if (popupRDFFiles) {
-//									System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 									RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 									for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 									{
@@ -2992,7 +2992,7 @@ public class LRUTestingController {
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								} else {
 									SessionFileManagement session = new SessionFileManagement();
-//									System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//									////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 									session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 									DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 								}
@@ -3273,9 +3273,9 @@ public class LRUTestingController {
 //						session = (SessionStagesMapping) getObject.getObject();
 //						String sessionStagesMappingId = session.getSessionStagesMappingId();
 //						String stagePath = session.getPath();
-//						System.out.println("sessionStagesMappingId" + sessionStagesMappingId);
-//						System.out.println("stagePath" + stagePath);
-//						System.out.println("SessionId"  + StateMachine.currentSessionDetails.getSessionId() +"      Stage Id   :"+stageIdForView);
+//						////System.out.println("sessionStagesMappingId" + sessionStagesMappingId);
+//						////System.out.println("stagePath" + stagePath);
+//						////System.out.println("SessionId"  + StateMachine.currentSessionDetails.getSessionId() +"      Stage Id   :"+stageIdForView);
 //						stagePath = stagePath+rdfFileName;
 //						File file1 = new File(stagePath);
 //						
@@ -3292,10 +3292,10 @@ public class LRUTestingController {
 //							} else if (os.contains("nix") || os.contains("nux")) {
 //								// Linux-specific code using xdg-open
 //								// Ensure the file path is absolute
-//								System.out.println("Entred NIX OS File");
+//								////System.out.println("Entred NIX OS File");
 //								File absoluteFile = file1.isAbsolute() ? file1 : file1.getAbsoluteFile();
 //								new ProcessBuilder("xdg-open", absoluteFile.getAbsolutePath()).start();
-//								System.out.println("absoluteFile.getAbsolutePath()" + absoluteFile.getAbsolutePath());
+//								////System.out.println("absoluteFile.getAbsolutePath()" + absoluteFile.getAbsolutePath());
 //							} else {
 //								Debug.printDebug("Unsupported OS: " + os);
 //							}

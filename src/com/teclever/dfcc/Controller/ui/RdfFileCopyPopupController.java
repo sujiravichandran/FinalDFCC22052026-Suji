@@ -11,6 +11,7 @@ import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControl
 import com.teclever.dfcc.model.RdfFileCopy;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
@@ -91,6 +92,8 @@ public class RdfFileCopyPopupController {
 	    rdfFileCopyHeadingHBox.setAlignment(Pos.CENTER);
 	    createMidContainer();
 	    getRdfFileDetails();
+	    DFCCConstant.closedFileMove = false;
+	    DFCCConstant. continueAfterPopupAction = false;
 
 	    // Center the popup window
 	    Platform.runLater(() -> centerPopupWindow());
@@ -214,17 +217,35 @@ public class RdfFileCopyPopupController {
 
 		return pathLabelVBox;
 	}
+	
+	private void handlePopupFinished(boolean isCloseClicked) {
+	    DFCCConstant.closedFileMove = isCloseClicked;
+
+	    // Reset all necessary state
+	    DFCCConstant.rdfMoveCanceled = isCloseClicked;
+	    // Close the popup stage
+	    Stage stage = (Stage) closeButton.getScene().getWindow();
+	    stage.close();
+	}
+	
+	
 
 	private HBox createButtonBox() {
 		buttonHBox.setAlignment(Pos.CENTER);
 		buttonHBox.getChildren().addAll(copyButton, closeButton);
 
 		closeButton.setOnAction(e -> {
-			
+			handlePopupFinished(true);
+			StateMachine.setTestState(TestState.STOPPED);
+			StateMachine.setConfirmTestFileCompleted(false);
+			StateMachine.setCancelTest(true);
 			Stage stage = (Stage) closeButton.getScene().getWindow();
 			stage.close();
+			
+			return;
 //			handleClosePopup(true);
 		});
+		
 		
 //Before Suji Change
 //		copyButton.setOnAction(e -> {
@@ -241,18 +262,20 @@ public class RdfFileCopyPopupController {
 
 		// After Suji Change
 		copyButton.setOnAction(e -> {
-//			System.out.println("Entred Move File Button Clikc Method");
+//			////System.out.println("Entred Move File Button Clikc Method");
 //			boolean atLeastOneSelected = tableView.getItems().stream().anyMatch(RdfFileCopy::isSelected);
 //		    if (!atLeastOneSelected) {
 //		        Notifications.showErrorAlert("Please select at least one file before moving.");
 //		        return;
 //		    }
-			
+			Platform.runLater(() -> {
+			handlePopupFinished(false);
+			});
 			AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
 					.getInstance();
 			
 				if (StateMachine.isRdfMoveLogout()) {
-//					System.out.println("Entred RDF Logout NEW VALUE" + StateMachine.isRdfMoveLogout());
+//					////System.out.println("Entred RDF Logout NEW VALUE" + StateMachine.isRdfMoveLogout());
 					List<CopyFileDTO> pathList1 = new ArrayList<>();
 					for (RdfFileCopy rdfFile : tableView.getItems()) {
 						CopyFileDTO newFilePath = new CopyFileDTO();
@@ -270,7 +293,7 @@ public class RdfFileCopyPopupController {
 						pathList1.add(newFilePath);
 					}
 					handleCopyingRdfFiles(pathList1);
-//					System.out.println("Entred RDF Logout Front");
+//					////System.out.println("Entred RDF Logout Front");
 					aitessProcessControlManagement.endAllProcessOnLogout();
 					Platform.exit();
 					System.exit(0);
@@ -297,6 +320,9 @@ public class RdfFileCopyPopupController {
 				pathList.add(newFilePath);
 			}
 			handleCopyingRdfFiles(pathList);
+			StateMachine.setPreviouslySelectedStageId(DFCCConstant.currentTestStageId);
+			
+			DFCCConstant.continueAfterPopupAction();
 		});
 
 		return buttonHBox;
@@ -313,11 +339,11 @@ public class RdfFileCopyPopupController {
 				stage.close();
 			});
 		}else {
-//			System.out.println("Closing Popup........");
+//			////System.out.println("Closing Popup........");
 			Stage stage = (Stage) rdfFileCopyMainContainer.getScene().getWindow();
 			DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 			stage.close();
-//			System.out.println("Closed...........");
+//			////System.out.println("Closed...........");
 			if(SessionTestStateObject.getIsLogoutFileCopyPopupOpened().get()) {
 				SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(false);
 			}
@@ -326,7 +352,7 @@ public class RdfFileCopyPopupController {
 
 	private void getRdfFileDetails() {
 	
-//		System.out.println("SessionId : "+sessionId+"   "+"StageId : "+stageId);
+//		////System.out.println("SessionId : "+sessionId+"   "+"StageId : "+stageId);
 //		CopyingListDTO response = sessionFileManagement.getShowPopupContent(sessionId, stageId);
 		
 		
@@ -334,7 +360,7 @@ public class RdfFileCopyPopupController {
 
 	
 		//	List<CopyFileDTO> rdfList = response.getLst();
-//		System.out.println("DFCCConstant.FailedStagesRdfPaths.size"+rdfFilesListtoShow);
+//		////System.out.println("DFCCConstant.FailedStagesRdfPaths.size"+rdfFilesListtoShow);
 		String outPut = "";
 				String stagePath = "";
 			if (rdfFilesListtoShow.size()>0) {
@@ -344,14 +370,14 @@ public class RdfFileCopyPopupController {
 					stagePath = rdfFile.getStagePath();
 					
 					
-//					System.out.println("PowerAutoStageId"+rdfFile.getStageId());
+//					////System.out.println("PowerAutoStageId"+rdfFile.getStageId());
 					RdfFileCopy newRdfFile = new RdfFileCopy(rdfFile.getRdfFileNamewithPath(), rdfFile.getStatus(),
 							false,rdfFile.getStageId(),rdfFile.getStagePath());
 					tableData.add(newRdfFile);
 				}
 				
-//				System.out.println("Current Dir Path Check:   " + outPut );
-//				System.out.println("Copy Dir Path Check:   " + stagePath );
+//				////System.out.println("Current Dir Path Check:   " + outPut );
+//				////System.out.println("Copy Dir Path Check:   " + stagePath );
 				
 				
 				currentDirPath.setText("-" + outPut);
@@ -379,7 +405,7 @@ public class RdfFileCopyPopupController {
 //			        Response response = sessionFileManagement.copyingSelectedFile(pathList, sessionId, stageId);
 			        Response response = sessionFileManagement.copyingSelectedFile(pathList);
 
-//			        System.out.println("Response code after copying rdf files : "+ response.getResponseCode());
+//			        ////System.out.println("Response code after copying rdf files : "+ response.getResponseCode());
 			        
 			        if (response.getResponseCode() == 1) {
 			        	Platform.runLater(() -> handleClosePopup(false));	           

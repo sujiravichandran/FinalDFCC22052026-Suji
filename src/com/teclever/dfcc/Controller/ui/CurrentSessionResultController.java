@@ -175,9 +175,9 @@ public class CurrentSessionResultController {
             protected Void call() throws Exception {
                 
                 	ResultSessionStagesDetailsResponse response = resultExecutionManagement.getStagesDetailsForSession(SESSION_ID);
-//            		System.out.println("getCurrentSessionResultData" + SESSION_ID);
-//            		System.out.println("Response Code" + response.getCode() );
-//            		System.out.println("getResultSessionStagesDetailsDTOList" + response.getResultSessionStagesDetailsDTOList().size());
+//            		////System.out.println("getCurrentSessionResultData" + SESSION_ID);
+//            		////System.out.println("Response Code" + response.getCode() );
+//            		////System.out.println("getResultSessionStagesDetailsDTOList" + response.getResultSessionStagesDetailsDTOList().size());
             		if(response.getCode() == 1 && response.getResultSessionStagesDetailsDTOList() != null) {
             			int i = 1;
             			SimpleDateFormat dbForm=new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.ENGLISH);
@@ -194,9 +194,9 @@ public class CurrentSessionResultController {
             				newSessionData.setNoOfFilesExecuted(String.valueOf(data.getNoOfFilesExecuted()));
             				newSessionData.setFailedFiles(String.valueOf(data.getFailedFiles()));
 //            				newSessionData.setStartTime(data.getStartTime());
-//            				System.out.println("time-----"+data.getStartTime());
+//            				////System.out.println("time-----"+data.getStartTime());
 //            				newSessionData.setEndTime(data.getEndTime());
-//            				System.out.println("time ---"+data.getEndTime());
+//            				////System.out.println("time ---"+data.getEndTime());
             				//changed by sai 11112025
             				String start=data.getStartTime()!=null?data.getStartTime().toString().trim():"";
             				if(start.isEmpty()||start.equalsIgnoreCase("Not Started")||start.equalsIgnoreCase("-")) {
@@ -204,7 +204,7 @@ public class CurrentSessionResultController {
             				}else {
             					try {
             						Date parseStart=dbForm.parse(start);
-            						System.out.println("---"+parseStart);
+            						////System.out.println("---"+parseStart);
             						newSessionData.setStartTime(displayForm.format(parseStart));
             						
             					}catch(Exception e) {
@@ -212,12 +212,13 @@ public class CurrentSessionResultController {
             					}
             				}
             				String end=data.getEndTime()!=null?data.getEndTime().toString().trim():"";
-            				if(end.isEmpty()||end.equalsIgnoreCase("Not Started")||end.equalsIgnoreCase("-")||end.equalsIgnoreCase("Running")) {
-            					newSessionData.setEndTime(end.isEmpty()?"N/A":start);
+//            			    ////System.out.println("dbend  SAI-"+data.getEndTime());
+            			    if (end.isEmpty() || end.equalsIgnoreCase("Not Started") || end.equals("-")||end.equalsIgnoreCase("Running")) {
+            			        newSessionData.setEndTime(end.isEmpty() ? "N/A" : end);
             				}else {
             					try {
             						Date parseEnd=dbForm.parse(end);
-            						System.out.println();
+            						////System.out.println();
             						newSessionData.setEndTime(displayForm.format(parseEnd));
             						
             					}catch(Exception e) {
@@ -230,13 +231,13 @@ public class CurrentSessionResultController {
             				sessionDataList.add(newSessionData);
             			}
             			
-//            			System.out.println("sessionDataList" + sessionDataList.size());
+//            			////System.out.println("sessionDataList" + sessionDataList.size());
             		}else if(response.getCode() == 0) {
             			Notifications.showErrorAlert(response.geteMsg());
             		}
                   
                 if (sessionDataList.size() > 0) {
-//                	System.out.println("sessionDataList Inside" + sessionDataList.size());
+//                	////System.out.println("sessionDataList Inside" + sessionDataList.size());
 	                Platform.runLater(() -> createCurrentSessionResultTable());
 	            }
                 
@@ -246,7 +247,7 @@ public class CurrentSessionResultController {
 
         task.setOnFailed(evt -> {
             hideProgressIndicator();
-//            System.out.println("Entred setOnFailed");
+//            ////System.out.println("Entred setOnFailed");
             task.getException().printStackTrace();
         });
 
@@ -255,11 +256,12 @@ public class CurrentSessionResultController {
 
         task.setOnRunning(evt -> {
             if (DFCCConstant.isJarBuild) {
-//            	System.out.println("Entred setOnRunning");
+//            	////System.out.println("Entred setOnRunning");
                 showProgressIndicator();
             }
         });
-
+        //20112025
+        task.setOnRunning(evt -> showProgressIndicator());
         new Thread(task).start();
     }
     
@@ -416,7 +418,7 @@ public class CurrentSessionResultController {
 	    			if(!column.getText().isEmpty()) {
 //	    				SAI ADDED
 	    	            String colName=column.getText();
-//	    	            System.out.println("Sai :"  + colName);
+//	    	            ////System.out.println("Sai :"  + colName);
 	    	           
 	    				
 //	    				column.setMinWidth(column.getText().length()*14);
@@ -487,8 +489,8 @@ public class CurrentSessionResultController {
 	                    GridPane bottomMidTopGridPane = (GridPane) currentSessionResultGridPane.getParent().getParent().getParent();
 //	                    Changed by Vignesh 31-07-25 for displaying stage name in stage result
 	                    userCenterContentController.createUserCenterContent(bottomMidTopGridPane, "Stage Results", SESSION_ID, rowData);
-//	                    System.out.println(rowData);
-//	                    System.out.println("Session Name"+SESSION_ID);
+//	                    ////System.out.println(rowData);
+//	                    ////System.out.println("Session Name"+SESSION_ID);
 	                    break;
 	                }
 	            });

@@ -28,6 +28,7 @@ import com.teclever.dfcc.model.AdvancedDataAnalysis;
 import com.teclever.dfcc.model.AdvancedDataAnalysis2;
 import com.teclever.dfcc.model.BrowseFileDetailedData;
 import com.teclever.dfcc.resultstore.dto.FilesFetchFailsDTO;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -99,6 +100,9 @@ public class DataAnalysisController2 {
 	private HBox headingHbox = new HBox(10);
 	private GridPane headingGridPane = new GridPane();
 	private Label pageHeading = new Label("Data Analysis");
+	private HBox browseHbox = new HBox(10);
+	private GridPane browseGridPane = new GridPane();
+	private Label browseFolderHeading = new Label("Click to analyze the RDF file from the folder");
 	private GridPane dataAnalysisUutOptionGridPane = new GridPane();
 	private GridPane dataAnalysisOneAllContainerGridPane = new GridPane();
 	private GridPane dataAnalysisOneContainerGridPane = new GridPane();
@@ -163,15 +167,20 @@ public class DataAnalysisController2 {
 
 	public GridPane headingGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(50);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(50);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		headingGridPane.getColumnConstraints().addAll(firstColumn);
+		headingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
 		headingGridPane.getRowConstraints().add(firstRow);
 
 		headingGridPane.add(headingHbox(), 0, 0);
+		headingGridPane.add(browseHbox(), 1, 0);
+		
 
 		return headingGridPane;
 
@@ -184,6 +193,16 @@ public class DataAnalysisController2 {
 
 		return headingHbox;
 	}
+	
+	private HBox browseHbox() {
+		browseHbox.getStyleClass().add("dataanalysis-testing-second-container");
+		browseHbox.setAlignment(Pos.CENTER_LEFT);
+		browseHbox.getChildren().add(browseFolderHeading);
+
+		return browseHbox;
+	}
+	
+	
 
 	private GridPane createRightMidGridPane() {
 
@@ -320,12 +339,12 @@ public class DataAnalysisController2 {
 			@Override
 			protected Void call() throws Exception {
 				AdvancedDataAnalysisDTO response = new AdvancedDataAnalysisDTO();
-				response = advancedDataAnalysisManagement.getAdvancedDataDetails(UUT_ID);
+				response = advancedDataAnalysisManagement.getAdvancedDataDetailsAdavancedPage(UUT_ID);
 
 				if (response.getUnitsDetails().size() > 0) {
 					int i = 1;
 					for (AdvancedDataUnitsDetailsDTO data : response.getUnitsDetails()) {
-
+						System.out.println("ADVANCED STAGE 2");
 						AdvancedDataAnalysis newDetailedData = new AdvancedDataAnalysis();
 
 						newDetailedData.setSlNo(String.valueOf(i));
@@ -365,13 +384,15 @@ public class DataAnalysisController2 {
 						break;
 
 					}
+					
+					tableScrollPane2.setFitToHeight(true);
 				});
 
 //	if(detailedDataList.size() == 0) {
 //		tableScrollPane2.setFitToWidth(true);
 //	}
 
-				tableScrollPane2.setFitToHeight(true);
+				
 				return null;
 			}
 
@@ -435,8 +456,9 @@ public class DataAnalysisController2 {
 	    Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
-	            AdvancedDataAnalysisDTO response = advancedDataAnalysisManagement.getAdvancedDataDetails(UUT_ID);
-
+	        	//2nd Table Calling...
+	           // AdvancedDataAnalysisDTO response = advancedDataAnalysisManagement.getAdvancedDataDetails(UUT_ID);
+	            AdvancedDataAnalysisDTO response = advancedDataAnalysisManagement.getAdvancedDataDetailsUUT(UUT_ID);
 	            if (response.getUnitsDetails().size() > 0) {
 	                int i = 1;
 	                for (ResultUnitSessionDetailsDTO data : response.getSessionList()) {
@@ -488,6 +510,7 @@ public class DataAnalysisController2 {
 	                        column.setMaxWidth(200);
 	                        break;
 	                }
+	                tableScrollPane3.setFitToHeight(true);
 	            });
 	            // Wrap data in FilteredList for filtering
 	            FilteredList<AdvancedDataAnalysis2> filteredList = new FilteredList<>(dataAnalysisTwoDataList, p -> true);
@@ -513,7 +536,7 @@ public class DataAnalysisController2 {
 	                            })
 	                            .collect(Collectors.toSet());
 
-//	                    System.out.println("uniqueValues (" + column.getText() + "): " + uniqueValues);
+//	                    ////System.out.println("uniqueValues (" + column.getText() + "): " + uniqueValues);
 
 	                    Platform.runLater(() -> {
 	                    	  filterComboBox.getItems().addAll(uniqueValues);
@@ -529,13 +552,13 @@ public class DataAnalysisController2 {
 	                    
 	                    filterComboBox.setItems(comboItems);
 	                  
-//	                    System.out.println("Get combobox vv" + filterComboBox.getItems());
+//	                    ////System.out.println("Get combobox vv" + filterComboBox.getItems());
 	                    
 	                    // Add listener for filtering
 	                    filterComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 	                        filteredList.setPredicate(data -> {
 	                            if (newVal == null || newVal.isEmpty()) return true;
-//	                            System.out.println("newVal newVal :" + newVal);
+//	                            ////System.out.println("newVal newVal :" + newVal);
 	                            switch (column.getText()) {
 	                            
 	                                case "UNIT SL NO":
@@ -622,26 +645,38 @@ public class DataAnalysisController2 {
 //	browseButtonHbox.getStyleClass().add("dataanalysis-testing-right-container");
 
 		browseButton.setOnAction(e -> {
-			DirectoryChooser directoryChooser = new DirectoryChooser();
-			directoryChooser.setTitle("Select a Folder");
 
-			File selectedDirectory = directoryChooser.showDialog(((Stage) browseButton.getScene().getWindow()));
+		    DirectoryChooser directoryChooser = new DirectoryChooser();
+		    directoryChooser.setTitle("Select a Folder");
 
-			if (selectedDirectory != null) {
+		    File selectedDirectory = directoryChooser.showDialog(
+		        (Stage) browseButton.getScene().getWindow()
+		    );
 
-				responseList = new ArrayList<>();
-				String folderPath = selectedDirectory.getAbsolutePath();
-				responseList = advancedDataAnalysisManagement.getAllFailsByFolder(folderPath);
+		    if (selectedDirectory != null) {
+		        String folderPath = selectedDirectory.getAbsolutePath();
+		        responseList = advancedDataAnalysisManagement.getAllFailsByFolder(folderPath);
 
-				// create stage AFTER folder selection and pass it to the factory method
+		        // Check if the folder has rdf files
+		        if (responseList == null || responseList.isEmpty()) {
+		            Notifications.showErrorAlert(
+		                "Please check: the selected folder does not contain any RDF files."
+		            );
+		            return; // stop further processing
+		        }
 
-				Stage stage = new Stage();
-				stage.initStyle(StageStyle.UNDECORATED);
-				StackPane fullScreenPane = createBrowseFailureResultTable(stage); // <-- pass stage
-				stage.setScene(new Scene(fullScreenPane));
-				stage.setMaximized(true);
-				stage.show();
-			}
+		        // If folder has rdf files, open the table stage
+		        Stage stage = new Stage();
+		        stage.initStyle(StageStyle.UNDECORATED);
+		        StackPane fullScreenPane = createBrowseFailureResultTable(stage); // pass stage
+		        stage.setScene(new Scene(fullScreenPane));
+		        stage.setMaximized(true);
+		        stage.show();
+
+		    } else {
+		        // User canceled folder selection
+		        Notifications.showErrorAlert("Folder selection was canceled.");
+		    }
 		});
 
 		return browseButtonHbox;

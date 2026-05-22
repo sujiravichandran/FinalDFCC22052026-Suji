@@ -9,6 +9,19 @@ public class SymbolDto {
 	private String max;
 	private String fileName;
     private String runPathMasterId;
+    private String readValue;
+    private String writeValue;
+    private String fullSymbolLine;
+    
+    
+
+	public String getFullSymbolLine() {
+		return fullSymbolLine;
+	}
+
+	public void setFullSymbolLine(String fullSymbolLine) {
+		this.fullSymbolLine = fullSymbolLine;
+	}
 
 	public int getSymbolId() {
 		return symbolId;
@@ -65,8 +78,26 @@ public class SymbolDto {
 	public void setRunPathMasterId(String runPathMasterId) {
 		this.runPathMasterId = runPathMasterId;
 	}
+	
+	
 
-	public SymbolDto(String symbolName, String symbolType, String min, String max, String fileName , String runPathMasterId)
+	public String getReadValue() {
+		return readValue;
+	}
+
+	public void setReadValue(String readValue) {
+		this.readValue = readValue;
+	}
+
+	public String getWriteValue() {
+		return writeValue;
+	}
+
+	public void setWriteValue(String writeValue) {
+		this.writeValue = writeValue;
+	}
+
+	public SymbolDto(String symbolName, String symbolType, String min, String max, String fileName , String runPathMasterId, String readValue, String writeValue,String fullSymbolLine)
 	{
 		this.symbolName = symbolName;
 		this.symbolType = symbolType;
@@ -74,6 +105,9 @@ public class SymbolDto {
 		this.max  = max;
 		this.fileName =  fileName;
 		this.runPathMasterId = runPathMasterId;
+		this.readValue = readValue;
+		this.writeValue = writeValue;
+		this.fullSymbolLine =fullSymbolLine;
 	}
 
 	public SymbolDto() {

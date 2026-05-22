@@ -94,6 +94,8 @@ public class TestPlanFileManagement {
 
 	public static List<String> saveTestFilesToDatabaseForCustomFiles(List<String> testPlanFilePaths,
 			String runPathMasterId) {
+		
+		////System.out.println("Custom Files Adding :::");
 		TestFileService testFileService = new TestFileService();
 		try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
 			Transaction transaction = session.beginTransaction();

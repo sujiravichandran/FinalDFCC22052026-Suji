@@ -160,6 +160,8 @@ public class TrialsConfigurationController {
 	}
 
 	private GridPane createHeadingBox() {
+		try
+		{
 		ColumnConstraints firstColumn = new ColumnConstraints();
 		firstColumn.setPercentWidth(33);
 		ColumnConstraints secondColumn = new ColumnConstraints();
@@ -188,12 +190,21 @@ public class TrialsConfigurationController {
 		reCofigButton.setOnAction(e -> {
 			if(sessionManagement.getReconfigStatus()) {
 				FINALIZE_CONFIG = false;
+				////System.out.println("RE CONFIG TRUE ::");
 				disableDispaly();
+			}else
+			{
+				////System.out.println("RE CONFIG FALSE ::");
 			}
 		});
 
 		headingGridPane.add(titleBox, 0, 0);
 		headingGridPane.add(buttonBox, 2, 0);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
 
 		return headingGridPane;
 	}

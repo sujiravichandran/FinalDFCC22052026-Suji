@@ -46,9 +46,9 @@ public class DataAnalysis1553_BManagement {
 
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 
 						rdf1553ResultFetchingDTO.setValue_6216(number);
@@ -56,54 +56,54 @@ public class DataAnalysis1553_BManagement {
 					case "6232":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6232(number);
 						break;
 					case "6248":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6248(number);
 						break;
 					case "6264":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6264(number);
 						break;
 					case "6280":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6280(number);
 						break;
 					case "6296":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6296(number);
 						break;
 					case "6312":
 						if (firstElement.matches("-?\\d+")) {
 							number = Integer.parseInt(firstElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("First element is not a valid number");
+							////System.out.println("First element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6312(number);
 						break;
@@ -112,63 +112,63 @@ public class DataAnalysis1553_BManagement {
 					case "6348":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6348(number);
 						break;
 					case "6364":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6364(number);
 						break;
 					case "6380":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6380(number);
 						break;
 					case "6396":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6396(number);
 						break;
 					case "6412":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6412(number);
 						break;
 					case "6428":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6428(number);
 						break;
 					case "6444":
 						if (secondElement.matches("-?\\d+")) {
 							number = Integer.parseInt(secondElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Second element is not a valid number");
+							////System.out.println("Second element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6444(number);
 						break;
@@ -177,63 +177,63 @@ public class DataAnalysis1553_BManagement {
 					case "6480":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6480(number);
 						break;
 					case "6496":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6496(number);
 						break;
 					case "6512":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6512(number);
 						break;
 					case "6528":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6528(number);
 						break;
 					case "6544":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6544(number);
 						break;
 					case "6560":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6560(number);
 						break;
 					case "6576":
 						if (thirdElement.matches("-?\\d+")) {
 							number = Integer.parseInt(thirdElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Third element is not a valid number");
+							////System.out.println("Third element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6576(number);
 						break;
@@ -242,69 +242,69 @@ public class DataAnalysis1553_BManagement {
 					case "6612":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6612(number);
 						break;
 					case "6628":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6628(number);
 						break;
 					case "6644":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6644(number);
 						break;
 					case "6660":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6660(number);
 						break;
 					case "6676":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6676(number);
 						break;
 					case "6692":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6692(number);
 						break;
 					case "6708":
 						if (fourthElement.matches("-?\\d+")) {
 							number = Integer.parseInt(fourthElement);
-							System.out.println("Number: " + number);
+							////System.out.println("Number: " + number);
 						} else {
-							System.out.println("Fourth element is not a valid number");
+							////System.out.println("Fourth element is not a valid number");
 						}
 						rdf1553ResultFetchingDTO.setValue_6708(number);
 						break;
 
 					default:
-						System.out.println("Unknown step: " + stepDto.getStep());
+						////System.out.println("Unknown step: " + stepDto.getStep());
 						break;
 					}
 				}
@@ -330,18 +330,36 @@ public class DataAnalysis1553_BManagement {
 			ch1RDF1553BCode.setValueCh_7(rdf1553ResultFetchingDTO.getValue_6312() + "");
 
 			// Differences
+//			ch1RDF1553BCode.setDiff_1and2(
+//					rdf1553ResultFetchingDTO.getValue_6216() - rdf1553ResultFetchingDTO.getValue_6232() + "");
+//			ch1RDF1553BCode.setDiff_2and3(
+//					rdf1553ResultFetchingDTO.getValue_6232() - rdf1553ResultFetchingDTO.getValue_6248() + "");
+//			ch1RDF1553BCode.setDiff_3and4(
+//					rdf1553ResultFetchingDTO.getValue_6248() - rdf1553ResultFetchingDTO.getValue_6264() + "");
+//			ch1RDF1553BCode.setDiff_4and5(
+//					rdf1553ResultFetchingDTO.getValue_6264() - rdf1553ResultFetchingDTO.getValue_6280() + "");
+//			ch1RDF1553BCode.setDiff_5and6(
+//					rdf1553ResultFetchingDTO.getValue_6280() - rdf1553ResultFetchingDTO.getValue_6296() + "");
+//			ch1RDF1553BCode.setDiff_6and7(
+//					rdf1553ResultFetchingDTO.getValue_6296() - rdf1553ResultFetchingDTO.getValue_6312() + "");
+			
+			
 			ch1RDF1553BCode.setDiff_1and2(
-					rdf1553ResultFetchingDTO.getValue_6216() - rdf1553ResultFetchingDTO.getValue_6232() + "");
+					 rdf1553ResultFetchingDTO.getValue_6232()-rdf1553ResultFetchingDTO.getValue_6216() + "");
 			ch1RDF1553BCode.setDiff_2and3(
-					rdf1553ResultFetchingDTO.getValue_6232() - rdf1553ResultFetchingDTO.getValue_6248() + "");
+					 rdf1553ResultFetchingDTO.getValue_6248()-rdf1553ResultFetchingDTO.getValue_6232() + "");
 			ch1RDF1553BCode.setDiff_3and4(
-					rdf1553ResultFetchingDTO.getValue_6248() - rdf1553ResultFetchingDTO.getValue_6264() + "");
+					 rdf1553ResultFetchingDTO.getValue_6264()-rdf1553ResultFetchingDTO.getValue_6248() + "");
 			ch1RDF1553BCode.setDiff_4and5(
-					rdf1553ResultFetchingDTO.getValue_6264() - rdf1553ResultFetchingDTO.getValue_6280() + "");
+					 rdf1553ResultFetchingDTO.getValue_6280()-rdf1553ResultFetchingDTO.getValue_6264() + "");
 			ch1RDF1553BCode.setDiff_5and6(
-					rdf1553ResultFetchingDTO.getValue_6280() - rdf1553ResultFetchingDTO.getValue_6296() + "");
+					 rdf1553ResultFetchingDTO.getValue_6296()-rdf1553ResultFetchingDTO.getValue_6280() + "");
 			ch1RDF1553BCode.setDiff_6and7(
-					rdf1553ResultFetchingDTO.getValue_6296() - rdf1553ResultFetchingDTO.getValue_6312() + "");
+					rdf1553ResultFetchingDTO.getValue_6312()-rdf1553ResultFetchingDTO.getValue_6296() + "");
+			
+			
+			
+			
 
 			// PASS / FAIL
 			ch1RDF1553BCode.setRes_1and2(Math
@@ -394,18 +412,33 @@ public class DataAnalysis1553_BManagement {
 			ch2RDF1553BCode.setValueCh_6(rdf1553ResultFetchingDTO.getValue_6428() + "");
 			ch2RDF1553BCode.setValueCh_7(rdf1553ResultFetchingDTO.getValue_6444() + "");
 
+//			ch2RDF1553BCode.setDiff_1and2(
+//					rdf1553ResultFetchingDTO.getValue_6348() - rdf1553ResultFetchingDTO.getValue_6364() + "");
+//			ch2RDF1553BCode.setDiff_2and3(
+//					rdf1553ResultFetchingDTO.getValue_6364() - rdf1553ResultFetchingDTO.getValue_6380() + "");
+//			ch2RDF1553BCode.setDiff_3and4(
+//					rdf1553ResultFetchingDTO.getValue_6380() - rdf1553ResultFetchingDTO.getValue_6396() + "");
+//			ch2RDF1553BCode.setDiff_4and5(
+//					rdf1553ResultFetchingDTO.getValue_6396() - rdf1553ResultFetchingDTO.getValue_6412() + "");
+//			ch2RDF1553BCode.setDiff_5and6(
+//					rdf1553ResultFetchingDTO.getValue_6412() - rdf1553ResultFetchingDTO.getValue_6428() + "");
+//			ch2RDF1553BCode.setDiff_6and7(
+//					rdf1553ResultFetchingDTO.getValue_6428() - rdf1553ResultFetchingDTO.getValue_6444() + "");
+			
+			
 			ch2RDF1553BCode.setDiff_1and2(
-					rdf1553ResultFetchingDTO.getValue_6348() - rdf1553ResultFetchingDTO.getValue_6364() + "");
+					rdf1553ResultFetchingDTO.getValue_6364()-rdf1553ResultFetchingDTO.getValue_6348() + "");
 			ch2RDF1553BCode.setDiff_2and3(
-					rdf1553ResultFetchingDTO.getValue_6364() - rdf1553ResultFetchingDTO.getValue_6380() + "");
+			     	rdf1553ResultFetchingDTO.getValue_6380()-rdf1553ResultFetchingDTO.getValue_6364() + "");
 			ch2RDF1553BCode.setDiff_3and4(
-					rdf1553ResultFetchingDTO.getValue_6380() - rdf1553ResultFetchingDTO.getValue_6396() + "");
+					 rdf1553ResultFetchingDTO.getValue_6396()-rdf1553ResultFetchingDTO.getValue_6380() + "");
 			ch2RDF1553BCode.setDiff_4and5(
-					rdf1553ResultFetchingDTO.getValue_6396() - rdf1553ResultFetchingDTO.getValue_6412() + "");
+					 rdf1553ResultFetchingDTO.getValue_6412()-rdf1553ResultFetchingDTO.getValue_6396()  + "");
 			ch2RDF1553BCode.setDiff_5and6(
-					rdf1553ResultFetchingDTO.getValue_6412() - rdf1553ResultFetchingDTO.getValue_6428() + "");
+				 rdf1553ResultFetchingDTO.getValue_6428() -	rdf1553ResultFetchingDTO.getValue_6412() + "");
 			ch2RDF1553BCode.setDiff_6and7(
-					rdf1553ResultFetchingDTO.getValue_6428() - rdf1553ResultFetchingDTO.getValue_6444() + "");
+					 rdf1553ResultFetchingDTO.getValue_6444() -rdf1553ResultFetchingDTO.getValue_6428()+ "");
+
 
 			ch2RDF1553BCode.setRes_1and2(Math
 					.abs(rdf1553ResultFetchingDTO.getValue_6348() - rdf1553ResultFetchingDTO.getValue_6364()) == 312
@@ -457,18 +490,31 @@ public class DataAnalysis1553_BManagement {
 			ch3RDF1553BCode.setValueCh_6(rdf1553ResultFetchingDTO.getValue_6560() + "");
 			ch3RDF1553BCode.setValueCh_7(rdf1553ResultFetchingDTO.getValue_6576() + "");
 
+//			ch3RDF1553BCode.setDiff_1and2(
+//					rdf1553ResultFetchingDTO.getValue_6480() - rdf1553ResultFetchingDTO.getValue_6496() + "");
+//			ch3RDF1553BCode.setDiff_2and3(
+//					rdf1553ResultFetchingDTO.getValue_6496() - rdf1553ResultFetchingDTO.getValue_6512() + "");
+//			ch3RDF1553BCode.setDiff_3and4(
+//					rdf1553ResultFetchingDTO.getValue_6512() - rdf1553ResultFetchingDTO.getValue_6528() + "");
+//			ch3RDF1553BCode.setDiff_4and5(
+//					rdf1553ResultFetchingDTO.getValue_6528() - rdf1553ResultFetchingDTO.getValue_6544() + "");
+//			ch3RDF1553BCode.setDiff_5and6(
+//					rdf1553ResultFetchingDTO.getValue_6544() - rdf1553ResultFetchingDTO.getValue_6560() + "");
+//			ch3RDF1553BCode.setDiff_6and7(
+//					rdf1553ResultFetchingDTO.getValue_6560() - rdf1553ResultFetchingDTO.getValue_6576() + "");
+			
 			ch3RDF1553BCode.setDiff_1and2(
-					rdf1553ResultFetchingDTO.getValue_6480() - rdf1553ResultFetchingDTO.getValue_6496() + "");
+				  rdf1553ResultFetchingDTO.getValue_6496() -rdf1553ResultFetchingDTO.getValue_6480() + "");
 			ch3RDF1553BCode.setDiff_2and3(
-					rdf1553ResultFetchingDTO.getValue_6496() - rdf1553ResultFetchingDTO.getValue_6512() + "");
+				  rdf1553ResultFetchingDTO.getValue_6512()-rdf1553ResultFetchingDTO.getValue_6496()  + "");
 			ch3RDF1553BCode.setDiff_3and4(
-					rdf1553ResultFetchingDTO.getValue_6512() - rdf1553ResultFetchingDTO.getValue_6528() + "");
+				  rdf1553ResultFetchingDTO.getValue_6528()-	rdf1553ResultFetchingDTO.getValue_6512()  + "");
 			ch3RDF1553BCode.setDiff_4and5(
-					rdf1553ResultFetchingDTO.getValue_6528() - rdf1553ResultFetchingDTO.getValue_6544() + "");
+					rdf1553ResultFetchingDTO.getValue_6544()-rdf1553ResultFetchingDTO.getValue_6528()  + "");
 			ch3RDF1553BCode.setDiff_5and6(
-					rdf1553ResultFetchingDTO.getValue_6544() - rdf1553ResultFetchingDTO.getValue_6560() + "");
+					rdf1553ResultFetchingDTO.getValue_6560() -rdf1553ResultFetchingDTO.getValue_6544() + "");
 			ch3RDF1553BCode.setDiff_6and7(
-					rdf1553ResultFetchingDTO.getValue_6560() - rdf1553ResultFetchingDTO.getValue_6576() + "");
+				 rdf1553ResultFetchingDTO.getValue_6576()-	rdf1553ResultFetchingDTO.getValue_6560()  + "");
 
 			ch3RDF1553BCode.setRes_1and2(Math
 					.abs(rdf1553ResultFetchingDTO.getValue_6480() - rdf1553ResultFetchingDTO.getValue_6496()) == 312
@@ -520,18 +566,31 @@ public class DataAnalysis1553_BManagement {
 			ch4RDF1553BCode.setValueCh_6(rdf1553ResultFetchingDTO.getValue_6692() + "");
 			ch4RDF1553BCode.setValueCh_7(rdf1553ResultFetchingDTO.getValue_6708() + "");
 
+//			ch4RDF1553BCode.setDiff_1and2(
+//					rdf1553ResultFetchingDTO.getValue_6612() - rdf1553ResultFetchingDTO.getValue_6628() + "");
+//			ch4RDF1553BCode.setDiff_2and3(
+//					rdf1553ResultFetchingDTO.getValue_6628() - rdf1553ResultFetchingDTO.getValue_6644() + "");
+//			ch4RDF1553BCode.setDiff_3and4(
+//					rdf1553ResultFetchingDTO.getValue_6644() - rdf1553ResultFetchingDTO.getValue_6660() + "");
+//			ch4RDF1553BCode.setDiff_4and5(
+//					rdf1553ResultFetchingDTO.getValue_6660() - rdf1553ResultFetchingDTO.getValue_6676() + "");
+//			ch4RDF1553BCode.setDiff_5and6(
+//					rdf1553ResultFetchingDTO.getValue_6676() - rdf1553ResultFetchingDTO.getValue_6692() + "");
+//			ch4RDF1553BCode.setDiff_6and7(
+//					rdf1553ResultFetchingDTO.getValue_6692() - rdf1553ResultFetchingDTO.getValue_6708() + "");
+			
 			ch4RDF1553BCode.setDiff_1and2(
-					rdf1553ResultFetchingDTO.getValue_6612() - rdf1553ResultFetchingDTO.getValue_6628() + "");
+					rdf1553ResultFetchingDTO.getValue_6628() -rdf1553ResultFetchingDTO.getValue_6612()  + "");
 			ch4RDF1553BCode.setDiff_2and3(
-					rdf1553ResultFetchingDTO.getValue_6628() - rdf1553ResultFetchingDTO.getValue_6644() + "");
+					 rdf1553ResultFetchingDTO.getValue_6644()-rdf1553ResultFetchingDTO.getValue_6628()  + "");
 			ch4RDF1553BCode.setDiff_3and4(
-					rdf1553ResultFetchingDTO.getValue_6644() - rdf1553ResultFetchingDTO.getValue_6660() + "");
+					rdf1553ResultFetchingDTO.getValue_6660()-rdf1553ResultFetchingDTO.getValue_6644()  + "");
 			ch4RDF1553BCode.setDiff_4and5(
-					rdf1553ResultFetchingDTO.getValue_6660() - rdf1553ResultFetchingDTO.getValue_6676() + "");
+				  rdf1553ResultFetchingDTO.getValue_6676()-	rdf1553ResultFetchingDTO.getValue_6660() + "");
 			ch4RDF1553BCode.setDiff_5and6(
-					rdf1553ResultFetchingDTO.getValue_6676() - rdf1553ResultFetchingDTO.getValue_6692() + "");
+				 rdf1553ResultFetchingDTO.getValue_6692()-	rdf1553ResultFetchingDTO.getValue_6676()  + "");
 			ch4RDF1553BCode.setDiff_6and7(
-					rdf1553ResultFetchingDTO.getValue_6692() - rdf1553ResultFetchingDTO.getValue_6708() + "");
+					rdf1553ResultFetchingDTO.getValue_6708()-rdf1553ResultFetchingDTO.getValue_6692()  + "");
 
 			ch4RDF1553BCode.setRes_1and2(Math
 					.abs(rdf1553ResultFetchingDTO.getValue_6612() - rdf1553ResultFetchingDTO.getValue_6628()) == 312
@@ -595,10 +654,11 @@ public class DataAnalysis1553_BManagement {
 			RDF1553BCodeService rDF1553BCodeService = new RDF1553BCodeService();
 			GetResponse get1553BRes = rDF1553BCodeService.get1553RDFResultForSession(sessionId, stageId, chNo);
 			rDF1553BCodelist = (List<RDF1553BCode>) get1553BRes.getResponseList();
+			////System.out.println("Check Response List for1553BBB" +rDF1553BCodelist.size());
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 		return rDF1553BCodelist;
 	}

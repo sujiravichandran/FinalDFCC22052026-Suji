@@ -8,26 +8,35 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.response.UUTLogBookResponse;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
+import com.teclever.dfcc.datastore.dto.SessionList;
+import com.teclever.dfcc.datastore.dto.SessionListResponse;
 import com.teclever.dfcc.datastore.dto.UUTLogBookDto;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.UUTLogbookManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
@@ -41,6 +50,7 @@ import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -105,7 +115,9 @@ public class LogBookController {
 	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
 	private Map<String, String> sessionNameId = new HashMap<String, String>();
 	private Map<String, String> sessionDfccId = new HashMap<String, String>();
-	List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private SessionManagement sessionManagement = new SessionManagement();
+	private List<TrailSessionDto> sessionListTrail = new ArrayList<TrailSessionDto>();
 
 	String selectedUUTType;
 	String selectedSessionType;
@@ -122,6 +134,10 @@ public class LogBookController {
 	String dfccSNLogData = null;
 	String fromDateLogData = null;
 	String toDateLogData = null;
+	
+	private String selecteUutid;
+	private String selectedSno;
+	private TrailSessionEntityService t = new TrailSessionEntityService();
 
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 
@@ -136,6 +152,10 @@ public class LogBookController {
 			sessionDfccId.put(session.getSessionName(), session.getDfccSNo());
 
 		}
+		
+		 // Trial sessions
+	    TrailSessionResponse t1 = t.getActiveTrailSessionId();
+	    sessionListTrail = t1.getListOfSession();
 
 		populateAllDataAitess();
 		populateAllDataUUT();
@@ -239,16 +259,18 @@ public class LogBookController {
 		ObservableList<String> fileData = FXCollections.observableArrayList();
 
 		StringBuilder text = new StringBuilder();
-
+         // Date format changed by Sai 03112025
 		for (ApplicationLogBookDto entry : logBookEntries) {
-//			String timestamp = entry.getTimestamp().toString();
-			//sai
+		   
 			Date  timestamp = entry.getTimestamp();
 			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			String formatTime=sdf.format(timestamp);
+		    
+		    String formattedTimestamp = sdf.format(timestamp);
+		    
 			String details = entry.getDetails();
 
-			text.append(String.format("%-25s %s%n", formatTime, details));
+//		    ////System.out.println(formattedTimestamp + "---sai Application log");
+		    text.append(String.format("%-25s %s%n", formattedTimestamp, details));
 		}
 
 		aitessTextArea.setText(text.toString());
@@ -329,6 +351,7 @@ public class LogBookController {
 
 			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
 			String uutId = fetchUutId(selectedUUTType);
+			selecteUutid = uutId;
 			
 			initializeDfccSNComboBox(uutId);
 		});
@@ -348,10 +371,17 @@ public class LogBookController {
 
 			StringBuilder text = new StringBuilder();
 			for (ApplicationLogBookDto entry : logBookEntries) {
-				String timestamp = entry.getTimestamp().toString();
+//				String timestamp = entry.getTimestamp().toString();
+				//s24122025
+				 Date timestamp = entry.getTimestamp();
+					
+				    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				    
+				    String formattedTimestamp = sdf.format(timestamp);
+//				////System.out.println(formattedTimestamp+">----->-----<");
 				String details = entry.getDetails();
 
-				text.append(String.format("%-25s %s%n", timestamp, details));
+				text.append(String.format("%-25s %s%n", formattedTimestamp, details));
 			}
 
 			aitessTextArea.setText(text.toString());
@@ -359,6 +389,42 @@ public class LogBookController {
 		}
 
 		return selectedUUTType;
+	}
+	
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
+
+		comboBox.setEditable(true);
+		comboBox.setItems(originalItems);
+
+		TextField editor = comboBox.getEditor();
+
+		editor.setOnKeyReleased(event -> {
+
+			String text = editor.getText();
+
+			ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+			if (text == null || text.isEmpty()) {
+				filteredList.addAll(originalItems);
+			} else {
+				for (String item : originalItems) {
+					if (item.toLowerCase().contains(text.toLowerCase())) {
+						filteredList.add(item);
+					}
+				}
+			}
+
+			comboBox.setItems(filteredList);
+			comboBox.getEditor().positionCaret(text.length());
+			comboBox.show();
+		});
+
+// Prevent auto-selection
+		comboBox.setOnAction(e -> {
+			if (comboBox.getSelectionModel().getSelectedItem() != null) {
+				editor.setText(comboBox.getSelectionModel().getSelectedItem());
+			}
+		});
 	}
 
 	private String createUutLogData(String uutType) {
@@ -374,10 +440,18 @@ public class LogBookController {
 			StringBuilder text = new StringBuilder();
 
 			for (UUTLogBookDto entry : logBookEntries) {
-				String timestamp = entry.getTimestamp().toString();
+				//s24122025
+//				String timestamp = entry.getTimestamp().toString();
+				 Date timestamp = entry.getTimestamp();
+					
+				    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				    
+				    String formattedTimestamp = sdf.format(timestamp);
+				
+//				////System.out.println(formattedTimestamp+">----->-----<");
 				String details = entry.getDetails();
 
-				text.append(String.format("%-25s %s%n", timestamp, details));
+				text.append(String.format("%-25s %s%n", formattedTimestamp, details));
 			}
 
 			uutTextArea.setText(text.toString());
@@ -410,6 +484,7 @@ public class LogBookController {
 		uutSerialNoField.setPromptText("UUT S/N");
 		selectionHBoxUUTSN.setPadding(new Insets(0, 0, 0, 18.5));
 		selectionHBoxUUTSN.setAlignment(Pos.CENTER_LEFT);
+		uutSerialNoField.setEditable(true);
 		selectionHBoxUUTSN.getChildren().add(uutSerialNoField);
 
 		return selectionHBoxUUTSN;
@@ -420,6 +495,7 @@ public class LogBookController {
 		sessionField.setPromptText("Session");
 		selectionBoxSESSION.setPadding(new Insets(0, 0, 0, 18.5));
 		selectionBoxSESSION.setAlignment(Pos.CENTER_LEFT);
+		sessionField.setEditable(true);
 		selectionBoxSESSION.getChildren().add(sessionField);
 
 		return selectionBoxSESSION;
@@ -437,51 +513,155 @@ public class LogBookController {
 //		}
 
 	
+//	private void initializeDfccSNComboBox(String uutTypeId) {
+//	    dfccSNList.clear();
+//	    ////System.out.println("uutTypeId" + uutTypeId);
+//
+//	    List<SessionDto> filterSessionList = sessionList.stream()
+//	            .filter(t -> t.getUutId().equals(uutTypeId))
+//	            .collect(Collectors.toList());
+//
+//	    Set<String> seenDfccSNos = new HashSet<>();
+//
+//	    for (SessionDto dfccSn : filterSessionList) {
+//	        String dfccSNo = dfccSn.getDfccSNo();
+//	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
+//	            dfccSNList.add(dfccSNo);
+//	        }
+//	    }
+//
+////		initializeSessionComboBox(uutId);
+//		uutSerialNoField.setItems(dfccSNList);
+//	    addSearchFunctionality(uutSerialNoField, dfccSNList);
+//		uutSerialNoField.setOnAction(event -> {
+//			selectedSno = uutSerialNoField.getSelectionModel().getSelectedItem();
+//		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
+//		    if (selectedSerialNo != null) {
+//		        initializeSessionComboBox(selectedSerialNo);
+//		    }
+//		});
+//
+//		
+//	
+//	}
+	
 	private void initializeDfccSNComboBox(String uutTypeId) {
-	    dfccSNList.clear();
-	    System.out.println("uutTypeId" + uutTypeId);
+		////System.out.println("CHECK UUT ID ::" +uutTypeId);
+			    dfccSNList.clear();
+			    Set<String> seenDfccSNos = new HashSet<>();
 
-	    List<SessionDto> filterSessionList = sessionList.stream()
-	            .filter(t -> t.getUutId().equals(uutTypeId))
-	            .collect(Collectors.toList());
+			    if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
 
-	    Set<String> seenDfccSNos = new HashSet<>();
+			        List<SessionDto> filterSessionList = sessionList.stream()
+			                .filter(t -> t.getUutId().equals(uutTypeId))
+			                .collect(Collectors.toList());
 
-	    for (SessionDto dfccSn : filterSessionList) {
-	        String dfccSNo = dfccSn.getDfccSNo();
-	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
-	            dfccSNList.add(dfccSNo);
-	        }
-	    }
+			        for (SessionDto dfccSn : filterSessionList) {
+			            String dfccSNo = dfccSn.getDfccSNo();
+			            if (seenDfccSNos.add(dfccSNo)) {
+			                dfccSNList.add(dfccSNo);
+			            }
+			        }
 
-//		initializeSessionComboBox(uutId);
+			    } else {
 
-		uutSerialNoField.setOnAction(event -> {
-		    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
-		    if (selectedSerialNo != null) {
-		        initializeSessionComboBox(selectedSerialNo);
-		    }
-		});
+			        List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+			                .filter(t -> t.getUutId().equals(uutTypeId))
+			                .collect(Collectors.toList());
+			        for (TrailSessionDto dfccSn : filterSessionList) {
+			            String dfccSNo = dfccSn.getDfccSNo();
+			            if (seenDfccSNos.add(dfccSNo)) {
+			                dfccSNList.add(dfccSNo);
+			            }
+			        }
+			        
+			        ////System.out.println("CHeck List " + dfccSNList.size());
+			    }
+			    
+			    addSearchFunctionality(uutSerialNoField,dfccSNList);
+			    uutSerialNoField.setOnAction(event -> {
+				    String selectedSerialNo = uutSerialNoField.getSelectionModel().getSelectedItem();
+				    selectedSno = selectedSerialNo;
+				    ////System.out.println("Check SN SELECTION  ::  " +selectedSno ) ;
+				    if (selectedSno != null) {
+				    	initializeSessionComboBox(selectedSno);
+				    }
+				});
 
-		
-		uutSerialNoField.setItems(dfccSNList);
-	}
+			    uutSerialNoField.setItems(dfccSNList);
+			}
+			
 
 //    // UUT SESSION NAME TYPE FIELD
+//	private void initializeSessionComboBox(String selectedDfccNo) {
+//		sessionTypeList.clear();
+//
+////		 List<SessionDto> filterSessionList = sessionList.stream()
+////		            .filter(t -> t.getDfccSNo().equals(selectedDfccNo)) // Correct filtering condition
+////		            .collect(Collectors.toList());
+//		
+//		List<SessionDto> filterSessionList = sessionList.stream()
+//		        .filter(t ->
+//		                Objects.equals(t.getUutId(), selecteUutid) &&
+//		                Objects.equals(t.getDfccSNo(), selectedSno) &&
+//		                t.getEndDate() == null
+//		        )
+//		        .sorted(Comparator
+//		                .comparing(SessionDto::getUutId)
+//		                .thenComparing(SessionDto::getDfccSNo))
+//		        .collect(Collectors.toList());
+//		
+//		
+//		for (SessionDto sessionName : filterSessionList) {
+//			sessionTypeList.add(sessionName.getSessionName());
+//		}
+//
+//		sessionField.setItems(sessionTypeList);
+//		 addSearchFunctionality(sessionField, sessionTypeList);
+//	}
+	
 	private void initializeSessionComboBox(String selectedDfccNo) {
 		sessionTypeList.clear();
 
-		 List<SessionDto> filterSessionList = sessionList.stream()
-		            .filter(t -> t.getDfccSNo().equals(selectedDfccNo)) // Correct filtering condition
-		            .collect(Collectors.toList());
+		if(!currentSessionDetails.getSessionId().startsWith("TSSN"))
+		{
+		////System.out.println("CHECK PAT SLNO ::: " +selectedSno );
+		SessionListResponse response1 = sessionManagement.getSessionDataByUUTId(selecteUutid);
+		List<SessionList>lst = response1.getListOfSession();
 		
+		lst =  lst.stream().filter(e->e.getDfccSNo().equals(selectedSno)).collect(Collectors.toList());
+		lst = lst.stream().filter(e->e.getSessionType().equals("ST1")||e.getSessionType().equals("ST3")||e.getSessionType().equals("ST2")||e.getSessionType().equals("ST5")).collect(Collectors.toList());
+		lst = lst.stream().filter(e->e.getEndDate()==null).collect(Collectors.toList());					
 		
-		for (SessionDto sessionName : filterSessionList) {
-			sessionTypeList.add(sessionName.getSessionName());
-		}
+		List<String> sessionNameList1 = lst.stream()
+		        .map(SessionList::getSessionName)
+		        .collect(Collectors.toList());
 
-		sessionField.setItems(sessionTypeList);
+		sessionField.setItems(
+		        FXCollections.observableArrayList(sessionNameList1)
+		        
+		);
+		addSearchFunctionality(sessionField,FXCollections.observableArrayList(sessionNameList1));
+		}else {
+			SessionListResponse response1 = sessionManagement.getSessionDataByUUTId(selecteUutid);
+			List<SessionList>lst = response1.getListOfSession();
+			
+			lst =  lst.stream().filter(e->e.getDfccSNo().equals(selectedSno)).collect(Collectors.toList());
+			lst = lst.stream().filter(e->e.getSessionType().equals("TRIALS")).collect(Collectors.toList());
+			lst = lst.stream().filter(e->e.getEndDate()==null).collect(Collectors.toList());					
+			
+			List<String> sessionNameList1 = lst.stream()
+			        .map(SessionList::getSessionName)
+			        .collect(Collectors.toList());
+
+			sessionField.setItems(
+			        FXCollections.observableArrayList(sessionNameList1)
+					);
+			addSearchFunctionality(sessionField,FXCollections.observableArrayList(sessionNameList1));
+		}
 	}
+	
+	
 	
 
 	// DATE PICKER - FROM
@@ -610,7 +790,7 @@ public class LogBookController {
 	        try {
 	            selectedFromTime = LocalTime.parse(fromTimeText.trim(), timeFormatter);
 	        } catch (DateTimeParseException e) {
-	            System.out.println("⚠️ Invalid FROM time format: " + fromTimeText);
+	            ////System.out.println("⚠️ Invalid FROM time format: " + fromTimeText);
 	        }
 	    }
 
@@ -619,7 +799,7 @@ public class LogBookController {
 	        try {
 	            selectedToTime = LocalTime.parse(toTimeText.trim(), timeFormatter);
 	        } catch (DateTimeParseException e) {
-	            System.out.println("⚠️ Invalid TO time format: " + toTimeText);
+	            ////System.out.println("⚠️ Invalid TO time format: " + toTimeText);
 	        }
 	    }
 
@@ -648,11 +828,11 @@ public class LogBookController {
 	    }
 	    
 	    // ✅ Debug print to confirm
-//	    System.out.println("Selected UUT Type : " + selectedUUTType);
-//	    System.out.println("Selected DFCC SN  : " + selectedDfccSN);
-//	    System.out.println("Selected Session  : " + selectedSessionType);
-//	    System.out.println("Selected FROM Date: " + selectedFromDate);
-//	    System.out.println("Selected TO Date  : " + selectedToDate);
+//	    ////System.out.println("Selected UUT Type : " + selectedUUTType);
+//	    ////System.out.println("Selected DFCC SN  : " + selectedDfccSN);
+//	    ////System.out.println("Selected Session  : " + selectedSessionType);
+//	    ////System.out.println("Selected FROM Date: " + selectedFromDate);
+//	    ////System.out.println("Selected TO Date  : " + selectedToDate);
 
 	    // ✅ Process log data if UUT Type is selected
 	    if (selectedUUTType != null) {

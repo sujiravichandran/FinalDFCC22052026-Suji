@@ -1,4 +1,5 @@
 package com.teclever.dfcc.Controller.ui;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.teclever.dfcc.DFCCConstant;
@@ -35,7 +36,8 @@ public class LoadDriverController {
 	private Button okButton = new Button();
 	private List<DriverCard> loadDriverDataList ;
 	private ObservableList<LoadDriver> loadDriverTableData = FXCollections.observableArrayList();
-	private Boolean loadDriverStatusResult = true;
+	List<DriverCard> finalDriverList = new ArrayList();
+	private Boolean loadDriverStatusResult;
 
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	private VBox box = new VBox();
@@ -45,6 +47,9 @@ public class LoadDriverController {
 	
 	
 	public GridPane createLoadDriverPage() {
+		if(!DFCCConstant.isJarBuild) {
+			loadDriverStatusResult= true;
+		}
 		getLoadDriverData();
 		loadDriverMainGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING+"/com/teclever/dfcc/ui/css/LoadDriver.css").toExternalForm());
@@ -70,12 +75,27 @@ public class LoadDriverController {
 		return loadDriverMainGridPane;
 	}
 	public void getLoadDriverData() {
+		
+		
+		
 	    Task<Void> task = new Task<Void>() {
 	        @Override
 	        protected Void call() throws Exception {
 	            DriverCardDetailsResponse loadDriverResponseList = testManagerManagement.preLoadDriver();
 	            loadDriverDataList = loadDriverResponseList.getDriverCardDetails();
-	            if (loadDriverDataList.size() > 0) {
+//	            DIVER DUPLICATION ISSUE::::
+	            List<String> driverCardList = new ArrayList<>();
+	           for(DriverCard driverCard: loadDriverDataList)
+				{
+					if (!driverCardList.contains(driverCard.getCardName())) {
+						driverCardList.add(driverCard.getCardName());
+						finalDriverList.add(driverCard);
+					} else {
+						//loadDriverDataList.remove(driverCard);
+					}
+				}
+	            
+	            if (finalDriverList.size() > 0) {
 	                Platform.runLater(() -> setTableData());
 	            }
 	            return null;
@@ -176,7 +196,7 @@ public class LoadDriverController {
 	}
 	
 	private void setTableData() {
-		for(DriverCard list : loadDriverDataList) {
+		for(DriverCard list : finalDriverList) {
 			LoadDriver loadDriver = new LoadDriver();
 			loadDriver.setCardName(list.getCardName());
 			loadDriver.setStatus(list.getMsg());
@@ -196,11 +216,13 @@ public class LoadDriverController {
 					setStyle("");
 				} else {
 					if ("OK".equalsIgnoreCase(item)) {
+						loadDriverStatusResult = true;
 						setText("Passed");
 						setStyle("-fx-background-color: lightgreen;-fx-alignment: CENTER;");
 					} else if ("NOT OK".equalsIgnoreCase(item)) {
 						setText("Failed");
 						loadDriverStatusResult = false;
+						DFCCConstant.LoadDriverHandled = true;
 						setStyle("-fx-background-color: #FA9898;-fx-alignment: CENTER;");
 					}
 				}
@@ -211,7 +233,7 @@ public class LoadDriverController {
 		okButton.setText("OK");
 		
 		okButton.setOnAction(e -> {
-			if (loadDriverStatusResult) {
+			if (!DFCCConstant.LoadDriverHandled ) {
 					StackPane parent = (StackPane) loadDriverMainGridPane.getParent();
 					parent.getChildren().remove(loadDriverMainGridPane);
 					UserDashboardController userDashboardController = new UserDashboardController();

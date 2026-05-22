@@ -43,9 +43,9 @@ public class ResultManagement {
 			collectionName = collectionName + "_" + testFileId;
 
 			MongoCollection<Document> resultDataCollection = database.getCollection(collectionName);
-//			System.out.println("MongoDB Collection Name" + resultDataCollection);
+//			////System.out.println("MongoDB Collection Name" + resultDataCollection);
 			Document resultDataDoc = resultDataCollection.find(eq("_id", refObjectId)).first();
-//			System.out.println("MongoDB resultDataDoc" + resultDataDoc);
+//			////System.out.println("MongoDB resultDataDoc" + resultDataDoc);
 			if (resultDataDoc != null) {
 				String resultDataFile = resultDataDoc.getString("resultDataFile");
 				String[] resultDataParts = resultDataFile.split("/");
@@ -54,7 +54,7 @@ public class ResultManagement {
 				// Get the failedStep map
 				Map<String, ObjectId> failedStepMap = resultDataDoc.get("failedStep", Map.class);
 
-//				System.out.println("Mongodb failedStepMap " + failedStepMap);
+//				////System.out.println("Mongodb failedStepMap " + failedStepMap);
 
 				Set<ObjectId> processedIds = new HashSet<>();
 
@@ -94,7 +94,7 @@ public class ResultManagement {
 //						Pattern pattern = Pattern.compile("\\((.*?)\\)");
 //						Matcher matcher = pattern.matcher(dStarInfo);
 						Pattern pattern = Pattern.compile("\\((.*)\\)"); 
-						if(!signalName.contains("Wait for condition timed out."))
+						if(signalName == null || !signalName.contains("Wait for condition timed out."))
 						{	
 						Matcher matcher = pattern.matcher(dStarInfo);
 						List<String> formattedChannels = new ArrayList<>();
@@ -109,18 +109,18 @@ public class ResultManagement {
 //										channelValue = channelValue.substring(1);
 //									}
 //									formattedChannels.add("CH" + (i + 1) + ": " + channelValue);
-//									System.out.println("Check ResulMgmnt" + formattedChannels);
+//									////System.out.println("Check ResulMgmnt" + formattedChannels);
 //								}
 //							}
 //						}
 						if (matcher.find()) {
 						    String insideParentheses = matcher.group(1);
 						    String[] parts = insideParentheses.split(",", -1); 
-//						    System.out.println("Parts = " + Arrays.toString(parts));
+//						    ////System.out.println("Parts = " + Arrays.toString(parts));
 
 						    for (int i = 0; i < parts.length; i++) {
 						        String channelValue = parts[i].trim();
-//						        System.out.println("D* info Check: " + channelValue);
+//						        ////System.out.println("D* info Check: " + channelValue);
 
 						        if (channelValue.equalsIgnoreCase("passed")) continue;
 
@@ -132,8 +132,10 @@ public class ResultManagement {
 						        }
 						    }
 
-//						    System.out.println("Formatted Channels Final = " + formattedChannels);
+//						    ////System.out.println("Formatted Channels Final = " + formattedChannels);
 						}
+						
+						
 
 						ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit,
 								signalName, faultyChannels, fileName, faultySRU);
@@ -248,7 +250,7 @@ public class ResultManagement {
 //	                            
 //	                            // Print the formatted output
 //	                        } else {
-//	                            System.out.println("No content inside parentheses found.");
+//	                            ////System.out.println("No content inside parentheses found.");
 //	                        }
 //
 //	                        ResultDto resultDto = new ResultDto(tpgph, stepName, expectedValue, measuredValue, unit, signalName, faultyChannels, fileName,faultySRU);

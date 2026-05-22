@@ -105,18 +105,18 @@ public class PbitOfpSelectionController {
 	    aitessProcessControlManagement.pbitCheck();
 		
 		List <String> ofpList = StateMachine.getOfpList();
-//		System.out.println("Popup Ofp List" +ofpList );
+//		////System.out.println("Popup Ofp List" +ofpList );
 		String ofpValueCheck = StateMachine.getOfpValueCheck();
-//		System.out.println("Popup Version" + ofpValueCheck);
-//		System.out.println("OFP  Response Cod Check " + aitessProcessControlManagement.pbitCheck().getResponseCode());
+//		////System.out.println("Popup Version" + ofpValueCheck);
+//		////System.out.println("OFP  Response Cod Check " + aitessProcessControlManagement.pbitCheck().getResponseCode());
 
 		if (!ofpList.contains(ofpValueCheck) ||
 				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 500 ||
 				 aitessProcessControlManagement.pbitCheck().getResponseCode() == 400) {
-//			System.out.println("Entred OFP .." + aitessProcessControlManagement.pbitCheck().getResponseCode());
+//			////System.out.println("Entred OFP .." + aitessProcessControlManagement.pbitCheck().getResponseCode());
 			option1.setDisable(true);
 		}else {
-//			System.out.println("Entred OFP Else" + aitessProcessControlManagement.pbitCheck().getResponseCode());
+//			////System.out.println("Entred OFP Else" + aitessProcessControlManagement.pbitCheck().getResponseCode());
 			option1.setDisable(false);
 		}
 //		Exit::
@@ -160,7 +160,7 @@ public class PbitOfpSelectionController {
 	private String fetchOFPVersion(String ofpVersionName) {
 		for (OfpConfigurationDto ofpVersion : ofpVersionDataList) {
 			if (ofpVersion.getOfpVersion().equals(ofpVersionName)) {
-//				System.out.println("OFP CHECK SUSPECT ::" + ofpVersion);
+//				////System.out.println("OFP CHECK SUSPECT ::" + ofpVersion);
 				return ofpVersion.getOfpConfigId(); // return OFP_7357
 			}
 		}
@@ -175,7 +175,7 @@ public class PbitOfpSelectionController {
 	@FXML
 	void onClickOption2(ActionEvent event) {
 		OFPVersion.setVisible(true);
-//		System.out.println("Entred Option2 method");
+//		////System.out.println("Entred Option2 method");
 
 		initializeOfpVersionComboBox();
 	}
@@ -183,10 +183,10 @@ public class PbitOfpSelectionController {
 	@FXML
 	private void handleSaveButtonAction() {
 		if (option1.isSelected()) {
-//			System.out.println("Check Option1");
+//			////System.out.println("Check Option1");
 			StateMachine.setPbitOption1(true);
 		} else if (option2.isSelected()) {
-//			System.out.println("Check Option2");
+//			////System.out.println("Check Option2");
 			StateMachine.setPbitOption2(true);
 		}
 		if (!option1.isSelected() && !option2.isSelected()) {
@@ -223,7 +223,7 @@ public class PbitOfpSelectionController {
 			ofpConfigId = fetchOFPVersion(OFPVersion.getValue());
 			StateMachine.setOfpList(ofpVersionList);
 			this.RUN_CONFIG_ID.set(ofpConfigId);
-//			System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
+//			////System.out.println("RUN_CONFIG_IDRUN_CONFIG_ID{{{" + RUN_CONFIG_ID);
 
 		});
 

@@ -56,19 +56,23 @@ public class TestManagerManagement {
 		// 09-07-2025
 		RunConfigurationService r = new RunConfigurationService();
 		String driver = r.getDriverByUutIdAndTestTypeId(uutId, testTypeId); // HWATP
-//		System.out.println("-------    " + driver);
+//		////System.out.println("-------    " + driver);
 
 		int xx = r.getAitessIdByDriver(driver); // aitessId
-//		System.out.println("--" + xx);
+//		////System.out.println("--" + xx);
 
 		CardDetailsService c = new CardDetailsService();
 		String aimMilDbFound = c.getCardNameByIdentificationText1("1553B MODULE", xx);
 		if (aimMilDbFound != null) {
 //			// call down -- response1
 //			//aim card response
-			DriverCardDetailsResponse response1 = pc.loadDriver("lsmod" + "\n", aimMilDbFound, aitess.getAitessId(),
+			
+//			DriverCardDetailsResponse response1 = pc.loadDriver("lsmod" + "\n", aimMilDbFound, aitess.getAitessId(),
+//					LoadDriverProcessControlManagement.LoadMode.CARD);
+
+			DriverCardDetailsResponse response1 = pc.loadDriver("lspci" + "\n", aimMilDbFound, aitess.getAitessId(),
 					LoadDriverProcessControlManagement.LoadMode.CARD);
-		
+
 
 			if (response1.getDriverCardDetails().size() > 0) {
 
@@ -130,19 +134,22 @@ public class TestManagerManagement {
 		// 09-07-2025
 		RunConfigurationService r = new RunConfigurationService();
 		String driver = r.getDriverByUutIdAndTestTypeId(uutId, testTypeId); // HWATP
-//		System.out.println("-------    " + driver);
+//		////System.out.println("-------    " + driver);
 
 		int xx = r.getAitessIdByDriver(driver); // aitessId
-//		System.out.println("--" + xx);
+//		////System.out.println("--" + xx);
 
 		CardDetailsService c = new CardDetailsService();
 		String aimMilDbFound = c.getCardNameByIdentificationText1("1553B MODULE", xx);
 		if (aimMilDbFound != null) {
 //			// call down -- response1
 //			//aim card response
-			DriverCardDetailsResponse response1 = pc.loadDriver("lsmod" + "\n", aimMilDbFound, aitess.getAitessId(),
+//			DriverCardDetailsResponse response1 = pc.loadDriver("lsmod" + "\n", aimMilDbFound, aitess.getAitessId(),
+//					LoadDriverProcessControlManagement.LoadMode.CARD);
+			
+			DriverCardDetailsResponse response1 = pc.loadDriver("lspci" + "\n", aimMilDbFound, aitess.getAitessId(),
 					LoadDriverProcessControlManagement.LoadMode.CARD);
-		
+
 
 			if (response1.getDriverCardDetails().size() > 0) {
 

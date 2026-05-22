@@ -54,11 +54,11 @@ public class TestManagerManagement {
 		//09-07-2025
 //		RunConfigurationService r = new RunConfigurationService();
 //		String driver = r.getDriverByUutIdAndTestTypeId(uutId,testTypeId); //HWATP
-//		System.out.println("-------    " + driver);
+//		////System.out.println("-------    " + driver);
 //		
 //		
 //		int xx = r.getAitessIdByDriver(driver);	//aitessId
-//		System.out.println("--" + xx);
+//		////System.out.println("--" + xx);
 //		
 //		
 //		CardDetailsService c = new CardDetailsService();

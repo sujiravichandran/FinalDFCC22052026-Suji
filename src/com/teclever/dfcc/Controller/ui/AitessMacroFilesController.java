@@ -149,7 +149,14 @@ public class AitessMacroFilesController {
 		if(RUN_CONFIG_ID!=null) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File");
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.mac"));
+//		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel Files", "*.mac"));
+		fileChooser.getExtensionFilters().addAll(
+			    new FileChooser.ExtensionFilter(
+			        "Excel Files(*.mac, *.mdf)", 
+			        "*.mac", "*.mdf"
+			    )
+			);
+
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(macroFilesParentGridPane.getScene().getWindow());
 		List<String> filePaths = new ArrayList<>();
 		if (selectedFiles != null) {
@@ -164,7 +171,11 @@ public class AitessMacroFilesController {
 				setAitessMacroFilesTableData(RUN_CONFIG_ID);
 			} else if(res.getResponseCode() == 0){
 				Notifications.showErrorAlert(res.getResponseMsg());
+			}else if(res.getResponseCode() == 9){
+				Notifications.showErrorAlert(res.getResponseMsg());
 			}
+			
+			
 		}
 		}else {
 			Notifications.showWarningAlert("Please select UUT Type and Test Type");

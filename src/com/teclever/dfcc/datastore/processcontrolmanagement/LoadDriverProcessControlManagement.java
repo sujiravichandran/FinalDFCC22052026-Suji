@@ -1,9 +1,5 @@
 package com.teclever.dfcc.datastore.processcontrolmanagement;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.teclever.dfcc.datastore.dto.DbDriverCard;
 import com.teclever.dfcc.datastore.dto.DriverCard;
@@ -32,7 +29,7 @@ public class LoadDriverProcessControlManagement {
 	private BlockingQueue<String> aimMilBQueue = new ArrayBlockingQueue<>(10000);
 	private BlockingQueue<String> auxBQueue = new ArrayBlockingQueue<>(10000);
 	private BlockingQueue<String> killBQueue = new ArrayBlockingQueue<>(10000);
-
+	private List<String> cardName = new ArrayList<String>();
 	private Thread loadDriverLaunchingThread;
 
 	private Thread outputProcessingThread;
@@ -76,17 +73,20 @@ public class LoadDriverProcessControlManagement {
 		AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 		DriverManagement dm = new DriverManagement();
 		List<DbDriverCard> dbDriverCards = dm.getDriverCardDetailsBasedOnAitess(aitessId);
-
+		Map<String, Boolean> cardStatusMap = new HashMap<>();//chnage on 13022026
 		List<DriverCard> responseDriverCards = new ArrayList<DriverCard>();
 
 		Map<String, String> dbMap = new HashMap<>();
 
 		for (DbDriverCard d : dbDriverCards) {
 			dbMap.put(d.getCardName(), d.getTotalNumberOfCards());
+			cardStatusMap.put(d.getCardName(), false);
 			Debug.printDebug("DB CardName :: " + d.getCardName());
 		}
+	
 
 		try {
+			Thread.sleep(1000);
 			switch (mode) {
 			case STARTUP:
 				loadDriverProcessController.LaunchingProcess(command, launcherFuture);
@@ -96,10 +96,8 @@ public class LoadDriverProcessControlManagement {
 					outputProcessingThread = new Thread(() -> {
 						try {
 							flag = true;
-							Map<String, Boolean> cardStatusMap = new HashMap<>();
-							for (DbDriverCard d : dbDriverCards) {
-								cardStatusMap.put(d.getCardName(), false);
-							}
+//							Map<String, Boolean> cardStatusMap = new HashMap<>();
+						
 
 							while (flag) {
 								String output = loadDriverBQueue.take();
@@ -111,15 +109,24 @@ public class LoadDriverProcessControlManagement {
 									
 									//Driver CarD Issue Mani Changed
 									DriverCard parsedCards = dm.parseLineNEWtrim(output, cardIdentificationText,aitessId);
-
+									////System.out.println("SUSCEPT MANI DRIVER CARD ISSUE"+parsedCards.getCardName());
 									if (parsedCards.getResponse().getResponseCode() == 1) {
 										if (dbMap.get(parsedCards.getCardName()) != null) {
+											////System.out.println("PASSED CARDS :::");
+											if(!cardName.contains(parsedCards.getCardName()))
+											{
 											cardStatusMap.put(parsedCards.getCardName(), true);
 											parsedCards.setMsg("OK");
 											responseDriverCards.add(parsedCards);
+											}
+											////System.out.println("PASSESD CARD"+parsedCards.getCardName());
 										} else {
-											parsedCards.setMsg("NOT OK");
-											responseDriverCards.add(parsedCards);
+											if (!cardName.contains(parsedCards.getCardName())) {
+												// //System.out.println("FAILED CARDS :::");
+												parsedCards.setMsg("NOT OK");
+												responseDriverCards.add(parsedCards);
+											}
+											// //System.out.println("FAILED CARD"+parsedCards.getCardName());
 										}
 									}
 								}
@@ -144,11 +151,24 @@ public class LoadDriverProcessControlManagement {
 				if (outputProcessingThread != null) {
 					outputProcessingThread.join();
 				}
+				
+				// ADD THIS HERE  added for driver issue on 09-02-2026 sai
+			
 
 				DriverCardDetailsResponse response = new DriverCardDetailsResponse();
 				while (flag) {
 					System.out.print("- ");
 				}
+				
+ 				for (DbDriverCard d : dbDriverCards) {
+				    if (!cardStatusMap.get(d.getCardName())) {
+				        DriverCard notFound = new DriverCard();
+				        notFound.setCardName(d.getCardName());
+				        notFound.setMsg("NOT OK");
+				        responseDriverCards.add(notFound);
+				    }
+				}
+				
 
 				response.setDriverCardDetails(responseDriverCards);
 				return response;
@@ -160,14 +180,28 @@ public class LoadDriverProcessControlManagement {
 				launcherFuture1.thenRun(() -> {
 					aimMil.ReadingProcess();
 					aimMilOutputProcessingThread = new Thread(() -> {
-						try {
+					try {
 							aimFlag = true;
 							int emptyCount = 0;
 							//boolean flag_c = false;
 							//Edited By Mani And K1 For Intial Driver loading...For AIML Issue
 							while (aimFlag) {
-								String output = aimMilBQueue.take();
-//								System.out.println("aimMil :: " + output);
+								//String output = aimMilBQueue.take();
+								String output = aimMilBQueue.poll(3, TimeUnit.SECONDS);
+	
+								if (output == null) {
+								    emptyCount++;
+								    ////System.out.println("No response received... count: " + emptyCount);
+
+								    if (emptyCount >= 3) {  // Wait max 9 seconds (3 x 3)
+								        aimFlag = false;
+								        ////System.out.println("No response received... count:  GO TO ====> If Loop" + emptyCount);
+								    }
+								    continue;
+								}
+
+								
+//								////System.out.println("aimMil :: " + output);
 
 								DriverCard aimMil = dm.parseLineAIM(output, unloadCommand);
 								
@@ -186,11 +220,13 @@ public class LoadDriverProcessControlManagement {
 //									responseDriverCards.add(aimMil);
 //								}
 								
-								if (output.contains("aim_mil")) {
+								if (output.contains(unloadCommand)) {
 									aimFlag = false;
 								}
+								
+								
 
-//								System.out.println(output);
+//								////System.out.println(output);
 								//if (output.contains(unloadCommand)) {
 //								if (output.contains("root#")) {
 //									//aimFlag = false;
@@ -199,11 +235,11 @@ public class LoadDriverProcessControlManagement {
 								
 //								if (output.equals(null) || (output.equals(""))) {
 //									emptyCount++;
-//									System.out.println("aimMil IF CONT :: " + output);
-//									System.out.println("aimMil IF CONT emptyCount:: " + emptyCount);
+//									////System.out.println("aimMil IF CONT :: " + output);
+//									////System.out.println("aimMil IF CONT emptyCount:: " + emptyCount);
 //								} else {
 //									emptyCount = 0;
-//									System.out.println("else IF CONT :: " + output);
+//									////System.out.println("else IF CONT :: " + output);
 //								}
 //
 //								if (emptyCount > 2) {

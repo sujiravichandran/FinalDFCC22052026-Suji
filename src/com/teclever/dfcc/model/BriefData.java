@@ -5,7 +5,7 @@ public class BriefData {
 	private String id;
 	private String slNo;
 	private String testMode;
-	private String executedFileName;
+	private String resultFileName;
 	private String timeOfExecution;
 	private String result;
 	
@@ -28,11 +28,13 @@ public class BriefData {
 	public void setSlNo(String slNo) {
 		this.slNo = slNo;
 	}
-	public String getExecutedFileName() {
-		return executedFileName;
+	
+	
+	public String getResultFileName() {
+		return resultFileName;
 	}
-	public void setExecutedFileName(String executedFileName) {
-		this.executedFileName = executedFileName;
+	public void setResultFileName(String resultFileName) {
+		this.resultFileName = resultFileName;
 	}
 	public String getTimeOfExecution() {
 		return timeOfExecution;

@@ -4,6 +4,9 @@ public class DetailedData {
 	
 	private int id;
 	private String slNo;
+	private String unitSerialNo;
+	private String sessionName;
+	private String stageName;
 	private String testMode;
 	private String testName;
 	private String rdfName;
@@ -15,6 +18,27 @@ public class DetailedData {
 	private String faultySru;
 	private String unit;
 	
+	public String getUnitSerialNo() {
+		return unitSerialNo;
+	}
+	public void setUnitSerialNo(String unitSerialNo) {
+		this.unitSerialNo = unitSerialNo;
+	}
+	
+	
+	public String getSessionName() {
+		return sessionName;
+	}
+	public void setSessionName(String sessionName) {
+		this.sessionName = sessionName;
+	}
+	public String getStageName() {
+		return stageName;
+	}
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
+	}
+
 	private String faultyChannelValue;
 	
 	

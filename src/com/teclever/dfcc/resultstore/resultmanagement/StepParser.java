@@ -24,68 +24,294 @@ import com.teclever.dfcc.resultstore.dto.StepDto;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.stateMachine.StateMachine.rdfFileParser;
 
-
 public class StepParser {
+
+	static String adbuf_ram_startv_signalName = "";
+	static boolean adbuf_ram_startv_signalName_flag = false;
+
+	//Commented on 05-02-2026 For input Memory Out Of Bound Exception
+//	public static List<StepDto> parseStepContextNEW(String filePath) throws InterruptedException {
+//		List<StepDto> stepList = new ArrayList<>();
+//		List<StepDto> failedStepList = new ArrayList<>();
+//		String tpgph = null;
+//		String step = null;
+//		String input = "";
+//		List<String> readingInfo = new ArrayList<>();
+//		String dStarInfo = null;
+//		String testPlanFile = null;
+//		String resultDataFile = null;
+//		String unit = null;
+//		Map<String, String> faultyChannel = new HashMap<>();
+//
+//		// Added For Deviation
+//		Map<String, String> channelValues = new HashMap<>();
+//		String expectedValue = null;
+//		String signalName = null;
+//		boolean isAfterStep = false;
+//		String faultySRU = null;
+//		boolean stepAdded = false;
+//
+//		File file = new File(filePath);
+//
+////	    ////System.out.println("Length Of File Before Wait  :"+file.length());
+////		if (file.exists()) {
+////			if (file.length() < 1) {
+////				Thread.sleep(5000);
+////				////System.out.println("Length Of First Thread Sleep 1st :"+file.length());
+////			}
+////			
+////			if (file.length() < 1) {
+////				Thread.sleep(3000);
+////				////System.out.println("Length Of Second  Thread Sleep 2nd :"+file.length());
+////			}
+////		}
+//
+////	    ////System.out.println("Length Of File After Wait  :"+file.length());
+//
+//		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+//			String line;
+//
+//			while ((line = reader.readLine()) != null) {
+//				// ////System.out.println("--" + line);
+//				if (line.startsWith("S>") && line.contains("TPGPH")) {
+//					if (!stepAdded && (step != null || dStarInfo != null)) {
+//						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+//								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName,
+//								faultySRU);
+//						stepList.add(stepDto);
+//						if (dStarInfo != null)
+//							failedStepList.add(stepDto);
+//						stepAdded = true;
+//					}
+//
+//					tpgph = extractTPGPH(line);
+//					step = null;
+//					input = "";
+//					readingInfo = new ArrayList<>();
+//					dStarInfo = null;
+//					unit = null;
+//					faultyChannel = new HashMap<>();
+//					channelValues = new HashMap<>();
+//					expectedValue = null;
+//					signalName = null;
+//					isAfterStep = false;
+//					faultySRU = null;
+//					stepAdded = false;
+//
+//				} else if (line.startsWith("S>") && line.contains("STEP")) {
+//					if (!stepAdded && (step != null || dStarInfo != null)) {
+//						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+//								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName,
+//								faultySRU);
+//						stepList.add(stepDto);
+//						if (dStarInfo != null)
+//							failedStepList.add(stepDto);
+//						stepAdded = true;
+//					}
+//
+//					step = extractStepNumber(line);
+//					input = "";
+//					readingInfo = new ArrayList<>();
+//					dStarInfo = null;
+//					unit = null;
+//					faultyChannel = new HashMap<>();
+//					channelValues = new HashMap<>();
+//					expectedValue = null;
+//					signalName = null;
+//					isAfterStep = true;
+//					faultySRU = null;
+//					stepAdded = false;
+//
+//					FaultySRUManagement f = new FaultySRUManagement();
+//					FaultSRUResponse res = f.getFaultySRUsByUutIdNEW(currentSessionDetails.getUutId(), filePath);
+//
+//					for (FaultySRUDto mysqlRecord : res.getFaultySRUs()) {
+//						String[] stepParts = mysqlRecord.getStep().split("=");
+//						String trimmedStep = stepParts.length > 1 ? stepParts[1].trim() : mysqlRecord.getStep().trim();
+//						if (trimmedStep.equals(step)) {
+//							faultySRU = mysqlRecord.getFaultySRU();
+//							break;
+//						}
+//					}
+//
+//				} else if (line.startsWith("Z>") && line.contains("Test plan file")) {
+//					testPlanFile = extractTestPlanFileName(line);
+//
+//				} else if (line.startsWith("Z>") && line.contains("Result data file")) {
+//					resultDataFile = extractResultDataFileName(line);
+//
+//				} else if (line.startsWith("S>") && !isAfterStep) {
+//					if (!line.contains("STEP") && !line.contains("opwait")) {
+//						// Always reset for new signal
+//						signalName = null;
+//
+//						// For The Deviation We Reset
+//						// expectedValue = null;
+//						signalName = extractSignalName(line);
+//						// expectedValue = extractExpectedValue(line);
+//
+//						String tempExpected = extractExpectedValue(line);
+//						if (tempExpected != null && !tempExpected.isBlank()) {
+//							expectedValue = tempExpected; // ✔ keep the last valid one
+//						}
+//
+//					}
+//					input += line.substring(3).trim() + "\n";
+//
+//				} else if (line.startsWith("S>") && isAfterStep) {
+//					if (line.contains("opwait"))
+//						continue;
+//					signalName = null;
+//					expectedValue = null;
+//					signalName = extractSignalName(line);
+//					// expectedValue = extractExpectedValue(line);
+//
+//					String tempExpected = extractExpectedValue(line);
+//					if (tempExpected != null && !tempExpected.isBlank()) {
+//						expectedValue = tempExpected; // ✔ keep the last valid one
+//					}
+//
+//					isAfterStep = false;
+//
+//				} else if (line.startsWith("D*>")) {
+//
+//					boolean waitedTimeFlag = false;
+//
+//					if (line.contains("diff(s)")) {
+//						dStarInfo = dStarSpecialExtractor(line);
+//					} else if (line.contains("Wait for condition timed out.")) {
+//						waitedTimeFlag = true;
+//
+//					} else {
+//						dStarInfo = line.substring(3).trim();
+//					}
+//
+//					if (waitedTimeFlag) {
+//
+//						unit = "";
+//						faultyChannel.put("CH1", "Wait for condition timed out.");
+//						faultyChannel.put("CH2", "Wait for condition timed out.");
+//						faultyChannel.put("CH3", "Wait for condition timed out.");
+//						faultyChannel.put("CH4", "Wait for condition timed out.");
+//						signalName = "Wait for condition timed out.";
+//						faultySRU = "CH1,CH2,CH3,CH4";
+//						rdfFileParser.setDStarFound(true);
+//						rdfFileParser.incrementDStarCount();
+//
+//						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+//								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName,
+//								faultySRU);
+//						stepList.add(stepDto);
+//						failedStepList.add(stepDto);
+//						stepAdded = true;
+//
+//					} else {
+//						unit = extractUnit(dStarInfo);
+//						faultyChannel = extractFaultyChannels(dStarInfo);
+//						rdfFileParser.setDStarFound(true);
+//						rdfFileParser.incrementDStarCount();
+//						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+//								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName,
+//								faultySRU);
+//						stepList.add(stepDto);
+//						failedStepList.add(stepDto);
+//						stepAdded = true;
+//					}
+//					// Reset only D* fields
+//					dStarInfo = null;
+//					unit = null;
+//					faultyChannel = new HashMap<>();
+//					expectedValue = null;
+//					signalName = null;
+//					faultySRU = null;
+//
+//				}
+//
+//				else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null
+//						&& !line.startsWith("R> Waited")) {
+//					if (line.startsWith("R>") && line.contains("(")) {
+//						channelValues = extractChannelsValues(line);
+//						readingInfo.add(line.substring(3).trim());
+//					} else if (line.startsWith("D>")) {
+//						readingInfo.add(line.substring(3).trim());
+//					}
+//
+//				} else if (line.contains("Parse Error")) {
+//					rdfFileParser.setParseFileError(true);
+//				}
+//
+//				if (line.startsWith("S>") && !isAfterStep && !line.contains("STEP")) {
+//					input += line.substring(3).trim() + "\n";
+//				}
+//			}
+//
+//			// Previous Final step if not already added
+//			if (!stepAdded && (step != null || dStarInfo != null)) {
+//				StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
+//						resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
+//				stepList.add(stepDto);
+//				if (dStarInfo != null)
+//					failedStepList.add(stepDto);
+//			}
+//
+//			return stepList;
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return stepList;
+//	}
 	
+	// ADDED ON 05-02-2026 For Input Memory Out Of Bound Exception
 	public static List<StepDto> parseStepContextNEW(String filePath) throws InterruptedException {
 	    List<StepDto> stepList = new ArrayList<>();
 	    List<StepDto> failedStepList = new ArrayList<>();
 	    String tpgph = null;
 	    String step = null;
-	    String input = "";
+
+	    // FIX: use StringBuilder instead of String
+	    StringBuilder inputBuilder = new StringBuilder(4096);
+
 	    List<String> readingInfo = new ArrayList<>();
 	    String dStarInfo = null;
 	    String testPlanFile = null;
 	    String resultDataFile = null;
 	    String unit = null;
 	    Map<String, String> faultyChannel = new HashMap<>();
-	    
-	    //Added For Deviation
+
+	    // Added For Deviation
 	    Map<String, String> channelValues = new HashMap<>();
 	    String expectedValue = null;
 	    String signalName = null;
 	    boolean isAfterStep = false;
 	    String faultySRU = null;
 	    boolean stepAdded = false;
-	    
-	    
 
 	    File file = new File(filePath);
-	 
-//	    System.out.println("Length Of File Before Wait  :"+file.length());
-//		if (file.exists()) {
-//			if (file.length() < 1) {
-//				Thread.sleep(5000);
-//				System.out.println("Length Of First Thread Sleep 1st :"+file.length());
-//			}
-//			
-//			if (file.length() < 1) {
-//				Thread.sleep(3000);
-//				System.out.println("Length Of Second  Thread Sleep 2nd :"+file.length());
-//			}
-//		}
-	    
-	  
 
-//	    System.out.println("Length Of File After Wait  :"+file.length());
-			    
 	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 	        String line;
 
 	        while ((line = reader.readLine()) != null) {
-	        	//System.out.println("--" + line);
+
 	            if (line.startsWith("S>") && line.contains("TPGPH")) {
+
 	                if (!stepAdded && (step != null || dStarInfo != null)) {
-	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                            resultDataFile, unit, faultyChannel, channelValues,expectedValue, signalName, faultySRU);
+	                    StepDto stepDto = createStepDto(
+	                            tpgph, step, inputBuilder.toString(), readingInfo, dStarInfo,
+	                            testPlanFile, resultDataFile, unit, faultyChannel,
+	                            channelValues, expectedValue, signalName, faultySRU
+	                    );
 	                    stepList.add(stepDto);
-	                    if (dStarInfo != null) failedStepList.add(stepDto);
+	                    if (dStarInfo != null)
+	                        failedStepList.add(stepDto);
 	                    stepAdded = true;
 	                }
 
 	                tpgph = extractTPGPH(line);
 	                step = null;
-	                input = "";
+	                inputBuilder.setLength(0); // RESET
 	                readingInfo = new ArrayList<>();
 	                dStarInfo = null;
 	                unit = null;
@@ -97,139 +323,212 @@ public class StepParser {
 	                faultySRU = null;
 	                stepAdded = false;
 
-	            } else if (line.startsWith("S>") && line.contains("STEP")) {
-	                if (!stepAdded && (step != null || dStarInfo != null)) {
-	                    StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                            resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
-	                    stepList.add(stepDto);
-	                    if (dStarInfo != null) failedStepList.add(stepDto);
-	                    stepAdded = true;
-	                }
+				} else if (line.startsWith("S>") && line.contains("STEP")) {
 
-	                step = extractStepNumber(line);
-	                input = "";
-	                readingInfo = new ArrayList<>();
-	                dStarInfo = null;
-	                unit = null;
-	                faultyChannel = new HashMap<>();
-	                channelValues = new HashMap<>();
-	                expectedValue = null;
-	                signalName = null;
-	                isAfterStep = true;
-	                faultySRU = null;
-	                stepAdded = false;
+					if (!stepAdded && (step != null || dStarInfo != null)) {
+						StepDto stepDto = createStepDto(tpgph, step, inputBuilder.toString(), readingInfo, dStarInfo,
+								testPlanFile, resultDataFile, unit, faultyChannel, channelValues, expectedValue,
+								signalName, faultySRU);
+						stepList.add(stepDto);
+						if (dStarInfo != null)
+							failedStepList.add(stepDto);
+						stepAdded = true;
+					}
 
-	                FaultySRUManagement f = new FaultySRUManagement();
-	                FaultSRUResponse res = f.getFaultySRUsByUutIdNEW(currentSessionDetails.getUutId(), filePath);
+					step = extractStepNumber(line);
+					inputBuilder.setLength(0); // RESET
+					readingInfo = new ArrayList<>();
+					dStarInfo = null;
+					unit = null;
+					faultyChannel = new HashMap<>();
+					channelValues = new HashMap<>();
+					expectedValue = null;
+					signalName = null;
+					isAfterStep = true;
+					faultySRU = null;
+					stepAdded = false;
 
-	                for (FaultySRUDto mysqlRecord : res.getFaultySRUs()) {
-	                    String[] stepParts = mysqlRecord.getStep().split("=");
-	                    String trimmedStep = stepParts.length > 1 ? stepParts[1].trim() : mysqlRecord.getStep().trim();
-	                    if (trimmedStep.equals(step)) {
-	                        faultySRU = mysqlRecord.getFaultySRU();
-	                        break;
-	                    }
-	                }
+					FaultySRUManagement f = new FaultySRUManagement();
+//	                FaultSRUResponse res = f.getFaultySRUsByUutIdNEW(
+//	                        currentSessionDetails.getUutId(), filePath
+//	                );
 
-	            } else if (line.startsWith("Z>") && line.contains("Test plan file")) {
+					FaultSRUResponse res = f.getFaultySRUsByUutIdAndStep(currentSessionDetails.getUutId(), step);
+					if (res.getResponseCode() == 1) {
+						faultySRU = "";
+					}
+
+//					System.out.println("FAULTY ::");
+					for (FaultySRUDto mysqlRecord : res.getFaultySRUs()) {
+						
+						String[] stepParts = mysqlRecord.getStep().split("=");
+						String trimmedStep = stepParts.length > 1 ? stepParts[1].trim() : mysqlRecord.getStep().trim();
+						if (trimmedStep.equals(step)) {
+							faultySRU = faultySRU + mysqlRecord.getFaultySRU() + ";";
+							//System.out.println("Faulty SRU"+faultySRU);
+						}
+					}
+
+				} else if (line.startsWith("Z>") && line.contains("Test plan file")) {
 	                testPlanFile = extractTestPlanFileName(line);
 
 	            } else if (line.startsWith("Z>") && line.contains("Result data file")) {
 	                resultDataFile = extractResultDataFileName(line);
 
 	            } else if (line.startsWith("S>") && !isAfterStep) {
+
 	                if (!line.contains("STEP") && !line.contains("opwait")) {
-	                    // Always reset for new signal
-	                    signalName = null;
-	                    
-	                   //For The Deviation We Reset 
-	                  //  expectedValue = null;
 	                    signalName = extractSignalName(line);
-	                   // expectedValue = extractExpectedValue(line);
-	                    
-	                    
+
 	                    String tempExpected = extractExpectedValue(line);
 	                    if (tempExpected != null && !tempExpected.isBlank()) {
-	                        expectedValue = tempExpected;  // ✔ keep the last valid one
+	                        expectedValue = tempExpected;
 	                    }
-	                    
-	                  
-	                    
 	                }
-	                input += line.substring(3).trim() + "\n";
+
+	                // FIX: safe append
+	                inputBuilder.append(line, 3, line.length()).append('\n');
 
 	            } else if (line.startsWith("S>") && isAfterStep) {
-	                if (line.contains("opwait")) continue;
-	                signalName = null;
-	                expectedValue = null;
+
+	                if (line.contains("opwait"))
+	                    continue;
+
 	                signalName = extractSignalName(line);
-	               // expectedValue = extractExpectedValue(line);
-	                
-	                
-                    String tempExpected = extractExpectedValue(line);
-                    if (tempExpected != null && !tempExpected.isBlank()) {
-                        expectedValue = tempExpected;  // ✔ keep the last valid one
-                    }
-	                
+	                expectedValue = null;
+
+	                String tempExpected = extractExpectedValue(line);
+	                if (tempExpected != null && !tempExpected.isBlank()) {
+	                    expectedValue = tempExpected;
+	                }
+
 	                isAfterStep = false;
 
-				} else if (line.startsWith("D*>")) {
+	            } else if (line.startsWith("D*>")) {
 
-					boolean waitedTimeFlag = false;
+	                boolean waitedTimeFlag = false;
 
-					if (line.contains("diff(s)")) {
-						dStarInfo = dStarSpecialExtractor(line);
-					} else if (line.contains("Wait for condition timed out.")) {
-						waitedTimeFlag = true;
+	                if (line.contains("diff(s)")) {
+	                    dStarInfo = dStarSpecialExtractor(line);
+	                } else if (line.contains("Wait for condition timed out.")) {
+	                    waitedTimeFlag = true;
+	                } else {
+	                    dStarInfo = line.substring(3).trim();
+	                }
 
-					} else {
-						dStarInfo = line.substring(3).trim();
-					}
+	                if (waitedTimeFlag) {
 
-					
+	                    unit = "";
+	                    faultyChannel.put("CH1", "Wait for condition timed out.");
+	                    faultyChannel.put("CH2", "Wait for condition timed out.");
+	                    faultyChannel.put("CH3", "Wait for condition timed out.");
+	                    faultyChannel.put("CH4", "Wait for condition timed out.");
+	                    signalName = "Wait for condition timed out.";
+	                    faultySRU = "CH1,CH2,CH3,CH4";
+	                    rdfFileParser.setDStarFound(true);
+	                    rdfFileParser.incrementDStarCount();
 
-					if (waitedTimeFlag) {
+	                } else {
+	                    unit = extractUnit(dStarInfo);
+	                    faultyChannel = extractFaultyChannels(dStarInfo);
+	                    rdfFileParser.setDStarFound(true);
+	                    rdfFileParser.incrementDStarCount();
+	                    //For Faulty Correction Mani Added - 25-03-2026
+//	                    System.out.println("DSTAR"+dStarInfo);
+//	                    System.out.println("FAULTY"+faultySRU);
+	                    
+	                    Map<String,String> faultyChannelsList = new LinkedHashMap<String,String>();
+	                    Matcher matcher = Pattern.compile("-?\\d+\\.\\d+").matcher(dStarInfo);
+	                    int inc = 1;
+	                    
+//						while (matcher.find()) {
+//							if (matcher.group().contains("*")) {
+//								faultyChannelsList.put("CH" + inc, matcher.group());
+//							}
+//							inc++;
+//						}
+						
+						String[]channelStars = dStarInfo.split(",");
+						for (int i = 0; i < channelStars.length; i++) {
+							
+							if (channelStars[i].contains("*") || channelStars[i].contains("offline")) {
+								faultyChannelsList.put("CH" +inc, channelStars[i]);
+							}
+							inc++;
+						}
+						
+						
+						
+	                    if(faultySRU!=null)
+						{
+							String[] faultySRUArr = faultySRU.split(";");
+							Map<String, String> faultyChannelValues = new HashMap<>();
+							for (int i = 0; i < faultySRUArr.length; i++) {
+								if (faultySRUArr[i].trim().contains("Ch1")) {
+									faultyChannelValues.put("CH1", faultySRUArr[i].trim());
+								}
+								if (faultySRUArr[i].trim().contains("Ch2")) {
+									faultyChannelValues.put("CH2", faultySRUArr[i].trim());
+								}
+								if (faultySRUArr[i].trim().contains("Ch3")) {
+									faultyChannelValues.put("CH3", faultySRUArr[i].trim());
+								}
+								if (faultySRUArr[i].trim().contains("Ch4")) {
+									faultyChannelValues.put("CH4", faultySRUArr[i].trim());
+								}
+							}
 
-						unit = "";
-						faultyChannel.put("CH1", "Wait for condition timed out.");
-						faultyChannel.put("CH2", "Wait for condition timed out.");
-						faultyChannel.put("CH3", "Wait for condition timed out.");
-						faultyChannel.put("CH4", "Wait for condition timed out.");
-						signalName = "Wait for condition timed out.";
-						faultySRU = "CH1,CH2,CH3,CH4";
-						rdfFileParser.setDStarFound(true);
-						rdfFileParser.incrementDStarCount();
+							String finalFaultySRU = "";
 
-						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
-						stepList.add(stepDto);
-						failedStepList.add(stepDto);
-						stepAdded = true;
+							for (String faultyChannels : faultyChannelsList.keySet()) {
+								if (faultyChannelValues.keySet().contains(faultyChannels))
+									finalFaultySRU = finalFaultySRU + faultyChannelValues.get(faultyChannels) + ";";
+							}
 
-					} else {
-						unit = extractUnit(dStarInfo);
-						faultyChannel = extractFaultyChannels(dStarInfo);
-						rdfFileParser.setDStarFound(true);
-						rdfFileParser.incrementDStarCount();
-						StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-								resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
-						stepList.add(stepDto);
-						failedStepList.add(stepDto);
-						stepAdded = true;
-					}
-					// Reset only D* fields
-					dStarInfo = null;
-					unit = null;
-					faultyChannel = new HashMap<>();
-					expectedValue = null;
-					signalName = null;
-					faultySRU = null;
+							faultySRU = finalFaultySRU;
+//							System.out.println("Final faulty SRU" + faultySRU);
 
-				}
-	            
-	            else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null && !line.startsWith("R> Waited")) {
+						}else
+						{
+							if (faultyChannelsList.keySet().size() > 0) {
+								String finalOfflineFaulty = "";
+								for (String f : faultyChannelsList.keySet()) {
+									if (faultyChannelsList.get(f).contains("offline")) {
+										finalOfflineFaulty = finalOfflineFaulty + f + ";";
+									}
+								}
+								faultySRU = "POWERSUPPLY DIGITAL" + finalOfflineFaulty;
+							}
+						}
+	                }
+	                
+	                
+	                
+	                
+	                
+	
+	                StepDto stepDto = createStepDto(
+	                        tpgph, step, inputBuilder.toString(), readingInfo, dStarInfo,
+	                        testPlanFile, resultDataFile, unit, faultyChannel,
+	                        channelValues, expectedValue, signalName, faultySRU
+	                );
+
+	                stepList.add(stepDto);
+	                failedStepList.add(stepDto);
+	                stepAdded = true;
+
+	                dStarInfo = null;
+	                unit = null;
+	                faultyChannel = new HashMap<>();
+	                expectedValue = null;
+	                signalName = null;
+	                faultySRU = null;
+
+	            } else if ((line.startsWith("D>") || line.startsWith("R>")) && step != null
+	                    && !line.startsWith("R> Waited")) {
+
 	                if (line.startsWith("R>") && line.contains("(")) {
-	                	channelValues = extractChannelsValues(line);
+	                    channelValues = extractChannelsValues(line);
 	                    readingInfo.add(line.substring(3).trim());
 	                } else if (line.startsWith("D>")) {
 	                    readingInfo.add(line.substring(3).trim());
@@ -238,21 +537,19 @@ public class StepParser {
 	            } else if (line.contains("Parse Error")) {
 	                rdfFileParser.setParseFileError(true);
 	            }
-
-	            if (line.startsWith("S>") && !isAfterStep && !line.contains("STEP")) {
-	                input += line.substring(3).trim() + "\n";
-	            }
 	        }
 
-	        //Previous Final step if not already added
 	        if (!stepAdded && (step != null || dStarInfo != null)) {
-	            StepDto stepDto = createStepDto(tpgph, step, input, readingInfo, dStarInfo, testPlanFile,
-	                    resultDataFile, unit, faultyChannel, channelValues, expectedValue, signalName, faultySRU);
+	            StepDto stepDto = createStepDto(
+	                    tpgph, step, inputBuilder.toString(), readingInfo, dStarInfo,
+	                    testPlanFile, resultDataFile, unit, faultyChannel,
+	                    channelValues, expectedValue, signalName, faultySRU
+	            );
 	            stepList.add(stepDto);
-	            if (dStarInfo != null) failedStepList.add(stepDto);
+	            if (dStarInfo != null)
+	                failedStepList.add(stepDto);
 	        }
-	        
-	        
+
 	        return stepList;
 
 	    } catch (IOException e) {
@@ -262,29 +559,24 @@ public class StepParser {
 	    return stepList;
 	}
 
-	
-	 
-	 
 	private static String dStarSpecialExtractor(String dStarInfo) {
-	    String res = "";
+		String res = "";
 
-	    // Match everything from the LAST opening '(' to its matching closing ')'
-	    Pattern pattern = Pattern.compile("\\((.*)\\)");
-	    Matcher matcher = pattern.matcher(dStarInfo);
+		// Match everything from the LAST opening '(' to its matching closing ')'
+		Pattern pattern = Pattern.compile("\\((.*)\\)");
+		Matcher matcher = pattern.matcher(dStarInfo);
 
-	    if (matcher.find()) {
-	        res = "(" + matcher.group(1) + ")";
-	        System.out.println("Extracted: " + res);
-	    } else {
-	        System.out.println("No match found.");
-	    }
+		if (matcher.find()) {
+			res = "(" + matcher.group(1) + ")";
+//			////System.out.println("Extracted: " + res);
+		} else {
+			////System.out.println("No match found.");
+		}
 
-	    return res;
+		return res;
 	}
 
-	
-	
-	//kindof
+	// kindof
 //	public static List<StepDto> parseStepContextNEW(String filePath) {
 //	    List<StepDto> stepList = new ArrayList<>();
 //	    List<StepDto> failedStepList = new ArrayList<>();
@@ -429,7 +721,7 @@ public class StepParser {
 //	            if (dStarInfo != null) failedStepList.add(stepDto);
 //	        }
 //
-//	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+//	        ////System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 //	        return stepList;
 //
 //	    } catch (IOException e) {
@@ -439,11 +731,7 @@ public class StepParser {
 //	    return stepList;
 //	}
 
-	
-	
-	
-	
-	//final 0
+	// final 0
 //	public static List<StepDto> parseStepContextNEW(String filePath) {
 //	    List<StepDto> stepList = new ArrayList<>();
 //	    List<StepDto> failedStepList = new ArrayList<>();
@@ -578,7 +866,7 @@ public class StepParser {
 //	            if (dStarInfo != null) failedStepList.add(stepDto);
 //	        }
 //
-//	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+//	        ////System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 //	        return stepList;
 //
 //	    } catch (IOException e) {
@@ -588,9 +876,7 @@ public class StepParser {
 //	    return stepList;
 //	}
 
-	
-	
-	//Last Git
+	// Last Git
 //	public static List<StepDto> parseStepContextNEW(String filePath) {
 //	    List<StepDto> stepList = new ArrayList<>();
 //	    List<StepDto> failedStepList = new ArrayList<>();
@@ -746,7 +1032,7 @@ public class StepParser {
 //	            }
 //	        }
 //
-//	        System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
+//	        ////System.out.println("DStar Count:----->>> " + rdfFileParser.getDStarCount());
 //
 //	        return stepList;
 //
@@ -756,16 +1042,6 @@ public class StepParser {
 //
 //	    return stepList;
 //	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 //	public static List<StepDto> parseStepContext(String filePath) {
 //	    List<StepDto> stepList = new ArrayList<>();
@@ -902,70 +1178,71 @@ public class StepParser {
 //	    return stepList;
 //	}
 
-	private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo, String dStarInfo, String testPlanFile, String resultDataFile, String unit, Map<String, String> faultyChannel,Map<String, String> channelValues ,String expectedValue, String signalName,String faultySRU) {
-	    StepDto stepDto = new StepDto();
-	    stepDto.setTpgph(tpgph);
-	    stepDto.setStep(step);
-	    stepDto.setInput(input);
-	    stepDto.setReadingInfo(readingInfo != null ? readingInfo : new ArrayList<>()); // Initialize if null
-	    stepDto.setdStarInfo(dStarInfo);
-	    stepDto.setTestPlanFile(testPlanFile);
-	    stepDto.setResultDataFile(resultDataFile);
-	    stepDto.setUnit(unit);
-	    stepDto.setFaultyChannel(faultyChannel != null ? faultyChannel : new HashMap<>()); // Initialize if null
-	    stepDto.setChannelValues(channelValues);
-	    stepDto.setExpectedValue(expectedValue);
-	    stepDto.setSignalName(signalName);
-	    stepDto.setFaultySRU(faultySRU);
-	    return stepDto;
+	private static StepDto createStepDto(String tpgph, String step, String input, List<String> readingInfo,
+			String dStarInfo, String testPlanFile, String resultDataFile, String unit,
+			Map<String, String> faultyChannel, Map<String, String> channelValues, String expectedValue,
+			String signalName, String faultySRU) {
+		StepDto stepDto = new StepDto();
+		stepDto.setTpgph(tpgph);
+		stepDto.setStep(step);
+		stepDto.setInput(input);
+		stepDto.setReadingInfo(readingInfo != null ? readingInfo : new ArrayList<>()); // Initialize if null
+		stepDto.setdStarInfo(dStarInfo);
+		stepDto.setTestPlanFile(testPlanFile);
+		stepDto.setResultDataFile(resultDataFile);
+		stepDto.setUnit(unit);
+		stepDto.setFaultyChannel(faultyChannel != null ? faultyChannel : new HashMap<>()); // Initialize if null
+		stepDto.setChannelValues(channelValues);
+		stepDto.setExpectedValue(expectedValue);
+		stepDto.setSignalName(signalName);
+		stepDto.setFaultySRU(faultySRU);
+		return stepDto;
 	}
 
-    private static String extractTestPlanFileName(String line) {
-        String[] parts = line.split(":");
-        if (parts.length >= 2) {
-            return parts[1].trim();
-        }
-        return null;
-    }
+	private static String extractTestPlanFileName(String line) {
+		String[] parts = line.split(":");
+		if (parts.length >= 2) {
+			return parts[1].trim();
+		}
+		return null;
+	}
 
-    private static String extractResultDataFileName(String line) {
-        String[] parts = line.split(":");
-        if (parts.length >= 2) {
-            return parts[1].trim();
-        }
-        return null;
-    }
+	private static String extractResultDataFileName(String line) {
+		String[] parts = line.split(":");
+		if (parts.length >= 2) {
+			return parts[1].trim();
+		}
+		return null;
+	}
 
-    private static String extractStepNumber(String line) {
-        String[] parts = line.split("=");
-        if (parts.length >= 2) {
-            return parts[1].trim();
-        }
-        return null;
-    }
+	private static String extractStepNumber(String line) {
+		String[] parts = line.split("=");
+		if (parts.length >= 2) {
+			return parts[1].trim();
+		}
+		return null;
+	}
 
-    private static String extractTPGPH(String line) {
-        String[] parts = line.split("=");
-        if (parts.length >= 2) {
-            return parts[1].trim();
-        }
-        return null;
-    }
-    
-    private static String extractUnit(String line) {
-        int lastParenIndex = line.lastIndexOf(')');
-        if (lastParenIndex != -1 && lastParenIndex < line.length() - 1) {
-            return line.substring(lastParenIndex + 1).trim();
-        }
-        return null;
-    }
-    
-    private static List<String> extractChannelValues(String input) {
-        List<String> channelValues = new ArrayList<>();
-        
-        
-        if(input.contains("diff(s)"))
-		{
+	private static String extractTPGPH(String line) {
+		String[] parts = line.split("=");
+		if (parts.length >= 2) {
+			return parts[1].trim();
+		}
+		return null;
+	}
+
+	private static String extractUnit(String line) {
+		int lastParenIndex = line.lastIndexOf(')');
+		if (lastParenIndex != -1 && lastParenIndex < line.length() - 1) {
+			return line.substring(lastParenIndex + 1).trim();
+		}
+		return null;
+	}
+
+	private static List<String> extractChannelValues(String input) {
+		List<String> channelValues = new ArrayList<>();
+
+		if (input.contains("diff(s)")) {
 
 			// Remove parentheses
 			input = input.replaceAll("[()]", "");
@@ -981,186 +1258,196 @@ public class StepParser {
 			return channelValues;
 		}
 
-        Pattern pattern = Pattern.compile("\\((.*?)\\)");
-        Matcher matcher = pattern.matcher(input);
-        if (matcher.find()) {
-            String channels = matcher.group(1);
-            String[] channelArray = channels.split(",\\s*");
-            
-            //For Other Pass Fail Case
-            System.out.println("Channels String"+channels);
-            System.out.println("Channels Array"+Arrays.toString(channelArray));
+		Pattern pattern = Pattern.compile("\\((.*?)\\)");
+		Matcher matcher = pattern.matcher(input);
+		if (matcher.find()) {
+			String channels = matcher.group(1);
+			String[] channelArray = channels.split(",\\s*");
 
-            for (String value : channelArray) {
-                String cleanedValue = value.trim().replace("*", "").trim(); // Remove asterisk and trim
-                channelValues.add(cleanedValue);
-            }
-        }
-        return channelValues;
-    }
+			// For Other Pass Fail Case
+//			////System.out.println("Channels String" + channels);
+//			////System.out.println("Channels Array" + Arrays.toString(channelArray));
 
-    //For Deviation 
-    public static Map<String, String> extractChannelsValues(String input) {
-        Map<String, String> extractedChannels = new LinkedHashMap<>();
+			for (String value : channelArray) {
+				String cleanedValue = value.trim().replace("*", "").trim(); // Remove asterisk and trim
+				channelValues.add(cleanedValue);
+			}
+		}
+		return channelValues;
+	}
 
-        if (input != null) {
+	// For Deviation
+	public static Map<String, String> extractChannelsValues(String input) {
+		Map<String, String> extractedChannels = new LinkedHashMap<>();
 
-            // Regex to extract content inside parentheses
-            Pattern pattern = Pattern.compile("\\(([^)]*)\\)");
-            Matcher matcher = pattern.matcher(input);
+		if (input != null) {
 
-            if (matcher.find()) {
-                String inside = matcher.group(1);  // e.g. "-2.2, -2.197, -2.17, -2.183"
+			// Regex to extract content inside parentheses
+			Pattern pattern = Pattern.compile("\\(([^)]*)\\)");
+			Matcher matcher = pattern.matcher(input);
 
-                // Split by comma
-                String[] values = inside.split(",");
+			if (matcher.find()) {
+				String inside = matcher.group(1); // e.g. "-2.2, -2.197, -2.17, -2.183"
 
-                // Store up to 4 channel values
-                for (int i = 0; i < values.length && i < 4; i++) {
-                    extractedChannels.put("channel" + (i + 1), values[i].trim());
-                }
+				// Split by comma
+				String[] values = inside.split(",");
 
-                // Pad with empty values if fewer than 4 found
-                while (extractedChannels.size() < 4) {
-                    int index = extractedChannels.size() + 1;
-                    extractedChannels.put("channel" + index, "");
-                }
-            }
-        }
+				// Store up to 4 channel values
+				for (int i = 0; i < values.length && i < 4; i++) {
+					extractedChannels.put("channel" + (i + 1), values[i].trim());
+				}
 
-        return extractedChannels;
-    }
+				// Pad with empty values if fewer than 4 found
+				while (extractedChannels.size() < 4) {
+					int index = extractedChannels.size() + 1;
+					extractedChannels.put("channel" + index, "");
+				}
+			}
+		}
 
-    
-    public static Map<String, String> extractFaultyChannels(String dStarInfo) {
-        Map<String, String> extractedChannels = new LinkedHashMap<>();
+		return extractedChannels;
+	}
 
-        if (dStarInfo != null) {
-            List<String> channelValues = extractChannelValues(dStarInfo);
+	public static Map<String, String> extractFaultyChannels(String dStarInfo) {
+		Map<String, String> extractedChannels = new LinkedHashMap<>();
 
-            // If exactly 4 values are found, store them directly
-            if (channelValues.size() == 4) {
-                for (int i = 0; i < 4; i++) {
-                    extractedChannels.put("Channel" + (i + 1), channelValues.get(i));
-                }
-            } else {
-                // If there are not exactly 4 values, look for the "diff(s)" pattern
-                Pattern diffPattern = Pattern.compile("\\(\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*\\)");
-                Matcher diffMatcher = diffPattern.matcher(dStarInfo);
-                if (diffMatcher.find()) {
-                    for (int i = 0; i < 4; i++) {
-                        String diffValue = diffMatcher.group(i + 1);
-                        extractedChannels.put("Channel" + (i + 1), diffValue);
-                    }
-                }
-            }
-        }
-        return extractedChannels;
-    }
-    
-    private static String extractSignalName(String line) {
-        line = line.substring(3).trim();
+		if (dStarInfo != null) {
+			List<String> channelValues = extractChannelValues(dStarInfo);
 
-        int symbolIndex = line.indexOf('<');
-        if (symbolIndex == -1) symbolIndex = line.indexOf('>');
-        if (symbolIndex == -1) symbolIndex = line.indexOf("<=");
-        if (symbolIndex == -1) symbolIndex = line.indexOf(">=");
-        if (symbolIndex == -1) symbolIndex = line.indexOf("=");
+			// If exactly 4 values are found, store them directly
+			if (channelValues.size() == 4) {
+				for (int i = 0; i < 4; i++) {
+					extractedChannels.put("Channel" + (i + 1), channelValues.get(i));
+				}
+			} else {
+				// If there are not exactly 4 values, look for the "diff(s)" pattern
+				Pattern diffPattern = Pattern.compile(
+						"\\(\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*,\\s*(\\d+ diff\\(s\\))\\s*\\)");
+				Matcher diffMatcher = diffPattern.matcher(dStarInfo);
+				if (diffMatcher.find()) {
+					for (int i = 0; i < 4; i++) {
+						String diffValue = diffMatcher.group(i + 1);
+						extractedChannels.put("Channel" + (i + 1), diffValue);
+					}
+				}
+			}
+		}
+		return extractedChannels;
+	}
 
-        String signalName = null;
-        if (symbolIndex != -1) {
-            signalName = line.substring(0, symbolIndex).trim();
-        }
+	private static String extractSignalName(String line) {
+		
+		if (line.contains("S> ADBUF_RAM_STARTV")) {
+			// String extracted = line.replaceAll(".*(!.*)$", "$1");
 
-        int exclamationIndex = line.indexOf('!');
-        if (exclamationIndex != -1) {
-            String additionalName = line.substring(exclamationIndex + 1).trim();
-            if (!additionalName.isEmpty()) {
-                signalName = additionalName;
-            }
-        }
+			String extracted = line.replaceAll(".*(!.*)$", "$1").replaceFirst("^!", "");
+			////System.out.println(extracted);
+			adbuf_ram_startv_signalName = extracted;
+		}
 
-        return signalName;
-    }
+		line = line.substring(3).trim();
 
-    
-    private static String extractExpectedValue(String line) {
-        line = line.substring(3).trim();
+		int symbolIndex = line.indexOf('<');
+		if (symbolIndex == -1)
+			symbolIndex = line.indexOf('>');
+		if (symbolIndex == -1)
+			symbolIndex = line.indexOf("<=");
+		if (symbolIndex == -1)
+			symbolIndex = line.indexOf(">=");
+		if (symbolIndex == -1)
+			symbolIndex = line.indexOf("=");
 
-        int separatorIndex = -1;
+		String signalName = null;
+		if (symbolIndex != -1) {
+			signalName = line.substring(0, symbolIndex).trim();
+		}
 
-        if (line.contains("<=")) {
-            separatorIndex = line.indexOf("<=");
-        } else if (line.contains(">=")) {
-            separatorIndex = line.indexOf(">=");
-        } else if (line.contains("<")) {
-            int lessThanIndex = line.indexOf("<");
-            if (lessThanIndex != 0 && lessThanIndex != line.length() - 1 &&
-                line.charAt(lessThanIndex - 1) != '=') {
-                separatorIndex = lessThanIndex;
-            }
-        } else if (line.contains(">")) {
-            int greaterThanIndex = line.indexOf(">");
-            if (greaterThanIndex != 0 && greaterThanIndex != line.length() - 1 &&
-                line.charAt(greaterThanIndex - 1) != '=') {
-                separatorIndex = greaterThanIndex;
-            }
-        } else if (line.contains("=")) {
-            int equalsIndex = line.indexOf("=");
-            if (equalsIndex != 0 && equalsIndex != line.length() - 1 &&
-                line.charAt(equalsIndex - 1) != '<' && line.charAt(equalsIndex - 1) != '>') {
-                separatorIndex = equalsIndex;
-            }
-        }
+		int exclamationIndex = line.indexOf('!');
+		if (exclamationIndex != -1) {
+			String additionalName = line.substring(exclamationIndex + 1).trim();
+			if (!additionalName.isEmpty()) {
+				signalName = additionalName;
+			}
+		}
+		if (signalName != null) {
+			if (signalName.contains("adbuf_ram_startv")) {
+				signalName = adbuf_ram_startv_signalName;
+				adbuf_ram_startv_signalName_flag = true;
+//				//System.out.println("ADBUF "+signalName);
+			}
+		}
 
-        int questionIndex = line.indexOf('?');
+		return signalName;
+	}
 
-        if (separatorIndex != -1 && questionIndex != -1 && separatorIndex < questionIndex) {
-            return line.substring(separatorIndex + 1, questionIndex).trim().replaceAll("[=<>]", "");
-        }
+	private static String extractExpectedValue(String line) {
+		line = line.substring(3).trim();
 
+		int separatorIndex = -1;
 
-        return null;
-    }
+		if (line.contains("<=")) {
+			separatorIndex = line.indexOf("<=");
+		} else if (line.contains(">=")) {
+			separatorIndex = line.indexOf(">=");
+		} else if (line.contains("<")) {
+			int lessThanIndex = line.indexOf("<");
+			if (lessThanIndex != 0 && lessThanIndex != line.length() - 1 && line.charAt(lessThanIndex - 1) != '=') {
+				separatorIndex = lessThanIndex;
+			}
+		} else if (line.contains(">")) {
+			int greaterThanIndex = line.indexOf(">");
+			if (greaterThanIndex != 0 && greaterThanIndex != line.length() - 1
+					&& line.charAt(greaterThanIndex - 1) != '=') {
+				separatorIndex = greaterThanIndex;
+			}
+		} else if (line.contains("=")) {
+			int equalsIndex = line.indexOf("=");
+			if (equalsIndex != 0 && equalsIndex != line.length() - 1 && line.charAt(equalsIndex - 1) != '<'
+					&& line.charAt(equalsIndex - 1) != '>') {
+				separatorIndex = equalsIndex;
+			}
+		}
 
+		int questionIndex = line.indexOf('?');
 
+		if (separatorIndex != -1 && questionIndex != -1 && separatorIndex < questionIndex) {
+			return line.substring(separatorIndex + 1, questionIndex).trim().replaceAll("[=<>]", "");
+		}
 
-    //File Wait Process
-    public static void waitForFileRelease(File file, int checkIntervalMillis) {
-        boolean fileInUse = true;
+		return null;
+	}
 
-        while (fileInUse) {
-            try (RandomAccessFile raf = new RandomAccessFile(file, "rw");
-                 FileChannel channel = raf.getChannel();
-                 FileLock lock = channel.tryLock()) {
+	// File Wait Process
+	public static void waitForFileRelease(File file, int checkIntervalMillis) {
+		boolean fileInUse = true;
 
-                if (lock != null) {
-                    // Lock acquired - file is free
-                    fileInUse = false;
-                    lock.release(); // Always release the lock
-                }
+		while (fileInUse) {
+			try (RandomAccessFile raf = new RandomAccessFile(file, "rw");
+					FileChannel channel = raf.getChannel();
+					FileLock lock = channel.tryLock()) {
 
-            } catch (Exception e) {
-                // Lock not available - file is still in use
-            }
+				if (lock != null) {
+					// Lock acquired - file is free
+					fileInUse = false;
+					lock.release(); // Always release the lock
+				}
 
-            if (fileInUse) {
-                try {
-                    Thread.sleep(checkIntervalMillis); // Wait before retrying
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-//                    System.out.println("Interrupted while waiting for file release.");
-                    break;
-                }
-            }
-        }
+			} catch (Exception e) {
+				// Lock not available - file is still in use
+			}
 
-//        System.out.println("File is now free to use.");
-    }
+			if (fileInUse) {
+				try {
+					Thread.sleep(checkIntervalMillis); // Wait before retrying
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+//                    ////System.out.println("Interrupted while waiting for file release.");
+					break;
+				}
+			}
+		}
 
-
-
+//        ////System.out.println("File is now free to use.");
+	}
 
 }
-
-

@@ -40,7 +40,7 @@ public class BuildConfigurationReport {
 	static String currentDirectory = new File(
 			ReportGeneration.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 
-	public Response generateBuildConfigurationReport(String sNo, String date, String versionName, String unit)
+	public Response generateBuildConfigurationReport(String uutType, String sNo, String date, String versionName, String unit, String lastUpDatedDate)
 			throws DocumentException, MalformedURLException, IOException {
 
 		Response res = new Response();
@@ -221,7 +221,7 @@ public class BuildConfigurationReport {
 
 		PdfPCell cell1 = new PdfPCell(new Phrase("Serial No : " + sNo, fontMin));
 		PdfPCell cell2 = new PdfPCell(new Phrase("Version : " + versionName, fontMin));
-		PdfPCell cell3 = new PdfPCell(new Phrase("Date : " + date, fontMin));
+		PdfPCell cell3 = new PdfPCell(new Phrase("Date : " + lastUpDatedDate, fontMin));
 
 		// Remove borders
 		cell1.setBorder(Rectangle.NO_BORDER);
@@ -277,7 +277,7 @@ public class BuildConfigurationReport {
 
 		BuildConfigurationManagement bcm = new BuildConfigurationManagement();
 		BuildConfiguration buildConfig = new BuildConfiguration();
-		buildConfig = bcm.getBuildConfiguration(sNo, versionName);
+		buildConfig = bcm.getBuildConfiguration(uutType, sNo, versionName);
 
 		// Example rows — replace with your actual data loop
 		String[][] buildConfigurationdata = {

@@ -11,6 +11,7 @@ public class ResultExecutionDTO {
 	private String testFileName;
 	private String stageId;
 	private String sessionId;
+	private String sessionSerialNo;
 	private String systemInfoId;
 	private String testMode;
 	
@@ -94,6 +95,12 @@ public class ResultExecutionDTO {
 	}
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
+	}
+	public String getSessionSerialNo() {
+		return sessionSerialNo;
+	}
+	public void setSessionSerialNo(String sessionSerialNo) {
+		this.sessionSerialNo = sessionSerialNo;
 	}
 	
 	

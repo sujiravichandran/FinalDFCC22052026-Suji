@@ -1,6 +1,8 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -12,6 +14,7 @@ import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.model.BriefData;
 import com.teclever.dfcc.model.DetailedData;
+import com.teclever.dfcc.model.SessionData;
 import com.teclever.dfcc.reportgeneration.ReportGeneration;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.resultstore.dto.ResultDetailedDTO;
@@ -84,12 +87,15 @@ public class CurrentStageResultController {
 	private StackPane detailedDataStackPane = new StackPane();
 
 	private TableViewFactory<BriefData> briefDataFactory = new BriefDataTableViewFactory();
-	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
+	
 
 	private ObservableList<BriefData> briefDataList = FXCollections.observableArrayList();
-	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
+	
 
 	private CustomTableView<BriefData> briefDataTableView;
+	
+	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
+	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
 	private CustomTableView<DetailedData> detailedDataTableView;
 
 	private String currentTab = "tab1";
@@ -99,10 +105,29 @@ public class CurrentStageResultController {
 
 	private String SESSION_ID;
 	private String STAGE_ID;
+//	Changed by Vignesh 31-07-25 for showing stage name in result page
+	private String STAGE_NAME;
+	private HBox stageTitleBox = new HBox();
+	private Label stageTitle = new Label();
 
-	public GridPane createCurrentExecutionResultGridPane(String sessionId, String stageId) {
+//	Changed by Vignesh 31-07-25 for showing stage name in result page
+	public GridPane createCurrentExecutionResultGridPane(String sessionId, SessionData rowData) {
 		SESSION_ID = sessionId;
-		STAGE_ID = stageId;
+//		SUJI ADDED for Rowdata null value ::
+		if (rowData != null) {
+			STAGE_ID = rowData.getId();
+			DFCCConstant.resultStageType =rowData.getSessionType();
+			DFCCConstant.resultEndTime = rowData.getEndTime();
+			DFCCConstant.resultStartTime = rowData.getStartTime();
+			STAGE_NAME = rowData.getStage();
+		} else {
+		    Notifications.showErrorAlert("Please Select a Stage in Session Result");
+		}
+		
+		
+		
+//		////System.out.println("CURRENT STAGE ID"+STAGE_ID);
+		
 
 		currentExecutionResultGridPane.getStylesheets()
 				.add(getClass()
@@ -129,15 +154,19 @@ public class CurrentStageResultController {
 
 	private GridPane createHeadingBox() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
+		firstColumn.setPercentWidth(30);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
+		secondColumn.setPercentWidth(40);
+
+//		Changed by Vignesh 31-07-25 for showing stage name in result page
+		ColumnConstraints thirdColumn = new ColumnConstraints();
+		thirdColumn.setPercentWidth(30);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		currentExecutionResultHeadingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
 		currentExecutionResultHeadingGridPane.getRowConstraints().addAll(firstRow);
 
 		titleBox.setAlignment(Pos.CENTER_LEFT);
@@ -145,8 +174,15 @@ public class CurrentStageResultController {
 		title.getStyleClass().add("current-execution-result-title");
 		titleBox.getChildren().add(title);
 
+//		Changed by Vignesh 31-07-25 for showing stage name in result page
+		stageTitleBox.setAlignment(Pos.CENTER);
+		stageTitle.setText(STAGE_NAME);
+		stageTitle.getStyleClass().add("current-execution-result-title");
+		stageTitleBox.getChildren().add(stageTitle);
+
 		currentExecutionResultHeadingGridPane.add(titleBox, 0, 0);
-		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 1, 0);
+		currentExecutionResultHeadingGridPane.add(stageTitleBox, 1, 0);
+		currentExecutionResultHeadingGridPane.add(createDownloadButton(), 2, 0);
 
 		return currentExecutionResultHeadingGridPane;
 	}
@@ -293,48 +329,91 @@ public class CurrentStageResultController {
 		currentExecutionResultTabsGridPane.add(createCurrentExecutionResultTabs(), 0, 0);
 		return currentExecutionResultTabsGridPane;
 	}
-
+	
+//	Added for Detailed Data is populating 2 time to avoid newly changed by SUJI on16-07-2025:::Using flag i have done it
+	private boolean detailedTabLoaded = false;
 	private TabPane createCurrentExecutionResultTabs() {
-		Tab tab1 = new Tab("Brief Data");
-		Tab tab2 = new Tab("Detailed Data");
+	    Tab tab1 = new Tab("Brief Data");
+	    Tab tab2 = new Tab("Detailed Data");
 
-		StackPane tab2StackPane = createTab2Content();
-		StackPane tab1StackPane = createTab1Content();
+	    StackPane tab1StackPane = createTab1Content();
+	    tab1.setContent(tab1StackPane);
+	    tab1.setClosable(false);
 
-		tab1.setContent(tab1StackPane);
-		tab1.setClosable(false);
+	    tab2.setClosable(false); // ❗ Do not load tab2 content yet
 
-		tab2.setContent(tab2StackPane);
-		tab2.setClosable(false);
+	    currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
 
-		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+	    currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+	        ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+	        ApplicationLogBookDto applicationLogBookDto;
 
-		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-			if (newTab == tab2) {
-				createTab2Content();
-				currentTab = "tab2";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Detailed data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			} else {
-				createTab1Content();
-				currentTab = "tab1";
-				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
-				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
-						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
-						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
-						"clicked on Brief data button");
-				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
-			}
-		});
+	        if (newTab == tab2) {
+	            currentTab = "tab2";
+	            if (!detailedTabLoaded) {
+	                StackPane tab2StackPane = createTab2Content();  // ❗ Now we call it
+	                tab2.setContent(tab2StackPane);
+	                detailedTabLoaded = true;
+	            }
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Detailed data button");
+	        } else {
+	            currentTab = "tab1";
+	            applicationLogBookDto = new ApplicationLogBookDto(
+	                currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+	                currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+	                "clicked on Brief data button");
+	        }
 
-//		createTab1Content();
+	        appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+	    });
 
-		return currentExecutionResultTabPane;
+	    return currentExecutionResultTabPane;
 	}
+
+//	private TabPane createCurrentExecutionResultTabs() {
+//		Tab tab1 = new Tab("Brief Data");
+//		Tab tab2 = new Tab("Detailed Data");
+//
+//		StackPane tab2StackPane = createTab2Content();
+//		StackPane tab1StackPane = createTab1Content();
+//
+//		tab1.setContent(tab1StackPane);
+//		tab1.setClosable(false);
+//
+//		tab2.setContent(tab2StackPane);
+//		tab2.setClosable(false);
+//
+//		currentExecutionResultTabPane.getTabs().addAll(tab1, tab2);
+//
+//		currentExecutionResultTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+//			if (newTab == tab2) {
+//				createTab2Content();
+//				currentTab = "tab2";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Detailed data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			} else {
+//				createTab1Content();
+//				currentTab = "tab1";
+//				ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
+//				ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
+//						currentSessionDetails.getUutId(), currentSessionDetails.getDfccSerialNumber(),
+//						currentSessionDetails.getSessionId(), StateMachine.getCurrentUserLogin(), new Date(),
+//						"clicked on Brief data button");
+//				appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
+//			}
+//		});
+//
+////		createTab1Content();
+//
+//		return currentExecutionResultTabPane;
+//	}
 
 	private StackPane createTab1Content() {
 		briefDataStackPane.getStyleClass().add("tab-content-container");
@@ -397,14 +476,27 @@ public class CurrentStageResultController {
 				newBriefData.setSlNo(String.valueOf(i));
 				newBriefData.setExecutedFileName(data.getRdfFile());
 				newBriefData.setTimeOfExecution(data.getEndTime());
+				//changed by sai 11112025
+				if(data.getEndTime()!=null) {
+					try {
+					SimpleDateFormat dbForm=new SimpleDateFormat("E dd MMM yyyy HH:mm:ss",Locale.ENGLISH);
+					SimpleDateFormat displayForm=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+					Date parseDate=dbForm.parse(data.getEndTime());
+					String formatTime=displayForm.format(parseDate);
+					newBriefData.setTimeOfExecution(formatTime);
+					}catch(Exception e){
+						newBriefData.setTimeOfExecution("invalid date");
+						e.printStackTrace();
+					}
+				}
 				newBriefData.setResult(data.getStatus());
 				
-//				if (!data.getStatus().equals("SUCCESS")) {
-//
-//					newBriefData.setResult("FAIL");
-//				} else {
-//					newBriefData.setResult("PASS");
-//				}
+				if (!data.getStatus().equals("SUCCESS")) {
+
+					newBriefData.setResult("FAIL");
+				} else {
+					newBriefData.setResult("PASS");
+				}
 				
 				
 				newBriefData.setTestMode(data.getTestMode());
@@ -422,7 +514,37 @@ public class CurrentStageResultController {
 		
 		
 		briefDataTableView.getColumns().forEach(column -> {
-			column.setMinWidth(column.getText().length() * 18);
+//			column.setMinWidth(column.getText().length() * 14);
+			String colNamne=column.getText();
+//			////System.out.println(colNamne);
+			switch (colNamne) {
+			case "SL NO":
+				column.setMinWidth(100);
+				column.setMaxWidth(100);
+				break;
+			case "TEST MODE":
+				column.setMinWidth(320);
+				column.setMaxWidth(320);
+				break;
+			case "EXECUTED FILE NAME":
+				column.setMinWidth(420);
+				column.setMaxWidth(420);
+				break;
+			case "TIME OF EXECUTION":
+				column.setMinWidth(260);
+				column.setMaxWidth(260);
+				break;
+			case "RESULT":
+				column.setMinWidth(120);
+				column.setMaxWidth(120);
+				break;
+
+
+			default:
+//				column.setMinWidth(120);
+//				column.setMaxWidth(120);
+				break;
+			}
 			updateBriefData((TableColumn<BriefData, String>) column);
 		});
 
@@ -511,7 +633,13 @@ public class CurrentStageResultController {
 				} else {
 					if (label == null) {
 						label = new Label();
-						label.setWrapText(false);
+//						SAI CHANGED FOR RESULT TAB
+						if ("TEST MODE".equalsIgnoreCase(column.getText())||"EXECUTED FILE NAME".equalsIgnoreCase(column.getText())) {
+							label.setWrapText(true);
+						}else {
+							label.setWrapText(false);
+						}
+//						label.setWrapText(false);
 						label.setAlignment(Pos.CENTER);
 						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 						setStyle("-fx-alignment: CENTER;");
@@ -527,10 +655,10 @@ public class CurrentStageResultController {
 					label.setStyle("-fx-text-fill: #000000; ");
 	                }
 
-					label.setMinWidth(label.getText().length() * 18);
+//					label.setMinWidth(label.getText().length() * 18);
 					setGraphic(label);
-					this.setMinWidth(label.getText().length() * 18);
-					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
+//					this.setMinWidth(label.getText().length() * 18);
+//					col.setMinWidth(Math.max(col.getMinWidth(), label.getMinWidth()));
 				}
 			}
 		});
@@ -549,6 +677,8 @@ public class CurrentStageResultController {
 		        @Override
 		        protected Void call() throws Exception {
 		ResultDetailedResponse response = new ResultDetailedResponse();
+		
+		////System.out.println("Check in Stage Result :: "+SESSION_ID + " stage:" +  STAGE_ID);
 		
 		if (STAGE_ID != null && SESSION_ID != null) {
 			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);

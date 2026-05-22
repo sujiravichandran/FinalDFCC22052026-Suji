@@ -85,9 +85,17 @@ public class Aitess2ConfigManagement {
 					break;
 
 				case "OFPversion":
-					dfccCheckStatus.setOfpVersionStatusCommand(dfccStatusCommand.getCommand());
-					Debug.printDebug(dfccCheckStatus.getOfpVersionStatusCommand());
+					dfccCheckStatus.setOfpVersionStatusCommandMk1(dfccStatusCommand.getCommand());
+//					System.out.println("Suji Aitess 2 Config Check OFP Command::" + dfccStatusCommand.getCommand());
+//					System.out.println("Suji Aitess 2 Config Check OFP Command 6666::" + dfccCheckStatus.getOfpVersionStatusCommandMk1());
+					Debug.printDebug(dfccCheckStatus.getOfpVersionStatusCommandMk1());
 					break;
+				case "OFPversions":
+					dfccCheckStatus.setOfpVersionStatusCommandMk1A(dfccStatusCommand.getCommand());
+					////System.out.println("Check OFP Command::MK1a" + dfccStatusCommand.getCommand());
+					Debug.printDebug(dfccCheckStatus.getOfpVersionStatusCommandMk1A());
+					break;
+					
 				case "WDMversion":
 					dfccCheckStatus.setWdmStatusCommand(dfccStatusCommand.getCommand());
 					Debug.printDebug(dfccCheckStatus.getWdmStatusCommand());

@@ -9,8 +9,11 @@ import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import com.itextpdf.text.DocumentException;
@@ -20,10 +23,12 @@ import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
+import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SystemConfigManagement;
 import com.teclever.dfcc.datastore.logbookmanagement.ApplicationLogbookManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
-import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
+import com.teclever.dfcc.resultstore.dto.StepDto;
+import com.teclever.dfcc.resultstore.resultmanagement.StepParser;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
@@ -54,8 +59,8 @@ public class Main extends Application {
 	}
 	static String currentDirectory = new File(
 			SystemConfigManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
-	
-	public static void main(String[] args) throws MalformedURLException, DocumentException, IOException {
+
+	public static void main(String[] args) throws MalformedURLException, DocumentException, IOException, ParseException, InterruptedException {
 		String driverClass = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/dfcc";
 		String username = "root";
@@ -69,24 +74,94 @@ public class Main extends Application {
 			DFCCConstant.JARSTRING = "/src";
 			SessionFileManagement.deleteAitesslogFiles();
 		}
-
 		
+		
+		
+//		List<StepDto> lst = new ArrayList<>();
+//		StepParser.parseStepContextNEW("C:\\Users\\anujk\\Downloads\\New folder (4)\\pwrauto_mk1a_GP2.rdf;01");
+//		for(StepDto s:lst)
+//		{
+//			System.out.println( s.getFaultySRU());
+//		}
+		
+//		 Response response = new Response();
+//		 RunPathMasterService runPathMasterService = new RunPathMasterService();
+//		 response = runPathMasterService. getPathLocationByRunConfigId( "RUN101", "rdf");
+//		System.out.println(response.getResponseMessage());
+//		List<StepDto> lst = new ArrayList<>();
+//		lst = StepParser.parseStepContextNEW("C:\\Users\\anujk\\Downloads\\New folder (4)\\pwrauto_mk1a_GP2.rdf;01");
+//		for(StepDto s:lst)
+//		{
+//			
+//			System.out.println( s.getFaultySRU());
+//		}
+		
+	
+//		SessionManagement sessionManagement = new SessionManagement();
+//		Map<String,String> stageIdFullPath = new HashMap<String,String>();
+//		stageIdFullPath =	sessionManagement.getStageIdFullPath();
+//		//System.out.println(stageIdFullPath);
+//		ResultExecutionManagement res = new ResultExecutionManagement();
+//		
+//		ResultDetailedResponse re = new ResultDetailedResponse();
+//		re =res.getResultExecutionDetailedListForStagesFromMysql("UUT2",null,null,null);
+//		//System.out.println(re.getResultDetailedList().size());
+//		
+//		SummaryResult smr = new SummaryResult();
+//		smr.generateHistoryResultForSession("SASN00010");
+//		ReportGeneration rg = new ReportGeneration();
+//		try {
+//			rg.generateDetailedReportESSPQTSession("SASN00018");
+//		} catch (MalformedURLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (DocumentException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	
+
 //		SessionTestingController sessionTestingController = new SessionTestingController();
 //		sessionTestingController.createTreeView();
+
+		// COM FILES
+//		String sessionId = "SASN00014";
 		
-		//COM FILES
+		// COM FILES
+//		String sessionId = "SASN00014";
 //		List<StepDto> lst = new ArrayList<StepDto>();
+//		 currentSessionDetails.setUutId("UUT2");
 //		try {
-//			lst = StepParser.parseStepContextNEW("D:\\June 2025\\pwrauto_ess_mod.rdf;01");
-//			System.out.println("List Size"+lst.size());
+//			lst = StepParser.parseStepContextNEW("C:\\Users\\anujk\\OneDrive\\Desktop\\pwrauto_ess_mod.rdf;00");
+//			for(StepDto x:lst)
+//			{
+//				if(x.getStep().equals("1091"))
+//				{
+//					System.out.println("Faulty SRU ::"+x.getFaultySRU());
+//				}
+//			}
+//			//System.out.println("List Size"+lst.size());
 //			
 //		} catch (InterruptedException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 		
-//		RdfFileDetailsParser.saveProjectDetailsToMongoDB("SASN00042","C:\\dstarissuefiles\\dio_ess.rdf;00" );
 		
+//
+//		try {
+//			RdfFileDetailsParser.saveProjectDetailsToMongoDB("SASN00137","C:\\\\Users\\\\sharn\\\\Downloads\\\\1553_brcst_ess.rdf;00" );
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
 //		List<CopyFileDTO> lst = new ArrayList<CopyFileDTO>();
 //		
 //		CopyFileDTO copy1  = new CopyFileDTO();
@@ -102,8 +177,33 @@ public class Main extends Application {
 //		
 //		SessionFileManagement session = new SessionFileManagement();
 //		session.copyFilesToOutputFolderWhilePlayButton(lst);
-		
-  		Main.launch(args);
+
+
+		SymbolFileManagement symbolFileManagement = new SymbolFileManagement();
+//
+//		MacroFileManagement macroFileManagement = new MacroFileManagement();
+//		String path1 = "C:\\\\Users\\\\sharn\\\\Desktop\\\\SymbolsCombine\\";
+//		
+//		String path = "C:\\Users\\anujk\\OneDrive\\Desktop\\Symbols\\1553_ttr.sym";
+//
+//		List<String> fileName = Arrays.asList(path);
+//
+//		List<String> paths = Arrays.asList(path);
+
+//		List<SymbolDto> result2 = symbolFileManagement.saveSymbolsForCustomFiles(paths, "Path315");
+
+//		Macro checking
+//		String path1 = "C:\\Users\\sharn\\Downloads\\macros-20251229T064050Z-1-001\\macros\\combined.mac";
+//		String path = "C:\\Users\\sharn\\Downloads\\macros-20251229T064050Z-1-001\\macros\\1553bbrdcst.mac";
+//		List<String> fileName = Arrays.asList(path, path1);
+//
+//		List<String> paths = Arrays.asList(path);
+//
+//		MacroFileManagement macroFileManagement = new MacroFileManagement();
+//		List<MacroDto> result3 = macroFileManagement.saveMacroNamesForCustomFiles(fileName, "RUN066");
+//		////System.out.println("Result2 = " + result2.size());
+
+		Main.launch(args);
 
 	}
 
@@ -183,10 +283,10 @@ public class Main extends Application {
 //	            	DFCCConstant.setDebug(true);
 //	            }
 //	        } else {
-//	            System.out.println(" dfcc.set File Not Present ");
+//	            ////System.out.println(" dfcc.set File Not Present ");
 //	        }
 //		
-//			System.out.println("DEBUG Mode :: " +DFCCConstant.isDebug +"  :   "+ (DFCCConstant.isDebug ? "Active" : "Inactive"));
+//			////System.out.println("DEBUG Mode :: " +DFCCConstant.isDebug +"  :   "+ (DFCCConstant.isDebug ? "Active" : "Inactive"));
 //
 //		// Report Temp Files
 //		if (DFCCConstant.isJarBuild) {
@@ -197,50 +297,57 @@ public class Main extends Application {
 //		}
 //
 //	}
-	
-	
-	//After Changing on :29-04-2025
-	
+
+
+	// After Changing on :29-04-2025
+
 	@Override
 	public void start(Stage primaryStage) throws IOException {
-	    if (!lockAcquired) {
-	        return;
-	    }
-	    Parent root = (Parent) FXMLLoader.load(
-	            this.getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
-	    Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
-	    double width = resolution.getWidth();
-	    double height = resolution.getHeight();
-	    double w = width / 1920.0;
-	    double h = height / 1080.0;
-	    Scale scale = new Scale(w, h, 0.0, 0.0);
-	    root.getTransforms().add(scale);
-	    Scene scene = new Scene(root);
-	    primaryStage.getIcons().add(
-	            new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/DFCC-Logo.png")));
-	    primaryStage.setMaximized(true);
-	    primaryStage.initStyle(StageStyle.UNDECORATED);
-	    primaryStage.setTitle("DFCC TESTING AND DATA HANDLING SOFTWARE");
-	    primaryStage.setScene(scene);
-	    primaryStage.show();
-	    // Add your CSS
-	    scene.getStylesheets().add(this.getClass()
-	            .getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
-	    // ==== NEW: Handle close button action ====
-	    primaryStage.setOnCloseRequest(event -> {
-	    	//chnage06112025
-	    	 event.consume();
-//	        System.out.println("User attempted to close the application.");
-	        Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
-	        alert1.setTitle("Exit Confirmation");
-	        alert1.setHeaderText("Are you sure you want to exit?");
-	        alert1.setContentText("Unsaved changes will be lost.");
-	        ButtonType result = alert1.showAndWait().orElse(ButtonType.CANCEL);
-	        if (result != ButtonType.OK) {
-	           return;
-	        } else {
-	        	
-	        	if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.STOPPED
+		if (!lockAcquired) {
+			return;
+		}
+		Parent root = (Parent) FXMLLoader.load(
+				this.getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/fxml/MainWindow.fxml"));
+		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
+		double width = resolution.getWidth();
+		double height = resolution.getHeight();
+		double w = width / 1920.0;
+		double h = height / 1080.0;
+		Scale scale = new Scale(w, h, 0.0, 0.0);
+		root.getTransforms().add(scale);
+		Scene scene = new Scene(root);
+		primaryStage.getIcons().add(
+				new Image(getClass().getResourceAsStream(DFCCConstant.JARSTRING + "/Resources/Images/LOGONEW.png")));
+		primaryStage.setMaximized(true);
+		primaryStage.initStyle(StageStyle.UNDECORATED);
+		primaryStage.setTitle("DFCC TESTING AND DATA HANDLING SOFTWARE");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		// Add your CSS
+		scene.getStylesheets().add(this.getClass()
+				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/MainWindow.css").toExternalForm());
+		// ==== NEW: Handle close button action ====
+		primaryStage.setOnCloseRequest(event -> {
+			// chnage06112025
+			event.consume();
+//	        ////System.out.println("User attempted to close the application.");
+			Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
+			alert1.setTitle("Exit Confirmation");
+			alert1.setHeaderText("Are you sure you want to exit?");
+			alert1.setContentText("Unsaved changes will be lost.");
+			ButtonType result = alert1.showAndWait().orElse(ButtonType.CANCEL);
+			if (result != ButtonType.OK) {
+				return;
+			} else {
+
+				if (StateMachine.isConfirmTestFileCompleted()) {
+
+					Notifications
+							.showWarningAlert("Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
+					return;
+				}
+				
+				if (StateMachine.getTestState() == TestState.PENDING || StateMachine.getTestState() == TestState.STOPPED
 						|| StateMachine.getTestState() == TestState.COMPLETED) {
 					ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 					ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(
@@ -250,14 +357,17 @@ public class Main extends Application {
 					appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 					AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement
 							.getInstance();
+					
+					
 
 					Notifications.showConfirmationDialog("Logout Confirmation",
 							"Are you sure you want to log out and close the application?", () -> {
 								SessionFileManagement session = new SessionFileManagement();
 								LogOutFileCopyResponse response = session
 										.copyingFileWhileLogOut(StateMachine.currentSessionDetails.getSessionId());
+//								//System.out.println("SUji Log oUt raesponse code check:::" + response.getCode());
 								if (response.getCode() == 1) {
-									aitessProcessControlManagement.endAllProcessOnLogout();
+//									aitessProcessControlManagement.endAllProcessOnLogout();
 									Platform.exit();
 									System.exit(0);
 								} else if (response.getCode() == 0) {
@@ -284,58 +394,63 @@ public class Main extends Application {
 											});
 									SessionTestStateObject.getIsLogoutFileCopyPopupOpened().set(true);
 									SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
+								}else {
+									Platform.runLater(() -> {
+										Platform.exit();
+										System.exit(0);
+									});
 								}
+						
 							});
 				} else if (StateMachine.getTestState() == TestState.PAUSED
 						|| StateMachine.getTestState() == TestState.RUNNING) {
 					Notifications.showWarningAlert("Please stop " + StateMachine.getRunningTestName()
 							+ " test before log out and close the application");
-				}
-				else {
+				} else {
 					Platform.runLater(() -> {
-					Platform.exit();
+						Platform.exit();
+						System.exit(0);
 					});
 				}
-	            // User confirmed exit - perform any cleanup if needed
-//	            System.out.println("Application is closing...");
-	            // (Optional) Save data, close connections, etc.
-	        }
-	    });
-	    // =========================================
-	    // Your existing UUT and configuration code
-	    AitessConfigurationManagement configManager = new AitessConfigurationManagement();
-	    UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
-	    HashMap<String, String> idNameMap = new HashMap<>();
-	    HashMap<String, String> nameIdMap = new HashMap<>();
-	    UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
-	    int n = uutDataList.length;
-	    int n2 = 0;
-	    while (n2 < n) {
-	        UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
-	        nameIdMap.put(uutType.getUutType(), uutType.getUutId());
-	        idNameMap.put(uutType.getUutId(), uutType.getUutType());
-	        ++n2;
-	    }
-	    DFCCConstant.setUutIdNameMap(idNameMap);
-	    DFCCConstant.setUutNameIdMap(nameIdMap);
-	    String isDebugValue = getIsDebugValueFromFile();
-	    if (isDebugValue != null) {
-	        if (isDebugValue.equalsIgnoreCase("true")) {
-	            DFCCConstant.setDebug(true);
-	        }
-	    } else {
-	        System.out.println("dfcc.set File Not Present");
-	    }
-//	    System.out.println("DEBUG Mode :: " + DFCCConstant.isDebug + "  :   " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
-	    // Report Temp Files
-	    if (DFCCConstant.isJarBuild) {
-	        SessionFileManagement sessionFileManagement = new SessionFileManagement();
-	        String reportDirectory = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
-	                .getParent() + File.separator + "Reports";
-	        sessionFileManagement.deleteAllFilesInDirectory(reportDirectory);
-	    }
+				// User confirmed exit - perform any cleanup if needed
+//	            ////System.out.println("Application is closing...");
+				// (Optional) Save data, close connections, etc.
+			}
+		});
+		// =========================================
+		// Your existing UUT and configuration code
+		AitessConfigurationManagement configManager = new AitessConfigurationManagement();
+		UUTMasterDetailsDto[] uutDataList = configManager.getAllUUT();
+		HashMap<String, String> idNameMap = new HashMap<>();
+		HashMap<String, String> nameIdMap = new HashMap<>();
+		UUTMasterDetailsDto[] uUTMasterDetailsDtoArray = uutDataList;
+		int n = uutDataList.length;
+		int n2 = 0;
+		while (n2 < n) {
+			UUTMasterDetailsDto uutType = uUTMasterDetailsDtoArray[n2];
+			nameIdMap.put(uutType.getUutType(), uutType.getUutId());
+			idNameMap.put(uutType.getUutId(), uutType.getUutType());
+			++n2;
+		}
+		DFCCConstant.setUutIdNameMap(idNameMap);
+		DFCCConstant.setUutNameIdMap(nameIdMap);
+		String isDebugValue = getIsDebugValueFromFile();
+		if (isDebugValue != null) {
+			if (isDebugValue.equalsIgnoreCase("true")) {
+				DFCCConstant.setDebug(true);
+			}
+		} else {
+			////System.out.println("dfcc.set File Not Present");
+		}
+//	    ////System.out.println("DEBUG Mode :: " + DFCCConstant.isDebug + "  :   " + (DFCCConstant.isDebug ? "Active" : "Inactive"));
+		// Report Temp Files
+		if (DFCCConstant.isJarBuild) {
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			String reportDirectory = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+					.getParent() + File.separator + "Reports";
+			sessionFileManagement.deleteAllFilesInDirectory(reportDirectory);
+		}
 	}
-
 
 	@Override
 	public void stop() {
@@ -350,23 +465,23 @@ public class Main extends Application {
 	}
 
 	public static String getIsDebugValueFromFile() {
-        String isDebugValue = null;
-        Properties properties = new Properties();
+		String isDebugValue = null;
+		Properties properties = new Properties();
 		// Get the current parent directory path
 		File file = new File(currentDirectory + File.separator + "dfcc.set");
 
 		// Check if the file exists
 		if (!file.exists()) {
-//			System.out.println("dfcc.set File Not Exist "+(currentDirectory + File.separator + "dfcc.set"));
+//			////System.out.println("dfcc.set File Not Exist "+(currentDirectory + File.separator + "dfcc.set"));
 			return isDebugValue;
 		}
-        try (FileInputStream input = new FileInputStream(file)) {
-            properties.load(input);
-            isDebugValue = properties.getProperty("isdebug");
-//            System.out.println("Is Debug: " + isDebugValue);
-        } catch (IOException ex) {
-            System.out.println("Error: Could not load configuration from " + file.getAbsolutePath());
-        }
+		try (FileInputStream input = new FileInputStream(file)) {
+			properties.load(input);
+			isDebugValue = properties.getProperty("isdebug");
+//            ////System.out.println("Is Debug: " + isDebugValue);
+		} catch (IOException ex) {
+			////System.out.println("Error: Could not load configuration from " + file.getAbsolutePath());
+		}
 //		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 //			String line;
 //            while ((line = reader.readLine()) != null) {

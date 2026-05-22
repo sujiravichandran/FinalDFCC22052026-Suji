@@ -1,20 +1,21 @@
 package com.teclever.dfcc.advanceddataanalysis;
 
 public class StepDeviationDTO {
-	
-	private String channel1Value;
-	private String minimum;
-	private String maximum;
-	private String channel2Value;
-	private String channel3Value;
-	private String channel4Value;
-	private String nominalRange;
-	private String date;
-	private String exceptedValue;
-	private String reduceRange;
+	private String rdfFileName;
+	private String uut;
 	private String stepNo;
 	private String newMin;
 	private String newMax;
+	private String minimum;
+	private String maximum;
+	private String nominalRange;
+	private String exceptedValue;
+	private String reduceRange;
+	private String channel1Value;
+	private String channel2Value;
+	private String channel3Value;
+	private String channel4Value;
+	
 	
 	public String getChannel1Value() {
 		return channel1Value;
@@ -46,12 +47,7 @@ public class StepDeviationDTO {
 	public void setNominalRange(String nominalRange) {
 		this.nominalRange = nominalRange;
 	}
-	public String getDate() {
-		return date;
-	}
-	public void setDate(String date) {
-		this.date = date;
-	}
+
 	public String getExceptedValue() {
 		return exceptedValue;
 	}
@@ -93,6 +89,18 @@ public class StepDeviationDTO {
 	}
 	public void setNewMax(String newMax) {
 		this.newMax = newMax;
+	}
+	public String getRdfFileName() {
+		return rdfFileName;
+	}
+	public void setRdfFileName(String rdfFileName) {
+		this.rdfFileName = rdfFileName;
+	}
+	public String getUut() {
+		return uut;
+	}
+	public void setUut(String uut) {
+		this.uut = uut;
 	}
 	
 

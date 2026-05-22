@@ -29,9 +29,11 @@ import com.teclever.datastore.entities.CustomTest;
 import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.service.CustomTestService;
 import com.teclever.datastore.service.RunConfigurationService;
+import com.teclever.datastore.service.RunPathMasterService;
 import com.teclever.datastore.service.TestFileService;
 import com.teclever.datastore.service.TestFilesStagesMappingService;
 import com.teclever.datastore.utils.GetResponse;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.DFCCConstant.UutTypeConstants;
 import com.teclever.dfcc.datastore.dto.CustomTestFileResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
@@ -46,6 +48,8 @@ import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Debug;
 
 public class AdvanceCustom1TestingManagement {
+	
+	
 
 	static String currentDirectory = new File(
 			AdvanceCustom1TestingManagement.class.getProtectionDomain().getCodeSource().getLocation().getPath())
@@ -113,6 +117,8 @@ public class AdvanceCustom1TestingManagement {
 	// Running Single Symbol And Macro Command
 		public String customOneRun(String runCommand, String testTypeId) {
 			try {
+				
+				////System.out.println("MANI SUSCEPT POINT customOneRun "+runCommand);
 				TestProcessManagement testProcess = new TestProcessManagement();
 				testProcess.runCommand(runCommand, testTypeId , "CUSTOM ONE");
 			} catch (Exception e) {
@@ -134,6 +140,22 @@ public class AdvanceCustom1TestingManagement {
 	// Creating Text File To Run Test
 	public Response customOneRunTestFile(String stageId, String fileName, List<String> symbolMacroTextFormate,
 			String testTypeId) {
+		
+		////System.out.println("customOneRunTestFile Mani 2222");
+		String currentConfigId  = currentSessionDetails.getRunConfigId();
+		
+		RunPathMasterService runPathMasterService = new RunPathMasterService();
+		String pathMasterId  = runPathMasterService.fetchRunPathMasterIdForTestFile(currentConfigId);
+		
+		List<String>paths = runPathMasterService.fetchTestFilePathsFromRunPathMaster(pathMasterId);
+		String path = "";
+		for(String s:paths)
+		{
+			////System.out.println("Paths "+s);
+			path = s;
+		}
+		
+		
 		fileName = fileName + ".tst";
 		Response res = new Response();
 		String customFileDir;
@@ -143,15 +165,20 @@ public class AdvanceCustom1TestingManagement {
 			case UutTypeConstants.MARK1:
 				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + UutTypeConstants.MARK1 
 						+ File.separator;
-
+			//	customFileDir = currentDirectory + File.separator + "Custom Test-1"+ File.separator ;
+			//	customFileDir = path;
 				break;
 			case UutTypeConstants.MARK1A:
 				customFileDir = currentDirectory + File.separator + "CustomTesting1Files"+ File.separator + UutTypeConstants.MARK1A 
 						+ File.separator;
+			//	customFileDir = currentDirectory + File.separator + "Custom Test-1"+ File.separator ;
+			//	customFileDir = path;
 				break;
 			case UutTypeConstants.MARK2:
 				customFileDir = currentDirectory + File.separator + "CustomTesting1Files" + File.separator + UutTypeConstants.MARK2
 						+ File.separator;
+			//	customFileDir = currentDirectory + File.separator + "Custom Test-1"+ File.separator ;
+			//	customFileDir = path;
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid uutType: " + uutType);
@@ -159,6 +186,10 @@ public class AdvanceCustom1TestingManagement {
 
 			String fileNamewithFullPath = customFileDir + fileName;
 			;
+			
+			DFCCConstant.customOnePath = fileNamewithFullPath;
+			
+			////System.out.println("File Path Mani Suscept ::"+fileNamewithFullPath);
 
 			// Debug.printDebug("fileNamewithFullPath " + fileNamewithFullPath);
 			createDirectoryIfNotExists(customFileDir);
@@ -228,6 +259,8 @@ public class AdvanceCustom1TestingManagement {
 			List<String> listOfTestFileIds = addTestFileandGetFileId(fileName, testTypeId);
 			TestFilesStagesMappingService testFileStageMapService = new TestFilesStagesMappingService();
 			testFileStageMapService.addTestFilesStagesMapping(stageId, listOfTestFileIds);
+			
+			////System.out.println("Suji Custonm1 Test file ID::::" + listOfTestFileIds);
 
 			TestProcessManagement testProcessManangement = new TestProcessManagement();
 			res =testProcessManangement.testProcesControl(StateMachine.currentSessionDetails.getSessionId(), stageId, 1,
@@ -360,7 +393,7 @@ public class AdvanceCustom1TestingManagement {
 			switch (uutType) {
 			case UutTypeConstants.MARK1:
 				basetestFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1
-						+ File.separator + "basefile" + File.separator + "download_V7355.tpf";
+						+ File.separator + "basefile" + File.separator + "download.tpf";
 				modifiedFilePath = currentDirectory + File.separator + "download_files" + File.separator + UutTypeConstants.MARK1
 						+ File.separator + "modifiedfile" + File.separator;
 				break;

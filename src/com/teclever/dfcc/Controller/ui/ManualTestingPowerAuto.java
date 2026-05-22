@@ -3,10 +3,12 @@ package com.teclever.dfcc.Controller.ui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,9 +24,12 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.entities.PowerAutoDataAnalysis;
 import com.teclever.datastore.entities.PowerManDataAnalysis;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitGetDetailsManagement;
@@ -33,6 +38,7 @@ import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationMa
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.PowerAuto;
 import com.teclever.dfcc.model.PowerManMk1;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -171,23 +177,32 @@ public class ManualTestingPowerAuto {
 	private String t2Ch3;
 	private String t2Ch4;
 
+	private String selectedUutId;
+	private String selectedSno;
+	
+	private List<TrailSessionDto> sessionListTrail = new ArrayList<TrailSessionDto>();
+
+	private TrailSessionEntityService t = new TrailSessionEntityService();
+
 	private AdvancedDataAnalysisManagement advancedDataAnalysisManagement = new AdvancedDataAnalysisManagement();
 
 	public ManualTestingPowerAuto() {
 
+		// Normal sessions
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
 
-		for (SessionDto session : sessionList) {
-			sessionNameId.put(session.getSessionName(), session.getSessionId());
-
-		}
+		// Trial sessions
+		TrailSessionResponse t1 = t.getActiveTrailSessionId();
+		sessionListTrail = t1.getListOfSession();
 
 		initializeUUTTypeComboBox();
 
 	}
 
 	public GridPane createPowerAutoMainContainerGridPane() {
+		saveButton.setDisable(true);
+		fetchButton.setDisable(true);
 		printButton.setDisable(true);
 		powerManMk1MainContainerGridPane.getChildren().clear();
 		powerManMk1MainContainerGridPane.getColumnConstraints().clear();
@@ -204,7 +219,7 @@ public class ManualTestingPowerAuto {
 		firstRow.setPercentHeight(15);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(5);
+		secondRow.setPercentHeight(9);
 
 		RowConstraints thirdRow = new RowConstraints();
 		thirdRow.setPercentHeight(35);
@@ -422,8 +437,11 @@ public class ManualTestingPowerAuto {
 		uutHbox.setFillHeight(true);
 		uutTypeField.setPromptText("select UUT Type");
 		serialnumber.setPromptText("select Serial No");
+		serialnumber.setEditable(true);
 		sessioName.setPromptText("select Session");
+		sessioName.setEditable(true);
 		stageName.setPromptText("select Stage Name");
+		stageName.setEditable(true);
 		uutHbox.getChildren().add(uutTypeField);
 
 		HBox serialHbox = new HBox(10);
@@ -474,24 +492,28 @@ public class ManualTestingPowerAuto {
 			uutId = fetchUutId(selectedUUTType);
 			initalizeSerialNoComboBox(uutId);
 
+			selectedUutId = uutId;
+			
 			if (uutId.equalsIgnoreCase("UUT1")) {
-				titleLabel.setText("LCA DFCC MK-1 POWER CHECK OBSERVATIONS");
-				chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
-				chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-1 POWER SUPPLIES IN AETS)");
-				noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+                titleLabel.setText("LCA DFCC MK-1 POWER CHECK OBSERVATIONS");
+                chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
+                chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-1 POWER SUPPLIES IN AETS)");
+                noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+            } else if (uutId.equalsIgnoreCase("UUT2")) {
+                titleLabel.setText("LCA DFCC MK-1A POWER CHECK OBSERVATIONS");
+                chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
+                chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-1A POWER SUPPLIES IN AETS)");
+                noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+            } else {
+                titleLabel.setText("LCA DFCC MK-2 POWER CHECK OBSERVATIONS");
+                chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
+                chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-2 POWER SUPPLIES IN AETS)");
+                noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+            }
 
-			} else if (uutId.equalsIgnoreCase("UUT2")) {
-				titleLabel.setText("LCA DFCC MK-1A POWER CHECK OBSERVATIONS");
-				chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
-				chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-1A POWER SUPPLIES IN AETS)");
-				noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
-			} else {
-				titleLabel.setText("LCA DFCC MK-2 POWER CHECK OBSERVATIONS");
-				chLabel.setText("STEADY STATE INPUT CURRENT MONITOR");
-				chLabel2.setText("(AS OBSERVED IN FRONT PANEL METERS OF DFCC MK-2 POWER SUPPLIES IN AETS)");
-				noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
-			}
+			
 			createPowerAutoMainContainerGridPane();
+
 		});
 	}
 
@@ -503,33 +525,163 @@ public class ManualTestingPowerAuto {
 		}
 		return null;
 	}
+	
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
 
-	private void initalizeSerialNoComboBox(String uutId) {
-		dfccSNList.clear();
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
-				.collect(Collectors.toList());
+		comboBox.setEditable(true);
+		comboBox.setItems(originalItems);
 
-		Set<String> seenDfccSNos = new HashSet<>();
+		TextField editor = comboBox.getEditor();
 
-		for (SessionDto dfccSn : filterSessionList) {
-			String dfccSNo = dfccSn.getDfccSNo();
-			if (seenDfccSNos.add(dfccSNo)) {
-				dfccSNList.add(dfccSNo);
+		editor.setOnKeyReleased(event -> {
+
+			String text = editor.getText();
+
+			ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+			if (text == null || text.isEmpty()) {
+				filteredList.addAll(originalItems);
+			} else {
+				for (String item : originalItems) {
+					if (item.toLowerCase().contains(text.toLowerCase())) {
+						filteredList.add(item);
+					}
+				}
 			}
-		}
-		serialnumber.setItems(dfccSNList);
-		serialnumber.setOnAction((event) -> {
+
+			comboBox.setItems(filteredList);
+			comboBox.getEditor().positionCaret(text.length());
+			comboBox.show();
+		});
+
+// Prevent auto-selection
+		comboBox.setOnAction(e -> {
+			if (comboBox.getSelectionModel().getSelectedItem() != null) {
+				editor.setText(comboBox.getSelectionModel().getSelectedItem());
+			}
+		});
+	}
+
+//	private void initalizeSerialNoComboBox(String uutId) {
+//		dfccSNList.clear();
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
+//				.collect(Collectors.toList());
+//
+//		Set<String> seenDfccSNos = new HashSet<>();
+//
+//		for (SessionDto dfccSn : filterSessionList) {
+//			String dfccSNo = dfccSn.getDfccSNo();
+//			if (seenDfccSNos.add(dfccSNo)) {
+//				dfccSNList.add(dfccSNo);
+//			}
+//		}
+//		serialnumber.setItems(dfccSNList);
+//		serialnumber.setOnAction((event) -> {
+//			selectedSno = serialnumber.getSelectionModel().getSelectedItem();
+//			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
+//			initializeSessionComboBox(selectedSerialNumber);
+//
+//		});
+//	}
+	
+	private void initalizeSerialNoComboBox(String uutTypeId) {
+
+	    dfccSNList.clear();
+	    Set<String> seenDfccSNos = new HashSet<>();
+
+	    if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
+
+	        List<SessionDto> filterSessionList = sessionList.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+
+	        for (SessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+
+	    } else {
+
+	        List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+	        for (TrailSessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+	        ////System.out.println("Suji check Link Failty pe ::: " +dfccSNList.size() );
+	    }
+	    
+	    
+	    serialnumber.setItems(dfccSNList);
+	    addSearchFunctionality(serialnumber, dfccSNList);
+	    
+	    serialnumber.setOnAction((event) -> {
 
 			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
-			initializeSessionComboBox(selectedSerialNumber);
+			selectedSno = serialnumber.getSelectionModel().getSelectedItem();
+			 if (selectedSno != null && !currentSessionDetails.getSessionId().startsWith("TSSN")) {
+		            initializeSessionComboBox(selectedSno);
+		        }else {
+		        	initializeTrialSessionComboBox(selectedSno);
+		        }
 
 		});
+
+	    
+	}
+	
+	private void initializeTrialSessionComboBox(String selectedDfccNo) {
+
+	    sessionTypeList.clear();
+
+	    List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+	            .filter(t ->
+	                    Objects.equals(t.getUutId(), selectedUutId) &&
+	                    Objects.equals(t.getDfccSNo(), selectedSno) &&
+	                    t.getEndDate() == null
+	            )
+	            .sorted(Comparator
+	                    .comparing(TrailSessionDto::getUutId)
+	                    .thenComparing(TrailSessionDto::getDfccSNo))
+	            .collect(Collectors.toList());
+
+	    for (TrailSessionDto sessionName : filterSessionList) {
+	        sessionTypeList.add(sessionName.getSessionName());
+	    }
+	    sessioName.setItems(sessionTypeList);
+	    addSearchFunctionality(sessioName, sessionTypeList);
+	    sessioName.setOnAction(event -> {
+			String selectedSessionName = sessioName.getSelectionModel().getSelectedItem();
+			if (selectedSessionName != null) {
+				TrailSessionDto selectedSession = filterSessionList.stream()
+						.filter(s -> s.getSessionName().equals(selectedSessionName)).findFirst().orElse(null);
+
+				if (selectedSession != null) {
+					selectedSessionId = selectedSession.getSessionId();
+				}
+				getStageName(selectedSessionId);
+				
+			}
+		});
+
+	   
 	}
 
 	private void initializeSessionComboBox(String selectedDfccNo) {
 		sessionTypeList.clear();
 
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
+//				.collect(Collectors.toList());
+
+		List<SessionDto> filterSessionList = sessionList.stream()
+				.filter(t -> Objects.equals(t.getUutId(), selectedUutId) && Objects.equals(t.getDfccSNo(), selectedSno)
+						&& t.getEndDate() == null)
+				.sorted(Comparator.comparing(SessionDto::getUutId).thenComparing(SessionDto::getDfccSNo))
 				.collect(Collectors.toList());
 
 		for (SessionDto sessionName : filterSessionList) {
@@ -538,6 +690,7 @@ public class ManualTestingPowerAuto {
 		}
 
 		sessioName.setItems(sessionTypeList);
+		  addSearchFunctionality(sessioName, sessionTypeList);
 		sessioName.setOnAction(event -> {
 			String selectedSessionName = sessioName.getSelectionModel().getSelectedItem();
 			if (selectedSessionName != null) {
@@ -554,19 +707,34 @@ public class ManualTestingPowerAuto {
 	}
 
 	private void getStageName(String sessionId) {
+
 		stageList = unitGetDetailsManagement.getStageDetailsForSession(selectedSessionId);
-		for (UnitSessionDetailsDTO stageName : stageList) {
-			stageNameId.put(stageName.getStageId(), stageName.getStageName());
+
+		// IMPORTANT: clear old data to avoid accumulation
+		stageNameId.clear();
+		stageName.getItems().clear();
+
+		for (UnitSessionDetailsDTO dto : stageList) {
+			if (dto.getStageId() != null && dto.getStageName() != null) {
+				stageNameId.put(dto.getStageId(), dto.getStageName());
+			}
 		}
 
-		stageName.setItems(FXCollections.observableArrayList(stageNameId.values()));
+		// Filter out null values explicitly
+		List<String> filteredStageNames = stageNameId.values().stream().filter(Objects::nonNull).toList();
 
-		stageName.setOnAction((event) -> {
+		stageName.setItems(FXCollections.observableArrayList(filteredStageNames));
+		  addSearchFunctionality(stageName, FXCollections.observableArrayList(filteredStageNames));
+		stageName.setOnAction(event -> {
+
 			selectedStageName = stageName.getSelectionModel().getSelectedItem();
-			selectedStageId = stageNameId.entrySet().stream().filter(e -> selectedStageName.equals(e.getValue()))
-					.map(Map.Entry::getKey).findFirst().orElse(null);
-		});
 
+			selectedStageId = stageNameId.entrySet().stream()
+					.filter(e -> Objects.equals(selectedStageName, e.getValue())).map(Map.Entry::getKey).findFirst()
+					.orElse(null);
+			saveButton.setDisable(false);
+			fetchButton.setDisable(false);
+		});
 	}
 
 	private StackPane createPowerAutoTable1Content() {
@@ -873,10 +1041,10 @@ public class ManualTestingPowerAuto {
 		return value == null || value.trim().isEmpty();
 	}
 
-	
 	private boolean isEmpty(String value) {
-	    return value == null || value.trim().isEmpty();
+		return value == null || value.trim().isEmpty();
 	}
+
 	private HBox createPrintButtonHbox() {
 
 		HBox printButtonContainer = new HBox(); // only create once
@@ -891,16 +1059,15 @@ public class ManualTestingPowerAuto {
 				return;
 			}
 
-			fetchButton.setDisable(false);
-			printButton.setDisable(false);
+			
 
 			PowerAuto dto1 = powerAutoMk1Table1DataList.get(0);
 			PowerAuto dto2 = powerAutoMk1Table1DataList.get(1);
 			PowerAuto dto3 = powerAutoMk1Table1DataList.get(2);
-			if (isEmpty(dto1.getChannel1()) || isEmpty(dto1.getChannel2()) || isEmpty(dto1.getChannel3()) || isEmpty(dto1.getChannel4()) ||
-					isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2()) || isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4()) ||
-					isEmpty(dto3.getChannel1()) || isEmpty(dto3.getChannel2()) || isEmpty(dto3.getChannel3()) || isEmpty(dto3.getChannel4()))
-					{
+			if (isEmpty(dto1.getChannel1()) || isEmpty(dto1.getChannel2()) || isEmpty(dto1.getChannel3())
+					|| isEmpty(dto1.getChannel4()) || isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2())
+					|| isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4()) || isEmpty(dto3.getChannel1())
+					|| isEmpty(dto3.getChannel2()) || isEmpty(dto3.getChannel3()) || isEmpty(dto3.getChannel4())) {
 				Notifications.showErrorAlert("Please enter the all the field values");
 				return;
 			}
@@ -920,7 +1087,7 @@ public class ManualTestingPowerAuto {
 			powerAuto.setThirdRowch3(dto3.getChannel3());
 			powerAuto.setThirdRowch4(dto3.getChannel4());
 
-			advancedDataAnalysisManagement.addPowerAutoConfig(powerAuto);
+			advancedDataAnalysisManagement.addPowerAutoConfig(powerAuto, selectedSessionId, selectedStageId);
 			Notifications.showSuccessAlert("Data Saved Successfully");
 
 		});
@@ -929,10 +1096,12 @@ public class ManualTestingPowerAuto {
 			PowerAutoDataAnalysis entity = advancedDataAnalysisManagement.getPowerAutoConfig(selectedSessionId,
 					selectedStageId);
 
-			if (entity == null) {
+			if (entity.getPowerAutoId() == 0) {
 				Notifications.showErrorAlert("Not configured");
 				return;
 			}
+			
+			printButton.setDisable(false);
 			PowerAuto dto1 = powerAutoMk1Table1DataList.get(0);
 			PowerAuto dto2 = powerAutoMk1Table1DataList.get(1);
 			PowerAuto dto3 = powerAutoMk1Table1DataList.get(2);
@@ -951,10 +1120,15 @@ public class ManualTestingPowerAuto {
 			dto3.setChannel2(entity.getThirdRowch2());
 			dto3.setChannel3(entity.getThirdRowch3());
 			dto3.setChannel4(entity.getThirdRowch4());
-			
-			powerAutoMk1Table1DataTableView.refresh();
 
-			Notifications.showSuccessAlert("Data fetched Successfully.");
+			powerAutoMk1Table1DataTableView.refresh();
+			
+			if(!powerAutoMk1Table1DataList.isEmpty() )
+			{
+				Notifications.showSuccessAlert("Data fetched Successfully.");	
+			}else {
+				Notifications.showSuccessAlert("Data not configured.");
+			}
 
 		});
 
@@ -976,24 +1150,38 @@ public class ManualTestingPowerAuto {
 				return;
 			}
 
+
 			printButtonContainer.setVisible(false);
 			printButtonContainer.setManaged(false);
+			
+			
 
 			powerManMk1MainContainerGridPane.applyCss();
 			powerManMk1MainContainerGridPane.layout();
 
 			Stage stage = (Stage) powerManMk1MainContainerGridPane.getScene().getWindow();
 
-			tmpUutLabel = new Label(uutTypeField.getValue() == null ? "" : uutTypeField.getValue());
-			tmpSerialLabel = new Label(serialnumber.getValue() == null ? "" : serialnumber.getValue());
-			tmpSerialLabel.setWrapText(true);
-			tmpSessionLabel = new Label(sessioName.getValue() == null ? "" : sessioName.getValue());
-			tmpSessionLabel.setWrapText(true);
-			tmpStageLabel = new Label(stageName.getValue() == null ? "" : stageName.getValue());
+			tmpUutLabel = new Label("UUT Type : " + 
+		            (uutTypeField.getValue() == null ? "" : uutTypeField.getValue()));
+
+		    tmpSerialLabel = new Label("Serial No : " + 
+		            (serialnumber.getValue() == null ? "" : serialnumber.getValue()));
+
+		    tmpSessionLabel = new Label("Session Name : " + 
+		            (sessioName.getValue() == null ? "" : sessioName.getValue()));
+
+		    tmpStageLabel = new Label("Stage Name : " + 
+		            (stageName.getValue() == null ? "" : stageName.getValue()));
+		    
 			tmpUutLabel.getStyleClass().add("nonheading-label");
 			tmpSerialLabel.getStyleClass().add("nonheading-label");
 			tmpSessionLabel.getStyleClass().add("nonheading-label");
 			tmpStageLabel.getStyleClass().add("nonheading-label");
+			
+			tmpSessionLabel.setWrapText(true);
+			tmpStageLabel.setWrapText(true);
+			powerAutoMk1Table1DataTableView.getSelectionModel().clearSelection();
+			
 			HBox uutBox = (HBox) uutTypeField.getParent();
 			HBox serialBox = (HBox) serialnumber.getParent();
 			HBox sessionBox = (HBox) sessioName.getParent();
@@ -1013,8 +1201,9 @@ public class ManualTestingPowerAuto {
 
 				powerManMk1MainContainerGridPane.applyCss();
 				powerManMk1MainContainerGridPane.layout();
-
+//				powerAutoMk1Table1DataTableView.getSelectionModel().clearSelection();
 				exportPageToPDF(stage, powerManMk1MainContainerGridPane);
+				Notifications.showSuccessAlert("Report has been downloaded successfully");
 
 			} catch (Exception ex) {
 				ex.printStackTrace();

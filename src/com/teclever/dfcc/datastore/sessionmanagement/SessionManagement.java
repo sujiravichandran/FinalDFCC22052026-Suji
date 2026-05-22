@@ -2,14 +2,20 @@ package com.teclever.dfcc.datastore.sessionmanagement;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +42,7 @@ import com.teclever.datastore.entities.SessionTiming;
 import com.teclever.datastore.entities.StagesRemarks;
 import com.teclever.datastore.entities.TestFilesStagesMapping;
 import com.teclever.datastore.entities.TrailSessionEntity;
+import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.response.StagesRemarksResponse;
 import com.teclever.datastore.response.UUTMasterDetailsServiceResponse;
 import com.teclever.datastore.service.FaultCodeSessionMappingService;
@@ -83,6 +90,11 @@ import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Debug;
+import com.teclever.dfcc.utils.Notifications;
+
+import javafx.application.Platform;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 
 public class SessionManagement {
 	private final static String COMPLETED = "completed";
@@ -184,7 +196,7 @@ public class SessionManagement {
 
 			lst = lst.stream().filter(filterObj -> filterObj.getStageId().equalsIgnoreCase(lastStageId))
 					.collect(Collectors.toList());
-			// System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
+			// ////System.out.println("Out Entred 1st REsulkt MEtod" +lst.size());
 			List<String> ids = selectedTestFileIdTestFileId.keySet().stream().collect(Collectors.toList());
 
 			lst = lst.stream().filter(f -> ids.stream().anyMatch(id -> f.getSelectedtestFileId().equalsIgnoreCase(id)))
@@ -215,13 +227,14 @@ public class SessionManagement {
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 		return testFiles;
 	}
 
 	// SESSION ENTITY : SAVE SESSION
 	public Response saveSession(SessionDTO sessionDTO) {
+		
 		Response res = new Response();
 		try {
 			SessionService sessionService = new SessionService();
@@ -314,6 +327,8 @@ public class SessionManagement {
 			List<SessionToStagesMappingDTO> sessionTimingStages = sessionDTO.getSessionStagesList();
 
 			sessionStages.addAll(getDefaultStatusLevelData(sessionDTO.getUutId()));
+			
+			//System.out.println(getDefaultStatusLevelData(sessionDTO.getUutId()));
 
 			LevelOneMasterService levelOneService = new LevelOneMasterService();
 			Map<String, String> levelOneStage = levelOneService.getAllLevelOneIdAndLevelName();
@@ -518,6 +533,7 @@ public class SessionManagement {
 			for (SessionStagesStatus sessionStagesStatus : lst) {
 				stageIdStatus.put(sessionStagesStatus.getStageId(), sessionStagesStatus.getStageStatus());
 			}
+//			//System.out.println("stageIdStatus"+stageIdStatus);
 
 		} catch (Exception ex) {
 			ex.getLocalizedMessage();
@@ -572,8 +588,8 @@ public class SessionManagement {
 				
 				
 				
-//				System.out.println("Get Stage Suji Suspect Level Id:::"+levelTwoStage.get(sessionStage.getLevelTwoStageId()));
-//				System.out.println("Get Stage Suji Suspect Status :::"+sessionStage.getStatus());
+//				////System.out.println("Get Stage Suji Suspect Level Id:::"+levelTwoStage.get(sessionStage.getLevelTwoStageId()));
+//				////System.out.println("Get Stage Suji Suspect Status :::"+sessionStage.getStatus());
 				
 
 				stageObject.setL3StageId(sessionStage.getLevelThreeStageId());
@@ -695,7 +711,7 @@ public class SessionManagement {
 				sessionListResponse.setResponse(res);
 				return sessionListResponse;
 			}
-			System.out.println(" Coming ");
+			////System.out.println(" Coming ");
 			//To Fetch the Last Tested SessionId 
 			
 			
@@ -752,6 +768,9 @@ public class SessionManagement {
 					sessionList.setSessionId(trailSessionDto.getSessionId());
 					sessionList.setSessionName(trailSessionDto.getSessionName());
 					sessionList.setCreationDate(trailSessionDto.getCreationDate());
+					sessionList.setEndDate(trailSessionDto.getEndDateTime());
+					sessionList.setDfccSNo(trailSessionDto.getDfccSNo());
+					sessionList.setSessionType("TRIALS");
 					listOfSession.add(sessionList);
 				}
 
@@ -783,8 +802,11 @@ public class SessionManagement {
 					SessionList sessionList = new SessionList();
 					sessionList.setSessionId(sessionEntity.getSessionId());
 					sessionList.setSessionName(sessionEntity.getSessionName());
+					sessionList.setSessionType(sessionEntity.getSessionTypeMasterId());
 					sessionList.setCreationDate(sessionEntity.getCreationDate());
 					sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+					sessionList.setEndDate(sessionEntity.getEndDateTime());
+					sessionList.setDfccSNo(sessionEntity.getDfccSNo());
 					listOfSession.add(sessionList);
 				}
 
@@ -802,6 +824,93 @@ public class SessionManagement {
 		}
 		return sessionListResponse;
 	}
+	
+	
+	
+	//SUJI ADDED for History Report: BASED ON ROLE ID AND UUT ID GET LIST OF SESSION: 17/12/2025
+	public SessionListResponse getSessionDataByUUTIdwithEndedSession(String uutId, String sessionType) {
+
+	    SessionListResponse sessionListResponse = new SessionListResponse();
+	    Response res = new Response();
+
+	    try {
+	        UserLoginDetailsService userLoginDetailsService = new UserLoginDetailsService();
+	        Set<String> setOfUserLoginId =
+	                userLoginDetailsService.getUsersByRoleId(UserData.getRoleId());
+
+	        List<SessionList> listOfSession = new ArrayList<>();
+
+	        if (sessionType != null && sessionType.equalsIgnoreCase("Trials")) {
+
+	            TrailSessionEntityService trailSessionEntityService =
+	                    new TrailSessionEntityService();
+	            TrailSessionResponse trailSessionResponse =
+	                    trailSessionEntityService.getAllSession();
+
+	            List<TrailSessionDto> trailActiveSession =
+	                    trailSessionResponse.getListOfSession();
+
+	            for (TrailSessionDto trailSessionDto : trailActiveSession) {
+	                if (trailSessionDto.getUutId().equals(uutId)
+	                        && setOfUserLoginId != null
+	                        && setOfUserLoginId.contains(trailSessionDto.getCreatedBy())) {
+
+	                    SessionList sessionList = new SessionList();
+	                    sessionList.setSessionId(trailSessionDto.getSessionId());
+	                    sessionList.setSessionName(trailSessionDto.getSessionName());
+	                    sessionList.setCreationDate(trailSessionDto.getCreationDate());
+	                    sessionList.setSerialNo(trailSessionDto.getDfccSNo());
+	                    sessionList.setSessionType("TRIALS");
+	                    listOfSession.add(sessionList);
+	                }
+	            }
+
+	        }
+	        else {
+	            SessionService sessionSelectedStage = new SessionService();
+	            GetResponse getResponse =
+	                    sessionSelectedStage.getAllSessionwithEndedSessionsDataByUUTId(uutId);
+
+	            if (getResponse.getCode() != 1) {
+	                res.setResponseCode(0);
+	                res.setResponseMessage(getResponse.geteMsg());
+	                sessionListResponse.setResponse(res);
+	                return sessionListResponse;
+	            }
+
+	            for (Object object : getResponse.getResponseList()) {	
+
+	                SessionEntity sessionEntity = (SessionEntity) object;
+
+	                if (setOfUserLoginId != null
+	                        && setOfUserLoginId.contains(sessionEntity.getUserId())) {
+
+	                    SessionList sessionList = new SessionList();
+	                    sessionList.setSessionId(sessionEntity.getSessionId());
+	                    sessionList.setSessionName(sessionEntity.getSessionName());
+	                    sessionList.setCreationDate(sessionEntity.getCreationDate());
+	                    sessionList.setOfpConfigId(sessionEntity.getOfpConfigId());
+	                    sessionList.setDfccSNo(sessionEntity.getDfccSNo());
+	                    listOfSession.add(sessionList);
+	                }
+	            }
+	        }
+
+	        res.setResponseCode(1);
+	        res.setResponseMessage("Session fetched successfully");
+	        sessionListResponse.setResponse(res);
+	        sessionListResponse.setListOfSession(listOfSession);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        res.setResponseCode(0);
+	        res.setResponseMessage("Fetch Data Unsuccessful");
+	        sessionListResponse.setResponse(res);
+	    }
+
+	    return sessionListResponse;
+	}
+
 
 	public SessionDTOResponse getSessionDetailById(String sessionEntityId) {
 		SessionDTOResponse sessionDtoResponse = new SessionDTOResponse();
@@ -1240,6 +1349,8 @@ public class SessionManagement {
 			TrailSessionEntity sessionEntity = new TrailSessionEntity();
 			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
 			GetObjResponse objRes = trailSessionEntityService.getActiveTrailSessionObject();
+//			//System.out.println("UUT TYPE ID ::::"+StateMachine.currentSessionDetails.getUutId());
+			objRes=	trailSessionEntityService.getActiveTrailSessionObjectByuutId(StateMachine.currentSessionDetails.getUutId());
 			sessionEntity = (TrailSessionEntity) objRes.getObject();
 			isConfig = sessionEntity.isRunned();
 		} catch (Exception ex) {
@@ -1254,6 +1365,7 @@ public class SessionManagement {
 			TrailSessionEntity sessionEntity = new TrailSessionEntity();
 			TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
 			GetObjResponse objRes = trailSessionEntityService.getActiveTrailSessionObject();
+			objRes = trailSessionEntityService.getActiveTrailSessionObjectByuutId(StateMachine.currentSessionDetails.getUutId());
 			sessionEntity = (TrailSessionEntity) objRes.getObject();
 			String trailSessionId = sessionEntity.getTrailSessionId();
 
@@ -1266,6 +1378,7 @@ public class SessionManagement {
 			}
 
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			Debug.printDebug(ex.getLocalizedMessage());
 		}
 		return isReConfigAvail;
@@ -1672,6 +1785,83 @@ public class SessionManagement {
 		}
 		return msg;
 	}
+	
+	
+	//Final Leaf Id And Full Path...
+		public Map<String,String> getStageIdFullPath() {
+			Map<String,String> leafIdFullPath = new HashMap<>();
+			try {
+				Map<String, String> leafIdName = getAllStageIdName();
+
+				LevelOneMasterService level1MasterService = new LevelOneMasterService();
+				LevelTwoMasterService level2MasterService = new LevelTwoMasterService();
+				LevelThreeService level3MasterService = new LevelThreeService();
+				LevelFourMasterSevice level4MasterService = new LevelFourMasterSevice();
+				LevelFiveMasterService level5MasterService = new LevelFiveMasterService();
+				
+				Map <String, LevelOneStageMaster> levelOneMap = level1MasterService.getAllLevelOneWithId();
+				Map<String, LevelTwoStageMaster> levelTwoMap = level2MasterService.getLevelTwoStageMasterMap();
+				Map <String, LevelThreeStageMaster> levelThreeMap = level3MasterService.getLevelThreeStageMasterMap();
+				Map<String, LevelFourStageMaster> levelFourMap = level4MasterService.getLevelFourStageMasterMap();
+				Map <String, LevelFiveStageMaster> levelFiveMap = level5MasterService.getLevelFiveStageMasterMap();
+				
+				
+				//5th Level...
+				for (Entry<String, LevelFiveStageMaster> levelFiveMaster : levelFiveMap.entrySet()) {
+					String path= "";
+					path = path+leafIdName.get(levelFiveMaster.getKey());
+					LevelFourStageMaster levelFourStageMaster =  levelFourMap.get(levelFiveMaster.getValue().getLevelFourRefernce());
+					path = leafIdName.get(levelFourStageMaster.getLevelFourStageId())+File.separatorChar+path;
+					LevelThreeStageMaster levelThreeStageMaster = levelThreeMap.get(levelFourStageMaster.getLevelThreeRefernce());
+					path =  leafIdName.get(levelThreeStageMaster.getLevelThreeStageId())+File.separatorChar+path;
+					LevelTwoStageMaster levelTwoStageMaster = levelTwoMap.get(levelThreeStageMaster.getLevelTwoRefernce());
+					path =  leafIdName.get(levelTwoStageMaster.getLevelTwoStageId())+File.separatorChar+path;
+					LevelOneStageMaster levelOneStageMaster = levelOneMap.get(levelTwoStageMaster.getLevelOneRefernce());
+					path =  leafIdName.get(levelOneStageMaster.getLevelOneStageId())+File.separatorChar+path;
+					leafIdFullPath.put(levelFiveMaster.getKey(), path);
+					
+				}
+				
+				//Fourth Level
+				for (Entry<String, LevelFourStageMaster> levelFourMaster : levelFourMap.entrySet()) {
+					String path= "";
+					path = path+leafIdName.get(levelFourMaster.getKey());
+					LevelThreeStageMaster levelThreeStageMaster = levelThreeMap.get(levelFourMaster.getValue().getLevelThreeRefernce());
+					path =  leafIdName.get(levelThreeStageMaster.getLevelThreeStageId())+File.separatorChar+path;
+					LevelTwoStageMaster levelTwoStageMaster = levelTwoMap.get(levelThreeStageMaster.getLevelTwoRefernce());
+					path =  leafIdName.get(levelTwoStageMaster.getLevelTwoStageId())+File.separatorChar+path;
+					LevelOneStageMaster levelOneStageMaster = levelOneMap.get(levelTwoStageMaster.getLevelOneRefernce());
+					path =  leafIdName.get(levelOneStageMaster.getLevelOneStageId())+File.separatorChar+path;
+					leafIdFullPath.put(levelFourMaster.getKey(), path);	
+				}
+				
+				//Third Level
+				for (Entry<String, LevelThreeStageMaster> levelThreeMaster : levelThreeMap.entrySet()) {
+					String path= "";
+					path = path+leafIdName.get(levelThreeMaster.getKey());
+					LevelTwoStageMaster levelTwoStageMaster = levelTwoMap.get(levelThreeMaster.getValue().getLevelTwoRefernce());
+					path =  leafIdName.get(levelTwoStageMaster.getLevelTwoStageId())+File.separatorChar+path;
+					LevelOneStageMaster levelOneStageMaster = levelOneMap.get(levelTwoStageMaster.getLevelOneRefernce());
+					path =  leafIdName.get(levelOneStageMaster.getLevelOneStageId())+File.separatorChar+path;
+					leafIdFullPath.put(levelThreeMaster.getKey(), path);	
+				}
+				
+				
+				//Seconf Level
+				for (Entry<String, LevelTwoStageMaster> levelTwoMaster : levelTwoMap.entrySet()) {
+					String path= "";
+					path =  leafIdName.get(levelTwoMaster.getKey())+File.separatorChar+path;
+					LevelOneStageMaster levelOneStageMaster = levelOneMap.get(levelTwoMaster.getValue().getLevelOneRefernce());
+					path =  leafIdName.get(levelOneStageMaster.getLevelOneStageId())+File.separatorChar+path;
+					leafIdFullPath.put(levelTwoMaster.getKey(), path);	
+				}
+
+			} catch (Exception ex) {
+
+				Debug.printDebug("Errro On Fetching" + ex.getLocalizedMessage());
+			}
+			return leafIdFullPath;
+		}
 
 	// Trails Method Get Stages For Trails
 	public List<String> getStagesMappingLeafIdForTrails(String uutId) {
@@ -1970,9 +2160,6 @@ public class SessionManagement {
 	public Response endSession(String endRemarks, boolean islogout) {
 		Response res = new Response();
 		try {
-			if (islogout) {
-				AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
-			}
 			String sessionId = currentSessionDetails.getSessionId();
 			if (sessionId.substring(0, 4).equals("TSSN")) {
 				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
@@ -1996,7 +2183,24 @@ public class SessionManagement {
 
 				ss.setEndDateTime(formattedDateTime);
 				res = sessionService.updateSession(ss);
+				
+			
+
+				if (DFCCConstant.sessionTestStagesCompleted) {
+				    Platform.runLater(() -> {
+				        Notifications.showSuccessAlert(
+				            "All stages of this session have been executed successfully. The current session will now end."
+				        );
+				    });				    
+				}
+				
+				
 			}
+			if (islogout) {
+				AitessProcessControlManagement.getInstance().endAllProcessOnLogout();
+			
+			}
+			
 		} catch (Exception e) {
 			res.setResponseCode(0);
 			res.setResponseMessage("Failed to End Session " + e.getLocalizedMessage());
@@ -2153,7 +2357,7 @@ public class SessionManagement {
 //				}
 //
 //			}
-//			System.out.println("Size of the List  ::"+listOfSession.size());
+//			////System.out.println("Size of the List  ::"+listOfSession.size());
 //			res.setResponseCode(1);
 //			res.setResponseMessage(getResponse.getMsg());
 //			sessionListResponse.setResponse(res);
@@ -2187,12 +2391,19 @@ public class SessionManagement {
 
 				List<TrailSessionDto> trailActiveSession = new ArrayList<TrailSessionDto>();
 				trailActiveSession = trailSessionResponse.getListOfSession();
+				
+				
+				
+				
 				for (TrailSessionDto trailSessionDto : trailActiveSession) {
-					SessionList sessionList = new SessionList();
-					sessionList.setSessionId(trailSessionDto.getSessionId());
-					sessionList.setSessionName(trailSessionDto.getSessionName());
-					sessionList.setCreationDate(trailSessionDto.getCreationDate());
-					trailSession.add(sessionList);
+
+					if (!DFCCConstant.roleId.equals("RL_ID_4")) {
+						SessionList sessionList = new SessionList();
+						sessionList.setSessionId(trailSessionDto.getSessionId());
+						sessionList.setSessionName(trailSessionDto.getSessionName());
+						sessionList.setCreationDate(trailSessionDto.getCreationDate());
+						trailSession.add(sessionList);
+					}
 
 				}
 
@@ -2201,10 +2412,14 @@ public class SessionManagement {
 				GetResponse getResponse = sessionSelectedStage.getAllSessionDataWithDescOrder();
 
 				if (getResponse.getCode() == 0) {
+					if (trailSession.size() > 0) {
+						listOfSession.addAll(trailSession);
+					}
 					if (listOfSession.size() > 0) {
 						res.setResponseCode(1);
 						res.setResponseMessage(getResponse.geteMsg() + "  Error On Session Enity....");
 						sessionListResponse.setResponse(res);
+
 						sessionListResponse.setListOfSession(listOfSession);
 						return sessionListResponse;
 
@@ -2223,12 +2438,35 @@ public class SessionManagement {
 
 				SessionStagesTestFilesResultService sessionStagesTestFilesResultService = new SessionStagesTestFilesResultService();
 				GetResponse resTestFilesResult = new GetResponse();
+								
 				resTestFilesResult = sessionStagesTestFilesResultService.getTestFilesResultBySessionIds(sessionIds);
 				List<SessionStagesTestFilesResult> resList = new ArrayList<SessionStagesTestFilesResult>();
 				resList = (List<SessionStagesTestFilesResult>) resTestFilesResult.getResponseList();
 
 				if (resList != null) {
-					lastTestedSessionId = sessionIds.get(sessionIds.size() - 1);
+//					lastTestedSessionId = sessionIds.get(sessionIds.size() - 1);
+					
+//					For Last tested Session on top in open existing session::
+					DateTimeFormatter formatter =
+					        DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+
+					Optional<SessionStagesTestFilesResult> latestResult =
+					        resList.stream()
+					               .filter(r -> r.getStartTime() != null && !r.getStartTime().isEmpty())
+					               .max(Comparator.comparing(r ->
+					                       ZonedDateTime.parse(r.getStartTime(), formatter)
+					               ));
+
+
+					if (latestResult.isPresent()) {
+					    SessionStagesTestFilesResult result = latestResult.get();
+
+					    lastTestedSessionId = result.getSessionId();
+
+					} else {
+					    lastTestedSessionId = "";
+					}
+
 				}
 
 				for (Object object : getResponse.getResponseList()) {
@@ -2257,7 +2495,6 @@ public class SessionManagement {
 					listOfSession.addAll(otherSession);
 				}
 
-				System.out.println("Size of the List  ::" + listOfSession.size());
 				res.setResponseCode(1);
 				res.setResponseMessage(getResponse.getMsg());
 				sessionListResponse.setResponse(res);
@@ -3139,7 +3376,7 @@ public class SessionManagement {
 //				
 //				if(sessionStage.getLevelStageOneId().equals("L1_011"))
 //				{
-//					System.out.println("Stage Id");
+//					////System.out.println("Stage Id");
 //				}
 //
 //				// Add L2 IDs
@@ -3421,7 +3658,7 @@ public class SessionManagement {
 //			}// L1 End 
 //			
 //			
-//		System.out.println("SIZE"+listOfStageObject.size());
+//		////System.out.println("SIZE"+listOfStageObject.size());
 //			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 //			res.setResponseCode(1);
 //			res.setResponseMessage("Fetch Data Successfull ");
@@ -3602,7 +3839,7 @@ public class SessionManagement {
 												} 
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
-//												System.out.println("Level Five Id   :"+levelFiveId+"             Level Name"+ stageIdName.get(levelFiveId)+"          Result  ::"+leafStageResult.get(levelFiveId));
+//												////System.out.println("Level Five Id   :"+levelFiveId+"             Level Name"+ stageIdName.get(levelFiveId)+"          Result  ::"+leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
 											} // L5 End
 
@@ -3621,7 +3858,7 @@ public class SessionManagement {
 											leafStageResult.put(levelFourId, l4Status);
 											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 													levelFourId, null, l4Status);
-//											System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+l4Status);
+//											////System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+l4Status);
 											
 											pending4 = false;
 											completed4 = false;
@@ -3629,7 +3866,7 @@ public class SessionManagement {
 										} else {
 											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 													levelFourId, null, leafStageResult.get(levelFourId));
-//											System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+leafStageResult.get(levelFourId));
+//											////System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+leafStageResult.get(levelFourId));
 										}
 										listOfStageObject.add(stageObjectL4);
 										if (leafStageResult.get(levelFourId).equals(PENDING)) {
@@ -3659,11 +3896,11 @@ public class SessionManagement {
 									} else if (completed3) {
 										l3Status = COMPLETED;
 									}
-									//System.out.println("Level Three Id :"+levelThreeId  +"Result" +l3Status);			
+									//////System.out.println("Level Three Id :"+levelThreeId  +"Result" +l3Status);			
 									leafStageResult.put(levelThreeId, l3Status);
 									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
 											leafStageResult.get(levelThreeId));
-//									System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
+//									////System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
 									pending3 = false;
 									completed3 = false;
 									completedfailure3 = false;
@@ -3671,7 +3908,7 @@ public class SessionManagement {
 									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
 											leafStageResult.get(levelThreeId));
 									
-//									System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
+//									////System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
 								}
 								listOfStageObject.add(stageObjectL3);
 
@@ -3701,19 +3938,19 @@ public class SessionManagement {
 								l2Status = COMPLETED;
 							}
 							
-							//System.out.println("Level Two Id :"+levelTwo  +"Result" +l2Status);	
+							//////System.out.println("Level Two Id :"+levelTwo  +"Result" +l2Status);	
 							leafStageResult.put(levelTwo, l2Status);
 							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
 									leafStageResult.get(levelTwo));
 							
-//							System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
+//							////System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
 							pending2 = false;
 							completed2 = false;
 							completedfailure2 = false;
 						} else {
 							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
 									leafStageResult.get(levelTwo));
-//							System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
+//							////System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
 						}
 						listOfStageObject.add(stageObjectL2);
 						
@@ -3750,13 +3987,13 @@ public class SessionManagement {
 					
 					leafStageResult.put(levelOneId, l1Status);
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-//					System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
+//					////System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
 					pending1 = false;
 					completed1 = false;
 					completedfailure1 = false;
 				} else {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-//					System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
+//					////System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
 			}// L1 End 
@@ -3911,7 +4148,7 @@ public class SessionManagement {
 //				sessionDTO = (SessionEntity) getObjRes.getObject();
 //				sessionStages = getDefaultStatusLevelData(sessionDTO.getUutId());
 				
-				System.out.println("Session UUT Type Id"+StateMachine.currentSessionDetails.getUutId());
+				////System.out.println("Session UUT Type Id"+StateMachine.currentSessionDetails.getUutId());
 				
 				sessionStages = getDefaultStatusLevelData(StateMachine.currentSessionDetails.getUutId());
 				List<String> defaultStagesIds = new ArrayList<String>();
@@ -3948,18 +4185,18 @@ public class SessionManagement {
 				sessionStagesListResponse = sessionStagesStatusService.getSessionStagesStatus(sessionId);
 				sessionStagesStatusList = sessionStagesListResponse.getSessionStagesList();
 				
-				System.out.println("All Stages In Session  :"+sessionStagesStatusList.size());
+				////System.out.println("All Stages In Session  :"+sessionStagesStatusList.size());
 				
 				// Filter For Session Stages
 				List<SessionStagesStatus> filteredList = sessionStagesStatusList.stream()
 						.filter(ses -> !defaultStagesIds.contains(ses.getStageId())).collect(Collectors.toList());
 				
-				System.out.println("Session Stages In Session  :"+filteredList.size());
+				////System.out.println("Session Stages In Session  :"+filteredList.size());
 				
 				filteredList = filteredList.stream().filter(ses -> ses.getStageStatus().equals("pending"))
 						.collect(Collectors.toList());
 				
-				System.out.println("Pending Session Stages In Session  :"+filteredList.size());
+				////System.out.println("Pending Session Stages In Session  :"+filteredList.size());
 
 				if (filteredList.size() == 0) {
 					
@@ -3970,7 +4207,41 @@ public class SessionManagement {
 				ex.printStackTrace();
 			}
 			
-			System.out.println("Session AutoMatic Ending Flag :::"+compFlag);
+			////System.out.println("Session AutoMatic Ending Flag :::"+compFlag);
 			return compFlag;
+		}
+		
+		public Set<String> getUserIdsWithRoleIds()
+		{
+			Set<String> userIds = new HashSet<String>();
+			try {
+
+				UserLoginDetailsService userLogin = new UserLoginDetailsService();
+				List<UserLoginDetails> userLoginResponse = userLogin.getAllUser();
+
+				Set<String> excludedRoles = Set.of(DFCCConstant.roleId);
+				userLoginResponse = userLoginResponse.stream().filter(e -> !excludedRoles.contains(e.getRoleId()))
+						.collect(Collectors.toList());
+
+	
+				for (UserLoginDetails userLoginDetails : userLoginResponse) {
+					userIds.add(userLoginDetails.getUserId());
+				}
+
+//				SessionService service = new SessionService();
+//				SessionResponse serviceResponse = service.getAllSession();
+//				List<SessionDto> sessionList = serviceResponse.getListOfSession();
+//
+//				sessionList = sessionList.stream().filter(e -> !userIds.contains(e.getUserId()))
+//						.collect(Collectors.toList());
+//
+//				for (SessionDto sessionDto : sessionList) {
+//					lstSessionSNo.add(sessionDto.getDfccSNo());
+//				}
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			return userIds;
 		}
 }

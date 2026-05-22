@@ -40,6 +40,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -87,16 +88,20 @@ public class CurrentStageResultController {
 	private StackPane detailedDataStackPane = new StackPane();
 
 	private TableViewFactory<BriefData> briefDataFactory = new BriefDataTableViewFactory();
-	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
+	
 
 	private ObservableList<BriefData> briefDataList = FXCollections.observableArrayList();
-	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
+	
 
 	private CustomTableView<BriefData> briefDataTableView;
+	
+	private TableViewFactory<DetailedData> detailedDataFactory = new DetailedDataTableViewFactory();
+	private ObservableList<DetailedData> detailedDataList = FXCollections.observableArrayList();
 	private CustomTableView<DetailedData> detailedDataTableView;
 
 	private String currentTab = "tab1";
-
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
+	private VBox progressBox = new VBox();
 	ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 	ReportGeneration reportGeneration = new ReportGeneration();
 
@@ -123,7 +128,7 @@ public class CurrentStageResultController {
 		
 		
 		
-//		System.out.println("CURRENT STAGE ID"+STAGE_ID);
+//		////System.out.println("CURRENT STAGE ID"+STAGE_ID);
 		
 
 		currentExecutionResultGridPane.getStylesheets()
@@ -221,10 +226,24 @@ public class CurrentStageResultController {
 			});
 
 			dialog.showAndWait().ifPresent(result -> {
+
+		         // Create the loadersai21112025
+		            ProgressIndicator loader = new ProgressIndicator();
+		            loader.setMaxSize(70, 70);
+		            loader.setVisible(true);
+
+		            // Add loader to the existing parent stack pane of the grid
+		            StackPane parentStack = (StackPane) currentExecutionResultGridPane.getParent();
+		            parentStack.getChildren().add(loader);
+		            StackPane.setAlignment(loader, Pos.CENTER);
+		            downloadButton.setDisable(true);
 				if ("Brief".equals(result)) {
 					Consumer<Response> onDownloadComplete = (response) -> {
 
 						Platform.runLater(() -> {
+							loader.setVisible(false);
+							 parentStack.getChildren().remove(loader);
+			                    downloadButton.setDisable(false);
 							viewReportController.viewReportPopup(response);			
 							});
 					};
@@ -243,6 +262,9 @@ public class CurrentStageResultController {
 					Consumer<Response> onDownloadComplete = (response) -> {
 
 						Platform.runLater(() -> {
+							loader.setVisible(false);
+							 parentStack.getChildren().remove(loader);
+			                    downloadButton.setDisable(false);
 							viewReportController.viewReportPopup(response);			
 							});
 					};
@@ -471,8 +493,9 @@ public class CurrentStageResultController {
 
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
-				newBriefData.setExecutedFileName(data.getRdfFile());
-//				newBriefData.setTimeOfExecution(data.getEndTime());
+//				newBriefData.setExecutedFileName(data.getRdfFile());
+				newBriefData.setResultFileName(data.getRdfFile());
+				newBriefData.setTimeOfExecution(data.getEndTime());
 				//changed by sai 11112025
 				if(data.getEndTime()!=null) {
 					try {
@@ -513,7 +536,7 @@ public class CurrentStageResultController {
 		briefDataTableView.getColumns().forEach(column -> {
 //			column.setMinWidth(column.getText().length() * 14);
 			String colNamne=column.getText();
-//			System.out.println(colNamne);
+//			////System.out.println(colNamne);
 			switch (colNamne) {
 			case "SL NO":
 				column.setMinWidth(100);
@@ -523,7 +546,7 @@ public class CurrentStageResultController {
 				column.setMinWidth(320);
 				column.setMaxWidth(320);
 				break;
-			case "EXECUTED FILE NAME":
+			case "RESULT FILE NAME":
 				column.setMinWidth(420);
 				column.setMaxWidth(420);
 				break;
@@ -559,7 +582,7 @@ public class CurrentStageResultController {
 	        @Override
 			protected void succeeded() {
 		    	Platform.runLater(() -> {
-	            	
+	            	hideProgressIndicator();
 	 	               tableScrollPane.setContent(briefDataTableView);
 	 	              tableScrollPane.setFitToHeight(true);
 	 	            });
@@ -577,9 +600,12 @@ public class CurrentStageResultController {
 //					currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 //					currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 //		        });
-				Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+				Platform.runLater(() -> {
+					hideProgressIndicator();
+				Notifications.showErrorAlert("Failed to retrieve data");});
 			}
 		};
+		task.setOnRunning(evt->showProgressIndicator());
 		new Thread(task).start();
 		
 		return tableScrollPane;
@@ -675,14 +701,21 @@ public class CurrentStageResultController {
 		        protected Void call() throws Exception {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 		
+		////System.out.println("Check in Stage Result :: "+SESSION_ID + " stage:" +  STAGE_ID);
+		
 		if (STAGE_ID != null && SESSION_ID != null) {
-			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
+		//	response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesFromMysql(SESSION_ID, STAGE_ID);
+			
 		} 
 		else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID);
+		//	response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID);
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesFromMysql(SESSION_ID, STAGE_ID);
 		}else {
-			response = resultExecutionManagement
-					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+			//response = resultExecutionManagement
+			//		.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+			
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesMySql(currentSessionDetails.getSessionId());
 		}
 
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
@@ -713,6 +746,16 @@ public class CurrentStageResultController {
 
 		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "UNIT SERIAL NO".equalsIgnoreCase(col.getText()));
+		
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "SESSION NAME".equalsIgnoreCase(col.getText()));
+		
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "STAGE NAME".equalsIgnoreCase(col.getText()));
+		
+		
 		
 			Label tablePlaceholderLabel = new Label("Select any session data from session result table..");
 			tablePlaceholderLabel.setStyle("-fx-font-size:20px;");
@@ -732,7 +775,7 @@ public class CurrentStageResultController {
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
-		            	
+		            	hideProgressIndicator();
 		 	               tableScrollPane.setContent(detailedDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
@@ -750,9 +793,12 @@ public class CurrentStageResultController {
 //						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 //						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 //			        });
-					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+					Platform.runLater(()->{
+						hideProgressIndicator();
+					 Notifications.showErrorAlert("Failed to retrieve data");});
 				}
 			};
+			task.setOnRunning(evt->showProgressIndicator());
 			new Thread(task).start();
 		
 		
@@ -788,6 +834,23 @@ public class CurrentStageResultController {
 				}
 			}
 		});
+	}
+	//s20112025
+	private void showProgressIndicator() {
+	    StackPane parentStackPane = (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
+	    if (!parentStackPane.getChildren().contains(progressBox)) {
+	        progressBox.getChildren().add(progressIndicator);
+	        progressBox.setAlignment(Pos.CENTER);
+	        parentStackPane.getChildren().add(progressBox);
+	    }
+	}
+
+	private void hideProgressIndicator() {
+	    StackPane parentStackPane = (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
+	    if (parentStackPane.getChildren().contains(progressBox)) {
+	        parentStackPane.getChildren().remove(progressBox);
+	        progressBox.getChildren().clear(); // Clean up for next use
+	    }
 	}
 	
 	

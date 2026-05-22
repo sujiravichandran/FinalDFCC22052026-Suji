@@ -203,10 +203,24 @@ public class CurrentExecutionResultController {
 			});
 
 			dialog.showAndWait().ifPresent(result -> {
+
+				// Create the loadersai21112025
+				ProgressIndicator loader = new ProgressIndicator();
+				loader.setMaxSize(70, 70);
+				loader.setVisible(true);
+
+				// Add loader to the existing parent stack pane of the grid
+				StackPane parentStack = (StackPane) currentExecutionResultGridPane.getParent();
+				parentStack.getChildren().add(loader);
+				StackPane.setAlignment(loader, Pos.CENTER);
+				downloadButton.setDisable(true);
 				if ("Brief".equals(result)) {
 					Consumer<Response> onDownloadComplete = (response) -> {
 
 						Platform.runLater(() -> {
+							loader.setVisible(false);
+							parentStack.getChildren().remove(loader);
+							downloadButton.setDisable(false);
 							viewReportController.viewReportPopup(response);			
 							});
 					};
@@ -225,6 +239,9 @@ public class CurrentExecutionResultController {
 
 					Consumer<Response> onDownloadComplete = (response) -> {
 						Platform.runLater(() -> {
+							loader.setVisible(false);
+							parentStack.getChildren().remove(loader);
+							downloadButton.setDisable(false);
 							viewReportController.viewReportPopup(response);
 									
 						});
@@ -241,6 +258,8 @@ public class CurrentExecutionResultController {
 					}
 				}
 			});
+			
+			
 		});
 		return buttonBox;
 	}
@@ -483,18 +502,25 @@ public class CurrentExecutionResultController {
 
 				newBriefData.setId(data.getTestFileId());
 				newBriefData.setSlNo(String.valueOf(i));
-				newBriefData.setExecutedFileName(data.getRdfFile());
+				newBriefData.setResultFileName(data.getRdfFile());
 //				newBriefData.setTimeOfExecution(data.getEndTime());
-				//changed by sai 11112025
+						//				newBriefData.setResult(data.getStatus());
+						//sai chnaged date format 30102025
 				if(data.getEndTime()!=null) {
 					try {
-					SimpleDateFormat dbForm=new SimpleDateFormat("E dd MMM yyyy HH:mm:ss",Locale.ENGLISH);
-					SimpleDateFormat displayForm=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-					Date parseDate=dbForm.parse(data.getEndTime());
-					String formatTime=displayForm.format(parseDate);
-					newBriefData.setTimeOfExecution(formatTime);
+								// Step 1: Define input and output formats
+								SimpleDateFormat dbFormat = new SimpleDateFormat("E dd MMM yyyy HH:mm:ss", Locale.ENGLISH);
+								SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+								//						////System.out.println("DB endTime value: " + data.getEndTime());
+
+								// Step 2: Parse and format
+								Date parsedDate = dbFormat.parse(data.getEndTime().toString());
+								String formattedTime = displayFormat.format(parsedDate);
+
+								newBriefData.setTimeOfExecution(formattedTime);
+
 					}catch(Exception e){
-						newBriefData.setTimeOfExecution("invalid date");
+								newBriefData.setTimeOfExecution("Invalid Date");
 						e.printStackTrace();
 					}
 				}
@@ -523,7 +549,7 @@ public class CurrentExecutionResultController {
 
 //			column.setMinWidth(column.getText().length() * 14);
 			String colNamne=column.getText();
-//			System.out.println(colNamne);
+//			////System.out.println(colNamne);
 			switch (colNamne) {
 			case "SL NO":
 				column.setMinWidth(100);
@@ -533,7 +559,7 @@ public class CurrentExecutionResultController {
 				column.setMinWidth(320);
 				column.setMaxWidth(320);
 				break;
-			case "EXECUTED FILE NAME":
+			case "RESULT FILE NAME":
 				column.setMinWidth(420);
 				column.setMaxWidth(420);
 				break;
@@ -574,7 +600,7 @@ public class CurrentExecutionResultController {
 		        @Override
 				protected void succeeded() {
 			    	Platform.runLater(() -> {
-		            	
+					hideProgressIndicator();
 		 	               tableScrollPane.setContent(briefDataTableView);
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });
@@ -592,9 +618,12 @@ public class CurrentExecutionResultController {
 //						currentExecutionResultGridPane.getScene().setCursor(Cursor.DEFAULT);
 //						currentExecutionResultGridPane.getScene().getRoot().setDisable(false);
 //			        });
-					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+				Platform.runLater(() -> {
+					hideProgressIndicator();
+					Notifications.showErrorAlert("Failed to retrieve data");});
 				}
 			};
+		task.setOnRunning(evt -> showProgressIndicator());
 			new Thread(task).start();
 		
 		return tableScrollPane;
@@ -701,19 +730,25 @@ public class CurrentExecutionResultController {
 		ResultDetailedResponse response = new ResultDetailedResponse();
 	
 		if (STAGE_ID != null && SESSION_ID != null) {
-			response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
+			//response = resultExecutionManagement.getResultExecutionDetailedListForStages(SESSION_ID, STAGE_ID);
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesFromMysql(SESSION_ID, STAGE_ID);
+			
 		} else if(STAGE_ID == null && SESSION_ID != null){
-			response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
+			//response = resultExecutionManagement.getResultExecutionListDetailedListForSession(SESSION_ID);
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesMySql(SESSION_ID);
 		} else {
 			
-			response = resultExecutionManagement
-					.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+		//	response = resultExecutionManagement
+		//			.getResultExecutionDetailedListForStages(currentSessionDetails.getSessionId());
+			
+			response = resultExecutionManagement.getResultExecutionDetailedListForStagesMySql(currentSessionDetails.getSessionId());
 		}
 
 		if (response.getCode() == 1 && response.getResultDetailedList() != null) {
 			int i = 1;
 //			detailedDataList.clear();
 //			int listSize = response.getResultDetailedList().size();
+			////System.out.println("Suji UI Checking for Current Execution"+ response.getResultDetailedList().size());
 			for (ResultDetailedDTO data : response.getResultDetailedList()) {
 
 				DetailedData newDetailedData = new DetailedData();
@@ -740,7 +775,15 @@ public class CurrentExecutionResultController {
 		
 		detailedDataTableView = detailedDataFactory.createTableView(detailedDataList, false, false);
 		
-
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "UNIT SERIAL NO".equalsIgnoreCase(col.getText()));
+		
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "SESSION NAME".equalsIgnoreCase(col.getText()));
+		
+		detailedDataTableView.getColumns().removeIf(col -> 
+        "STAGE NAME".equalsIgnoreCase(col.getText()));
+		
 		detailedDataTableView.getColumns().forEach(column -> {
 			column.setMinWidth(column.getText().length() * 14);
 			updateDetailedData((TableColumn<DetailedData, String>) column);
@@ -762,6 +805,7 @@ public class CurrentExecutionResultController {
 			    	Platform.runLater(() -> {
 		            	
 		 	              tableScrollPane.setContent(detailedDataTableView);
+					       hideProgressIndicator();
 		 	              tableScrollPane.setFitToHeight(true);
 		 	            });   
 		           
@@ -770,13 +814,15 @@ public class CurrentExecutionResultController {
 				@Override
 				protected void failed() {
 //					
-					Platform.runLater(() -> Notifications.showErrorAlert("Failed to retrieve data"));
+					Platform.runLater(() ->{
+					hideProgressIndicator();
+					Notifications.showErrorAlert("Failed to retrieve data");});
 				}
 			};
 			
 //			 task.setOnFailed(evt -> {
 //		            hideProgressIndicator();
-////		            System.out.println("Entred setOnFailed");
+////		            ////System.out.println("Entred setOnFailed");
 //		            task.getException().printStackTrace();
 //		        });
 //
@@ -785,10 +831,11 @@ public class CurrentExecutionResultController {
 //
 //		        task.setOnRunning(evt -> {
 //		            if (DFCCConstant.isJarBuild) {
-////		            	System.out.println("Entred setOnRunning");
+////		            	////System.out.println("Entred setOnRunning");
 //		                showProgressIndicator();
 //		            }
 //		        });
+			task.setOnRunning(evt -> showProgressIndicator());
 			new Thread(task).start();
 		
 		return tableScrollPane;
@@ -825,19 +872,21 @@ public class CurrentExecutionResultController {
 			}
 		});
 	}
-	
+	//sai28012026
 	 private void showProgressIndicator() {
 			StackPane parentStackPane= (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
+		if (!parentStackPane.getChildren().contains(progressbox)) {
 			progressbox.getChildren().add(progressIndicator);
 			progressbox.setAlignment(Pos.CENTER);
 			parentStackPane.getChildren().add(progressbox);
 		}
-		
+	}
 
 		private void hideProgressIndicator() {
 			StackPane parentStackPane= (StackPane) currentExecutionResultTabsGridPane.getParent().getParent();
 			if(parentStackPane.getChildren().contains(progressbox)) {
 				parentStackPane.getChildren().remove(progressbox);
+			progressbox.getChildren().clear(); // Clean up for next use
 			}
 		}
 }

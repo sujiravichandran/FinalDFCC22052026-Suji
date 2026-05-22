@@ -164,7 +164,8 @@ public class FaultCodeController {
 	                    FaultCodeConfig faultCodeData = new FaultCodeConfig();
 	                    faultCodeData.setId(faultCode.getFaultCodeMasterId());
 	                    faultCodeData.setFaultCode(faultCode.getFaultCode());
-	                    faultCodeData.setFilePath(faultCode.getFaultCodeFilePath());
+	                    faultCodeData.setFaultCodeDescription(faultCode.getFaultCodeDescription());
+//	                    faultCodeData.setFilePath(faultCode.getFaultCodeFilePath());
 
 	                    tableData.add(faultCodeData);
 	                }

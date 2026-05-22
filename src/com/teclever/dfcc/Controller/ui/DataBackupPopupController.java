@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.service.SessionTimingService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
-import com.teclever.dfcc.UserData;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.CopyFileDTO;
 import com.teclever.dfcc.datastore.dto.LogOutFileCopyResponse;
@@ -29,20 +31,20 @@ import com.teclever.dfcc.utils.Notifications;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -62,6 +64,7 @@ public class DataBackupPopupController {
 	private GridPane dataBackupGridPane;
 	@FXML
 	private HBox buttonHBox;
+	private String sessionType;
 
 	private GridPane filterResultGridPane = new GridPane();
 	private ComboBox<String> uutTypeField = new ComboBox<String>();
@@ -77,7 +80,7 @@ public class DataBackupPopupController {
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
 	private String session_ID;
-	private String selectedUttId;
+	
 	private SessionService s = new SessionService();
 
 	private Label selectSessionLabel = new Label("Select Session");
@@ -90,17 +93,31 @@ public class DataBackupPopupController {
 
 	private Button copyButton = new Button("Backup");
 	private Button closeButton = new Button("Close");
+	
+	private List<TrailSessionDto> sessionListTrail = new ArrayList<TrailSessionDto>();
+	private TrailSessionEntityService t = new TrailSessionEntityService();
 
 	private SessionManagement sessionManagement = new SessionManagement();
 	private SessionFileManagement sessionFileManagement = new SessionFileManagement();
+
+	
+	private String selectedUttId;
+	private String selectedSno;
 
 	public void initialize() {
 		dataBackupMainContainer.getStylesheets().add(getClass()
 				.getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/DataBackup.css").toExternalForm());
 		createDataBackupPopupContent();
-		initializeUUTTypeComboBox();
+		
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
+		
+		// Trial sessions
+	    TrailSessionResponse t1 = t.getActiveTrailSessionId();
+	    sessionListTrail = t1.getListOfSession();
+	    
+	    
+	    initializeUUTTypeComboBox();
 	}
 
 	private void createDataBackupPopupContent() {
@@ -136,7 +153,6 @@ public class DataBackupPopupController {
 
 		GridPane.setHgrow(sessionNameField, Priority.ALWAYS);
 		sessionNameField.setMaxWidth(Double.MAX_VALUE);
-		
 
 		GridPane.setHgrow(selectPathButton, Priority.ALWAYS);
 		selectPathButton.setMaxWidth(Double.MAX_VALUE);
@@ -193,7 +209,6 @@ public class DataBackupPopupController {
 		buttonHBox.getChildren().addAll(copyButton, closeButton);
 	}
 
-
 	private HBox createUutBox() {
 		uutTypeField.setPromptText("UUT TYPE");
 
@@ -241,30 +256,110 @@ public class DataBackupPopupController {
 		return null;
 	}
 
-	private void initializeDfccSNComboBox(String uutTypeId) {
-		dfccSNList.clear();
-		System.out.println("Check Session List Size " + sessionList.size() + "  " + uutTypeId);
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
-				.collect(Collectors.toList());
+//	private void initializeDfccSNComboBox(String uutTypeId) {
+//		dfccSNList.clear();
+//		////System.out.println("Check Session List Size " + sessionList.size() + "  " + uutTypeId);
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
+//				.collect(Collectors.toList());
+//
+//		Set<String> seenDfccSNos = new HashSet<>();
+//
+//		for (SessionDto dfccSn : filterSessionList) {
+//			String dfccSNo = dfccSn.getDfccSNo();
+//			if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
+//				dfccSNList.add(dfccSNo);
+//			}
+//		}
+//
+//		slNoField.setOnAction(event -> {
+//			String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+//			selectedSno = slNoField.getSelectionModel().getSelectedItem();
+//			if (selectedSerialNo != null) {
+//				initializeSessionNameComboBox(selectedSerialNo);
+//			}
+//		});
+//
+//		////System.out.println("Check dfccSNList" + dfccSNList);
+//		slNoField.setItems(dfccSNList);
+//	}
+	
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
 
-		Set<String> seenDfccSNos = new HashSet<>();
+		comboBox.setEditable(true);
+		comboBox.setItems(originalItems);
 
-		for (SessionDto dfccSn : filterSessionList) {
-			String dfccSNo = dfccSn.getDfccSNo();
-			if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
-				dfccSNList.add(dfccSNo);
+		TextField editor = comboBox.getEditor();
+
+		editor.setOnKeyReleased(event -> {
+
+			String text = editor.getText();
+
+			ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+			if (text == null || text.isEmpty()) {
+				filteredList.addAll(originalItems);
+			} else {
+				for (String item : originalItems) {
+					if (item.toLowerCase().contains(text.toLowerCase())) {
+						filteredList.add(item);
+					}
+				}
 			}
-		}
 
-		slNoField.setOnAction(event -> {
-			String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
-			if (selectedSerialNo != null) {
-				initializeSessionNameComboBox(selectedSerialNo);
-			}
+			comboBox.setItems(filteredList);
+			comboBox.getEditor().positionCaret(text.length());
+			comboBox.show();
 		});
 
-		System.out.println("Check dfccSNList" + dfccSNList);
-		slNoField.setItems(dfccSNList);
+// Prevent auto-selection
+		comboBox.setOnAction(e -> {
+			if (comboBox.getSelectionModel().getSelectedItem() != null) {
+				editor.setText(comboBox.getSelectionModel().getSelectedItem());
+			}
+		});
+	}
+	
+	private void initializeDfccSNComboBox(String uutTypeId) {
+	    dfccSNList.clear();
+	    Set<String> seenDfccSNos = new HashSet<>();
+
+	    if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
+
+	        List<SessionDto> filterSessionList = sessionList.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+
+	        for (SessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+
+	    } else {
+
+	        List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+	        for (TrailSessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+	        
+	    }
+	    addSearchFunctionality(slNoField, dfccSNList);
+	    slNoField.setOnAction(event -> {
+		    String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+		    selectedSno = selectedSerialNo;
+		    ////System.out.println("Check SN SELECTION  ::  " +selectedSno ) ;
+		    if (selectedSno != null) {
+		    	initializeSessionNameComboBox(selectedSno);
+		    }
+		});
+
+	    slNoField.setItems(dfccSNList);
 	}
 
 	// UUT SERIAL NUMBER FIELD
@@ -272,6 +367,7 @@ public class DataBackupPopupController {
 		slNoField.setPromptText("UUT S/N");
 		selectionHBoxUUTSN.setPadding(new Insets(0, 0, 0, 18.5));
 		selectionHBoxUUTSN.setAlignment(Pos.CENTER_LEFT);
+		slNoField.setEditable(true);
 		selectionHBoxUUTSN.getChildren().add(slNoField);
 
 		return selectionHBoxUUTSN;
@@ -282,6 +378,7 @@ public class DataBackupPopupController {
 		sessionNameField.setPromptText("Session");
 		selectionBoxSESSION.setPadding(new Insets(0, 0, 0, 18.5));
 		selectionBoxSESSION.setAlignment(Pos.CENTER_LEFT);
+		sessionNameField.setEditable(true);
 		selectionBoxSESSION.getChildren().add(sessionNameField);
 
 		return selectionBoxSESSION;
@@ -289,19 +386,60 @@ public class DataBackupPopupController {
 
 	private void initializeSessionNameComboBox(String serialNo) {
 		sessionNameField.getItems().clear();
-		SESSION_ID = null;
-		SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(UserData.getRoleId());
-		if (response.getResponse().getResponseCode() == 1) {
-			sessionDataList = FXCollections.observableArrayList(response.getListOfSession());
-			for (SessionList session : sessionDataList) {
-				sessionNameList.add(session.getSessionName());
-			}
-			sessionNameField.setItems(sessionNameList);
-			sessionNameField.setOnAction((event) -> {
-				SESSION_ID = fetchSessionId(sessionNameField.getValue());
-			});
+		if (!(StateMachine.currentSessionDetails.getSessionTypeName() == null)
+				&& StateMachine.currentSessionDetails.getSessionTypeName().equals("Trail")) {
+			sessionType = "Trails";
+		} else {
+			sessionType = "Other";
 		}
+		
+		//System.out.println("Session Type :::" + 			sessionType);
+		if(!currentSessionDetails.getSessionId().startsWith("TSSN"))
+		{
+		////System.out.println("CHECK PAT SLNO ::: " +selectedSno );
+		SessionListResponse response1 = sessionManagement.getSessionDataByUUTId(selectedUttId);
+//			SessionListResponse response1 = sessionManagement.getSessionDataByUUTIdwithEndedSession(selectedUttId,sessionType);
+		List<SessionList>lst = response1.getListOfSession();
+		
+		lst =  lst.stream().filter(e->e.getDfccSNo().equals(selectedSno)).collect(Collectors.toList());
+		lst = lst.stream().filter(e->e.getSessionType().equals("ST1")||e.getSessionType().equals("ST3")||e.getSessionType().equals("ST2")||e.getSessionType().equals("ST5")).collect(Collectors.toList());
+//		lst = lst.stream().filter(e->e.getEndDate()==null).collect(Collectors.toList());
+		
+		List<String> sessionNameList1 = lst.stream()
+		        .map(SessionList::getSessionName)
+		        .collect(Collectors.toList());
+
+		sessionNameField.setItems(
+		        FXCollections.observableArrayList(sessionNameList1)
+		);
+		addSearchFunctionality(sessionNameField, FXCollections.observableArrayList(sessionNameList1));
+		}else {
+			SessionListResponse response1 = sessionManagement.getSessionDataByUUTId(selectedUttId);
+			List<SessionList>lst = response1.getListOfSession();
+			
+			lst =  lst.stream().filter(e->e.getDfccSNo().equals(selectedSno)).collect(Collectors.toList());
+			lst = lst.stream().filter(e->e.getSessionType().equals("TRIALS")).collect(Collectors.toList());
+			lst = lst.stream().filter(e->e.getEndDate()==null).collect(Collectors.toList());					
+			               
+			List<String> sessionNameList1 = lst.stream()
+			        .map(SessionList::getSessionName)
+			        .collect(Collectors.toList());
+
+			sessionNameField.setItems(
+			        FXCollections.observableArrayList(sessionNameList1)
+					);
+			addSearchFunctionality(sessionNameField, FXCollections.observableArrayList(sessionNameList1));
+		}
+		
+		sessionNameField.setOnAction((event) -> {
+			SESSION_ID = fetchSessionId(sessionNameField.getValue());
+			System.out.println(SESSION_ID+"-------------->");
+			//System.out.println("CHeck dsdscdscds" + SESSION_ID);
+		});
+		
 	}
+	
+	
 
 	private void handleClosePopup() {
 		Stage stage = (Stage) dataBackupMainContainer.getScene().getWindow();

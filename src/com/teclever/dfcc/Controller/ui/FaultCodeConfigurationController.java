@@ -207,6 +207,7 @@ public class FaultCodeConfigurationController {
     }
 
     private void initializeOfpVersionComboBox() {
+    	 ofpVersionList.clear();
         ofpVersionDataList = FXCollections.observableArrayList(ofpConfig.getOfpConfig(UUT_ID));
         for (OfpConfigurationDto ofp : ofpVersionDataList) {
             boolean exists = false;
@@ -274,7 +275,7 @@ public class FaultCodeConfigurationController {
                     FaultCodeConfig faultCodeData = new FaultCodeConfig();
                     faultCodeData.setId(faultCode.getFaultCodeMasterId());
                     faultCodeData.setFaultCode(faultCode.getFaultCode());
-                    faultCodeData.setFilePath(faultCode.getFaultCodeFilePath());
+                    faultCodeData.setFaultCodeDescription(faultCode.getFaultCodeDescription());
 
                     tableData.add(faultCodeData);
                 }

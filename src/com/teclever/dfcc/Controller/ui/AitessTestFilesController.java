@@ -151,6 +151,11 @@ public class AitessTestFilesController {
 				}
 
 				AddCustomFileResponse res = customFileAddManagement.addCustomFiles(RUN_CONFIG_ID, filePaths, "tpf");
+				if(res.getResponseCode() == 9)
+				{
+					Notifications.showSuccessAlert(res.getResponseMsg());
+				}
+				
 				if (res.getResponseCode() == 1) {
 					tableData.clear();
 					Notifications.showSuccessAlert(res.getResponseMsg());

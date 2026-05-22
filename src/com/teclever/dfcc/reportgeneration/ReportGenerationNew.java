@@ -256,8 +256,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
         String updatedFilePath = "";
         String filePath = "";
         if (!DFCCConstant.isJarBuild) {
-            filePath = "C:\\Users\\User\\Downloads\\" + fileName;
-            updatedFilePath = "C:\\Users\\User\\Downloads\\" + "updated_" + fileName;
+            filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
+            updatedFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + "updated_" + fileName;
         } else {
             filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
             updatedFilePath = currentDirectory + File.separator + "Reports" + File.separator + "updated_" + fileName;
@@ -265,7 +265,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
         String excelPath = "";
         if (!DFCCConstant.isJarBuild) {
-            excelPath = "C:\\Users\\User\\Downloads\\REPORT_FIELDS_ESS.xlsx";
+            excelPath = "C:\\Users\\Teclever\\Downloads\\New folder\\REPORT_FIELDS_ESS.xlsx";
         } else {
             excelPath = currentDirectory + File.separator + "REPORT_FIELDS_ESS.xlsx";
         }
@@ -322,19 +322,22 @@ public class ReportGenerationNew extends PdfPageEventHelper {
         UserLoginDetailsDto u = user.getUserByUserId(currentSessionDetails.getUserId());
 
         Blob signatureBlob = u.getDigitalSignature();
-        byte[] imageBytes = convertBlobToByteArray(signatureBlob);
+        if(signatureBlob!=null)
+		{
+			byte[] imageBytes = convertBlobToByteArray(signatureBlob);
 
-        Image image = Image.getInstance(imageBytes);
+			Image image = Image.getInstance(imageBytes);
 
-        float x = 250f;
-        float y = 400f;
-        float boxWidth = 100f;
-        float boxHeight = 100f;
+			float x = 250f;
+			float y = 400f;
+			float boxWidth = 100f;
+			float boxHeight = 100f;
 
-        image.scaleToFit(boxWidth, boxHeight);
-        image.setAbsolutePosition(x, y);
-        PdfContentByte canvas = writer.getDirectContent();
-        canvas.addImage(image);
+			image.scaleToFit(boxWidth, boxHeight);
+			image.setAbsolutePosition(x, y);
+			PdfContentByte canvas = writer.getDirectContent();
+			canvas.addImage(image);
+		}
     }
 
     private byte[] convertBlobToByteArray(Blob blob) throws IOException {
@@ -355,7 +358,7 @@ public class ReportGenerationNew extends PdfPageEventHelper {
     }
 
     public Response generatePQTReportContent(String sessionId)
-            throws DocumentException, MalformedURLException, IOException {
+            throws Exception,DocumentException, MalformedURLException, IOException{
         
         if (sessionId.startsWith("SASN")) {
             dfccPartNo = getPartno(sessionId);
@@ -393,8 +396,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
         String filePath = "";
         String updatedFilePath = "";
         if (!DFCCConstant.isJarBuild) {
-            filePath = "C:\\Users\\User\\Downloads\\" + fileName;
-            updatedFilePath = "C:\\Users\\User\\Downloads\\" + "updated_" + fileName;
+            filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
+            updatedFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + "updated_" + fileName;
         } else {
             filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
             updatedFilePath = currentDirectory + File.separator + "Reports" + File.separator + "updated_" + fileName;
@@ -402,9 +405,106 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
         String excelPath = "";
         if (!DFCCConstant.isJarBuild) {
-            excelPath = "C:\\Users\\User\\Downloads\\REPORT_FIELDS_PQT1.xlsx";
+            excelPath = "C:\\Users\\Teclever\\Downloads\\New folder\\REPORT_FIELDS_PQT1.xlsx";
         } else {
             excelPath = currentDirectory + File.separator + "REPORT_FIELDS_PQT.xlsx";
+        }
+
+        Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
+        data1 = data;
+        writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
+
+        ReportGenerationNew.HeaderFooter event = new ReportGenerationNew.HeaderFooter();
+        writer.setPageEvent(event);
+        document.open();
+        addImageToFirstPage(writer, document);
+//        08122025
+//        essReportSummary(document, data, sessionId);
+          pqtReportSummary(document, data, sessionId);
+        document.close();
+
+        PdfReader reader = new PdfReader(filePath);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(updatedFilePath));
+        int totalPages = reader.getNumberOfPages();
+        BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED);
+        Font font = new Font(baseFont, 12, Font.NORMAL);
+        String pageNumberText = "";
+        for (int i = 1; i <= totalPages; i++) {
+            PdfContentByte canvas = stamper.getOverContent(i);
+          
+            if (totalPages < 10) {
+                pageNumberText = "0" + totalPages;
+            } else {
+                pageNumberText = "" + totalPages;
+            }
+
+            ColumnText.showTextAligned(canvas, Element.ALIGN_RIGHT, new Phrase(pageNumberText, font), 382.0f, 709.0f, 0);
+
+            canvas.saveState();
+            canvas.setLineWidth(1f);
+            canvas.moveTo(02.0f, 440.0f);
+            canvas.lineTo(35.0f, 440.0f);
+            canvas.stroke();
+            canvas.restoreState();
+        }
+        stamper.close();
+        reader.close();
+        res.setResponseMessage("updated_" + fileName);
+        return res;
+    }
+    
+    public Response generateHISTORYReportContent(String sessionId)
+            throws DocumentException, MalformedURLException, IOException {
+        
+        if (sessionId.startsWith("SASN")) {
+            dfccPartNo = getPartno(sessionId);
+        } else if(sessionId.startsWith("TSSN")) {
+            dfccPartNo = getTrailPartno(sessionId);
+        }
+        
+        if (sessionId.startsWith("SASN")) {
+            dfccSLNo = getSLNo(sessionId);
+        } else if(sessionId.startsWith("TSSN")) {
+            dfccSLNo = getTrailSLNo(sessionId);
+        }
+        if (sessionId.startsWith("SASN")) {
+            uutID = getUUTType(sessionId);
+        } else if(sessionId.startsWith("TSSN")) {
+            uutID = getTrailUUTType(sessionId);
+        }
+
+        if (uutID.equals("UUT1")) {
+            uutType = "DFCC-MK1 " + "- " + dfccSLNo;
+        }
+        if (uutID.equals("UUT2")) {
+            uutType = "DFCC-MK1A " + "- " + dfccSLNo;
+        }
+        if (uutID.equals("UUT3")) {
+            uutType = "DFCC-MK2" + "- " + dfccSLNo;
+        }
+
+        Response res = new Response();
+        Document document = new Document(PageSize.A4);
+
+        String fileName = "HistoryContent"
+                + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+
+        String filePath = "";
+        String updatedFilePath = "";
+        if (!DFCCConstant.isJarBuild) {
+            filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
+            updatedFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + "updated_" + fileName;
+        } else {
+            filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+            updatedFilePath = currentDirectory + File.separator + "Reports" + File.separator + "updated_" + fileName;
+        }
+
+        String excelPath = "";
+        if (!DFCCConstant.isJarBuild) {
+            excelPath = "C:\\Users\\Teclever\\Downloads\\New folder\\REPORT_FIELDS_HISTORY1.xlsx";
+        } else {
+            excelPath = currentDirectory + File.separator + "REPORT_FIELDS_HISTORY.xlsx";
         }
 
         Map<String, Map<String, Map<String, String>>> data = readExcelForHeadingSubHeadings(excelPath);
@@ -449,135 +549,165 @@ public class ReportGenerationNew extends PdfPageEventHelper {
         return res;
     }
 
-    public Response generateEssReport(String sessionId) {
-        currentPageNumber = 1;
-        tocPlaceholder = new HashMap<String, PdfTemplate>();
-        pageByTitle = new HashMap<>();
-        tocPlaceHolderCount = 1;
-        summaryPlaceHolderCount = 2;
-        tocPlaceHolderCountSub = 1;
-        summaryPlaceHolderCountSub = 1;
-        tocPlaceHolderCountH3 = 1;
-        summaryPlaceHolderCountH3 = 1;
+	public Response generateEssReport(String sessionId) {
+		currentPageNumber = 1;
+		tocPlaceholder = new HashMap<String, PdfTemplate>();
+		pageByTitle = new HashMap<>();
+		tocPlaceHolderCount = 1;
+		summaryPlaceHolderCount = 2;
+		tocPlaceHolderCountSub = 1;
+		summaryPlaceHolderCountSub = 1;
+		tocPlaceHolderCountH3 = 1;
+		summaryPlaceHolderCountH3 = 1;
 
-        Response res = new Response();
-        Response res1 = new Response();
-        ReportGeneration reportGeneration = new ReportGeneration();
-        try {
-            res1 = generateEssReportContent(sessionId);
+		Response res = new Response();
+		Response res1 = new Response();
+		ReportGeneration reportGeneration = new ReportGeneration();
+		try {
+			res1 = generateEssReportContent(sessionId);
 
-            String fileName = "ESS_Report"
-                    + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
-            String filePath = "";
-            String contentFilePath = "";
-            if (!DFCCConstant.isJarBuild) {
-                filePath = "C:\\Users\\User\\Downloads\\Reports\\" + fileName;
-                contentFilePath = "C:\\Users\\User\\Downloads\\" + res1.getResponseMessage();
-            } else {
-                filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
-                contentFilePath = currentDirectory + File.separator + "Reports" + File.separator + res1.getResponseMessage();
-            }
+			String fileName = "ESS_Report"
+					+ new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+			String filePath = "";
+			String contentFilePath = "";
+			if (!DFCCConstant.isJarBuild) {
+				filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
+				contentFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + res1.getResponseMessage();
+			} else {
+				filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+				contentFilePath = currentDirectory + File.separator + "Reports" + File.separator
+						+ res1.getResponseMessage();
+			}
 
-            res.setDownloadPath(filePath);
+			res.setDownloadPath(filePath);
 
-            List<String> pdfFiles = new ArrayList<String>();
-            pdfFiles.add(contentFilePath);
+			List<String> pdfFiles = new ArrayList<String>();
+			pdfFiles.add(contentFilePath);
 
-            ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
-            ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
-            reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "ESS");
-            int annexureCount = 1;
-            for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
-                File file = new File(reportConfigDTO.getFileName());
-                ImageToPdfConverter img = new ImageToPdfConverter();
-                boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
-                String annexureFilePath = currentDirectory + File.separator + "Annexure" + annexureCount + ".pdf";
-                File annexureFile = new File(annexureFilePath);
-                if (checkPdf) {
-                    if (annexureFile.exists()) {
-                        pdfFiles.add(annexureFilePath);
-                    } else {
-                        reportGeneration.generateAnnexure(annexureCount);
-                        pdfFiles.add(annexureFilePath);
-                    }
-                    pdfFiles.add(reportConfigDTO.getFileName());
-                } else {
-                    if (annexureFile.exists()) {
-                        pdfFiles.add(annexureFilePath);
-                    } else {
-                        reportGeneration.generateAnnexure(annexureCount);
-                        pdfFiles.add(annexureFilePath);
-                    }
-                    pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
-                }
-                annexureCount++;
-            }
+			ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+			ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+			reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "ESS");
+			int annexureCount = 1;
+			for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+				File file = new File(reportConfigDTO.getFileName());
+				ImageToPdfConverter img = new ImageToPdfConverter();
+				boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+				// 03
 
-            reportGeneration.generateAnnexure(annexureCount);
-            int finalAnnextureCount = annexureCount;
-            pdfFiles.add(currentDirectory + File.separator + "Annexure" + finalAnnextureCount + ".pdf");
+				String annexureFilePath = currentDirectory + File.separator + "Annexure" + annexureCount + ".pdf";
+				if (!DFCCConstant.isJarBuild)// mani
+					annexureFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + "Annexure" + annexureCount
+							+ ".pdf";
 
-            Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
-            int resResultCode = resReport.getResponseCode();
-            if (resResultCode == 1) {
-                if (!DFCCConstant.isJarBuild) {
-                    pdfFiles.add("C:\\Users\\User\\Downloads\\BriefReport_Session.pdf");
-                } else {
-                    pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator + "BriefReport_Session.pdf");
-                }
-            }
+				File annexureFile = new File(annexureFilePath);
+				if (checkPdf) {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(reportConfigDTO.getFileName());
+				} else {
+					if (annexureFile.exists()) {
+						pdfFiles.add(annexureFilePath);
+					} else {
+						reportGeneration.generateAnnexure(annexureCount);
+						pdfFiles.add(annexureFilePath);
+					}
+					pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+				}
+				annexureCount++;
+			}
 
-            Document document = new Document();
-            PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
-            document.open();
+			reportGeneration.generateAnnexure(annexureCount);
+			int finalAnnextureCount = annexureCount;
+			if (DFCCConstant.isJarBuild) {
+				pdfFiles.add(currentDirectory + File.separator + "Annexure" + finalAnnextureCount + ".pdf");
+			} else
 
-            Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+			{
+				// "C:\\Users\\Teclever\\Downloads\\New folder\\"+"Annexure" + annexureCount +
+				// ".pdf";
+				pdfFiles.add(
+						"C:\\Users\\Teclever\\Downloads\\New folder\\" + "Annexure" + finalAnnextureCount + ".pdf");
+			}
+//            pdfFiles.add(currentDirectory + File.separator + "Annexure" + finalAnnextureCount + ".pdf");
 
-            for (String pdf : pdfFiles) {
-                PdfReader reader = new PdfReader(pdf);
+			Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
+			Response resDetailed = reportGeneration.generateDetailedReportESSPQTSession(sessionId);
+			int resResultCode = resReport.getResponseCode();
+			int resDetCode = resDetailed.getResponseCode();
 
-                for (int i = 1; i <= reader.getNumberOfPages(); i++) {
-                    Paragraph sessionDetails = new Paragraph("Annexure - " + i, headerFont);
-                    sessionDetails.setAlignment(Element.ALIGN_CENTER);
-                    document.add(sessionDetails);
-                    copy.addPage(copy.getImportedPage(reader, i));
-                }
-                reader.close();
-            }
+			if (resResultCode == 1) {
+				if (!DFCCConstant.isJarBuild) {// s@i
+					pdfFiles.add("C:\\Users\\Teclever\\Downloads\\New folder\\BriefReport_Session.pdf");
+				} else {
+					pdfFiles.add(
+							currentDirectory + File.separator + "Reports" + File.separator + "BriefReport_Session.pdf");
+				}
+			}
 
-            document.close();
+			if (resDetCode == 1) {
+				if (!DFCCConstant.isJarBuild) {
+					pdfFiles.add("C:\\Users\\Teclever\\Downloads\\New folder\\DetailedReport_Session.pdf");
+				} else {
+					pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator
+							+ "DetailedReport_Session.pdf");
+				}
+			}
 
-            GetObjResponse sessionRes = new GetObjResponse();
-            String sessionPathString = "";
+			Document document = new Document();
+			PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+			document.open();
 
-            if (!sessionId.substring(0, 4).equals("TSSN")) {
-                SessionService sessionService = new SessionService();
-                sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
-                SessionEntity sessionEntity = new SessionEntity();
-                sessionEntity = (SessionEntity) sessionRes.getObject();
-                sessionPathString = sessionEntity.getPath();
-            } else {
-                TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
-                sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
-                TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
-                trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
-                sessionPathString = trailSessionEntity.getPath();
-            }
+			Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
 
-            sessionPathString = sessionPathString + File.separator + "report";
-            Path fileFullPath = Path.of(filePath);
-            SessionFileManagement sessionFileManagement = new SessionFileManagement();
-            Path sessionPath = Path.of(sessionPathString);
-            sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+			for (String pdf : pdfFiles) {
+				PdfReader reader = new PdfReader(pdf);
 
-            res.setResponseCode(1);
-            res.setResponseMessage("Ess Report Download Successfully!");
+				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+					Paragraph sessionDetails = new Paragraph("Annexure - " + i, headerFont);
+					sessionDetails.setAlignment(Element.ALIGN_CENTER);
+					document.add(sessionDetails);
+					copy.addPage(copy.getImportedPage(reader, i));
+				}
+				reader.close();
+			}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
+			document.close();
+
+			GetObjResponse sessionRes = new GetObjResponse();
+			String sessionPathString = "";
+
+			if (!sessionId.substring(0, 4).equals("TSSN")) {
+				SessionService sessionService = new SessionService();
+				sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) sessionRes.getObject();
+				sessionPathString = sessionEntity.getPath();
+			} else {
+				TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+				sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+				TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+				trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+				sessionPathString = trailSessionEntity.getPath();
+			}
+
+			sessionPathString = sessionPathString + File.separator + "report";
+			Path fileFullPath = Path.of(filePath);
+			SessionFileManagement sessionFileManagement = new SessionFileManagement();
+			Path sessionPath = Path.of(sessionPathString);
+			sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+
+			res.setResponseCode(1);
+			res.setResponseMessage("Ess Report Download Successfully!");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
 
     public Response generatePQTReport(String sessionId) {
         currentPageNumber = 1;
@@ -600,8 +730,8 @@ public class ReportGenerationNew extends PdfPageEventHelper {
             String filePath = "";
             String contentFilePath = "";
             if (!DFCCConstant.isJarBuild) {
-                filePath = "C:\\Users\\User\\Downloads\\Reports\\" + fileName;
-                contentFilePath = "C:\\Users\\User\\Downloads\\" + res1.getResponseMessage();
+                filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\Reports\\" + fileName;
+                contentFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + res1.getResponseMessage();
             } else {
                 filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
                 contentFilePath = currentDirectory + File.separator + "Reports" + File.separator + res1.getResponseMessage();
@@ -620,7 +750,12 @@ public class ReportGenerationNew extends PdfPageEventHelper {
                 File file = new File(reportConfigDTO.getFileName());
                 ImageToPdfConverter img = new ImageToPdfConverter();
                 boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
-                String annexureFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/" + "Annexure" + annexureCount + ".pdf";
+                String  annexureFilePath="";
+                if(DFCCConstant.isJarBuild){//pr@s@d
+                 annexureFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/" + "Annexure" + annexureCount + ".pdf";
+                }else {
+                annexureFilePath = "C:\\Users\\Teclever\\Downloads\\"+"Annexure" + annexureCount + ".pdf";
+                }
                 File annexureFile = new File(annexureFilePath);
                 if (checkPdf) {
                     if (annexureFile.exists()) {
@@ -644,15 +779,36 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
             reportGeneration.generateAnnexure(annexureCount);
             int finalAnnextureCount = annexureCount;
+            //mani03
+          if(DFCCConstant.isJarBuild)
+          {
             pdfFiles.add(currentDirectory + File.separator + "Annexure" + finalAnnextureCount + ".pdf");
+          }
+          else
+        	  
+          {
+        	  //"C:\\Users\\Teclever\\Downloads\\New folder\\"+"Annexure" + annexureCount + ".pdf";
+        	  pdfFiles.add("C:\\Users\\Teclever\\Downloads\\New folder\\"+ "Annexure" + finalAnnextureCount + ".pdf");
+          }
             
             Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
+            Response resDetReport = reportGeneration.generateDetailedReportESSPQTSession(sessionId);
             int resResultCode = resReport.getResponseCode();
+            int resDetCode = resDetReport.getResponseCode();
+            
             if (resResultCode == 1) {
                 if (!DFCCConstant.isJarBuild) {
-                    pdfFiles.add("C:\\Users\\User\\Downloads\\BriefReport_Session.pdf");
+                    pdfFiles.add("C:\\Users\\Teclever\\Downloads\\New folder\\BriefReport_Session.pdf");
                 } else {
                     pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator + "BriefReport_Session.pdf");
+                }
+            }
+            
+            if (resDetCode == 1) {
+                if (!DFCCConstant.isJarBuild) {
+                    pdfFiles.add("C:\\Users\\Teclever\\Downloads\\New folder\\DetailedReport_Session.pdf");
+                } else {
+                    pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator + "DetailedReport_Session.pdf");
                 }
             }
 
@@ -701,6 +857,154 @@ public class ReportGenerationNew extends PdfPageEventHelper {
 
             res.setResponseCode(1);
             res.setResponseMessage("Pqt Report Download Successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+
+//    Suji added For History Repot:
+    
+    public Response generateHISTORYReport(String sessionId) {
+        currentPageNumber = 1;
+        tocPlaceholder = new HashMap<String, PdfTemplate>();
+        pageByTitle = new HashMap<>();
+        tocPlaceHolderCount = 1;
+        summaryPlaceHolderCount = 2;
+        tocPlaceHolderCountSub = 1;
+        summaryPlaceHolderCountSub = 1;
+        tocPlaceHolderCountH3 = 1;
+        summaryPlaceHolderCountH3 = 1;
+
+        Response res = new Response();
+        Response res1 = new Response();
+        ReportGeneration reportGeneration = new ReportGeneration();
+        try {
+            res1 = generateHISTORYReportContent(sessionId);
+            String fileName = "HISTORY_Report"
+                    + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(Calendar.getInstance().getTime()) + ".pdf";
+            String filePath = "";
+            String contentFilePath = "";
+            if (!DFCCConstant.isJarBuild) {
+                filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
+                contentFilePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + res1.getResponseMessage();
+            } else {
+                filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
+                contentFilePath = currentDirectory + File.separator + "Reports" + File.separator + res1.getResponseMessage();
+            }
+
+            res.setDownloadPath(filePath);
+
+            List<String> pdfFiles = new ArrayList<String>();
+            pdfFiles.add(contentFilePath);
+
+            ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
+            ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
+            reportConfigResponse = reportCofigurationManagement.getAllReportConfig(sessionId, "History");
+            int annexureCount = 1;
+            for (ReportConfigDto reportConfigDTO : reportConfigResponse.getListOfReportConfigDto()) {
+                File file = new File(reportConfigDTO.getFileName());
+                ImageToPdfConverter img = new ImageToPdfConverter();
+                boolean checkPdf = file.exists() && file.getName().toLowerCase().endsWith(".pdf");
+                String annexureFilePath = "/home/teclever_java_app/Desktop/DEPLOYMENT/Deployment/" + "Annexure" + annexureCount + ".pdf";//change here path 
+                File annexureFile = new File(annexureFilePath);
+                if (checkPdf) {
+                    if (annexureFile.exists()) {
+                        pdfFiles.add(annexureFilePath);
+                    } else {
+                        reportGeneration.generateAnnexure(annexureCount);
+                        pdfFiles.add(annexureFilePath);
+                    }
+                    pdfFiles.add(reportConfigDTO.getFileName());
+                } else {
+                    if (annexureFile.exists()) {
+                        pdfFiles.add(annexureFilePath);
+                    } else {
+                        reportGeneration.generateAnnexure(annexureCount);
+                        pdfFiles.add(annexureFilePath);
+                    }
+                    pdfFiles.add(img.pdfConvertor(reportConfigDTO.getFileName()));
+                }
+                annexureCount++;
+            }
+
+            reportGeneration.generateAnnexure(annexureCount);
+            int finalAnnextureCount = annexureCount;
+            if(DFCCConstant.isJarBuild) {
+            pdfFiles.add(currentDirectory + File.separator + "Annexure" + finalAnnextureCount + ".pdf");
+            }else {
+            	 pdfFiles.add("C:\\Users\\Teclever\\Downloads\\BriefReport_Session.pdf");
+            }
+            Response resReport = reportGeneration.generateBreifReportESSPQTSession(sessionId);
+            int resResultCode = resReport.getResponseCode();
+            
+            
+            Response resDetReport = reportGeneration.generateDetailedReportESSPQTSession(sessionId);
+            int resDetResultCode = resDetReport.getResponseCode();
+            
+            if (resResultCode == 1) {
+                if (!DFCCConstant.isJarBuild) {
+                    pdfFiles.add("C:\\Users\\Teclever\\Downloads\\BriefReport_Session.pdf");
+                } else {
+                    pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator + "BriefReport_Session.pdf");
+                }
+            }
+            
+            if (resDetResultCode == 1) {
+                if (!DFCCConstant.isJarBuild) {
+                    pdfFiles.add("C:\\Users\\Teclever\\Downloads\\DetailedReport_Session.pdf");
+                } else {
+                    pdfFiles.add(currentDirectory + File.separator + "Reports" + File.separator + "DetailedReport_Session.pdf");
+                }
+            }
+
+            Document document = new Document();
+            PdfCopy copy = new PdfCopy(document, new FileOutputStream(filePath));
+            document.open();
+
+            Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
+
+            for (String pdf : pdfFiles) {
+                PdfReader reader = new PdfReader(pdf);
+
+                for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+                    Paragraph sessionDetails = new Paragraph("Annexure - " + i, headerFont);
+                    sessionDetails.setAlignment(Element.ALIGN_CENTER);
+                    document.add(sessionDetails);
+                    copy.addPage(copy.getImportedPage(reader, i));
+                }
+                reader.close();
+            }
+
+            document.close();
+
+            GetObjResponse sessionRes = new GetObjResponse();
+            String sessionPathString = "";
+
+            if (!sessionId.substring(0, 4).equals("TSSN")) {
+                SessionService sessionService = new SessionService();
+                sessionRes = sessionService.getSessionDetailBySessionStageId(sessionId);
+                SessionEntity sessionEntity = new SessionEntity();
+                sessionEntity = (SessionEntity) sessionRes.getObject();
+                sessionPathString = sessionEntity.getPath();
+            } else {
+                TrailSessionEntityService trailSessionEntityService = new TrailSessionEntityService();
+                sessionRes = trailSessionEntityService.getSessionDetailBySessionId(sessionId);
+                TrailSessionEntity trailSessionEntity = new TrailSessionEntity();
+                trailSessionEntity = (TrailSessionEntity) sessionRes.getObject();
+                sessionPathString = trailSessionEntity.getPath();
+            }
+
+            sessionPathString = sessionPathString + File.separator + "report";
+            Path fileFullPath = Path.of(filePath);
+            SessionFileManagement sessionFileManagement = new SessionFileManagement();
+            Path sessionPath = Path.of(sessionPathString);
+            sessionFileManagement.copyFilesToOutputFolder(fileFullPath, sessionPath);
+
+            res.setResponseCode(1);
+            res.setResponseMessage("History Report Download Successfully!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -765,6 +1069,7 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                     subheadingParagraph.setAlignment(Element.ALIGN_LEFT);
                     document.add(subheadingParagraph);
 
+                    
                     document.add(new VerticalPositionMark() {
                         @Override
                         public void draw(final PdfContentByte canvas, final float llx, final float lly, final float urx,
@@ -793,7 +1098,6 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                             h3 = h3.replaceAll("(h3)", "");
                             String subSubHeadingh3 = h3.substring(0, h3.length() - 2);
                             
-                            System.out.println("::H3 1"+subSubHeadingh3);
 
                             Paragraph h3Paragraph = new Paragraph(
                                     "         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + "."
@@ -801,8 +1105,8 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.ITALIC, BaseColor.BLACK));
                             h3Paragraph.setAlignment(Element.ALIGN_LEFT);
                             
-                            System.out.println("TOC"+ "         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + "."
-                                            + tocPlaceHolderCountH3 + " " + subSubHeadingh3);
+//                            ////System.out.println("TOC"+ "         " + tocPlaceHolderCount + "." + tocPlaceHolderCountSub + "."
+//                                            + tocPlaceHolderCountH3 + " " + subSubHeadingh3);
                             
              
                             document.add(h3Paragraph);
@@ -926,7 +1230,7 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
     }
 
     public static void pqtReportSummary(Document document, Map<String, Map<String, Map<String, String>>> data,
-            String sessionId) throws DocumentException, MalformedURLException, IOException {
+            String sessionId) throws DocumentException, MalformedURLException, IOException,Exception {
         String imagePath = "";
 
         if (!DFCCConstant.isJarBuild) {
@@ -1010,7 +1314,14 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
         document.newPage();
         int summaryPlaceHolderCountSub;
         int summaryPlaceHolderCountH3;
-
+        //Added for to calculate space to move the heading to next page
+        float pageHeight = document.getPageSize().getHeight();
+        float topMargin = document.topMargin();
+        float bottomMargin = document.bottomMargin();
+        float usableHeight = pageHeight - topMargin - bottomMargin;
+        float thresholdHeight = bottomMargin + usableHeight * 0.25f; 
+    	float height = bottomMargin + usableHeight * 0.3f; 
+        float Hheight=bottomMargin+usableHeight*0.35f;
         for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
             String heading = entry.getKey();
             Map<String, Map<String, String>> subheadings = entry.getValue();
@@ -1020,36 +1331,72 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                 document.newPage();
                 continue;
             }
-
+            //this flag added for page number issue(to match in index pg and normal pag ) in pdfReport
+            boolean flagPageInc = false;
             heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
-            String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
-
             BaseFont baseFont1 = BaseFont.createFont();
+            String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
+            //changed for to move heading
+        	float currentY = writer.getVerticalPosition(true);
             if (heading.contains("Preface")) {
-                document.add(
-                        new Paragraph(heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
-            } else {
-                document.add(new Paragraph(" " + headingPageNum + "." + " ",
+                // Preface heading: just add
+                document.add(new Paragraph(heading,
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+            }	//added for heading issue to move next page, where ever threshold height and cuurentY like that all changes done for heading issue  
+            else if (currentY < thresholdHeight) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc = true;
+            }else if (currentY < height) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc = true;
+            }
+            else if (currentY < Hheight) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc = true;
+            }
+            else {
+                // Normal behavior: add heading
+                document.add(new Paragraph(" " + headingPageNum + ".",
                         new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
             }
 
             if (tocPlaceholder.containsKey(headingPageNum)) {
+            	int countPgNum=0;
                 PdfTemplate template = tocPlaceholder.get(headingPageNum);
                 template.beginText();
                 template.setFontAndSize(baseFont1, 8);
-               
-					if (writer.getPageNumber() > 10) {
-						template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
-								0);
-						template.showText(String.valueOf(writer.getPageNumber() - 1));
-						template.endText();
-					} else {
-						template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
-								0);
-						template.showText(String.valueOf(writer.getPageNumber() - 1));
-						template.endText();
-					}
-				
+                //This is added for adding "0" (to look good) to single digit
+                String pageNum = String.format("%02d", writer.getPageNumber() - 1);
+                if (writer.getPageNumber() > 10) {
+                	if(flagPageInc) {
+                		countPgNum=1;
+                	}
+                    template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                    template.showText(pageNum);
+                    template.endText();
+                }
+                //this one is added for pageNumber space issue (after printing pgNum in index page after pg number space is coming for that we added) in ReportPdf
+                else if(writer.getPageNumber()==10) {
+                	System.err.println(writer.getPageNumber()+"-3");
+                	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                    template.showText(pageNum);
+                    template.endText();
+                }
+                else {
+                    template.setTextMatrix(45 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                    template.showText(pageNum);
+                    template.endText();
+                }
+                tocPlaceholder.remove(headingPageNum);
             }
 
             if (heading.contains("(TABLE)")) {
@@ -1105,6 +1452,36 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                     }
                 }
             } else if (heading.contains("Appendix")) {
+            	
+                if (tocPlaceholder.containsKey(headingPageNum)) {
+                    PdfTemplate template = tocPlaceholder.get(headingPageNum);
+                    int countPgNum=0;
+                    template.beginText();
+                    template.setFontAndSize(baseFont1, 8);
+                    if (writer.getPageNumber() > 10) {
+                    	if(flagPageInc) {
+                    		countPgNum=1;
+                    	}
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
+                                0);
+                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                        template.endText();
+                    }else if(writer.getPageNumber()==10) {
+                    	System.err.println(writer.getPageNumber()+"-31");
+                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                        template.showText(String.valueOf(writer.getPageNumber()-1));
+                        template.endText();
+                    } 
+                    
+                    else {
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
+                                0);
+                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                        template.endText();
+                    }
+                    tocPlaceholder.remove(headingPageNum);
+                }
+
                 document.add(new Paragraph("\n"));
                 ReportConfigResponse reportConfigResponse = new ReportConfigResponse();
                 ReportCofigurationManagement reportCofigurationManagement = new ReportCofigurationManagement();
@@ -1133,11 +1510,88 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                         tableAppendix.addCell(new Phrase(dto.getLevelOneName()));
                         AppendixCount++;
                     }
-
                     tableAppendix.addCell(new Phrase("Annexure - " + AppendixCount));
                     tableAppendix.addCell(new Phrase("PQT test result summary"));
                     document.add(tableAppendix);
                 }
+            } else if (heading.contains("Session Details Summary")) {
+                if (heading.contains("Session Details Summary")) {
+                    document.add(new Paragraph(" " + headingPageNum + "." + " ",
+                            new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                }
+
+                if (tocPlaceholder.containsKey(headingPageNum)) {
+                	int countPgNum=0;
+                    PdfTemplate template = tocPlaceholder.get(headingPageNum);
+                    template.beginText();
+                    template.setFontAndSize(baseFont1, 8);
+                    if (writer.getPageNumber() > 10) {
+                    	if(flagPageInc) {
+                    		countPgNum=1;
+                    	}
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
+                                0);
+                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                        template.endText();
+                    }else if(writer.getPageNumber()==10) {
+                    	System.err.println(writer.getPageNumber()+"-32");
+                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                        template.showText(String.valueOf(writer.getPageNumber()-1));
+                        template.endText();
+                    }
+                    else {
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
+                                0);
+                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                        template.endText();
+                    }
+                    tocPlaceholder.remove(headingPageNum);
+                }
+                document.add(new Paragraph("\n"));
+
+                PdfPTable tableStageResult = new PdfPTable(6);
+                float[] columnWidthsStageResults = { 1f, 2.5f, 2.5f, 2.5f, 2.5f, 2.5f };
+                tableStageResult.setWidths(columnWidthsStageResults);
+
+                Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+                String[] headers = { "S.No", "Stage Name", "Start Date", "End Date", "Remarks", "Results" };
+                for (String header : headers) {
+                    PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+                    cell.setBackgroundColor(BaseColor.GRAY);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    tableStageResult.addCell(cell);
+                }
+
+                tableStageResult.setHeaderRows(1);
+
+                int sNoCount = 1;
+                SessionManagement sessionManagement = new SessionManagement();
+                StageRemarksResponse stageRemarksResponse = new StageRemarksResponse();
+                stageRemarksResponse = sessionManagement.getStagesRemarks(sessionId, "ESS");
+
+                List<StagesRemarksDto> getStagesRemarksList = new ArrayList<StagesRemarksDto>();
+                getStagesRemarksList = stageRemarksResponse.getRemarks();
+                Map<String, String> stageIdName = new HashMap<String, String>();
+                stageIdName = sessionManagement.getAllStageIdName();
+
+                SummaryDetails summaryDetails = agetResultForSessionSummaryByLevelOne(getStagesRemarksList, sessionId);
+                Map<String, String> levelOneIdResults = summaryDetails.getLevelOneIdResult();
+                Map<String, String> levelOneIdStartDate = summaryDetails.getLevelOneIdStartDate();
+                Map<String, String> levelOneIdEndDate = summaryDetails.getLevelOneIdEndDate();
+                for (StagesRemarksDto dto : getStagesRemarksList) {
+                    PdfPCell serialNumberCell = new PdfPCell(new Phrase(String.valueOf(sNoCount)));
+                    serialNumberCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    tableStageResult.addCell(serialNumberCell);
+
+                    tableStageResult.addCell(new Phrase(dto.getLevelOneName()));
+                    tableStageResult.addCell(new Phrase(levelOneIdStartDate.get(dto.getLevelOneStageId())));
+                    tableStageResult.addCell(new Phrase(levelOneIdEndDate.get(dto.getLevelOneStageId())));
+                    tableStageResult.addCell(new Phrase(dto.getRemarks()));
+                    tableStageResult.addCell(new Phrase(levelOneIdResults.get(dto.getLevelOneStageId())));
+                    sNoCount++;
+                }
+
+                document.add(tableStageResult);
             } else {
                 List<String> subHeadingTags = new ArrayList<String>();
                 List<String> headingTags = new ArrayList<String>();
@@ -1146,6 +1600,11 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                 for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
                     String subheading = subEntry.getKey();
                     Map<String, String> h3Map = subEntry.getValue();
+                    
+                    float currentY1 = writer.getVerticalPosition(true);
+                    float thresholdHeight1 = bottomMargin + usableHeight * 0.18f; 
+                    float height1 = bottomMargin + usableHeight * 0.24f; 
+                    float height2 = bottomMargin + usableHeight * 0.3f;
                     String subHeadingPageNum = "";
                     if (subheading.contains("(h2)")) {
                         subheading = subheading.replaceAll("(h2)", "");
@@ -1153,60 +1612,117 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
 
                         subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub + " "
                                 + subSubHeading;
+                        
+                                //sai03-12-2025
+                        
+                        if (currentY1 < thresholdHeight1) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}else if (currentY1 < height1) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}
+            			else if (currentY1 < height2) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}
+                        else {
+                        document.add(new Paragraph("  " + subHeadingPageNum,
+                                new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+                    }
+
                         if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                        	int countPgNum=0;
                             PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                             template.beginText();
                             template.setFontAndSize(baseFont1, 8);
-                           
-								if (writer.getPageNumber() > 10) {
-									template.setTextMatrix(
-											50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
-											0);
-									template.showText(String.valueOf(writer.getPageNumber() - 1));
-									template.endText();
-								} else {
-									template.setTextMatrix(
-											50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
-											0);
-									template.showText(String.valueOf(writer.getPageNumber() - 1));
-									template.endText();
-								}
-								
+                            String pageNum = String.format("%02d", writer.getPageNumber() - 1);
+                            if (writer.getPageNumber() > 10) {
+                            	if(flagPageInc) {
+                            		countPgNum=1;
+                            	}
+                                template.setTextMatrix(
+                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                                template.showText(pageNum);
+                                template.endText();
+                            }else if(writer.getPageNumber()==10) {
+                            	System.err.println(writer.getPageNumber()+"-34");
+                            	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                template.showText(pageNum);
+                                template.endText();
+                            }
+                            else {
+                                template.setTextMatrix(
+                                        45 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                template.showText(pageNum);
+                                template.endText();
+                            }
+                            tocPlaceholder.remove(subHeadingPageNum);
                         }
 
                         summaryPlaceHolderCountH3 = 1;
-                        document.add(new Paragraph("  " + subHeadingPageNum,
-                                new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
-
+                        
                         for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
                             String h3 = h3Entry.getKey();
                             String content = h3Entry.getValue();
                             String h3PageNum = "";
+                            float currentY2 = writer.getVerticalPosition(true);
+                            float thresholdHeight2 = bottomMargin + usableHeight * 0.15f; 
                             if (h3.contains("(h3)")) {
                                 h3 = h3.replaceAll("(h3)", "");
                                 h3 = h3.substring(0, h3.length() - 2);
 
                                 h3PageNum = "         " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
                                         + "." + summaryPlaceHolderCountH3 + " " + h3;
-								if (tocPlaceholder.containsKey(h3PageNum)) {
-									PdfTemplate template = tocPlaceholder.get(h3PageNum);
-									template.beginText();
-									template.setFontAndSize(baseFont1, 8);
-									
-										if (writer.getPageNumber() > 10) {
-											template.setTextMatrix(50 - baseFont1
-													.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-											template.showText(String.valueOf(writer.getPageNumber() - 1));
-											template.endText();
-										} else {
-											template.setTextMatrix(50 - baseFont1
-													.getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
-											template.showText(String.valueOf(writer.getPageNumber() - 1));
-											template.endText();
-										}
-										
-								}
-								
+                                //this for moving heading to next page 
+                                if (currentY2 < thresholdHeight2) {
+		            			    document.newPage();
+		            			    document.add(new Paragraph("        " + h3PageNum,
+											new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+		            			    flagPageInc=true;
+		            			}else {
+		            				document.add(new Paragraph("        " + h3PageNum,
+											new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+		                    }
+							   System.err.println(">--->h3pqt "+h3PageNum);
+//                             
+                                if (tocPlaceholder.containsKey(h3PageNum)) {
+                                	int countPgNum=0;
+                                    PdfTemplate template = tocPlaceholder.get(h3PageNum);
+                                    template.beginText();
+                                    template.setFontAndSize(baseFont1, 8);
+                                    String pageNum = String.format("%02d", writer.getPageNumber() - 1);
+                                    if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
+                                        template.setTextMatrix(50
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
+                                                0);
+                                        template.showText(pageNum);
+                                        template.endText();
+                                    }else if(writer.getPageNumber()==10) {
+                                    	System.err.println(writer.getPageNumber()+"-33");
+                                    	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                        template.showText(pageNum);
+                                        template.endText();
+                                    } 
+                                    
+                                    else {
+                                        template.setTextMatrix(45
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
+                                                0);
+                                        template.showText(pageNum);
+                                        template.endText();
+                                    }
+                                    tocPlaceholder.remove(h3PageNum);
+                                }
 
                                 float remainingSpace = writer.getVerticalPosition(true) - document.bottomMargin();
                                 ColumnText ct = new ColumnText(writer.getDirectContent());
@@ -1232,54 +1748,65 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     if (remainingSpace >= paragraphHeight) {
                                         ct.go();
                                     } else {
-                                        document.newPage();
+//                                        document.newPage();
                                         ct.go();
                                     }
                                 }
 
                                 if (!headingTags.contains(headingPageNum)) {
+                                	
                                     if (tocPlaceholder.containsKey(headingPageNum)) {
+                                    	int countPgNum=0;
                                         PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
-                                    
-											if (writer.getPageNumber() > 10) {
-												template.setTextMatrix(50 - baseFont1
-														.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-												template.showText(String.valueOf(writer.getPageNumber() - 1));
-												template.endText();
-											} else {
-												template.setTextMatrix(50 - baseFont1
-														.getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
-												template.showText(String.valueOf(writer.getPageNumber() - 1));
-												template.endText();
-											}
-											
-											tocPlaceholder.remove(headingPageNum);
-                                    
+                                        if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
+                                            template.setTextMatrix(50 - baseFont1
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                            template.endText();
+                                        } else {
+                                            template.setTextMatrix(50 - baseFont1
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                            template.endText();
+                                        }
+                                        tocPlaceholder.remove(headingPageNum);
                                     }
                                     headingTags.add(headingPageNum);
                                 }
 
                                 if (!subHeadingTags.contains(subHeadingPageNum)) {
+                                	   int countPgNum=0;
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
-                                       
-											if (writer.getPageNumber() > 10) {
-												template.setTextMatrix(50 - baseFont1
-														.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-												template.showText(String.valueOf(writer.getPageNumber() - 1));
-												template.endText();
-											} else {
-												template.setTextMatrix(50 - baseFont1
-														.getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
-												template.showText(String.valueOf(writer.getPageNumber() - 1));
-												template.endText();
-											}
-											tocPlaceholder.remove(subHeadingPageNum);
-										
+                                        if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
+                                            template.setTextMatrix(50 - baseFont1
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                            template.endText();
+                                        }else if(writer.getPageNumber()==10) {
+                                        	System.err.println(writer.getPageNumber()+"-3");
+                                        	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber()-1));
+                                            template.endText();
+                                        } 
+                                        
+                                        else {
+                                            template.setTextMatrix(45 - baseFont1
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                            template.endText();
+                                        }
+                                        tocPlaceholder.remove(subHeadingPageNum);
                                     }
                                     subHeadingTags.add(subHeadingPageNum);
                                 }
@@ -1329,19 +1856,31 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                 }
 
                                 if (paragraphHeight < 700) {
+                                 	
                                     if (!headingTags.contains(headingPageNum)) {
+                                    	int countPgNum=0;
                                         if (tocPlaceholder.containsKey(headingPageNum)) {
                                             PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                             template.beginText();
                                             template.setFontAndSize(baseFont1, 8);
                                             if (writer.getPageNumber() > 10) {
+                                            	if(flagPageInc) {
+                                            		countPgNum=1;
+                                            	}
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
-                                            } else {
+                                            }else if(writer.getPageNumber()==10) {
+                                            	System.err.println(writer.getPageNumber()+"-3#");
+                                            	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                                template.showText(String.valueOf(writer.getPageNumber()-1));
+                                                template.endText();
+                                            }
+                                            
+                                            else {
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             }
@@ -1351,24 +1890,32 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     }
 
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                                    	int countPgNum=0;
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
-                                    
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
-                                        } else {
+                                        }else if(writer.getPageNumber()==10) {
+                                        	System.err.println(writer.getPageNumber()+"-3");
+                                        	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber()-1));
+                                            template.endText();
+                                        } 
+                                        else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
                                         tocPlaceholder.remove(subHeadingPageNum);
                                     }
-                                   
 
                                     Paragraph h3Paragraph = new Paragraph(h3,
                                             new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
@@ -1379,47 +1926,57 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     document.add(h3Paragraph);
                                 } else {
                                     if (!headingTags.contains(headingPageNum)) {
+                                                int countPgNum=0;
                                         if (tocPlaceholder.containsKey(headingPageNum)) {
                                             PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                             template.beginText();
                                             template.setFontAndSize(baseFont1, 8);
-                                         
                                             if (writer.getPageNumber() > 10) {
+                                            	if(flagPageInc) {
+                                            		countPgNum=1;
+                                            	}
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             } else {
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             }
                                             tocPlaceholder.remove(headingPageNum);
-                                           
                                         }
                                         headingTags.add(headingPageNum);
                                     }
 
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                                    	int countPgNum=0;
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
-                                      
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
-                                        } else {
+                                        }else if(writer.getPageNumber()==10) {
+                                        	System.err.println(writer.getPageNumber()+"-3r");
+                                        	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                            template.showText(String.valueOf(writer.getPageNumber()-1));
+                                            template.endText();
+                                        }
+                                        else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
                                         tocPlaceholder.remove(subHeadingPageNum);
                                     }
-                                        
 
                                     Paragraph h3Paragraph = new Paragraph(h3,
                                             new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL));
@@ -1463,20 +2020,29 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
 
                         if (paragraphHeight < 700) {
                             if (!headingTags.contains(headingPageNum)) {
+                            int countPgNum=0;
                                 if (tocPlaceholder.containsKey(headingPageNum)) {
                                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                     template.beginText();
                                     template.setFontAndSize(baseFont1, 8);
-                                    
                                     if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
-                                    } else {
+                                    }else if(writer.getPageNumber()==10) {
+                                    	System.err.println(writer.getPageNumber()+"-3d");
+                                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                        template.showText(String.valueOf(writer.getPageNumber()-1));
+                                        template.endText();
+                                    } 
+                                    else {
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
@@ -1488,18 +2054,28 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
 
                             if (tocPlaceholder.containsKey(subHeadingPageNum)) {
                                 PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
+                                int countPgNum=0;
                                 template.beginText();
                                 template.setFontAndSize(baseFont1, 8);
-                              
                                 if (writer.getPageNumber() > 10) {
+                                	if(flagPageInc) {
+                                		countPgNum=1;
+                                	}
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
-                                } else {
+                                }else if(writer.getPageNumber()==10) {
+                                	System.err.println(writer.getPageNumber()+"-3g");
+                                	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                    template.showText(String.valueOf(writer.getPageNumber()-1));
+                                    template.endText();
+                                } 
+                                
+                                else {
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
@@ -1516,49 +2092,67 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                         } else {
                             if (!headingTags.contains(headingPageNum)) {
                                 if (tocPlaceholder.containsKey(headingPageNum)) {
+                                	int countPgNum=0;
                                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                     template.beginText();
                                     template.setFontAndSize(baseFont1, 8);
-                                   
                                     if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
-                                    } else {
+                                    }else if(writer.getPageNumber()==10) {
+                                    	System.err.println(writer.getPageNumber()+"-3f");
+                                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                        template.showText(String.valueOf(writer.getPageNumber()-1));
+                                        template.endText();
+                                    } 
+                                    else {
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
                                     }
                                     tocPlaceholder.remove(headingPageNum);
-                                
                                 }
                                 headingTags.add(headingPageNum);
                             }
 
                             if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                            	
+                            	int countPgNum=0;
                                 PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                 template.beginText();
                                 template.setFontAndSize(baseFont1, 8);
-                             
                                 if (writer.getPageNumber() > 10) {
+                                	if(flagPageInc) {
+                                		countPgNum=1;
+                                	}
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
-                                } else {
+                                }else if(writer.getPageNumber()==10) {
+                                	System.err.println(writer.getPageNumber()+"-3t");
+                                	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                    template.showText(String.valueOf(writer.getPageNumber()-1));
+                                    template.endText();
+                                }
+                                
+                                else {
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
                                 }
                                 tocPlaceholder.remove(subHeadingPageNum);
-                                
                             }
 
                             Paragraph paragraph = new Paragraph(subheading,
@@ -1672,11 +2266,19 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
         document.newPage();
         int summaryPlaceHolderCountSub;
         int summaryPlaceHolderCountH3;
-
+        //sai03122025 added for to move heading to next page
+        float pageHeight = document.getPageSize().getHeight();
+		float topMargin = document.topMargin();
+		float bottomMargin = document.bottomMargin();
+		float usableHeight = pageHeight - topMargin - bottomMargin;
+		float thresholdHeight = bottomMargin + usableHeight * 0.25f; 
+		float height = bottomMargin + usableHeight * 0.3f; 
+		float Hheight = bottomMargin + usableHeight * 0.35f; 
         for (Map.Entry<String, Map<String, Map<String, String>>> entry : data.entrySet()) {
             String heading = entry.getKey();
             Map<String, Map<String, String>> subheadings = entry.getValue();
-
+            //this flag added for pagenumber issue(missMatch in index and actual page) in pdfreport
+              boolean flagPageInc=false;
             if (heading.equalsIgnoreCase("Table Of Contents")) {
                 createTOCByRead1(document, data);
                 document.newPage();
@@ -1686,26 +2288,63 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
             heading = heading.replaceAll("(-h1)", "").replaceAll("()", "");
             BaseFont baseFont1 = BaseFont.createFont();
             String headingPageNum = "  " + summaryPlaceHolderCount + " " + heading;
+        	float currentY = writer.getVerticalPosition(true);
+        	//added for heading issue to move next page, where ever threshold height and cuurentY is there that all changes done for heading issue in pdf report
+        	
             if (heading.contains("Preface")) {
-                document.add(
-                        new Paragraph(heading, new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
-            } else {
-                document.add(new Paragraph(" " + headingPageNum + "." + " ",
+                // Preface heading: just add
+                document.add(new Paragraph(heading,
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+            } else if (currentY < thresholdHeight) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc=true;
+            }else if (currentY < height) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc=true;
+            }
+            else if (currentY < Hheight) {
+                // Not enough space: move to next page first
+                document.newPage();
+                document.add(new Paragraph(" " + headingPageNum + ".",
+                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+                flagPageInc=true;
+            }
+            else {
+                // Normal behavior: add heading
+                document.add(new Paragraph(" " + headingPageNum + ".",
                         new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
             }
 
-            
             if (tocPlaceholder.containsKey(headingPageNum)) {
+            	int countPgNum=0;
                 PdfTemplate template = tocPlaceholder.get(headingPageNum);
                 template.beginText();
                 template.setFontAndSize(baseFont1, 8);
+                String pageNum = String.format("%02d", writer.getPageNumber() - 1);
                 if (writer.getPageNumber() > 10) {
-                    template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-                    template.showText(String.valueOf(writer.getPageNumber() - 1));
+                	if(flagPageInc) {
+                		countPgNum=1;
+                	}
+                    template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                    template.showText(pageNum);
                     template.endText();
-                } else {
-                    template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
-                    template.showText(String.valueOf(writer.getPageNumber() - 1));
+                }
+                //added for pagenumber space issue 1112225 
+                else if(writer.getPageNumber()==10) {
+//                	System.err.println(writer.getPageNumber()+"-3bbb");
+                	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                    template.showText(pageNum);
+                    template.endText();
+                } 
+                else {
+                    template.setTextMatrix(45 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                    template.showText(pageNum);
                     template.endText();
                 }
                 tocPlaceholder.remove(headingPageNum);
@@ -1764,20 +2403,32 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                     }
                 }
             } else if (heading.contains("Appendix")) {
-                document.add(new Paragraph(" " + headingPageNum + "." + " ",
-                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
+            	
+//                document.add(new Paragraph(" " + headingPageNum + "." + " ",
+//                        new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.GRAY)));
 
                 if (tocPlaceholder.containsKey(headingPageNum)) {
+                	int countPgNum=0;
                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                     template.beginText();
                     template.setFontAndSize(baseFont1, 8);
                     if (writer.getPageNumber() > 10) {
-                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                    	if(flagPageInc) {
+                    		countPgNum=1;
+                    	}
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                 0);
                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                         template.endText();
-                    } else {
-                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                    }else if(writer.getPageNumber()==10) {
+                    	System.err.println(writer.getPageNumber()+"-3ess");
+                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                        template.showText(String.valueOf(writer.getPageNumber()-1));
+                        template.endText();
+                    }
+                    
+                    else {
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                 0);
                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                         template.endText();
@@ -1824,18 +2475,31 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                 }
 
                 if (tocPlaceholder.containsKey(headingPageNum)) {
+                	int countPgNum=0;
                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                     template.beginText();
                     template.setFontAndSize(baseFont1, 8);
+                    //this is added for to add 0 for single digit
+                    String pageNum = String.format("%02d", writer.getPageNumber() - 1);
                     if (writer.getPageNumber() > 10) {
-                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                    	if(flagPageInc) {
+                    		countPgNum=1;
+                    	}
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                 0);
                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                         template.endText();
-                    } else {
-                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                    }//chnaged for pageNumberspace issue10122025
+                    else if(writer.getPageNumber()==10) {
+                    	System.err.println(writer.getPageNumber()+"-34www");
+                    	template.setTextMatrix(58 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                        template.showText(pageNum);
+                        template.endText();
+                    } 
+                    else {
+                        template.setTextMatrix(50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                 0);
-                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                        template.showText(pageNum);
                         template.endText();
                     }
                     tocPlaceholder.remove(headingPageNum);
@@ -1893,6 +2557,11 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                 for (Map.Entry<String, Map<String, String>> subEntry : subheadings.entrySet()) {
                     String subheading = subEntry.getKey();
                     Map<String, String> h3Map = subEntry.getValue();
+                    
+                    float currentY1 = writer.getVerticalPosition(true);
+                    float thresholdHeight1 = bottomMargin + usableHeight * 0.18f; 
+                    float height1 = bottomMargin + usableHeight * 0.24f; 
+                    float height2 = bottomMargin + usableHeight * 0.3f;
                     String subHeadingPageNum = "";
                     if (subheading.contains("(h2)")) {
                         subheading = subheading.replaceAll("(h2)", "");
@@ -1901,33 +2570,71 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                         subHeadingPageNum = "     " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub + " "
                                 + subSubHeading;
                         
+                  //sai03-12-2025 for moving heading into next page
                         
+                        if (currentY1 < thresholdHeight1) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}else if (currentY1 < height1) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}
+            			else if (currentY1 < height2) {
+            			    document.newPage();
+            			    document.add(new Paragraph("  " + subHeadingPageNum,
+                                    new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+            			    flagPageInc=true;
+            			}
+                        else {
+                        document.add(new Paragraph("  " + subHeadingPageNum,
+                                new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+                    }
+                        ////System.out.println(">--->"+subHeadingPageNum);
                         if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                        	int countPgNum=0;
                             PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                             template.beginText();
                             template.setFontAndSize(baseFont1, 8);
+                            //This is added for adding the 0 for single digit 11052025
+                            String pageNum = String.format("%02d", writer.getPageNumber() - 1);
                             if (writer.getPageNumber() > 10) {
+                            	if(flagPageInc) {
+                            		countPgNum=1;
+                            	}
                                 template.setTextMatrix(
-                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
-                                template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
+                                template.showText(pageNum);
                                 template.endText();
-                            } else {
+                            }//added for pagenumber space issue
+                            else if(writer.getPageNumber()==10) {
+                            	System.err.println(writer.getPageNumber()+"-34ess");
+                            	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                template.showText(pageNum);
+                                template.endText();
+                            } 
+                            
+                            else {
                                 template.setTextMatrix(
-                                        50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
-                                template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                        45 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                template.showText(pageNum);
                                 template.endText();
                             }
                             tocPlaceholder.remove(subHeadingPageNum);
                         }
 
                         summaryPlaceHolderCountH3 = 1;
-                        document.add(new Paragraph("  " + subHeadingPageNum,
-                                new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
+                       
 
                         for (Map.Entry<String, String> h3Entry : h3Map.entrySet()) {
                             String h3 = h3Entry.getKey();
                             String content = h3Entry.getValue();
                             String h3PageNum = "";
+                            float currentY2 = writer.getVerticalPosition(true);
+                            float thresholdHeight2 = bottomMargin + usableHeight * 0.15f; 
                             if (h3.contains("(h3)")) {
                                 h3 = h3.replaceAll("(h3)", "");
                                 h3 = h3.substring(0, h3.length() - 2);
@@ -1935,24 +2642,45 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                 h3PageNum = "         " + summaryPlaceHolderCount + "." + summaryPlaceHolderCountSub
                                         + "." + summaryPlaceHolderCountH3 + " " + h3;
                                 //Here Need to Add h3PageNum With Proper Format...
-                                document.add(new Paragraph("  " + h3PageNum,
-                                        new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD)));
-
+                                if (currentY2 < thresholdHeight2) {
+		            			    document.newPage();
+		            			    document.add(new Paragraph("        " + h3PageNum,
+											new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+		            			    flagPageInc=true;
+		            			}
                                 
-                                
+                                else {
+		            				document.add(new Paragraph("        " + h3PageNum,
+											new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD)));
+		                    }
+							
+//                                document.add(new Paragraph("  " + h3PageNum,
+//                                        new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD)));
+                                ////System.out.println(">--->h3 "+h3PageNum);
                                 if (tocPlaceholder.containsKey(h3PageNum)) {
+                                	int countPgNum=0;
                                     PdfTemplate template = tocPlaceholder.get(h3PageNum);
                                     template.beginText();
                                     template.setFontAndSize(baseFont1, 8);
+                                    String pageNum = String.format("%02d", writer.getPageNumber() - 1);
                                     if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                                 0);
-                                        template.showText(String.valueOf(writer.getPageNumber() - 1));
+                                        template.showText(pageNum);
                                         template.endText();
-                                    } else {
-                                        template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                    } else if(writer.getPageNumber()==10) {
+                                    	System.err.println(writer.getPageNumber()+"-34ess");
+                                    	template.setTextMatrix(53 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
+                                        template.showText(pageNum);
+                                        template.endText();
+                                    } 
+                                    else {
+                                        template.setTextMatrix(45
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
@@ -1984,26 +2712,29 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     if (remainingSpace >= paragraphHeight) {
                                         ct.go();
                                     } else {
-                                        document.newPage();
+//                                        document.newPage();
                                         ct.go();
                                     }
                                 }
 
                                 if (!headingTags.contains(headingPageNum)) {
-                                	
+                                	int countPgNum=0;
                                     if (tocPlaceholder.containsKey(headingPageNum)) {
                                     	
                                         PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         } else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
@@ -2013,19 +2744,22 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                 }
 
                                 if (!subHeadingTags.contains(subHeadingPageNum)) {
-                                	
+                                	int countPgNum=0;
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         } else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
@@ -2081,18 +2815,22 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                 if (paragraphHeight < 700) {
                                  	
                                     if (!headingTags.contains(headingPageNum)) {
+                                    	int countPgNum=0;
                                         if (tocPlaceholder.containsKey(headingPageNum)) {
                                             PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                             template.beginText();
                                             template.setFontAndSize(baseFont1, 8);
                                             if (writer.getPageNumber() > 10) {
+                                            	if(flagPageInc) {
+                                            		countPgNum=1;
+                                            	}
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             } else {
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             }
@@ -2102,18 +2840,21 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     }
 
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
-                                 
+                                       int countPgNum=0;
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         } else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
@@ -2129,19 +2870,22 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     document.add(h3Paragraph);
                                 } else {
                                     if (!headingTags.contains(headingPageNum)) {
-                                   
+                                   int countPgNum=0;
                                         if (tocPlaceholder.containsKey(headingPageNum)) {
                                             PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                             template.beginText();
                                             template.setFontAndSize(baseFont1, 8);
                                             if (writer.getPageNumber() > 10) {
+                                            	if(flagPageInc) {
+                                            		countPgNum=1;
+                                            	}
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             } else {
                                                 template.setTextMatrix(50 - baseFont1
-                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                        .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                                 template.showText(String.valueOf(writer.getPageNumber() - 1));
                                                 template.endText();
                                             }
@@ -2151,18 +2895,21 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                                     }
 
                                     if (tocPlaceholder.containsKey(subHeadingPageNum)) {
-                                    	
+                                    	int countPgNum=0;
                                         PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                         template.beginText();
                                         template.setFontAndSize(baseFont1, 8);
                                         if (writer.getPageNumber() > 10) {
+                                        	if(flagPageInc) {
+                                        		countPgNum=1;
+                                        	}
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 12), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         } else {
                                             template.setTextMatrix(50 - baseFont1
-                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()), 14), 0);
+                                                    .getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14), 0);
                                             template.showText(String.valueOf(writer.getPageNumber() - 1));
                                             template.endText();
                                         }
@@ -2211,20 +2958,23 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
 
                         if (paragraphHeight < 700) {
                             if (!headingTags.contains(headingPageNum)) {
-                            
+                              int countPgNum=0;
                                 if (tocPlaceholder.containsKey(headingPageNum)) {
                                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                     template.beginText();
                                     template.setFontAndSize(baseFont1, 8);
                                     if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
                                     } else {
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
@@ -2235,18 +2985,22 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                             }
 
                             if (tocPlaceholder.containsKey(subHeadingPageNum)) {
+                            	int countPgNum=0;
                                 PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
                                 template.beginText();
                                 template.setFontAndSize(baseFont1, 8);
                                 if (writer.getPageNumber() > 10) {
+                                	if(flagPageInc) {
+                                		countPgNum=1;
+                                	}
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
                                 } else {
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
@@ -2262,19 +3016,23 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                             document.add(paragraph);
                         } else {
                             if (!headingTags.contains(headingPageNum)) {
+                            	int countPgNum=0;
                                 if (tocPlaceholder.containsKey(headingPageNum)) {
                                     PdfTemplate template = tocPlaceholder.get(headingPageNum);
                                     template.beginText();
                                     template.setFontAndSize(baseFont1, 8);
                                     if (writer.getPageNumber() > 10) {
+                                    	if(flagPageInc) {
+                                    		countPgNum=1;
+                                    	}
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
                                     } else {
                                         template.setTextMatrix(50
-                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                                - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                                 0);
                                         template.showText(String.valueOf(writer.getPageNumber() - 1));
                                         template.endText();
@@ -2285,21 +3043,24 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                             }
 
                             if (tocPlaceholder.containsKey(subHeadingPageNum)) {
-                            	
+                            	int countPgNum=0;
                             	
                                 PdfTemplate template = tocPlaceholder.get(subHeadingPageNum);
-                                System.out.println("subHeadingPageNum"+subHeadingPageNum+"template"+template);
+                                ////System.out.println("subHeadingPageNum"+subHeadingPageNum+"template"+template);
                                 template.beginText();
                                 template.setFontAndSize(baseFont1, 8);
                                 if (writer.getPageNumber() > 10) {
+                                	if(flagPageInc) {
+                                		countPgNum=1;
+                                	}
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 12),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 12),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
                                 } else {
                                     template.setTextMatrix(
-                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()), 14),
+                                            50 - baseFont1.getWidthPoint(String.valueOf(writer.getPageNumber()+countPgNum), 14),
                                             0);
                                     template.showText(String.valueOf(writer.getPageNumber() - 1));
                                     template.endText();
@@ -2402,9 +3163,18 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
 					endDate = stagesSummaryDetails.getEndDate();
 					startDate = stagesSummaryDetails.getStartDate();
 
-					if (!overallResult.equals("PASS") || overallResult != null) {
-						break;
+//					if (!overallResult.equals("PASS") || overallResult != null) {
+//						break;
+//					}
+					
+					if (overallResult != null) {
+						if (!overallResult.equals("PASS")) {
+							break;
+						}
 					}
+					
+					
+					
 				}
 				levelOneResults.put(levelOneId, overallResult);
 				levelOneIdEndDate.put(levelOneId, endDate);
@@ -2446,7 +3216,7 @@ public static void createTOCByRead1(Document document, Map<String, Map<String, M
                 addborder(writer);
                 currentPageNumber++;
             } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+                ////System.out.println(e.getLocalizedMessage());
             }
         }
 

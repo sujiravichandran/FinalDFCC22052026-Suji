@@ -118,7 +118,7 @@ public class AdvancedTestingHWATPTesting {
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
 			if(newVal && StateMachine.getStatusBarRunningTestName().equals(ADVANCED_TEST_HWATP_TEST)) {
-			System.out.println("WDM Status changed:Advaned HWATp " + newVal);
+			////System.out.println("WDM Status changed:Advaned HWATp " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
 			popupDialoguShow.wdmStatusPopup();
 			}
@@ -194,13 +194,13 @@ public class AdvancedTestingHWATPTesting {
 //	Change Made on:During initial loading of testing window,Update Status Bar
 	public void initialize() {
 		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    System.out.println("AITESS1 changed to: " + newVal);
+		    ////System.out.println("AITESS1 changed to: " + newVal);
 		    aitess1Updated = true;
 		    checkBothAitessLaunched();
 		});
 
 		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    System.out.println("AITESS2 changed to: " + newVal);
+		    ////System.out.println("AITESS2 changed to: " + newVal);
 		    aitess2Updated = true;
 		    checkBothAitessLaunched();
 		});
@@ -215,7 +215,7 @@ public class AdvancedTestingHWATPTesting {
 		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
 		                                 && StateMachine.aitess2LaunchedProperty().get();
 		        if (bothLaunched) {
-		            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
+		            ////System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
 
 		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
 		            Platform.runLater(() -> {
@@ -241,8 +241,8 @@ public class AdvancedTestingHWATPTesting {
 				.filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null).forEach(stage -> {
 					TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 							stage.getTestTypeId(), null);
-//					System.out.println("stage.getL3StageName()" + stage.getL3StageName());
-//					System.out.println("stage.getL3StageId()" + stage.getL3StageId());
+//					////System.out.println("stage.getL3StageName()" + stage.getL3StageName());
+//					////System.out.println("stage.getL3StageId()" + stage.getL3StageId());
 					AdvancedTestStateObject.addHwatpTestList(newCard);
 				});
 	}
@@ -257,7 +257,7 @@ public class AdvancedTestingHWATPTesting {
 //	                    && "HWATP/HSI".equalsIgnoreCase(stage.getL2StageName()))
 //	            .filter(stage -> stage.getL3StageId() != null && stage.getL3StageName() != null)
 //	            .forEach(stage -> {
-//	            	System.out.println("L1: " + stage.getL1StageName() +
+//	            	////System.out.println("L1: " + stage.getL1StageName() +
 //	                        ", L2: " + stage.getL2StageName() +
 //	                        ", L3: " + stage.getL3StageId() +
 //	                        ", L3 Name: " + stage.getL3StageName());
@@ -265,8 +265,8 @@ public class AdvancedTestingHWATPTesting {
 //	                TestCardData newCard = new TestCardData(stage.getL3StageId(), stage.getL3StageName(),
 //	                        stage.getTestTypeId(), null);
 //	                
-//	                System.out.println("stage.getL3StageId()" + stage.getL3StageId());
-//	                System.out.println("stage.getL3StageId()" + stage.getL3StageName());
+//	                ////System.out.println("stage.getL3StageId()" + stage.getL3StageId());
+//	                ////System.out.println("stage.getL3StageId()" + stage.getL3StageName());
 //	                AdvancedTestStateObject.addHwatpTestList(newCard);
 //	            });
 //	}
@@ -310,7 +310,7 @@ public class AdvancedTestingHWATPTesting {
 				
 //				For Clearing Table ADta and Moving Confirmation Flag:
 				if (StateMachine.getTestState() != TestState.RUNNING) {
-//					System.out.println("Entred Clearing method after selection");
+//					////System.out.println("Entred Clearing method after selection");
 					StateMachine.setAdvancedTestOk(true);
 
 				}
@@ -505,7 +505,7 @@ public class AdvancedTestingHWATPTesting {
 					}
 
 					if (popupRDFFiles) {
-//						System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+//						////System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
 						RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -515,7 +515,7 @@ public class AdvancedTestingHWATPTesting {
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 					} else {
 						SessionFileManagement session = new SessionFileManagement();
-//						System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//						////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
 //								+ DFCCConstant.FailedStagesRdfPaths.size());
 						session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 						DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
@@ -604,7 +604,7 @@ public class AdvancedTestingHWATPTesting {
 						}
 
 						if (popupRDFFiles) {
-//							System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
+//							////System.out.println("Failure Size :::" + DFCCConstant.FailedStagesRdfPaths.size());
 							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 							for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 
@@ -614,7 +614,7 @@ public class AdvancedTestingHWATPTesting {
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 						} else {
 							SessionFileManagement session = new SessionFileManagement();
-//							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
+//							////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"
 //									+ DFCCConstant.FailedStagesRdfPaths.size());
 							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
@@ -634,18 +634,18 @@ public class AdvancedTestingHWATPTesting {
 				// UPDATING TIME TO DB
 				LocalDateTime currentDateTime = LocalDateTime.now();
 				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-				//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-				//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
+				//////System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
+				//////System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
 				
 				SessionTimingService s = new SessionTimingService();
 				//LOGIC FOR UPDATING SESSION TIMING TABLE
 				if(StateMachine.getPreviouslySelectedStageId()==null||StateMachine.getCurrentlySelectedStageId().equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-					//System.out.println("1");
+					//////System.out.println("1");
 					StateMachine.setPreviouslySelectedStageId(selectedStageId);
 					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "",0,0);
 
 				}else {
-					//System.out.println("2 -- both update");
+					//////System.out.println("2 -- both update");
 					s.addSessionTime(currentSessionDetails.getSessionId(), StateMachine.getPreviouslySelectedStageId(), "", currentDateTime.toString());
 					s.addSessionTime(currentSessionDetails.getSessionId(), selectedStageId, currentDateTime.toString(), "");
 					StateMachine.setPreviouslySelectedStageId(selectedStageId);

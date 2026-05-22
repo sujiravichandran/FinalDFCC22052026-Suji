@@ -66,7 +66,7 @@ public class AddUserController implements Initializable {
     @FXML
     private PasswordField confirmPasswordTextField;
 
-    @FXML
+    @FXML 
     private VBox digitalSignBox;
 
     @FXML
@@ -327,7 +327,7 @@ public class AddUserController implements Initializable {
         addUserData.setPassword(confirmPasswordTextField.getText());
 
         if (imageData == null) {
-            Notifications.showWarningAlert("Are You Sure you are not added Digital Sign ");
+//            Notifications.showWarningAlert("Are You Sure you are not added Digital Sign ");
             Response editDetails = userManagement.updateUser(addUserData);
             if (editDetails.getResponseCode() == 1) {
                 Notifications.showSuccessAlert(editDetails.getResponseMessage());

@@ -119,12 +119,15 @@ public class AdvancedDataAnalysisManualTestingController {
 	    
 	    tab7.setContent(tab7StackPane);
 	    tab7.setClosable(false);
+	    
+	    
+	    manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6, tab7);
 
- if(StateMachine.currentSessionDetails.getUutType().equals("DFCC-MK1")) {
-	 manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6, tab7);
-	    }else {
-	    	manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6);
-	    }
+// if(StateMachine.currentSessionDetails.getUutType().equals("DFCC-MK1")) {
+//	 manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6, tab7);
+//	    }else {
+//	    	manualTestingTabPane.getTabs().addAll(tab1, tab2, tab3, tab4, tab5, tab6);
+//	    }
 	    
 	    
 

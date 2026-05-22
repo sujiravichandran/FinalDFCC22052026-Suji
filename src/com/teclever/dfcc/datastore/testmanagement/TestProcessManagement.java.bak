@@ -92,7 +92,7 @@ public class TestProcessManagement {
 		Response res = new Response();
 
 		try {
-			// System.out.println("SRU --- Entred Test ProcessControl Method ");
+			// ////System.out.println("SRU --- Entred Test ProcessControl Method ");
 			Debug.printDebug(
 					"Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
 							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError
@@ -122,7 +122,7 @@ public class TestProcessManagement {
 
 					res.setResponseCode(0);
 					res.setResponseMessage(channelState.getResponseMessage());
-					System.out.println("Suji Check for before test" + res);
+					////System.out.println("Suji Check for before test" + res);
 					return res;
 				}
 			}
@@ -161,7 +161,7 @@ public class TestProcessManagement {
 
 		}
 
-		System.out.println("Test ");
+		////System.out.println("Test ");
 		return res;
 	}
 
@@ -735,13 +735,13 @@ public class TestProcessManagement {
 
 				mongoUniqueIdentifier = RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId, filePath);
 				dStartCount = rdfFileParser.getDStarCount();
-				// System.out.println("From Test Process ");
-				// System.out.println("Rdf FilePath :"+filePath );
-				// System.out.println("Session Id"+sessionId);
-				// System.out.println("D* Count :"+dStartCount);
+				// ////System.out.println("From Test Process ");
+				// ////System.out.println("Rdf FilePath :"+filePath );
+				// ////System.out.println("Session Id"+sessionId);
+				// ////System.out.println("D* Count :"+dStartCount);
 
 				rdfFileStatus = (rdfFileParser.isDStarFound()) ? "NOT OK" : "OK";
-				// System.out.println("rdfFileStatus For D* Issue"+ rdfFileStatus);
+				// ////System.out.println("rdfFileStatus For D* Issue"+ rdfFileStatus);
 
 				if (rdfFileParser.isParseFileError()) {
 					rdfFileStatus = "Parse Error";
@@ -799,7 +799,7 @@ public class TestProcessManagement {
 
 			} else if (stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
 					|| stageName.equals("CUSTOM ONE") || stageName.equals("CUSTOM TWO")) {
-				// System.out.println("Advanced File Path"+ filePath +" RdfFileStatus
+				// ////System.out.println("Advanced File Path"+ filePath +" RdfFileStatus
 				// "+rdfFileStatus);
 				AdvancedTestResult advancedTestResult = new AdvancedTestResult(filePath, rdfFileStatus);
 				AdvancedTestStateObject.addAdvancedTestResult(advancedTestResult);
@@ -892,13 +892,13 @@ public class TestProcessManagement {
 			TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 			TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
 			Map<String, String> testFileResponseMap = testFileResponse.getTestFilesIdName();
-			// System.out.println(testFileResponseMap);
+			// ////System.out.println(testFileResponseMap);
 			// List<String> fileIds =
 			// testFileResponseMap.keySet().stream().collect(Collectors.toList());
 
 			Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
 
-			// System.out.println("testFilesIdNametestFilesIdNametestFilesIdName SUJI II " +
+			// ////System.out.println("testFilesIdNametestFilesIdNametestFilesIdName SUJI II " +
 			// testFilesIdName.values());
 
 			fileIdByStages.addAll(testFilesIdName.values());
@@ -969,7 +969,7 @@ public class TestProcessManagement {
 			}
 
 			else if (stageName.equals("SRU")) {
-				// System.out.println("SRU --- Entred Total Test FIle in Run Test FIle ");
+				// ////System.out.println("SRU --- Entred Total Test FIle in Run Test FIle ");
 				LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
 
 			} else if (stageName.equals("MANDATORY")) {
@@ -985,9 +985,9 @@ public class TestProcessManagement {
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
 
-				// System.out.println("Stage Name Id ::: "+testFileId);
+				// ////System.out.println("Stage Name Id ::: "+testFileId);
 				incrementNum++;
-				// System.out.println("SRU --- Entred Runt Test Total Test File ");
+				// ////System.out.println("SRU --- Entred Runt Test Total Test File ");
 				// Initial : Dot com File Result
 				String dotComFileResult = "OK";
 
@@ -995,7 +995,7 @@ public class TestProcessManagement {
 				if (testFilesIdName.get(testFileId) != null) {
 
 					String testFileName = testFilesIdName.get(testFileId);
-					// System.out.println("Test File Name"+testFileName);
+					// ////System.out.println("Test File Name"+testFileName);
 
 					if (incrementNum > (listOfFileIds.size() - listOfFileId.size())) {
 						lastCount = true;
@@ -1018,7 +1018,7 @@ public class TestProcessManagement {
 					}
 					// check TestState From Response if it stop then exit from the loop.
 					if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
-//						System.out.println("Entred outer loop");
+//						////System.out.println("Entred outer loop");
 						testState = "STOPED";
 
 						break outerLoop;
@@ -1056,7 +1056,7 @@ public class TestProcessManagement {
 
 			}
 			if (testState != null && testState.equals("STOPED")) {
-				System.out.println("Entred Outer 2nd teststae after stop9999999999999999");
+				////System.out.println("Entred Outer 2nd teststae after stop9999999999999999");
 				listOfFileIds = new ArrayList<>();
 				stageResult = "STOPED";
 			}
@@ -1072,7 +1072,7 @@ public class TestProcessManagement {
 			SessionFileManagement sessionFileManagement = new SessionFileManagement();
 			boolean dissableEnableflag = sessionFileManagement.getStatusFlagOfSelectedFile(sessionId, stageId,
 					sessionStageMapId, repeatCount, continueWithError);
-			System.out.println("dissableEnableflag" + dissableEnableflag);
+			////System.out.println("dissableEnableflag" + dissableEnableflag);
 			StateMachine.setDissableEnable(dissableEnableflag);
 			// flag Need to Update Session Testing Files Of Selected File-Ids
 
@@ -1141,7 +1141,7 @@ public class TestProcessManagement {
 							path = path.substring(0, indexToTake);
 
 							Debug.printDebug("Dot Com File " + comFileName);
-							// System.out.println("SRU --- Entred .com file Method ");
+							// ////System.out.println("SRU --- Entred .com file Method ");
 							// Calling itself with Same Parameter (fileName only Change)
 							processDotComFile(path + comFileName, stageName, rdfFileLocation, stageId, sessionId,
 									rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
@@ -1302,7 +1302,7 @@ public class TestProcessManagement {
 		TestProcessDto testProcessDto = new TestProcessDto();
 
 		try {
-			// System.out.println("SRU --- Entred Run Test File Method ");
+			// ////System.out.println("SRU --- Entred Run Test File Method ");
 			// Wait if text area is not ready
 			checkTestisRunning();
 
@@ -1315,7 +1315,7 @@ public class TestProcessManagement {
 			if (handleTestState()) {
 				
 				testProcessDto.setTestState("STOPED");
-				 System.out.println("Entred in handle test state call method.........." + testProcessDto.getTestState());
+				 ////System.out.println("Entred in handle test state call method.........." + testProcessDto.getTestState());
 				StateMachine.setTextArea(true);
 				return testProcessDto;
 			}
@@ -1331,12 +1331,12 @@ public class TestProcessManagement {
 //				if (channelState.getResponseCode() == 0) {
 //					// Stop the test if all channels are offline
 //					// Handle PAUSED or STOPPED states
-//					System.out.println("Entred 0");
+//					////System.out.println("Entred 0");
 //					testProcessDto.setTestState("STOPED");
 //					StateMachine.setTextArea(true);
 //					return testProcessDto;
 //				} else if (channelState.getResponseCode() == 2) {
-//					System.out.println("Entred 2");
+//					////System.out.println("Entred 2");
 //					// Confirm with user if any one channel is offline
 ////					testProcessDto.setTestState("STOPED");
 //					StateMachine.setWdmStatusOfflineCheck(true);
@@ -1348,7 +1348,7 @@ public class TestProcessManagement {
 //						return testProcessDto;
 //					}
 //				}
-//				System.out.println("Suji Test State Check.." + testProcessDto.getTestState());
+//				////System.out.println("Suji Test State Check.." + testProcessDto.getTestState());
 ////				return testProcessDto;
 //			}
 			
@@ -1362,12 +1362,12 @@ public class TestProcessManagement {
 				    (responseCode == 0 || responseCode == 2)) {
 
 				    if (responseCode == 0) {
-				        System.out.println("Entered 0");
+				        ////System.out.println("Entered 0");
 				        testProcessDto.setTestState("STOPED");
 				        StateMachine.setTextArea(true);
 				        return testProcessDto;
 				    } else if (responseCode == 2) {
-				        System.out.println("Entered 2");
+				        ////System.out.println("Entered 2");
 				        StateMachine.setWdmStatusOfflineCheck(true);
 
 				        if (handleTestState()) {
@@ -1461,7 +1461,7 @@ public class TestProcessManagement {
 					copyFileDTO.setRdfFilePath(rdfFileLocation);
 					copyFileDTO.setRdfFiledName(rdfFileName);
 					copyFileDTO.setStageId(stageId);
-					// System.out.println("Stage Id Power Auto ::"+stageId);
+					// ////System.out.println("Stage Id Power Auto ::"+stageId);
 					copyFileDTO.setStagePath(stagePath);
 					copyFileDTO.setCopyingFileId(uniqueTestFilesResultIdId);
 					copyFileDTO.setdStarCount(testProcessRes.getdStarCount());
@@ -1532,13 +1532,13 @@ public class TestProcessManagement {
 
 	// Befor chaning ::
 	private boolean handleTestState() {
-		 System.out.println("Entred Handle testState method mmmm");
+		 ////System.out.println("Entred Handle testState method mmmm");
 
 		if (StateMachine.getTestState() == TestState.PAUSED) {
 			boolean loopFlag = true;
 			while (loopFlag) {
 				Debug.printDebug(StateMachine.getTestState());
-				System.out.println("Check puase resume::" + StateMachine.getTestState());
+				////System.out.println("Check puase resume::" + StateMachine.getTestState());
 				if (StateMachine.getTestState() == TestState.RUNNING) {
 					Debug.printDebug(StateMachine.getTestState());
 					loopFlag = false;
@@ -1550,9 +1550,9 @@ public class TestProcessManagement {
 			}
 
 		} else if (StateMachine.getTestState() == TestState.STOPPED) {
-			 System.out.println("handle Stop Test Method condition");
+			 ////System.out.println("handle Stop Test Method condition");
 			Debug.printDebug(StateMachine.getTestState());
-			// System.out.println("Entred Stop Test )))))))))))))))))");
+			// ////System.out.println("Entred Stop Test )))))))))))))))))");
 			return true;
 		}
 
@@ -1562,7 +1562,7 @@ public class TestProcessManagement {
 	// After changing ::
 
 	// private boolean handleTestState() {
-	// System.out.println("Entered handleTestState method" +
+	// ////System.out.println("Entered handleTestState method" +
 	// StateMachine.getTestState());
 	//
 	// if (StateMachine.getTestState() == TestState.PAUSED) {
@@ -1576,7 +1576,7 @@ public class TestProcessManagement {
 	// loopFlag = false;
 	// } else if (StateMachine.getTestState() == TestState.STOPPED) {
 	// Debug.printDebug("Detected STOPPED state inside PAUSED loop");
-	// System.out.println("Entred Stop Test )))))))))))))))))");
+	// ////System.out.println("Entred Stop Test )))))))))))))))))");
 	// loopFlag = false;
 	// return true;
 	// }
@@ -1586,14 +1586,14 @@ public class TestProcessManagement {
 	// Thread.sleep(100); // sleep 100ms
 	// } catch (InterruptedException e) {
 	// Thread.currentThread().interrupt(); // Reset interrupt flag
-	// System.out.println("Thread Sleep::;;;; ; ; ;; ");
+	// ////System.out.println("Thread Sleep::;;;; ; ; ;; ");
 	// Debug.printDebug("Interrupted during sleep in handleTestState");
 	// break;
 	// }
 	// }
 	//
 	// } else if (StateMachine.getTestState() == TestState.STOPPED) {
-	// System.out.println("Handle Stop Test directly");
+	// ////System.out.println("Handle Stop Test directly");
 	// Debug.printDebug("State is STOPPED");
 	//
 	// return true;

@@ -8,22 +8,33 @@ import java.util.List;
 
 public class MacroFileParser {
 
-	 public List<String> parse(String fileName) throws IOException {
-	        List<String> macroNames = new ArrayList<>();
-	        BufferedReader br = new BufferedReader(new FileReader(fileName));
+	public List<String> parse(String fileName) throws IOException {
+
+	    List<String> macroNames = new ArrayList<>();
+
+	    try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+
 	        String line;
 
 	        while ((line = br.readLine()) != null) {
-	            if (line.trim().startsWith("macroname")) {
-	                int equalsIndex = line.indexOf("=");
-	                if (equalsIndex != -1) {
-	                    String macroName = line.substring(equalsIndex + 1).trim();
-	                    macroNames.add(macroName);
+
+	            line = line.trim();
+
+	            if (line.toUpperCase().startsWith("MACRONAME")) {
+
+	                // Remove everything after '!' if present
+	                int exclIndex = line.indexOf('!');
+	                if (exclIndex != -1) {
+	                    line = line.substring(0, exclIndex).trim();
 	                }
+
+	                macroNames.add(line);
 	            }
 	        }
-	        br.close();
-
-	        return macroNames;
 	    }
+
+	    return macroNames;
+	}
+
 }
+

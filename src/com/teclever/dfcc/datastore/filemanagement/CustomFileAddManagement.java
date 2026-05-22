@@ -1,5 +1,6 @@
 package com.teclever.dfcc.datastore.filemanagement;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,7 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.Response;
+import com.teclever.datastore.entities.DownloadFile;
+import com.teclever.datastore.entities.Macro;
 import com.teclever.datastore.entities.RunPathMaster;
+import com.teclever.datastore.entities.Symbol;
+import com.teclever.datastore.entities.TestFile;
 import com.teclever.datastore.service.DownloadFileService;
 import com.teclever.datastore.service.MacroService;
 import com.teclever.datastore.service.RunPathMasterService;
@@ -100,7 +105,10 @@ public class CustomFileAddManagement {
 			RunPathMasterService runPathMasterService = new RunPathMasterService();
 			RunPathMaster runMaster = new RunPathMaster();
 			runMaster = runPathMasterService.fetchMasterPathForFiles(runId, fileType);
+			
 			Path masterPath = Paths.get(runMaster.getLocation());
+			
+			////System.out.println("Master Path"+runMaster.getLocation());
 
 			// To Fetch Files Name And FileNamePaths...
 			List<String> fileNames = new ArrayList<>();
@@ -111,9 +119,35 @@ public class CustomFileAddManagement {
 				String files = path.getFileName().toString();
 				filesNamesPath.put(files, filePath);
 				fileNames.add(files);
-				currentFileString = path.getParent().toString();
+				currentFileString = path.getParent()+File.separator.toString();
 
 			}
+			
+			////System.out.println("Current Selected File From ::"+currentFileString);
+			if(!currentFileString.equals(runMaster.getLocation()))
+			{
+				res.setResponseCode(9);
+				res.setResponseMsg("Please Select From "+runMaster.getLocation());
+				return res;
+			}
+			//(String runPathMasterId,String fileType,String addFilePath)
+	     	List<String> avail = new ArrayList<String>();
+	     	avail = checkTestFilesAvailable(runMaster.getRunPathMasterId(),fileType,filePaths);
+	     	
+	     	if(avail.size()>0)
+			{
+				StringBuilder responseMsg = new StringBuilder();
+
+				for (String path : avail) {
+					responseMsg.append(path + "  ");
+				}
+
+				res.setResponseCode(9);
+				res.setResponseMsg(responseMsg.toString( )+" Files Are Already Exist(s)");
+				return res;
+			}
+			
+			
 			Path currentPath = Paths.get(currentFileString);
 
 			// To Get the Which Files are Not Available in the Path Master Location
@@ -138,6 +172,9 @@ public class CustomFileAddManagement {
 					String checksum = calculateChecksum(path);
 					Debug.printDebug("File Path: " + pathFile + "File Name: " + path.getFileName().toString()
 							+ " Checksum: " + checksum);
+					
+					////System.out.println("File Path: " + pathFile + "File Name: " + path.getFileName().toString()
+							//+ " Checksum: " + checksum);
 					filePathCheckSumValues.put(pathFile, checksum);
 				}
 			}
@@ -184,12 +221,12 @@ public class CustomFileAddManagement {
 
 				if (fileType.equalsIgnoreCase("symbols")) {
 					SymbolFileManagement.saveSymbolsForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
-
+					////System.out.println("SUJI CHECK Path Symbol:: master :::" + pathMasterFilePaths);
 				} else if (fileType.equalsIgnoreCase("tpf")) {
 					TestPlanFileManagement.saveTestFilesToDatabaseForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
-
 				} else if (fileType.equalsIgnoreCase("macros")) {
 					MacroFileManagement.saveMacroNamesForCustomFiles(pathMasterFilePaths, runMaster.getRunPathMasterId());
+					////System.out.println("SUJI CHECK Path Macro:: master :::" + pathMasterFilePaths);
 				} else if (fileType.equalsIgnoreCase("download")) {
 					DownloadFileManagement.saveDownloadFilesToDatabaseForCustomAdding(pathMasterFilePaths, runMaster.getRunPathMasterId());
 				}
@@ -240,6 +277,89 @@ public class CustomFileAddManagement {
 		return res;
 
 	}
+	
+	public List<String> checkTestFilesAvailable(String runPathMasterId,String fileType,List<String> addFilePaths)
+	{
+		List<String> flag = new ArrayList<String>();
+		try {
+
+			if (fileType.equals("tpf")) {
+				TestFileService testFileService = new TestFileService();
+				List<TestFile> testFilesLst = new ArrayList<TestFile>();
+				testFilesLst = testFileService.getTestFilesByRunPathMasterId(runPathMasterId);
+
+				List<String> testFilePaths = new ArrayList<String>();
+				for (TestFile testFile : testFilesLst) {
+					testFilePaths.add(testFile.getTestFileName());
+				}
+				for (String filePath : addFilePaths) {
+					if (testFilePaths.contains(filePath)) {
+						flag.add(filePath);
+					}
+				}
+			}
+
+			else if (fileType.equals("symbols")) {
+				
+				////System.out.println("RUN PATH MASTER ID FOR SYMBOL : "+runPathMasterId);
+				SymbolService symbolService = new SymbolService();
+				List<Symbol> symbolList = new ArrayList<Symbol>();
+				symbolList = symbolService.getSymbolsByRunPathMasterId(runPathMasterId);
+				List<String> symNamelist = new ArrayList<String>();
+				for (Symbol sym : symbolList) {
+					symNamelist.add(sym.getFileName());
+					////System.out.println("symbol File Name "+sym.getFileName());
+				}
+				
+				for (String filePath : addFilePaths) {
+					if (symNamelist.contains(filePath)) {
+						////System.out.println("Already There "+filePath);
+						flag.add(filePath);
+					}
+					////System.out.println("SYMBOL EXIST FILE COUNT  ::"+flag.size());
+				}
+				
+
+			} else if (fileType.equals("macros")) {
+				MacroService macroService = new MacroService();
+				List<Macro> lst = new ArrayList<Macro>();
+				lst = macroService.getAllMacrosByRunPathMasterId(runPathMasterId);
+				List<String> fileNames = new ArrayList<String>();
+
+				for (Macro macroFile : lst) {
+					fileNames.add(macroFile.getFileName());
+				}
+
+				for (String filePath : addFilePaths) {
+					if (fileNames.contains(filePath)) {
+						flag.add(filePath);
+					}
+				}
+
+			} else if (fileType.equalsIgnoreCase("download")) {
+				DownloadFileService downloadFileService = new DownloadFileService();
+				List<DownloadFile> downLoadFilesLst = new ArrayList<DownloadFile>();
+				downLoadFilesLst = downloadFileService.getAllDownloadFilesByRunPathMasterId(runPathMasterId);
+				List<String> downLoadFiles = new ArrayList<String>();
+
+				for (DownloadFile downloadFile : downLoadFilesLst) {
+					downLoadFiles.add(downloadFile.getDownloadFileName());
+				}
+				
+				for (String filePath : addFilePaths) {
+					if (downLoadFiles.contains(filePath)) {
+						flag.add(filePath);
+					}
+				}
+
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return flag;
+	}
+
 
 	public String calculateChecksum(Path path) throws NoSuchAlgorithmException, IOException {
 

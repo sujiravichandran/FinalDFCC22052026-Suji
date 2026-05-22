@@ -46,7 +46,7 @@ public class TerminalController {
 	private Button enterButton = new Button("ENTER");
 	private Button yesButton = new Button("YES");
 	private Button noButton = new Button("NO");
-
+	
 	AitessProcessControlManagement aitessProcessControlManagement = AitessProcessControlManagement.getInstance();
 	CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
 
@@ -80,6 +80,8 @@ public class TerminalController {
 	}
 
 	private GridPane createTerminalMainGridPane() {
+		terminalTextField.setDisable(true);
+		enterButton.setDisable(true);
 		terminalMainGridPane.setHgap(10);
 		terminalMainGridPane.getStylesheets()
 				.add(getClass().getResource(DFCCConstant.JARSTRING + "/com/teclever/dfcc/ui/css/TerminalController.css")
@@ -180,7 +182,7 @@ public class TerminalController {
 
 			String inputCommand = terminalTextField.getText() + "\n";
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
-//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				////System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
 			}
@@ -196,7 +198,7 @@ public class TerminalController {
 //			Change Made for Point:22(Mail:7-Jul-Observations_in_testing_Teclever_Date_SAT))
 //			Change Made On:When 'Y' is pressed it is not immediately displayed in terminal window.
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
-//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				////System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test/Macro is running. Please try after once the test gets completed.");
 				return;
 			}
@@ -208,7 +210,7 @@ public class TerminalController {
 //			yesButton.setDisable(true);
 
 //			StateMachine.yesFromTerminalProperty().addListener((observable, oldValue, newValue) -> {
-//				System.out.println("yesFromTerminal changed from " + oldValue + " to " + newValue);
+//				////System.out.println("yesFromTerminal changed from " + oldValue + " to " + newValue);
 //
 //				if (newValue) {
 //					yesButton.setDisable(false);
@@ -221,7 +223,7 @@ public class TerminalController {
 
 		noButton.setOnAction(e -> {
 			if ((StateMachine.getTestState().equals(TestState.PAUSED) || StateMachine.getTestState().equals(TestState.STOPPED) || StateMachine.getTestState().equals(TestState.RUNNING)) && !StateMachine.isDissableEnable()&& !StateMachine.getUserActionFlag().equals(true)||StateMachine.isMacroPassing()) {
-//				System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
+//				////System.out.println("CHECK TERMINAL FLAG" + StateMachine.isDissableEnable());
 				Notifications.showWarningAlert("Test is running. Please try after once the test gets completed.");
 				return;
 			}

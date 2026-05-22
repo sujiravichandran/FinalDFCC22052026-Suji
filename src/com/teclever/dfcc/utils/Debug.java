@@ -8,31 +8,31 @@ import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 public class Debug {
 	public static void printDebug(String message) {
 		if (DFCCConstant.isDebug) {
-			System.out.println(message);
+			////System.out.println(message);
 		}
 	}
 
 	public static void printDebug(TestState testState) {
 		if (DFCCConstant.isDebug) {
-			System.out.println(testState);
+			////System.out.println(testState);
 		}
 	}
 
 	public static void printDebug(List<String> listOfData) {
 		if (DFCCConstant.isDebug) {
-			System.out.println(listOfData);
+			////System.out.println(listOfData);
 		}
 	}
 
 	public static void printDebug() {
 		if (DFCCConstant.isDebug) {
-			System.out.println();
+			////System.out.println();
 		}
 	}
 
 	public static void printDebug(Map<String, String> mapData) {
 		if (DFCCConstant.isDebug) {
-			System.out.println(mapData);
+			////System.out.println(mapData);
 		}
 	}
 }

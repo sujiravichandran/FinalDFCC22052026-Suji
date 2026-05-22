@@ -96,7 +96,7 @@ public class DataPackReportGeneration {
 	static String currentDirectory = new File(
 			ReportGeneration.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 
-	public Response generateDataPackReport(String sessionName)
+	public static Response generateDataPackReport(String sessionName)
 			throws DocumentException, MalformedURLException, IOException {
 
 		Response res = new Response();
@@ -109,7 +109,7 @@ public class DataPackReportGeneration {
 		// File path
 		String filePath;
 		if (!DFCCConstant.isJarBuild) {
-			filePath = "C:\\Users\\User\\Downloads\\" + fileName;
+			filePath = "C:\\Users\\Teclever\\Downloads\\New folder\\" + fileName;
 		} else {
 			filePath = currentDirectory + File.separator + "Reports" + File.separator + fileName;
 		}
@@ -127,9 +127,9 @@ public class DataPackReportGeneration {
 		// Add BEL logo (Header)
 		String imagePath;
 		if (!DFCCConstant.isJarBuild) {
-			imagePath = "C:\\Users\\User\\Downloads\\bel_logo_hindi.png";
+			imagePath = "src/Resources/Images/BellLogoRocket.png";
 		} else {
-			imagePath = currentDirectory + File.separator + "Images" + File.separator + "bel_logo_hindi.png";
+			imagePath = currentDirectory + File.separator + "Images" + File.separator + "BellLogoRocket.png";
 		}
 
 		Image img = Image.getInstance(imagePath);
@@ -145,7 +145,7 @@ public class DataPackReportGeneration {
 		Font lineFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD, BaseColor.BLACK);
 		Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 24, Font.BOLD, BaseColor.BLACK);
 
-		String line = "____________________________________________________________";
+		String line = "_____________________________________________________________";
 		Paragraph linePara = new Paragraph(line, lineFont);
 		linePara.setAlignment(Element.ALIGN_CENTER);
 		document.add(linePara);
@@ -174,10 +174,10 @@ public class DataPackReportGeneration {
 		canvas.stroke();
 
 		// Add images inside the box
-		String imagePath1 = !DFCCConstant.isJarBuild ? "C:\\Users\\User\\Downloads\\bel_logo_hindi.png"
-				: currentDirectory + File.separator + "Images" + File.separator + "bel_logo_hindi.png";
+		String imagePath1 = !DFCCConstant.isJarBuild ? "src/Resources/Images/BellLogoRocket.png"
+				: currentDirectory + File.separator + "Images" + File.separator + "BellLogoRocket";
 
-		String imagePath3 = !DFCCConstant.isJarBuild ? "C:\\Users\\User\\Downloads\\TECLEVER_logo.png"
+		String imagePath3 = !DFCCConstant.isJarBuild ? "src\\Resources\\Images\\tecleverlogo60.png"
 				: currentDirectory + File.separator + "Images" + File.separator + "TECLEVER_logo.png";
 
 		Image img1 = Image.getInstance(imagePath1); // BEL logo

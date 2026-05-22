@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
@@ -13,6 +15,7 @@ import com.teclever.datastore.entities.UserLoginDetails;
 import com.teclever.datastore.service.LoginSessionService;
 import com.teclever.datastore.service.UserLoginDetailsService;
 import com.teclever.datastore.service.UserRoleMasterDetailsService;
+import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.ApplicationLogBookDto;
 import com.teclever.dfcc.datastore.dto.LoginResponse;
 import com.teclever.dfcc.datastore.dto.SystemConfig;
@@ -195,45 +198,96 @@ public class UserManagementModule {
 		return response;
 	}
 
-	public UserGetAllResponse getAllUsers() {
-		UserGetAllResponse response = new UserGetAllResponse();
-		try {
-			Response res = new Response();
-			UserLoginDetailsService userLogin = new UserLoginDetailsService();
-			List<UserLoginDetails> userLoginResponse = userLogin.getAllUser();
-			List<UserLoginDetailsDto> listOfUserLogin = new ArrayList<>();
-			if (userLoginResponse == null) {
-				res.setResponseCode(0);
-				res.setResponseMessage("User Details Empty");
+//	public UserGetAllResponse getAllUsers() {
+//		UserGetAllResponse response = new UserGetAllResponse();
+//		try {
+//			Response res = new Response();
+//			UserLoginDetailsService userLogin = new UserLoginDetailsService();
+//			List<UserLoginDetails> userLoginResponse = userLogin.getAllUser();
+//			List<UserLoginDetailsDto> listOfUserLogin = new ArrayList<>();
+//			if (userLoginResponse == null) {
+//				res.setResponseCode(0);
+//				res.setResponseMessage("User Details Empty");
+//				response.setResponse(res);
+//				return response;
+//			}
+//			UserRoleMasterDetailsService userRole = new UserRoleMasterDetailsService();
+//			Map<String, String> userType = userRole.getAllUserType();
+//			for (UserLoginDetails userLoginDetails : userLoginResponse) {
+//				UserLoginDetailsDto userLoginDto = new UserLoginDetailsDto();
+//
+//				userLoginDto.setUserId(userLoginDetails.getUserId());
+//				userLoginDto.setLoginName(userLoginDetails.getLoginName());
+//				userLoginDto.setRoleId(userLoginDetails.getRoleId());
+//				userLoginDto.setRoleName(userType.get(userLoginDetails.getRoleId()));
+//				userLoginDto.setDate(userLoginDetails.getDate());
+//				userLoginDto.setDigitalSignature(userLoginDetails.getDigitalSignature());
+//
+//				listOfUserLogin.add(userLoginDto);
+//
+//			}
+//
+//			response.setUserList(listOfUserLogin);
+//			res.setResponseCode(1);
+//			res.setResponseMessage("Fetch User Details Successfull");
+//			response.setResponse(res);
+//			return response;
+//		} catch (Exception e) {
+//			Debug.printDebug("Delete User Error " + e.getLocalizedMessage());
+//		}
+//		return response;
+//	}
+	
+	
+	//POINT NO 88
+
+		public UserGetAllResponse getAllUsers() {
+			UserGetAllResponse response = new UserGetAllResponse();
+			try {
+				Response res = new Response();
+				UserLoginDetailsService userLogin = new UserLoginDetailsService();
+				List<UserLoginDetails> userLoginResponse = userLogin.getAllUser();
+				List<UserLoginDetailsDto> listOfUserLogin = new ArrayList<>();
+				if (userLoginResponse == null) {
+					res.setResponseCode(0);
+					res.setResponseMessage("User Details Empty");
+					response.setResponse(res);
+					return response;
+				}
+				UserRoleMasterDetailsService userRole = new UserRoleMasterDetailsService();
+				Map<String, String> userType = userRole.getAllUserType();
+				for (UserLoginDetails userLoginDetails : userLoginResponse) {
+					UserLoginDetailsDto userLoginDto = new UserLoginDetailsDto();
+
+					userLoginDto.setUserId(userLoginDetails.getUserId());
+					userLoginDto.setLoginName(userLoginDetails.getLoginName());
+					userLoginDto.setRoleId(userLoginDetails.getRoleId());
+					userLoginDto.setRoleName(userType.get(userLoginDetails.getRoleId()));
+					userLoginDto.setDate(userLoginDetails.getDate());
+					userLoginDto.setDigitalSignature(userLoginDetails.getDigitalSignature());
+
+					listOfUserLogin.add(userLoginDto);
+
+				}
+				if(DFCCConstant.roleId.equals("RL_ID_2"))
+				{
+					Set<String> excludedRoles = Set.of("RL_ID_3", "RL_ID_1");
+
+					listOfUserLogin = listOfUserLogin.stream()
+					        .filter(e -> !excludedRoles.contains(e.getRoleId()))
+					        .collect(Collectors.toList());
+				}
+				
+				response.setUserList(listOfUserLogin);
+				res.setResponseCode(1);
+				res.setResponseMessage("Fetch User Details Successfull");
 				response.setResponse(res);
 				return response;
+			} catch (Exception e) {
+				Debug.printDebug("Delete User Error " + e.getLocalizedMessage());
 			}
-			UserRoleMasterDetailsService userRole = new UserRoleMasterDetailsService();
-			Map<String, String> userType = userRole.getAllUserType();
-			for (UserLoginDetails userLoginDetails : userLoginResponse) {
-				UserLoginDetailsDto userLoginDto = new UserLoginDetailsDto();
-
-				userLoginDto.setUserId(userLoginDetails.getUserId());
-				userLoginDto.setLoginName(userLoginDetails.getLoginName());
-				userLoginDto.setRoleId(userLoginDetails.getRoleId());
-				userLoginDto.setRoleName(userType.get(userLoginDetails.getRoleId()));
-				userLoginDto.setDate(userLoginDetails.getDate());
-				userLoginDto.setDigitalSignature(userLoginDetails.getDigitalSignature());
-
-				listOfUserLogin.add(userLoginDto);
-
-			}
-
-			response.setUserList(listOfUserLogin);
-			res.setResponseCode(1);
-			res.setResponseMessage("Fetch User Details Successfull");
-			response.setResponse(res);
 			return response;
-		} catch (Exception e) {
-			Debug.printDebug("Delete User Error " + e.getLocalizedMessage());
 		}
-		return response;
-	}
 
 	public UserLoginDetailsDto addUser(UserLoginDetailsDto userLoginDto) {
 		UserLoginDetailsDto response = new UserLoginDetailsDto();

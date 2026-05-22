@@ -43,7 +43,7 @@ public class UnitGetDetailsManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 
 		return res;
@@ -62,17 +62,19 @@ public class UnitGetDetailsManagement {
 			ResultExecutionManagement resultExecutionManagement = new ResultExecutionManagement();
 			Map<String, String> stageIdName = new HashMap<String, String>();
 			stageIdName = resultExecutionManagement.getStageIdName();
+			
 			for (SessionStagesStatus sessionStagesStatus : lst) {
 				UnitSessionDetailsDTO unitSessionDetailsDTO = new UnitSessionDetailsDTO();
 
 				unitSessionDetailsDTO.setStageId(sessionStagesStatus.getStageId());
-				unitSessionDetailsDTO.setStageName(stageIdName.get(sessionStagesStatus.getStageId()));
+				unitSessionDetailsDTO.setStageName(stageIdName.get(sessionStagesStatus.getLevelStageOneId())+"-" + stageIdName.get(sessionStagesStatus.getStageId()));
+				////System.out.println("Inside   Method ::Stage Id"+sessionStagesStatus.getStageId()  + "    Stage Name"+stageIdName.get(sessionStagesStatus.getStageId()));
 				unitSessionDetailsDTO.setSessionId(sessionId);
 				res.add(unitSessionDetailsDTO);
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 
 		return res;
@@ -88,9 +90,9 @@ public class UnitGetDetailsManagement {
 
 			List<SessionDto> sessionList = resSession.getListOfSession();
 
-			uniqueDfccSNoList = sessionList.stream().map(SessionDto::getDfccSNo) // extract dfccSNo from each object
-					.filter(Objects::nonNull) // optional: remove null values
-					.distinct() // keep only unique values
+			uniqueDfccSNoList = sessionList.stream().map(SessionDto::getDfccSNo) 
+					.filter(Objects::nonNull) 
+					.distinct() 
 					.collect(Collectors.toList());
 
 		} catch (Exception ex) {

@@ -106,7 +106,8 @@ public class FaultCodeConfiguration {
 							+ faultCodeDTO.getFaultCodeDescription());
 				}
 			}
-
+//Mani delete for Fault code
+			faultCodeMasterService.deleteFaultCodeMaster(uutType, ofpConfigId);
 			FaultCodeMasterResponse response = faultCodeMasterService.addListOfFaultCodeMaster(listofFaultCodeMaster);
 			List<FaultCodeDTO> faultCodeList = new ArrayList<>();
 			if (response.getResponse().getResponseCode() == 1 && response.getFaultCodeMasterList().size() > 0) {

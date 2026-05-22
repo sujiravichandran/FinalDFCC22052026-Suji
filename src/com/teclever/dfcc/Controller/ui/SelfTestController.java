@@ -79,6 +79,8 @@ public class SelfTestController {
 	private HBox topButton = new HBox(10);
 
 	private GridPane headingGridPane = new GridPane();
+	
+	private GridPane progressButtonGridPane = new GridPane();
 
 	private GridPane midContainerGridPane = new GridPane();
 
@@ -109,7 +111,6 @@ public class SelfTestController {
 	
 	private String selectedStageId = null;
 
-	
 	private boolean aitess1Updated = false;
 	private boolean aitess2Updated = false;
 
@@ -124,7 +125,7 @@ public class SelfTestController {
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 		    if(newVal) {
 		    	Platform.runLater(() -> {
-//		    		System.out.println("Entred resetting Progress in Self test");
+//		    		////System.out.println("Entred resetting Progress in Self test");
 		    	testProgressBar.setProgress(0);
 		    	percentageLabel.setText("0%");
 		    	StateMachine.setResettingProgressBar(false);
@@ -151,10 +152,13 @@ public class SelfTestController {
 		firstRow.setPercentHeight(7);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(60);
-
+		secondRow.setPercentHeight(50);
+		
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(33);
+		thirdRow.setPercentHeight(10);
+
+		RowConstraints fourthRow = new RowConstraints();
+		fourthRow.setPercentHeight(33);
 
 		selfTestMainContainerGridPane.setVgap(5);
 
@@ -163,7 +167,8 @@ public class SelfTestController {
 		selfTestMainContainerGridPane.setPadding(new Insets(5, 5, 5, 5));
 		selfTestMainContainerGridPane.add(headingGridPane(), 0, 0);
 		selfTestMainContainerGridPane.add(selfTestMidContainer(), 0, 1);
-		selfTestMainContainerGridPane.add(selfTestBottomContainer(), 0, 2);
+		selfTestMainContainerGridPane.add(progressButtonGridPane(), 0, 2);
+		selfTestMainContainerGridPane.add(selfTestBottomContainer(), 0, 3);
 
 		return selfTestMainContainerGridPane;
 	}
@@ -177,7 +182,7 @@ public class SelfTestController {
 //		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
 //		                                 && StateMachine.aitess2LaunchedProperty().get();
 //		        if (bothLaunched) {
-//		            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
+//		            ////System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
 //
 //		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
 //		            Platform.runLater(() -> {
@@ -197,6 +202,8 @@ public class SelfTestController {
 
 		List<StageObject> stageList = StateMachine.getStageDatalist();
 		ObservableList<StageObject> observableStageList = FXCollections.observableArrayList(stageList);
+		
+		
 
 		observableStageList.stream().filter(stage -> "Self Test".equalsIgnoreCase(stage.getL1StageName()))
 				.filter(stage -> stage.getL3StageId() != null).sorted((stage1, stage2) -> {
@@ -255,33 +262,50 @@ public class SelfTestController {
 
 	public GridPane headingGridPane() {
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(25);
+		firstColumn.setPercentWidth(100);
 
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
-
-		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		headingGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn);
+		headingGridPane.getColumnConstraints().addAll(firstColumn);
 		headingGridPane.getRowConstraints().addAll(firstRow);
 		headingGridPane.getStyleClass().add("selfTest-top-container");
 
 		headingGridPane.add(headingHbox(), 0, 0);
-		headingGridPane.add(progressBar(), 1, 0);
-		headingGridPane.add(topButton(), 2, 0);
+//		headingGridPane.add(progressBar(), 1, 0);
+//		headingGridPane.add(topButton(), 2, 0);
 
 		return headingGridPane;
 
+	}
+	
+	public GridPane progressButtonGridPane() {
+		
+		ColumnConstraints firstColumn = new ColumnConstraints();
+		firstColumn.setPercentWidth(70);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(30);
+		
+		RowConstraints firstRow = new RowConstraints();
+		firstRow.setPercentHeight(100);
+		
+		progressButtonGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		progressButtonGridPane.getRowConstraints().addAll(firstRow);
+		progressButtonGridPane.getStyleClass().add("selfTest-progressbutton-Container");
+		
+		progressButtonGridPane.add(progressBar(), 0, 0);
+		progressButtonGridPane.add(topButton(), 1, 0);
+		
+		
+		return progressButtonGridPane;
 	}
 
 	private HBox headingHbox() {
 
 		pageHeading.getStyleClass().add("headerLabel");
-		headingHbox.setAlignment(Pos.CENTER_LEFT);
+		headingHbox.setAlignment(Pos.CENTER);
 		headingHbox.getChildren().add(pageHeading);
 
 		return headingHbox;
@@ -330,7 +354,7 @@ public class SelfTestController {
 	private HBox topButton() {
 
 		topButton.setPadding(new Insets(0, 5, 0, 0));
-		topButton.setAlignment(Pos.CENTER_RIGHT);
+		topButton.setAlignment(Pos.CENTER_LEFT);
 		topButton.getChildren().add(startTest);
 	
 		CheckAitessStatus checkAitessStatus = new CheckAitessStatus();
@@ -340,6 +364,11 @@ public class SelfTestController {
 			
 			if (!checkAitessStatus.isBothAitessOn()) {
 				
+				return;
+			}
+			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
 				return;
 			}
 			
@@ -405,7 +434,7 @@ public class SelfTestController {
 //					SessionManagement sessionManagement = new SessionManagement();
 //					sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
 //					
-////					System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+////					////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 //					for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 //					{
@@ -420,7 +449,7 @@ public class SelfTestController {
 //					sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
 //					
 //					SessionFileManagement session = new SessionFileManagement();
-////					System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+////					////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 //					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 //					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //				}
@@ -436,16 +465,16 @@ public class SelfTestController {
 			
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				Notifications.showWarningAlert("Please Wait until " +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
-			
 			// Set current stage ID
 			 String initialStageId = SelfTestStateObject.getRack1StageId();
 		    StateMachine.setCurrentlySelectedStageId(initialStageId);
 
 		    // Get previous and current stage IDs
 		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    DFCCConstant.currentTestStageId = currentStageId;
 		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
 
 		    // If previous stage is null, initialize it
@@ -485,18 +514,26 @@ public class SelfTestController {
 		            }
 
 		            // Clear the list after processing
-		            DFCCConstant.FailedStagesRdfPaths.clear();
+//		            DFCCConstant.FailedStagesRdfPaths.clear();
+		            
 		            StateMachine.setResettingProgressBar(true);
 		        }
+		        
+		        if(DFCCConstant.rdfMoveCanceled) {
+					DFCCConstant.rdfMoveCanceled= false;
+					return;
+				}
 
 		        // Clear advanced test result list on stage change
-		        SessionTestStateObject.clearSessionTestResults();
-		        SelfTestStateObject.clearselfTestResults();
-		        AdvancedTestStateObject.clearAdvancedTestResultsList();
-		        LRUTestStateObject.clearlruTestResultsList();
-
-		        // Update previous stage ID to current after processing
-		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+//		        if(!DFCCConstant.closedFileMove) {
+//		        	SessionTestStateObject.clearSessionTestResults();
+//			        SelfTestStateObject.clearselfTestResults();
+//			        AdvancedTestStateObject.clearAdvancedTestResultsList();
+//			        LRUTestStateObject.clearlruTestResultsList();
+//					}
+//
+//		        // Update previous stage ID to current after processing
+//		        StateMachine.setPreviouslySelectedStageId(currentStageId);
 		    }
 			
 			
@@ -537,7 +574,7 @@ public class SelfTestController {
 			ObservableList<TestCardData> cpciCardList = SelfTestStateObject.getSelfTestcPCICard();
 
 			SelfTestStateObject.setTotalSelfTestFileCount(5);
-
+			
 			 // RACK1 Start
 		    if (SelfTestStateObject.getRack1Status().get()) {
 		        SelfTestStateObject.setSelfTestRunningCard(SelfTestRunningCard.RACK1);
@@ -588,7 +625,6 @@ public class SelfTestController {
 			}
 			}
 		});
-	
 		testProgressBar.setProgress(0);
 		testProgressBar.getStyleClass().add("progress-bar");
 		percentageLabel.getStyleClass().add("progress-label");
@@ -840,7 +876,15 @@ public class SelfTestController {
 
 	private VBox midTopVbox3() {
 		ObservableList<TestCardData> cPCIList = SelfTestStateObject.getSelfTestcPCICard();
-
+		
+		//23032026 change based on sridhar sir comments
+		Label note1 = new Label("Note: Connect Loopback for P39 and P50(RS422)");
+		note1.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+		//note1.setWrapText(true);
+		note1.setMaxWidth(300); // adjust width as needed
+		note1.setAlignment(Pos.CENTER_LEFT);
+		midTopVbox3.getChildren().add(note1);
+		    
 		midTopVbox3.setPadding(new Insets(0, 5, 0, 5));
 		midTopVbox3.getStyleClass().add("rackVbox");
 		midTopVbox3.setAlignment(Pos.CENTER);

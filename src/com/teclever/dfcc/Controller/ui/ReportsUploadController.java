@@ -31,6 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -181,7 +182,7 @@ public class ReportsUploadController {
 		HBox sessionNameHBox = new HBox(10);
 		sessionNameHBox.setAlignment(Pos.CENTER);
 		sessionNameHBox.getChildren().add(sessionNameField);
-
+		sessionNameField.setEditable(true);
 		return sessionNameHBox;
 	}
 
@@ -219,6 +220,8 @@ public class ReportsUploadController {
 				sessionNameList.add(session.getSessionName());
 			}
 			sessionNameField.setItems(sessionNameList);
+			addSearchFunctionality(sessionNameField,sessionNameList );
+			
 			sessionNameField.setOnAction((event) -> {
 				SESSION_ID = fetchSessionId(sessionNameField.getValue());
 				if (SESSION_ID != null) {
@@ -246,7 +249,42 @@ public class ReportsUploadController {
 		buttonBox.getChildren().add(uploadButton);
 		return buttonBox;
 	}
+	
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
 
+		comboBox.setEditable(true);
+		comboBox.setItems(originalItems);
+
+		TextField editor = comboBox.getEditor();
+
+		editor.setOnKeyReleased(event -> {
+
+			String text = editor.getText();
+
+			ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+			if (text == null || text.isEmpty()) {
+				filteredList.addAll(originalItems);
+			} else {
+				for (String item : originalItems) {
+					if (item.toLowerCase().contains(text.toLowerCase())) {
+						filteredList.add(item);
+					}
+				}
+			}
+
+			comboBox.setItems(filteredList);
+			comboBox.getEditor().positionCaret(text.length());
+			comboBox.show();
+		});
+
+// Prevent auto-selection
+		comboBox.setOnAction(e -> {
+			if (comboBox.getSelectionModel().getSelectedItem() != null) {
+				editor.setText(comboBox.getSelectionModel().getSelectedItem());
+			}
+		});
+	}
 	private void uploadFileselection() {
 		
 		UUT_ID = uutTypeField.getSelectionModel().getSelectedItem();
@@ -309,7 +347,7 @@ public class ReportsUploadController {
 			 String fullPath = reportconfig.getFileName();
 			 uploadData.setFullPath(fullPath);
 			    String fileName = Paths.get(fullPath).getFileName().toString();
-			    System.out.println("FileName in Data upload" + fullPath);
+			    ////System.out.println("FileName in Data upload" + fullPath);
 			uploadData.setFileName(fileName);
 			uploadData.setUploadDateAndTime(reportconfig.getUploadDate());
 			uploadData.setId(reportconfig.getReportConfigId());
@@ -317,7 +355,7 @@ public class ReportsUploadController {
 		}
 
 		UploadTableViewFactory driverFactory = new UploadTableViewFactory();
-		CustomTableView customTableView = driverFactory.createTableView(uploads, true, false);
+		CustomTableView<Upload> customTableView = driverFactory.createTableView(uploads, true, false);//2503206
 
 		customTableView.setPrefWidth(1613.0);
 		customTableView.setPrefHeight(1000.0);
@@ -327,6 +365,35 @@ public class ReportsUploadController {
 				handleDeleteButtonClicked(upload);
 			}
 		});
+		
+//		customTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
+//		    ObservableList<Upload> selectedItems = customTableView.getSelectedItems();
+//		    if (selectedItems == null || selectedItems.isEmpty()) {
+//		        Notifications.showWarningAlert("No file selected!");
+//		        return;
+//		    }
+//
+//		    for (Upload upload : selectedItems) {
+//		        try {
+//		            String filePath = upload.getFullPath();
+//		            if (filePath == null || filePath.isEmpty()) {
+//		                Notifications.showErrorAlert("File path not found for " + upload.getFileName());
+//		                continue;
+//		            }
+//
+//		            File file = new File(filePath);
+//
+//		            if (file.exists()) {
+//		                Desktop.getDesktop().open(file);
+//		            } else {
+//		                Notifications.showErrorAlert("File not found: " + filePath);
+//		            }
+//		        } catch (IOException e) {
+//		            e.printStackTrace();
+//		            Notifications.showErrorAlert("Failed to open file: " + e.getMessage());
+//		        }
+//		    }
+//		});
 		
 		customTableView.addEventHandler(CustomTableView.VIEW_BUTTON_CLICKED_EVENT, event -> {
 		    ObservableList<Upload> selectedItems = customTableView.getSelectedItems();
@@ -345,11 +412,23 @@ public class ReportsUploadController {
 
 		            File file = new File(filePath);
 
-		            if (file.exists()) {
-		                Desktop.getDesktop().open(file);
-		            } else {
+		            if (!file.exists()) {
 		                Notifications.showErrorAlert("File not found: " + filePath);
+		                continue;
 		            }
+
+		            // Detect OS
+		            String os = System.getProperty("os.name").toLowerCase();
+
+		            if (os.contains("win")) {
+		                Desktop.getDesktop().open(file);
+		            } else if (os.contains("nix") || os.contains("nux") || os.contains("mac")) {
+		                // Linux / Unix / Mac fallback
+		                new ProcessBuilder("xdg-open", file.getAbsolutePath()).start();
+		            } else {
+		                Notifications.showErrorAlert("Unsupported OS: " + os);
+		            }
+
 		        } catch (IOException e) {
 		            e.printStackTrace();
 		            Notifications.showErrorAlert("Failed to open file: " + e.getMessage());
@@ -371,7 +450,7 @@ public class ReportsUploadController {
 	
 	private void handleDeleteButtonClicked(Upload uplodDto) {
 		String title = "Confirmation Dialog";
-		String contentText = "Are you sure you want to delete Aitess Run Configuration: " + uplodDto.getId() + "?";
+		String contentText = "Are you sure you want to delete the file";
 
 		Notifications.showConfirmationDialog(title, contentText, () -> handleDeleteReportData(uplodDto.getId()));
 	}

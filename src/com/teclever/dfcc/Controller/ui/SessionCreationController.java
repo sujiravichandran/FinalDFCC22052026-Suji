@@ -416,10 +416,45 @@ public class SessionCreationController {
 		    }
 		});
 		
-		dfccSNoField.textProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue.length() > 15 || !newValue.matches("[A-Z0-9]*")) {
-		        String filtered = newValue.replaceAll("[^A-Z0-9]", "");
-		        dfccSNoField.setText(filtered.length() > 15 ? filtered.substring(0, 15) : filtered);
+//		dfccSNoField.textProperty().addListener((observable, oldValue, newValue) -> {
+//			if (newValue.length() > 15 || !newValue.matches("[A-Z0-9]*")) {
+//		        String filtered = newValue.replaceAll("[^A-Z0-9]", "");
+//		        dfccSNoField.setText(filtered.length() > 15 ? filtered.substring(0, 15) : filtered);
+//		    }
+//		});
+
+
+
+		dfccSNoField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+		    if (!newValue) { // When the TextField loses focus
+		        String value = dfccSNoField.getText().toUpperCase(); // convert to uppercase
+
+		        if ("UUT1".equals(UUT_ID)) {
+		            // Regex: starts with PT or SP, followed by exactly 3 digits
+		            if (!value.matches("^(PT|SP)\\d{3}$")) {
+		                Alert alert = new Alert(Alert.AlertType.ERROR);
+		                alert.setTitle("Invalid Input");
+		                alert.setHeaderText(null);
+		                alert.setContentText("Please enter like this: PT001 or SP001");
+		                alert.showAndWait();
+		                dfccSNoField.clear();
+		            } else {
+		                dfccSNoField.setText(value); // valid input
+		            }
+		        } else {
+		            // Other UUT_ID: allow only digits, max 3
+		        	//value.matches("[1-9]\\d{2}")
+		            if (!value.matches("[0-9]\\d{2}")) { // if not 0-3 digits
+		                Alert alert = new Alert(Alert.AlertType.ERROR);
+		                alert.setTitle("Invalid Input");
+		                alert.setHeaderText(null);
+		                alert.setContentText("Serial number should be maximum 3 digits!");
+		                alert.showAndWait();
+		                dfccSNoField.clear();
+		            } else {
+		                dfccSNoField.setText(value); // valid input
+		            }
+		        }
 		    }
 		});
 		
@@ -456,6 +491,7 @@ public class SessionCreationController {
 		if (response.getResponse().getResponseCode() == 1) {
 			for (SessionList sessionDto : response.getListOfSession()) {
 				SessionDetails sessionDetails = new SessionDetails();
+				
 				sessionDetails.setSessionName(sessionDto.getSessionName());
 				sessionDetails.setSessionId(sessionDto.getSessionId());
 				sessionDetails.setDate(sessionDto.getCreationDate());
@@ -595,6 +631,9 @@ public class SessionCreationController {
 		for (SessionMasterDTO sessionType : sessionDataList) {
 			sessionTypeList.add(sessionType.getSessionTypeName());
 		}
+		if ("UUT1".equals(UUT_ID)) {
+		    sessionTypeList.removeIf(e -> "BLS".equals(e));
+		}
 		sessionTypeField.setItems(sessionTypeList);
 		sessionTypeField.setOnAction((event) -> {
 			if (sessionTypeField.getValue() != null && !sessionTypeField.getValue().isEmpty()) {
@@ -611,13 +650,13 @@ public class SessionCreationController {
 		if (SESSION_TYPE_ID.equals("ST4")) {
 			
 			boolean trailsActiveStatus = sessionManagement.isActiveTrailsPresent();
-//			System.out.println("Chck trailsActiveStatus " + trailsActiveStatus);
+//			////System.out.println("Chck trailsActiveStatus " + trailsActiveStatus);
 			SessionListResponse response = sessionManagement.getAllSessionDataByRoleId(ROLE_ID);
 			String uut = uutTypeField.getValue();
 			if (response.getResponse().getResponseCode() == 1) {
 				for (SessionList sessionDto : response.getListOfSession()) {
-//					System.out.println("UUT " + uut);
-//					System.out.println("sessionName uP" + sessionDto.getSessionName());
+//					////System.out.println("UUT " + uut);
+//					////System.out.println("sessionName uP" + sessionDto.getSessionName());
 					sessionName.add(sessionDto.getSessionName());
 					if(sessionDto.getSessionId().startsWith("TSSN")) {
 						activeTrailIdHolder[0] = sessionDto.getSessionId();
@@ -628,15 +667,15 @@ public class SessionCreationController {
 			boolean matchFound = sessionName.stream()
 				    .anyMatch(s -> 
 				        s.toLowerCase().contains(uut.toLowerCase()) &&
-				        s.toLowerCase().contains("_trail")
+				        s.toLowerCase().contains("_trial")
 				    );
 
-			System.out.println("matchFound" + matchFound);
+			////System.out.println("matchFound" + matchFound);
 			
 			if (trailsActiveStatus && matchFound) {
-//				System.out.println("Check entred");
+//				////System.out.println("Check entred");
 				String title = "Confirmation Dialog";
-				String contentText = "The existing trail session is still active, so a new trail session cannot be created. Do you want do end trail session?";
+				String contentText = "The existing trial session is still active, so a new trial session cannot be created. Do you want do end trail session?";
 				Notifications.showConfirmationDialog(title, contentText, () -> endTrailSesion(activeTrailIdHolder[0]));
 				Platform.runLater(() -> {
 					sessionTypeField.setValue(null);
@@ -664,7 +703,7 @@ public class SessionCreationController {
 	            Response response = sessionManagement.endSession(userInput,false);
 	            if (response.getResponseCode() == 1) {
 					currentSessionDetails.setSessionId(null);
-	            	Notifications.showSuccessAlert("Trail session ended successfully");
+	            	Notifications.showSuccessAlert("Trial session ended successfully");
 	            } else {
 	                Notifications.showErrorAlert(response.getResponseMessage());
 	            }
@@ -767,6 +806,10 @@ public class SessionCreationController {
 		for (SessionMasterDTO sessionType : sessionDataList) {
 			sessionTypeList.add(sessionType.getSessionTypeName());
 		}
+		if ("UUT1".equals(UUT_ID)) {
+		    sessionTypeList.removeIf(e -> "BLS".equals(e));
+		}
+		
 		sessionTypeField.setItems(sessionTypeList);
 	}
 
@@ -845,7 +888,9 @@ public class SessionCreationController {
 				continue;
 			}
 			CustomCheckBoxTreeItem<String> item = new CustomCheckBoxTreeItem<>(stage.getL1_name(), stage.getId());
+			if (!ROLE_ID.equals("RL_ID_4")) {
 			item.setSelected(true);
+			}
 			rootItem.getChildren().add(item);
 			addSubStages(item, stage.getId(), subStageMap);
 		}
@@ -966,16 +1011,35 @@ public class SessionCreationController {
 
 		StringBuilder errorMessage = new StringBuilder();
 		if (sessionTypeField.getValue() == null || sessionTypeField.getValue().isEmpty()) {
+//			//System.out.println("  conD 1");
 			if (!ROLE_ID.equals("RL_ID_4")) {
+//				//System.out.println("  conD 1 -1") ;
 				errorMessage.append("Please Select Session Type...\n");
 			}
-		} else {
+		}
+		
+		
+		
+		if (ROLE_ID.equals("RL_ID_4")){
+//			//System.out.println("  conD 2");
+			if (selectedFaultCodeList.size() == 0) { 
+				Notifications.showErrorAlert("Please add fault code for FRU session...\n");
+//				errorMessage.append("Please add fault code for FRU session...\n");
+				return;
+			}else {
+			sessionTypeField.setValue("FRU");
+			}
+		}
+		else{
+//			//System.out.println("  conD 3");
 			if (sessionTypeField.getValue().toLowerCase().trim().contains("fru")) {
 				if (selectedFaultCodeList.size() == 0) {
 					errorMessage.append("Please add fault code for FRU session...\n");
 				}
 			}
 		}
+		
+		
 		if (dfccSNoField.getText().trim() == null || dfccSNoField.getText().trim().isEmpty()) {
 			errorMessage.append("Please add DFCC serial number...\n");
 		}
@@ -1062,6 +1126,18 @@ public class SessionCreationController {
 		int code = 0;
 
 		if (!SESSION_TYPE_ID.equals("ST4")) {
+			if (sessionDTO.getSessionStagesList().size() == 0 && !DFCCConstant.roleId.equals("RL_ID_4")) {
+				Notifications.showErrorAlert("Please Select Session Stages !!");
+				return;
+			}
+
+//			if(DFCCConstant.roleId.equals("RL_ID_4"))
+//			{
+//				if (sessionDTO.getSessionStagesList().size() == 0) {
+//					Notifications.showErrorAlert("Please Select Session Stages !!");
+//					return;
+//				}
+//			}
 			response = sessionManagement.saveSession(sessionDTO);
 			code = response.getResponseCode();
 			msg = response.getResponseMessage();

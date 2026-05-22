@@ -1,16 +1,26 @@
 package com.teclever.dfcc.Controller.ui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
 import com.teclever.datastore.entities.RDF1553BCode;
@@ -31,9 +41,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
@@ -49,6 +61,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -59,7 +72,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 class ManualTesting1Ch3DataTableViewFactory implements TableViewFactory<Ch11553Table1> {
@@ -151,15 +166,28 @@ public class ManualTesting1553Ch3 {
 	private Label tiqmRep = new Label("TI/QM REP: ");
 	private Label tiqmRepDate = new Label("DATE: ");
 
+	private Label selectedUutName = new Label();
+	private Label selectedSerialName = new Label();
+	private Label selectedSessionName = new Label();
+	private Label selectedStageNameLabel = new Label();
 
 	private String selectedSessionId;
 	private String selectedStageName;
+	private String selectedStageId;
+	
+	private Label tmpUutLabel;
+	private Label tmpSerialLabel ;
+	private Label tmpSessionLabel ;
+	private Label tmpStageLabel;
 
 	private UnitGetDetailsManagement unitGetDetailsManagement = new UnitGetDetailsManagement();
 	private Map<String, String> sessionNameId = new HashMap<String, String>();
 	private Map<String, String> stageNameId = new HashMap<String, String>();
 	List<SessionDto> sessionList = new ArrayList<SessionDto>();
 	List<UnitSessionDetailsDTO> stageList = new ArrayList<UnitSessionDetailsDTO>();
+	
+	private String selectedUutId;
+	private String selectedSno;
 
 	public ManualTesting1553Ch3() {
 
@@ -171,6 +199,15 @@ public class ManualTesting1553Ch3 {
 
 		}
 		initializeUUTTypeComboBox();
+		
+	}
+
+	private void resetPage() {
+
+	    dynamicContent.getChildren().clear();
+	    ch11553Table2DataList.clear();
+
+	   
 	}
 
 	public GridPane createlinkFilesMainContainerGridPane() {
@@ -182,16 +219,16 @@ public class ManualTesting1553Ch3 {
 		firstColumn.setPercentWidth(100);
 
 		RowConstraints firstRow = new RowConstraints();
-		firstRow.setPercentHeight(15);
+		firstRow.setPercentHeight(10);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(5);
+		secondRow.setPercentHeight(9);
 
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(25);
+		thirdRow.setPercentHeight(35);
 
 		RowConstraints fourthRow = new RowConstraints();
-		fourthRow.setPercentHeight(25);
+		fourthRow.setPercentHeight(37);
 
 		RowConstraints fivthRow = new RowConstraints();
 		fivthRow.setPercentHeight(5);
@@ -200,18 +237,16 @@ public class ManualTesting1553Ch3 {
 		sixthRow.setPercentHeight(5);
 
 		RowConstraints seventhRow = new RowConstraints();
-		seventhRow.setPercentHeight(10);
+		seventhRow.setPercentHeight(5);
 
-		RowConstraints eighthRow = new RowConstraints();
-		eighthRow.setPercentHeight(10);
 
 		ch1MainContainerGridPane.setHgap(10);
 		ch1MainContainerGridPane.setVgap(10);
 
 		ch1MainContainerGridPane.getColumnConstraints().addAll(firstColumn);
 		ch1MainContainerGridPane.getRowConstraints().addAll(firstRow, secondRow, thirdRow, fourthRow, fivthRow,
-				sixthRow, seventhRow, eighthRow);
-		ch1MainContainerGridPane.setPadding(new Insets(10, 10, 10, 10));
+				sixthRow, seventhRow);
+		ch1MainContainerGridPane.setPadding(new Insets(2, 2, 2, 2));
 
 		ch1MainContainerGridPane.add(createHeadingBox(), 0, 0);
 		ch1MainContainerGridPane.add(createSerialAlternateGridePane(), 0, 1);
@@ -220,7 +255,6 @@ public class ManualTesting1553Ch3 {
 		ch1MainContainerGridPane.add(createNoteBox(), 0, 4);
 		ch1MainContainerGridPane.add(createRepBox(), 0, 5);
 		ch1MainContainerGridPane.add(createRepDateBox(), 0, 6);
-		ch1MainContainerGridPane.add(dateGridPane(), 0, 7);
 
 		return ch1MainContainerGridPane;
 	}
@@ -229,7 +263,10 @@ public class ManualTesting1553Ch3 {
 		GridPane topBoxGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(100);
+		firstColumn.setPercentWidth(80);
+		
+		ColumnConstraints secondColumn = new ColumnConstraints();
+		secondColumn.setPercentWidth(20);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(50);
@@ -252,6 +289,8 @@ public class ManualTesting1553Ch3 {
 
 		topBoxGridPane.add(headingHbox1, 0, 0);
 		topBoxGridPane.add(headingHbox2, 0, 1);
+		topBoxGridPane.add(dateGridPane(), 1, 0);
+		
 
 		return topBoxGridPane;
 	}
@@ -260,62 +299,45 @@ public class ManualTesting1553Ch3 {
 		GridPane serialAlternateGridPane = new GridPane();
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(25);
+		firstColumn.setPercentWidth(10);
 
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(25);
+		secondColumn.setPercentWidth(15);
 
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(25);
-		
+		thirdColumn.setPercentWidth(50);
+
 		ColumnConstraints fourthColumn = new ColumnConstraints();
 		fourthColumn.setPercentWidth(25);
-
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
 		serialAlternateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn, thirdColumn, fourthColumn);
 		serialAlternateGridPane.getRowConstraints().addAll(firstRow);
-
-
-		HBox serialHbox = new HBox(10);
-		serialHbox.setAlignment(Pos.CENTER_LEFT);
-		serialHbox.setFillHeight(true);
-
-		HBox sessionHbox = new HBox(10);
-		sessionHbox.setAlignment(Pos.CENTER);
-
-		sessionHbox.getChildren().addAll( sessioName);
-
-		serialHbox.getChildren().addAll( serialnumber);
-
-		dfccNameLabel.getStyleClass().add("nonheading-label");
 		
-		HBox uutHbox = new HBox(10);
-		uutHbox.setAlignment(Pos.CENTER_LEFT);
-		uutHbox.setFillHeight(true);
-		uutTypeField.setPromptText("select UUT Type");
-		serialnumber.setPromptText("select Serial No");
-		sessioName.setPromptText("select Session");
-		stageName.setPromptText("select Stage Name");
-		uutHbox.getChildren().add(uutTypeField);
+		
+//		selectedUutName.textProperty().bind(DFCCConstant.showUut);
+//		selectedSerialName.textProperty().bind(DFCCConstant.showSerialNo);
+//		selectedSessionName.textProperty().bind(DFCCConstant.showSession);
+//		selectedStageNameLabel.textProperty().bind(DFCCConstant.showStage);
+		
+		selectedUutName.setText(DFCCConstant.showUut);
+		selectedSerialName.setText(DFCCConstant.showSerialNo);
+		selectedSessionName.setText(DFCCConstant.showSession);
+		selectedStageNameLabel.setText(DFCCConstant.showStage);
+		
+		selectedUutName.getStyleClass().add("nonheading-label");
+		selectedSerialName.getStyleClass().add("nonheading-label");
+		selectedSessionName.getStyleClass().add("nonheading-label");
+		selectedStageNameLabel.getStyleClass().add("nonheading-label");
+		Platform.runLater(() -> {
+		serialAlternateGridPane.add(selectedUutName, 0, 0);
+		serialAlternateGridPane.add(selectedSerialName, 1, 0);
+		serialAlternateGridPane.add(selectedSessionName, 2, 0);
+		serialAlternateGridPane.add(selectedStageNameLabel, 3, 0);
+		});
 
-		HBox alternateHbox = new HBox(10);
-		alternateHbox.setAlignment(Pos.CENTER_RIGHT);
-		alternateHbox.getChildren().addAll(dfccNameLabel, dfccNameText);
-
-		HBox stageNameHbox = new HBox(10);
-		stageNameHbox.setAlignment(Pos.CENTER_RIGHT);
-		stageNameHbox.getChildren().addAll( stageName);
-
-		serialAlternateGridPane.add(uutHbox, 0, 0);
-		serialAlternateGridPane.add(serialHbox, 1, 0);
-		serialAlternateGridPane.add(sessionHbox, 2, 0);
-		serialAlternateGridPane.add(stageNameHbox, 3, 0);
-
-		GridPane.setHgrow(serialHbox, Priority.ALWAYS);
-		GridPane.setHgrow(alternateHbox, Priority.ALWAYS);
 
 		return serialAlternateGridPane;
 	}
@@ -334,6 +356,7 @@ public class ManualTesting1553Ch3 {
 			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
 			uutId = fetchUutId(selectedUUTType);
 			initalizeSerialNoComboBox(uutId);
+			selectedUutId = uutId;
 
 		});
 	}
@@ -362,18 +385,31 @@ public class ManualTesting1553Ch3 {
 		}
 		serialnumber.setItems(dfccSNList);
 		serialnumber.setOnAction((event) -> {
-
-			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
-			initializeSessionComboBox(selectedSerialNumber);
-
+			selectedSno = serialnumber.getSelectionModel().getSelectedItem();
+		
+				initializeSessionComboBox();
+			
+			
+			
 		});
 	}
 
-	private void initializeSessionComboBox(String selectedDfccNo) {
+	private void initializeSessionComboBox() {
 		sessionTypeList.clear();
 
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
-				.collect(Collectors.toList());
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
+//				.collect(Collectors.toList());
+		
+		List<SessionDto> filterSessionList = sessionList.stream()
+		        .filter(t ->
+		                Objects.equals(t.getUutId(), selectedUutId) &&
+		                Objects.equals(t.getDfccSNo(), selectedSno) &&
+		                t.getEndDate() == null
+		        )
+		        .sorted(Comparator
+		                .comparing(SessionDto::getUutId)
+		                .thenComparing(SessionDto::getDfccSNo))
+		        .collect(Collectors.toList());
 
 		for (SessionDto sessionName : filterSessionList) {
 			sessionTypeList.add(sessionName.getSessionName());
@@ -396,23 +432,62 @@ public class ManualTesting1553Ch3 {
 
 	}
 
+//	private void getStageName(String sessionId) {
+//		////System.out.println("Stage Name Session id" + sessionId);
+//		stageList = unitGetDetailsManagement.getStageDetailsForSession(selectedSessionId);
+//		////System.out.println("stageList" + stageList);
+//		for (UnitSessionDetailsDTO stageName : stageList) {
+//			stageNameId.put(stageName.getStageId(), stageName.getStageName());
+//		}
+//
+//		////System.out.println("stageNameIdstageNameIdstageNameId" + stageNameId.values());
+//		stageName.setItems(FXCollections.observableArrayList(stageNameId.values()));
+//
+//		stageName.setOnAction((event) -> {
+//			selectedStageName = stageName.getSelectionModel().getSelectedItem();
+//			////System.out.println("selectedStageName" + selectedStageName);
+//			create1553Table1DataTable();
+//		});
+//
+//	}
+	
 	private void getStageName(String sessionId) {
-		System.out.println("Stage Name Session id" + sessionId);
-		stageList = unitGetDetailsManagement.getStageDetailsForSession(selectedSessionId);
-		System.out.println("stageList" + stageList);
-		for (UnitSessionDetailsDTO stageName : stageList) {
-			stageNameId.put(stageName.getStageId(), stageName.getStageName());
-		}
 
-		System.out.println("stageNameIdstageNameIdstageNameId" + stageNameId.values());
-		stageName.setItems(FXCollections.observableArrayList(stageNameId.values()));
+	    stageList = unitGetDetailsManagement
+	            .getStageDetailsForSession(selectedSessionId);
 
-		stageName.setOnAction((event) -> {
-			selectedStageName = stageName.getSelectionModel().getSelectedItem();
-			System.out.println("selectedStageName" + selectedStageName);
-			create1553Table1DataTable();
-		});
+	    // IMPORTANT: clear old data to avoid accumulation
+	    stageNameId.clear();
+	    stageName.getItems().clear();
 
+	    for (UnitSessionDetailsDTO dto : stageList) {
+	        if (dto.getStageId() != null && dto.getStageName() != null) {
+	            stageNameId.put(dto.getStageId(), dto.getStageName());
+	        }
+	    }
+
+	    // Filter out null values explicitly
+	    List<String> filteredStageNames = stageNameId.values()
+	            .stream()
+	            .filter(Objects::nonNull)
+	            .distinct()
+	            .toList();
+
+
+	    stageName.setItems(FXCollections.observableArrayList(filteredStageNames));
+
+	    stageName.setOnAction(event -> {
+
+	        selectedStageName = stageName.getSelectionModel().getSelectedItem();
+	        selectedStageId = stageNameId.entrySet()
+	                .stream()
+	                .filter(e -> Objects.equals(selectedStageName, e.getValue()))
+	                .map(Map.Entry::getKey)
+	                .findFirst()
+	                .orElse(null);
+	        
+
+	    });
 	}
 
 	private StackPane create1553Table1Content() {
@@ -452,17 +527,15 @@ public class ManualTesting1553Ch3 {
 			@Override
 			protected Void call() throws Exception {
 				DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
-				System.out.println("SESSION NAME" + selectedSessionId);
-				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(selectedSessionId,
-						selectedStageName, "ch3");
+				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(DFCCConstant.selectedSessionId1553,
+						DFCCConstant.selectedStageId1553, "ch3");
 
-				System.out.println("Data list size: " + dataList.size());
 
 				if (dataList != null && !dataList.isEmpty()) {
 					for (RDF1553BCode rdf : dataList) {
 						Ch11553Table1 newCh11553T1Data = new Ch11553Table1();
-						newCh11553T1Data.setStep("");
-						newCh11553T1Data.setOperation("");
+						newCh11553T1Data.setStep("01");
+						newCh11553T1Data.setOperation("Record TTR Value");
 						newCh11553T1Data.setTtr1_I(rdf.getValueCh_1());
 						newCh11553T1Data.setTtr1_II(rdf.getValueCh_2());
 						newCh11553T1Data.setTtr1_III(rdf.getValueCh_3());
@@ -482,6 +555,11 @@ public class ManualTesting1553Ch3 {
 				Platform.runLater(() -> {
 					ch11553Table1DataTableView = ch11553Table1DataFactory.createTableView(ch11553Table1DataList, false,
 							false);
+					
+					Platform.runLater(() -> {
+						create1553Table2DataTable();
+					
+					});
 
 					ch11553Table1DataTableView.getColumns().forEach(column -> {
 						String colName = column.getText();
@@ -805,8 +883,8 @@ public class ManualTesting1553Ch3 {
 			@Override
 			protected Void call() throws Exception {
 				DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
-				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(selectedSessionId,
-						selectedStageName, "ch3");
+				List<RDF1553BCode> dataList = dataAnalysis1553_BManagement.get1553BValuesForChannel(DFCCConstant.selectedSessionId1553,
+						DFCCConstant.selectedStageId1553, "ch3");
 				if (dataList != null && !dataList.isEmpty()) {
 					for (RDF1553BCode rdf : dataList) {
 						Ch11553Table2 newCh11553T2Data = new Ch11553Table2();
@@ -843,9 +921,18 @@ public class ManualTesting1553Ch3 {
 				Platform.runLater(() -> {
 					ch11553Table2DataTableView = ch11553Table2DataFactory.createTableView(ch11553Table2DataList, false,
 							false);
+					
+					 ch11553Table2DataTableView.setColumnResizePolicy(
+							  ch11553Table2DataTableView.UNCONSTRAINED_RESIZE_POLICY
+		                );
 
 					ch11553Table2DataTableView.getColumns().forEach(column -> {
 						switch (column.getText()) {
+						case "OPERATION":
+							column.setMinWidth(300);
+							column.setMaxWidth(300);
+							break;
+						
 						case "TTR1I":
 							column.setText("TTR1_II - TTR1_I");
 							column.setMinWidth(200);
@@ -1134,6 +1221,79 @@ public class ManualTesting1553Ch3 {
 		return grid;
 	}
 	
+	private void exportPageToPDF(Stage stage, GridPane root) {
+	    FileChooser chooser = new FileChooser();
+	    chooser.setTitle("Save PDF");
+	    chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+	    File file = chooser.showSaveDialog(stage);
+	    if (file == null) return;
+
+	    try {
+	        // Wrap text for session name label (or any labels you need)
+	        root.getChildren().forEach(node -> {
+	            if (node instanceof Label label) {
+	                label.setWrapText(true);   // Enable wrap text
+	                label.setMaxWidth(300);    // Set max width so text wraps properly
+	            }
+	        });
+
+	        // Take snapshot of the GridPane at higher resolution
+	        SnapshotParameters params = new SnapshotParameters();
+	        params.setTransform(new Scale(2, 2)); // 2x resolution
+	        WritableImage fxImage = root.snapshot(params, null);
+
+	        // Convert JavaFX WritableImage → BufferedImage
+	        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(fxImage, null);
+
+	        // Convert BufferedImage → byte array
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        ImageIO.write(bufferedImage, "png", baos);
+	        byte[] imageBytes = baos.toByteArray();
+
+	        // Create iText ImageData from byte array
+	        com.itextpdf.io.image.ImageData imgData = com.itextpdf.io.image.ImageDataFactory.create(imageBytes);
+	        com.itextpdf.layout.element.Image pdfImage = new com.itextpdf.layout.element.Image(imgData);
+
+	        // Create PDF writer and document
+	        PdfWriter writer = new PdfWriter(file.getAbsolutePath());
+	        PdfDocument pdfDoc = new PdfDocument(writer);
+	        Document document = new Document(pdfDoc, PageSize.A3.rotate());
+
+	        // Fit image to page
+	        pdfImage.scaleToFit(PageSize.A3.rotate().getWidth(), PageSize.A3.rotate().getHeight());
+	        pdfImage.setAutoScale(true);
+
+	        // Add image to PDF
+	        document.add(pdfImage);
+	        document.close();
+
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        Notifications.showErrorAlert("Error generating PDF: " + ex.getMessage());
+	    }
+	}
+
+	private void addLabelToParent(Label original, Label tmp) {
+	    if (original.getParent() instanceof GridPane grid) {
+	        Integer col = GridPane.getColumnIndex(original);
+	        Integer row = GridPane.getRowIndex(original);
+	        col = (col == null) ? 0 : col;
+	        row = (row == null) ? 0 : row;
+	        grid.add(tmp, col, row);
+	    } else if (original.getParent() instanceof Pane pane) {
+	        pane.getChildren().add(tmp);
+	    }
+	}
+
+	private void removeLabelFromParent(Label original, Label tmp) {
+	    if (original.getParent() instanceof GridPane grid) {
+	        grid.getChildren().remove(tmp);
+	    } else if (original.getParent() instanceof Pane pane) {
+	        pane.getChildren().remove(tmp);
+	    }
+	}
+	
 	private GridPane dateGridPane() {
 		GridPane dateGridPane = new GridPane();
 		DatePicker datePicker = new DatePicker(LocalDate.now()); // Default to today
@@ -1163,16 +1323,13 @@ public class ManualTesting1553Ch3 {
 		});
 
 		datePicker.setPromptText("dd-MM-yyyy");
-		System.out.println("datePicker" + datePicker);
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(50);
-		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(50);
-
+		firstColumn.setPercentWidth(100);
+	
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
 
-		dateGridPane.getColumnConstraints().addAll(firstColumn, secondColumn);
+		dateGridPane.getColumnConstraints().addAll(firstColumn);
 		dateGridPane.getRowConstraints().add(firstRow);
 
 		date.getStyleClass().add("nonheading-label");
@@ -1183,33 +1340,107 @@ public class ManualTesting1553Ch3 {
 		    
 		    submitHBox.getChildren().add(submit);
 
-		    submit.setOnAction(event -> {
-		        Platform.runLater(() -> {
-		        	if (uutTypeField.getSelectionModel().getSelectedItem() == null ||
-		        			serialnumber.getSelectionModel().getSelectedItem() == null ||
-		        			sessioName.getSelectionModel().getSelectedItem() == null ||
-		        			stageName.getSelectionModel().getSelectedItem() == null) {
-		        		
-		        		
+			printButton.setOnAction(event -> {
 
-		        		    Notifications.showErrorAlert("Please select UUT Type & Serial No");
-		        		    return;
-		        		}
+			    // 1️⃣ Validation
+			    if (selectedUutName.getText() == null || selectedSerialName.getText() == null
+			            || selectedSessionName.getText() == null || selectedStageNameLabel.getText() == null) {
+			        Notifications.showErrorAlert("Please select all the required details to save.");
+			        return;
+			    }
+			    
+			    if (ch11553Table1DataList.isEmpty()) {
+			        Notifications.showErrorAlert("No data available to export.");
+			        return;
+			    }
 
-		        	
-		        	dynamicContent.getChildren().clear();
-		        	  StackPane popup = null;
-					  popup =create1553Table1Content();
-					  dynamicContent.getChildren().add(popup);
-		        	
-					  popup.setMaxHeight(Double.MAX_VALUE);
-					  popup.setMaxWidth(Double.MAX_VALUE);
-		            //CRITICAL LINE
-		            VBox.setVgrow(popup, Priority.ALWAYS);
-		        	
-		        	
-		        });
-		    });
+			    // 2️⃣ Hide Print Button Section
+			    printButtonHBox.setVisible(false);
+			    printButtonHBox.setManaged(false);
+
+			    ch1MainContainerGridPane.applyCss();
+			    ch1MainContainerGridPane.layout();
+
+			    Stage stage = (Stage) ch1MainContainerGridPane.getScene().getWindow();
+
+			    // 3️⃣ Create Temporary Labels (with wrap for long text)
+
+				 tmpUutLabel = new Label("UUT Type : " + 
+				            (DFCCConstant.showUut));
+
+				    tmpSerialLabel = new Label("Serial No : " + 
+				            (DFCCConstant.showSerialNo));
+
+				    tmpSessionLabel = new Label("Session Name : " + 
+				            (DFCCConstant.showSession));
+
+				    tmpStageLabel = new Label("Stage Name : " + 
+				            (DFCCConstant.showStage));
+
+			    tmpUutLabel.getStyleClass().add("nonheading-label");
+			    tmpSerialLabel.getStyleClass().add("nonheading-label");
+			    tmpSessionLabel.getStyleClass().add("nonheading-label");
+			    tmpStageLabel.getStyleClass().add("nonheading-label");
+
+			    // Wrap text for long session names
+			    tmpSessionLabel.setWrapText(true);
+
+			    try {
+			        // 4️⃣ Hide original Labels
+			        selectedUutName.setVisible(false);
+			        selectedSerialName.setVisible(false);
+			        selectedSessionName.setVisible(false);
+			        selectedStageNameLabel.setVisible(false);
+
+			        // 5️⃣ Add temporary labels to the same parent
+			        addLabelToParent(selectedUutName, tmpUutLabel);
+			        addLabelToParent(selectedSerialName, tmpSerialLabel);
+			        addLabelToParent(selectedSessionName, tmpSessionLabel);
+			        addLabelToParent(selectedStageNameLabel, tmpStageLabel);
+
+			        ch1MainContainerGridPane.applyCss();
+			        ch1MainContainerGridPane.layout();
+
+			        // 6️⃣ Export to PDF
+			        exportPageToPDF(stage, ch1MainContainerGridPane);
+			        Notifications.showSuccessAlert("Report has been downloaded successfully");
+			    } catch (Exception ex) {
+			        ex.printStackTrace();
+			        Notifications.showErrorAlert("Failed to export PDF");
+			    } finally {
+			        // 7️⃣ Restore UI
+			        removeLabelFromParent(selectedUutName, tmpUutLabel);
+			        removeLabelFromParent(selectedSerialName, tmpSerialLabel);
+			        removeLabelFromParent(selectedSessionName, tmpSessionLabel);
+			        removeLabelFromParent(selectedStageNameLabel, tmpStageLabel);
+
+			        selectedUutName.setVisible(true);
+			        selectedSerialName.setVisible(true);
+			        selectedSessionName.setVisible(true);
+			        selectedStageNameLabel.setVisible(true);
+
+			        printButtonHBox.setVisible(true);
+			        printButtonHBox.setManaged(true);
+
+			        ch1MainContainerGridPane.applyCss();
+			        ch1MainContainerGridPane.layout();
+			    }
+			});
+		    
+			submit.setOnAction(event -> {
+			    Platform.runLater(() -> {
+			        GridPane serialGrid = createSerialAlternateGridePane();
+
+			        dynamicContent.getChildren().clear();
+
+			        dynamicContent.getChildren().add(serialGrid);
+
+			        StackPane popup = create1553Table1Content();
+			        dynamicContent.getChildren().add(popup);
+
+			        VBox.setVgrow(popup, Priority.ALWAYS);
+			    });
+			});
 
 		printButtonHBox.getChildren().addAll(submitHBox, printButton);
 		printButtonHBox.setSpacing(5);

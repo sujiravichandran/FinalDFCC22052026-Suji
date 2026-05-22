@@ -153,13 +153,13 @@ public class SelfTestController {
 //	Change Made on:During initial loading of testing window,Update Status Bar
 	public void initialize() {
 		StateMachine.aitess1LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    System.out.println("AITESS1 changed to: " + newVal);
+		    ////System.out.println("AITESS1 changed to: " + newVal);
 		    aitess1Updated = true;
 		    checkBothAitessLaunched();
 		});
 
 		StateMachine.aitess2LaunchedProperty().addListener((obs, oldVal, newVal) -> {
-		    System.out.println("AITESS2 changed to: " + newVal);
+		    ////System.out.println("AITESS2 changed to: " + newVal);
 		    aitess2Updated = true;
 		    checkBothAitessLaunched();
 		});
@@ -174,7 +174,7 @@ public class SelfTestController {
 		        boolean bothLaunched = StateMachine.aitess1LaunchedProperty().get()
 		                                 && StateMachine.aitess2LaunchedProperty().get();
 		        if (bothLaunched) {
-		            System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
+		            ////System.out.println("Both AITESS1 and AITESS2 have launched and updated. INItialize");
 
 		            // ✅ This ensures all UI updates are done on the JavaFX Application Thread
 		            Platform.runLater(() -> {
@@ -370,7 +370,7 @@ public class SelfTestController {
 				}
 
 				if (popupRDFFiles) {
-//					System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+//					////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 					RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 					for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 					{
@@ -380,7 +380,7 @@ public class SelfTestController {
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 				} else {
 					SessionFileManagement session = new SessionFileManagement();
-//					System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+//					////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 					session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 					DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 				}

@@ -109,8 +109,8 @@ public class AdminDashboardController {
 					new String[] { "Launch type", "Admin Password" ,"CheckSum Data" });
 		}else if (UserData.getRoleId().equals("RL_ID_2")) {
 			addTreeItemWithChildren(rootItem, "User Management", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/dashboard.png", null);
-			addTreeItemWithChildren(rootItem, "Utility", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
-					new String[] { "Launch type", "Admin Password" });
+//			addTreeItemWithChildren(rootItem, "Utility", DFCCConstant.JARSTRING+"/Resources/Images/menuImages/history_reports.png",
+//					new String[] { "Admin Password" });
 		}
 
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));

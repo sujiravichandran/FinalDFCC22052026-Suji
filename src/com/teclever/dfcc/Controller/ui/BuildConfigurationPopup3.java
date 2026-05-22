@@ -16,6 +16,7 @@ import com.teclever.dfcc.buildconfiguration.BuildConfigurationReport;
 import com.teclever.dfcc.datastore.dto.ResultExecutionDTO;
 import com.teclever.dfcc.datastore.dto.ResultExecutionResponse;
 import com.teclever.dfcc.model.BriefData;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
@@ -308,7 +309,7 @@ public class BuildConfigurationPopup3 {
 		HBox closeButtonHbox = new HBox();
 		closeButtonHbox.setAlignment(Pos.CENTER_LEFT);
 		closeButtonHbox.getChildren().add(close);
-		closeButtonHbox.setPadding(new Insets(10));
+//		closeButtonHbox.setPadding(new Insets(10));
 
 		close.setOnAction(e -> {
 
@@ -341,7 +342,7 @@ public class BuildConfigurationPopup3 {
 				String[] defaultPNCh1 = { "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 930 33 / 00 /BLS/ LRU",
 						"1100 024 499 72 / 01", "1104 001 025 39 / 00 /BLS/ LRU", "1100 030 910 45 / 02" };
 
-				String[] defaultSNCh1 = { "081", "085", "033", "042", "044", "012" };
+				String[] defaultSNCh1 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh2 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-2" };
@@ -349,7 +350,7 @@ public class BuildConfigurationPopup3 {
 				String[] defaultPNCh2 = { "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 928 33 / 00 /BLS/ LRU",
 						"1100 024 499 72 / 01", "1104 000 928 39 / 00 /BLS/ LRU", "1100 030 911 42 / 02" };
 
-				String[] defaultSNCh2 = { "087", "088", "046", "043", "045", "009" };
+				String[] defaultSNCh2 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh3 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-3" };
@@ -357,7 +358,7 @@ public class BuildConfigurationPopup3 {
 				String[] defaultPNCh3 = { "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 928 39 / 00 /BLS/ LRU", "1104 000 928 33 / 00 /BLS/ LRU",
 						"1100 024 499 72 / 01", "1104 001 025 39 / 00 /BLS/ LRU", "1100 030 912 39 / 02" };
 
-				String[] defaultSNCh3 = { "089", "090", "047", "044", "046", "010" };
+				String[] defaultSNCh3 = { "", "", "", "", "", "" };
 
 				String[] defaultDescriptionsCh4 = { "Analog-1-Left", "Analog-1-Right", "Analog-2", "Power Supply",
 						"CPU Assembly", "Flex Assembly CH-4", "Mother Board", "Chassis", "Aircraft Tray Assembly" };
@@ -366,7 +367,7 @@ public class BuildConfigurationPopup3 {
 						"1100 024 499 72 / 01", "1104 001 025 39 / 00 /BLS/ LRU", "1100 030 913 36 / 02", "1100 030 419 63  / 02",
 						"1100 030 909 48 / 00", "1100 030 902 69 / 00" };
 
-				String[] defaultSNCh4 = { "091", "093", "048", "045", "047", "012", "013", "010", "010" };
+				String[] defaultSNCh4 = { "", "", "", "", "", "", "", "", "" };
 
 				// Loop through channels and assign respective array
 				for (String channel : channels) {
@@ -418,31 +419,30 @@ public class BuildConfigurationPopup3 {
 
 				// Column width settings
 				buildConfigDataTableView.getColumns().forEach(column -> {
+					 boolean dashboard = StateMachine.isDashboardBuildConfig();
+					    switch (column.getText()) {
 
-					switch (column.getText()) {
+					    case "CHANNEL":
+				            column.setMinWidth(dashboard ? 200 : 100);
+				            column.setMaxWidth(dashboard ? 200 : 100);
+				            break;
 
-					case "CHANNEL":
-						column.setMinWidth(100);
-						column.setMaxWidth(100);
-						break;
+				        case "DESCRIPTION":
+				            column.setMinWidth(dashboard ? 570 : 470);
+				            column.setMaxWidth(dashboard ? 570 : 470);
+				            break;
 
-					case "DESCRIPTION":
-						column.setMinWidth(470);
-						column.setMaxWidth(470);
-						break;
+				        case "PART NUMBER":
+				            column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
+				            column.setMinWidth(dashboard ? 700 : 650);
+				            column.setMaxWidth(dashboard ? 700 : 650);
+				            break;
 
-					case "PART NUMBER":
-
-						column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
-						column.setMinWidth(650);
-						column.setMaxWidth(650);
-						break;
-
-					case "SERIAL NUMBER":
-						column.setMinWidth(346);
-						column.setMaxWidth(346);
-						break;
-					}
+				        case "SERIAL NUMBER":
+				            column.setMinWidth(dashboard ? 446:346);
+				            column.setMaxWidth(dashboard ? 446:346);
+				            break;
+					    }
 				});
 
 				tableScrollPane.setFitToHeight(true);
@@ -671,14 +671,16 @@ public class BuildConfigurationPopup3 {
 		return dto;
 	}
 
-	public void saveButton(String serialNo, String versionName) {
+	public void saveButton(String uutType, String serialNo, String versionName, String lastUpDatedDate) {
 
 		if (!DFCCConstant.selectedFetchBuildConfig.equalsIgnoreCase("Fetch")) {
 			BuildConfiguration dto = mapToDto(buildConfigDataList);
-			buildConfigurationManagement.addBuildConfiguration(serialNo, versionName, dto);
+			dto.setLastUpdatedDate(lastUpDatedDate);
+			buildConfigurationManagement.addBuildConfiguration(uutType, serialNo, versionName, dto, DFCCConstant.selectedBuildConfigDate);
 		} else {
 			BuildConfiguration dto1 = mapToDto(buildConfigDataList1);
-			buildConfigurationManagement.addBuildConfiguration(serialNo, versionName, dto1);
+			dto1.setLastUpdatedDate(lastUpDatedDate);
+			buildConfigurationManagement.addBuildConfiguration(uutType, serialNo, versionName, dto1, DFCCConstant.selectedBuildConfigDate);
 
 		}
 
@@ -687,7 +689,7 @@ public class BuildConfigurationPopup3 {
 //	from db fetching:
 
 	private void convertToTableRows(BuildConfiguration config) {
-
+		
 		// ---------- CH#1 ----------
 		addRow("CH#1", "Analog-1-Left", config.getCh1Analog1LeftPartNumber(), config.getCh1Analog1LeftSerialNo());
 		addRow("", "Analog-1-Right", config.getCh1Analog1RightPartNumber(), config.getCh1Analog1RightSerialNo());
@@ -742,41 +744,39 @@ public class BuildConfigurationPopup3 {
 			protected Void call() throws Exception {
 
 				BuildConfiguration config = buildConfigurationManagement.getBuildConfiguration(
-						DFCCConstant.selectedSNoBuildConfig, DFCCConstant.selectedVersionNoBuildConfig);
+						DFCCConstant.selectedUutBuildConfig, DFCCConstant.selectedSNoBuildConfig, DFCCConstant.selectedVersionNoBuildConfig);
 				// Convert BuildConfiguration → table rows
 				convertToTableRows(config);
-
+				 DFCCConstant.savedDate =  config.getLastUpdatedDate().toString();
 				// Create table
 				buildConfigDataTableView1 = buildDataFactory1.createTableView(buildConfigDataList1, false, false);
 
 				// Set column widths
 				buildConfigDataTableView1.getColumns().forEach(column -> {
-					switch (column.getText()) {
+					 boolean dashboard = StateMachine.isDashboardBuildConfig();
+					    switch (column.getText()) {
 
-					case "CHANNEL":
-						column.setMinWidth(100);
-						column.setMaxWidth(100);
-						break;
+					    case "CHANNEL":
+				            column.setMinWidth(dashboard ? 200 : 100);
+				            column.setMaxWidth(dashboard ? 200 : 100);
+				            break;
 
-					case "DESCRIPTION":
-						column.setMinWidth(470);
-						column.setMaxWidth(470);
-						break;
+				        case "DESCRIPTION":
+				            column.setMinWidth(dashboard ? 570 : 470);
+				            column.setMaxWidth(dashboard ? 570 : 470);
+				            break;
 
-					case "PART NUMBER":
-						column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
-						column.setMinWidth(650);
-						column.setMaxWidth(650);
-						break;
+				        case "PART NUMBER":
+				            column.setText("PART NUMBER / KEY SHEET ISSUE LEVEL");
+				            column.setMinWidth(dashboard ? 700 : 650);
+				            column.setMaxWidth(dashboard ? 700 : 650);
+				            break;
 
-					case "SERIAL NUMBER":
-						column.setMinWidth(346);
-						column.setMaxWidth(346);
-						break;
-
-					default:
-						break;
-					}
+				        case "SERIAL NUMBER":
+				            column.setMinWidth(dashboard ? 446:346);
+				            column.setMaxWidth(dashboard ? 446:346);
+				            break;
+					    }
 				});
 
 				return null;
@@ -789,7 +789,7 @@ public class BuildConfigurationPopup3 {
 					tableScrollPane.setContent(buildConfigDataTableView1);
 					tableScrollPane.setFitToHeight(true);
 
-					buildConfigDataTableView1.setEditable(true);
+//					buildConfigDataTableView1.setEditable(true);
 
 					// PART NUMBER column (index 2)
 					TableColumn<BuildConfiguration1, String> partNumberCol = (TableColumn<BuildConfiguration1, String>) buildConfigDataTableView1
@@ -830,7 +830,7 @@ public class BuildConfigurationPopup3 {
 	private HBox saveButtonHbox() {
 		HBox saveButtonHbox = new HBox();
 		saveButtonHbox.setAlignment(Pos.CENTER_RIGHT);
-		saveButtonHbox.setPadding(new Insets(10));
+//		saveButtonHbox.setPadding(new Insets(10));
 		saveButtonHbox.getChildren().add(save);
 
 		save.setOnAction(e -> {
@@ -841,7 +841,7 @@ public class BuildConfigurationPopup3 {
 			}
 			BuildConfiguration dto = mapToDto(buildConfigDataList);
 
-			buildConfigurationManagement.addBuildConfiguration(serialNo2.getText(), versionNo2.getText(), dto);
+			buildConfigurationManagement.addBuildConfiguration(DFCCConstant.selectedUutBuildConfig, serialNo2.getText(), versionNo2.getText(), dto, DFCCConstant.selectedBuildConfigDate);
 
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 			LocalDate selectedDate = datePicker.getValue();
@@ -857,8 +857,8 @@ public class BuildConfigurationPopup3 {
 
 			BuildConfigurationReport buildConfigurationReport = new BuildConfigurationReport();
 			try {
-				buildConfigurationReport.generateBuildConfigurationReport(serialNo2.getText(), date,
-						versionNo2.getText(), DFCCConstant.selectedUutBuildConfig);
+				buildConfigurationReport.generateBuildConfigurationReport(DFCCConstant.selectedUutBuildConfig, serialNo2.getText(), date,
+						versionNo2.getText(), DFCCConstant.selectedUutBuildConfig, DFCCConstant.selectedBuildConfigDate);
 			} catch (DocumentException | IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

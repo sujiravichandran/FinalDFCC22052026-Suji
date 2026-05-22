@@ -1,0 +1,116 @@
+package com.teclever.dfcc.model;
+
+public class DeviationResult {
+
+	private String uut;
+	private String rdfFileName;
+	private String sessionName;
+	private String channel1Value;
+	private String minimum;
+	private String maximum;
+	private String channel2Value;
+	private String channel3Value;
+	private String channel4Value;
+	private String nominalRange;
+	private String exceptedValue;
+	private String reduceRange;
+	private String stepNo;
+	private String newMin;
+	private String newMax;
+	public String getChannel1Value() {
+		return channel1Value;
+	}
+	public void setChannel1Value(String channel1Value) {
+		this.channel1Value = channel1Value;
+	}
+	public String getMinimum() {
+		return minimum;
+	}
+	public void setMinimum(String minimum) {
+		this.minimum = minimum;
+	}
+	public String getMaximum() {
+		return maximum;
+	}
+	public void setMaximum(String maximum) {
+		this.maximum = maximum;
+	}
+	public String getChannel2Value() {
+		return channel2Value;
+	}
+	public void setChannel2Value(String channel2Value) {
+		this.channel2Value = channel2Value;
+	}
+	public String getChannel3Value() {
+		return channel3Value;
+	}
+	public void setChannel3Value(String channel3Value) {
+		this.channel3Value = channel3Value;
+	}
+	public String getChannel4Value() {
+		return channel4Value;
+	}
+	public void setChannel4Value(String channel4Value) {
+		this.channel4Value = channel4Value;
+	}
+	public String getNominalRange() {
+		return nominalRange;
+	}
+	public void setNominalRange(String nominalRange) {
+		this.nominalRange = nominalRange;
+	}
+	
+	public String getExceptedValue() {
+		return exceptedValue;
+	}
+	public void setExceptedValue(String exceptedValue) {
+		this.exceptedValue = exceptedValue;
+	}
+	public String getReduceRange() {
+		return reduceRange;
+	}
+	public void setReduceRange(String reduceRange) {
+		this.reduceRange = reduceRange;
+	}
+	public String getStepNo() {
+		return stepNo;
+	}
+	public void setStepNo(String stepNo) {
+		this.stepNo = stepNo;
+	}
+	public String getNewMin() {
+		return newMin;
+	}
+	public void setNewMin(String newMin) {
+		this.newMin = newMin;
+	}
+	public String getNewMax() {
+		return newMax;
+	}
+	public void setNewMax(String newMax) {
+		this.newMax = newMax;
+	}
+	public String getUut() {
+		return uut;
+	}
+	public void setUut(String uut) {
+		this.uut = uut;
+	}
+	public String getRdfFileName() {
+		return rdfFileName;
+	}
+	public void setRdfFileName(String rdfFileName) {
+		this.rdfFileName = rdfFileName;
+	}
+	public String getSessionName() {
+		return sessionName;
+	}
+	public void setSessionName(String sessionName) {
+		this.sessionName = sessionName;
+	}
+	
+	
+	
+	
+	
+}

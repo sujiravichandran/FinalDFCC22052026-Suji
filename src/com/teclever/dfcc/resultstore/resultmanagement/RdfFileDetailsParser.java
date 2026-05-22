@@ -17,9 +17,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
+import com.teclever.dfcc.advanceddataanalysis.DataAnalysis1553_BManagement;
 import com.teclever.dfcc.resultstore.configuration.ResultStoreConnection;
 import com.teclever.dfcc.resultstore.dto.RdfFileDetailsDto;
 import com.teclever.dfcc.resultstore.dto.StepDto;
+import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.utils.Debug;
 
 
@@ -32,17 +34,32 @@ public class RdfFileDetailsParser {
 		
 		
 	    List<RdfFileDetailsDto> rdfFileDetailsList = parseProjectDetails(filePath);
+	  
 	    
-//	    System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
+//	    ////System.out.println("Rdf File Details List :"+rdfFileDetailsList.size());
 	    
 	    //Mani Detail Data Change 26-AUG
-	    
 	    String collectionName = sessionId + "_" + getCollectionNameFromFilePath(filePath)+"_"+DFCCConstant.testFileResultId;
 	    MongoCollection<Document> collection = ResultStoreConnection.getDatabase().getCollection(collectionName);
 	    
 	    
 	    List<StepDto> stepDtoList = StepParser.parseStepContextNEW(filePath);
+	    String[] rdfFileNameArray = filePath.split(File.separator);
+	    DFCCConstant.fileNameRdf = rdfFileNameArray[rdfFileNameArray.length-1];
+	 
 	    
+	    //For Manual Testing Added 
+		DataAnalysis1553_BManagement dataAnalysis1553_BManagement = new DataAnalysis1553_BManagement();
+		if (StateMachine.currentSessionDetails.getUutId().equals("UUT3")
+				|| StateMachine.currentSessionDetails.getUutId().equals("UUT2")) {
+			if (filePath.contains("1553_tran_final.rdf")) {
+				dataAnalysis1553_BManagement.addTheRequiredStepsFor1553(stepDtoList, DFCCConstant.stageId);
+			}
+		} else {
+			if (filePath.contains("1553_tran_mod.rdf")) {
+				dataAnalysis1553_BManagement.addTheRequiredStepsFor1553(stepDtoList, DFCCConstant.stageId);
+			}
+		}
 	    
 	    
 	    //For Deviation Added
@@ -50,7 +67,7 @@ public class RdfFileDetailsParser {
 	    advancedDataAnalysisManagement.addRDFFilesDetails(stepDtoList);
 	    
 	    
-//	    System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
+//	    ////System.out.println("StepDtoList Size   -->::"+stepDtoList.size());
 	    
 	    
 
@@ -150,8 +167,8 @@ public class RdfFileDetailsParser {
 	                }
 	            }
 	            
-//	            System.out.println("Failed Step Object Id Map  size :"+failedStepObjectIdMap.size());
-//	            System.out.println("step Object Id Map   Size   :"+stepObjectIdMap.size());
+//	            ////System.out.println("Failed Step Object Id Map  size :"+failedStepObjectIdMap.size());
+//	            ////System.out.println("step Object Id Map   Size   :"+stepObjectIdMap.size());
 
 	            collection.updateOne(
 	                    Filters.eq("_id", objectId),

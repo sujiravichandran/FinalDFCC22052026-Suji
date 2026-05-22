@@ -26,6 +26,10 @@ public class StateMachine {
 		PENDING, RUNNING, PAUSED, STOPPED, COMPLETED
 	}
 
+	public enum TestStateNew {
+		NONE,PAUSING, STOPPING
+	}
+	
 	public enum RunningTestName {
 
 		OTHER, SELF_TEST, LRU_SRU_TEST, SESSION_TEST, ADVANCED_TEST
@@ -71,14 +75,50 @@ public class StateMachine {
 	public static ObjectProperty<TestState> testStateProperty() {
 		return testState;
 	}
+	
+	
+
+	
 
 	public static void setTestState(TestState newState) {
-//		System.out.println("setTestState :: " + newState);
+//		////System.out.println("setTestState :: " + newState);
 		testState.set(newState);
 	}
 
 	public static TestState getTestState() {
 		return testState.get();
+	}
+	
+	
+//	Pasing Stipping::
+
+	private static ObjectProperty<TestStateNew> testStateNew = new SimpleObjectProperty<>();
+
+	public static ObjectProperty<TestStateNew> testStateNewProperty() {
+	    return testStateNew;
+	}
+
+	public static void setTestStateNew(TestStateNew newState) {
+	    testStateNew.set(newState);
+	}
+
+	public static TestStateNew getTestStateNew() {
+	    return testStateNew.get();
+	}
+	
+	
+	private static final ObjectProperty<TestStateNew> testStatusState = new SimpleObjectProperty<>(TestStateNew.NONE);
+	
+	public static TestStateNew getTestStatusState() {
+	    return testStatusState.get();
+	}
+
+	public static void setTestStatusState(TestStateNew state) {
+	    testStatusState.set(state);
+	}
+
+	public static ObjectProperty<TestStateNew> testStatusStateProperty() {
+	    return testStatusState;
 	}
 
 	public static class currentSessionDetails {
@@ -345,7 +385,8 @@ public class StateMachine {
 		private static String scTemperatureCommand;
 		private static String aecTemperatureCommand;
 
-		private static String ofpVersionStatusCommand;
+		private static String ofpVersionStatusCommandMk1;
+		private static String ofpVersionStatusCommandMk1A;
 		private static String wdmStatusCommand;
 
 		private static String dfccPowerOnStatus;
@@ -442,12 +483,22 @@ public class StateMachine {
 			dfccCheckStatus.aecTemperatureCommand = aecTemperatureCommand;
 		}
 
-		public static String getOfpVersionStatusCommand() {
-			return ofpVersionStatusCommand;
+		
+
+		public static String getOfpVersionStatusCommandMk1() {
+			return ofpVersionStatusCommandMk1;
 		}
 
-		public static void setOfpVersionStatusCommand(String ofpVersionStatusCommand) {
-			dfccCheckStatus.ofpVersionStatusCommand = ofpVersionStatusCommand;
+		public static void setOfpVersionStatusCommandMk1(String ofpVersionStatusCommandMk1) {
+			dfccCheckStatus.ofpVersionStatusCommandMk1 = ofpVersionStatusCommandMk1;
+		}
+
+		public static String getOfpVersionStatusCommandMk1A() {
+			return ofpVersionStatusCommandMk1A;
+		}
+
+		public static void setOfpVersionStatusCommandMk1A(String ofpVersionStatusCommandMk1A) {
+			dfccCheckStatus.ofpVersionStatusCommandMk1A = ofpVersionStatusCommandMk1A;
 		}
 
 		public static String getWdmStatusCommand() {
@@ -465,10 +516,10 @@ public class StateMachine {
 	// POWER ON STATUS
 	public static class powerOnStatus {
 
-		private static StringProperty channel1Status = new SimpleStringProperty();
-		private static StringProperty channel2Status = new SimpleStringProperty();
-		private static StringProperty channel3Status = new SimpleStringProperty();
-		private static StringProperty channel4Status = new SimpleStringProperty();
+		private static StringProperty channel1Status = new SimpleStringProperty("offline");
+		private static StringProperty channel2Status = new SimpleStringProperty("offline");
+		private static StringProperty channel3Status = new SimpleStringProperty("offline");
+		private static StringProperty channel4Status = new SimpleStringProperty("offline");
 
 		private static String minValue;
 		private static String maxValue;
@@ -542,10 +593,10 @@ public class StateMachine {
 	// ONLINE STATUS
 	public static class OnlineStatus {
 
-		private static StringProperty channel1Status = new SimpleStringProperty();
-		private static StringProperty channel2Status = new SimpleStringProperty();
-		private static StringProperty channel3Status = new SimpleStringProperty();
-		private static StringProperty channel4Status = new SimpleStringProperty();
+		private static StringProperty channel1Status = new SimpleStringProperty("offline");
+		private static StringProperty channel2Status = new SimpleStringProperty("offline");
+		private static StringProperty channel3Status = new SimpleStringProperty("offline");
+		private static StringProperty channel4Status = new SimpleStringProperty("offline");
 
 		public static StringProperty channel1StatusProperty() {
 			return channel1Status;
@@ -794,7 +845,7 @@ public class StateMachine {
 		public static void setChannel1Temperature(String channel1Temperature) {
 //			channelAECTemp.channel1Temperature.set(channel1Temperature);
 			Platform.runLater(() -> channelAECTemp.channel1Temperature.set(channel1Temperature));
-//			System.out.println("SUJI IN STATEMACHINE AEC 1:: "+channel1Temperature);
+//			////System.out.println("SUJI IN STATEMACHINE AEC 1:: "+channel1Temperature);
 		}
 
 		public static StringProperty channel2TemperatureProperty() {
@@ -971,7 +1022,7 @@ public class StateMachine {
 	public static void setLessBackgroundColor(String lessBackgroundColor) {
 //		StateMachine.lessBackgroundColor.set(lessBackgroundColor);
 		Platform.runLater(() -> StateMachine.lessBackgroundColor.set(lessBackgroundColor));
-//		System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
+//		////System.out.println("SUJI CHECK FOR MK1A COLOR LESSS ::" +StateMachine.lessBackgroundColor.toString() );
 	}
 
 	public static StringProperty GreaterBackgroundColor() {
@@ -981,7 +1032,7 @@ public class StateMachine {
 	public static void setGreaterBackgroundColor(String greaterBackgroundColor) {
 //		StateMachine.greaterBackgroundColor.set(greaterBackgroundColor);
 		Platform.runLater(() -> StateMachine.greaterBackgroundColor.set(greaterBackgroundColor));
-//		System.out.println("SUJI CHECK FOR MK1A COLOR GREATER ::" +StateMachine.greaterBackgroundColor.toString() );
+//		////System.out.println("SUJI CHECK FOR MK1A COLOR GREATER ::" +StateMachine.greaterBackgroundColor.toString() );
 
 	}
 
@@ -992,7 +1043,7 @@ public class StateMachine {
 	public static void setNormalBackgroundColor(String normalBackgroundColor) {
 //		StateMachine.normalBackgroundColor.set(normalBackgroundColor);
 		Platform.runLater(() -> StateMachine.normalBackgroundColor.set(normalBackgroundColor));
-//		System.out.println("SUJI CHECK FOR MK1A COLOR NORMAL ::" +StateMachine.normalBackgroundColor.toString() );
+//		////System.out.println("SUJI CHECK FOR MK1A COLOR NORMAL ::" +StateMachine.normalBackgroundColor.toString() );
 
 	}
 
@@ -1001,6 +1052,15 @@ public class StateMachine {
 		private static int dStarCount = 0;
 		private static boolean dStarFound = false;
 		private static boolean parseFileError = false;
+		private static boolean rdfPathError = false;
+
+		public static boolean isRdfPathError() {
+			return rdfPathError;
+		}
+
+		public static void setRdfPathError(boolean rdfPathError) {
+			rdfFileParser.rdfPathError = rdfPathError;
+		}
 
 		public static void setDStarCount(int count) {
 			dStarCount = count;
@@ -1223,7 +1283,8 @@ public class StateMachine {
 		dfccCheckStatus.setMk1AecTemperatureCommand(null);
 		dfccCheckStatus.setScTemperatureCommand(null);
 		dfccCheckStatus.setAecTemperatureCommand(null);
-		dfccCheckStatus.setOfpVersionStatusCommand(null);
+		dfccCheckStatus.setOfpVersionStatusCommandMk1(null);
+		dfccCheckStatus.setOfpVersionStatusCommandMk1A(null);
 		dfccCheckStatus.setWdmStatusCommand(null);
 
 		// Reset OnlineStatus
@@ -1328,6 +1389,23 @@ public class StateMachine {
 
 	public static boolean isResettingProgressBar() {
 		return resettingProgressBar.get();
+	}
+	
+	private static BooleanProperty sessionTestFileCompleted = new SimpleBooleanProperty(false);
+
+	// Property getter
+	public static BooleanProperty sessionTestFileCompletedProperty() {
+	    return sessionTestFileCompleted;
+	}
+
+	// Setter
+	public static void setSessionTestFileCompleted(boolean value) {
+	    sessionTestFileCompleted.set(value);
+	}
+
+	// Boolean getter
+	public static boolean isSessionTestFileCompleted() {
+	    return sessionTestFileCompleted.get();
 	}
 
 	private static BooleanProperty confirmTestFileCompleted = new SimpleBooleanProperty(false);
@@ -2016,5 +2094,66 @@ public class StateMachine {
 	    channel4BlsTemperature.set(value);
 	}
 
+	public static final StringProperty temDataSelectionProperty = new SimpleStringProperty("SC");
+
+	public static String getTemDataSelection() {
+	    return temDataSelectionProperty.get();
+	}
+
+	public static void setTemDataSelection(String value) {
+	    temDataSelectionProperty.set(value);
+	}
+
+	
+	private static final BooleanProperty dashboardBuildConfig = new SimpleBooleanProperty(false);
+	
+	public static BooleanProperty dashboardBuildConfigProperty() {
+	    return dashboardBuildConfig;
+	}
+
+	public static boolean isDashboardBuildConfig() {
+	    return dashboardBuildConfig.get();
+	}
+
+	public static void setDashboardBuildConfig(boolean value) {
+	    dashboardBuildConfig.set(value);
+	}
+	
+	
+	private static boolean dashBoardBls = false;
+
+	public static boolean isDashBoardBls() {
+	    return dashBoardBls;
+	}
+
+	public static void setDashBoardBls(boolean value) {
+	    dashBoardBls = value;
+	}
+
+	private static boolean tempUpdate = false;
+
+	public static boolean isTempUpdate() {
+		return tempUpdate;
+	}
+
+	public static void setTempUpdate(boolean tempUpdate) {
+		StateMachine.tempUpdate = tempUpdate;
+	}
+
+	
+	
+	
+
+	
+	
+	
+	
+
+	
+	
+
+
+	
+	
 
 }

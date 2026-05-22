@@ -84,6 +84,7 @@ public class DriverManagement {
 	    if (dbCardName == null) {
 	        response.setResponseCode(100);
 	        response.setResponseMessage("FAILURE: Card identification text not found in the database");
+	        ////System.out.println("Mani Suscept Card Identification Text "+"FAILURE");
 	        return new DriverCard(null, "FAILURE", response);
 	    }
 
@@ -106,16 +107,20 @@ public class DriverManagement {
 
 	
 	public DriverCard parseLineAIM(String outputLine,String cardText) {
+		
+		////System.out.println("INSIDE PARSE LINE AIM "+cardText);
 		Response response = new Response();
 		String dbCardName = "1553B MODULE";
+		
 
-//		System.out.println("cardText  ::"+cardText);
+//		////System.out.println("cardText  ::"+cardText);
 		if (outputLine != null && outputLine.contains(cardText)) {
+			////System.out.println("FROM PARSING OUTPUT LINE"+outputLine);
 			response.setResponseCode(1);
 			response.setResponseMessage("SUCCESS");
 			return new DriverCard(dbCardName, "CARD MATCHED", response);
 		}
-
+		////System.out.println("Suji Card Response 0:::: chck");
 		response.setResponseCode(0);
 		response.setResponseMessage("FAILURE: aim_mil not found");
 		return new DriverCard(dbCardName, "CARD NOT MATCHED", response);

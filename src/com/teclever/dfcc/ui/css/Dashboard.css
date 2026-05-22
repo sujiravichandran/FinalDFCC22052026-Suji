@@ -2,22 +2,22 @@
 
 .dashboard-main-container{
 	-fx-background-color: secondary-color;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 }
 
 .lruTest-top-container{
 	-fx-background-color: light-bg;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 }
 
 .lruTest-mid-container{
 	-fx-background-color: light-bg;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 }
 
 .lruTest-bottom-container{
 	-fx-background-color: light-bg;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 }
 
 .dashboard-top-header{
@@ -29,7 +29,7 @@
 .midheader-label-left{
 	-fx-text-fill:secondary-text-color;
 	-fx-background-color: light-bg;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 	-fx-font-size: 20.0px;
 	-fx-font-weight: bold;
 }
@@ -37,7 +37,7 @@
 .midheader-label-right{
 	-fx-text-fill:secondary-text-color;
 	-fx-background-color: light-bg;
-	-fx-background-radius: 5px;	
+	-fx-background-radius: 5.0px;	
 	-fx-font-size: 20.0px;
 }
 
@@ -48,12 +48,30 @@
 }
 
 .midheader-hbox{
-	-fx-background-radius: 5px;
+	-fx-background-radius: 5.0px;
 }
 
 .mid-Gridepane-content{
 	
 -fx-background-color:lru-test-bg;
--fx-background-radius: 5px;
+-fx-background-radius: 5.0px;
+
 }
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #050580;       /* color of horizontal lines */
+    -fx-stroke-width: 1.0;      /* thickness */
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: lightgray;
+}
+
+.chart-line-symbol {
+    -fx-background-radius: 1.0px;
+    -fx-padding: 1.0px;
+     -fx-pick-on-bounds: true;
+    -fx-cursor: hand;
+}
+
 

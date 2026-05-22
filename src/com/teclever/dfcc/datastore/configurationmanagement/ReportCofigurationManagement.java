@@ -1,33 +1,40 @@
 package com.teclever.dfcc.datastore.configurationmanagement;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.teclever.datastore.dto.GetObjResponse;
 import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.entities.ReportConfig;
+import com.teclever.datastore.entities.SessionEntity;
 import com.teclever.datastore.service.LevelFiveMasterService;
 import com.teclever.datastore.service.LevelFourMasterSevice;
 import com.teclever.datastore.service.LevelOneMasterService;
 import com.teclever.datastore.service.LevelThreeService;
 import com.teclever.datastore.service.LevelTwoMasterService;
 import com.teclever.datastore.service.ReportService;
+import com.teclever.datastore.service.SessionService;
 import com.teclever.datastore.utils.GetResponse;
 import com.teclever.dfcc.datastore.dto.ReportConfigDto;
 import com.teclever.dfcc.datastore.dto.ReportConfigResponse;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 
 public class ReportCofigurationManagement {
 
 	public Response addReportConfig(ReportConfigDto reportConfigDto) {
 		Response res = new Response();
 		try {
+			String path = getPathForFile(reportConfigDto);
 			ReportService reportService = new ReportService();
 			GetResponse getResponse = reportService.addReportConfig(reportConfigDto.getFileNameWitFullPath(),
 					reportConfigDto.getSessionId(), reportConfigDto.getReportType(),
 					reportConfigDto.getLevelOneId(), reportConfigDto.getLevelTwoId(), reportConfigDto.getLevelThreeId(),
-					reportConfigDto.getLevelFourId(), reportConfigDto.getLevelFiveId());
+					reportConfigDto.getLevelFourId(), reportConfigDto.getLevelFiveId(),path);
 			res.setResponseCode(getResponse.getCode());
 			res.setResponseMessage(getResponse.getMsg());
 		} catch (Exception e) {
@@ -129,20 +136,52 @@ public class ReportCofigurationManagement {
 			
 			String delteFilePath = reportConfig.getFileNameWitFullPath();
 			
-			System.out.println("Delete File ::"+delteFilePath);
+			////System.out.println("Delete File ::"+delteFilePath);
+			//
+			
 
 			File file = new File(delteFilePath);
 			if (file.exists()) {
 				if (file.delete()) {
-					System.out.println("File deleted successfully.");
+					////System.out.println("File deleted successfully.");
 				} else {
-					System.out.println("Failed to delete the file.");
+					////System.out.println("Failed to delete the file.");
 				}
 			} else {
-				System.out.println("File does not exist.");
+				////System.out.println("File does not exist.");
 			}
 
 			// Report Delete the Upload Files
+			
+			//For DataPack
+			if(reportConfig.getReportType().equals("DataPack"))
+			{
+				SessionService sessionService = new SessionService();
+				GetObjResponse getObjResponse = sessionService.getSessionDetailBySessionStageId(reportConfig.getSessionId());
+				SessionEntity sessionEntity = new SessionEntity();
+				sessionEntity = (SessionEntity) getObjResponse.getObject();
+				String sessionDataPackPath = sessionEntity.getPath();
+				sessionDataPackPath =  sessionDataPackPath+File.separator+"datapack";
+				String fullPath = reportConfig.getFileNameWitFullPath();
+				Path path = Paths.get(fullPath);
+				String fileName = path.getFileName().toString();	
+				//sessionDataPackPath = sessionDataPackPath+File.separator+fileName;
+				//////System.out.println("Session Data Pack Path ::"+sessionDataPackPath);
+				//For New Requirement
+				sessionDataPackPath = sessionDataPackPath+File.separator+reportConfig.getSessionFilePath()+File.separator+fileName;
+				////System.out.println("Corrected Session Data Pack Path ::"+sessionDataPackPath);
+				File file1 = new File(sessionDataPackPath);
+				if (file1.exists()) {
+					if (file1.delete()) {
+						////System.out.println("File deleted successfully.");
+					} else {
+						////System.out.println("Failed to delete the file.");
+					}
+				} else {
+					////System.out.println("File does not exist.");
+				}
+				
+			}
 
 		} catch (Exception e) {
 			res.setResponseCode(0);
@@ -150,6 +189,37 @@ public class ReportCofigurationManagement {
 			e.printStackTrace();
 		}
 		return res;
+	}
+	
+	private String getPathForFile(ReportConfigDto reportConfigDto)
+	{
+		String path = "";
+		try {
+			SessionManagement sessionManagement = new SessionManagement();
+			Map<String, String> stageIdName = new HashMap<String, String>();
+			stageIdName = sessionManagement.getAllStageIdName();
+			if (reportConfigDto.getLevelOneId() != null) {
+				path = stageIdName.get(reportConfigDto.getLevelOneId());
+			}
+
+			if (reportConfigDto.getLevelTwoId() != null) {
+				path = path + File.separator + stageIdName.get(reportConfigDto.getLevelTwoId());
+				
+			}
+			if (reportConfigDto.getLevelThreeId() != null) {
+				path = path + File.separator + stageIdName.get(reportConfigDto.getLevelThreeId());
+			}
+			if (reportConfigDto.getLevelFourId() != null) {
+				path = path + File.separator + stageIdName.get(reportConfigDto.getLevelFourId());
+			}
+			if (reportConfigDto.getLevelFiveId() != null) {
+				path = path + File.separator + stageIdName.get(reportConfigDto.getLevelFiveId());
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return path;
 	}
 
 }

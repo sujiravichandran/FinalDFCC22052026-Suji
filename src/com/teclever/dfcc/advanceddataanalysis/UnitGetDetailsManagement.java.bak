@@ -43,7 +43,7 @@ public class UnitGetDetailsManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 
 		return res;
@@ -73,7 +73,7 @@ public class UnitGetDetailsManagement {
 			}
 
 		} catch (Exception ex) {
-			System.out.println(ex.getLocalizedMessage());
+			////System.out.println(ex.getLocalizedMessage());
 		}
 
 		return res;

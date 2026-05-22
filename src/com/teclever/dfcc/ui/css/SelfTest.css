@@ -56,6 +56,12 @@
 	
 }
 
+.selfTest-progressbutton-Container{
+	-fx-background-color: self-testprogressbutton-bg;
+	-fx-background-radius: 10px;
+	
+}
+
 .selfTest-mid-left-Container{
 	-fx-border-color:border2-color;
 	-fx-border-radius:10px;

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ import com.teclever.dfcc.datastore.dto.TestProcessResponse;
 import com.teclever.dfcc.datastore.filemanagement.SessionFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.datastore.processcontrolmanagement.AitessProcessControlManagement;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.resultstore.resultmanagement.RdfFileDetailsParser;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject;
 import com.teclever.dfcc.stateMachine.AdvancedTestStateObject.AdvancedTestResult;
@@ -59,7 +61,9 @@ import com.teclever.dfcc.stateMachine.SelfTestStateObject.SelfTestRunningCard;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject.SessionTestResult;
 import com.teclever.dfcc.stateMachine.StateMachine;
+import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.TestStateNew;
 import com.teclever.dfcc.stateMachine.StateMachine.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.aitessRunning;
 //import com.teclever.dfcc.stateMachine.StateMachine.boardChannelTemp.rdfFileParser;
@@ -99,11 +103,11 @@ public class TestProcessManagement {
 		Response res = new Response();
 
 		try {
-//			 System.out.println("Check Test Type ID:  "+ testTypeId);
+//			 ////System.out.println("Check Test Type ID:  "+ testTypeId);
 //		Suji Added:	 
 		StateMachine.setTestTypeId(testTypeId);
 //			 Exit
-//		System.out.println("Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
+//		////System.out.println("Test Proces Controll Entry point : " + sessionId + " Stage Id : " + stageId + " repeatCount : "
 //							+ repeatCount + " ListOfFile " + listOfFileId + " ContinueWithError " + continueWithError
 //							+ " StageName " + stageName + " TestTypeID " + testTypeId + " ofpConfig " + ofpConfig);
 		
@@ -116,13 +120,16 @@ public class TestProcessManagement {
 			SessionStagesMapping sessionStagesMapping = getSessionStageMapping(sessionId, stageId);
 
 			if (sessionStagesMapping == null) {
+				////System.out.println("Failed to retrieve session stage mapping");
 				return createErrorResponse("Failed to retrieve session stage mapping");
+				
 			}
 
 			// If AETS process failed to launch, return failure response
 			if (checkAndUpdateAetsProcessStatus(testTypeId, ofpConfig)) {
 				resetAitessFailureStates();
 				Debug.printDebug("AETS Switch Failed");
+				////System.out.println("AETS Switch Failed");
 				return createErrorResponse("AETS Failed to launch");
 			}
 
@@ -168,7 +175,7 @@ public class TestProcessManagement {
 
 		}
 
-//		System.out.println("Test ");
+//		////System.out.println("Test ");
 		return res;
 	}
 
@@ -203,9 +210,11 @@ public class TestProcessManagement {
 		StateMachine.setCheckAitesSwitch(true);
 		if (ofpConfig == null) {
 			// Check and update AETS process status
+			////System.out.println("SUJI CHECK CUSTOM 1 Entred Chck or not" + testTypeId);
 			AitessProcessControlManagement.getInstance().check(testTypeId);
 		} else if (ofpConfig != null) {
 			// Check and update AETS process status
+			////System.out.println("SUJI CHECK1 CUSTOM 1 Entred Chck1 or not::" + testTypeId);
 			AitessProcessControlManagement.getInstance().check1(testTypeId, ofpConfig);
 		}
 		StateMachine.setCheckAitesSwitch(false);
@@ -416,7 +425,7 @@ public class TestProcessManagement {
 					Platform.runLater(() -> {
 					LRUTestStateObject.getSpilLinkStatus().set(false);
 					StateMachine.setConfirmTestFileCompleted(false);
-					System.out.println("Check flag status" + 	LRUTestStateObject.getSpilLinkStatus());
+					////System.out.println("Check flag status" + 	LRUTestStateObject.getSpilLinkStatus());
 					});
 					break;
 				case POWER_SUPPLY:
@@ -471,7 +480,7 @@ public class TestProcessManagement {
 				LRUTestStateObject.updateSelectedSubStagesList(stageId, "COMPLETED");
 				LRUTestStateObject.updateLruSruCardstatus(stageId, rdfFileResult);
 				// Mani Added For DFCC Power ON Enabling
-//				System.out.println("Card COUNT On Seleted SRU" + DFCCConstant.cardCount);
+//				////System.out.println("Card COUNT On Seleted SRU" + DFCCConstant.cardCount);
 				if (DFCCConstant.cardCount == DFCCConstant.currentCount) {
 					StateMachine.setTestState(TestState.COMPLETED);
 					DFCCConstant.cardCount = 0;
@@ -479,7 +488,7 @@ public class TestProcessManagement {
 				} else {
 					DFCCConstant.currentCount++;
 				}
-//				System.out.println("After Checking COUNT On Seleted SRU" + DFCCConstant.currentCount);
+//				////System.out.println("After Checking COUNT On Seleted SRU" + DFCCConstant.currentCount);
 				// Comented By Mani
 				// StateMachine.setTestState(TestState.COMPLETED);
 				Debug.printDebug("------Stage Id----- " + stageId + "  ------- RDF FILE Result----- " + rdfFileResult);
@@ -487,12 +496,12 @@ public class TestProcessManagement {
 				break;
 			case "SESSION TEST":
 
-//				System.out.println("CASE : SESSION TEST");
+//				////System.out.println("CASE : SESSION TEST");
 				// SessionTestStateObject.updateEndLeafMapStatus(stageId, "COMPLETED");
 				StateMachine.setTestState(TestState.COMPLETED);
 
 				SessionTestStateObject.updateEndLeafMapStatus(stageId, getStageResult(stageId, keysSet));
-//				System.out.println("STAGE  ID " + stageId + " RESULT " + getStageResult(stageId, keysSet));
+//				////System.out.println("STAGE  ID " + stageId + " RESULT " + getStageResult(stageId, keysSet));
 				SessionTestStateObject.getRunningTestLeafStatus().set(true);
 				StateMachine.setConfirmTestFileCompleted(false);
 
@@ -544,11 +553,11 @@ public class TestProcessManagement {
 		Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 		if (setOfFileIds != null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
 			// return "COMPLETED";
-//			System.out.println("IF BLOCK");
+//			////System.out.println("IF BLOCK");
 			return "pending";
 		} else {
 			// return "pending";
-//			System.out.println("ELSE BLOCK");
+//			////System.out.println("ELSE BLOCK");
 			boolean containsFail = removeFileCheck();
 			String result = "COMPLETED";
 			if (containsFail) {
@@ -562,13 +571,13 @@ public class TestProcessManagement {
 	private String getStageResult(String stageId, Set<String> fileIds) {
 		Set<String> setOfFileIds = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
 		if (setOfFileIds != null && setOfFileIds.size() > 0 && setOfFileIds.equals(fileIds)) {
-//			System.out.println("IF BLOCK");
+//			////System.out.println("IF BLOCK");
 
 			// boolean containsFail = removeFileCheck();
 			boolean containsFail = removeFileCheck(StateMachine.currentSessionDetails.getSessionId(),
 					DFCCConstant.stageId, DFCCConstant.sessionStageMapId, DFCCConstant.repeatCount);
 
-//			System.out.println("containsFail" + containsFail);
+//			////System.out.println("containsFail" + containsFail);
 
 			// Mani For Repeat Count Issue
 			// SessionFileManagement sessionFileManagement = new SessionFileManagement();
@@ -577,7 +586,7 @@ public class TestProcessManagement {
 			// DFCCConstant.stageId,
 			// DFCCConstant.sessionStageMapId, DFCCConstant.repeatCount,
 			// DFCCConstant.continueWithErrorFlag,true);
-//			System.out.println("Remove Checker" + containsFail);
+//			////System.out.println("Remove Checker" + containsFail);
 			String result = "COMPLETED";
 
 			if (!containsFail) {
@@ -591,7 +600,7 @@ public class TestProcessManagement {
 			return result;
 
 		} else {
-//			System.out.println("ELSE BLOCK");
+//			////System.out.println("ELSE BLOCK");
 			return "pending";
 
 		}
@@ -785,6 +794,7 @@ public class TestProcessManagement {
 		}
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	private TestProcessResponse parseTestFileTest(String rdfFileLocaltion, String rdfFileName, String stageId,
 			String stageName, String tpfFileName, String sessionId) {
 		TestProcessResponse testProcessResponse = new TestProcessResponse();
@@ -818,13 +828,45 @@ public class TestProcessManagement {
 
 				mongoUniqueIdentifier = RdfFileDetailsParser.saveProjectDetailsToMongoDB(sessionId, filePath);
 				dStartCount = rdfFileParser.getDStarCount();
-				// System.out.println("From Test Process ");
-				// System.out.println("Rdf FilePath :"+filePath );
-				// System.out.println("Session Id"+sessionId);
-				 System.out.println("D* Count :"+dStartCount);
+				
+				
+				
+				
+				
+				// ////System.out.println("From Test Process ");
+				// ////System.out.println("Rdf FilePath :"+filePath );
+				// ////System.out.println("Session Id"+sessionId);
+//				 ////System.out.println("D* Count :"+dStartCount);
 
 				rdfFileStatus = (rdfFileParser.isDStarFound()) ? "NOT OK" : "OK";
-				// System.out.println("rdfFileStatus For D* Issue"+ rdfFileStatus);
+				// ////System.out.println("rdfFileStatus For D* Issue"+ rdfFileStatus);
+				
+
+//				//System.out.println("Suji pausing and stopping in Test Management::");
+				if(StateMachine.getTestState() != TestState.RUNNING && StateMachine.getTestStatusState() != TestStateNew.PAUSING) {
+				if (StateMachine.getTestState() == TestState.PAUSED) {
+
+				    Platform.runLater(() -> {
+				    	StateMachine.setTestStatusState(TestStateNew.PAUSING);
+				    });
+				} 
+				}
+				
+				
+				
+				
+				
+//				End 
+				
+				// Helper method to check if a directory exists
+				boolean rdfExist =	directoryExistsCheck(filePath);
+				
+				if(!rdfExist)
+				{   
+					rdfFileStatus = "RDF PATH Error";
+					res.setResponseCode(111);
+				}
+			
 
 				if (rdfFileParser.isParseFileError()) {
 					rdfFileStatus = "Parse Error";
@@ -864,29 +906,35 @@ public class TestProcessManagement {
 			if (stageName.equals("CPCI")) {
 
 				SelfTestResult selfTestFileCPCI = new SelfTestResult(filePath, rdfFileStatus);
-
+				 Platform.runLater(() -> {
 				SelfTestStateObject.addSelfTestResult(selfTestFileCPCI);
+				 });
 				Debug.printDebug("--------------CPCI UPDATE --------  " + filePath + "   " + rdfFileStatus);
 			}
 
 			else if (stageName.equals("MANDATORY") || stageName.equals("GO NOGO") || stageName.equals("SRU")) {
 
 				LRUTestResult lRUTestResult = new LRUTestResult(filePath, rdfFileStatus);
-
+				 Platform.runLater(() -> {
 				LRUTestStateObject.addTestResult(lRUTestResult);
+				 });
 
 			} else if (stageName.equals("SESSION TEST")) {
 
 				SessionTestResult sessionTestResult = new SessionTestResult(filePath, rdfFileStatus);
-
+				 Platform.runLater(() -> {
 				SessionTestStateObject.addSessionTestResult(sessionTestResult);
+				 });
 
 			} else if (stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
 					|| stageName.equals("CUSTOM ONE") || stageName.equals("CUSTOM TWO")) {
-				// System.out.println("Advanced File Path"+ filePath +" RdfFileStatus
+				// ////System.out.println("Advanced File Path"+ filePath +" RdfFileStatus
 				// "+rdfFileStatus);
+				 
 				AdvancedTestResult advancedTestResult = new AdvancedTestResult(filePath, rdfFileStatus);
+				Platform.runLater(() -> {
 				AdvancedTestStateObject.addAdvancedTestResult(advancedTestResult);
+				 });
 			}
 
 			res.setResponseMessage("Successful ");
@@ -901,7 +949,22 @@ public class TestProcessManagement {
 
 		return testProcessResponse;
 	}
+	// Helper method to check if a directory exists
+	private boolean directoryExists(String path) {
+	    return path != null && new File(path).isDirectory();
+	}
 
+	private boolean directoryExistsCheck(String filePath) {
+	    if (filePath == null || filePath.isEmpty()) {
+	        return false; // invalid path
+	    }
+	    Path path = Paths.get(filePath);
+	    Path parentDir = path.getParent(); // gets the directory containing the file
+
+	    // Check if the parent directory exists and is a directory
+	    return parentDir != null && Files.exists(parentDir) && Files.isDirectory(parentDir);
+	}
+	
 	private boolean waitFileUptoWrite(String filePath) {
 		boolean ret = false;
 		try {
@@ -976,13 +1039,13 @@ public class TestProcessManagement {
 			TestPlanFileManagement testPlanFileManagement = new TestPlanFileManagement();
 			TestFileResponse testFileResponse = testPlanFileManagement.getSelectedTestFilesFromStage(stageId);
 			Map<String, String> testFileResponseMap = testFileResponse.getTestFilesIdName();
-			// System.out.println(testFileResponseMap);
+			// ////System.out.println(testFileResponseMap);
 			// List<String> fileIds =
 			// testFileResponseMap.keySet().stream().collect(Collectors.toList());
 
 			Map<String, String> testFilesIdName = getStageSelectedTestFileIds(stageId);
 
-			// System.out.println("testFilesIdNametestFilesIdNametestFilesIdName SUJI II " +
+			// ////System.out.println("testFilesIdNametestFilesIdNametestFilesIdName SUJI II " +
 			// testFilesIdName.values());
 
 			fileIdByStages.addAll(testFilesIdName.values());
@@ -1018,6 +1081,10 @@ public class TestProcessManagement {
 					// noOfFilesExectued, int noFilesFailed, long runnedSeconds)
 					sessionTimingService.updateSessionTimeForSessionTest(sessionId, stageId, DFCCConstant.testStarttime,
 							"Running", 0, 0, 0);
+					
+					
+					
+					
 				} else {
 					sessionTimingService.updateSessionTimeForSessionTest(sessionId, stageId,
 							sessionTiming.getStartDateTime(), "Running", sessionTiming.getNoOfFileExecuted(),
@@ -1035,11 +1102,13 @@ public class TestProcessManagement {
 			DownloadFileService downloadFileService = new DownloadFileService();
 			String rdfFileLocation = downloadFileService
 					.getRDFLocationByRunConfigId(StateMachine.currentSessionDetails.getRunConfigId(), "rdf");
+			
+//			////System.out.println("RDF LOCATION  MANI Cofig Id  LOCATION"+ StateMachine.currentSessionDetails.getRunConfigId()+     "    "+rdfFileLocation);
 
 			// Populate list of file IDs for repetition
 			List<String> listOfFileIds = generateFileIdsList(repeatCount, listOfFileId);
 
-//			System.out.println("STAGE NAME : " + stageName + ", REPEATCOUNT : " + repeatCount + ", LIST OF FILE ID "
+//			////System.out.println("STAGE NAME : " + stageName + ", REPEATCOUNT : " + repeatCount + ", LIST OF FILE ID "
 //					+ listOfFileId + ", Total FILE IDS * Repeat count : " + listOfFileIds);
 
 			String rdfFileResult = "OK";
@@ -1050,12 +1119,12 @@ public class TestProcessManagement {
 //			// VIJAY : 31-JULY : Change 1:: To Know Test is STOPPED In com File.
 			boolean comFileTestFlag = false; // change 1: END
 			List<String> sruFileCount = StateMachine.getSelectedStageIds();
-//			System.out.println("Check sruFileCount " + sruFileCount);
+//			////System.out.println("Check sruFileCount " + sruFileCount);
 
 			// Fetch What Are Files Associated With Stages:ProgressBar
 			List<String> listOfIdsSru = getTestFilesSruTotalCount(sruFileCount); // FETCHING LIST OF TEST FILE NAMES
 																					// BASED ON STAGE ID
-//			System.out.println("listOfIdsSrulistOfIdsSrulistOfIdsSru" + listOfIdsSru);
+//			////System.out.println("listOfIdsSrulistOfIdsSrulistOfIdsSru" + listOfIdsSru);
 			fileNameforDotComList.clear();
 
 			// Change for:ProgressBar
@@ -1067,26 +1136,26 @@ public class TestProcessManagement {
 			} else {
 
 				for (String testFileIdName1 : listOfIdsSru) {
-					System.out.println("testFileIdName1" + testFileIdName1);
+					////System.out.println("testFileIdName1" + testFileIdName1);
 					fileNameforDotComList.add(testFileIdName1);
 					StateMachine.setSruTestFileCount(false);
 				}
 			}
 //SUJI Changed for .tst file with repeat count progress bar is not working :
 			String fullList = String.join(",", fileNameforDotComList);
-//			System.out.println("SUJI : FULL LIST ::" + fullList);
+//			////System.out.println("SUJI : FULL LIST ::" + fullList);
 
 			int sflcnt = countFilesFromString(fullList);
-//			System.out.println("SUJI ::sflcnt Count CHECH %% " + sflcnt);
+//			////System.out.println("SUJI ::sflcnt Count CHECH %% " + sflcnt);
 
 			int nonDotComFileCount = (int) fileNameforDotComList.stream().filter(name -> !name.endsWith(".com"))
 					.count();
-//			System.out.println("nonDotComFileCount: " + nonDotComFileCount);
+//			////System.out.println("nonDotComFileCount: " + nonDotComFileCount);
 
 			int filesInsideDotCom = sflcnt - nonDotComFileCount;
 
 			int totalFileCount = (filesInsideDotCom * repeatCount) + nonDotComFileCount;
-//			System.out.println("SUJI ::totalFileCount Count CHECH ** " + totalFileCount);
+//			////System.out.println("SUJI ::totalFileCount Count CHECH ** " + totalFileCount);
 
 			// Update Progress Bar
 			sflcntupdateProgressBar(stageName, totalFileCount);
@@ -1094,20 +1163,22 @@ public class TestProcessManagement {
 //			EXIT:
 
 			sflcntupdateProgressBar(stageName, totalFileCount);
-//			System.out.println("SUJI ::sflcnt Repeat Count Check::" + repeatCount);
-//			System.out.println("SUJI ::sflcnt Count CHECH %%" + sflcnt);
-//			System.out.println("SUJI ::totalFileCount Count CHECH **" + totalFileCount);
+//			////System.out.println("SUJI ::sflcnt Repeat Count Check::" + repeatCount);
+//			////System.out.println("SUJI ::sflcnt Count CHECH %%" + sflcnt);
+//			////System.out.println("SUJI ::totalFileCount Count CHECH **" + totalFileCount);
 
 			StateMachine.setConfirmTestFileCompleted(true);
 
-//			System.out.println("BEFOR  outerloop : " + listOfFileIds.size());
+//			////System.out.println("BEFOR  outerloop : " + listOfFileIds.size());
 
 			// Outer loop for file IDs
 			outerLoop: for (String testFileId : listOfFileIds) {
 
-				// System.out.println("Stage Name Id ::: "+testFileId);
+				// ////System.out.println("Stage Name Id ::: "+testFileId);
 				incrementNum++;
-				// System.out.println("SRU --- Entred Runt Test Total Test File ");
+				 ////System.out.println("SUJI Check increment count:: "+incrementNum);
+				 ////System.out.println("Suji check list of fileids::"+listOfFileIds.size() );
+				 ////System.out.println("Suji check list of fileid only::"+listOfFileId.size() );
 				// Initial : Dot com File Result
 				String dotComFileResult = "OK";
 
@@ -1115,17 +1186,36 @@ public class TestProcessManagement {
 				if (testFilesIdName.get(testFileId) != null) {
 
 					String testFileName = testFilesIdName.get(testFileId);
-					// System.out.println("Test File Name"+testFileName);
+					 ////System.out.println("Test File Name"+testFileName);
 
 					if (incrementNum > (listOfFileIds.size() - listOfFileId.size())) {
 						lastCount = true;
+						 ////System.out.println("SUJI Last Count :: for Stop Case List of File Ids ::"+listOfFileIds.size());
+						 ////System.out.println("SUJI Last Count :: for Stop Case List of Files Id ::"+listOfFileIds.size());
+						
 					}
+					
+					
 					TestProcessDto testProcessDto;
+//					String state1 = testProcessDto.getTestState();
+					
+					
 
 					if (testFileName.endsWith(".com")) {
 						tempRdfFileResult = "OK";
 						tempDotComFileResult = "OK";
 						// Read files if .com extension is found
+						if(StateMachine.getTestState() != TestState.RUNNING) {
+							if (StateMachine.getTestState() == TestState.PAUSED) {
+
+							    Platform.runLater(() -> {
+							    	StateMachine.setTestStatusState(TestStateNew.PAUSING);
+							    });
+
+							    //System.out.println("Suji newww outer 1"+ StateMachine.getTestStatusState());
+
+							} 
+							}
 						testProcessDto = processDotComFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
 								lastCount, sessionStageTestFileResult);
@@ -1133,11 +1223,11 @@ public class TestProcessManagement {
 //						// VIJAY : 31-JULY : Change 2:: To Know Test is STOPPED In Com File.
 
 						String state = testProcessDto.getTestState();
-//						System.out.println("Outside IF Test Process DTO  ::" + state);
+//						////System.out.println("Outside IF Test Process DTO  ::" + state);
 
 						if (state != null && (state.equals("STOPED") || state.equals("FILE NOT FOUND ERROR"))
 								&& (StateMachine.getTestState() != TestState.COMPLETED)) {
-//							System.out.println("Inside IF Test Process DTO  ::" + state);
+//							////System.out.println("Inside IF Test Process DTO  ::" + state);
 
 							// if (testProcessDto.getTestState() != null &&
 							// testProcessDto.getTestState().equals("STOPED") ||
@@ -1146,20 +1236,33 @@ public class TestProcessManagement {
 							keysSet.remove(testFileId);
 							SessionTestStateObject.removeFileId(stageId, testFileId);
 							comFileTestFlag = true;
+							////System.out.println("Suji Stop Case for last Test file 1");
 						}
 
-//						System.out.println("There Checking COM FILE" + StateMachine.getTestState());
+//						////System.out.println("There Checking COM FILE" + StateMachine.getTestState());
 						if (StateMachine.getTestState().equals(TestState.STOPPED)) {
 							keysSet.remove(testFileId);
 							SessionTestStateObject.removeFileId(stageId, testFileId);
 							comFileTestFlag = true;
+							////System.out.println("Suji Stop Case for last Test file 2");
 						}
 
 					} else {
 						// Mani Details Data Change 26-AUG
 						String testFileResultId = sessionStageTestFileResult.generateUniqueTestFilesResultIdIdOld();
 						DFCCConstant.testFileResultId = testFileResultId;
+						
+						if(StateMachine.getTestState() != TestState.RUNNING) {
+							if (StateMachine.getTestState() == TestState.PAUSED) {
 
+							    Platform.runLater(() -> {
+							    	StateMachine.setTestStatusState(TestStateNew.PAUSING);
+							    });
+
+							    //System.out.println("Suji newww outer 2"+ StateMachine.getTestStatusState());
+
+							} 
+							}
 						StateMachine.setConfirmTestStop(true);
 						testProcessDto = runTestFile(testFileName, stageName, rdfFileLocation, stageId, sessionId,
 								rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
@@ -1170,6 +1273,7 @@ public class TestProcessManagement {
 						if (StateMachine.getTestState().equals(TestState.STOPPED)) {
 							keysSet.remove(testFileId);
 							SessionTestStateObject.removeFileId(stageId, testFileId);
+							////System.out.println("Suji Stop Case for last Test file 3");
 							// comFileTestFlag = true;
 						}
 
@@ -1180,9 +1284,9 @@ public class TestProcessManagement {
 
 					// check TestState From Response if it stop then exit from the loop.
 					if (testProcessDto.getTestState() != null && testProcessDto.getTestState().equals("STOPED")) {
-//						System.out.println("Entred outer loop");
+//						////System.out.println("Entred outer loop");
 						testState = "STOPED";
-
+						////System.out.println("Suji Stop Case for last Test file 4");
 						break outerLoop;
 					}
 					// update RdfFileResult
@@ -1197,14 +1301,20 @@ public class TestProcessManagement {
 						dotComFileResult = testProcessDto.getDotComFileResult();
 					}
 
+				}else
+				{
+					////System.out.println("MANI Suscept ADVANCE TEST  ::");
 				}
+				
+				
+
 				// SessionTestStateObject.getRunnedTestFileCount().set(SessionTestStateObject.getRunnedTestFileCount().get()+1);
 //				if (stageName.equals("RACK1") || stageName.equals("CPCI") || stageName.equals("MANDATORY")
 //						|| stageName.equals("GO NOGO") || stageName.equals("SESSION TEST")
 //						|| stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
 //						|| stageName.equals("SRU")) {
 //					updateProgressBar(stageName);
-//					System.out.println("runTestProcess + updateProgressBar");
+//					////System.out.println("runTestProcess + updateProgressBar");
 //				}
 
 			} // Outer loop
@@ -1216,7 +1326,7 @@ public class TestProcessManagement {
 //			 Change 3: END
 
 			// Stopped File Removing..29-08-2025
-//			System.out.println("STOPPED CHECKING DFCC COLOUR FLAG" + DFCCConstant.stopColourFlag);
+//			////System.out.println("STOPPED CHECKING DFCC COLOUR FLAG" + DFCCConstant.stopColourFlag);
 			if (DFCCConstant.stopColourFlag) {
 				for (String testFileId : listOfFileId) {
 					keysSet.remove(testFileId);
@@ -1231,8 +1341,8 @@ public class TestProcessManagement {
 				boolean containsFail = removeFileCheck(StateMachine.currentSessionDetails.getSessionId(),
 						DFCCConstant.stageId, DFCCConstant.sessionStageMapId, DFCCConstant.repeatCount);
 
-//				System.out.println("Continue With Error   Flag:::" + continueWithError);
-//				System.out.println("Contains Fail ::" + containsFail);
+//				////System.out.println("Continue With Error   Flag:::" + continueWithError);
+//				////System.out.println("Contains Fail ::" + containsFail);
 				if (!containsFail) {
 					for (String testFileId : listOfFileId) {
 						keysSet.remove(testFileId);
@@ -1250,14 +1360,14 @@ public class TestProcessManagement {
 				stageResult = getStageResult(stageId, keysSet);
 
 				if (continueWithError) {
-//					System.out.println("Enter Stage Result ::" + stageResult);
+//					////System.out.println("Enter Stage Result ::" + stageResult);
 					stageResult = "COMPLETED";
-//					System.out.println("Enter Stage Result ::" + stageResult);
+//					////System.out.println("Enter Stage Result ::" + stageResult);
 				}
 			}
 
 			if (testState != null && testState.equals("STOPED")) {
-//				System.out.println("Entred Outer 2nd teststae after stop9999999999999999");
+//				////System.out.println("Entred Outer 2nd teststae after stop9999999999999999");
 				listOfFileIds = new ArrayList<>();
 				stageResult = "STOPED";
 			}
@@ -1272,13 +1382,13 @@ public class TestProcessManagement {
 
 				// (String sessionId, String stageId, String startTime, String endDateTime, int
 				// noOfFilesExectued, int noFilesFailed, long runnedSeconds)
-//				System.out.println("Session Before Total File Count :::" + DFCCConstant.totalFilesCount);
-//				System.out.println("Session After Failed File Count  :::" + DFCCConstant.failedFilesCount);
+//				////System.out.println("Session Before Total File Count :::" + DFCCConstant.totalFilesCount);
+//				////System.out.println("Session After Failed File Count  :::" + DFCCConstant.failedFilesCount);
 
 				Map<String, Integer> countMap = getTotalFailCount(sessionId, stageId, DFCCConstant.sessionStageMapId);
 
-//				System.out.println("Session Total Count  :" + countMap.get("totalCount"));
-//				System.out.println("Session TotalFail Count  :" + countMap.get("failCount"));
+//				////System.out.println("Session Total Count  :" + countMap.get("totalCount"));
+//				////System.out.println("Session TotalFail Count  :" + countMap.get("failCount"));
 
 				sessionTimingService.updateSessionTimeForSessionTest(sessionId, stageId,
 						sessionTiming.getStartDateTime(), DFCCConstant.testEndTime,
@@ -1287,12 +1397,12 @@ public class TestProcessManagement {
 						sessionTiming.getRunnedSeconds() + runnedSeconds);
 
 			} else {
-//				System.out.println("Total File Count While Making Entry:::" + DFCCConstant.totalFilesCount);
-//				System.out.println("Failed File Count  :::" + DFCCConstant.failedFilesCount);
+//				////System.out.println("Total File Count While Making Entry:::" + DFCCConstant.totalFilesCount);
+//				////System.out.println("Failed File Count  :::" + DFCCConstant.failedFilesCount);
 				Map<String, Integer> countMap = getTotalFailCount(sessionId, stageId, DFCCConstant.sessionStageMapId);
 
-//				System.out.println("Other Before Total File Count :::" + DFCCConstant.totalFilesCount);
-//				System.out.println("Other After Failed File Count  :::" + DFCCConstant.failedFilesCount);
+//				////System.out.println("Other Before Total File Count :::" + DFCCConstant.totalFilesCount);
+//				////System.out.println("Other After Failed File Count  :::" + DFCCConstant.failedFilesCount);
 
 				sessionTimingService.updateSessionTimeForSessionTest(sessionId, stageId, DFCCConstant.testStarttime,
 						DFCCConstant.testEndTime, DFCCConstant.totalFilesCount, DFCCConstant.failedFilesCount,
@@ -1311,15 +1421,37 @@ public class TestProcessManagement {
 			DFCCConstant.endTime = currentDateTime.format(formatter);
 
 //			SUJI ADDED FLAG FOR .com File Stop issue:::(11-08-2025)
-//			System.out.println("Before Enter Stop Colour Flag" + DFCCConstant.stopColourFlag);
+//			////System.out.println("Before Enter Stop Colour Flag" + DFCCConstant.stopColourFlag);
 
-			if (!DFCCConstant.stopColourFlag) {
-//				System.out.println("After Enter Stop Colour Flag" + DFCCConstant.stopColourFlag);
-				boolean dissableEnableflag = sessionFileManagement.getStatusFlagOfSelectedFile(sessionId, stageId,
-						sessionStageMapId, repeatCount, continueWithError, false);
-//				System.out.println("Disable Flag :::" + dissableEnableflag);
-				StateMachine.setDissableEnable(dissableEnableflag);
-				// flag Need to Update Session Testing Files Of Selected File-Ids
+			if(!DFCCConstant.roleId.equals("RL_ID_4") && stageName.equals("SESSION TEST"))
+			{
+//				//System.out.println("Bel User Runned Session Test Files Runned :::");
+				
+				
+				if (!DFCCConstant.stopColourFlag) {
+//				////System.out.println("After Enter Stop Colour Flag" + DFCCConstant.stopColourFlag);
+//					//System.out.println("CHECKING FILES ::" + StateMachine.isSessionTestFileCompleted());
+					boolean dissableEnableflag = sessionFileManagement.getStatusFlagOfSelectedFile(sessionId, stageId,
+							sessionStageMapId, repeatCount, continueWithError, false);
+					StateMachine.setSessionTestFileCompleted(true);
+//				////System.out.println("Disable Flag :::" + dissableEnableflag);
+					StateMachine.setDissableEnable(dissableEnableflag);
+//					//System.out.println("CHECKING FILES  AFTERRRR ::" + StateMachine.isSessionTestFileCompleted());
+					// flag Need to Update Session Testing Files Of Selected File-Ids
+				}else {
+				StateMachine.setSessionTestFileCompleted(true);
+				}
+			}
+			
+			if(DFCCConstant.sessionTestStagesCompleted)
+			{
+				
+				SessionManagement sessionManagement = new SessionManagement();
+				Notifications.showErrorAlert(
+						"All stages of this session have been executed successfully. The current session will now end.");
+				sessionManagement.endSession("All the Stages Are Executed Successfully",
+						DFCCConstant.sessionTestStagesCompleted);
+
 			}
 
 		} catch (Exception e) {
@@ -1362,7 +1494,7 @@ public class TestProcessManagement {
 					if (line.startsWith("@") || line.contains(".com")) {
 						line = line.substring(1);
 						StateMachine.setCheckThread(false);
-						System.out.println("SUJI : LINE CHECK IN PROCESSDOTCOM FILE" + line);
+						////System.out.println("SUJI : LINE CHECK IN PROCESSDOTCOM FILE" + line);
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
 							// Extract and print the .com file name
@@ -1387,7 +1519,7 @@ public class TestProcessManagement {
 							path = path.substring(0, indexToTake);
 
 							Debug.printDebug("Dot Com File " + comFileName);
-							// System.out.println("SRU --- Entred .com file Method ");
+							// ////System.out.println("SRU --- Entred .com file Method ");
 							// Calling itself with Same Parameter (fileName only Change)
 							processDotComFile(path + comFileName, stageName, rdfFileLocation, stageId, sessionId,
 									rdfFileResult, dotComFileResult, continueWithError, testFileId, sessionStageMapId,
@@ -1426,7 +1558,7 @@ public class TestProcessManagement {
 //									|| stageName.equals("HWATP TEST") || stageName.equals("INTERFACE TEST")
 //									|| stageName.equals("SRU")) {
 //								updateProgressBar(stageName);
-//								System.out.println("processDotComFile + updateProgressBar");
+//								////System.out.println("processDotComFile + updateProgressBar");
 //							}
 
 						}
@@ -1434,8 +1566,8 @@ public class TestProcessManagement {
 						Debug.printDebug("Command is  " + line + " , runCommands : "
 								+ AitessProcessControlManagement.getInstance().runCommands);
 						
-						System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
-								+ AitessProcessControlManagement.getInstance().runCommands);
+//						////System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
+//								+ AitessProcessControlManagement.getInstance().runCommands);
 
 						// VIJAY : 31-JULY : Change 4:: To Stop running of Macro or command.
 						if (handleTestState()) {
@@ -1448,13 +1580,17 @@ public class TestProcessManagement {
 
 						// Call writing command to Terminal
 						AitessProcessControlManagement.getInstance().runCommands = true;
-						System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
-								+ AitessProcessControlManagement.getInstance().runCommands);
+//						////System.out.println("Command is  \" + line + \" , runCommands : \"\r\n"
+//								+ AitessProcessControlManagement.getInstance().runCommands);
+						
+//						////System.out.println("SUJI Need to check here for Macro .com and 3mins thread::Entred Chech thread");
 						StateMachine.setDotComMacroRun(true);
 						AitessProcessControlManagement.getInstance().WriteAitess1Command(line + "\n");
-
+						StateMachine.setCheckThread(true);
+//						//System.out.println("Suji .com File Macro Run Check Thread "+StateMachine.isCheckThread() );
 						while (AitessProcessControlManagement.getInstance().runCommands) {
-							StateMachine.setCheckThread(true);
+							StateMachine.setCheckThread(true);	
+//							//System.out.println("Suji .com File Macro Run Check Thread "+StateMachine.isCheckThread() );
 							System.out.print("* ");
 							Thread.sleep(10);
 						}
@@ -1485,7 +1621,7 @@ public class TestProcessManagement {
 
 		for (String line : lines) {
 			line = line.trim();
-//			System.out.println("SUJI : LINE CHECK IN countFilesFromString FILE" + line);
+//			////System.out.println("SUJI : LINE CHECK IN countFilesFromString FILE" + line);
 			if (line.startsWith("!"))
 				continue; // Ignore comments
 			if (line.startsWith("@"))
@@ -1497,7 +1633,7 @@ public class TestProcessManagement {
 //				fileCount++;
 				File file = new File(line);
 				String fullPath = file.getAbsolutePath();
-//				System.out.println("SUJI FILE LINE CHECK::" + fullPath);
+//				////System.out.println("SUJI FILE LINE CHECK::" + fullPath);
 				// Change on:29-04-2025
 				if (StateMachine.getInputPathTestFile() != null) {
 					fileCount += countFilesRecursively(StateMachine.getInputPathTestFile() + file.getName());
@@ -1509,7 +1645,7 @@ public class TestProcessManagement {
 
 			}
 		}
-//		System.out.println("SUJI CHECK countFilesFromString fileCount" + fileCount);
+//		////System.out.println("SUJI CHECK countFilesFromString fileCount" + fileCount);
 		return fileCount;
 	}
 
@@ -1568,25 +1704,33 @@ public class TestProcessManagement {
 		TestProcessDto testProcessDto = new TestProcessDto();
 
 		try {
-
-			// System.out.println("SRU --- Entred Run Test File Method ");
+			DFCCConstant.tpfFileName = testFileName;
+			// ////System.out.println("SRU --- Entred Run Test File Method ");
 			// Wait if text area is not ready
 			checkTestisRunning();
 
 			// Update State Machine : Set TextArea to FALSE.
 			StateMachine.setTextArea(false);
-
+//			//System.out.println("Suji entred confirm test Entred ");
 			StateMachine.setConfirmTestStop(true);
 
 			// Handle PAUSED or STOPPED states
 			if (handleTestState()) {
 
 				testProcessDto.setTestState("STOPED");
-//				System.out.println("Entred in handle test state call method.........." + testProcessDto.getTestState());
+//				////System.out.println("Entred in handle test state call method.........." + testProcessDto.getTestState());
 				StateMachine.setTextArea(true);
 				return testProcessDto;
 			}
-
+			if(DFCCConstant.aitessSwitched) {
+				try {
+					Thread.sleep(5000);
+					DFCCConstant.aitessSwitched= false;
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			ChannelStatusBeforeTestResponse channelState = AitessProcessControlManagement.getInstance()
 					.checkChannelStatusBeforeAnyTest();
 
@@ -1595,15 +1739,18 @@ public class TestProcessManagement {
 			if (!stageName.equals("RACK1") && !stageName.equals("CPCI") && (responseCode == 0 || responseCode == 2)) {
 
 				if (responseCode == 0) {
-//					System.out.println("Entered 0");
+					////System.out.println("Entered 0");
+					
 					testProcessDto.setTestState("STOPED");
 					StateMachine.setTextArea(true);
 					return testProcessDto;
 				} else if (responseCode == 2) {
-//					System.out.println("Entered 2");
+//					////System.out.println("Entered 2");
+					
 					StateMachine.setWdmStatusOfflineCheck(true);
 
 					if (handleTestState()) {
+						
 						testProcessDto.setTestState("STOPED");
 						StateMachine.setTextArea(true);
 						return testProcessDto;
@@ -1619,7 +1766,14 @@ public class TestProcessManagement {
 			String startTime = String.valueOf(new Date());
 
 			// Getting RDF file Name from PerformTest()
+			
+			
+			if(StateMachine.getStatusBarRunningTestName().equals(StatusBarTestName.ADVANCED_TEST_CUSTOM1_TEST.toString())){
+				testFileName = DFCCConstant.customOnePath;
+			}
+			
 			String rdfFileName = AitessProcessControlManagement.getInstance().performTest(testFileName);
+			////System.out.println("Test File Name   :::"+testFileName);
 
 			// Anuj : 31-JULY :: Commented
 //			AitessProcessControlManagement.getInstance().updateUIdfccStatus(false);
@@ -1696,7 +1850,7 @@ public class TestProcessManagement {
 					copyFileDTO.setRdfFilePath(rdfFileLocation);
 					copyFileDTO.setRdfFiledName(rdfFileName);
 					copyFileDTO.setStageId(stageId);
-					// System.out.println("Stage Id Power Auto ::"+stageId);
+					// ////System.out.println("Stage Id Power Auto ::"+stageId);
 					copyFileDTO.setStagePath(stagePath);
 					copyFileDTO.setCopyingFileId(uniqueTestFilesResultIdId);
 					copyFileDTO.setdStarCount(testProcessRes.getdStarCount());
@@ -1724,7 +1878,7 @@ public class TestProcessManagement {
 					|| stageName.equals("GO NOGO") || stageName.equals("SESSION TEST") || stageName.equals("HWATP TEST")
 					|| stageName.equals("INTERFACE TEST") || stageName.equals("SRU")) {
 				updateProgressBar(stageName);
-//				System.out.println("runTestProcess + updateProgressBar");
+//				////System.out.println("runTestProcess + updateProgressBar");
 			}
 
 		} catch (Exception e) {
@@ -1742,7 +1896,7 @@ public class TestProcessManagement {
 			listOfFileIds.addAll(listOfFileId);
 
 		}
-//		System.out.println("SUJI CHECK listOfFileIds" + listOfFileIds);
+//		////System.out.println("SUJI CHECK listOfFileIds" + listOfFileIds);
 		return listOfFileIds;
 	}
 
@@ -1776,13 +1930,14 @@ public class TestProcessManagement {
 
 	// Befor chaning ::
 	private boolean handleTestState() {
-//		System.out.println("Entred Handle testState method mmmm");
+//		////System.out.println("Entred Handle testState method mmmm");
 
 		if (StateMachine.getTestState() == TestState.PAUSED) {
+			
 			boolean loopFlag = true;
 			while (loopFlag) {
 				Debug.printDebug(StateMachine.getTestState());
-//				System.out.println("Check puase resume::" + StateMachine.getTestState());
+//				////System.out.println("Check puase resume::" + StateMachine.getTestState());
 				if (StateMachine.getTestState() == TestState.RUNNING) {
 					Debug.printDebug(StateMachine.getTestState());
 					loopFlag = false;
@@ -1794,9 +1949,9 @@ public class TestProcessManagement {
 			}
 
 		} else if (StateMachine.getTestState() == TestState.STOPPED) {
-//			System.out.println("handle Stop Test Method condition");
+//			////System.out.println("handle Stop Test Method condition");
 			Debug.printDebug(StateMachine.getTestState());
-			// System.out.println("Entred Stop Test )))))))))))))))))");
+			// ////System.out.println("Entred Stop Test )))))))))))))))))");
 			return true;
 		}
 
@@ -1811,40 +1966,48 @@ public class TestProcessManagement {
 			case "RACK1":
 				SelfTestStateObject.getRunnedSelfTestFileCount()
 						.set(SelfTestStateObject.getRunnedSelfTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 
 			case "CPCI":
 				SelfTestStateObject.getRunnedSelfTestFileCount()
 						.set(SelfTestStateObject.getRunnedSelfTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 
 			case "MANDATORY":
 				LRUTestStateObject.getRunnedLRUTestFileCount()
 						.set(LRUTestStateObject.getRunnedLRUTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 				break;
 
 			case "GO NOGO":
 				LRUTestStateObject.getRunnedLRUTestFileCount()
 						.set(LRUTestStateObject.getRunnedLRUTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 				break;
 
 			case "SRU":
 				LRUTestStateObject.getRunnedLRUTestFileCount()
 						.set(LRUTestStateObject.getRunnedLRUTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 				break;
 
 			case "SESSION TEST":
 				SessionTestStateObject.getRunnedTestFileCount()
 						.set(SessionTestStateObject.getRunnedTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 				break;
 
 			case "HWATP TEST":
-//				System.out.println("Before Inside HWATP TEST" + AdvancedTestStateObject.getRunnedHWATPTestFileCount());
+//				////System.out.println("Before Inside HWATP TEST" + AdvancedTestStateObject.getRunnedHWATPTestFileCount());
 				AdvancedTestStateObject.getRunnedHWATPTestFileCount()
 						.set(AdvancedTestStateObject.getRunnedHWATPTestFileCount().get() + 1);
-//				System.out.println("After Inside HWATP TEST" + AdvancedTestStateObject.getRunnedHWATPTestFileCount());
+//				////System.out.println("After Inside HWATP TEST" + AdvancedTestStateObject.getRunnedHWATPTestFileCount());
+				DFCCConstant.runnedTestFileCount++;
 				break;
 			case "INTERFACE TEST":
 				AdvancedTestStateObject.getRunnedInterfaceTestFileCount()
 						.set(AdvancedTestStateObject.getRunnedInterfaceTestFileCount().get() + 1);
+				DFCCConstant.runnedTestFileCount++;
 				break;
 
 			default:
@@ -1863,19 +2026,18 @@ public class TestProcessManagement {
 
 			// If AETS process failed to launch, return failure response
 			if (checkAndUpdateAetsProcessStatus(testTypeId, null)) {
+				////System.out.println("CHECKING POINT 1 :: AETS Failed to launch");
 				resetAitessFailureStates();
 				return createErrorResponse("AETS Failed to launch");
 			}
 
-//			System.out.println("Test Type Id ::Checking" + testTypeId);
+//			////System.out.println("Test Type Id ::Checking" + testTypeId);
 
 			resetAitessFailureStates();
 			if (testName.equals("CUSTOM ONE")) {
 
 				StateMachine.setRunCommand(true);
-			} else {
-
-			}
+			} 
 			// Call writing command to Terminal
 			AitessProcessControlManagement.getInstance().WriteAitess1Command(command + "\n");
 
@@ -1888,6 +2050,16 @@ public class TestProcessManagement {
 	private Response otherThanrack1AndCpciChanges(String stageName) {
 		Response res = new Response();
 		if (!stageName.equals("RACK1") && !stageName.equals("CPCI")) {
+			
+			if(DFCCConstant.aitessSwitched) {
+				try {
+					Thread.sleep(5000);
+					DFCCConstant.aitessSwitched= false;
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			ChannelStatusBeforeTestResponse channelState = AitessProcessControlManagement.getInstance()
 					.checkChannelStatusBeforeAnyTest();
 			if (channelState.getResponseCode() == 0) {
@@ -1900,7 +2072,7 @@ public class TestProcessManagement {
 
 				return res;
 			}
-//			System.out.println("CHANNEL IS ONLINE");
+//			////System.out.println("CHANNEL IS ONLINE");
 			res.setResponseCode(1); // PASS
 			res.setResponseMessage(channelState.getResponseMessage());
 
@@ -1915,18 +2087,18 @@ public class TestProcessManagement {
 	public boolean removeFileCheck() {
 
 		try {
-//			System.out.println("SIZE :::" + DFCCConstant.FailedStagesRdfPaths.size());
+//			////System.out.println("SIZE :::" + DFCCConstant.FailedStagesRdfPaths.size());
 
 			List<CopyFileDTO> failureList = DFCCConstant.FailedStagesRdfPaths.stream()
 					.filter(e -> !e.getStatus().equals("SUCCESS")).collect(Collectors.toList());
-//			System.out.println();
+//			////System.out.println();
 
 			/*
 			 * for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
-			 * System.out.println("MANI Suspect Result2 :::" + copyFileDTO.getStatus()); if
+			 * ////System.out.println("MANI Suspect Result2 :::" + copyFileDTO.getStatus()); if
 			 * (copyFileDTO.getStatus().equals("FAILURE")); { removeFlag = true; break; } }
 			 */
-//			System.out.println("failureList.size()" + failureList.size());
+//			////System.out.println("failureList.size()" + failureList.size());
 			if (failureList.size() > 0)
 				return true;
 
@@ -1941,10 +2113,10 @@ public class TestProcessManagement {
 
 		try {
 
-//			System.out.println("GetStatusFlagOfSelectedFile");
-//			System.out.println("Sequence BE:::");
-//			System.out.println("Stage ID for Runned :: " + stageId);
-//			System.out.println("SessionSTage Map ID:::" + sessionStagesMappingId);
+//			////System.out.println("GetStatusFlagOfSelectedFile");
+//			////System.out.println("Sequence BE:::");
+//			////System.out.println("Stage ID for Runned :: " + stageId);
+//			////System.out.println("SessionSTage Map ID:::" + sessionStagesMappingId);
 			// Session Selected Stages Mapping Service
 //					SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 //					GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
@@ -2011,7 +2183,7 @@ public class TestProcessManagement {
 			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
 			failureList = testFileResults.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
 					.collect(Collectors.toList());
-//			System.out.println(" Failure List Size" + failureList.size());
+//			////System.out.println(" Failure List Size" + failureList.size());
 
 			boolean rDFNotGeneratedError = false;
 
@@ -2035,10 +2207,10 @@ public class TestProcessManagement {
 			DFCCConstant.failedFilesCount = 0;
 			DFCCConstant.totalFilesCount = 0;
 
-//			System.out.println("GetStatusFlagOfSelectedFile");
-//			System.out.println("Sequence BE:::");
-//			System.out.println("Stage ID for Runned :: " + stageId);
-//			System.out.println("SessionSTage Map ID:::" + sessionStagesMappingId);
+//			////System.out.println("GetStatusFlagOfSelectedFile");
+//			////System.out.println("Sequence BE:::");
+//			////System.out.println("Stage ID for Runned :: " + stageId);
+//			////System.out.println("SessionSTage Map ID:::" + sessionStagesMappingId);
 			// Session Selected Stages Mapping Service
 //					SessionSelectedStagesService sessionSelectedStagesService = new SessionSelectedStagesService();
 //					GetObjResponse getObject = sessionSelectedStagesService.getSessionStagesMapp(sessionId, stageId);
@@ -2096,7 +2268,7 @@ public class TestProcessManagement {
 			List<SessionStagesTestFilesResult> failureList = new ArrayList<SessionStagesTestFilesResult>();
 			failureList = testFileResults.stream().filter(ses -> !ses.getTestStatus().equals("SUCCESS"))
 					.collect(Collectors.toList());
-//			System.out.println(" Failure List Size" + failureList.size());
+//			////System.out.println(" Failure List Size" + failureList.size());
 
 			boolean rDFNotGeneratedError = false;
 
@@ -2118,6 +2290,9 @@ public class TestProcessManagement {
 
 	// SUJI LOGIC : sflcnt is totalFileCount
 	private void sflcntupdateProgressBar(String stageName, int sflcnt) {
+		
+		DFCCConstant.totalTestFileCount=sflcnt;
+		
 		if (stageName.equals("SESSION TEST")) {
 
 			SessionTestStateObject.setTotalSelectedTestFileCount(sflcnt);
@@ -2132,7 +2307,7 @@ public class TestProcessManagement {
 		}
 
 		else if (stageName.equals("SRU")) {
-			// System.out.println("SRU --- Entred Total Test FIle in Run Test FIle ");
+			// ////System.out.println("SRU --- Entred Total Test FIle in Run Test FIle ");
 			LRUTestStateObject.setTotalLRUSelectedTestFileCount(sflcnt);
 
 		} else if (stageName.equals("MANDATORY")) {

@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -29,6 +31,7 @@ import com.teclever.datastore.utils.GetResponse;
 import com.teclever.datastore.utils.PathMasterDeleteResponse;
 import com.teclever.dfcc.datastore.dto.ConfigDatResponse;
 import com.teclever.dfcc.datastore.dto.MacroDto;
+import com.teclever.dfcc.datastore.dto.OfpConfigurationDto;
 import com.teclever.dfcc.datastore.dto.RunConfigurationDto;
 import com.teclever.dfcc.datastore.dto.SymbolDto;
 import com.teclever.dfcc.datastore.dto.TestTypeMasterDetailsDto;
@@ -37,6 +40,7 @@ import com.teclever.dfcc.datastore.filemanagement.MacroFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.SymbolFileManagement;
 import com.teclever.dfcc.datastore.filemanagement.TestPlanFileManagement;
 import com.teclever.dfcc.utils.Debug;
+import com.teclever.dfcc.utils.Notifications;
 
 public class RunConfigurationManagement {
 
@@ -63,6 +67,214 @@ public class RunConfigurationManagement {
 		}
 
 		return dtoArray;
+	}
+	
+	
+	// API : ADD RUN CONFIG
+	public RunConfigurationResponse addRunConfigNotUsed(RunConfigurationDto runConfigurationDto, String uutId) {
+		RunConfigurationService service = new RunConfigurationService();
+		RunConfiguration runConfiguration = new RunConfiguration();
+		runConfiguration.setUutId(uutId);
+		runConfiguration.setTestTypeId(runConfigurationDto.getTestTypeId());
+		runConfiguration.setConfigFile(runConfigurationDto.getConfigFile());
+		runConfiguration.setAitess(runConfigurationDto.getAitess());
+		runConfiguration.setDriver(runConfigurationDto.getDriver());
+		runConfiguration.setAitees2ConfigFile(runConfigurationDto.getAitess2ConfigFile());
+		Debug.printDebug("Aites  2" + runConfiguration.getAitees2ConfigFile());
+
+		RunConfigurationResponse serviceResponse = new RunConfigurationResponse();
+		try {
+
+			
+			if(uutId.equals("UUT1"))
+			{
+				// Checking For OFP Config For Pbit
+				boolean oFPTesttType = getStatusOFPTestType(uutId, runConfigurationDto.getTestTypeId());
+				if (oFPTesttType) {
+					boolean pbitTypeConfigured = getStatusPbitConfig(uutId);
+					if (!pbitTypeConfigured) {
+						// Notifications.showErrorAlert("Pls Configured PBIT Test Type...");
+						serviceResponse.setResponseCode(2);
+						serviceResponse.setResponseMessage("Pls Configured PBIT Test Type...");
+						return serviceResponse;
+					} else {
+						String rdfPath = getOutputPathPbitConfig(uutId);
+						Map<String, String> paths = new HashMap<String, String>();
+
+						RunPathMasterService runPathMS = new RunPathMasterService();
+						paths = runPathMS.parseDATFile(runConfigurationDto.getConfigFile());
+						for (Entry<String, String> s : paths.entrySet()) {
+							//System.out.println("KEY PAIRS ::" + s);
+						}
+
+						String currentOFPrdfPath = paths.get("rdfpath");
+						//System.out.println("Rdf Path" + currentOFPrdfPath);
+						if (!currentOFPrdfPath.trim().equals(rdfPath)) {
+							serviceResponse.setResponseCode(2);
+							serviceResponse.setResponseMessage("Path Varies From PBIT Test Type...");
+							return serviceResponse;
+						}
+
+					}
+				}
+			}
+			serviceResponse = service.addRunConfiguration(runConfiguration, uutId);
+			if (serviceResponse.getResponseCode() == 1) {
+				String runConfigId = runConfiguration.getRunConfigId();
+				Debug.printDebug(runConfigId);
+				Debug.printDebug("Run Config Id With TestType Id" + runConfigurationDto.getTestTypeId());
+
+				// updating run path master table
+				Response pathsResponse = updatePathsInDatabase(runConfiguration);
+				if (pathsResponse.getResponseCode() == 0) {
+					// If paths saving fails, mark RunConfiguration as deleted (soft delete)
+					markRunConfigurationAsDeleted(runConfigId);
+
+					serviceResponse.setResponseCode(0);
+					serviceResponse.setResponseMessage(
+							"Failed to save paths to the database: " + pathsResponse.getResponseMessage());
+					return serviceResponse;
+				}
+
+				// test file
+				String runPathMasterId2 = fetchRunPathMasterIdForTestFile(runConfigId);
+				List<String> testFileLocation = fetchTestFilePathsFromRunPathMaster(runPathMasterId2);
+				List<String> testFilesPaths = TestPlanFileManagement.saveTestFilesToDatabase(testFileLocation,
+						runPathMasterId2);
+				Debug.printDebug(testFileLocation);
+
+				// download file
+				String runPathMasterId3 = fetchRunPathMasterIdForDownloadFile(runConfigId);
+				List<String> downloadFileLocation = fetchDownloadFilePathsFromRunPathMaster(runPathMasterId3);
+				List<String> downloadFilesPaths = DownloadFileManagement
+						.saveDownloadFilesToDatabase(downloadFileLocation, runPathMasterId3);
+				Debug.printDebug(downloadFileLocation);
+
+				// macro
+				String runPathMasterId = fetchRunPathMasterIdForMacro(runConfigId);
+				List<String> macroLocation = fetchMacroFilePathsFromRunPathMaster(runPathMasterId);
+				List<String> macrofilePaths = MacroFileManagement.fetchMacroFilePathsDoubleSlash(macroLocation);
+				List<MacroDto> macroDtos = MacroFileManagement.saveMacroNames(macrofilePaths, runPathMasterId);
+
+				// symbol
+				String runPathMasterId1 = fetchRunPathMasterIdForSymbol(runConfigId);
+				Debug.printDebug(runPathMasterId1);
+				List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
+				List<String> symbolfilePaths = SymbolFileManagement.collectSymbolFilesRecursively(symbolLocation);
+				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
+
+			} else {
+				System.err.println("Failed to add Run Configuration: " + serviceResponse.getResponseMessage());
+			}
+		} catch (Exception e) {
+			System.err.println("Failed to add Run Configuration: " + e.getMessage());
+			serviceResponse.setResponseCode(0);
+			serviceResponse.setResponseMessage("Failed to add Run Configuration: " + e.getMessage());
+		}
+		return serviceResponse;
+	}
+	
+	//To Fetch Output Path of Pbit To Check with 
+	public String getOutputPathPbitConfig(String uutTypeId)
+	{
+		String pbitConfigOutPut = "";
+		try {
+			RunConfigurationService runConfigservice = new RunConfigurationService();
+			
+			TestTypeMasterDetailsService testTypeMasterDetailsService = new TestTypeMasterDetailsService();
+			GetResponse getRes =  testTypeMasterDetailsService.getTestTypeMasterByUUTID(uutTypeId);
+			List<TestTypeMasterDetails> testTypeMasterDetailsList = new ArrayList<TestTypeMasterDetails>();
+			testTypeMasterDetailsList = 	(List<TestTypeMasterDetails>) getRes.getResponseList();
+			String pbitTestTypeId = "";
+			
+			for(TestTypeMasterDetails testTypeMasterDetails :testTypeMasterDetailsList)
+			{
+				if(testTypeMasterDetails.getTestName().equals("PBIT"))
+				{
+					pbitTestTypeId = testTypeMasterDetails.getTestTypeId();
+					//System.out.println("PBIT Test Type Id ::"+pbitTestTypeId);
+				}
+			}
+			
+			String runConfigId = 	runConfigservice.getRunConfigIdByUutIdAndTestTypeId(uutTypeId, pbitTestTypeId);	
+			RunPathMasterService runPathMasterService = new RunPathMasterService();
+			Response res = new Response(); 
+			res =	runPathMasterService.getPathLocationByRunConfigId(runConfigId,"rdf");
+			pbitConfigOutPut = res.getResponseMessage();
+
+		} catch (Exception ex) {
+			ex.getLocalizedMessage();
+
+		}
+		return pbitConfigOutPut;
+	}
+	
+	//Method To Determine Is Pbit Configured Or Not
+	public boolean getStatusPbitConfig(String uutTypeId)
+	{
+		boolean pbitConfigFlag = false;
+		try {
+			RunConfigurationService runConfigservice = new RunConfigurationService();
+			
+			TestTypeMasterDetailsService testTypeMasterDetailsService = new TestTypeMasterDetailsService();
+			GetResponse getRes =  testTypeMasterDetailsService.getTestTypeMasterByUUTID(uutTypeId);
+			List<TestTypeMasterDetails> testTypeMasterDetailsList = new ArrayList<TestTypeMasterDetails>();
+			testTypeMasterDetailsList = 	(List<TestTypeMasterDetails>) getRes.getResponseList();
+			String pbitTestTypeId = "";
+			
+			for(TestTypeMasterDetails testTypeMasterDetails :testTypeMasterDetailsList)
+			{
+				if(testTypeMasterDetails.getTestName().equals("PBIT"))
+				{
+					pbitTestTypeId = testTypeMasterDetails.getTestTypeId();
+				}
+			}
+			
+			System.out.println("PBIT "+pbitTestTypeId);
+			String runConfigId = 	runConfigservice.getRunConfigIdByUutIdAndTestTypeId(uutTypeId, pbitTestTypeId);
+		
+			System.out.println("run configId :: :: ::"+runConfigId);
+			
+			if(runConfigId!=null)
+			{
+				return true;
+			}
+
+		} catch (Exception ex) {
+			ex.getLocalizedMessage();
+
+		}
+		return pbitConfigFlag;
+	}
+	
+	//Method To Determine Wheather is Under OFP Test Type 
+	public boolean getStatusOFPTestType(String uutTypeId,String testTypeId)
+	{
+		boolean pbitConfigFlag = false;
+		try {
+			TestTypeMasterDetailsService testTypeMasterDetailsService = new TestTypeMasterDetailsService();
+			GetResponse getRes = testTypeMasterDetailsService.getTestTypeMasterByUUTID(uutTypeId);
+			List<TestTypeMasterDetails> testTypeMasterDetailsList = new ArrayList<TestTypeMasterDetails>();
+			testTypeMasterDetailsList = (List<TestTypeMasterDetails>) getRes.getResponseList();
+			String pbitTestTypeId = "";
+			List<String> pbitTestTypeIds = new ArrayList<String>();
+
+			for (TestTypeMasterDetails testTypeMasterDetails : testTypeMasterDetailsList) {
+				if (testTypeMasterDetails.getTestName().contains("PICHECK")
+						|| testTypeMasterDetails.getTestName().contains("PI_CHECK")) {
+					pbitTestTypeIds.add(testTypeMasterDetails.getTestTypeId());
+				}
+			}
+
+			if (pbitTestTypeIds.contains(testTypeId)) {
+				return true;
+			}
+
+		} catch (Exception ex) {
+			ex.getLocalizedMessage();
+
+		}
+		return pbitConfigFlag;
 	}
 
 	// API : ADD RUN CONFIG
@@ -120,7 +332,7 @@ public class RunConfigurationManagement {
 				String runPathMasterId1 = fetchRunPathMasterIdForSymbol(runConfigId);
 				Debug.printDebug(runPathMasterId1);
 				List<String> symbolLocation = fetchSymbolFilePathsFromRunPathMaster(runPathMasterId1);
-				List<String> symbolfilePaths = SymbolFileManagement.fetchSymbolFilePathsDoubleSlash(symbolLocation);
+				List<String> symbolfilePaths = SymbolFileManagement.collectSymbolFilesRecursively(symbolLocation);
 				List<SymbolDto> symbolDtos = SymbolFileManagement.saveSymbols(symbolfilePaths, runPathMasterId1);
 
 	        } else {
@@ -207,9 +419,176 @@ public class RunConfigurationManagement {
 
 		return dtoList;
 	}
+	
+	
+	// API To Delete New
+		public Response deleteRunConfigById(String runConfigId) {
+			Debug.printDebug("Run Config Id" + runConfigId);
+
+			Response res = new Response();
+			try {
+
+				RunConfigurationService service = new RunConfigurationService();
+				RunConfigurationResponse serviceResponseLst = service.getAllRunConfigurations();
+				List<RunConfiguration> lstRunConfig = serviceResponseLst.getRunConfigurations();
+				lstRunConfig = lstRunConfig.stream()
+						.filter(e -> !e.isDeleteStatus() && e.getRunConfigId().equals(runConfigId))
+						.collect(Collectors.toList());
+
+				// To Check The Whether Delete Id is Pbit ....
+				String testTypeId = "";
+				String uutTypeId = "";
+				for (RunConfiguration runConfiguration : lstRunConfig) {
+					testTypeId = runConfiguration.getTestTypeId();
+					uutTypeId = runConfiguration.getUutId();
+				}
+
+				TestTypeMasterDetailsService testTypeMasterDetailsService = new TestTypeMasterDetailsService();
+				GetResponse gtRes = testTypeMasterDetailsService.getTestTypeMasterByUUTID(uutTypeId);
+				List<TestTypeMasterDetails> lst = (List<TestTypeMasterDetails>) gtRes.getResponseList();
+				String pbitTypeId = "";
+				for (TestTypeMasterDetails testTypeMasterDetails : lst) {
+					if (testTypeMasterDetails.getTestName().contains("PBIT")) {
+						pbitTypeId = testTypeMasterDetails.getTestTypeId();
+					}
+				}
+
+				// For Checking PBIT TYPE and Delete OFP ..
+				boolean pbitType = pbitTypeId.equals(testTypeId); // getStatusPbitConfig(uutTypeId);
+				List<String> ofpIds = new ArrayList<String>();
+				
+				boolean ofpMessage = false;
+				if (pbitType) {
+					ofpIds = getOFPConfiguredIds(uutTypeId);
+					OfpConfigurationManagement ofpConfigurationManagement = new OfpConfigurationManagement();
+					if (ofpIds.size() > 0) {
+						for (String ofpId : ofpIds) {
+							ofpConfigurationManagement.deleteOfpConfig(ofpId);
+							ofpMessage = true;
+						}
+					}
+
+				}
+				
+
+				RunConfigurationResponse serviceResponse = service.removeRunConfiguration(runConfigId);
+				RunPathMasterService pathMasterService = new RunPathMasterService();
+				PathMasterDeleteResponse pathsResponse = pathMasterService.deletePathMasterByRunConfigId(runConfigId);
+				Map<String, String> map = pathsResponse.getResponseMap();
+				String testPathMasterId = map.get("tpf");
+				String macroPathMasterId = map.get("macros");
+				String symbolPathMasterId = map.get("symbols");
+				String downloadPathMasterId = map.get("download");
+				Debug.printDebug("RunPathIds Below");
+				Debug.printDebug("testPathMasterId" + testPathMasterId);
+				Debug.printDebug("macroPathMasterId" + macroPathMasterId);
+				Debug.printDebug("symbolPathMasterId" + symbolPathMasterId);
+				Debug.printDebug("downloadPathMasterId" + downloadPathMasterId);
+				// Test File Delete From TestFiles List
+				TestFileService testFileService = new TestFileService();
+				Response testFileResponse = testFileService.deleteTestFiles(testPathMasterId);
+				if (testFileResponse.getResponseCode() == 0) {
+					System.err.println(
+							"Failed to update delete status for test files: " + testFileResponse.getResponseMessage());
+					res.setResponseMessage("Error on TestFile Deleting" + testFileResponse.getResponseMessage());
+					return res;
+				}
+
+				// Macro's Deleted From Macros
+				MacroService macroService = new MacroService();
+				Response macroResponse = macroService.deleteMacro(macroPathMasterId);
+				if (macroResponse.getResponseCode() == 0) {
+					System.err.println("Failed to update delete status for macros: " + macroResponse.getResponseMessage());
+					res.setResponseMessage("Error on macros Deleting" + macroResponse.getResponseMessage());
+					return res;
+				}
+
+				// Symbols Deleted From Symbols Entity
+				SymbolService symbolService = new SymbolService();
+				Response symbolResponse = symbolService.deleteSymbols(symbolPathMasterId);
+				if (symbolResponse.getResponseCode() == 0) {
+					System.err.println("Failed to  delete symbols: " + symbolResponse.getResponseMessage());
+					res.setResponseMessage("Error on symbol Deleting" + symbolResponse.getResponseMessage());
+					return res;
+				}
+
+				// DOWNLOAD FILES DELETING
+				DownloadFileService downloadFileService = new DownloadFileService();
+				Response downloadFileResponse = downloadFileService.deleteDownloadFiles(downloadPathMasterId);
+				if (downloadFileResponse.getResponseCode() == 0) {
+					System.err.println("Failed delete download files: " + downloadFileResponse.getResponseMessage());
+					res.setResponseMessage("Error on Download File Deleting" + downloadFileResponse.getResponseMessage());
+					return res;
+				}
+
+				res.setResponseCode(1);
+				res.setResponseMessage("Deleted Successful");
+				if(pbitType)
+				{
+					res.setResponseMessage("PBIT Deleted Successful");
+
+					if (ofpMessage) {
+						res.setResponseMessage("PBIT and OFP Deleted Successful");
+					}
+				}
+			} catch (Exception ex) {
+				res.setResponseCode(0);
+				res.setResponseMessage("Error On deleting   :" + ex.getLocalizedMessage());
+
+			}
+			return res;
+
+		}
+		
+		
+	public List<String> getOFPConfiguredIds(String UUTID)
+	{
+		List<String> ofpIds = new ArrayList<String>();
+
+		try {
+
+			OfpConfigurationManagement ofpConfigurationManagement = new OfpConfigurationManagement();
+			List<OfpConfigurationDto> lstOfp = ofpConfigurationManagement.getOfpConfig(UUTID);
+			if (lstOfp.size() > 0) {
+
+				for (OfpConfigurationDto ofpConfigurationDto : lstOfp) {
+					ofpIds.add(ofpConfigurationDto.getOfpConfigId());
+				}
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return ofpIds;
+
+	}
+	
+	public List<String> getOFPTestTypeIds(String uutTypeId)
+	{
+		List<String> pbitTestTypeIds = new ArrayList<String>();
+		try {
+			TestTypeMasterDetailsService testTypeMasterDetailsService = new TestTypeMasterDetailsService();
+			GetResponse getRes = testTypeMasterDetailsService.getTestTypeMasterByUUTID(uutTypeId);
+			List<TestTypeMasterDetails> testTypeMasterDetailsList = new ArrayList<TestTypeMasterDetails>();
+			testTypeMasterDetailsList = (List<TestTypeMasterDetails>) getRes.getResponseList();
+			String pbitTestTypeId = "";
+
+			for (TestTypeMasterDetails testTypeMasterDetails : testTypeMasterDetailsList) {
+				if (testTypeMasterDetails.getTestName().contains("PICHECK")
+						|| testTypeMasterDetails.getTestName().contains("PI_CHECK")) {
+					pbitTestTypeIds.add(testTypeMasterDetails.getTestTypeId());
+				}
+			}
+		} catch (Exception ex) {
+			ex.getLocalizedMessage();
+
+		}
+		return pbitTestTypeIds;
+	}
 
 	// API To Delete New
-	public Response deleteRunConfigById(String runConfigId) {
+	public Response deleteRunConfigByIdOld(String runConfigId) {
 		Debug.printDebug("Run Config Id" + runConfigId);
 		Response res = new Response();
 		try {

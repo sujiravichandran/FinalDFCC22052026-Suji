@@ -19,9 +19,23 @@ public class ResultDetailedDTO {
     private String faultySRU;
     private String testMode;
     private String faultyChannelValue;
+    private String unitSerialNo;
+    private String unitSession;
     
     
     
+	public String getUnitSerialNo() {
+		return unitSerialNo;
+	}
+	public void setUnitSerialNo(String unitSerialNo) {
+		this.unitSerialNo = unitSerialNo;
+	}
+	public String getUnitSession() {
+		return unitSession;
+	}
+	public void setUnitSession(String unitSession) {
+		this.unitSession = unitSession;
+	}
 	public String getFaultyChannelValue() {
 		return faultyChannelValue;
 	}

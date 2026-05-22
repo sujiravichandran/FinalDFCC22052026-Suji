@@ -38,6 +38,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.TestStateNew;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Debug;
@@ -149,7 +150,7 @@ public class SessionTestingController {
 		StateMachine.resettingProgressBarProperty().addListener((obs, oldVal, newVal) -> {
 		    if(newVal) {
 		    	Platform.runLater(() -> {
-//		    		System.out.println("Entred resetting Progress in session test");
+//		    		////System.out.println("Entred resetting Progress in session test");
 		    	testProgressBar.setProgress(0);
 		    	percentageLabel.setText("0%");
 		    	StateMachine.setResettingProgressBar(false);
@@ -160,13 +161,28 @@ public class SessionTestingController {
 //		SUJI ADDED:
 		StateMachine.testStateProperty().addListener((obs, oldState, newState) -> {
 			if (newState == TestState.STOPPED && !StateMachine.isConfirmTestFileCompleted()) {
+				
+				Platform.runLater(() -> {
 			applyUiStatus(StateMachine.getTestState());
+				});
 			}
 		});
 		
 		
-		StateMachine.confirmTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
-			applyUiState(newVal); 
+//		StateMachine.confirmTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
+//			Platform.runLater(() -> {
+//			applyUiState(newVal); 
+//			});
+//			
+//		});
+
+		
+		
+		StateMachine.sessionTestFileCompletedProperty().addListener((obs, oldVal, newVal) -> {
+			Platform.runLater(() -> {
+		    applyUiState(newVal);  // Call your UI update method when value changes
+		    StateMachine.setSessionTestFileCompleted(false);
+			});
 		});
 //		EXIT::
 	
@@ -174,9 +190,9 @@ public class SessionTestingController {
 //		Change Made for Point: 4&39(Mail:7 July status)
 //		Change Made on WDM Status off: popup confirmation Test to proceed or not:
 		StateMachine.wdmStatusOfflineCheckProperty().addListener((obs, oldVal, newVal) -> {
-//			System.out.println("WDM Status changed:Session testing " + newVal);
+//			////System.out.println("WDM Status changed:Session testing " + newVal);
 			if(newVal && (StateMachine.getStatusBarRunningTestName().equals("SESSION_TEST"))) {
-//			System.out.println("After WDM Status changed:Session Test Inside " + newVal);
+//			////System.out.println("After WDM Status changed:Session Test Inside " + newVal);
 			StateMachine.setTestState(TestState.PAUSED);
 			 Platform.runLater(() -> {
 			popupDialoguShow.wdmStatusPopup();
@@ -193,6 +209,7 @@ public class SessionTestingController {
 				stopButton.setDisable(true);
 				startButton.setDisable(false);
 				runAllButton.setDisable(false);
+				repeatCountTextField.setDisable(false);
 
 			}
 			StateMachine.setCancelTest(false);
@@ -207,9 +224,10 @@ public class SessionTestingController {
 	private void applyUiStatus(TestState currentState) {
 		
 	    Platform.runLater(() -> {
-//	    	System.out.println("ENTRED applyUiStatus" + currentState );
+//	    	////System.out.println("ENTRED applyUiStatus" + currentState );
 	    	sessionTestingTreeviewGridPane.setDisable(false);
 			sessionTestingListMainGridPane.setDisable(false);
+			repeatCountTextField.setDisable(false);
 	    });
 	}
 	
@@ -218,6 +236,7 @@ public class SessionTestingController {
 	        if (!isTestFileCompleted) {
 	        	sessionTestingTreeviewGridPane.setDisable(false);
 				sessionTestingListMainGridPane.setDisable(false);
+				repeatCountTextField.setDisable(false);
 	        }
 	    });
 	}
@@ -480,7 +499,7 @@ public class SessionTestingController {
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				Notifications.showWarningAlert("Please Wait until " +StateMachine.getRunningTestName() +" test Completes");
 				return;
 			}
 			
@@ -490,6 +509,7 @@ public class SessionTestingController {
 
 		    // Get previous and current stage IDs
 		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    DFCCConstant.currentTestStageId = currentStageId;
 		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
 
 		    // If previous stage is null, initialize it
@@ -530,17 +550,19 @@ public class SessionTestingController {
 
 		            
 		            // Clear the list after processing
-		            DFCCConstant.FailedStagesRdfPaths.clear();
+//		            DFCCConstant.FailedStagesRdfPaths.clear();
 		            StateMachine.setResettingProgressBar(true);
 		        }
 
 //		        sessionTestTable.getItems().clear();
-		        SessionTestStateObject.clearSessionTestResults();
-		        SelfTestStateObject.clearselfTestResults();
-		        AdvancedTestStateObject.clearAdvancedTestResultsList();
-		        LRUTestStateObject.clearlruTestResultsList();
-		        // Update previous stage ID to current after processing
-		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+//		        if(!DFCCConstant.closedFileMove) {
+//		        	SessionTestStateObject.clearSessionTestResults();
+//			        SelfTestStateObject.clearselfTestResults();
+//			        AdvancedTestStateObject.clearAdvancedTestResultsList();
+//			        LRUTestStateObject.clearlruTestResultsList();
+//					}
+//		        // Update previous stage ID to current after processing
+//		        StateMachine.setPreviouslySelectedStageId(currentStageId);
 		    }
 			
 //			// Excel Name:7-July-Observation
@@ -552,7 +574,7 @@ public class SessionTestingController {
 //			if (StateMachine.getPreviouslySelectedStageId() == null
 //					|| StateMachine.getCurrentlySelectedStageId()
 //							.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//				// System.out.println("1");
+//				// ////System.out.println("1");
 //
 //				StateMachine.setPreviouslySelectedStageId(selectedStageId);
 //			
@@ -564,15 +586,15 @@ public class SessionTestingController {
 //				// UPDATING TIME TO DB
 //				LocalDateTime currentDateTime = LocalDateTime.now();
 //				StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-//				//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-//				//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-//				System.out.println("SUJI SUSPECT STAGE ID::" +selectedStageId );
+//				//////System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
+//				//////System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
+//				////System.out.println("SUJI SUSPECT STAGE ID::" +selectedStageId );
 //				//SessionTimingService s = new SessionTimingService();
 //				//LOGIC FOR UPDATING SESSION TIMING TABLE
 //			if (StateMachine.getPreviouslySelectedStageId() == null
 //					|| StateMachine.getCurrentlySelectedStageId()
 //							.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//				// System.out.println("1");
+//				// ////System.out.println("1");
 //
 //				StateMachine.setPreviouslySelectedStageId(selectedStageId);
 //			
@@ -589,10 +611,10 @@ public class SessionTestingController {
 //
 //				System.out
 //						.println("Previous Selected Stage Id ::" + StateMachine.getPreviouslySelectedStageId());
-//				System.out.println("Session Id ::" + currentSessionDetails.getSessionId());
+//				////System.out.println("Session Id ::" + currentSessionDetails.getSessionId());
 //					
 //					boolean popupRDFFiles = false;
-//					System.out.println("Entred Session Copyfile Before" + DFCCConstant.FailedStagesRdfPaths.size());
+//					////System.out.println("Entred Session Copyfile Before" + DFCCConstant.FailedStagesRdfPaths.size());
 //					if (DFCCConstant.FailedStagesRdfPaths.size() > 0) {
 //						for (CopyFileDTO copyFileDTO : DFCCConstant.FailedStagesRdfPaths) {
 //
@@ -612,7 +634,7 @@ public class SessionTestingController {
 //							RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 //							for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 //							{
-////								System.out.println("StageId Popup"+copyFileDTO.getStageId());
+////								////System.out.println("StageId Popup"+copyFileDTO.getStageId());
 //								RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
 //							}
 //							SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
@@ -624,7 +646,7 @@ public class SessionTestingController {
 //							sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
 //							
 //							SessionFileManagement session = new SessionFileManagement();
-////							System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+////							////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 //							session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 //							DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //						}
@@ -649,6 +671,10 @@ public class SessionTestingController {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+				return;
+			}
 			
 			if(StateMachine.isMacroPassing()) {
 				return;
@@ -663,13 +689,13 @@ public class SessionTestingController {
 					testFileIds.add(checkbox.getId());
 				}
 			}
-//			System.out.println("Moving Files   ::::"+lastStageId);
+//			////System.out.println("Moving Files   ::::"+lastStageId);
 			
 			
 			//CondtionChecking
 			if(DFCCConstant.logOutmoveFiles.size()>0)
 			{
-//				System.out.println("Moving Files   ::::"+lastStageId);
+//				////System.out.println("Moving Files   ::::"+lastStageId);
 				if(DFCCConstant.logOutmoveFiles.containsKey(lastStageId))
 				{
 					
@@ -689,7 +715,7 @@ public class SessionTestingController {
 //			if(DFCCConstant.FailedStagesRdfPaths.size()>0)
 //			{
 //				//When Failed Its Open 
-//				 System.out.println("Entred in failed file condition:::::::Session" + DFCCConstant.FailedStagesRdfPaths.size());
+//				 ////System.out.println("Entred in failed file condition:::::::Session" + DFCCConstant.FailedStagesRdfPaths.size());
 //				 SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
 //				 DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //			}
@@ -724,6 +750,9 @@ public class SessionTestingController {
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
 				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				sessionTestingTreeviewGridPane.setDisable(false);
+				sessionTestingListMainGridPane.setDisable(false);
+				 repeatCountTextField.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -736,7 +765,7 @@ public class SessionTestingController {
 				pauseButton.setDisable(true);
 				return;
 			}
-
+			repeatCountTextField.setDisable(true);
 //			if (DFCCConstant.entered == true) {
 //				if (aitessProcessControlManagement.checkChannelStatusBeforeAnyTest().equals(true)
 //						|| aitessProcessControlManagement.checkOnlineStatusBeforeAnyTestFile().equals(true)) {
@@ -756,9 +785,9 @@ public class SessionTestingController {
 		startButton.setOnAction(e -> {
 			
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
-				
-				
+				DFCCConstant.runnedTestFileCount=0;
 				DFCCConstant.stopColourFlag = false;
+				
 				// Excel Name:7-July-Observation
                 // Point No:3
 				// Change Made on rdf file moving
@@ -769,7 +798,7 @@ public class SessionTestingController {
 //				if (StateMachine.getPreviouslySelectedStageId() == null
 //						|| StateMachine.getCurrentlySelectedStageId()
 //								.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//					// System.out.println("1");
+//					// ////System.out.println("1");
 //
 //					StateMachine.setPreviouslySelectedStageId(selectedStageId);
 //				
@@ -783,15 +812,15 @@ public class SessionTestingController {
 //						// UPDATING TIME TO DB
 //						LocalDateTime currentDateTime = LocalDateTime.now();
 //						StateMachine.setCurrentlySelectedStageId(selectedStageId); 
-//						//System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
-//						//System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
-//						System.out.println("SUJI SUSPECT STAGE ID::" +selectedStageId );
+//						//////System.out.println("---- CURRENT   " + StateMachine.getCurrentlySelectedStageId());
+//						//////System.out.println("---- PREVIOUSLY   " + StateMachine.getPreviouslySelectedStageId());
+//						////System.out.println("SUJI SUSPECT STAGE ID::" +selectedStageId );
 //						//SessionTimingService s = new SessionTimingService();
 //						//LOGIC FOR UPDATING SESSION TIMING TABLE
 //					if (StateMachine.getPreviouslySelectedStageId() == null
 //							|| StateMachine.getCurrentlySelectedStageId()
 //									.equalsIgnoreCase(StateMachine.getPreviouslySelectedStageId())) {
-//						// System.out.println("1");
+//						// ////System.out.println("1");
 //
 //						StateMachine.setPreviouslySelectedStageId(selectedStageId);
 //					
@@ -809,7 +838,7 @@ public class SessionTestingController {
 //
 //						System.out
 //								.println("Previous Selected Stage Id ::" + StateMachine.getPreviouslySelectedStageId());
-//						System.out.println("Session Id ::" + currentSessionDetails.getSessionId());
+//						////System.out.println("Session Id ::" + currentSessionDetails.getSessionId());
 //
 //						
 //						//Checking With List
@@ -829,11 +858,11 @@ public class SessionTestingController {
 //								SessionManagement sessionManagement = new SessionManagement();
 //								sessionManagement.updateSessionStagesResultOnApplicationLogBook("Failed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
 //								
-////								System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
+////								////System.out.println(	"Failure Size :::"+DFCCConstant.FailedStagesRdfPaths.size());
 //								RdfFileCopyPopupController.rdfFilesListtoShow = new ArrayList<CopyFileDTO>();
 //								for(CopyFileDTO copyFileDTO:DFCCConstant.FailedStagesRdfPaths)
 //								{
-////									System.out.println("StageId Popup"+copyFileDTO.getStageId());
+////									////System.out.println("StageId Popup"+copyFileDTO.getStageId());
 //									RdfFileCopyPopupController.rdfFilesListtoShow.add(copyFileDTO);
 //								}
 //								SessionTestStateObject.getIsRdfFileCopyPopupStatus().set(true);
@@ -845,7 +874,7 @@ public class SessionTestingController {
 //								sessionManagement.updateSessionStagesResultOnApplicationLogBook("Passed",DFCCConstant.FailedStagesRdfPaths.get(0).getStageId());
 //								
 //								SessionFileManagement session = new SessionFileManagement();
-////								System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
+////								////System.out.println("DFCCConstant.FailedStagesRdfPaths  Size"+DFCCConstant.FailedStagesRdfPaths.size());
 //								session.copyFilesToOutputFolderWhilePlayButton(DFCCConstant.FailedStagesRdfPaths);
 //								DFCCConstant.FailedStagesRdfPaths = new ArrayList<CopyFileDTO>();
 //							}
@@ -864,7 +893,12 @@ public class SessionTestingController {
 			StateMachine.setConfirmTestStop(false);
 			if (StateMachine.isConfirmTestFileCompleted()) {
 
-				Notifications.showWarningAlert("Please Wait until" +StateMachine.getRunningTestName() +" test Completes");
+				Notifications.showWarningAlert("Please Wait until " +StateMachine.getRunningTestName() +" test Completes");
+				return;
+			}
+			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
 				return;
 			}
 			
@@ -874,6 +908,7 @@ public class SessionTestingController {
 
 		    // Get previous and current stage IDs
 		    String currentStageId = StateMachine.getCurrentlySelectedStageId();
+		    DFCCConstant.currentTestStageId = currentStageId;
 		    String previousStageId = StateMachine.getPreviouslySelectedStageId();
 
 		    // If previous stage is null, initialize it
@@ -913,20 +948,26 @@ public class SessionTestingController {
 		            }
 
 		            // Clear the list after processing
-		            DFCCConstant.FailedStagesRdfPaths.clear();
+//		            DFCCConstant.FailedStagesRdfPaths.clear();
 		            StateMachine.setResettingProgressBar(true);
 		        }
 
 //		        sessionTestTable.getItems().clear();
-		        SessionTestStateObject.clearSessionTestResults();
-		        SelfTestStateObject.clearselfTestResults();
-		        AdvancedTestStateObject.clearAdvancedTestResultsList();
-		        LRUTestStateObject.clearlruTestResultsList();
-
-		        // Update previous stage ID to current after processing
-		        StateMachine.setPreviouslySelectedStageId(currentStageId);
+//		        if(!DFCCConstant.closedFileMove) {
+//		        	SessionTestStateObject.clearSessionTestResults();
+//			        SelfTestStateObject.clearselfTestResults();
+//			        AdvancedTestStateObject.clearAdvancedTestResultsList();
+//			        LRUTestStateObject.clearlruTestResultsList();
+//					}
+//
+//		        // Update previous stage ID to current after processing
+//		        StateMachine.setPreviouslySelectedStageId(currentStageId);
 		    }
-			
+		    
+			if(DFCCConstant.rdfMoveCanceled) {
+				DFCCConstant.rdfMoveCanceled= false;
+				return;
+			}
 			
 			
 			
@@ -953,12 +994,18 @@ public class SessionTestingController {
 			}
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
 				
+				if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+					Notifications.showErrorAlert("Test execution is pausing. Please try to resume the test once it is paused.");
+					return;
+				}
 				
+				DFCCConstant.testPauseStopping= false;
 				StateMachine.setTestState(TestState.RUNNING);
 				startButton.setText("Start");
 				startButton.setDisable(true);
 				pauseButton.setDisable(false);
 				stopButton.setDisable(false);
+				
 				return;
 			}
 
@@ -968,6 +1015,11 @@ public class SessionTestingController {
 
 			if (!checkAitessStatus.isBothAitessOn()) {
 				
+				return;
+			}
+			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
 				return;
 			}
 			
@@ -1011,6 +1063,9 @@ public class SessionTestingController {
 				pauseButton.setDisable(false);
 			} else if (currentState == TestState.RUNNING) {
 				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				sessionTestingTreeviewGridPane.setDisable(false);
+				sessionTestingListMainGridPane.setDisable(false);
+				repeatCountTextField.setDisable(false);
 				startButton.setDisable(false);
 				stopButton.setDisable(true);
 				pauseButton.setDisable(true);
@@ -1023,14 +1078,14 @@ public class SessionTestingController {
 				pauseButton.setDisable(true);
 				return;
 			}
-
+			repeatCountTextField.setDisable(true);
 			SessionTestStateObject.setRunningTestLeafId(selectedStageId);
 			callStartTest(selectedStageId, "SESSION TEST", selectedTestTypeId, testFileIds);
 		});
 
 		SessionTestStateObject.runningTestLeafStatusProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {
-//				System.out.println("New Value for Session Test::::" + newValue);
+//				////System.out.println("New Value for Session Test::::" + newValue);
 				SessionTestStateObject.getRunningTestLeafStatus().set(false);
 				StateMachine.setTestState(TestState.COMPLETED);
 				startButton.setText("Start");
@@ -1046,6 +1101,22 @@ public class SessionTestingController {
 		
 
 		pauseButton.setOnAction(e -> {
+//			Suji Added For Last test file popup::12022026
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be pause/stopped now!!");
+				return;
+			} 
+//END:: 
+			
 			StateMachine.setConfirmTestStop(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
@@ -1060,10 +1131,34 @@ public class SessionTestingController {
 		});
 
 		stopButton.setOnAction(e -> {
-			Platform.runLater(() -> {
-			DFCCConstant.stopColourFlag = true;
-			setStateMachineCurrentL1StageId();
-			});
+			
+			if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+				Notifications.showErrorAlert("Test execution is pausing. Please try to stop the test once it is paused.");
+				return;
+			}
+			
+			DFCCConstant.testPauseStopping= false;
+			
+			
+			
+			
+//			Suji Added For Last test file popup::12022026
+			
+				
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be stopped now!!");
+				return;
+			} 
+//END::
 			
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
@@ -1075,12 +1170,19 @@ public class SessionTestingController {
 				return;
 			}
 			
+			
+
+			Platform.runLater(() -> {
+				DFCCConstant.stopColourFlag = true;
+				setStateMachineCurrentL1StageId();
+				});
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
 					StateMachine.getCurrentUserLogin(), new Date(), "clicked on Stop in Session Testing");
 			appLogbookManagement.addApplicationLogBook(applicationLogBookDto);
 			StateMachine.setTestState(TestState.STOPPED);
+			
 //			Suji added for Checkbox enabling - 02-05-2025
 			
 			startButton.setText("Start");
@@ -1088,6 +1190,7 @@ public class SessionTestingController {
 			stopButton.setDisable(true);
 			startButton.setDisable(false);
 			runAllButton.setDisable(false);
+			repeatCountTextField.setDisable(false);
 		});
 
 		repeatCountLabel.setText("Repeat Count(1 to 100)");
@@ -1167,12 +1270,12 @@ public class SessionTestingController {
 //		SessionTestStateObject.runnedTestFileCountProperty().addListener((observable, oldValue, newValue) -> {
 //			if (newValue != null ) {
 //				double percentage = (double) SessionTestStateObject.getRunnedTestFileCount().get() /  SessionTestStateObject.getTotalSelectedTestFileCount();
-//				System.out.println("Session Test Files Count" + SessionTestStateObject.getRunnedTestFileCount().get());
-//				System.out.println("GET TOTAL SELECTED FILE COUNt" + SessionTestStateObject.getTotalSelectedTestFileCount());
+//				////System.out.println("Session Test Files Count" + SessionTestStateObject.getRunnedTestFileCount().get());
+//				////System.out.println("GET TOTAL SELECTED FILE COUNt" + SessionTestStateObject.getTotalSelectedTestFileCount());
 //				
 //				double roundedPercentage = Math.round(percentage * 100.0) / 100.0;
 //				
-//				System.out.println("Rounded Percentage "+ (roundedPercentage * 100) );
+//				////System.out.println("Rounded Percentage "+ (roundedPercentage * 100) );
 //				
 //				Platform.runLater(() -> {
 //					testProgressBar.setProgress(roundedPercentage);
@@ -1239,6 +1342,7 @@ public class SessionTestingController {
 		return sessionTestingResultsGridPane;
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	public TreeView<Label> createTreeView() {
 		TreeItem<Label> rootItem = new TreeItem<>();
 		rootItem.setExpanded(true);
@@ -1264,14 +1368,14 @@ public class SessionTestingController {
 //			String currentId= StateMachine.getCurrentlySelectedStageId();
 //			String previousId = StateMachine.getPreviouslySelectedStageId();
 				if(StateMachine.getTestState() != TestState.RUNNING ){
-				System.out.println("Entred Clearing method after selection" + StateMachine.getStageName());
+				////System.out.println("Entred Clearing method after selection" + StateMachine.getStageName());
 					StateMachine.setSessionTestOk(true);
 				}
 		
 			
 			if (newValue != null) {
 				Label selectedLabel = newValue.getValue();
-//				System.out.println("New Value check" +newValue.getValue() );
+//				////System.out.println("New Value check" +newValue.getValue() );
 				
 
 				
@@ -1279,27 +1383,27 @@ public class SessionTestingController {
 					Entry<String, StageIdName> userData = (Entry<String, StageIdName>) selectedLabel.getUserData();
 					
 					getTestListByStageId(userData.getValue().getStageId(), userData.getValue().getTestTypeId());
-//					System.out.println("SUJI SESSION Disable check flag 1" +userData.getValue().getStageId() );
+//					////System.out.println("SUJI SESSION Disable check flag 1" +userData.getValue().getStageId() );
 //					Suji ADDED FOR Color UPDATTING WHILE TEST RUNNING TIME NAVIGATED TO DIFFERENT STAGES:
-//					System.out.println("BEFORE Entred Clearing method after selection" + StateMachine.getStageName());
+//					////System.out.println("BEFORE Entred Clearing method after selection" + StateMachine.getStageName());
 //					if(StateMachine.getTestState() != TestState.RUNNING && StateMachine.getStageName() == "SESSION TEST"){
-//						System.out.println("AFTER Entred Clearing method after selection" + StateMachine.getStageName());
+//						////System.out.println("AFTER Entred Clearing method after selection" + StateMachine.getStageName());
 					selectedStageId = userData.getValue().getStageId();
 					selectedTestTypeId = userData.getValue().getTestTypeId();
-//					System.out.println("");
+//					////System.out.println("");
 //					}
 					
 				}
-//				System.out.println("Before Stage ID Confirmation Check:::" + lastStageId);
+//				////System.out.println("Before Stage ID Confirmation Check:::" + lastStageId);
 				
 				if(!selectedStageId.equals(oldValue)&& oldValue!=null ) {
 					String old = oldValue.toString();
 					
 					old.substring(3,10);
-//					System.out.println("old::::"+ old);
+//					////System.out.println("old::::"+ old);
 					
 					lastStageId= old;
-//					System.out.println("<<<<<<<<<<<<<<<<In New If Condition check>>>>>>>>>>>>>>>>" + lastStageId);
+//					////System.out.println("<<<<<<<<<<<<<<<<In New If Condition check>>>>>>>>>>>>>>>>" + lastStageId);
 				}
 				
 				clearTextField();
@@ -1368,7 +1472,7 @@ public class SessionTestingController {
 	private void getTestListByStageId(String stageId, String testTypeId) {
 		SessionTestStateObject.getStageIdWithFileIds()
 				.addListener((MapChangeListener.Change<? extends String, ? extends ObservableSet<String>> change) -> {
-//					System.out.println("SUJI SESSION Disable check flag 2" + change);
+//					////System.out.println("SUJI SESSION Disable check flag 2" + change);
 					if (change.wasAdded()) {
 						disableCheckBox(change.getKey());
 					}
@@ -1390,6 +1494,8 @@ public class SessionTestingController {
 
 		if (L1StageId != null) {
 			mandatoryStatus = SessionTestStateObject.getL1MandatoryStatus().get(L1StageId);
+			
+//			//System.out.println("MANDATORY STATUS"+mandatoryStatus);
 			continueWithErrorStatus = SessionTestStateObject.getL1ContinueWithErrorStatus().get(L1StageId);
 		}
 
@@ -1403,17 +1509,21 @@ public class SessionTestingController {
 				Map<String,String> stageIdName = new HashMap<String,String>();
 				SessionManagement session = new SessionManagement();
 				stageIdName = session.getAllStageIdName();
-
+				List<String> l1Stage = new ArrayList<String>();
+				 outerLoop:
 				for (String l1EndLeaf : SessionTestStateObject.getL1StagesWithEndLeadId().get(L1StageId)) {
+					
 					for (Entry<StageIdName, String> endLeaf : SessionTestStateObject.getEndLeafMap().entrySet()) {
 						if (endLeaf.getKey().getStageId().equals(l1EndLeaf)) {
 							if (endLeaf.getValue().toLowerCase().trim().equals("pending")) {
 								
 								if (isPreviousPending) {
-									System.out.println("Session Test UI SUSPECT 1:"+isPreviousPending);
+//									//System.out.println("Session Test UI SUSPECT 1223:"+isPreviousPending);
 									checkboxDisable = true;
 								}
+								
 								isPreviousPending = true;
+//								//System.out.println("Entred TRUE PLACE " + isPreviousPending);
 								if (endLeaf.getKey().getStageId().equals(stageId)) {
 									breakForLoop = true;
 								}
@@ -1421,17 +1531,17 @@ public class SessionTestingController {
 						}
 
 						if (breakForLoop) {
-							break;
+							break outerLoop;
 						}
 					}
 				}
 			} else {
 				for (Entry<StageIdName, String> endLeaf1 : SessionTestStateObject.getEndLeafMap().entrySet()) {
 					if (endLeaf1.getKey().getStageId().equals(stageId)) {
-//						System.out.println("Session Test UI SUSPECT Stage Id ::"+stageId   +"       value From Session Status"+endLeaf1.getValue().toLowerCase().trim());
+//						//System.out.println("Session Test UI SUSPECT Stage Id ::"+stageId   +"       value From Session Status"+endLeaf1.getValue().toLowerCase().trim());
 						
 						if (endLeaf1.getValue().toLowerCase().trim().equals("completed")) {
-//							System.out.println("Session Test UI SUSPECT 2");
+//							////System.out.println("Session Test UI SUSPECT 2");
 							checkboxDisable = true;
 						}
 					}
@@ -1455,7 +1565,7 @@ public class SessionTestingController {
 
 		testFileMap = FXCollections.observableMap(testFileResponse.getTestFilesIdName());
 		
-//		System.out.println("SUJI SESSION Disable check flag 3" + checkboxDisable);
+//		////System.out.println("SUJI SESSION Disable check flag 3" + checkboxDisable);
 
 		setTestListViewData(testFileMap, checkboxDisable, stageId);
 	}
@@ -1484,7 +1594,7 @@ public class SessionTestingController {
 	private void setTestListViewData(ObservableMap<String, String> testFileMap, boolean checkboxDisable,
 			String stageId) {
 		
-//		System.out.println("checkboxDisable ::::::::: "+checkboxDisable);
+//		////System.out.println("checkboxDisable ::::::::: "+checkboxDisable);
 
 		testListView.getItems().clear();
 		checkBoxes.clear();
@@ -1568,29 +1678,29 @@ public class SessionTestingController {
 //	Updated after New Logic of Mani's Disable&Enable:::
 //	private void disableCheckBox(String stageId) {
 ////		Debug.printDebug("stageId + "   " + SessionTestStateObject.getRunningTestLeafId()+"  "+selectedStageId);
-//		System.out.println("stageId" + "   " + SessionTestStateObject.getRunningTestLeafId() + " "+selectedStageId);
+//		////System.out.println("stageId" + "   " + SessionTestStateObject.getRunningTestLeafId() + " "+selectedStageId);
 //		if (selectedStageId.equals(stageId)) {
-//			System.out.println("Checked Boxes"+checkBoxes.size());
+//			////System.out.println("Checked Boxes"+checkBoxes.size());
 //			checkBoxes.forEach(e -> {
 //				
 //			
 //				String fileId = e.getId();
 //				ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-//				System.out.println("Checking completedFileId::" + completedFileId);
-//				System.out.println("StateMachine.getTestState() SUJI "+StateMachine.getTestState());
+//				////System.out.println("Checking completedFileId::" + completedFileId);
+//				////System.out.println("StateMachine.getTestState() SUJI "+StateMachine.getTestState());
 //			
 //					StateMachine.dissableEnableProperty().addListener((obs, wasSet, isNowSet) -> {
-//						System.out.println("isNowSet :::" + isNowSet);
+//						////System.out.println("isNowSet :::" + isNowSet);
 //						
 //						if (completedFileId.contains(fileId) && isNowSet) {
-//							System.out.println("StateMachine.getTestState() SUJI2:0 "+StateMachine.getTestState());
+//							////System.out.println("StateMachine.getTestState() SUJI2:0 "+StateMachine.getTestState());
 //							if (StateMachine.getTestState()!=TestState.STOPPED) {
-//								System.out.println("StateMachine.getTestState() SUJI2:1 "+StateMachine.getTestState());
-//							System.out.println("Entred Is noew Condition....." + fileId);
+//								////System.out.println("StateMachine.getTestState() SUJI2:1 "+StateMachine.getTestState());
+//							////System.out.println("Entred Is noew Condition....." + fileId);
 //							Platform.runLater(() -> {
 //								e.setSelected(false);
 //								e.setDisable(true);
-//								System.out.println("Changed from " + wasSet + " to " + isNowSet);
+//								////System.out.println("Changed from " + wasSet + " to " + isNowSet);
 //							});
 //							}
 //							
@@ -1600,19 +1710,19 @@ public class SessionTestingController {
 //					StateMachine.setDissableEnable(false);
 //				});
 //
-//				//System.out.println("DFCC CONstatn" + DFCCConstant.colourFlag);
+//				//////System.out.println("DFCC CONstatn" + DFCCConstant.colourFlag);
 //
 //				StateMachine.updateColorProperty().addListener((obs, oldValue, newValue) -> {
-//					//System.out.println("Update color value check :: oldValue" +oldValue );
-//					//System.out.println("Update color value check :: newValue" +newValue );
+//					//////System.out.println("Update color value check :: oldValue" +oldValue );
+//					//////System.out.println("Update color value check :: newValue" +newValue );
 //					if (newValue) {
 //						getStatusForAllStage();
 //					}else {
-//						//System.out.println("Entred else in diable check");
+//						//////System.out.println("Entred else in diable check");
 //						getStatusForAllStage();
 //					}
 //
-//					System.out.println("updateColor changed from " + oldValue + " to " + newValue);
+//					////System.out.println("updateColor changed from " + oldValue + " to " + newValue);
 //				});
 //				StateMachine.setUpdateColor(false);
 //
@@ -1621,33 +1731,33 @@ public class SessionTestingController {
 	
 //	new::::
 	private void disableCheckBox(String stageId) {
-//	    System.out.println("stageId: " + stageId + " | RunningTestLeafId: " + SessionTestStateObject.getRunningTestLeafId() + " | selectedStageId: " + selectedStageId);
+//	    ////System.out.println("stageId: " + stageId + " | RunningTestLeafId: " + SessionTestStateObject.getRunningTestLeafId() + " | selectedStageId: " + selectedStageId);
 
 	    if (!selectedStageId.equals(stageId)) {
 	        return; // Skip if stage doesn't match current selection
 	    }
 
-//	    System.out.println("Checked Boxes: " + checkBoxes.size());
+//	    ////System.out.println("Checked Boxes: " + checkBoxes.size());
 
 	    for (CheckBox e : checkBoxes) {
 	        String fileId = e.getId();
 	        ObservableSet<String> completedFileId = SessionTestStateObject.getStageIdWithFileIds().get(stageId);
-//	        System.out.println("Checking completedFileId: " + completedFileId);
-//	        System.out.println("StateMachine.getTestState(): " + StateMachine.getTestState());
+//	        ////System.out.println("Checking completedFileId: " + completedFileId);
+//	        ////System.out.println("StateMachine.getTestState(): " + StateMachine.getTestState());
 
 	        // Add disable listener only once
 	        if (e.getProperties().get("disableListenerAdded") == null) {
 	            StateMachine.dissableEnableProperty().addListener((obs, wasSet, isNowSet) -> {
-//	                System.out.println("Disable listener triggered | isNowSet: " + isNowSet);
+//	                ////System.out.println("Disable listener triggered | isNowSet: " + isNowSet);
 
 	                if (completedFileId != null && completedFileId.contains(fileId) && isNowSet) {
-//	                    System.out.println("Inside condition for fileId: " + fileId);
-//	                    System.out.println("Checking completedFileId: " + completedFileId);
+//	                    ////System.out.println("Inside condition for fileId: " + fileId);
+//	                    ////System.out.println("Checking completedFileId: " + completedFileId);
 	                    if (StateMachine.getTestState() != TestState.STOPPED) {
 	                        Platform.runLater(() -> {
 	                            e.setSelected(false);
 	                            e.setDisable(true);
-//	                            System.out.println("Checkbox " + fileId + " disabled.");
+//	                            ////System.out.println("Checkbox " + fileId + " disabled.");
 	                        });
 	                    }
 	                }
@@ -1660,7 +1770,7 @@ public class SessionTestingController {
 	        if (e.getProperties().get("colorListenerAdded") == null) {
 	            StateMachine.updateColorProperty().addListener((obs, oldValue, newValue) -> {
 	            	Platform.runLater(() -> {
-//	            		 System.out.println("updateColor changed from " + oldValue + " to " + newValue);
+//	            		 ////System.out.println("updateColor changed from " + oldValue + " to " + newValue);
 	 	                getStatusForAllStage();
 					});
 	                // Called regardless of true/false
@@ -1678,7 +1788,7 @@ public class SessionTestingController {
 
 
 	private void setStateMachineCurrentL1StageId() {
-//		System.out.println("Entred to Enable the stages");
+//		////System.out.println("Entred to Enable the stages");
 		boolean founded = false;
 		for (Entry<String, ObservableList<String>> l1Stage : SessionTestStateObject.getL1StagesWithEndLeadId()
 				.entrySet()) {
@@ -1790,8 +1900,8 @@ public class SessionTestingController {
 //							@Override
 //							protected void updateItem(String filePath, boolean empty) {
 //								super.updateItem(filePath, empty);
-//								System.out.println("filePath"+filePath);
-//								System.out.println();
+//								////System.out.println("filePath"+filePath);
+//								////System.out.println();
 //								if (empty || filePath == null) {
 //									setText(null);
 //								} else {

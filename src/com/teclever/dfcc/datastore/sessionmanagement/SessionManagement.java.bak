@@ -459,8 +459,8 @@ public class SessionManagement {
 				
 				
 				
-				System.out.println("Get Stage Suji Suspect Level Id:::"+levelTwoStage.get(sessionStage.getLevelTwoStageId()));
-				System.out.println("Get Stage Suji Suspect Status :::"+sessionStage.getStatus());
+				////System.out.println("Get Stage Suji Suspect Level Id:::"+levelTwoStage.get(sessionStage.getLevelTwoStageId()));
+				////System.out.println("Get Stage Suji Suspect Status :::"+sessionStage.getStatus());
 				
 
 				stageObject.setL3StageId(sessionStage.getLevelThreeStageId());
@@ -2830,7 +2830,7 @@ public class SessionManagement {
 //				
 //				if(sessionStage.getLevelStageOneId().equals("L1_011"))
 //				{
-//					System.out.println("Stage Id");
+//					////System.out.println("Stage Id");
 //				}
 //
 //				// Add L2 IDs
@@ -3112,7 +3112,7 @@ public class SessionManagement {
 //			}// L1 End 
 //			
 //			
-//		System.out.println("SIZE"+listOfStageObject.size());
+//		////System.out.println("SIZE"+listOfStageObject.size());
 //			sessionStageMapResponse.setListOfStageObject(listOfStageObject);
 //			res.setResponseCode(1);
 //			res.setResponseMessage("Fetch Data Successfull ");
@@ -3293,7 +3293,7 @@ public class SessionManagement {
 												} 
 												stageObjectL5 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 														levelFourId, levelFiveId, leafStageResult.get(levelFiveId));
-												System.out.println("Level Five Id   :"+levelFiveId+"             Level Name"+ stageIdName.get(levelFiveId)+"          Result  ::"+leafStageResult.get(levelFiveId));
+												////System.out.println("Level Five Id   :"+levelFiveId+"             Level Name"+ stageIdName.get(levelFiveId)+"          Result  ::"+leafStageResult.get(levelFiveId));
 												listOfStageObject.add(stageObjectL5);
 											} // L5 End
 
@@ -3312,7 +3312,7 @@ public class SessionManagement {
 											leafStageResult.put(levelFourId, l4Status);
 											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 													levelFourId, null, l4Status);
-											System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+l4Status);
+											////System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+l4Status);
 											
 											pending4 = false;
 											completed4 = false;
@@ -3320,7 +3320,7 @@ public class SessionManagement {
 										} else {
 											stageObjectL4 = stageObjCreation(levelOneId, levelTwo, levelThreeId,
 													levelFourId, null, leafStageResult.get(levelFourId));
-											System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+leafStageResult.get(levelFourId));
+											////System.out.println("Level Four Id   :"+levelFourId+"             Level Name"+ stageIdName.get(levelFourId)+"          Result  ::"+leafStageResult.get(levelFourId));
 										}
 										listOfStageObject.add(stageObjectL4);
 										if (leafStageResult.get(levelFourId).equals(PENDING)) {
@@ -3350,11 +3350,11 @@ public class SessionManagement {
 									} else if (completed3) {
 										l3Status = COMPLETED;
 									}
-									//System.out.println("Level Three Id :"+levelThreeId  +"Result" +l3Status);			
+									//////System.out.println("Level Three Id :"+levelThreeId  +"Result" +l3Status);			
 									leafStageResult.put(levelThreeId, l3Status);
 									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
 											leafStageResult.get(levelThreeId));
-									System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
+									////System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
 									pending3 = false;
 									completed3 = false;
 									completedfailure3 = false;
@@ -3362,7 +3362,7 @@ public class SessionManagement {
 									stageObjectL3 = stageObjCreation(levelOneId, levelTwo, levelThreeId, null, null,
 											leafStageResult.get(levelThreeId));
 									
-									System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
+									////System.out.println("Level Three Id   :"+levelThreeId+"             Level Name"+ stageIdName.get(levelThreeId)+"          Result  ::"+leafStageResult.get(levelThreeId));
 								}
 								listOfStageObject.add(stageObjectL3);
 
@@ -3392,19 +3392,19 @@ public class SessionManagement {
 								l2Status = COMPLETED;
 							}
 							
-							//System.out.println("Level Two Id :"+levelTwo  +"Result" +l2Status);	
+							//////System.out.println("Level Two Id :"+levelTwo  +"Result" +l2Status);	
 							leafStageResult.put(levelTwo, l2Status);
 							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
 									leafStageResult.get(levelTwo));
 							
-							System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
+							////System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
 							pending2 = false;
 							completed2 = false;
 							completedfailure2 = false;
 						} else {
 							stageObjectL2 = stageObjCreation(levelOneId, levelTwo, null, null, null,
 									leafStageResult.get(levelTwo));
-							System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
+							////System.out.println("Level Two Id   :"+levelTwo+"             Level Name"+ stageIdName.get(levelTwo)+"          Result  ::"+leafStageResult.get(levelTwo));
 						}
 						listOfStageObject.add(stageObjectL2);
 						
@@ -3441,13 +3441,13 @@ public class SessionManagement {
 					
 					leafStageResult.put(levelOneId, l1Status);
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-					System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
+					////System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
 					pending1 = false;
 					completed1 = false;
 					completedfailure1 = false;
 				} else {
 					stageObject = stageObjCreation(levelOneId, null, null, null, null, leafStageResult.get(levelOneId));
-					System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
+					////System.out.println("Level One Id   :"+levelOneId+"             Level Name"+ stageIdName.get(levelOneId)+"          Result  ::"+leafStageResult.get(levelOneId));
 				}
 				listOfStageObject.add(stageObject);
 			}// L1 End 

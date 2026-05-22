@@ -3,7 +3,6 @@ package com.teclever.dfcc.Controller.ui;
 import java.io.IOException;
 import java.util.List;
 
-import com.teclever.datastore.dto.Response;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.datastore.dto.SessionStageMapResponse;
 import com.teclever.dfcc.datastore.dto.StageObject;
@@ -15,7 +14,6 @@ import com.teclever.dfcc.stateMachine.LRUTestStateObject;
 import com.teclever.dfcc.stateMachine.SelfTestStateObject;
 import com.teclever.dfcc.stateMachine.SessionTestStateObject;
 import com.teclever.dfcc.stateMachine.StateMachine;
-import com.teclever.dfcc.stateMachine.StateMachine.TestState;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.Debug;
 import com.teclever.dfcc.utils.Notifications;
@@ -23,18 +21,12 @@ import com.teclever.dfcc.utils.Notifications;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
@@ -52,6 +44,7 @@ public class UserCenterContentController {
 	
 	private StackPane centerStackPane = new StackPane();
 	private StackPane dashboardStackPane = new StackPane();
+	private StackPane othersTabsStackPane = new StackPane();
 	private StackPane testingStackPane = new StackPane();
 	private StackPane resultsStackPane = new StackPane();
 	private StackPane selfTestStackPane = new StackPane();
@@ -66,6 +59,7 @@ public class UserCenterContentController {
 	private StackPane pqtReportStackPane = new StackPane();
 	private StackPane essReportStackPane = new StackPane();
 	private StackPane datapackReportStackPane = new StackPane();
+	private StackPane historyReportStackPane = new StackPane();
 	private StackPane configurationStackPane = new StackPane();
 	private StackPane logBookStackPane = new StackPane();
 	private StackPane reportsUploadStackPane = new StackPane();
@@ -129,18 +123,52 @@ public class UserCenterContentController {
 			}
 		}
 
-//System.out.println("Selected menu " +selectedMenu );
+//////System.out.println("Selected menu " +selectedMenu );
 		switch (selectedMenu) {
 		case "Dashboard":
-			if (!centerStackPane.getChildren().contains(dashboardStackPane)) {
-				DashboardControllerCenter dashboardControllerCenter = new DashboardControllerCenter();
-				dashboardStackPane.getChildren().add(dashboardControllerCenter.createDashboardCenterMainContainerGridPane());
-				centerStackPane.getChildren().add(dashboardStackPane);
-			} else {
-				dashboardStackPane.toFront();
-			}
 			
-			break;
+			if(!DFCCConstant.roleId.equals("RL_ID_4")) {
+		    DashboardController dashboardController = new DashboardController();
+		    
+		    // Clear previous content
+		    dashboardStackPane.getChildren().clear();
+		    
+		    // Add dashboard page
+		    dashboardStackPane.getChildren().add(dashboardController.createDashboardMainContainerGridPane());
+		    
+		    if (!centerStackPane.getChildren().contains(dashboardStackPane)) {
+		        centerStackPane.getChildren().add(dashboardStackPane);
+		    }
+			}else {
+				SQDashboardController sQDashboardController = new SQDashboardController();
+				 dashboardStackPane.getChildren().clear();
+				 dashboardStackPane.getChildren().add(sQDashboardController.createDashboardMainContainerGridPane());
+				    
+				    if (!centerStackPane.getChildren().contains(dashboardStackPane)) {
+				        centerStackPane.getChildren().add(dashboardStackPane);
+				    }
+				
+			}
+		    // Bring dashboard to front
+		    dashboardStackPane.toFront();
+		    break;
+		case "LRU Config":
+			 DashboardControllerCenter dashboardControllerCenter = new DashboardControllerCenter();
+		    
+		    // Clear previous content
+			 othersTabsStackPane.getChildren().clear();
+		    
+		    // Add dashboard page
+			 othersTabsStackPane.getChildren().add(dashboardControllerCenter.createDashboardCenterMainContainerGridPane());
+		    
+		    if (!centerStackPane.getChildren().contains(othersTabsStackPane)) {
+		        centerStackPane.getChildren().add(othersTabsStackPane);
+		    }
+		    
+		    // Bring dashboard to front
+		    othersTabsStackPane.toFront();
+		    break;
+
 		case "Testing":
 			testingStackPane.toFront();
 			break;
@@ -331,6 +359,17 @@ public class UserCenterContentController {
 			}
 			
 			break;
+			
+		case "History Report" :			
+			if (!centerStackPane.getChildren().contains(historyReportStackPane)) {
+				ReportController reportControllerForDatapack = new ReportController();
+				historyReportStackPane.getChildren().add(reportControllerForDatapack.createReportGridPane("HISTORY REPORT"));
+				centerStackPane.getChildren().add(historyReportStackPane);
+			} else {
+				historyReportStackPane.toFront();
+			}
+			
+			break;
 
 		case "Upload" :	
 			if (!centerStackPane.getChildren().contains(reportsUploadStackPane)) {
@@ -378,7 +417,7 @@ public class UserCenterContentController {
 		
 		
 		
-	case "Check Sum":
+	case "Check Sum Info":
 		CheckSumController checkSumController = new CheckSumController();
 		checkSumController.createCheckSumDataPopup();
 	   
@@ -480,7 +519,7 @@ public class UserCenterContentController {
 //					Platform.exit();
 //		        	System.exit(0);
 //				} else {
-//					System.out.println("userInput: " + userInput);
+//					////System.out.println("userInput: " + userInput);
 //					onConfirm.run();
 //				}
 //			});
@@ -519,6 +558,7 @@ public class UserCenterContentController {
 	private void getAllStagesData() {
 		SessionStageMapResponse data = sessionManagement
 				.getAllSessionStageMapping(currentSessionDetails.getSessionId());
+		//System.out.println("Trails Session Id ::" + currentSessionDetails.getSessionId());
 		DFCCConstant.stageIdStatus = sessionManagement.getStageIdStatus(currentSessionDetails.getSessionId());
 		if (data.getResponse().getResponseCode() == 1) {
 			StateMachine.setStageDatalist(data.getListOfStageObject());
@@ -558,8 +598,11 @@ public class UserCenterContentController {
 					String l2Status = "";
 					if (DFCCConstant.stageIdStatus.get(l2StageId).contains("completed")) {
 						l2Status = "COMPLETED";
+						//System.out.println("TRAILS  L2 Stage Enabled CheckID "+l2StageId+l2Status);
 					} else {
+						
 						l2Status = "pending";
+						//System.out.println("TRAILS  L2 Stage Enabled CheckID "+l2StageId+l2Status);
 					}
 					//Ended Here ....
 					SessionTestStateObject.getEndLeafMap().put(l2StageObject, l2Status);
@@ -580,9 +623,11 @@ public class UserCenterContentController {
 					//Mani Added 29-08-25
 					String l3Status = "";
 					if (DFCCConstant.stageIdStatus.get(l3StageId).contains("completed")) {
+						//System.out.println("TRAILS  L3 Stage Enabled CheckID "+l3StageId+l3Status);
 						l3Status = "COMPLETED";
 					} else {
 						l3Status = "pending";
+						//System.out.println("TRAILS  L3 Stage Enabled CheckID "+l3StageId+l3Status);
 					}
 					SessionTestStateObject.getEndLeafMap().put(l3StageObject, l3Status);
 					//Ended Here
@@ -607,8 +652,10 @@ public class UserCenterContentController {
 					String l4Status = "";
 					if (DFCCConstant.stageIdStatus.get(l4StageId).contains("completed")) {
 						l4Status = "COMPLETED";
+						//System.out.println("TRAILS  L4 Stage Enabled CheckID "+l4StageId+l4Status);
 					} else {
 						l4Status = "pending";
+						//System.out.println("TRAILS  L4 Stage Enabled CheckID "+l4StageId+l4Status);
 					}
 					SessionTestStateObject.getEndLeafMap().put(l4StageObject, l4Status);
 					//Ended Here
@@ -632,8 +679,10 @@ public class UserCenterContentController {
 					String l5Status = "";
 					if (DFCCConstant.stageIdStatus.get(l5StageId).contains("completed")) {
 						l5Status = "COMPLETED";
+						//System.out.println("TRAILS Stage L5 Enabled Check"+l5Status);
 					} else {
 						l5Status = "pending";
+						//System.out.println("TRAILS Stage L5 Enabled Check"+l5Status);
 					}
 					SessionTestStateObject.getEndLeafMap().put(l5StageObject, l5Status);
 					//Ended Here

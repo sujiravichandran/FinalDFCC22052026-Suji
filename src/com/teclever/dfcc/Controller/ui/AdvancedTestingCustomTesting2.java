@@ -17,6 +17,7 @@ import com.teclever.dfcc.stateMachine.StateMachine;
 import com.teclever.dfcc.stateMachine.StateMachine.RunningTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.StatusBarTestName;
 import com.teclever.dfcc.stateMachine.StateMachine.TestState;
+import com.teclever.dfcc.stateMachine.StateMachine.TestStateNew;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CheckAitessStatus;
 import com.teclever.dfcc.utils.Debug;
@@ -123,7 +124,13 @@ public class AdvancedTestingCustomTesting2 {
 		endAddressTextField.setDisable(true);
 		ipDataTextField.setDisable(true);
 		memoryTestRunButton.setDisable(true);
-
+		if(!currentSessionDetails.getUutId().equals("UUT1")) {
+			downloadCodeHBox.setDisable(true);
+			selectedDownloadCodeHBox.setDisable(true);
+			checkSumFileHBox.setDisable(true);
+			selectedCheckSumFileHBox.setDisable(true);
+		}
+		
 		UUT_ID = StateMachine.currentSessionDetails.getUutId();
 		enableOrDisable(true);
 		ColumnConstraints firstColumn = new ColumnConstraints();
@@ -330,11 +337,14 @@ public class AdvancedTestingCustomTesting2 {
 		buttonHBox.getChildren().addAll(startButton, pauseButton, stopButton);
 
 		startButton.setOnAction(e -> {
+			DFCCConstant.completeFlag=false;
+			DFCCConstant.runnedCompleteTest = false;
 			if (!startButton.getText().equalsIgnoreCase("Resume")) {
 //			if(!StateMachine.isConfirmTestStop()) {
 //				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 //				return;
 //			}else {
+				DFCCConstant.runnedTestFileCount=0;
 			StateMachine.setConfirmTestStop(false);
 //			}
 			if (!checkAitessStatus.isBothAitessOn()) {
@@ -347,9 +357,12 @@ public class AdvancedTestingCustomTesting2 {
 
 			if (StateMachine.isConfirmTestFileCompleted()) {
 				Notifications
-						.showWarningAlert("Please Wait until" + StateMachine.getRunningTestName() + " test Completes");
+						.showWarningAlert("Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
 				return;
 			}
+			
+			
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -376,6 +389,12 @@ public class AdvancedTestingCustomTesting2 {
 			}
 			
 			if (startButton.getText().equalsIgnoreCase("Resume")) {
+				if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+					Notifications.showErrorAlert("Test execution is pausing. Please try to resume the test once it is paused.");
+					return;
+				}
+				
+				DFCCConstant.testPauseStopping= false;
 				StateMachine.setTestState(TestState.RUNNING);
 
 				startButton.setText("Start");
@@ -388,16 +407,70 @@ public class AdvancedTestingCustomTesting2 {
 				return;
 			}
 			
+			if( DFCCConstant.dashBoardLoading ) {
+				Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+				return;
+			}
 			if(StateMachine.isMacroPassing()) {
 				return;
 			}
 			testRunOnly=true;
+			
+			TestState currentState = StateMachine.getTestState();
+			if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+					|| currentState == TestState.STOPPED) {
+				StateMachine.setTestState(TestState.RUNNING);
+				StateMachine.setRunningTestName(RunningTestName.ADVANCED_TEST);
+				// Excel Name:7-July-Observation
+                // Point No:18
+				// Change Made on Status Bar Test Name
+				StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM2_TEST);
+				startButton.setDisable(true);
+				// Excel Name:7-July-Observation
+                // Point No:18
+				// Change Made on Status Bar Test Name
+				// Exit
+                //Point No:18
+				stopButton.setDisable(false);
+				pauseButton.setDisable(false);
+			} else if (currentState == TestState.RUNNING) {
+				Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			} else if (currentState == TestState.PAUSED) {
+				Notifications.showWarningAlert(
+						StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+				startButton.setDisable(false);
+				stopButton.setDisable(true);
+				pauseButton.setDisable(true);
+				return;
+			}
+			
 			handleRunTestFile(true);
 		});
 
 		
 		
 		pauseButton.setOnAction(e -> {
+			
+//			Suji Added For Last test file popup::12022026
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be pause/stopped now!!");
+				return;
+			} 
+//END:: 
+			
 			StateMachine.setConfirmTestStop(true);
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
@@ -412,6 +485,30 @@ public class AdvancedTestingCustomTesting2 {
 		});
 
 		stopButton.setOnAction(e -> {
+//			Suji Added For Last test file popup::12022026
+			
+			if(StateMachine.getTestState()==(TestState.PAUSED)&& !DFCCConstant.testPauseStopping) {
+				Notifications.showErrorAlert("Test execution is pausing. Please try to stop the test once it is paused.");
+				return;
+			}
+			
+			DFCCConstant.testPauseStopping= false;
+			int totalTestFiles = DFCCConstant.totalTestFileCount;
+
+			// Each time you want to check remaining tests
+			
+			////System.out.println("SUji Check Runned File Count::" + DFCCConstant.runnedTestFileCount);
+			////System.out.println("SUji Check Total File Count::" + totalTestFiles);
+			
+			int remaining = totalTestFiles - DFCCConstant.runnedTestFileCount; // always up-to-date
+
+			if (remaining == 1 ||remaining == 0) {
+			    ////System.out.println("Tests remaining: " + remaining);
+				Notifications.showWarningAlert("Last Test File of QUE is under execution.\n Test cannot be stopped now!!");
+				
+				return;
+			} 
+//END::
 			if(!StateMachine.isConfirmTestStop()) {
 				Notifications.showErrorAlert("Please Wait Aitess is Switching");
 				return;
@@ -422,6 +519,9 @@ public class AdvancedTestingCustomTesting2 {
 			if (!checkAitessStatus.isBothAitessOn()) {
 				return;
 			}
+			
+
+			
 			ApplicationLogbookManagement appLogbookManagement = new ApplicationLogbookManagement();
 			ApplicationLogBookDto applicationLogBookDto = new ApplicationLogBookDto(currentSessionDetails.getUutId(),
 					currentSessionDetails.getDfccSerialNumber(), currentSessionDetails.getSessionId(),
@@ -553,7 +653,7 @@ public class AdvancedTestingCustomTesting2 {
 		}
 
 		memoryTestLabel.getStyleClass().add("title-label");
-
+		memoryTestGridPane.setDisable(true);
 		memoryTestGridPane.add(memoryTestLabel, 0, 0, 2, 1);
 
 		memoryTypeLabel.getStyleClass().add("form-label");
@@ -612,10 +712,10 @@ public class AdvancedTestingCustomTesting2 {
 				startButton.setDisable(false);
 				selectedTestFilePath = filePath;
 			} else if (type.equalsIgnoreCase("downloadCode")) {
-				selectedDownloadCodeName.setText(fileName);
+				selectedDownloadCodeName.setText(filePath);
 				selectedDownloadCodeFilePath = filePath;
 			} else if (type.equalsIgnoreCase("checksumFile")) {
-				selectedCheckSumFileName.setText(fileName);
+				selectedCheckSumFileName.setText(filePath);
 				selectedCheckSumFilePath = filePath;
 			}
 		}
@@ -629,15 +729,31 @@ public class AdvancedTestingCustomTesting2 {
 		selectTestFileRunButton.setDisable(status);
 
 		downloadCodeRunButton.setDisable(status);
-//		memoryTypeComboBox.setDisable(status);
-//		rwTypeComboBox.setDisable(status);
-//		startAddressTextField.setDisable(status);
-//		endAddressTextField.setDisable(status);
-//		ipDataTextField.setDisable(status);
-//		memoryTestRunButton.setDisable(status);
+		memoryTypeComboBox.setDisable(status);
+		rwTypeComboBox.setDisable(status);
+		startAddressTextField.setDisable(status);
+		endAddressTextField.setDisable(status);
+		ipDataTextField.setDisable(status);
+		memoryTestRunButton.setDisable(status);
+		
+		
+		
+		memoryTestLabel.setDisable(status);
+		memoryTypeLabel.setDisable(status);
+		rwTypeLabel.setDisable(status);
+		startAddressLabel.setDisable(status);
+		endAddressLabel.setDisable(status);
+		ipDataLabel.setDisable(status);
 	}
 
 	private void handleRunTestFile(boolean isTestFile) {
+		
+		if (StateMachine.isConfirmTestFileCompleted()) {
+			Notifications.showWarningAlert(
+					"Please Wait until " + StateMachine.getRunningTestName() + " test Completes");
+			return;
+		}
+		
 		if (isTestFile) {
 			if (selectedTestFilePath != null) {
 				String stageId = AdvancedTestStateObject.getCustomTest2UserDefinedTestId();
@@ -676,31 +792,79 @@ public class AdvancedTestingCustomTesting2 {
 		}
 	}
 
+//	private boolean checkAndSetTestState() {
+//		if (!checkAitessStatus.isBothAitessOn()) {
+//			return false;
+//		}
+//
+//		
+//		if (StateMachine.isMacroPassing()) {
+//			return false;
+//		}
+//		TestState currentState = StateMachine.getTestState();
+//
+//		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
+//				|| currentState == TestState.STOPPED) {
+//			StateMachine.setTestState(TestState.RUNNING);
+//			StateMachine.setRunningTestName(RunningTestName.OTHER);
+//			// Excel Name:7-July-Observation
+//			// Point No:18
+//			// Change Made on Status Bar Test Name
+//			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM2_TEST);
+//			// Exit
+//			// Point No:18
+//		} else if (currentState == TestState.RUNNING) {
+//			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//			startButton.setDisable(false);
+//			stopButton.setDisable(true);
+//			pauseButton.setDisable(true);
+//			return false;
+//		} else if (currentState == TestState.PAUSED) {
+//			Notifications
+//					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+//			return false;
+//		}
+//
+//		return true;
+//	}
+	
 	private boolean checkAndSetTestState() {
 		if (!checkAitessStatus.isBothAitessOn()) {
 			return false;
 		}
+		if( DFCCConstant.dashBoardLoading ) {
+			Notifications.showWarningAlert("Please wait dashboard failure history is loading." );
+			return false;
+		}
 
+		if (StateMachine.isMacroPassing()) {
+			return false;
+		}
+		
+		StateMachine.setTestState(TestState.RUNNING);
 		TestState currentState = StateMachine.getTestState();
+		////System.out.println("SUJI CHeck Custom test State ::" +currentState );
 
 		if (currentState == TestState.PENDING || currentState == TestState.COMPLETED
 				|| currentState == TestState.STOPPED) {
-			StateMachine.setTestState(TestState.RUNNING);
-			StateMachine.setRunningTestName(RunningTestName.OTHER);
+
+			StateMachine.setTestState(TestState.STOPPED);
+
 			// Excel Name:7-July-Observation
 			// Point No:18
 			// Change Made on Status Bar Test Name
 			StateMachine.setStatusBarRunningTestName(StatusBarTestName.ADVANCED_TEST_CUSTOM2_TEST);
 			// Exit
 			// Point No:18
-		} else if (currentState == TestState.RUNNING) {
-			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
-			return false;
-		} else if (currentState == TestState.PAUSED) {
-			Notifications
-					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
-			return false;
-		}
+//		} else if (currentState == TestState.RUNNING) {
+//			Notifications.showWarningAlert(StateMachine.getRunningTestName() + " Test is Already Running...");
+//			return false;
+		} 
+//		else if (currentState == TestState.PAUSED) {
+//			Notifications
+//					.showWarningAlert(StateMachine.getRunningTestName() + " Test is Paused. Please Resume or Stop...");
+//			return false;
+//		}
 
 		return true;
 	}

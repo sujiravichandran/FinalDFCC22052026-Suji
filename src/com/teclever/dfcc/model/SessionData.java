@@ -5,8 +5,8 @@ public class SessionData {
 	private String id;
 	private String slNo;
 //	Changed by Vignesh 31-07-25 for moving testMode location	
-	private String testMode;
 	private String stage;
+	private String testMode;
 	private String status;
 	private String result;
 	private String noOfFilesExecuted;

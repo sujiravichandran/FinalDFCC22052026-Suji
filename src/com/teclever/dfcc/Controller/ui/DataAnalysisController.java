@@ -219,12 +219,13 @@ public class DataAnalysisController {
 		});
 
 			addTreeItemWithChildren(rootItem, "Data Analysis",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
-			addTreeItemWithChildren(rootItem, "Unit Failure",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "Deviation Result",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
 			addTreeItemWithChildren(rootItem, "Build Configuration",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
-			addTreeItemWithChildren(rootItem, "Advanced Results",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
-			addTreeItemWithChildren(rootItem, "Link Files",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "Advanced Failure",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+			addTreeItemWithChildren(rootItem, "Link Fail Types",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
 			addTreeItemWithChildren(rootItem, "Manual Testing",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
-
+			addTreeItemWithChildren(rootItem, "Cumulative",DFCCConstant.JARSTRING + "/Resources/Images/menuImages/results.png", null);
+			
 		menuTreeView.setPadding(new Insets(5, 10, 5, 10));
 
 		return menuTreeView;

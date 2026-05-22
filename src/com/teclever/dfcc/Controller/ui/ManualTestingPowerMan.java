@@ -3,10 +3,12 @@ package com.teclever.dfcc.Controller.ui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,8 +27,11 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.entities.PowerManDataAnalysis;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
 import com.teclever.dfcc.advanceddataanalysis.AdvancedDataAnalysisManagement;
 import com.teclever.dfcc.advanceddataanalysis.UnitGetDetailsManagement;
@@ -34,6 +39,7 @@ import com.teclever.dfcc.advanceddataanalysis.UnitSessionDetailsDTO;
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
 import com.teclever.dfcc.model.PowerManMk1;
+import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
@@ -127,18 +133,19 @@ public class ManualTestingPowerMan {
 	private ObservableList<PowerManMk1> powerManMk1Table1DataList = FXCollections.observableArrayList();
 	private CustomTableView<PowerManMk1> powerManMk1Table1DataTableView;
 	private TableViewFactory<PowerManMk1> powerManMk1Table1DataFactory = new ManualTesting1PowerManDataTableViewFactory();
-	
-	private ObservableList<PowerManMk1> powerManMk12Table1DataList = FXCollections.observableArrayList();
-	private CustomTableView<PowerManMk1> powerManMk12Table1DataTableView;
-	private TableViewFactory<PowerManMk1> powerManMk12Table1DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+
+	private ObservableList<PowerManMk1> powerManMk12Table12DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk12Table12DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk12Table12DataFactory = new ManualTesting1PowerManDataTableViewFactory();
 
 	private ObservableList<PowerManMk1> powerManMk1Table2DataList = FXCollections.observableArrayList();
 	private CustomTableView<PowerManMk1> powerManMk1Table2DataTableView;
 	private TableViewFactory<PowerManMk1> powerManMk1Table2DataFactory = new ManualTesting1PowerManDataTableViewFactory();
-	
-	private ObservableList<PowerManMk1> powerManMk1Table22DataList = FXCollections.observableArrayList();
-	private CustomTableView<PowerManMk1> powerManMk1Table22DataTableView;
-	private TableViewFactory<PowerManMk1> powerManMk1Table22DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+
+	private ObservableList<PowerManMk1> powerManMk12Table22DataList = FXCollections.observableArrayList();
+	private CustomTableView<PowerManMk1> powerManMk12Table22DataTableView;
+	private TableViewFactory<PowerManMk1> powerManMk12Table22DataFactory = new ManualTesting1PowerManDataTableViewFactory();
+
 	private String uutId = "UUT1";
 	private HBox noteHBox = new HBox();
 	private Label noteLabel = new Label();
@@ -187,24 +194,32 @@ public class ManualTestingPowerMan {
 	private String t2Ch2;
 	private String t2Ch3;
 	private String t2Ch4;
-	
+
+	private String selectedUutId;
+	private String selectedSno;
+
 	private AdvancedDataAnalysisManagement advancedDataAnalysisManagement = new AdvancedDataAnalysisManagement();
+	private List<TrailSessionDto> sessionListTrail = new ArrayList<TrailSessionDto>();
+
+	private TrailSessionEntityService t = new TrailSessionEntityService();
 
 	public ManualTestingPowerMan() {
 
+		// Normal sessions
 		SessionResponse s1 = s.getAllSession();
 		sessionList = s1.getListOfSession();
 
-		for (SessionDto session : sessionList) {
-			sessionNameId.put(session.getSessionName(), session.getSessionId());
-
-		}
+		// Trial sessions
+		TrailSessionResponse t1 = t.getActiveTrailSessionId();
+		sessionListTrail = t1.getListOfSession();
 
 		initializeUUTTypeComboBox();
 
 	}
 
 	public GridPane createlinkFilesMainContainerGridPane() {
+		saveButton.setDisable(true);
+		fetchButton.setDisable(true);
 		printButton.setDisable(true);
 		powerManMk1MainContainerGridPane.getChildren().clear();
 		powerManMk1MainContainerGridPane.getColumnConstraints().clear();
@@ -221,19 +236,19 @@ public class ManualTestingPowerMan {
 		firstRow.setPercentHeight(15);
 
 		RowConstraints secondRow = new RowConstraints();
-		secondRow.setPercentHeight(5);
+		secondRow.setPercentHeight(9);
 
 		RowConstraints thirdRow = new RowConstraints();
-		thirdRow.setPercentHeight(17);
+		thirdRow.setPercentHeight(28);
 
 		RowConstraints fourthRow = new RowConstraints();
-		fourthRow.setPercentHeight(17);
+		fourthRow.setPercentHeight(28);
 
 		RowConstraints fivthRow = new RowConstraints();
-		fivthRow.setPercentHeight(10);
+		fivthRow.setPercentHeight(8);
 
 		RowConstraints sixthRow = new RowConstraints();
-		sixthRow.setPercentHeight(10);
+		sixthRow.setPercentHeight(8);
 
 		RowConstraints seventhRow = new RowConstraints();
 		seventhRow.setPercentHeight(10);
@@ -428,10 +443,12 @@ public class ManualTestingPowerMan {
 		dfccSessionName.getStyleClass().add("nonheading-label");
 		sessionHbox.getChildren().addAll(sessioName);
 		sessioName.setPromptText("select Session");
+		sessioName.setEditable(true);
 		serialHbox.getChildren().addAll(serialnumber);
 		serialnumber.setPromptText("select Serial No");
+		serialnumber.setEditable(true);
 		stageName.setPromptText("select Stage Name");
-
+		stageName.setEditable(true);
 		HBox stageNameHbox = new HBox(10);
 		stageNameHbox.setAlignment(Pos.CENTER_RIGHT);
 		stageNameLabel.getStyleClass().add("nonheading-label");
@@ -461,30 +478,31 @@ public class ManualTestingPowerMan {
 		uutTypeField.setItems(uutTypeList);
 
 		uutTypeField.setOnAction((event) -> {
-			
+
 			printButton.setDisable(true);
 
 			String selectedUUTType = uutTypeField.getSelectionModel().getSelectedItem();
 			uutId = fetchUutId(selectedUUTType);
 			initalizeSerialNoComboBox(uutId);
 
+			selectedUutId = uutId;
 			if (uutId.equalsIgnoreCase("UUT1")) {
-				titleLabel.setText("LCA DFCC MK-1 POWER CHECK OBSERVATIONS");
-				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
-				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1)");
-				noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
-
-			} else if (uutId.equalsIgnoreCase("UUT2")) {
-				titleLabel.setText("LCA DFCC MK-1A POWER CHECK OBSERVATIONS");
-				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
-				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1A)");
-				noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
-			} else {
-				titleLabel.setText("LCA DFCC MK-2 POWER CHECK OBSERVATIONS");
-				chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
-				chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-2)");
-				noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
-			}
+                titleLabel.setText("LCA DFCC MK-1 POWER CHECK OBSERVATIONS");
+                chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+                chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1)");
+                noteLabel.setText("IMPORTANT: These Test Result are 'FOR RECORD PURPOSE ONLY.'");
+            } else if (uutId.equalsIgnoreCase("UUT2")) {
+                titleLabel.setText("LCA DFCC MK-1A POWER CHECK OBSERVATIONS");
+                chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+                chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-1A)");
+                noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
+            } else {
+                titleLabel.setText("LCA DFCC MK-2 POWER CHECK OBSERVATIONS");
+                chLabel.setText("SPIN MOTOR EXCITATION FREQUENCIES");
+                chLabel2.setText("(AS OBSERVED AT BREAK-OUT-BOX IN AETS MK-2)");
+                noteLabel.setText("TEST EQUIPMENT USED: Oscilloscope or Multimeter");
+            }
+			
 			createlinkFilesMainContainerGridPane();
 		});
 	}
@@ -497,41 +515,174 @@ public class ManualTestingPowerMan {
 		}
 		return null;
 	}
+	
+	private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
 
-	private void initalizeSerialNoComboBox(String uutId) {
-		dfccSNList.clear();
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
-				.collect(Collectors.toList());
+		comboBox.setEditable(true);
+		comboBox.setItems(originalItems);
 
-		Set<String> seenDfccSNos = new HashSet<>();
+		TextField editor = comboBox.getEditor();
 
-		for (SessionDto dfccSn : filterSessionList) {
-			String dfccSNo = dfccSn.getDfccSNo();
-			if (seenDfccSNos.add(dfccSNo)) {
-				dfccSNList.add(dfccSNo);
+		editor.setOnKeyReleased(event -> {
+
+			String text = editor.getText();
+
+			ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+			if (text == null || text.isEmpty()) {
+				filteredList.addAll(originalItems);
+			} else {
+				for (String item : originalItems) {
+					if (item.toLowerCase().contains(text.toLowerCase())) {
+						filteredList.add(item);
+					}
+				}
 			}
-		}
-		serialnumber.setItems(dfccSNList);
-		serialnumber.setOnAction((event) -> {
 
-			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
-			initializeSessionComboBox(selectedSerialNumber);
+			comboBox.setItems(filteredList);
+			comboBox.getEditor().positionCaret(text.length());
+			comboBox.show();
+		});
 
+// Prevent auto-selection
+		comboBox.setOnAction(e -> {
+			if (comboBox.getSelectionModel().getSelectedItem() != null) {
+				editor.setText(comboBox.getSelectionModel().getSelectedItem());
+			}
 		});
 	}
+
+//	private void initalizeSerialNoComboBox(String uutId) {
+//		dfccSNList.clear();
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutId))
+//				.collect(Collectors.toList());
+//
+//		Set<String> seenDfccSNos = new HashSet<>();
+//
+//		for (SessionDto dfccSn : filterSessionList) {
+//			String dfccSNo = dfccSn.getDfccSNo();
+//			if (seenDfccSNos.add(dfccSNo)) {
+//				dfccSNList.add(dfccSNo);
+//			}
+//		}
+//		serialnumber.setItems(dfccSNList);
+//		serialnumber.setOnAction((event) -> {
+//			selectedSno = serialnumber.getSelectionModel().getSelectedItem();
+//			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
+//			initializeSessionComboBox(selectedSerialNumber);
+//
+//		});
+//	}
+	
+	private void initalizeSerialNoComboBox(String uutTypeId) {
+
+	    dfccSNList.clear();
+	    Set<String> seenDfccSNos = new HashSet<>();
+
+	    if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
+
+	        List<SessionDto> filterSessionList = sessionList.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+
+	        for (SessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+
+	    } else {
+
+	        List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+	                .filter(t -> t.getUutId().equals(uutTypeId))
+	                .collect(Collectors.toList());
+	        for (TrailSessionDto dfccSn : filterSessionList) {
+	            String dfccSNo = dfccSn.getDfccSNo();
+	            if (seenDfccSNos.add(dfccSNo)) {
+	                dfccSNList.add(dfccSNo);
+	            }
+	        }
+	        ////System.out.println("Suji check Link Failty pe ::: " +dfccSNList.size() );
+	    }
+	    
+	    
+	    serialnumber.setItems(dfccSNList);
+	    addSearchFunctionality(serialnumber, dfccSNList);
+	    serialnumber.setOnAction((event) -> {
+
+			String selectedSerialNumber = serialnumber.getSelectionModel().getSelectedItem();
+			selectedSno = serialnumber.getSelectionModel().getSelectedItem();
+			 if (selectedSno != null && !currentSessionDetails.getSessionId().startsWith("TSSN")) {
+		            initializeSessionComboBox(selectedSno);
+		        }else {
+		        	initializeTrialSessionComboBox(selectedSno);
+		        }
+
+		});
+
+	    
+	}
+	
+	private void initializeTrialSessionComboBox(String selectedDfccNo) {
+
+	    sessionTypeList.clear();
+
+	    List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+	            .filter(t ->
+	                    Objects.equals(t.getUutId(), selectedUutId) &&
+	                    Objects.equals(t.getDfccSNo(), selectedSno) &&
+	                    t.getEndDate() == null
+	            )
+	            .sorted(Comparator
+	                    .comparing(TrailSessionDto::getUutId)
+	                    .thenComparing(TrailSessionDto::getDfccSNo))
+	            .collect(Collectors.toList());
+
+	    for (TrailSessionDto sessionName : filterSessionList) {
+	        sessionTypeList.add(sessionName.getSessionName());
+	    }
+	    sessioName.setItems(sessionTypeList);
+	    addSearchFunctionality(sessioName, sessionTypeList);
+	    
+	    sessioName.setOnAction(event -> {
+			String selectedSessionName = sessioName.getSelectionModel().getSelectedItem();
+			if (selectedSessionName != null) {
+				TrailSessionDto selectedSession = filterSessionList.stream()
+						.filter(s -> s.getSessionName().equals(selectedSessionName)).findFirst().orElse(null);
+
+				if (selectedSession != null) {
+					selectedSessionId = selectedSession.getSessionId();
+				}
+				getStageName(selectedSessionId);
+				
+			}
+		});
+
+	   
+	}
+	
 
 	private void initializeSessionComboBox(String selectedDfccNo) {
 		sessionTypeList.clear();
 
-		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
+//		List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getDfccSNo().equals(selectedDfccNo))
+//				.collect(Collectors.toList());
+
+		List<SessionDto> filterSessionList = sessionList.stream()
+				.filter(t -> Objects.equals(t.getUutId(), selectedUutId) && Objects.equals(t.getDfccSNo(), selectedSno)
+						&& t.getEndDate() == null)
+				.sorted(Comparator.comparing(SessionDto::getUutId).thenComparing(SessionDto::getDfccSNo))
 				.collect(Collectors.toList());
 
 		for (SessionDto sessionName : filterSessionList) {
+
 			sessionTypeList.add(sessionName.getSessionName());
 
 		}
 
 		sessioName.setItems(sessionTypeList);
+		 addSearchFunctionality(sessioName, sessionTypeList);
 		sessioName.setOnAction(event -> {
 			String selectedSessionName = sessioName.getSelectionModel().getSelectedItem();
 			if (selectedSessionName != null) {
@@ -548,23 +699,33 @@ public class ManualTestingPowerMan {
 	}
 
 	private void getStageName(String sessionId) {
+
 		stageList = unitGetDetailsManagement.getStageDetailsForSession(selectedSessionId);
-		System.out.println("stageList" + stageList);
-		for (UnitSessionDetailsDTO stageName : stageList) {
-			stageNameId.put(stageName.getStageId(), stageName.getStageName());
+
+		// IMPORTANT: clear old data to avoid accumulation
+		stageNameId.clear();
+		stageName.getItems().clear();
+
+		for (UnitSessionDetailsDTO dto : stageList) {
+			if (dto.getStageId() != null && dto.getStageName() != null) {
+				stageNameId.put(dto.getStageId(), dto.getStageName());
+			}
 		}
 
-		stageName.setItems(FXCollections.observableArrayList(stageNameId.values()));
+		// Filter out null values explicitly
+		List<String> filteredStageNames = stageNameId.values().stream().filter(Objects::nonNull).toList();
 
-		stageName.setOnAction((event) -> {
+		stageName.setItems(FXCollections.observableArrayList(filteredStageNames));
+		 addSearchFunctionality(stageName, FXCollections.observableArrayList(filteredStageNames));
+		stageName.setOnAction(event -> {
+
 			selectedStageName = stageName.getSelectionModel().getSelectedItem();
 
-			selectedStageId = stageNameId.entrySet()
-			    .stream()
-			    .filter(e -> selectedStageName.equals(e.getValue()))
-			    .map(Map.Entry::getKey)
-			    .findFirst()
-			    .orElse(null);
+			selectedStageId = stageNameId.entrySet().stream()
+					.filter(e -> Objects.equals(selectedStageName, e.getValue())).map(Map.Entry::getKey).findFirst()
+					.orElse(null);
+			saveButton.setDisable(false);
+			fetchButton.setDisable(false);
 		});
 	}
 
@@ -878,9 +1039,9 @@ public class ManualTestingPowerMan {
 
 	private ScrollPane createPowermanMk12Table1DataTable() {
 
-		powerManMk12Table1DataList.clear();
+		powerManMk12Table12DataList.clear();
 
-		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table1DataTableView);
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table12DataTableView);
 
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -903,11 +1064,11 @@ public class ManualTestingPowerMan {
 				t2Ch3 = dto.getChannel1();
 				t2Ch4 = dto.getChannel1();
 
-				powerManMk12Table1DataList.add(dto);
+				powerManMk12Table12DataList.add(dto);
 
 				// Create table after data is ready
-				powerManMk12Table1DataTableView = powerManMk1Table1DataFactory
-						.createTableView(powerManMk12Table1DataList, false, false);
+				powerManMk12Table12DataTableView = powerManMk12Table12DataFactory
+						.createTableView(powerManMk12Table12DataList, false, false);
 
 				tableScrollPane.setFitToHeight(true);
 				return null;
@@ -917,9 +1078,8 @@ public class ManualTestingPowerMan {
 			protected void succeeded() {
 				Platform.runLater(() -> {
 
-					powerManMk12Table1DataTableView.getColumns().forEach(column -> {
+					powerManMk12Table12DataTableView.getColumns().forEach(column -> {
 						String colName = column.getText();
-						System.out.println("check column" + colName);
 
 						switch (colName) {
 						case "INPUT VOLTAGE SETTING":
@@ -1063,11 +1223,11 @@ public class ManualTestingPowerMan {
 
 					});
 
-					tableScrollPane.setContent(powerManMk12Table1DataTableView);
-					powerManMk12Table1DataTableView.setEditable(true);
+					tableScrollPane.setContent(powerManMk12Table12DataTableView);
+					powerManMk12Table12DataTableView.setEditable(true);
 
 					// -------- INPUT VOLTAGE ----------
-					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(0);
 
 					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
@@ -1075,7 +1235,7 @@ public class ManualTestingPowerMan {
 					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
 
 					// -------- DESCRIPTION ----------
-					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(1);
 
 					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -1083,7 +1243,7 @@ public class ManualTestingPowerMan {
 					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
 
 					// -------- EXPECTED VALUE ----------
-					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(2);
 
 					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
@@ -1091,7 +1251,7 @@ public class ManualTestingPowerMan {
 					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
 
 					// -------- CHANNEL 1 ----------
-					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(3);
 
 					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
@@ -1099,7 +1259,7 @@ public class ManualTestingPowerMan {
 					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
 
 					// -------- CHANNEL 2 ----------
-					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(4);
 
 					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
@@ -1107,7 +1267,7 @@ public class ManualTestingPowerMan {
 					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
 
 					// -------- CHANNEL 3 ----------
-					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(5);
 
 					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
@@ -1115,7 +1275,7 @@ public class ManualTestingPowerMan {
 					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
 
 					// -------- CHANNEL 4 ----------
-					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk12Table1DataTableView
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk12Table12DataTableView
 							.getColumns().get(6);
 
 					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
@@ -1202,7 +1362,7 @@ public class ManualTestingPowerMan {
 	public ScrollPane createPowermanMk1Table2DataTable() {
 		powerManMk1Table2DataList.clear();
 
-		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table1DataTableView);
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table12DataTableView);
 
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -1299,7 +1459,7 @@ public class ManualTestingPowerMan {
 							column.setText(null);
 							column.setMinWidth(185);
 							column.setMaxWidth(185);
-							Label mainHeader3 = new Label("CHANNEL 1\\n(DFCC-J5-93/76)\\n AETS:J47-1/15)");
+							Label mainHeader3 = new Label("CHANNEL 1\n(DFCC-J5-93/76)\n AETS:J47-1/15)");
 							mainHeader3.setWrapText(true);
 							mainHeader3.setTextAlignment(TextAlignment.CENTER);
 							mainHeader3.setAlignment(Pos.CENTER);
@@ -1318,7 +1478,7 @@ public class ManualTestingPowerMan {
 							column.setText(null);
 							column.setMinWidth(185);
 							column.setMaxWidth(185);
-							Label mainHeader4 = new Label("CHANNEL 2\\n(DFCC-J11-93/76)\\n AETS:J47-28/41)");
+							Label mainHeader4 = new Label("CHANNEL 2\n(DFCC-J11-93/76)\n AETS:J47-28/41)");
 							mainHeader4.setWrapText(true);
 							mainHeader4.setTextAlignment(TextAlignment.CENTER);
 							mainHeader4.setAlignment(Pos.CENTER);
@@ -1337,7 +1497,7 @@ public class ManualTestingPowerMan {
 							column.setText(null);
 							column.setMinWidth(185);
 							column.setMaxWidth(185);
-							Label mainHeader5 = new Label("CHANNEL 3\\n(DFCC-J17-93/76)\\n AETS:J17-93/76)");
+							Label mainHeader5 = new Label("CHANNEL 3\n(DFCC-J17-93/76)\n AETS:J17-93/76)");
 							mainHeader5.setWrapText(true);
 							mainHeader5.setTextAlignment(TextAlignment.CENTER);
 							mainHeader5.setAlignment(Pos.CENTER);
@@ -1356,7 +1516,7 @@ public class ManualTestingPowerMan {
 							column.setText(null);
 							column.setMinWidth(190);
 							column.setMaxWidth(190);
-							Label mainHeader6 = new Label("CHANNEL 4\\n(DFCC-J47-78/92)\\n AETS:J47-78/92)");
+							Label mainHeader6 = new Label("CHANNEL 4\n(DFCC-J47-78/92)\n AETS:J47-78/92)");
 							mainHeader6.setWrapText(true);
 							mainHeader6.setTextAlignment(TextAlignment.CENTER);
 							mainHeader6.setAlignment(Pos.CENTER);
@@ -1453,9 +1613,9 @@ public class ManualTestingPowerMan {
 	}
 
 	public ScrollPane createPowermanMk1Table22DataTable() {
-		powerManMk1Table22DataList.clear();
+		powerManMk12Table22DataList.clear();
 
-		ScrollPane tableScrollPane = new ScrollPane(powerManMk1Table22DataTableView);
+		ScrollPane tableScrollPane = new ScrollPane(powerManMk12Table22DataTableView);
 
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -1473,11 +1633,11 @@ public class ManualTestingPowerMan {
 				dto.setChannel3("");
 				dto.setChannel4("");
 
-				powerManMk1Table22DataList.add(dto);
+				powerManMk12Table22DataList.add(dto);
 
 				// Create table after data is ready
-				powerManMk1Table22DataTableView = powerManMk1Table22DataFactory
-						.createTableView(powerManMk1Table22DataList, false, false);
+				powerManMk12Table22DataTableView = powerManMk12Table22DataFactory
+						.createTableView(powerManMk12Table22DataList, false, false);
 
 				tableScrollPane.setFitToHeight(true);
 				return null;
@@ -1487,7 +1647,7 @@ public class ManualTestingPowerMan {
 			protected void succeeded() {
 				Platform.runLater(() -> {
 
-					powerManMk1Table22DataTableView.getColumns().forEach(column -> {
+					powerManMk12Table22DataTableView.getColumns().forEach(column -> {
 						String colName = column.getText();
 
 						switch (colName) {
@@ -1632,11 +1792,11 @@ public class ManualTestingPowerMan {
 
 					});
 
-					tableScrollPane.setContent(powerManMk1Table22DataTableView);
-					powerManMk1Table22DataTableView.setEditable(true);
+					tableScrollPane.setContent(powerManMk12Table22DataTableView);
+					powerManMk12Table22DataTableView.setEditable(true);
 
 					// -------- INPUT VOLTAGE ----------
-					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> inputColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(0);
 
 					inputColumn.setCellValueFactory(new PropertyValueFactory<>("inputVoltageSetting"));
@@ -1644,7 +1804,7 @@ public class ManualTestingPowerMan {
 					inputColumn.setOnEditCommit(e -> e.getRowValue().setInputVoltageSetting(e.getNewValue()));
 
 					// -------- DESCRIPTION ----------
-					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> descColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(1);
 
 					descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -1652,7 +1812,7 @@ public class ManualTestingPowerMan {
 					descColumn.setOnEditCommit(e -> e.getRowValue().setDescription(e.getNewValue()));
 
 					// -------- EXPECTED VALUE ----------
-					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> expectedColumn = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(2);
 
 					expectedColumn.setCellValueFactory(new PropertyValueFactory<>("expectedValue"));
@@ -1660,7 +1820,7 @@ public class ManualTestingPowerMan {
 					expectedColumn.setOnEditCommit(e -> e.getRowValue().setExpectedValue(e.getNewValue()));
 
 					// -------- CHANNEL 1 ----------
-					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> ch1Column = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(3);
 
 					ch1Column.setCellValueFactory(new PropertyValueFactory<>("channel1"));
@@ -1668,7 +1828,7 @@ public class ManualTestingPowerMan {
 					ch1Column.setOnEditCommit(e -> e.getRowValue().setChannel1(e.getNewValue()));
 
 					// -------- CHANNEL 2 ----------
-					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> ch2Column = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(4);
 
 					ch2Column.setCellValueFactory(new PropertyValueFactory<>("channel2"));
@@ -1676,7 +1836,7 @@ public class ManualTestingPowerMan {
 					ch2Column.setOnEditCommit(e -> e.getRowValue().setChannel2(e.getNewValue()));
 
 					// -------- CHANNEL 3 ----------
-					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> ch3Column = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(5);
 
 					ch3Column.setCellValueFactory(new PropertyValueFactory<>("channel3"));
@@ -1684,7 +1844,7 @@ public class ManualTestingPowerMan {
 					ch3Column.setOnEditCommit(e -> e.getRowValue().setChannel3(e.getNewValue()));
 
 					// -------- CHANNEL 4 ----------
-					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk1Table22DataTableView
+					TableColumn<PowerManMk1, String> ch4Column = (TableColumn<PowerManMk1, String>) powerManMk12Table22DataTableView
 							.getColumns().get(6);
 
 					ch4Column.setCellValueFactory(new PropertyValueFactory<>("channel4"));
@@ -1721,9 +1881,9 @@ public class ManualTestingPowerMan {
 	private boolean isNullOrEmpty(String value) {
 		return value == null || value.trim().isEmpty();
 	}
-	
+
 	private boolean isEmpty(String value) {
-	    return value == null || value.trim().isEmpty();
+		return value == null || value.trim().isEmpty();
 	}
 
 	private HBox createPrintButtonHbox() {
@@ -1731,48 +1891,25 @@ public class ManualTestingPowerMan {
 		HBox printButtonContainer = new HBox(); // only create once
 		printButtonContainer.setAlignment(Pos.CENTER);
 		printButtonContainer.setSpacing(5);
-		printButtonContainer.getChildren().addAll(saveButton,fetchButton, printButton);
+		printButtonContainer.getChildren().addAll(saveButton, fetchButton, printButton);
 
 		saveButton.setOnAction(e -> {
-			if(selectedSessionId == null || selectedStageId == null ) {
+			if (selectedSessionId == null || selectedStageId == null) {
 				Notifications.showErrorAlert("Please select Session and Stage.");
 				return;
 			}
-			if(uutId.equalsIgnoreCase("UUT1")) {
-			PowerManMk1 dto = powerManMk1Table1DataList.get(0);
-			PowerManMk1 dto2 = powerManMk12Table1DataList.get(0);
-			PowerManDataAnalysis powerMan = new PowerManDataAnalysis();
-			if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3()) || isEmpty(dto.getChannel4()) ||
-				    isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2()) || isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
-
-				    Notifications.showErrorAlert("Please enter value in all channels");
-				    return;
-				}
-				
-			powerMan.setFirstRowch1(dto.getChannel1());
-			powerMan.setFirstRowch2(dto.getChannel2());
-			powerMan.setFirstRowch3(dto.getChannel3());
-			powerMan.setFirstRowch4(dto.getChannel4());
-			powerMan.setSecondRowch1(dto2.getChannel1());
-			powerMan.setSecondRowch2(dto2.getChannel2());
-			powerMan.setSecondRowch3(dto2.getChannel3());
-			powerMan.setSecondRowch4(dto2.getChannel4());
-			powerMan.setSessionId(selectedSessionId);
-			powerMan.setStageId(selectedStageId);
-			System.out.println("Check dto :" +dto.getChannel1() );
-			advancedDataAnalysisManagement.addPowerManConfig(powerMan);
-			Notifications.showSuccessAlert("Data added Successfully.");
-			printButton.setDisable(false);
-			}else {
-				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
-				PowerManMk1 dto2 = powerManMk1Table22DataList.get(0);
+			if (uutId.equalsIgnoreCase("UUT1")) {
+				PowerManMk1 dto = powerManMk1Table1DataList.get(0);
+				PowerManMk1 dto2 = powerManMk12Table12DataList.get(0);
+				////System.out.println("While Saving 2nd row::" + powerManMk12Table12DataList.size());
 				PowerManDataAnalysis powerMan = new PowerManDataAnalysis();
-				if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3()) || isEmpty(dto.getChannel4()) ||
-					    isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2()) || isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
+				if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3())
+						|| isEmpty(dto.getChannel4()) || isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2())
+						|| isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
 
-					    Notifications.showErrorAlert("Please enter value in all channels");
-					    return;
-					}
+					Notifications.showErrorAlert("Please enter value in all channels");
+					return;
+				}
 
 				powerMan.setFirstRowch1(dto.getChannel1());
 				powerMan.setFirstRowch2(dto.getChannel2());
@@ -1784,64 +1921,109 @@ public class ManualTestingPowerMan {
 				powerMan.setSecondRowch4(dto2.getChannel4());
 				powerMan.setSessionId(selectedSessionId);
 				powerMan.setStageId(selectedStageId);
-				System.out.println("Check dto :" +dto.getChannel1() );
+				////System.out.println("Check dto :" + dto.getChannel1());
 				advancedDataAnalysisManagement.addPowerManConfig(powerMan);
 				Notifications.showSuccessAlert("Data added Successfully.");
-				printButton.setDisable(false);
-			}
-			
-			
-			
-			
-		});
-		
-		fetchButton.setOnAction(e -> {
-			 PowerManDataAnalysis entity = advancedDataAnalysisManagement.getPowerManConfig(selectedSessionId, selectedStageId);
-			 if(selectedSessionId == null || selectedStageId == null ) {
-					Notifications.showErrorAlert("Please select Session and Stage.");
+				
+			} else {
+				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
+				PowerManMk1 dto2 = powerManMk12Table22DataList.get(0);
+				PowerManDataAnalysis powerMan = new PowerManDataAnalysis();
+				if (isEmpty(dto.getChannel1()) || isEmpty(dto.getChannel2()) || isEmpty(dto.getChannel3())
+						|| isEmpty(dto.getChannel4()) || isEmpty(dto2.getChannel1()) || isEmpty(dto2.getChannel2())
+						|| isEmpty(dto2.getChannel3()) || isEmpty(dto2.getChannel4())) {
+
+					Notifications.showErrorAlert("Please enter value in all channels");
 					return;
 				}
-			
-			if(entity == null) {
+
+				powerMan.setFirstRowch1(dto.getChannel1());
+				powerMan.setFirstRowch2(dto.getChannel2());
+				powerMan.setFirstRowch3(dto.getChannel3());
+				powerMan.setFirstRowch4(dto.getChannel4());
+				powerMan.setSecondRowch1(dto2.getChannel1());
+				powerMan.setSecondRowch2(dto2.getChannel2());
+				powerMan.setSecondRowch3(dto2.getChannel3());
+				powerMan.setSecondRowch4(dto2.getChannel4());
+				powerMan.setSessionId(selectedSessionId);
+				powerMan.setStageId(selectedStageId);
+				////System.out.println("Check dto :" + dto.getChannel1());
+				advancedDataAnalysisManagement.addPowerManConfig(powerMan);
+				Notifications.showSuccessAlert("Data added Successfully.");
+			}
+
+		});
+
+		fetchButton.setOnAction(e -> {
+			PowerManDataAnalysis entity = advancedDataAnalysisManagement.getPowerManConfig(selectedSessionId,
+					selectedStageId);
+			////System.out.println("Check Power Fetch::" + entity.getFirstRowch1());
+			////System.out.println("Check Power Fetch::2nd" + entity.getSecondRowch1());
+
+			if (selectedSessionId == null || selectedStageId == null) {
+				Notifications.showErrorAlert("Please select Session and Stage.");
+				return;
+			}
+
+			if (entity.getStageId() == null) {
 				Notifications.showErrorAlert("Not configured");
 				return;
 			}
-			if(uutId.equalsIgnoreCase("UUT1")) {
-			PowerManMk1 dto = powerManMk1Table1DataList.get(0);
-			PowerManMk1 dto2 = powerManMk12Table1DataList.get(0);
-			dto.setChannel1(entity.getFirstRowch1());
-			dto.setChannel2(entity.getFirstRowch2());
-			dto.setChannel3(entity.getFirstRowch3());
-			dto.setChannel4(entity.getFirstRowch4());
 			
-			dto2.setChannel1(entity.getSecondRowch1());
-			dto2.setChannel2(entity.getSecondRowch2());
-			dto2.setChannel3(entity.getSecondRowch3());
-			dto2.setChannel4(entity.getSecondRowch4());
-			
-			 powerManMk1Table1DataTableView.refresh();
-			 powerManMk1Table2DataTableView.refresh();
-			 Notifications.showSuccessAlert("Data fetched Successfully.");
-			}else {
-				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
-				PowerManMk1 dto2 = powerManMk1Table22DataList.get(0);
+			printButton.setDisable(false);
+			if (uutId.equalsIgnoreCase("UUT1")) {
+				PowerManMk1 dto = powerManMk1Table1DataList.get(0);
+				PowerManMk1 dto2 = powerManMk12Table12DataList.get(0);
+
+//			////System.out.println("Check 2nd row::" +powerManMk12Table12DataList.size());
 				dto.setChannel1(entity.getFirstRowch1());
 				dto.setChannel2(entity.getFirstRowch2());
 				dto.setChannel3(entity.getFirstRowch3());
 				dto.setChannel4(entity.getFirstRowch4());
-				
+
 				dto2.setChannel1(entity.getSecondRowch1());
 				dto2.setChannel2(entity.getSecondRowch2());
 				dto2.setChannel3(entity.getSecondRowch3());
 				dto2.setChannel4(entity.getSecondRowch4());
+
+				powerManMk1Table1DataTableView.refresh();
+				powerManMk12Table12DataTableView.refresh();
+				powerManMk1Table1DataTableView.getSelectionModel().clearSelection();
+				powerManMk12Table12DataTableView.getSelectionModel().clearSelection();
+				if(powerManMk1Table1DataList.size()>0 && powerManMk12Table12DataList.size()>0)
+				{
+					Notifications.showSuccessAlert("Data fetched Successfully.");	
+				}else {
+					Notifications.showSuccessAlert("Data not configured.");
+				}	
 				
-				 powerManMk1Table1DataTableView.refresh();
-				 powerManMk1Table2DataTableView.refresh();
-				 Notifications.showSuccessAlert("Data fetched Successfully.");
+				
+			} else {
+				PowerManMk1 dto = powerManMk1Table2DataList.get(0);
+				PowerManMk1 dto2 = powerManMk12Table22DataList.get(0);
+				dto.setChannel1(entity.getFirstRowch1());
+				dto.setChannel2(entity.getFirstRowch2());
+				dto.setChannel3(entity.getFirstRowch3());
+				dto.setChannel4(entity.getFirstRowch4());
+
+				dto2.setChannel1(entity.getSecondRowch1());
+				dto2.setChannel2(entity.getSecondRowch2());
+				dto2.setChannel3(entity.getSecondRowch3());
+				dto2.setChannel4(entity.getSecondRowch4());
+
+				powerManMk1Table1DataTableView.refresh();
+				powerManMk12Table22DataTableView.refresh();
+				
+				if(!powerManMk1Table2DataList.isEmpty() && !powerManMk12Table22DataList.isEmpty()  )
+				{
+					Notifications.showSuccessAlert("Data fetched Successfully.");	
+				}else {
+					Notifications.showSuccessAlert("Data not configured.");
+				}
 			}
-			
+			printButton.setDisable(false);
 		});
-		
+
 //		checkButton.setOnAction(e -> {
 //
 //			if ("UUT1".equalsIgnoreCase(uutId)) {
@@ -1910,18 +2092,33 @@ public class ManualTestingPowerMan {
 
 			printButtonContainer.setVisible(false);
 			printButtonContainer.setManaged(false);
+			
+//			sessioName.getSelectionModel().clearSelection();
+//			uutTypeField.getSelectionModel().clearSelection();
+//			serialnumber.getSelectionModel().clearSelection();
+//			stageName.getSelectionModel().clearSelection();
 
 			powerManMk1MainContainerGridPane.applyCss();
 			powerManMk1MainContainerGridPane.layout();
 
 			Stage stage = (Stage) powerManMk1MainContainerGridPane.getScene().getWindow();
 
-			tmpUutLabel = new Label(uutTypeField.getValue() == null ? "" : uutTypeField.getValue());
-			tmpSerialLabel = new Label(serialnumber.getValue() == null ? "" : serialnumber.getValue());
-			tmpSerialLabel.setWrapText(true);
-			tmpSessionLabel = new Label(sessioName.getValue() == null ? "" : sessioName.getValue());
-			tmpSessionLabel.setWrapText(true);
-			tmpStageLabel = new Label(stageName.getValue() == null ? "" : stageName.getValue());
+			tmpUutLabel = new Label("UUT Type : " + 
+		            (uutTypeField.getValue() == null ? "" : uutTypeField.getValue()));
+
+		    tmpSerialLabel = new Label("Serial No : " + 
+		            (serialnumber.getValue() == null ? "" : serialnumber.getValue()));
+
+		    tmpSessionLabel = new Label("Session Name : " + 
+		            (sessioName.getValue() == null ? "" : sessioName.getValue()));
+
+		    tmpStageLabel = new Label("Stage Name : " + 
+		            (stageName.getValue() == null ? "" : stageName.getValue()));
+		    
+		    tmpSessionLabel.setWrapText(true);
+			tmpStageLabel.setWrapText(true);
+		    
+			tmpStageLabel.setWrapText(true);
 			tmpUutLabel.getStyleClass().add("nonheading-label");
 			tmpSerialLabel.getStyleClass().add("nonheading-label");
 			tmpSessionLabel.getStyleClass().add("nonheading-label");
@@ -1945,8 +2142,15 @@ public class ManualTestingPowerMan {
 
 				powerManMk1MainContainerGridPane.applyCss();
 				powerManMk1MainContainerGridPane.layout();
-
 				exportPageToPDF(stage, powerManMk1MainContainerGridPane);
+				
+				Notifications.showSuccessAlert("Report has been downloaded successfully");
+				powerManMk1Table1DataTableView.getSelectionModel().clearSelection();
+				powerManMk12Table12DataTableView.getSelectionModel().clearSelection();
+				powerManMk1Table1DataTableView.getSelectionModel().clearSelection();
+				powerManMk12Table22DataTableView.getSelectionModel().clearSelection();
+
+				
 
 			} catch (Exception ex) {
 				ex.printStackTrace();

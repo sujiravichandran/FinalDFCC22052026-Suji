@@ -223,13 +223,20 @@ public class StageConfigurationController {
 
 	private VBox stageConfigTreeView() {
 
-		addNewStageButton.setDisable(true);
+//		addNewStageButton.setDisable(true);
 
-		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-			addNewStageButton.setDisable(newValue.trim().isEmpty());
+//		stageNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+//			addNewStageButton.setDisable(newValue.trim().isEmpty());
+//		});
+
+		addNewStageButton.setOnAction(e -> {
+		    if (stageNameField.getText() == null || stageNameField.getText().trim().isEmpty()) {
+		        Notifications.showErrorAlert("Please Enter stage name..");
+		        return; // stop execution
+		    }
+
+		    addNewStage();
 		});
-
-		addNewStageButton.setOnAction(e -> addNewStage());
 
 		HBox stage1HBox = new HBox(10, stageNameField, addNewStageButton);
 		stage1HBox.setAlignment(Pos.CENTER_LEFT);
@@ -295,7 +302,7 @@ public class StageConfigurationController {
 	        stringList.clear();
 	        sortedList.forEach(sessionStage -> stringList.add(sessionStage.getL1_name()));
 
-	        addNewStageButton.setDisable(filteredData.isEmpty());
+//	        addNewStageButton.setDisable(filteredData.isEmpty());
 	        enablingStage1ListView(!filteredData.isEmpty());
 	    });
 	}
@@ -519,7 +526,7 @@ public class StageConfigurationController {
 			    event -> {
 			       
 			        deleteStage(stage.getId(), stage.getL_name());
-//			        System.out.println("Deleting stage: " + stage.getId() + " - " + stage.getL_name());
+//			        ////System.out.println("Deleting stage: " + stage.getId() + " - " + stage.getL_name());
 			    }
 			);
 		

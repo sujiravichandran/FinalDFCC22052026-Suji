@@ -32,7 +32,7 @@ public class AdvanceCustom2TestingManagement {
 			Path path = Paths.get(filePath);
 			fileName = path.getFileName().toString();
 
-			StateMachine.currentSessionDetails.setSessionId("SASN00002");
+			//StateMachine.currentSessionDetails.setSessionId("SASN00002");
 			CustomTestService customTestService = new CustomTestService();
 			res = customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
 					convertFileToBlob(file), filePath, "custom2");
@@ -67,7 +67,7 @@ public class AdvanceCustom2TestingManagement {
 	        fileName = path.getFileName().toString();
 	       
 
-			StateMachine.currentSessionDetails.setSessionId("SASN00002");
+			//StateMachine.currentSessionDetails.setSessionId("SASN00002");
 			CustomTestService customTestService = new CustomTestService();
 			res = customTestService.addCustomTest(fileName, StateMachine.currentSessionDetails.getSessionId(),
 					convertFileToBlob(file), filePath, "download");

@@ -1,46 +1,54 @@
 package com.teclever.dfcc.Controller.ui;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.teclever.datastore.dto.Response;
 import com.teclever.datastore.dto.SessionDto;
 import com.teclever.datastore.dto.SessionResponse;
+import com.teclever.datastore.dto.TrailSessionDto;
+import com.teclever.datastore.dto.TrailSessionResponse;
 import com.teclever.datastore.service.SessionService;
+import com.teclever.datastore.service.TrailSessionEntityService;
 import com.teclever.dfcc.DFCCConstant;
-
 import com.teclever.dfcc.datastore.configurationmanagement.AitessConfigurationManagement;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsDTO;
 import com.teclever.dfcc.datastore.dto.ResultUnitSessionDetailsResponse;
 import com.teclever.dfcc.datastore.dto.UUTMasterDetailsDto;
+import com.teclever.dfcc.datastore.sessionmanagement.SessionManagement;
 import com.teclever.dfcc.model.UnitData;
+import com.teclever.dfcc.reportgeneration.ReportGeneration;
 import com.teclever.dfcc.resultmanagement.ResultExecutionManagement;
 import com.teclever.dfcc.stateMachine.StateMachine.currentSessionDetails;
 import com.teclever.dfcc.utils.CustomTableView;
 import com.teclever.dfcc.utils.Notifications;
 import com.teclever.dfcc.utils.TableViewFactory;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 class UnitDataTableViewFactory implements TableViewFactory<UnitData> {
 	@Override
@@ -56,10 +64,18 @@ public class CurrentUnitResultController {
 	private GridPane currentUnitResultHeadingGridPane = new GridPane();
 	private GridPane currentUnitResultOptionGridPane = new GridPane();
 	private GridPane currentUnitResultTableGridPane = new GridPane();
+	private ReportGeneration reportGeneration = new ReportGeneration();
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
+	private VBox progressbox = new VBox();
+	
+	private HBox buttonBox = new HBox();
+	private Button downloadButton = new Button("Print");
 
 	private HBox titleBox = new HBox();
 	private Label title = new Label();
-	SessionService s = new SessionService();
+	private SessionService s = new SessionService();
+	private TrailSessionEntityService t = new TrailSessionEntityService();
 	private GridPane filterResultGridPane = new GridPane();
 
 	private ComboBox<String> uutTypeField = new ComboBox<String>();	
@@ -69,6 +85,7 @@ public class CurrentUnitResultController {
 	private HBox selectionHBoxUUTSN = new HBox(10);
 	private ObservableList<String> dfccSNList = FXCollections.observableArrayList();
 	private List<SessionDto> sessionList = new ArrayList<SessionDto>();
+	private List<TrailSessionDto> sessionListTrail = new ArrayList<TrailSessionDto>();
 	private ObservableList<String> sessionTypeList = FXCollections.observableArrayList();
 	private AitessConfigurationManagement configManager = new AitessConfigurationManagement();
 	
@@ -76,6 +93,7 @@ public class CurrentUnitResultController {
 	private ObservableList<String> uutTypeList = FXCollections.observableArrayList();
 	private String UUT_ID;
 	private String session_ID;
+	private String selectedSno;
 	private String selectedUttId;
 
 	private ScrollPane tableScrollPane = new ScrollPane();
@@ -89,11 +107,21 @@ public class CurrentUnitResultController {
 	private AitessConfigurationManagement aitessConfig = new AitessConfigurationManagement();
 
 	public CurrentUnitResultController() {
-		unitDataList.clear();
-		SessionResponse s1 = s.getAllSession();
-		sessionList = s1.getListOfSession();
-//    	getCurrentUnitResultData(currentSessionDetails.getUutId());
+
+	    unitDataList.clear();
+
+	    // Normal sessions
+	    SessionResponse s1 = s.getAllSession();
+	    sessionList = s1.getListOfSession();
+
+	    // Trial sessions
+	    TrailSessionResponse t1 = t.getActiveTrailSessionId();
+	    sessionListTrail = t1.getListOfSession();
+
+//	    ////System.out.println("Normal session size: " + sessionList.size());
+//	    ////System.out.println("Trial session size: " + sessionListTrail.size());
 	}
+
 
 	public GridPane createcurrentUnitResultGridPane() {
 		currentUnitResultGridPane.getStylesheets()
@@ -130,11 +158,13 @@ public class CurrentUnitResultController {
 		filterResultGridPane.getStyleClass().add("current-execution-result-tabs-container");
 
 		ColumnConstraints firstColumn = new ColumnConstraints();
-		firstColumn.setPercentWidth(33);
+		firstColumn.setPercentWidth(25);
 		ColumnConstraints secondColumn = new ColumnConstraints();
-		secondColumn.setPercentWidth(33);
+		secondColumn.setPercentWidth(25);
 		ColumnConstraints thirdColumn = new ColumnConstraints();
-		thirdColumn.setPercentWidth(33);
+		thirdColumn.setPercentWidth(25);
+		ColumnConstraints fourthColumn = new ColumnConstraints();
+		fourthColumn.setPercentWidth(25);
 
 		RowConstraints firstRow = new RowConstraints();
 		firstRow.setPercentHeight(100);
@@ -148,9 +178,13 @@ public class CurrentUnitResultController {
 		filterResultGridPane.add(createUutBox(), 0, 0);
 		filterResultGridPane.add(createUUTSerialNoComboBox(), 1, 0);
 		filterResultGridPane.add(createSessionComboBox(), 2, 0);
+		filterResultGridPane.add(createDownloadButton(), 3, 0);
 		
 		return filterResultGridPane;
 	}
+	
+	
+	
 
 	private void getCurrentUnitResultData(String uutId, String sessionId) {
 		unitDataList.clear();
@@ -178,45 +212,161 @@ public class CurrentUnitResultController {
 		}
 		
 		tableScrollPane.setFitToWidth(unitDataList.size() == 0);
+		
 	}
 	
+	//s27/10032026 added for serial number based filtration
+	private void getCurrentUnitResultData1(String uutId, String dfccSNo) {
+	    unitDataList.clear();
+	    
+	    // Filter all sessions for this UUT and S/N
+	    List<SessionDto> filteredSessions = sessionList.stream()
+	            .filter(s -> s.getUutId().equals(uutId) && s.getDfccSNo().equals(dfccSNo))
+	            .collect(Collectors.toList());
+	    
+	    int i = 1;
+	    for (SessionDto session : filteredSessions) {
+	        ResultUnitSessionDetailsResponse response = resultExecutionManagement
+	                .getSessionDetailsForResultsByUnit(uutId, session.getSessionId());
+	        
+	        if (response.getCode() == 1 && response.getResultUnitSessionDetailsDTOList() != null) {
+	            for (ResultUnitSessionDetailsDTO data : response.getResultUnitSessionDetailsDTOList()) {
+	                UnitData newUnitData = new UnitData();
+
+	                newUnitData.setId(data.getSessionId());
+	                newUnitData.setSlNo(String.valueOf(i));
+	                newUnitData.setSessionType(data.getSessionType());
+	                newUnitData.setSessionName(data.getSessionName());
+	                newUnitData.setStartTime(data.getStartTime());
+	                newUnitData.setEndTime(data.getEndTime());
+	                newUnitData.setSessionStatus(data.getSessionStatus());
+	                newUnitData.setSessionResult(data.getSessionResults());
+	                newUnitData.setStartRemarks(data.getStratRemarks());
+	                newUnitData.setEndRemarks(data.getEndRemarks());
+	                i++;
+	                unitDataList.add(newUnitData);
+	            }
+	        } else if (response.getCode() == 0) {
+	            Notifications.showErrorAlert(response.getMsg());
+	        }
+	    }}
 	
 	
+	
+//	private void initializeDfccSNComboBox(String uutTypeId) {
+//
+//	    dfccSNList.clear();
+//	    Set<String> seenDfccSNos = new HashSet<>();
+//
+//	    if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
+//
+//	        List<SessionDto> filterSessionList = sessionList.stream()
+//	                .filter(t -> t.getUutId().equals(uutTypeId))
+//	                .collect(Collectors.toList());
+//
+//	        for (SessionDto dfccSn : filterSessionList) {
+//	            String dfccSNo = dfccSn.getDfccSNo();
+//	            if (seenDfccSNos.add(dfccSNo)) {
+//	                dfccSNList.add(dfccSNo);
+//	            }
+//	        }
+//
+//	    } else {
+//
+//	        List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+//	                .filter(t -> t.getUutId().equals(uutTypeId))
+//	                .collect(Collectors.toList());
+//	        for (TrailSessionDto dfccSn : filterSessionList) {
+//	            String dfccSNo = dfccSn.getDfccSNo();
+//	            if (seenDfccSNos.add(dfccSNo)) {
+//	                dfccSNList.add(dfccSNo);
+//	            }
+//	        }
+//	    }
+//	    slNoField.setItems(dfccSNList);
+//	    addSearchFunctionality(slNoField, dfccSNList);
+//	    slNoField.setOnAction(event -> {
+//	        String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+//	        selectedSno = selectedSerialNo;
+//
+//	        if (selectedSerialNo != null && !currentSessionDetails.getSessionId().startsWith("TSSN")) {
+//	        	getCurrentUnitResultData1(selectedUttId, selectedSno);
+//	            initializeSessionComboBox(selectedSerialNo);
+//	        }else {
+//	        	getCurrentUnitResultData1(selectedUttId, selectedSno);
+//	        	initializeTrialSessionComboBox(selectedSerialNo);
+//	        }
+//	    });
+//
+//	  
+//	}
 	
 	
 	private void initializeDfccSNComboBox(String uutTypeId) {
-	    dfccSNList.clear();
-//	    System.out.println("Check Session List Size " + sessionList.size()+"  " +uutTypeId );
-	    List<SessionDto> filterSessionList = sessionList.stream()
-	            .filter(t -> t.getUutId().equals(uutTypeId))
-	            .collect(Collectors.toList());
 
-	    Set<String> seenDfccSNos = new HashSet<>();
+		dfccSNList.clear();
+		Set<String> seenDfccSNos = new HashSet<>();
 
-	    for (SessionDto dfccSn : filterSessionList) {
-	        String dfccSNo = dfccSn.getDfccSNo();
-	        if (seenDfccSNos.add(dfccSNo)) { // Only adds if not already in the set
-	            dfccSNList.add(dfccSNo);
-	        }
-	    }
+		SessionManagement sessionManagement = new SessionManagement();
+		Set<String> userIds = sessionManagement.getUserIdsWithRoleIds();
 
+		if (!currentSessionDetails.getSessionId().startsWith("TSSN")) {
+			List<SessionDto> filterSessionList = sessionList.stream().filter(t -> t.getUutId().equals(uutTypeId))
+					.collect(Collectors.toList());
+			// Mani Added TO 18-03-2026 //
+			filterSessionList = filterSessionList.stream().filter(e -> !userIds.contains(e.getUserId()))
+					.collect(Collectors.toList());
 
-	    slNoField.setOnAction(event -> {
-		    String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
-		    if (selectedSerialNo != null) {
-		        initializeSessionComboBox(selectedSerialNo);
-		    }
+			for (SessionDto dfccSn : filterSessionList) {
+				String dfccSNo = dfccSn.getDfccSNo();
+				if (seenDfccSNos.add(dfccSNo)) {
+					dfccSNList.add(dfccSNo);
+				}
+			}
+
+		} else {
+
+			List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+					.filter(t -> t.getUutId().equals(uutTypeId)).collect(Collectors.toList());
+
+			// Mani Added TO 18-03-2026 //
+			filterSessionList = filterSessionList.stream().filter(e -> !userIds.contains(e.getUserId()))
+					.collect(Collectors.toList());
+
+			for (TrailSessionDto dfccSn : filterSessionList) {
+				String dfccSNo = dfccSn.getDfccSNo();
+				if (seenDfccSNos.add(dfccSNo)) {
+					dfccSNList.add(dfccSNo);
+				}
+			}
+		}
+		slNoField.setItems(dfccSNList);
+		addSearchFunctionality(slNoField, dfccSNList);
+		slNoField.setOnAction(event -> {
+			String selectedSerialNo = slNoField.getSelectionModel().getSelectedItem();
+			selectedSno = selectedSerialNo;
+
+			if (selectedSerialNo != null && !currentSessionDetails.getSessionId().startsWith("TSSN")) {
+				initializeSessionComboBox(selectedSerialNo);
+				getCurrentUnitResultData1(selectedUttId, selectedSno);
+			} else {
+				initializeTrialSessionComboBox(selectedSerialNo);
+				getCurrentUnitResultData1(selectedUttId, selectedSno);
+			}
 		});
 
-//		System.out.println("Check dfccSNList"+dfccSNList);
-	    slNoField.setItems(dfccSNList);
 	}
+	
+	
+	
+
 	
 	// UUT SERIAL NUMBER FIELD
 		private HBox createUUTSerialNoComboBox() {
 			slNoField.setPromptText("UUT S/N");
 			selectionHBoxUUTSN.setPadding(new Insets(0, 0, 0, 18.5));
 			selectionHBoxUUTSN.setAlignment(Pos.CENTER_LEFT);
+			slNoField.setEditable(true);
 			selectionHBoxUUTSN.getChildren().add(slNoField);
 
 			return selectionHBoxUUTSN;
@@ -229,6 +379,7 @@ public class CurrentUnitResultController {
 			sessionNameField.setPromptText("Session");
 			selectionBoxSESSION.setPadding(new Insets(0, 0, 0, 18.5));
 			selectionBoxSESSION.setAlignment(Pos.CENTER_LEFT);
+			sessionNameField.setEditable(true);
 			selectionBoxSESSION.getChildren().add(sessionNameField);
 
 			return selectionBoxSESSION;
@@ -236,29 +387,144 @@ public class CurrentUnitResultController {
 		
 		
 //	    // UUT SESSION NAME TYPE FIELD
+//		private void initializeSessionComboBox(String selectedDfccNo) {
+//			sessionTypeList.clear();
+//
+//			List<SessionDto> filterSessionList = sessionList.stream()
+//			        .filter(t ->
+//			                Objects.equals(t.getUutId(), selectedUttId) &&
+//			                Objects.equals(t.getDfccSNo(), selectedSno) 
+//			                
+//			        )
+//			        .sorted(Comparator
+//			                .comparing(SessionDto::getUutId)
+//			                .thenComparing(SessionDto::getDfccSNo))
+//			        .collect(Collectors.toList());
+//
+//			
+//			for (SessionDto sessionName : filterSessionList) {
+//				sessionTypeList.add(sessionName.getSessionName());
+//			}
+//			sessionNameField.setItems(sessionTypeList);
+//			addSearchFunctionality(sessionNameField, sessionTypeList);
+//			sessionNameField.setOnAction(event -> {
+//				String selectedSession = sessionNameField.getSelectionModel().getSelectedItem();
+//				////System.out.println("selectedSession" + selectedSession);
+//				String sessionId = fetchSessionId(selectedSession);
+//				////System.out.println("Check Session ID" + sessionId);
+//				getCurrentUnitResultData(selectedUttId, sessionId);
+//				session_ID = sessionId;
+//				});
+//
+//			
+//		}
+		
+		
 		private void initializeSessionComboBox(String selectedDfccNo) {
 			sessionTypeList.clear();
-
-			 List<SessionDto> filterSessionList = sessionList.stream()
-			            .filter(t -> t.getDfccSNo().equals(selectedDfccNo)) // Correct filtering condition
-			            .collect(Collectors.toList());
 			
+			
+			SessionManagement sessionManagement = new SessionManagement();
+			Set<String>	userIds = sessionManagement.getUserIdsWithRoleIds();
+
+			List<SessionDto> filterSessionList = sessionList.stream()
+			        .filter(t ->
+			                Objects.equals(t.getUutId(), selectedUttId) &&
+			                Objects.equals(t.getDfccSNo(), selectedSno) &&
+			                t.getEndDate() == null  && !userIds.contains(t.getUserId()) //Last Filter Condition Added For the User ROle Sessions
+			        )
+			        .sorted(Comparator
+			                .comparing(SessionDto::getUutId)
+			                .thenComparing(SessionDto::getDfccSNo))
+			        .collect(Collectors.toList());
+
 			
 			for (SessionDto sessionName : filterSessionList) {
 				sessionTypeList.add(sessionName.getSessionName());
 			}
-			
-			
+			sessionNameField.setItems(sessionTypeList);
+			addSearchFunctionality(sessionNameField, sessionTypeList);
 			sessionNameField.setOnAction(event -> {
 				String selectedSession = sessionNameField.getSelectionModel().getSelectedItem();
-				System.out.println("selectedSession" + selectedSession);
+				////System.out.println("selectedSession" + selectedSession);
 				String sessionId = fetchSessionId(selectedSession);
-				System.out.println("Check Session ID" + sessionId);
+				////System.out.println("Check Session ID" + sessionId);
 				getCurrentUnitResultData(selectedUttId, sessionId);
+				session_ID = sessionId;
 				});
 
-			sessionNameField.setItems(sessionTypeList);
+			
 		}
+		
+		private void addSearchFunctionality(ComboBox<String> comboBox, ObservableList<String> originalItems) {
+
+			comboBox.setEditable(true);
+			comboBox.setItems(originalItems);
+
+			TextField editor = comboBox.getEditor();
+
+			editor.setOnKeyReleased(event -> {
+
+				String text = editor.getText();
+
+				ObservableList<String> filteredList = FXCollections.observableArrayList();
+
+				if (text == null || text.isEmpty()) {
+					filteredList.addAll(originalItems);
+				} else {
+					for (String item : originalItems) {
+						if (item.toLowerCase().contains(text.toLowerCase())) {
+							filteredList.add(item);
+						}
+					}
+				}
+
+				comboBox.setItems(filteredList);
+				comboBox.getEditor().positionCaret(text.length());
+				comboBox.show();
+			});
+
+	// Prevent auto-selection
+			comboBox.setOnAction(e -> {
+				if (comboBox.getSelectionModel().getSelectedItem() != null) {
+					editor.setText(comboBox.getSelectionModel().getSelectedItem());
+				}
+			});
+		}
+		
+		private void initializeTrialSessionComboBox(String selectedDfccNo) {
+
+		    sessionTypeList.clear();
+
+		    List<TrailSessionDto> filterSessionList = sessionListTrail.stream()
+		            .filter(t ->
+		                    Objects.equals(t.getUutId(), selectedUttId) &&
+		                    Objects.equals(t.getDfccSNo(), selectedSno) &&
+		                    t.getEndDate() == null
+		            )
+		            .sorted(Comparator
+		                    .comparing(TrailSessionDto::getUutId)
+		                    .thenComparing(TrailSessionDto::getDfccSNo))
+		            .collect(Collectors.toList());
+
+		    for (TrailSessionDto sessionName : filterSessionList) {
+		        sessionTypeList.add(sessionName.getSessionName());
+		    }
+
+		    sessionNameField.setOnAction(event -> {
+		        String selectedSession = sessionNameField.getSelectionModel().getSelectedItem();
+		        ////System.out.println("selectedTrialSession: " + selectedSession);
+
+		        String sessionIdTrial = fetchSessionTrialId(selectedSession);
+		        ////System.out.println("Trial Session ID: " + sessionIdTrial);
+
+		        getCurrentUnitResultData(selectedUttId, sessionIdTrial);
+		        session_ID = selectedSession;
+		    });
+
+		    sessionNameField.setItems(sessionTypeList);
+		}
+
 		
 		
 
@@ -329,6 +595,15 @@ public class CurrentUnitResultController {
 		}
 		return null;
 	}
+	
+	private String fetchSessionTrialId(String sessionType) {
+		for (TrailSessionDto sessionId : sessionListTrail) {
+			if (sessionId.getSessionName().equals(sessionType)) {
+				return sessionId.getSessionId();
+			}
+		}
+		return null;
+	}
 
 	private GridPane createcurrentUnitResultTableGridPane() {
 		currentUnitResultTableGridPane.getStyleClass().add("current-execution-result-tabs-container");
@@ -346,6 +621,58 @@ public class CurrentUnitResultController {
 
 		currentUnitResultTableGridPane.add(createCurrentUnitResultTable(), 0, 0);
 		return currentUnitResultTableGridPane;
+	}
+	
+	ViewReportController viewReportController = new ViewReportController();
+	
+	private HBox createDownloadButton() {
+		buttonBox.setAlignment(Pos.CENTER_RIGHT);
+		buttonBox.getChildren().add(downloadButton);
+		downloadButton.setOnAction(e -> {
+
+		    if (selectedUttId == null || selectedSno == null) {
+		        Notifications.showErrorAlert("Please Select UUT Type, Serial No, properly.");
+		        return;
+		    }
+
+		    Task<Response> task = new Task<>() {
+		        @Override
+		        protected Response call() throws Exception {
+		            // 🔥 Heavy work runs in background thread
+		            return reportGeneration.generateBreifReportForCurrentUutType(
+		                    selectedUttId,
+		                    selectedSno,
+		                    session_ID
+		            );
+		        }
+		    };
+
+		    // ✅ Show indicator automatically when task starts
+		    task.setOnRunning(evt -> showProgressIndicator());
+
+		    // ✅ When task finishes successfully
+		    task.setOnSucceeded(evt -> {
+		        hideProgressIndicator();
+
+		        Response res = task.getValue();
+		        viewReportController.viewReportPopup(res);
+
+		        // Clear selections AFTER report opens
+		        sessionNameField.getSelectionModel().clearSelection();
+		        uutTypeField.getSelectionModel().clearSelection();
+		        slNoField.getSelectionModel().clearSelection();
+		    });
+
+		    // ❌ If something fails
+		    task.setOnFailed(evt -> {
+		        hideProgressIndicator();
+		        task.getException().printStackTrace();
+		        Notifications.showErrorAlert("Error generating report.");
+		    });
+
+		    new Thread(task).start();
+		});
+		return buttonBox;
 	}
 
 	private ScrollPane createCurrentUnitResultTable() {
@@ -466,5 +793,22 @@ public class CurrentUnitResultController {
 //			}
 //		});
 //	}
+	
+	 private void showProgressIndicator() {
+			StackPane parentStackPane= (StackPane) currentUnitResultGridPane.getParent().getParent();
+		if (!parentStackPane.getChildren().contains(progressbox)) {
+			progressbox.getChildren().add(progressIndicator);
+			progressbox.setAlignment(Pos.CENTER);
+			parentStackPane.getChildren().add(progressbox);
+		}
+	}
+
+		private void hideProgressIndicator() {
+			StackPane parentStackPane= (StackPane) currentUnitResultGridPane.getParent().getParent();
+			if(parentStackPane.getChildren().contains(progressbox)) {
+				parentStackPane.getChildren().remove(progressbox);
+			progressbox.getChildren().clear(); // Clean up for next use
+			}
+		}
 
 }

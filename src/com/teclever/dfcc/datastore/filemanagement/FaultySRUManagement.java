@@ -128,6 +128,51 @@ public class FaultySRUManagement {
 
 	    return faultySRUResponse;
 	}
+	
+	//New Method By Step No UUT
+	public FaultSRUResponse getFaultySRUsByUutIdAndStep(String uutId , String step) {
+		//System.out.println("UNIT "+uutId );
+		//System.out.println("Step    :"+step);
+		step = "STEP = "+step;
+	    FaultSRUResponse faultySRUResponse = new FaultSRUResponse();
+	    List<FaultySRUDto> faultySRUDtoList = new ArrayList<>();
+
+	    // Extracting the RDF file name from the provided path
+	    try (Session session = DataStoreConfiguration.getSessionFactory().openSession()) {
+	        // Creating the query to fetch FaultySRU entries
+	        Query<FaultySRU> query = session.createQuery("FROM FaultySRU WHERE uutId = :uutId AND step =:step", FaultySRU.class);
+	        query.setParameter("uutId", uutId);
+	        query.setParameter("step", step);
+	        List<FaultySRU> faultySRUList = query.list();
+	        if (faultySRUList==null) {
+	            faultySRUResponse.setResponseCode(0);
+	            faultySRUResponse.setResponseMessage("No FaultySRU data found for UUT ID: " + uutId + " and Step No: " + step);
+	        } else {
+	            for (FaultySRU faultySRU : faultySRUList) {
+	                FaultySRUDto dto = new FaultySRUDto();
+	                dto.setRdfFileName(faultySRU.getRdfFileName());
+	                dto.setTpgph(faultySRU.getTpgph());
+	                dto.setStep(faultySRU.getStep());
+	                dto.setSignalName(faultySRU.getSignalName());
+	                dto.setFaultySRU(faultySRU.getFaultySRU());
+
+	                faultySRUDtoList.add(dto);
+	            }
+
+	            faultySRUResponse.setResponseCode(1);
+	            faultySRUResponse.setResponseMessage("Data fetched successfully");
+	            faultySRUResponse.setFaultySRUs(faultySRUDtoList);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        faultySRUResponse.setResponseCode(0);
+	        faultySRUResponse.setResponseMessage("Error fetching data: " + e.getMessage());
+	    }
+
+	    return faultySRUResponse;
+	}
+
 
 	
 

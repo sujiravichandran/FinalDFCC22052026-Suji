@@ -7,6 +7,67 @@ public class SessionList {
 	private String sessionId;
 
 	private String sessionName;
+	
+	private String serialNo;
+	
+	private String reportType;
+	
+	private String userType;
+	
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	private String sessionType;
+	
+	private String endDate;
+	
+	public String getEndType() {
+		return endType;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+
+	public void setEndType(String endType) {
+		this.endType = endType;
+	}
+
+	private String endType;
+	
+
+	public String getSessionType() {
+		return sessionType;
+	}
+
+	public void setSessionType(String sessionType) {
+		this.sessionType = sessionType;
+	}
+
+	public String getSerialNo() {
+		return serialNo;
+	}
+
+	public void setSerialNo(String serialNo) {
+		this.serialNo = serialNo;
+	}
+
+	public String getReportType() {
+		return reportType;
+	}
+
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
 
 	private Date creationDate;
 	
