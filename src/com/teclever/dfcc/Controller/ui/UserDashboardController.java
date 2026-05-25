@@ -1299,128 +1299,54 @@ public class UserDashboardController {
 		toggleButton.setCursor(Cursor.HAND);
 
 		TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
-
-//		Before Suji CHange on:(05-08-2025)
-
-//		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-//
-//			TranslateTransition transition = new TranslateTransition(Duration.millis(200), toggleButton);
-//
-//			if (dfccCheckStatus.getDfccPowerStatus().get()) {
-//				Platform.runLater(() -> {
-//					transition.setToX(26);
-//					background.setFill(Color.GREEN);
-//					toggleLabel.setText("ON");
-//					StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-//					transition.play();
-//				});
-//			}
-//
-//			else {
-//				Platform.runLater(() -> {
-//					transition.setToX(-26);
-//					background.setFill(Color.RED);
-//					toggleLabel.setText("OFF");
-//					StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-//					transition.play();
-//				});
-//			}
-//
-//		});
-
-//		After Suji Changing for Updating toggle status based on Channel status(05-08-2025)::
-
-		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> {
-//			////System.out.println("Entred Power on Power oN Stats Before");
-//			//System.out.println("Entred Power on Power oN Stats after");
-//			suji Added for BLS Issue::(07-08-2025)
-			
-			
-			
-			String sessionType = currentSessionDetails.getSessionTypeID();
-			
-				if (dfccCheckStatus.getDfccPowerStatus().get() && (powerOnStatus.getChannel1Status().equals("online")
-						&& powerOnStatus.getChannel2Status().equals("online")
-						&& powerOnStatus.getChannel3Status().equals("online")
-						&& powerOnStatus.getChannel4Status().equals("online"))) {
-					Platform.runLater(() -> {
-//						//System.out.println("Suji check toggle :Power On New Value" );
-						
-						toggleButton.setDisable(false);
-						transition.setToX(26);
-						background.setFill(Color.GREEN);
-						toggleLabel.setText("ON");
-						StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-						transition.play();
-//						Sai for multiple clicks
-//						Platform.runLater(() -> {
-//						toggleButton.setDisable(false);
-//						rightMidSecondGridPane.setDisable(false);
-//					});
-					});
-				} else {
-					Platform.runLater(() -> {
-//						//System.out.println("Suji check toggle :Power On Else New Value" );
-						toggleButton.setDisable(false);
-						transition.setToX(-26);
-						background.setFill(Color.RED);
-						toggleLabel.setText("OFF");
-						StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-						transition.play();
-//						Sai for multiple clicks
-//						Platform.runLater(() -> {
-//						toggleButton.setDisable(false);
-//						rightMidSecondGridPane.setDisable(false);
-//					});
-					});
-				}
-				
-			
-			
-		});
-
-//		Exit::
-
-//		Suji Added for BLS Toggel issue::(06-08-2025)
-		dfccCheckStatus.dfccOnlineStatusProperty().addListener((observable, oldValue, newValue) -> {
-//			////System.out.println("Entred Online Listener in Ui" + newValue);
-//			//System.out.println("Entred Power on Online Stats after");
-			if (newValue) {
-
-				Platform.runLater(() -> {
-//					////System.out.println("Entred New Value " + newValue);
-//					//System.out.println("Suji check toggle :Online New Value" );
-					toggleButton.setDisable(false);
-					transition.setToX(-26);
-					background.setFill(Color.RED);
-					toggleLabel.setText("OFF");
-					StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
-					transition.play();
-//					//System.out.println("Entred Power on -26");
-				});
-			} else {
-				Platform.runLater(() -> {
-//					//System.out.println("Suji check toggle :Online Old Value" );
-					toggleButton.setDisable(false);
-					transition.setToX(26);
-					background.setFill(Color.GREEN);
-					toggleLabel.setText("ON");
-					StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
-					transition.play();
-//					//System.out.println("Entred Power on 26");
-				});
-			}
-			
-
-		});
-
-//		EXIT::(06-08-2025)
+		bindToggleToChannelStatus(transition);
 
 		return toggleSwitch;
 	}
 
-	
-	
+	private void bindToggleToChannelStatus(TranslateTransition transition) {
+		javafx.beans.value.ChangeListener<String> channelListener = (observable, oldValue, newValue) -> updateToggleFromChannelStatus(transition);
+		powerOnStatus.channel1StatusProperty().addListener(channelListener);
+		powerOnStatus.channel2StatusProperty().addListener(channelListener);
+		powerOnStatus.channel3StatusProperty().addListener(channelListener);
+		powerOnStatus.channel4StatusProperty().addListener(channelListener);
+		OnlineStatus.channel1StatusProperty().addListener(channelListener);
+		OnlineStatus.channel2StatusProperty().addListener(channelListener);
+		OnlineStatus.channel3StatusProperty().addListener(channelListener);
+		OnlineStatus.channel4StatusProperty().addListener(channelListener);
+		dfccCheckStatus.dfccPowerStatusProperty().addListener((observable, oldValue, newValue) -> updateToggleFromChannelStatus(transition));
+	}
+
+	private boolean isChannelOnline(String status) {
+		return status != null && "online".equalsIgnoreCase(status.trim());
+	}
+
+	private boolean areAllChannelsOnline() {
+		return isChannelOnline(powerOnStatus.getChannel1Status())
+				&& isChannelOnline(powerOnStatus.getChannel2Status())
+				&& isChannelOnline(powerOnStatus.getChannel3Status())
+				&& isChannelOnline(powerOnStatus.getChannel4Status());
+	}
+
+	private void updateToggleFromChannelStatus(TranslateTransition transition) {
+		boolean allOnline = areAllChannelsOnline();
+		Platform.runLater(() -> {
+			toggleButton.setDisable(false);
+			if (allOnline) {
+				transition.setToX(26);
+				background.setFill(Color.GREEN);
+				toggleLabel.setText("ON");
+				StackPane.setAlignment(toggleLabel, Pos.CENTER_LEFT);
+			} else {
+				transition.setToX(-26);
+				background.setFill(Color.RED);
+				toggleLabel.setText("OFF");
+				StackPane.setAlignment(toggleLabel, Pos.CENTER_RIGHT);
+			}
+			transition.play();
+		});
+	}
+
 	private void onClickToggle(Rectangle background2, Circle toggleButton, Label toggleLabel) {
 
 //		Suji added to avoid the toggle if self test is runned
@@ -2382,6 +2308,7 @@ public class UserDashboardController {
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box1.getStyleClass().remove("power-status-box-on");
 				box1.getStyleClass().add("power-status-box-off");
+				OnlineStatus.setChannel1Status("offline");
 			}
 		});
 
@@ -2392,6 +2319,7 @@ public class UserDashboardController {
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box2.getStyleClass().remove("power-status-box-on");
 				box2.getStyleClass().add("power-status-box-off");
+				OnlineStatus.setChannel2Status("offline");
 			}
 		});
 
@@ -2402,6 +2330,7 @@ public class UserDashboardController {
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box3.getStyleClass().remove("power-status-box-on");
 				box3.getStyleClass().add("power-status-box-off");
+				OnlineStatus.setChannel3Status("offline");
 			}
 		});
 
@@ -2412,6 +2341,7 @@ public class UserDashboardController {
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box4.getStyleClass().remove("power-status-box-on");
 				box4.getStyleClass().add("power-status-box-off");
+				OnlineStatus.setChannel4Status("offline");
 			}
 		});
 
@@ -2483,10 +2413,10 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box1.getStyleClass().remove("power-status-box-off");
 				box1.getStyleClass().add("power-status-box-on");
-//				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box1.getStyleClass().remove("power-status-box-on");
 				box1.getStyleClass().add("power-status-box-off");
+				powerOnStatus.setChannel1Status("offline");
 			}
 		});
 
@@ -2494,10 +2424,10 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box2.getStyleClass().remove("power-status-box-off");
 				box2.getStyleClass().add("power-status-box-on");
-//				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box2.getStyleClass().remove("power-status-box-on");
 				box2.getStyleClass().add("power-status-box-off");
+				powerOnStatus.setChannel2Status("offline");
 			}
 		});
 
@@ -2505,10 +2435,10 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box3.getStyleClass().remove("power-status-box-off");
 				box3.getStyleClass().add("power-status-box-on");
-//				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box3.getStyleClass().remove("power-status-box-on");
 				box3.getStyleClass().add("power-status-box-off");
+				powerOnStatus.setChannel3Status("offline");
 			}
 		});
 
@@ -2516,10 +2446,10 @@ public class UserDashboardController {
 			if (newValue != null && newValue.equalsIgnoreCase("online")) {
 				box4.getStyleClass().remove("power-status-box-off");
 				box4.getStyleClass().add("power-status-box-on");
-//				checkChannelOnlineStatus();
 			} else if (newValue != null && newValue.equalsIgnoreCase("offline")) {
 				box4.getStyleClass().remove("power-status-box-on");
 				box4.getStyleClass().add("power-status-box-off");
+				powerOnStatus.setChannel4Status("offline");
 			}
 		});
 

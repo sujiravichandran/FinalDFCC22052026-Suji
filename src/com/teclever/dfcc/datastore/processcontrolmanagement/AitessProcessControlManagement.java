@@ -1090,56 +1090,37 @@ public class AitessProcessControlManagement {
 							        channel3Online = (channel3 >= minValue && channel3 <= maxValue);
 							        channel4Online = (channel4 >= minValue && channel4 <= maxValue);
 
-							     
+							        String ch1Status = channel1Online ? "online" : "offline";
+							        String ch2Status = channel2Online ? "online" : "offline";
+							        String ch3Status = channel3Online ? "online" : "offline";
+							        String ch4Status = channel4Online ? "online" : "offline";
+
+							        updateChannels(ch1Status, ch2Status, ch3Status, ch4Status);
+
+							        if (channel1Online) {
+							            ch1BatchPassed = true;
+							        }
+							        if (channel2Online) {
+							            ch2BatchPassed = true;
+							        }
+							        if (channel3Online) {
+							            ch3BatchPassed = true;
+							        }
+							        if (channel4Online) {
+							            ch4BatchPassed = true;
+							        }
 
 							        boolean currentLinePassed =
 							                channel1Online && channel2Online && channel3Online && channel4Online;
 
-							        // Track batch result
 							        if (currentLinePassed) {
 							            anyLinePassed = true;
 							        }
 
 							        processedLines++;
 
-//							        //System.out.println("Processed Line: " + processedLines +
-//							                " | Passed: " + currentLinePassed);
-
-							        // ✅ After 5 lines → decide power status
 							        if (processedLines == TOTAL_LINES) {
-
-//							            //System.out.println("Finished processing 5 lines");
-
-							            boolean finalPowerStatus = anyLinePassed;
-
-//							            //System.out.println("Final Power Status: " + finalPowerStatus);
-							            allChannelsOnline=finalPowerStatus;
-							            if(allChannelsOnline) {
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel1Status("online");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel2Status("online");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel3Status("online");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel4Status("online");
-							            }else {
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel1Status("offline");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel2Status("offline");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel3Status("offline");
-							            	com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus
-							                .setChannel4Status("offline");
-							            
-							            }
-							            dfccCheckStatus.getDfccPowerStatus().set(finalPowerStatus);
-//							           //System.out.println("Suji Allch :: chck :" +allChannelsOnline );
-							            // Reset for next batch
-							            processedLines = 0;
-							            anyLinePassed = false;
-							            powerOnStatus.set(false);
+							            doBatchUpdate();
 							        }
 							    }
 							}

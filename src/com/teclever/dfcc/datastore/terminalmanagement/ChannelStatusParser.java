@@ -7,6 +7,7 @@ import com.teclever.dfcc.datastore.dto.ChannelStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.OFPversionStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.OnlineStatus;
 import com.teclever.dfcc.stateMachine.StateMachine.WDMStatus;
+import com.teclever.dfcc.stateMachine.StateMachine.powerOnStatus;
 import com.teclever.dfcc.utils.Debug;
 
 public class ChannelStatusParser {
@@ -27,29 +28,37 @@ public class ChannelStatusParser {
 			WDMStatus.setChannel3Status(channel3);
 			WDMStatus.setChannel4Status(channel4);
 
-			// Check if channels are not "offline" and set OnlineStatus
+			// Check if channels are not "offline" and set OnlineStatus + powerOnStatus
 			if (!channel1.trim().equalsIgnoreCase("offline")) {
 				OnlineStatus.setChannel1Status("online");
+				powerOnStatus.setChannel1Status("online");
 			} else {
 				OnlineStatus.setChannel1Status("offline");
+				powerOnStatus.setChannel1Status("offline");
 			}
 
 			if (!channel2.trim().equalsIgnoreCase("offline")) {
 				OnlineStatus.setChannel2Status("online");
+				powerOnStatus.setChannel2Status("online");
 			} else {
 				OnlineStatus.setChannel2Status("offline");
+				powerOnStatus.setChannel2Status("offline");
 			}
 
 			if (!channel3.trim().equalsIgnoreCase("offline")) {
 				OnlineStatus.setChannel3Status("online");
+				powerOnStatus.setChannel3Status("online");
 			} else {
 				OnlineStatus.setChannel3Status("offline");
+				powerOnStatus.setChannel3Status("offline");
 			}
 
 			if (!channel4.trim().equalsIgnoreCase("offline")) {
 				OnlineStatus.setChannel4Status("online");
+				powerOnStatus.setChannel4Status("online");
 			} else {
 				OnlineStatus.setChannel4Status("offline");
+				powerOnStatus.setChannel4Status("offline");
 			}
 
 			return new ChannelStatus(channel1, channel2, channel3, channel4);
